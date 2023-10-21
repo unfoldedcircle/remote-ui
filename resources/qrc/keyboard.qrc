@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="/keyboard/QtQuick/VirtualKeyboard/Styles/remotestyle/style.qml">../../src/qml/keyboard/QtQuick/VirtualKeyboard/Styles/remotestyle/style.qml</file>
+        <file alias="/keyboard/layouts/en_US/handwriting.qml">../../src/qml/keyboard/layouts/en_US/handwriting.qml</file>
+        <file alias="/keyboard/layouts/en_US/main.qml">../../src/qml/keyboard/layouts/en_US/main.qml</file>
+        <file alias="/keyboard/layouts/en_US/symbols.qml">../../src/qml/keyboard/layouts/en_US/symbols.qml</file>
+        <file alias="/keyboard/layouts/da_DK/main.qml">../../src/qml/keyboard/layouts/da_DK/main.qml</file>
+        <file alias="/keyboard/layouts/da_DK/handwriting.fallback">../../src/qml/keyboard/layouts/da_DK/handwriting.fallback</file>
+        <file alias="/keyboard/layouts/da_DK/symbols.fallback">../../src/qml/keyboard/layouts/da_DK/symbols.fallback</file>        
+        <file alias="/keyboard/layouts/de_DE/main.qml">../../src/qml/keyboard/layouts/de_DE/main.qml</file>
+        <file alias="/keyboard/layouts/de_DE/handwriting.fallback">../../src/qml/keyboard/layouts/de_DE/handwriting.fallback</file>
+        <file alias="/keyboard/layouts/de_DE/symbols.fallback">../../src/qml/keyboard/layouts/de_DE/symbols.fallback</file>
+        <file alias="/keyboard/layouts/de_CH/main.qml">../../src/qml/keyboard/layouts/de_CH/main.qml</file>
+        <file alias="/keyboard/layouts/de_CH/handwriting.fallback">../../src/qml/keyboard/layouts/de_CH/handwriting.fallback</file>
+        <file alias="/keyboard/layouts/de_CH/symbols.fallback">../../src/qml/keyboard/layouts/de_CH/symbols.fallback</file>
+        <file alias="/keyboard/layouts/nl_NL/main.fallback">../../src/qml/keyboard/layouts/nl_NL/main.fallback</file>
+        <file alias="/keyboard/layouts/nl_NL/handwriting.fallback">../../src/qml/keyboard/layouts/nl_NL/handwriting.fallback</file>
+        <file alias="/keyboard/layouts/nl_NL/symbols.fallback">../../src/qml/keyboard/layouts/nl_NL/symbols.fallback</file>
+        <file alias="/keyboard/layouts/fallback/handwriting.qml">../../src/qml/keyboard/layouts/fallback/handwriting.qml</file>
+        <file alias="/keyboard/layouts/fallback/main.qml">../../src/qml/keyboard/layouts/fallback/main.qml</file>
+        <file alias="/keyboard/layouts/fallback/symbols.qml">../../src/qml/keyboard/layouts/fallback/symbols.qml</file>
+    </qresource>
+    <qresource prefix="/keyboard"/>
+</RCC>

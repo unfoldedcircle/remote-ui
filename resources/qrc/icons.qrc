@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="icons.ttf">../../resources/icons/icons.ttf</file>
+        <file alias="icon-mapping.json">../../resources/icons/icon-mapping.json</file>
+    </qresource>
+</RCC>

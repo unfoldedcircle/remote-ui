@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="/button-simulator/button-layout.png">../images/button-layout.png</file>
+        <file alias="/button-simulator/Buttons.qml">../../src/qml/button-simulator/Buttons.qml</file>
+        <file alias="/button-simulator/Button.qml">../../src/qml/button-simulator/Button.qml</file>
+    </qresource>
+    <qresource prefix="/button-simulator"/>
+</RCC>

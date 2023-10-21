@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/translations">
+        <file alias="da_DK.qm">../translations/da_DK.qm</file>
+        <file alias="de_CH.qm">../translations/de_CH.qm</file>
+        <file alias="de_DE.qm">../translations/de_DE.qm</file>
+        <file alias="en_US.qm">../translations/en_US.qm</file>
+        <file alias="hu_HU.qm">../translations/hu_HU.qm</file>
+        <file alias="nl_NL.qm">../translations/nl_NL.qm</file>
+        <file alias="fr_FR.qm">../translations/fr_FR.qm</file>
+        <file alias="it_IT.qm">../translations/it_IT.qm</file>
+    </qresource>
+</RCC>

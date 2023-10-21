@@ -1,0 +1,181 @@
+<RCC>
+    <qresource prefix="/">
+        <file alias="main.qml">../../src/qml/main.qml</file>
+        <file alias="MainContainer.qml">../../src/qml/MainContainer.qml</file>
+        <file alias="NoPage.qml">../../src/qml/NoPage.qml</file>
+        <file alias="NoProfile.qml">../../src/qml/NoProfile.qml</file>
+        <file alias="BorderCheck.qml">../../src/qml/BorderCheck.qml</file>
+
+        <file alias="components/LoadingFirst.qml">../../src/qml/components/LoadingFirst.qml</file>
+        <file alias="components/LoadingScreen.qml">../../src/qml/components/LoadingScreen.qml</file>
+        <file alias="components/VolumeOverlay.qml">../../src/qml/components/VolumeOverlay.qml</file>
+        <file alias="components/StatusBar.qml">../../src/qml/components/StatusBar.qml</file>
+        <file alias="components/InputField.qml">../../src/qml/components/InputField.qml</file>
+        <file alias="components/SearchField.qml">../../src/qml/components/SearchField.qml</file>
+        <file alias="components/Button.qml">../../src/qml/components/Button.qml</file>
+        <file alias="components/ButtonNavigation.qml">../../src/qml/components/ButtonNavigation.qml</file>
+        <file alias="components/Icon.qml">../../src/qml/components/Icon.qml</file>
+        <file alias="components/IconSelector.qml">../../src/qml/components/IconSelector.qml</file>
+        <file alias="components/ButtonAdd.qml">../../src/qml/components/ButtonAdd.qml</file>
+        <file alias="components/ButtonIcon.qml">../../src/qml/components/ButtonIcon.qml</file>
+        <file alias="components/Poweroff.qml">../../src/qml/components/Poweroff.qml</file>
+        <file alias="components/ChargingScreen.qml">../../src/qml/components/ChargingScreen.qml</file>
+        <file alias="components/RemoteOpen.qml">../../src/qml/components/RemoteOpen.qml</file>
+        <file alias="components/PopupMenu.qml">../../src/qml/components/PopupMenu.qml</file>
+        <file alias="components/PopupList.qml">../../src/qml/components/PopupList.qml</file>
+        <file alias="components/Switch.qml">../../src/qml/components/Switch.qml</file>
+        <file alias="components/Checkbox.qml">../../src/qml/components/Checkbox.qml</file>
+        <file alias="components/Slider.qml">../../src/qml/components/Slider.qml</file>
+        <file alias="components/Page.qml">../../src/qml/components/Page.qml</file>
+        <file alias="components/PageAdd.qml">../../src/qml/components/PageAdd.qml</file>
+        <file alias="components/PageRename.qml">../../src/qml/components/PageRename.qml</file>
+        <file alias="components/PageSelector.qml">../../src/qml/components/PageSelector.qml</file>
+        <file alias="components/Profile.qml">../../src/qml/components/Profile.qml</file>
+        <file alias="components/ProfileSwitch.qml">../../src/qml/components/ProfileSwitch.qml</file>
+        <file alias="components/ProfileAdd.qml">../../src/qml/components/ProfileAdd.qml</file>
+        <file alias="components/ProfileRename.qml">../../src/qml/components/ProfileRename.qml</file>
+        <file alias="components/Notification.qml">../../src/qml/components/Notification.qml</file>
+        <file alias="components/NotificationDrawer.qml">../../src/qml/components/NotificationDrawer.qml</file>
+        <file alias="components/ActionableNotification.qml">../../src/qml/components/ActionableNotification.qml</file>
+        <file alias="components/VoiceOverlay.qml">../../src/qml/components/VoiceOverlay.qml</file>
+        <file alias="components/ConnectionStatus.qml">../../src/qml/components/ConnectionStatus.qml</file>
+        <file alias="components/AboutInfo.qml">../../src/qml/components/AboutInfo.qml</file>
+        <file alias="components/BottomSheet.qml">../../src/qml/components/BottomSheet.qml</file>
+        <file alias="components/HapticMouseArea.qml">../../src/qml/components/HapticMouseArea.qml</file>
+        <file alias="components/ScrollIndicator.qml">../../src/qml/components/ScrollIndicator.qml</file>
+
+        <file alias="settings/Page.qml">../../src/qml/settings/Page.qml</file>
+        <file alias="settings/TopNavigation.qml">../../src/qml/settings/TopNavigation.qml</file>
+        <file alias="settings/About.qml">../../src/qml/settings/About.qml</file>
+        <file alias="settings/about/AboutPage.qml">../../src/qml/settings/about/AboutPage.qml</file>
+        <file alias="settings/about/LicensePage.qml">../../src/qml/settings/about/LicensePage.qml</file>
+        <file alias="settings/Integrations.qml">../../src/qml/settings/Integrations.qml</file>
+        <file alias="settings/Docks.qml">../../src/qml/settings/Docks.qml</file>
+        <file alias="settings/Settings.qml">../../src/qml/settings/Settings.qml</file>
+        <file alias="settings/SoftwareUpdate.qml">../../src/qml/settings/SoftwareUpdate.qml</file>
+        <file alias="settings/softwareupdate/ReleaseNotes.qml">../../src/qml/settings/softwareupdate/ReleaseNotes.qml</file>
+        <file alias="settings/softwareupdate/UpdateProgress.qml">../../src/qml/settings/softwareupdate/UpdateProgress.qml</file>
+
+        <file alias="settings/settings/Color.qml">../../src/qml/settings/settings/Color.qml</file>
+        <file alias="settings/settings/Display.qml">../../src/qml/settings/settings/Display.qml</file>
+        <file alias="settings/settings/Ui.qml">../../src/qml/settings/settings/Ui.qml</file>
+        <file alias="settings/settings/Sound.qml">../../src/qml/settings/settings/Sound.qml</file>
+        <file alias="settings/settings/Voice.qml">../../src/qml/settings/settings/Voice.qml</file>
+        <file alias="settings/settings/Power.qml">../../src/qml/settings/settings/Power.qml</file>
+        <file alias="settings/settings/Wifi.qml">../../src/qml/settings/settings/Wifi.qml</file>
+        <file alias="settings/settings/WifiNetworkList.qml">../../src/qml/settings/settings/WifiNetworkList.qml</file>
+        <file alias="settings/settings/WifiSetup.qml">../../src/qml/settings/settings/WifiSetup.qml</file>
+        <file alias="settings/settings/WifiInfo.qml">../../src/qml/settings/settings/WifiInfo.qml</file>
+        <file alias="settings/settings/WifiJoin.qml">../../src/qml/settings/settings/WifiJoin.qml</file>
+        <file alias="settings/settings/WifiPassword.qml">../../src/qml/settings/settings/WifiPassword.qml</file>
+        <file alias="settings/settings/Localisation.qml">../../src/qml/settings/settings/Localisation.qml</file>
+        <file alias="settings/settings/Reset.qml">../../src/qml/settings/settings/Reset.qml</file>
+        <file alias="settings/settings/AdminPin.qml">../../src/qml/settings/settings/AdminPin.qml</file>
+        <file alias="settings/Activities.qml">../../src/qml/settings/Activities.qml</file>
+
+        <file alias="keypad/Key.qml">../../src/qml/keypad/Key.qml</file>
+        <file alias="keypad/KeyPad.qml">../../src/qml/keypad/KeyPad.qml</file>
+
+        <file alias="components/group/Base.qml">../../src/qml/components/group/Base.qml</file>
+        <file alias="components/group/GroupAdd.qml">../../src/qml/components/group/GroupAdd.qml</file>
+        <file alias="components/group/GroupEdit.qml">../../src/qml/components/group/GroupEdit.qml</file>
+        <file alias="components/group/GroupRename.qml">../../src/qml/components/group/GroupRename.qml</file>
+
+        <file alias="components/entities/EntityAdd.qml">../../src/qml/components/entities/EntityAdd.qml</file>
+        <file alias="components/entities/EntityRename.qml">../../src/qml/components/entities/EntityRename.qml</file>
+        <file alias="components/entities/EntityList.qml">../../src/qml/components/entities/EntityList.qml</file>
+        <file alias="components/entities/Base.qml">../../src/qml/components/entities/Base.qml</file>
+        <file alias="components/entities/BaseDetail.qml">../../src/qml/components/entities/BaseDetail.qml</file>
+        <file alias="components/entities/BaseTitle.qml">../../src/qml/components/entities/BaseTitle.qml</file>
+        <file alias="components/entities/BaseOnOffButton.qml">../../src/qml/components/entities/BaseOnOffButton.qml</file>
+        <file alias="components/entities/BaseUpDownButton.qml">../../src/qml/components/entities/BaseUpDownButton.qml</file>
+        <file alias="components/entities/BasePlayPauseButton.qml">../../src/qml/components/entities/BasePlayPauseButton.qml</file>
+        <file alias="components/entities/BaseClimateButton.qml">../../src/qml/components/entities/BaseClimateButton.qml</file>
+        <file alias="components/entities/BaseSensorButton.qml">../../src/qml/components/entities/BaseSensorButton.qml</file>
+        <file alias="components/entities/DropDownMenu.qml">../../src/qml/components/entities/DropDownMenu.qml</file>
+
+        <file alias="components/entities/activity/deviceclass/Activity.qml">../../src/qml/components/entities/activity/deviceclass/Activity.qml</file>
+        <file alias="components/entities/activity/LoadingScreen.qml">../../src/qml/components/entities/activity/LoadingScreen.qml</file>
+        <file alias="components/entities/activity/MediaComponent.qml">../../src/qml/components/entities/activity/MediaComponent.qml</file>
+        <file alias="components/entities/button/deviceclass/Button.qml">../../src/qml/components/entities/button/deviceclass/Button.qml</file>
+        <file alias="components/entities/climate/deviceclass/Climate.qml">../../src/qml/components/entities/climate/deviceclass/Climate.qml</file>
+
+        <file alias="components/entities/light/deviceclass/Light.qml">../../src/qml/components/entities/light/deviceclass/Light.qml</file>
+        <file alias="components/entities/light/Brightness.qml">../../src/qml/components/entities/light/Brightness.qml</file>
+        <file alias="components/entities/light/Color.qml">../../src/qml/components/entities/light/Color.qml</file>
+        <file alias="components/entities/light/OnOff.qml">../../src/qml/components/entities/light/OnOff.qml</file>
+
+        <file alias="components/entities/switch/deviceclass/Switch.qml">../../src/qml/components/entities/switch/deviceclass/Switch.qml</file>
+        <file alias="components/entities/switch/deviceclass/Outlet.qml">../../src/qml/components/entities/switch/deviceclass/Outlet.qml</file>
+
+        <file alias="components/entities/cover/deviceclass/Blind.qml">../../src/qml/components/entities/cover/deviceclass/Blind.qml</file>
+        <file alias="components/entities/cover/deviceclass/Curtain.qml">../../src/qml/components/entities/cover/deviceclass/Curtain.qml</file>
+        <file alias="components/entities/cover/deviceclass/Garage.qml">../../src/qml/components/entities/cover/deviceclass/Garage.qml</file>
+        <file alias="components/entities/cover/deviceclass/Window.qml">../../src/qml/components/entities/cover/deviceclass/Window.qml</file>
+        <file alias="components/entities/cover/OpenClose.qml">../../src/qml/components/entities/cover/OpenClose.qml</file>
+
+        <file alias="components/entities/sensor/deviceclass/Custom.qml">../../src/qml/components/entities/sensor/deviceclass/Custom.qml</file>
+        <file alias="components/entities/sensor/deviceclass/Battery.qml">../../src/qml/components/entities/sensor/deviceclass/Battery.qml</file>
+        <file alias="components/entities/sensor/deviceclass/Current.qml">../../src/qml/components/entities/sensor/deviceclass/Current.qml</file>
+        <file alias="components/entities/sensor/deviceclass/Energy.qml">../../src/qml/components/entities/sensor/deviceclass/Energy.qml</file>
+        <file alias="components/entities/sensor/deviceclass/Humidity.qml">../../src/qml/components/entities/sensor/deviceclass/Humidity.qml</file>
+        <file alias="components/entities/sensor/deviceclass/Power.qml">../../src/qml/components/entities/sensor/deviceclass/Power.qml</file>
+        <file alias="components/entities/sensor/deviceclass/Temperature.qml">../../src/qml/components/entities/sensor/deviceclass/Temperature.qml</file>
+        <file alias="components/entities/sensor/deviceclass/Voltage.qml">../../src/qml/components/entities/sensor/deviceclass/Voltage.qml</file>
+
+        <file alias="components/entities/media_player/deviceclass/Receiver.qml">../../src/qml/components/entities/media_player/deviceclass/Receiver.qml</file>
+        <file alias="components/entities/media_player/deviceclass/Set_top_box.qml">../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml</file>
+        <file alias="components/entities/media_player/deviceclass/Speaker.qml">../../src/qml/components/entities/media_player/deviceclass/Speaker.qml</file>
+        <file alias="components/entities/media_player/deviceclass/Streaming_box.qml">../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml</file>
+        <file alias="components/entities/media_player/deviceclass/Tv.qml">../../src/qml/components/entities/media_player/deviceclass/Tv.qml</file>
+        <file alias="components/entities/media_player/ImageLoader.qml">../../src/qml/components/entities/media_player/ImageLoader.qml</file>
+        <file alias="components/entities/media_player/SourceList.qml">../../src/qml/components/entities/media_player/SourceList.qml</file>
+        <file alias="components/entities/remote/deviceclass/Remote.qml">../../src/qml/components/entities/remote/deviceclass/Remote.qml</file>
+
+        <file alias="components/entities/macro/deviceclass/Macro.qml">../../src/qml/components/entities/macro/deviceclass/Macro.qml</file>
+
+        <file alias="components/integrations/AddEntities.qml">../../src/qml/components/integrations/AddEntities.qml</file>
+        <file alias="components/integrations/Setup.qml">../../src/qml/components/integrations/Setup.qml</file>
+        <file alias="components/integrations/Discovery.qml">../../src/qml/components/integrations/Discovery.qml</file>
+        <file alias="components/integrations/Configure.qml">../../src/qml/components/integrations/Configure.qml</file>
+        <file alias="components/integrations/Finish.qml">../../src/qml/components/integrations/Finish.qml</file>
+        <file alias="components/integrations/Settings.qml">../../src/qml/components/integrations/Settings.qml</file>
+        <file alias="components/integrations/UserAction.qml">../../src/qml/components/integrations/UserAction.qml</file>
+        <file alias="components/integrations/Info.qml">../../src/qml/components/integrations/Info.qml</file>
+        <file alias="components/integrations/ManageEntities.qml">../../src/qml/components/integrations/ManageEntities.qml</file>
+
+        <file alias="components/integrations/fields/Checkbox.qml">../../src/qml/components/integrations/fields/Checkbox.qml</file>
+        <file alias="components/integrations/fields/Dropdown.qml">../../src/qml/components/integrations/fields/Dropdown.qml</file>
+        <file alias="components/integrations/fields/FieldBase.qml">../../src/qml/components/integrations/fields/FieldBase.qml</file>
+        <file alias="components/integrations/fields/Label.qml">../../src/qml/components/integrations/fields/Label.qml</file>
+        <file alias="components/integrations/fields/Number.qml">../../src/qml/components/integrations/fields/Number.qml</file>
+        <file alias="components/integrations/fields/Password.qml">../../src/qml/components/integrations/fields/Password.qml</file>
+        <file alias="components/integrations/fields/TextInput.qml">../../src/qml/components/integrations/fields/TextInput.qml</file>
+        <file alias="components/integrations/fields/TextArea.qml">../../src/qml/components/integrations/fields/TextArea.qml</file>
+
+        <file alias="components/docks/Info.qml">../../src/qml/components/docks/Info.qml</file>
+        <file alias="components/docks/Discovery.qml">../../src/qml/components/docks/Discovery.qml</file>
+        <file alias="components/docks/Configure.qml">../../src/qml/components/docks/Configure.qml</file>
+        <file alias="components/docks/Finish.qml">../../src/qml/components/docks/Finish.qml</file>
+        <file alias="components/docks/Setup.qml">../../src/qml/components/docks/Setup.qml</file>
+        <file alias="components/docks/Rename.qml">../../src/qml/components/docks/Rename.qml</file>
+        <file alias="components/docks/PasswordChange.qml">../../src/qml/components/docks/PasswordChange.qml</file>
+
+        <file alias="components/help-overlay/Base.qml">../../src/qml/components/help-overlay/Base.qml</file>
+        <file alias="components/help-overlay/Main.qml">../../src/qml/components/help-overlay/Main.qml</file>
+
+        <file alias="OnboardingContainer.qml">../../src/qml/OnboardingContainer.qml</file>
+        <file alias="onboarding/Country.qml">../../src/qml/onboarding/Country.qml</file>
+        <file alias="onboarding/Dock.qml">../../src/qml/onboarding/Dock.qml</file>
+        <file alias="onboarding/Finish.qml">../../src/qml/onboarding/Finish.qml</file>
+        <file alias="onboarding/Integration.qml">../../src/qml/onboarding/Integration.qml</file>
+        <file alias="onboarding/Language.qml">../../src/qml/onboarding/Language.qml</file>
+        <file alias="onboarding/Pin.qml">../../src/qml/onboarding/Pin.qml</file>
+        <file alias="onboarding/Profile.qml">../../src/qml/onboarding/Profile.qml</file>
+        <file alias="onboarding/RemoteName.qml">../../src/qml/onboarding/RemoteName.qml</file>
+        <file alias="onboarding/Start.qml">../../src/qml/onboarding/Start.qml</file>
+        <file alias="onboarding/Terms.qml">../../src/qml/onboarding/Terms.qml</file>
+        <file alias="onboarding/Timezone.qml">../../src/qml/onboarding/Timezone.qml</file>
+        <file alias="onboarding/Wifi.qml">../../src/qml/onboarding/Wifi.qml</file>
+    </qresource>
+</RCC>

@@ -1,0 +1,3 @@
+[submodule "3rd-party/QR-Code-generator"]
+	path = 3rd-party/QR-Code-generator
+	url = https://github.com/nayuki/QR-Code-generator
