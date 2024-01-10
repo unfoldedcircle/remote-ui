@@ -440,8 +440,44 @@ EntityComponents.BaseDetail {
                             }
                         }
                     }
+
+                    Components.Icon {
+                        id: sourceListIcon
+
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+                        size: 80
+                        color: colors.offwhite
+                        icon: "uc:apps"
+                        visible: entityObj.hasFeature(MediaPlayerFeatures.Select_source) && entityObj.sourceList.length !== 0
+
+                        Components.HapticMouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                sourceList.title = qsTr("Sources")
+                                let items = [];
+
+                                for (const source of entityObj.sourceList) {
+                                    items.push({
+                                                       title: source,
+                                                       callback: function() {
+                                                           entityObj.selectSource(source);
+                                                       }
+                                                   });
+                                }
+
+                                sourceList.items = items;
+                                sourceList.open();
+                            }
+                        }
+                    }
                 }
             }
         }
+    }
+
+    MediaPlayerComponents.SourceList {
+        id: sourceList
+        parent: Overlay.overlay
     }
 }

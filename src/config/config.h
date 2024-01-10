@@ -78,6 +78,8 @@ class Config : public QObject {
     Q_PROPERTY(bool entityButtonFuncInverted READ getEntityButtonFuncInverted WRITE setEntityButtonFuncInverted NOTIFY
                    entityButtonFuncInvertedChanged)
 
+    Q_PROPERTY(bool showBatteryPercentage READ getShowBatteryPercentage WRITE setShowBatteryPercentage NOTIFY showBatteryPercentageChanged)
+
  public:
     explicit Config(core::Api* core, QObject* parent = nullptr);
     ~Config();
@@ -132,6 +134,9 @@ class Config : public QObject {
 
     bool getEntityButtonFuncInverted();
     void setEntityButtonFuncInverted(bool value);
+
+    bool getShowBatteryPercentage();
+    void setShowBatteryPercentage(bool value);
 
     enum WakeupSensitivities { off = 0, low = 1, medium = 2, high = 3 };
     Q_ENUM(WakeupSensitivities)
@@ -234,6 +239,8 @@ class Config : public QObject {
     void adminPinSet(bool success);
 
     void entityButtonFuncInvertedChanged();
+
+    void showBatteryPercentageChanged();
 
  public slots:
     void onCoreConnected();

@@ -3,8 +3,6 @@
 
 #include "util.h"
 
-#include "logging.h"
-
 namespace uc {
 
 Util::Util(QObject *parent) : QObject(parent) {}
@@ -65,6 +63,13 @@ QString Util::getLanguageString(QVariantMap map, const QString &language) {
 
     if (map.contains(language)) {
         return map.value(language).toString();
+    }
+
+    QStringList split = language.split("_");
+    if (split.length() > 1) {
+        if(map.contains(split[0])) {
+            return map.value(split[0]).toString();
+        }
     }
 
     if (map.contains("en")) {

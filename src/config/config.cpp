@@ -365,6 +365,17 @@ void Config::setEntityButtonFuncInverted(bool value) {
     emit entityButtonFuncInvertedChanged();
 }
 
+bool Config::getShowBatteryPercentage()
+{
+    return m_settings->value("ui/batteryPercent", false).toBool();
+}
+
+void Config::setShowBatteryPercentage(bool value)
+{
+    m_settings->setValue("ui/batteryPercent", value);
+    emit showBatteryPercentageChanged();
+}
+
 void Config::setWakeupSensitivity(Config::WakeupSensitivities sensitivity) {
     if (m_wakeupSensitivity != sensitivity) {
         int id = m_core->setPowerSavingCfg(sensitivity, getDisplayTimeout(), getSleepTimeout());

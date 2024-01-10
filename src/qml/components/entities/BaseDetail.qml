@@ -79,6 +79,7 @@ Rectangle {
     property var overrideConfig: ([])
 
     property alias iconClose: iconClose
+    property alias buttonNavigation: buttonNavigation
 
     function open(skipAnimation = false) {
         buttonNavigation.takeControl();
@@ -92,6 +93,7 @@ Rectangle {
 
         if (entityBaseDetailContainer.skipAnimation) {
             entityBaseDetailContainer.closed();
+            buttonNavigation.releaseControl();
         }
 
         ui.inputController.blockInput(false);

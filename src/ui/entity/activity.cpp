@@ -49,12 +49,26 @@ Activity::Activity(const QString &id, const QString &name, QVariantMap nameI18n,
     }
 
     if (options.contains("included_entities")) {
-        convertIncludedEntities(options.value("included_entities").toList());
+        m_includedEntities = options.value("included_entities").toList();
     }
 }
 
-Activity::~Activity() {
-    qCDebug(lcActivity()) << "Activity entity destructor";
+Activity::~Activity() { qCDebug(lcActivity()) << "Activity entity destructor"; }
+
+QStringList Activity::getIncludedEntities() {
+    QStringList list;
+
+    for (QVariantList::iterator i = m_includedEntities.begin(); i != m_includedEntities.end(); ++i) {
+        QVariantMap entity = i->toMap();
+
+        Base::Type type = entity::Base::typeFromString(Util::FirstToUpper(entity.value("entity_type").toString()));
+
+        if (type > 0 && type != Base::Type::Macro) {
+            list.append(entity.value("entity_id").toString());
+        }
+    }
+
+    return list;
 }
 
 void Activity::turnOn() {
@@ -75,29 +89,17 @@ void Activity::turnOff() {
     emit startedRunning(m_id);
 }
 
-void Activity::playPause() {
-    sendButtonMappingCommand("PLAY");
-}
+void Activity::playPause() { sendButtonMappingCommand("PLAY"); }
 
-void Activity::volumeUp() {
-    sendButtonMappingCommand("VOLUME_UP");
-}
+void Activity::volumeUp() { sendButtonMappingCommand("VOLUME_UP"); }
 
-void Activity::volumeDown() {
-    sendButtonMappingCommand("VOLUME_DOWN");
-}
+void Activity::volumeDown() { sendButtonMappingCommand("VOLUME_DOWN"); }
 
-void Activity::muteToggle() {
-    sendButtonMappingCommand("MUTE");
-}
+void Activity::muteToggle() { sendButtonMappingCommand("MUTE"); }
 
-void Activity::previous() {
-    sendButtonMappingCommand("PREV");
-}
+void Activity::previous() { sendButtonMappingCommand("PREV"); }
 
-void Activity::next() {
-    sendButtonMappingCommand("NEXT");
-}
+void Activity::next() { sendButtonMappingCommand("NEXT"); }
 
 void Activity::clearCurrentStep() {
     m_totalSteps = 0;
@@ -108,9 +110,7 @@ void Activity::sendCommand(ActivityCommands::Enum cmd, QVariantMap params) {
     Base::sendCommand(QVariant::fromValue(cmd).toString(), params);
 }
 
-void Activity::sendCommand(ActivityCommands::Enum cmd) {
-    sendCommand(cmd, QVariantMap());
-}
+void Activity::sendCommand(ActivityCommands::Enum cmd) { sendCommand(cmd, QVariantMap()); }
 
 bool Activity::updateAttribute(const QString &attribute, QVariant data) {
     bool ok = false;
@@ -123,7 +123,7 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
             int newState = Util::convertStringToEnum<ActivityStates::Enum>(uc::Util::FirstToUpper(data.toString()));
             if (newState != -1) {
                 m_state = newState;
-                ok = true;
+                ok      = true;
 
                 m_stateAsString =
                     Util::convertEnumToString<ActivityStates::Enum>(static_cast<ActivityStates::Enum>(m_state));
@@ -161,6 +161,7 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
             m_currentStep.setEntityId(newStep.value("command").toMap().value("entity_id").toString());
             m_currentStep.setCommandId(newStep.value("command").toMap().value("cmd_id").toString());
             m_currentStep.setError(newStep.value("error").toString());
+            emit currentStepChanged();
             ok = true;
             break;
         }
@@ -170,49 +171,28 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
 }
 
 bool Activity::updateOptions(QVariant data) {
-    bool        ok = false;
+    bool        ok      = false;
     QVariantMap options = data.toMap();
 
     if (options.contains("user_interface")) {
         m_uiConfig = options.value("user_interface").toMap();
-        ok = true;
+        ok         = true;
         emit uiConfigChanged();
     }
 
     if (options.contains("button_mapping")) {
         m_buttonMapping = options.value("button_mapping").toList();
-        ok = true;
+        ok              = true;
         emit buttonMappingChanged();
     }
 
     if (options.contains("included_entities")) {
-        convertIncludedEntities(options.value("included_entities").toList());
-        ok = true;
+        m_includedEntities = options.value("included_entities").toList();
+        ok                 = true;
         emit includedEntitiesChanged();
     }
 
     return ok;
-}
-
-void Activity::convertIncludedEntities(QVariantList includedEntities) {
-    for (QList<QObject *>::iterator i = m_includedEntities.begin(); i != m_includedEntities.end(); ++i) {
-        delete *i;
-    }
-
-    m_includedEntities.clear();
-
-    for (QVariantList::iterator i = includedEntities.begin(); i != includedEntities.end(); ++i) {
-        QVariantMap entity = i->toMap();
-
-        Base::Type type = entity::Base::typeFromString(Util::FirstToUpper(entity.value("entity_type").toString()));
-
-        if (type > 0 && type != Base::Type::Macro) {
-            m_includedEntities.append(new entity::Base(entity.value("entity_id").toString(),
-                                                       entity.value("name").toMap().value("en").toString(),
-                                                       entity.value("name").toMap(), entity.value("icon").toString(),
-                                                       "", type, false, QVariantMap(), QString(), false, this));
-        }
-    }
 }
 
 void Activity::sendButtonMappingCommand(const QString &buttonName, bool shortPress) {
@@ -223,7 +203,7 @@ void Activity::sendButtonMappingCommand(const QString &buttonName, bool shortPre
         QVariantMap map = mapping.toMap();
 
         if (map.value("button").toString() == buttonName) {
-            command = map.value(press).toMap().value("cmd_id").toString();
+            command  = map.value(press).toMap().value("cmd_id").toString();
             entityId = map.value(press).toMap().value("entity_id").toString();
 
             if (entityId.isEmpty() || command.isEmpty()) {

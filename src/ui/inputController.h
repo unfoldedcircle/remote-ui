@@ -7,6 +7,7 @@
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QTimer>
+#include <QMutex>
 
 #include "../core/enums.h"
 #include "../hardware/hardwareModel.h"
@@ -75,6 +76,8 @@ class InputController : public QQuickItem {
 
  private:
     static InputController *s_instance;
+
+    QMutex m_mutex;
 
     hw::HardwareModel::Enum m_model;
 

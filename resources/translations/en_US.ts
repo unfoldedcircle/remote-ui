@@ -75,13 +75,13 @@
 <context>
     <name>Activity</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="299"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
         <source>Tap to close</source>
         <extracomment>Tap to close menu or tap to see more</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="299"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
         <source>Tap for more</source>
         <translation type="unfinished"></translation>
     </message>
@@ -113,12 +113,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="541"/>
-        <source>Failed to load entity: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="607"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="625"/>
         <source>State: %1</source>
         <extracomment>Device state</extracomment>
         <translation type="unfinished"></translation>
@@ -145,14 +140,29 @@
 <context>
     <name>Base</name>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="76"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="245"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="63"/>
+        <source>Activity error. Select option below.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="66"/>
+        <source>Turn activity on</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="73"/>
+        <source>Turn activity off</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="84"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="232"/>
         <source>is unavailable</source>
         <extracomment>Entity is unavailable</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="81"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="237"/>
         <location filename="../../src/qml/components/group/Base.qml" line="176"/>
         <source>Profile is restricted</source>
         <translation type="unfinished"></translation>
@@ -1147,13 +1157,18 @@ Climate fan</extracomment>
 <context>
     <name>LoadingScreen</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="375"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="146"/>
+        <source>Tap to close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="388"/>
         <source>Step %1/%2</source>
         <extracomment>Indicating the activity steps</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="403"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="416"/>
         <source>Delay %1 ms</source>
         <extracomment>Current activity step is a delay of %1 miliseconds</extracomment>
         <translation type="unfinished"></translation>
@@ -1243,7 +1258,7 @@ Climate fan</extracomment>
     </message>
     <message>
         <location filename="../../src/qml/MainContainer.qml" line="94"/>
-        <location filename="../../src/qml/MainContainer.qml" line="130"/>
+        <location filename="../../src/qml/MainContainer.qml" line="136"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1258,27 +1273,33 @@ Climate fan</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="138"/>
+        <location filename="../../src/qml/MainContainer.qml" line="144"/>
         <source>Edit entities</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="146"/>
+        <location filename="../../src/qml/MainContainer.qml" line="152"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="322"/>
+        <location filename="../../src/qml/MainContainer.qml" line="272"/>
+        <location filename="../../src/qml/MainContainer.qml" line="283"/>
+        <source>is unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/MainContainer.qml" line="336"/>
         <source>Profile is restricted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="373"/>
+        <location filename="../../src/qml/MainContainer.qml" line="387"/>
         <source>Turn off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="390"/>
+        <location filename="../../src/qml/MainContainer.qml" line="404"/>
         <source>Turn off all</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1553,7 +1574,7 @@ Climate fan</extracomment>
 <context>
     <name>PopupMenu</name>
     <message>
-        <location filename="../../src/qml/components/PopupMenu.qml" line="236"/>
+        <location filename="../../src/qml/components/PopupMenu.qml" line="237"/>
         <source>Close</source>
         <extracomment>As in close the menu</extracomment>
         <translation type="unfinished"></translation>
@@ -1843,6 +1864,11 @@ the Web Configurator</source>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="457"/>
+        <source>Sources</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Remote</name>
@@ -1954,6 +1980,11 @@ no return</source>
     <message>
         <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="407"/>
         <source>One</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="438"/>
+        <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2146,6 +2177,11 @@ no return</source>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="457"/>
+        <source>Sources</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>Start</name>
@@ -2173,6 +2209,11 @@ no return</source>
     <message>
         <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="407"/>
         <source>One</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="438"/>
+        <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2495,6 +2536,11 @@ Press and hold the voice button and say the command.</source>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="197"/>
+        <source>Delete</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="204"/>
         <source>Close</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2794,7 +2840,12 @@ Press and hold the voice button and say the command.</source>
 <context>
     <name>uc::hw::Wifi</name>
     <message>
-        <location filename="../../src/hardware/wifi.cpp" line="406"/>
+        <location filename="../../src/hardware/wifi.cpp" line="266"/>
+        <source>Failed to delete network. Wifi network does not exist.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/hardware/wifi.cpp" line="407"/>
         <source>Wrong network key</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2802,137 +2853,137 @@ Press and hold the voice button and say the command.</source>
 <context>
     <name>uc::integration::IntegrationController</name>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="227"/>
+        <location filename="../../src/integration/integrationController.cpp" line="229"/>
         <source>Error while deleting integration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="242"/>
+        <location filename="../../src/integration/integrationController.cpp" line="244"/>
         <source>Error while deleting integration driver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="265"/>
+        <location filename="../../src/integration/integrationController.cpp" line="267"/>
         <source>Integration discovery failed to start</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="286"/>
+        <location filename="../../src/integration/integrationController.cpp" line="288"/>
         <source>Integration discovery failed to stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="303"/>
+        <location filename="../../src/integration/integrationController.cpp" line="305"/>
         <source>Error getting integration driver metadata</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="332"/>
+        <location filename="../../src/integration/integrationController.cpp" line="334"/>
         <source>Error getting integration driver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="348"/>
-        <location filename="../../src/integration/integrationController.cpp" line="364"/>
+        <location filename="../../src/integration/integrationController.cpp" line="350"/>
+        <location filename="../../src/integration/integrationController.cpp" line="366"/>
         <source>Error while starting integration driver</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="380"/>
+        <location filename="../../src/integration/integrationController.cpp" line="382"/>
         <source>Error while connecting to the integration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="396"/>
+        <location filename="../../src/integration/integrationController.cpp" line="398"/>
         <source>Error while disconnecting to the integration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="424"/>
-        <location filename="../../src/integration/integrationController.cpp" line="438"/>
-        <location filename="../../src/integration/integrationController.cpp" line="506"/>
-        <location filename="../../src/integration/integrationController.cpp" line="568"/>
-        <location filename="../../src/integration/integrationController.cpp" line="642"/>
+        <location filename="../../src/integration/integrationController.cpp" line="426"/>
+        <location filename="../../src/integration/integrationController.cpp" line="441"/>
+        <location filename="../../src/integration/integrationController.cpp" line="509"/>
+        <location filename="../../src/integration/integrationController.cpp" line="572"/>
+        <location filename="../../src/integration/integrationController.cpp" line="646"/>
         <source>Integration setup error. Aborting setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="462"/>
-        <location filename="../../src/integration/integrationController.cpp" line="592"/>
-        <location filename="../../src/integration/integrationController.cpp" line="651"/>
+        <location filename="../../src/integration/integrationController.cpp" line="465"/>
+        <location filename="../../src/integration/integrationController.cpp" line="596"/>
+        <location filename="../../src/integration/integrationController.cpp" line="655"/>
         <source>Invalid data</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="467"/>
-        <location filename="../../src/integration/integrationController.cpp" line="597"/>
-        <location filename="../../src/integration/integrationController.cpp" line="654"/>
+        <location filename="../../src/integration/integrationController.cpp" line="470"/>
+        <location filename="../../src/integration/integrationController.cpp" line="601"/>
+        <location filename="../../src/integration/integrationController.cpp" line="658"/>
         <source>The integration driver id does not exist.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="475"/>
-        <location filename="../../src/integration/integrationController.cpp" line="605"/>
-        <location filename="../../src/integration/integrationController.cpp" line="662"/>
+        <location filename="../../src/integration/integrationController.cpp" line="478"/>
+        <location filename="../../src/integration/integrationController.cpp" line="609"/>
+        <location filename="../../src/integration/integrationController.cpp" line="666"/>
         <source>Failed to start setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="476"/>
-        <location filename="../../src/integration/integrationController.cpp" line="606"/>
-        <location filename="../../src/integration/integrationController.cpp" line="663"/>
+        <location filename="../../src/integration/integrationController.cpp" line="479"/>
+        <location filename="../../src/integration/integrationController.cpp" line="610"/>
+        <location filename="../../src/integration/integrationController.cpp" line="667"/>
         <source>There is already a running setup for this integration. Would you like to stop that?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="484"/>
-        <location filename="../../src/integration/integrationController.cpp" line="614"/>
-        <location filename="../../src/integration/integrationController.cpp" line="671"/>
+        <location filename="../../src/integration/integrationController.cpp" line="487"/>
+        <location filename="../../src/integration/integrationController.cpp" line="618"/>
+        <location filename="../../src/integration/integrationController.cpp" line="675"/>
         <source>Stop</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="489"/>
-        <location filename="../../src/integration/integrationController.cpp" line="619"/>
-        <location filename="../../src/integration/integrationController.cpp" line="676"/>
+        <location filename="../../src/integration/integrationController.cpp" line="492"/>
+        <location filename="../../src/integration/integrationController.cpp" line="623"/>
+        <location filename="../../src/integration/integrationController.cpp" line="680"/>
         <source>The integration is already configured or doesn&apos;t allow to be set up again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="492"/>
-        <location filename="../../src/integration/integrationController.cpp" line="622"/>
-        <location filename="../../src/integration/integrationController.cpp" line="679"/>
+        <location filename="../../src/integration/integrationController.cpp" line="495"/>
+        <location filename="../../src/integration/integrationController.cpp" line="626"/>
+        <location filename="../../src/integration/integrationController.cpp" line="683"/>
         <source>Cannot start integration setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="553"/>
+        <location filename="../../src/integration/integrationController.cpp" line="557"/>
         <source>Cannot stop the integration setup</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="767"/>
+        <location filename="../../src/integration/integrationController.cpp" line="771"/>
         <source>Authorization error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="770"/>
+        <location filename="../../src/integration/integrationController.cpp" line="774"/>
         <source>Connection refused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="773"/>
-        <location filename="../../src/integration/integrationController.cpp" line="779"/>
+        <location filename="../../src/integration/integrationController.cpp" line="777"/>
+        <location filename="../../src/integration/integrationController.cpp" line="783"/>
         <source>Unknown error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="776"/>
+        <location filename="../../src/integration/integrationController.cpp" line="780"/>
         <source>Not found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="782"/>
+        <location filename="../../src/integration/integrationController.cpp" line="786"/>
         <source>Timeout</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2976,7 +3027,7 @@ Press and hold the voice button and say the command.</source>
 <context>
     <name>uc::ui::Page</name>
     <message>
-        <location filename="../../src/ui/page/page.cpp" line="187"/>
+        <location filename="../../src/ui/page/page.cpp" line="181"/>
         <source>%1 already exists on the page.</source>
         <translation type="unfinished"></translation>
     </message>

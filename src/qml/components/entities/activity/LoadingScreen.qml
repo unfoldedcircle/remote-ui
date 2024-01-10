@@ -6,6 +6,7 @@ import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.0
 
 import Entity.Controller 1.0
+import Entity.Activity 1.0
 import SequenceStep.Type 1.0
 
 import "qrc:/components" as Components
@@ -19,14 +20,25 @@ Popup {
     closePolicy: Popup.NoAutoClose
     padding: 0
 
+    property string prevController
+
     onOpened: {
-        buttonNavigation.overrideActive = true;
+        activityLoading.prevController = ui.inputController.activeObject
+        mouseArea.enabled = false;
+        buttonNavigation.takeControl();
     }
 
     onClosed: {
-        buttonNavigation.overrideActive = false;
+        buttonNavigation.releaseControl(activityLoading.prevController);
+
+        if (!activityLoading.isMacro && entityObj.state === ActivityStates.On) {
+            loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj });
+        }
+
         activityLoading.entityId = "";
         activityLoading.isMacro = false;
+        activityLoading.stepIcon = "";
+        activityLoading.stepName = "";
 
         dotOK.width = 0;
         dotOK.height = 0;
@@ -42,20 +54,17 @@ Popup {
         xtwo.height = 0;
 
         errorText.opacity = 0;
+
+        activityLoading.entityObj.clearCurrentStep();
     }
 
     Connections {
         id: entityConnection
-        target: entityObj
+        target: activityLoading.entityObj
         ignoreUnknownSignals: true
 
         function onStateChanged(entityId, newState) {
             if (entityId !== activityLoading.entityId) {
-                return;
-            }
-
-            if (entityObj.totalSteps === 0) {
-                activityLoading.end(false);
                 return;
             }
 
@@ -77,7 +86,9 @@ Popup {
         }
 
         function onCurrentStepChanged() {
-            activityLoading.stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
+            let stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
+            activityLoading.stepIcon = stepEntityObj ? stepEntityObj.icon : "";
+            activityLoading.stepName = stepEntityObj ? stepEntityObj.name : "";
         }
     }
 
@@ -109,8 +120,6 @@ Popup {
     }
 
     function start(entityId, type) {
-        entityConnection.enabled = true;
-
         if (type !== EntityTypes.Activity) {
             isMacro = true;
             console.debug("Entity type is macro");
@@ -118,6 +127,7 @@ Popup {
 
         activityLoading.entityId = entityId;
         activityLoading.entityObj = EntityController.get(entityId);
+        entityConnection.enabled = true;
 
         if (!activityLoading.entityObj) {
             entityConnection.enabled = false;
@@ -129,22 +139,25 @@ Popup {
     }
 
     function end(error) {
+        console.debug("Activity loading end");
         if (error) {
             errorAnimation.start();
+            ui.setTimeOut(1000, function () {
+                errorText.text += "\n" + qsTr("Tap to close");
+            });
         } else {
             successAnimation.start();
         }
 
         entityConnection.enabled = false;
-
-        activityLoading.entityObj.clearCurrentStep();
     }
 
     property bool isMacro: false
     property string entityId
-    property string prevStateString
+    property string prevStateString: "unknown"
     property QtObject entityObj
-    property QtObject stepEntityObj
+    property string stepIcon: ""
+    property string stepName: ""
 
     enter: Transition {
         NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; easing.type: Easing.InExpo; duration: 200 }
@@ -189,7 +202,7 @@ Popup {
         running: false
         alwaysRunToEnd: true
 
-        onFinished: activityLoading.close()
+        onFinished: mouseArea.enabled = true
 
         ParallelAnimation {
             ParallelAnimation {
@@ -207,7 +220,7 @@ Popup {
                 PropertyAnimation { target: xtwo; properties: "height"; to: 70; easing.type: Easing.OutExpo; duration: 150 }
             }
         }
-        PauseAnimation { duration: 1500 }
+        PauseAnimation { duration: 500 }
     }
 
     Item {
@@ -386,7 +399,7 @@ Popup {
             Components.Icon {
                 id: entityInfoIcon
                 color: colors.offwhite
-                icon: entityObj ? entityObj.currentStep.type === SequenceStep.Delay ? "uc:clock" : (stepEntityObj ? stepEntityObj.icon : "") : ""
+                icon: entityObj ? entityObj.currentStep.type === SequenceStep.Delay ? "uc:clock" : activityLoading.stepIcon : ""
                 size: 40
             }
 
@@ -405,7 +418,7 @@ Popup {
                         let cmdId = entityObj.currentStep.commandId;
                         let splitCmdId = cmdId.split(".");
 
-                        return (stepEntityObj ? stepEntityObj.name : "") + " → " + (splitCmdId.length > 1 ? splitCmdId[1].toUpperCase() : cmdId.toUpperCase())
+                        return activityLoading.stepName + " → " + (splitCmdId.length > 1 ? splitCmdId[1].toUpperCase() : cmdId.toUpperCase())
                     }
                 }
 
@@ -428,7 +441,14 @@ Popup {
             color: colors.red
             anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 15 }
             font: fonts.secondaryFont(24,  "Medium")
-            lineHeight: 0.7
+//            lineHeight: 0.7
         }
+    }
+
+    MouseArea {
+        id: mouseArea
+        enabled: false
+        anchors.fill: parent
+        onClicked: activityLoading.close()
     }
 }

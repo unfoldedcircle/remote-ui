@@ -30,9 +30,7 @@ Wifi::Wifi(core::Api *core, QObject *parent) : QObject(parent), m_core(core) {
     QObject::connect(m_core, &core::Api::wifiEventChanged, this, &Wifi::onWifiEventChanged);
 }
 
-Wifi::~Wifi() {
-    s_instance = nullptr;
-}
+Wifi::~Wifi() { s_instance = nullptr; }
 
 QList<WifiNetwork *> Wifi::getNetworkList() {
     QList<WifiNetwork *> list;
@@ -77,7 +75,7 @@ void Wifi::connect(const QString &ssid, const QString &password, uc::hw::Securit
     emit connecting();
 
     addNetwork(ssid, password, security);
-    m_lastConnectedSSid = ssid;
+    m_lastConnectedSSid     = ssid;
     m_lastConnectedPassword = password;
 }
 
@@ -232,9 +230,7 @@ void Wifi::stopNetworkScan() {
         });
 }
 
-void Wifi::clearNetworkList() {
-    m_networkList.clear();
-}
+void Wifi::clearNetworkList() { m_networkList.clear(); }
 
 void Wifi::getAllWifiNetworks() {
     m_knownNetworkList.clear();
@@ -265,6 +261,11 @@ void Wifi::getAllWifiNetworks() {
 
 void Wifi::deleteSavedNetwork(const QString &networkId) {
     auto network = m_knownNetworkList.value(networkId);
+
+    if (!network) {
+        ui::Notification::createNotification(tr("Failed to delete network. Wifi network does not exist."), true);
+        return;
+    }
 
     int id = m_core->wifiDeleteNetwork(network->getId());
 

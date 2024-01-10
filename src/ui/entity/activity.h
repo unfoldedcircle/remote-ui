@@ -49,12 +49,12 @@ class Activity : public Base {
     Q_OBJECT
 
     Q_PROPERTY(int totalSteps READ getTotalSteps NOTIFY totalStepsChanged)
-    Q_PROPERTY(SequenceStep *currentStep READ getCurrentStep CONSTANT)
+    Q_PROPERTY(SequenceStep *currentStep READ getCurrentStep NOTIFY currentStepChanged)
 
     // options
     Q_PROPERTY(QVariantList buttonMapping READ getButtonMapping NOTIFY buttonMappingChanged)
     Q_PROPERTY(QVariantMap ui READ getUiConfig NOTIFY uiConfigChanged)
-    Q_PROPERTY(QList<QObject *> includedEntities READ getIncludedEntities NOTIFY includedEntitiesChanged)
+    Q_PROPERTY(QStringList includedEntities READ getIncludedEntities NOTIFY includedEntitiesChanged)
 
  public:
     explicit Activity(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
@@ -66,9 +66,9 @@ class Activity : public Base {
     SequenceStep *getCurrentStep() { return &m_currentStep; }
 
     // options
-    QVariantList     getButtonMapping() { return m_buttonMapping; }
-    QVariantMap      getUiConfig() { return m_uiConfig; }
-    QList<QObject *> getIncludedEntities() { return m_includedEntities; }
+    QVariantList getButtonMapping() { return m_buttonMapping; }
+    QVariantMap  getUiConfig() { return m_uiConfig; }
+    QStringList  getIncludedEntities();
 
     Q_INVOKABLE void turnOn() override;
     Q_INVOKABLE void turnOff() override;
@@ -90,6 +90,7 @@ class Activity : public Base {
 
  signals:
     void totalStepsChanged();
+    void currentStepChanged();
     void buttonMappingChanged();
     void uiConfigChanged();
     void includedEntitiesChanged();
@@ -103,11 +104,9 @@ class Activity : public Base {
     SequenceStep m_currentStep;
 
     // options
-    QVariantList     m_buttonMapping;
-    QVariantMap      m_uiConfig;
-    QList<QObject *> m_includedEntities;
-
-    void convertIncludedEntities(QVariantList includedEntities);
+    QVariantList m_buttonMapping;
+    QVariantMap  m_uiConfig;
+    QVariantList m_includedEntities;
 
     void sendButtonMappingCommand(const QString &buttonName, bool shortPress = true);
 };

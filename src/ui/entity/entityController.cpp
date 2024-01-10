@@ -21,8 +21,8 @@ EntityController::EntityController(core::Api* core, const QString& language, con
                                    QObject* parent)
     : QObject(parent), m_core(core), m_availableEntities(core, this), m_configuredEntities(core, this) {
     Q_ASSERT(s_instance == nullptr);
-    s_instance = this;
-    m_language = language;
+    s_instance   = this;
+    m_language   = language;
     m_unitSystem = unitSystem;
 
     //    qRegisterMetaType<uc::ui::entity::Base::Type>("Entity Types");
@@ -138,14 +138,12 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     QObject::connect(m_core, &core::Api::reloadEntities, this, &EntityController::onCoreConnected);
 }
 
-EntityController::~EntityController() {
-    s_instance = nullptr;
-}
+EntityController::~EntityController() { s_instance = nullptr; }
 
 void EntityController::loadConfiguredEntities(const QString& integrationId) {
     struct core::EntityFilter filter;
     filter.integrationIds = QStringList() << integrationId;
-    int id = m_core->getEntities(1, 1, filter);
+    int id                = m_core->getEntities(1, 1, filter);
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respEntities,
@@ -193,7 +191,7 @@ entity::Base* EntityController::createEntityObject(const QString& type, const QS
             return new entity::Activity(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
                                         enabled, attributes, options, integrationId, parent);
         case entity::Base::Type::Macro:
-            return new entity::Macro(id, name.value(m_language).toString(), name, area, deviceClass, features, enabled,
+            return new entity::Macro(id, name.value(m_language).toString(), name, icon, area, deviceClass, features, enabled,
                                      attributes, integrationId, parent);
         case entity::Base::Type::Remote:
             return new entity::Remote(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
@@ -388,7 +386,7 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
     auto entityObj = m_entities.value(entityId);
 
     if (!entity.name.isEmpty()) {
-        entityObj->setFriendlyName(entity.name.value(m_language).toString());
+        entityObj->setFriendlyName(Util::getLanguageString(entity.name, "en"));
     }
 
     if (!entity.icon.isEmpty()) {
@@ -417,9 +415,7 @@ void EntityController::onEntityDeleted(const QString& entityId) {
     onRemoveFromActivities(entityId);
 }
 
-QObject* EntityController::get(const QString& entityId) {
-    return m_entities.value(entityId);
-}
+QObject* EntityController::get(const QString& entityId) { return m_entities.value(entityId); }
 
 void EntityController::load(const QString& entityId) {
     int id = m_core->getEntity(entityId);
@@ -434,12 +430,25 @@ void EntityController::load(const QString& entityId) {
 }
 
 void EntityController::onEntityCommand(const QString& entityId, const QString& command, QVariantMap params) {
+    if (m_entityCommandBeingExecuted.contains(command)) {
+        qCDebug(lcEntityController()) << "The command is still being executed. Not doing anything." << entityId << command;
+        return;
+    } else {
+        m_entityCommandBeingExecuted.append(command);
+        qCDebug(lcEntityController()) << "Executing command" << entityId << command;
+    }
+
     if (!m_entityCommandCount.contains(command)) {
         m_entityCommandCount.insert(command, 0);
-    } else if (m_entityCommandCount.value(command) > 3) {
-        m_entityCommandCount.remove(command);
-        return;
     }
+
+//    QTimer* timer = m_entityCommandTimers.value(command);
+//    if (timer) {
+//        if (timer->isActive()) {
+//            qCDebug(lcEntityController()) << "There is an active timer for this command. Not doing anything." << entityId << command;
+//            return;
+//        }
+//    }
 
     int id = m_core->entityCommand(entityId, command, params);
 
@@ -447,31 +456,56 @@ void EntityController::onEntityCommand(const QString& entityId, const QString& c
         id,
         [=]() {
             // success
+            qCDebug(lcEntityController()) << "Command executed successfully" << entityId << command;
             m_entityCommandCount.remove(command);
+            m_entityCommandBeingExecuted.removeAll(command);
         },
         [=](int code, QString message) {
             // fail
+            m_entityCommandBeingExecuted.removeAll(command);
             qCDebug(lcEntityController())
-                << "Command failed" << entityId << command << "Try count" << m_entityCommandCount.value(command);
+                << "Command failed" << code << entityId << command << "Try count" << m_entityCommandCount.value(command);
 
             if (m_entityCommandCount.value(command) >= 3 || (code == 400 || code == 404)) {
                 qCWarning(lcEntityController()) << "Cannot execute command:" << command << code << message;
                 Notification::createNotification(message, true);
-                int val = 10;
-                m_entityCommandCount.insert(command, val);
+                m_entityCommandCount.remove(command);
+                qCDebug(lcEntityController()) << "Deleting timer" << command;
+                QTimer* timer = m_entityCommandTimers.value(command);
+                if (timer) {
+                    qCDebug(lcEntityController()) << "Timer exits" << command;
+                    timer->stop();
+                    timer->deleteLater();
+                }
+                m_entityCommandTimers.remove(command);
+                qCDebug(lcEntityController()) << "Timer removed" << command;
             } else {
+                qCDebug(lcEntityController()) << "Trying again in 1s" << entityId << command;
                 int val = m_entityCommandCount.value(command) + 1;
                 m_entityCommandCount.insert(command, val);
-                QTimer::singleShot(500, [=] {
-                    qCDebug(lcEntityController()) << "Trying again in 500ms" << entityId << command;
-                    onEntityCommand(entityId, command, params);
-                });
+                if (!m_entityCommandTimers.contains(command)) {
+                    QTimer* timer = new QTimer();
+                    timer->setSingleShot(true);
+                    timer->setInterval(1000);
+                    QObject::connect(timer, &QTimer::timeout, [=]{
+                        qCDebug(lcEntityController()) << "Timer is done, re-executing command" << entityId << command;
+                        onEntityCommand(entityId, command, params);
+                        QTimer* timer = m_entityCommandTimers.value(command);
+                        if (timer) {
+                            qCDebug(lcEntityController()) << "Timer exits" << command;;
+                            timer->deleteLater();
+                        }
+                        m_entityCommandTimers.remove(command);
+                    });
+                    timer->start();
+                    m_entityCommandTimers.insert(command, timer);
+                }
             }
         });
 }
 
 void EntityController::onLanguageChanged(QString language) {
-    language = language.split("_")[0];
+    language   = language.split("_")[0];
     m_language = language;
     emit languageChanged(m_language);
 }
@@ -499,9 +533,7 @@ void EntityController::onRemoveFromActivities(QString entityId) {
     }
 }
 
-void EntityController::onActivityStartedRunning(QString entityId) {
-    emit activityStartedRunning(entityId);
-}
+void EntityController::onActivityStartedRunning(QString entityId) { emit activityStartedRunning(entityId); }
 
 }  // namespace ui
 }  // namespace uc

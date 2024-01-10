@@ -32,22 +32,178 @@ Rectangle {
     }
 
     property string entityId
-    property QtObject entityObj
+    property QtObject entityObj: QtObject {
+        property string name
+        property string icon
+        property string stateAsString
+        property string stateInfo
+        property bool enabled
+        property int state
+        property int type
+        property string mediaImage
+    }
+
     property bool isHighLightEnabled: true
     property bool isSelected: isHighLightEnabled ? parent.isCurrentItem : false
     property bool isInGroup: false
+    property string parentGroupId
     property bool editMode
     property bool iconOn: false
     property var controlTrigger: function() {}
 
     property alias button: button
 
+    function handleActivityOpen() {
+        if (entityBaseContainer.entityObj.type === EntityTypes.Activity) {
+            switch (entityObj.state) {
+            case ActivityStates.Off:
+                entityObj.turnOn();
+                return false;
+            case ActivityStates.Error:
+                popupMenu.title = qsTr("Activity error. Select option below.");
+                let menuItems = [];
+                menuItems.push({
+                                   title: qsTr("Turn activity on"),
+                                   icon: "uc:right-arrow-alt",
+                                   callback: function() {
+                                       entityObj.turnOn();
+                                   }
+                               });
+                menuItems.push({
+                                   title: qsTr("Turn activity off"),
+                                   icon: "uc:left-arrow-alt",
+                                   callback: function() {
+                                       entityObj.turnOff();
+                                   }
+                               });
+                popupMenu.menuItems = menuItems;
+                popupMenu.open();
+                return false;
+            case ActivityStates.On:
+                if (!entityObj.enabled) {
+                    ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
+                    return false;
+                }
+                break;
+            }
+
+            return true;
+        }
+
+        return true;
+    }
+
     function open() {
-        loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj });
+        if (entityBaseContainer.handleActivityOpen()) {
+            loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj });
+        }
+    }
+
+    function build() {
+        switch (entityBaseContainer.entityObj.type) {
+        case EntityTypes.Button:
+            entityBaseContainer.iconOn = Qt.binding( function() { return (entityObj.state === ButtonStates.Available || entityObj.state === ButtonStates.On) ? true : false });
+            entityBaseContainer.controlTrigger = function() { entityObj.push(); }
+            button.checked = false;
+            break;
+
+        case EntityTypes.Switch:
+            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === SwitchStates.On });
+
+            if (entityObj.hasAnyFeature([SwitchFeatures.On_off, SwitchFeatures.Toggle])) {
+                entityBaseContainer.controlTrigger = function() { entityObj.toggle(); };
+            }
+
+            button.checked = Qt.binding(()=>{ return entityObj.state === SwitchStates.On; });
+            break;
+
+        case EntityTypes.Climate:
+            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state !== ClimateStates.Off });
+            button.checked = Qt.binding(()=>{ return entityObj.state !== ClimateStates.Off; });
+            break;
+
+        case EntityTypes.Cover:
+            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === CoverStates.Closed });
+
+
+            if (entityObj.hasAllFeatures([CoverFeatures.Open, CoverFeatures.Close])) {
+                entityBaseContainer.controlTrigger = function() {
+                    if (entityObj.state === CoverStates.Open) {
+                        entityObj.close();
+                    } else if (entityObj.state === CoverStates.Closed) {
+                        entityObj.open();
+                    }
+                }
+            }
+
+            button.checked = Qt.binding(()=>{ return entityObj.state === CoverStates.Open; });
+            break;
+
+        case EntityTypes.Light:
+            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === LightStates.On ? true : false });
+            entityBaseContainer.controlTrigger = function() { entityObj.toggle(); }
+            button.checked = Qt.binding(()=>{ return entityObj.state === LightStates.On; });
+            break;
+
+        case EntityTypes.Media_player:
+            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state !== MediaPlayerStates.Off });
+            entityBaseContainer.controlTrigger = function() {
+                if (entityObj.state === MediaPlayerStates.Off) {
+                    entityObj.turnOn();
+                } else {
+                    entityObj.playPause();
+                }
+            }
+            button.checked = Qt.binding(()=>{ return entityObj.state !== MediaPlayerStates.Off; });
+            break;
+
+        case EntityTypes.Remote:
+            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === RemoteStates.On ? true : false });
+            entityBaseContainer.controlTrigger = function() { entityObj.toggle(); }
+            button.checked = false;
+            break;
+
+        case EntityTypes.Activity:
+            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === ActivityStates.On ? true : false });
+            entityBaseContainer.controlTrigger = function() {
+                entityBaseContainer.handleActivityOpen();
+            }
+            button.checked = Qt.binding(()=>{ return entityObj.state === ActivityStates.On; });
+            break;
+
+        case EntityTypes.Macro:
+            entityBaseContainer.iconOn = true;
+            entityBaseContainer.controlTrigger = function() {
+                activityLoading.start(entityId, EntityTypes.Macro);
+                entityObj.run();
+            }
+            button.checked = false;
+            break;
+
+        case EntityTypes.Sensor:
+            entityBaseContainer.iconOn = true;
+            button.checked = false;
+            break;
+        }
     }
 
     Behavior on opacity {
         NumberAnimation { duration: 300 }
+    }
+
+    Connections {
+        id: entityControllerConnection
+        target: EntityController
+        ignoreUnknownSignals: true
+
+        function onEntityLoaded(success, entityId) {
+            if (success && entityBaseContainer.entityId === entityId) {
+                console.debug("ENTITY LOADED: " + entityId);
+                entityControllerConnection.enabled = false;
+                entityBaseContainer.entityObj = EntityController.get(entityBaseContainer.entityId);
+                entityBaseContainer.build();
+            }
+        }
     }
 
     Connections {
@@ -80,7 +236,7 @@ Rectangle {
             if (ui.profile.restricted) {
                 ui.createNotification(qsTr("Profile is restricted"), true);
             } else {
-                root.containerMainItem.openEntityEditMenu(entityObj);
+                root.containerMainItem.openEntityEditMenu(entityObj, entityBaseContainer.parentGroupId);
             }
         }
     }
@@ -163,106 +319,17 @@ Rectangle {
         }
     }
 
+    Components.PopupMenu {
+        id: popupMenu
+        parent: root
+    }
+
     Component.onCompleted: {
-        entityObj = EntityController.get(entityId);
+        let e = EntityController.get(entityBaseContainer.entityId);
 
-        if (entityObj) {
-            switch (entityObj.type) {
-            case EntityTypes.Button:
-                entityBaseContainer.iconOn = Qt.binding( function() { return (entityObj.state === ButtonStates.Available || entityObj.state === ButtonStates.On) ? true : false });
-                entityBaseContainer.controlTrigger = function() { entityObj.push(); }
-                button.checked = false;
-                break;
-
-            case EntityTypes.Switch:
-                entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === SwitchStates.On });
-
-                if (entityObj.hasAnyFeature([SwitchFeatures.On_off, SwitchFeatures.Toggle])) {
-                    entityBaseContainer.controlTrigger = function() { entityObj.toggle(); };
-                }
-
-                button.checked = Qt.binding(()=>{ return entityObj.state === SwitchStates.On; });
-                break;
-
-            case EntityTypes.Climate:
-                entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state !== ClimateStates.Off });
-                button.checked = Qt.binding(()=>{ return entityObj.state !== ClimateStates.Off; });
-                break;
-
-            case EntityTypes.Cover:
-                entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === CoverStates.Closed });
-
-
-                if (entityObj.hasAllFeatures([CoverFeatures.Open, CoverFeatures.Close])) {
-                    entityBaseContainer.controlTrigger = function() {
-                        if (entityObj.state === CoverStates.Open) {
-                            entityObj.close();
-                        } else if (entityObj.state === CoverStates.Closed) {
-                            entityObj.open();
-                        }
-                    }
-                }
-
-                button.checked = Qt.binding(()=>{ return entityObj.state === CoverStates.Open; });
-                break;
-
-            case EntityTypes.Light:
-                entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === LightStates.On ? true : false });
-                entityBaseContainer.controlTrigger = function() { entityObj.toggle(); }
-                button.checked = Qt.binding(()=>{ return entityObj.state === LightStates.On; });
-                break;
-
-            case EntityTypes.Media_player:
-                entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state !== MediaPlayerStates.Off });
-                entityBaseContainer.controlTrigger = function() {
-                    if (entityObj.state === MediaPlayerStates.Off) {
-                        entityObj.turnOn();
-                    } else {
-                        entityObj.playPause();
-                    }
-                }
-                button.checked = Qt.binding(()=>{ return entityObj.state !== MediaPlayerStates.Off; });
-                break;
-
-            case EntityTypes.Remote:
-                entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === RemoteStates.On ? true : false });
-                entityBaseContainer.controlTrigger = function() { entityObj.toggle(); }
-                button.checked = false;
-                break;
-
-            case EntityTypes.Activity:
-                entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === ActivityStates.On ? true : false });
-                entityBaseContainer.controlTrigger = function() {
-                    if (entityObj.state === ActivityStates.Off) {
-                        entityObj.turnOn();
-                    } else {
-                        if (entityObj.enabled) {
-                            if (!editMode) {
-                                entityBaseContainer.open();
-                            }
-                        } else {
-                            //: Entity is unavailable
-                            ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
-                        }
-                    }
-                }
-                button.checked = Qt.binding(()=>{ return entityObj.state === ActivityStates.On; });
-                break;
-
-            case EntityTypes.Macro:
-                entityBaseContainer.iconOn = true;
-                entityBaseContainer.controlTrigger = function() {
-                    activityLoading.start(entityId, EntityTypes.Macro);
-                    entityObj.run();
-                }
-                button.checked = false;
-                break;
-
-            case EntityTypes.Sensor:
-                entityBaseContainer.iconOn = true;
-                button.checked = false;
-                break;
-            }
+        if (e) {
+            entityBaseContainer.entityObj = e;
+            entityBaseContainer.build();
         }
     }
 }

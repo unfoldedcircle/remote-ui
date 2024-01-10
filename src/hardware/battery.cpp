@@ -89,9 +89,9 @@ void Battery::onWarning(core::MsgEventTypes::WarningEvent event, bool shutdown, 
         case core::MsgEventTypes::WarningEvent::BATTERY_UNDERVOLT:
             qCDebug(lcHwBattery()) << "Low battery";
             uc::ui::Notification::createActionableWarningNotification(
-                tr("Battery needs servicing"),
-                tr("Critically low battery voltage detected. Charging has been disabled. Battery needs servicing."),
-                "uc:battery-crit");
+                tr("Low battery"),
+                tr("Low battery voltage detected. Charge the battery to 100% before using the remote again."),
+                "uc:battery-low");
             break;
         default:
             break;

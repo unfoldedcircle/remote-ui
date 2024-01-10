@@ -158,6 +158,8 @@ class EntityController : public QObject {
     QStringList                   m_activities;
 
     QHash<QString, int> m_entityCommandCount;
+    QHash<QString, QTimer*> m_entityCommandTimers;
+    QStringList m_entityCommandBeingExecuted;
 
     /**
      * @brief Creates an entity object, connetcs signals and adds it to the hash storing entities

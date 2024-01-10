@@ -290,7 +290,7 @@ Item {
             Layout.alignment: Qt.AlignVCenter
 
             pressAndHoldInterval: 500
-            onPressAndHold: batteryIcon.showPercentage = !batteryIcon.showPercentage
+            onPressAndHold: Config.showBatteryPercentage = !Config.showBatteryPercentage
 
             RowLayout {
                 id: batteryIcon
@@ -306,7 +306,7 @@ Item {
                     text: Battery.level
                     verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
                     font: fonts.primaryFontCapitalized(22)
-                    visible: Battery.isCharging || batteryIcon.showPercentage
+                    visible: Battery.isCharging || Config.showBatteryPercentage
                 }
 
                 Components.Icon {

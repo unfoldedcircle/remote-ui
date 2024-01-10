@@ -84,7 +84,7 @@ Item {
         popupMenu.open();
     }
 
-    function openEntityEditMenu(obj) {
+    function openEntityEditMenu(obj, parentGroupId) {
         mainContainerRoot.entityObjToEdit = obj;
 
         popupMenu.title = obj.name;
@@ -111,6 +111,12 @@ Item {
                            title: qsTr("Remove"),
                            icon: "uc:trash",
                            callback: function() {
+                               if (parentGroupId !== "") {
+                                   let group = GroupController.get(parentGroupId);
+                                   group.removeEntity(obj.id);
+                               } else {
+                                   currentPage.items.removeItem(obj.id);
+                               }
                                currentPage.items.removeItem(obj.id);
                                ui.updatePageItems(currentPage._id);
                            }
@@ -260,14 +266,22 @@ Item {
                             currentEntity.delegateItem.toggle();
                         } else {
                             if (Config.entityButtonFuncInverted) {
-                                currentEntity.delegateItem.groups.currentItem.item.open();
+                                if (currentEntity.delegateItem.groups.currentItem.item.enabled) {
+                                    currentEntity.delegateItem.groups.currentItem.item.open();
+                                } else {
+                                    ui.createNotification(currentEntity.delegateItem.groups.currentItem.item.name + " " + qsTr("is unavailable"), true);
+                                }
                             } else {
                                 currentEntity.delegateItem.groups.currentItem.item.controlTrigger();
                             }
                         }
                     } else {
                         if (Config.entityButtonFuncInverted) {
-                            currentEntity.delegateItem.open();
+                            if (currentEntity.delegateItem.enabled) {
+                                currentEntity.delegateItem.open();
+                            } else {
+                                ui.createNotification(currentEntity.delegateItem.name + " " + qsTr("is unavailable"), true);
+                            }
                         } else {
                             currentEntity.delegateItem.controlTrigger();
                         }
