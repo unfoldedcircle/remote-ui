@@ -824,7 +824,7 @@ Item {
         target: closeAnimation
 
         function onFinished() {
-            buttonNavigation.releaseControl();
+            buttonNavigation.releaseControl(String(root.containerMain.item));
             closed();
         }
     }

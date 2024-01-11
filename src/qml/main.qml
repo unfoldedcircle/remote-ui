@@ -264,9 +264,9 @@ ApplicationWindow {
                     loader.source = "";
                     loader.active = false
                     containerSecond.close();
-                    if (ui.inputController.activeObject !== String(containerMain.item)) {
-                        ui.inputController.takeControl(String(containerMain.item));
-                    }
+//                    if (ui.inputController.activeObject !== String(containerMain.item)) {
+//                        ui.inputController.takeControl(String(containerMain.item));
+//                    }
                 }
             }
         }
@@ -335,9 +335,9 @@ ApplicationWindow {
                     console.debug("Third container closed signal called");
                     containerThird.close();
                     containerSecondShowAnimation.start();
-                    if (ui.inputController.activeObject !== String(containerMain.item)) {
-                        ui.inputController.takeControl(String(containerMain.item));
-                    }
+//                    if (ui.inputController.activeObject !== String(containerMain.item)) {
+//                        ui.inputController.takeControl(String(containerMain.item));
+//                    }
                 }
             }
         }

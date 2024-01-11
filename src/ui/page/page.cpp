@@ -62,7 +62,7 @@ QVariant PageItemList::data(const QModelIndex &index, int role) const {
 
 QHash<int, QByteArray> PageItemList::roleNames() const {
     QHash<int, QByteArray> roles;
-    roles[KeyRole] = "pageItemId";
+    roles[KeyRole]  = "pageItemId";
     roles[TypeRole] = "pageItemType";
     return roles;
 }
@@ -78,13 +78,9 @@ void PageItemList::clear() {
     emit countChanged(count());
 }
 
-PageItem *PageItemList::getPageItem(int row) {
-    return m_data[row];
-}
+PageItem *PageItemList::getPageItem(int row) { return m_data[row]; }
 
-PageItem *PageItemList::getPageItem(const QString &key) {
-    return m_data[getModelIndexByKey(key).row()];
-}
+PageItem *PageItemList::getPageItem(const QString &key) { return m_data[getModelIndexByKey(key).row()]; }
 
 QModelIndex PageItemList::getModelIndexByKey(const QString &key) {
     QModelIndex idx;
@@ -109,17 +105,15 @@ bool PageItemList::contains(const QString &key) {
     return false;
 }
 
-void PageItemList::addItem(const QString &key, PageItem::Type type) {
-    append(new PageItem(key, type, this));
-}
+void PageItemList::addItem(const QString &key, PageItem::Type type) { append(new PageItem(key, type, this)); }
 
 void PageItemList::removeItem(const QString &key) {
-    removeItem(getModelIndexByKey(key).row());
+    if (contains(key)) {
+        removeItem(getModelIndexByKey(key).row());
+    }
 }
 
-void PageItemList::removeItem(int row) {
-    removeRows(row, 1, QModelIndex());
-}
+void PageItemList::removeItem(int row) { removeRows(row, 1, QModelIndex()); }
 
 void PageItemList::swapData(int from, int to) {
     if (0 <= from && from < m_data.size() && 0 <= to && to < m_data.size() && from != to) {
@@ -128,7 +122,7 @@ void PageItemList::swapData(int from, int to) {
         }
 
         QModelIndex fromIdx = index(from, 0);
-        QModelIndex toIdx = index(to, 0);
+        QModelIndex toIdx   = index(to, 0);
 
         beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
         m_data.move(from, to);
@@ -151,7 +145,7 @@ Page::Page(const QString &key, const QString &name, const QString &image, QObjec
     : QObject(parent), m_id(key), m_name(name), m_image(image) {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 
-    m_items = new PageItemList(this);
+    m_items      = new PageItemList(this);
     m_activities = new PageItemList(this);
 }
 
@@ -227,9 +221,7 @@ void Page::addGroups(const QStringList &groups) {
     }
 }
 
-void Page::removeEntities() {
-    m_items->clear();
-}
+void Page::removeEntities() { m_items->clear(); }
 
 void Page::addActivity(QString entityId) {
     if (!m_activities->contains(entityId)) {

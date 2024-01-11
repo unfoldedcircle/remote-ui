@@ -155,6 +155,7 @@ Popup {
                 text: popupMenu.title
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
+                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
                 font: fonts.primaryFont(24, "Bold")
             }

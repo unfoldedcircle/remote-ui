@@ -48,17 +48,11 @@ Remote::Remote(const QString &id, const QString &name, QVariantMap nameI18n, con
     }
 }
 
-Remote::~Remote() {
-    qCDebug(lcRemote()) << "Remote entity destructor";
-}
+Remote::~Remote() { qCDebug(lcRemote()) << "Remote entity destructor"; }
 
-void Remote::turnOn() {
-    sendCommand(RemoteCommands::On);
-}
+void Remote::turnOn() { sendCommand(RemoteCommands::On); }
 
-void Remote::turnOff() {
-    sendCommand(RemoteCommands::Off);
-}
+void Remote::turnOff() { sendCommand(RemoteCommands::Off); }
 
 void Remote::toggle() {
     if (m_state == RemoteStates::On) {
@@ -72,9 +66,7 @@ void Remote::sendCommand(RemoteCommands::Enum cmd, QVariantMap params) {
     Base::sendCommand(QVariant::fromValue(cmd).toString(), params);
 }
 
-void Remote::sendCommand(RemoteCommands::Enum cmd) {
-    sendCommand(cmd, QVariantMap());
-}
+void Remote::sendCommand(RemoteCommands::Enum cmd) { sendCommand(cmd, QVariantMap()); }
 
 bool Remote::updateAttribute(const QString &attribute, QVariant data) {
     bool ok = false;
@@ -87,7 +79,7 @@ bool Remote::updateAttribute(const QString &attribute, QVariant data) {
             int newState = Util::convertStringToEnum<RemoteStates::Enum>(uc::Util::FirstToUpper(data.toString()));
             if (m_state != newState && newState != -1) {
                 m_state = newState;
-                ok = true;
+                ok      = true;
                 emit stateChanged(m_id, m_state);
 
                 m_stateAsString =
@@ -105,18 +97,18 @@ bool Remote::updateAttribute(const QString &attribute, QVariant data) {
 }
 
 bool Remote::updateOptions(QVariant data) {
-    bool        ok = false;
+    bool        ok      = false;
     QVariantMap options = data.toMap();
 
     if (options.contains("user_interface")) {
         m_uiConfig = options.value("user_interface").toMap();
-        ok = true;
+        ok         = true;
         emit uiConfigChanged();
     }
 
     if (options.contains("button_mapping")) {
         m_buttonMapping = options.value("button_mapping").toList();
-        ok = true;
+        ok              = true;
         emit buttonMappingChanged();
     }
 

@@ -194,6 +194,13 @@ Popup {
 
             Components.Button {
                 width: parent.width
+                text: qsTr("Delete")
+                color: colors.red
+                trigger: function() { Wifi.deleteSavedNetwork(wifiInfo.ssid); }
+            }
+
+            Components.Button {
+                width: parent.width
                 text: qsTr("Close")
                 trigger: function() { wifiInfo.close(); }
             }

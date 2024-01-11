@@ -88,8 +88,6 @@ EntityComponents.BaseDetail {
     }
 
     Component.onCompleted: {
-        entityObj.turnOn();
-
         entityObj.buttonMapping.forEach((buttonMap) => {
                                             if (buttonMap.short_press) {
                                                 overrideConfig[buttonMap.button] =  ({});
@@ -264,10 +262,11 @@ EntityComponents.BaseDetail {
         }
     }
 
-    Item {
+    Rectangle {
         id: title
         width: parent.width
         height: 80
+        color: entityObj.state === ActivityStates.Error ? colors.red : colors.transparent
 
         Components.Icon {
             id: iconOpen
@@ -314,6 +313,7 @@ EntityComponents.BaseDetail {
                 if (activityMenu.opened) {
                     activityMenu.close();
                     extraContent.decrementCurrentIndex();
+                    activityBase.buttonNavigation.takeControl();
                 } else {
 
                     activityMenu.open();
@@ -530,30 +530,35 @@ EntityComponents.BaseDetail {
             width: includedEntitiesList.width
             height: 100
 
+            Component.onCompleted: {
+                entity = EntityController.get(modelData)
+
+                if (!entity) {
+                    connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
+                        if (success) {
+                            entity = EntityController.get(entityId);
+                        }
+                    });
+                    EntityController.load(modelData);
+                }
+            }
+
+            property QtObject entity
+
             onClicked: {
-                loading.start();
-                connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
-                    if (success) {
-                        loading.stop();
-                        let e = EntityController.get(entityId);
-                        loadThirdContainer("qrc:/components/entities/" + e.getTypeAsString() + "/deviceclass/" + e.getDeviceClass() + ".qml", { "entityId": e.id, "entityObj": e });
-                    } else {
-                        loading.failure(true, function() { ui.createNotification(qsTr("Failed to load entity: %1").arg(entityId), true); });
-                    }
-                });
-                EntityController.load(modelData.id);
+                loadThirdContainer("qrc:/components/entities/" + entity.getTypeAsString() + "/deviceclass/" + entity.getDeviceClass() + ".qml", { "entityId": entity.id, "entityObj": entity });
             }
 
             Components.Icon {
                 id: includedEntityItemIcon
                 color: colors.offwhite
-                icon: modelData.icon
+                icon: entity.icon
                 anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
                 size: 80
             }
 
             Text {
-                text: modelData.name
+                text: entity.name
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 elide: Text.ElideRight
                 maximumLineCount: 2
@@ -571,7 +576,20 @@ EntityComponents.BaseDetail {
             width: fixedEntitiesList.width
             height: fixedEntityItemIcon.size / 2 + fixedEntityItemData.height
 
-            property QtObject entity: EntityController.get(modelData.id)
+            Component.onCompleted: {
+                entity = EntityController.get(modelData)
+
+                if (!entity) {
+                    connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
+                        if (success) {
+                            entity = EntityController.get(entityId);
+                        }
+                    });
+                    EntityController.load(modelData);
+                }
+            }
+
+            property QtObject entity
 
             onClicked: {
                 ui.createNotification("Not yet implemented");
@@ -580,7 +598,7 @@ EntityComponents.BaseDetail {
             Components.Icon {
                 id: fixedEntityItemIcon
                 color: colors.offwhite
-                icon: modelData.icon
+                icon: entity.icon
                 anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
                 size: 80
             }
@@ -592,7 +610,7 @@ EntityComponents.BaseDetail {
 
                 Text {
                     id: fixedEntityItemName
-                    text: modelData.name
+                    text: entity.name
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     elide: Text.ElideRight
                     maximumLineCount: 2

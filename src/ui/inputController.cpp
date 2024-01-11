@@ -42,17 +42,23 @@ void InputController::blockInput(bool value) {
 }
 
 void InputController::takeControl(const QString &activeObject) {
+    m_mutex.lock();
+
     m_prevActiveObject = m_activeObject;
     m_activeObject = activeObject;
 
     // we need to delay this a bit, otherwise it happens so fast that both old and new objects will trigger
     QTimer::singleShot(200, [=] {
         emit activeObjectChanged();
-        qCDebug(lcInput()) << "TAKE:" << m_prevActiveObject << "->" << m_activeObject;
+        qCDebug(lcInput()) << "TAKE CONTROL FROM" << m_prevActiveObject << "->" << m_activeObject;
     });
+
+    m_mutex.unlock();
 }
 
 void InputController::releaseControl(const QString &activeObject) {
+    m_mutex.lock();
+
     if (activeObject.isEmpty()) {
         m_activeObject = m_prevActiveObject;
     } else {
@@ -62,8 +68,10 @@ void InputController::releaseControl(const QString &activeObject) {
     // we need to delay this a bit, otherwise it happens so fast that both old and new objects will trigger
     QTimer::singleShot(200, [=] {
         emit activeObjectChanged();
-        qCDebug(lcInput()) << "RELEASE ->" << m_activeObject;
+        qCDebug(lcInput()) << "RELEASE CONTROL BACK TO ->" << m_activeObject;
     });
+
+    m_mutex.unlock();
 }
 
 QObject *InputController::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {
@@ -110,7 +118,7 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
             timer->setInterval(m_longPressTimeOut);
 
             QObject::connect(timer, &QTimer::timeout, this, [=]() {
-                qCDebug(lcInput()) << "Key press and hold:" << m_keyCodeMapping.value(key);
+                qCDebug(lcInput()) << "Key press and hold:" << m_keyCodeMapping.value(key) << m_activeObject;
                 m_longPressTriggered.insert(key, true);
                 emit keyLongPressed(m_keyCodeMapping.value(key));
             });
@@ -118,7 +126,7 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
             m_longPressTimers.insert(key, timer);
 
             emit keyPressed(m_keyCodeMapping.value(key));
-            qCDebug(lcInput()) << "Key pressed:" << m_keyCodeMapping.value(key);
+            qCDebug(lcInput()) << "Key pressed:" << m_keyCodeMapping.value(key) << m_activeObject;
             break;
         }
         case QEvent::KeyRelease: {
@@ -134,9 +142,9 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
                 }
             }
 
-            //            if (!m_longPressTriggered.value(key)) {
+                    //            if (!m_longPressTriggered.value(key)) {
             emit keyReleased(m_keyCodeMapping.value(key));
-            qCDebug(lcInput()) << "Key released:" << m_keyCodeMapping.value(key);
+            qCDebug(lcInput()) << "Key released:" << m_keyCodeMapping.value(key) << m_activeObject;
             //            }
             break;
         }

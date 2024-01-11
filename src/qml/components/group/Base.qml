@@ -286,7 +286,7 @@ Rectangle {
             property bool isCurrentItem: ListView.isCurrentItem
 
             Component.onCompleted: {
-                this.setSource("qrc:/components/entities/Base.qml", { "parentInputController": containerMain, "entityId":groupItemId, "isInGroup": true});
+                this.setSource("qrc:/components/entities/Base.qml", { "parentInputController": containerMain, "entityId":groupItemId, "isInGroup": true, "parentGroupId": groupId});
             }
 
             onStatusChanged: {

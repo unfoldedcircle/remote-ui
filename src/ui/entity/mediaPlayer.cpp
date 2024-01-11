@@ -72,7 +72,15 @@ void MediaPlayer::turnOff() {
 }
 
 void MediaPlayer::toggle() {
-    sendCommand(MediaPlayerCommands::Toggle);
+    if (hasFeature(MediaPlayerFeatures::Toggle)) {
+        sendCommand(MediaPlayerCommands::Toggle);
+    } else {
+        if (m_state == MediaPlayerStates::Off) {
+            sendCommand(MediaPlayerCommands::On);
+        } else {
+            sendCommand(MediaPlayerCommands::Off);
+        }
+    }
 }
 
 void MediaPlayer::playPause() {

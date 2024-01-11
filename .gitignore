@@ -81,5 +81,5 @@ build/osx-x86_64/release/moc/moc_predefs.h
 /resources/about_html/*
 
 # Translations
-/resources/translations/*
+/resources/translations/*.qm
 !/resources/translations/en_US.ts
