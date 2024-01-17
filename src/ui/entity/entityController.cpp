@@ -430,16 +430,18 @@ void EntityController::load(const QString& entityId) {
 }
 
 void EntityController::onEntityCommand(const QString& entityId, const QString& command, QVariantMap params) {
-    if (m_entityCommandBeingExecuted.contains(command)) {
+    const QString commandId = entityId + command;
+
+    if (m_entityCommandBeingExecuted.contains(commandId)) {
         qCDebug(lcEntityController()) << "The command is still being executed. Not doing anything." << entityId << command;
         return;
     } else {
-        m_entityCommandBeingExecuted.append(command);
+        m_entityCommandBeingExecuted.append(commandId);
         qCDebug(lcEntityController()) << "Executing command" << entityId << command;
     }
 
-    if (!m_entityCommandCount.contains(command)) {
-        m_entityCommandCount.insert(command, 0);
+    if (!m_entityCommandCount.contains(commandId)) {
+        m_entityCommandCount.insert(commandId, 0);
     }
 
 //    QTimer* timer = m_entityCommandTimers.value(command);
@@ -457,48 +459,48 @@ void EntityController::onEntityCommand(const QString& entityId, const QString& c
         [=]() {
             // success
             qCDebug(lcEntityController()) << "Command executed successfully" << entityId << command;
-            m_entityCommandCount.remove(command);
-            m_entityCommandBeingExecuted.removeAll(command);
+            m_entityCommandCount.remove(commandId);
+            m_entityCommandBeingExecuted.removeAll(commandId);
         },
         [=](int code, QString message) {
             // fail
-            m_entityCommandBeingExecuted.removeAll(command);
+            m_entityCommandBeingExecuted.removeAll(commandId);
             qCDebug(lcEntityController())
-                << "Command failed" << code << entityId << command << "Try count" << m_entityCommandCount.value(command);
+                << "Command failed" << code << entityId << command << "Try count" << m_entityCommandCount.value(commandId);
 
-            if (m_entityCommandCount.value(command) >= 3 || (code == 400 || code == 404)) {
+            if (m_entityCommandCount.value(commandId) >= 3 || (code == 400 || code == 404)) {
                 qCWarning(lcEntityController()) << "Cannot execute command:" << command << code << message;
                 Notification::createNotification(message, true);
-                m_entityCommandCount.remove(command);
+                m_entityCommandCount.remove(commandId);
                 qCDebug(lcEntityController()) << "Deleting timer" << command;
-                QTimer* timer = m_entityCommandTimers.value(command);
+                QTimer* timer = m_entityCommandTimers.value(commandId);
                 if (timer) {
                     qCDebug(lcEntityController()) << "Timer exits" << command;
                     timer->stop();
                     timer->deleteLater();
                 }
-                m_entityCommandTimers.remove(command);
+                m_entityCommandTimers.remove(commandId);
                 qCDebug(lcEntityController()) << "Timer removed" << command;
             } else {
                 qCDebug(lcEntityController()) << "Trying again in 1s" << entityId << command;
-                int val = m_entityCommandCount.value(command) + 1;
-                m_entityCommandCount.insert(command, val);
-                if (!m_entityCommandTimers.contains(command)) {
+                int val = m_entityCommandCount.value(commandId) + 1;
+                m_entityCommandCount.insert(commandId, val);
+                if (!m_entityCommandTimers.contains(commandId)) {
                     QTimer* timer = new QTimer();
                     timer->setSingleShot(true);
                     timer->setInterval(1000);
                     QObject::connect(timer, &QTimer::timeout, [=]{
                         qCDebug(lcEntityController()) << "Timer is done, re-executing command" << entityId << command;
                         onEntityCommand(entityId, command, params);
-                        QTimer* timer = m_entityCommandTimers.value(command);
+                        QTimer* timer = m_entityCommandTimers.value(commandId);
                         if (timer) {
                             qCDebug(lcEntityController()) << "Timer exits" << command;;
                             timer->deleteLater();
                         }
-                        m_entityCommandTimers.remove(command);
+                        m_entityCommandTimers.remove(commandId);
                     });
                     timer->start();
-                    m_entityCommandTimers.insert(command, timer);
+                    m_entityCommandTimers.insert(commandId, timer);
                 }
             }
         });
