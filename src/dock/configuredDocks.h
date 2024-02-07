@@ -23,6 +23,7 @@ class ConfiguredDock : public QObject {
     Q_PROPERTY(State state READ getState NOTIFY stateChanged)
     Q_PROPERTY(bool learningActive READ getLearningActive NOTIFY learningActiveChanged)
     Q_PROPERTY(QString description READ getDescription NOTIFY descriptionChanged)
+    Q_PROPERTY(int ledBrightness READ getLedBrightness NOTIFY ledBrightnessChanged)
 
  public:
     enum State {
@@ -36,7 +37,7 @@ class ConfiguredDock : public QObject {
 
     explicit ConfiguredDock(const QString& id, const QString& name, const QString& customWsUrl, bool active,
                             const QString& model, const QString& connectionType, const QString& version, State state,
-                            bool learningActive, const QString& description, QObject* parent = nullptr);
+                            bool learningActive, const QString& description, int ledBrightness, QObject* parent = nullptr);
     ~ConfiguredDock();
 
     QString getId() const { return m_id; }
@@ -57,6 +58,8 @@ class ConfiguredDock : public QObject {
     void    setLearningActive(bool learningActive);
     QString getDescription() const { return m_description; }
     void    setDescription(const QString& description);
+    int     getLedBrightness() const { return m_ledBrightness; }
+    void    setLedBrgithess(int brightness);
 
  signals:
     void nameChanged();
@@ -67,6 +70,7 @@ class ConfiguredDock : public QObject {
     void stateChanged();
     void learningActiveChanged();
     void descriptionChanged();
+    void ledBrightnessChanged();
 
  private:
     QString m_id;
@@ -79,6 +83,7 @@ class ConfiguredDock : public QObject {
     State   m_state;
     bool    m_learningActive;
     QString m_description;
+    int     m_ledBrightness;
 };
 
 class ConfiguredDocks : public QAbstractListModel {
@@ -98,6 +103,7 @@ class ConfiguredDocks : public QAbstractListModel {
         StateRole,
         LearningActiveRole,
         DescriptionRole,
+        LedBrightnessRole,
     };
 
     explicit ConfiguredDocks(QObject* parent = nullptr);
@@ -137,6 +143,7 @@ class ConfiguredDocks : public QAbstractListModel {
     void updateState(const QString& key, ConfiguredDock::State state);
     void updateLearningActive(const QString& key, bool learningActive);
     void updateDescription(const QString& key, const QString& description);
+    void updateLedBrightness(const QString &key, int brightness);
 
     int totalPages = 0;
     int lastPageLoaded = 0;

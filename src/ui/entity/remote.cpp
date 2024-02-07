@@ -82,8 +82,7 @@ bool Remote::updateAttribute(const QString &attribute, QVariant data) {
                 ok      = true;
                 emit stateChanged(m_id, m_state);
 
-                m_stateAsString =
-                    Util::convertEnumToString<RemoteStates::Enum>(static_cast<RemoteStates::Enum>(m_state));
+                m_stateAsString = RemoteStates::getTranslatedString(static_cast<RemoteStates::Enum>(m_state));
                 emit stateAsStringChanged();
 
                 m_stateInfo = getStateAsString();
@@ -113,6 +112,17 @@ bool Remote::updateOptions(QVariant data) {
     }
 
     return ok;
+}
+
+void Remote::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = RemoteStates::getTranslatedString(static_cast<RemoteStates::Enum>(m_state));
+        emit stateAsStringChanged();
+
+        m_stateInfo = getStateAsString();
+        emit stateInfoChanged();
+    });
 }
 
 }  // namespace entity

@@ -7,6 +7,8 @@
 #include <QQmlComponent>
 #include <QQmlEngine>
 #include <QVariant>
+#include <QCoreApplication>
+#include <QTimer>
 
 #include "../../util.h"
 
@@ -99,6 +101,8 @@ class Base : public QObject {
     QString getSorting() { return m_sorting; }
     bool    getSelected() { return m_selected; }
     void    setSelected(bool selected) { m_selected = selected; }
+
+    virtual void onLanguageChangedTypeSpecific() {}
 
  public:
     static Type typeFromString(const QString &key, bool *ok = nullptr) {

@@ -7,6 +7,7 @@ import QtGraphicalEffects 1.0
 
 import Entity.Controller 1.0
 import Entity.Activity 1.0
+import Entity.Macro 1.0
 import SequenceStep.Type 1.0
 
 import "qrc:/components" as Components
@@ -68,24 +69,26 @@ Popup {
                 return;
             }
 
-            let stateString = entityObj.stateAsString
+            console.info((activityLoading.isMacro ? "Macro" : "Activity") + " state changed to: " + entityObj.stateAsString);
 
-            if (activityLoading.prevStateString != "Running" && stateString === "Off") {
+            if (activityLoading.prevState !== (activityLoading.isMacro ? MacroStates.Running : ActivityStates.Running) && entityObj.state === ActivityStates.Off) {
                 activityLoading.end(false);
                 return;
             }
 
-            if ((stateString === "Completed") || stateString === "On" || stateString === "Off" ) {
+            if ((entityObj.state === (activityLoading.isMacro ? MacroStates.Completed : ActivityStates.Completed)) || entityObj.state === ActivityStates.On || entityObj.state === ActivityStates.Off ) {
                 activityLoading.end(false);
-            } else if (stateString === "Error") {
+            } else if (entityObj.state === (activityLoading.isMacro ? MacroStates.Error : ActivityStates.Error)) {
                 activityLoading.end(true);
                 errorText.text = entityObj.currentStep.error;
             }
 
-            activityLoading.prevStateString = stateString;
+            activityLoading.prevState = entityObj.state;
         }
 
         function onCurrentStepChanged() {
+            console.info("Current step changed: " + entityObj.currentStep.command);
+
             let stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
             activityLoading.stepIcon = stepEntityObj ? stepEntityObj.icon : "";
             activityLoading.stepName = stepEntityObj ? stepEntityObj.name : "";
@@ -154,7 +157,7 @@ Popup {
 
     property bool isMacro: false
     property string entityId
-    property string prevStateString: "unknown"
+    property int prevState: ActivityStates.Unknown
     property QtObject entityObj
     property string stepIcon: ""
     property string stepName: ""

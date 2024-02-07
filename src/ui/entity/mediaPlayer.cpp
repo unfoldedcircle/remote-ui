@@ -259,13 +259,11 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
     switch (attributeEnum) {
         case MediaPlayerAttributes::State: {
             int newState = Util::convertStringToEnum<MediaPlayerStates::Enum>(uc::Util::FirstToUpper(data.toString()));
-            if (m_state != newState && newState != -1) {
                 m_state = newState;
                 ok = true;
                 emit stateChanged(m_id, m_state);
 
-                m_stateAsString =
-                    Util::convertEnumToString<MediaPlayerStates::Enum>(static_cast<MediaPlayerStates::Enum>(m_state));
+                m_stateAsString = MediaPlayerStates::getTranslatedString(static_cast<MediaPlayerStates::Enum>(m_state));
                 emit stateAsStringChanged();
 
                 // enable/disable media position timer
@@ -302,7 +300,6 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
 
                     emit removeFromActivities(m_id);
                 }
-            }
             break;
         }
         case MediaPlayerAttributes::Volume: {
@@ -438,8 +435,19 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
     return ok;
 }
 
+void MediaPlayer::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = MediaPlayerStates::getTranslatedString(static_cast<MediaPlayerStates::Enum>(m_state));
+        emit stateAsStringChanged();
+    });
+}
+
 void MediaPlayer::onPositionTimerTimeout() {
     m_mediaPosition++;
+    if (m_mediaPosition >= m_mediaDuration) {
+        m_mediaPosition = m_mediaDuration;
+    }
     emit mediaPositionChanged();
 }
 

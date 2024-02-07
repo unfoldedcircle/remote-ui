@@ -232,8 +232,7 @@ bool Climate::updateAttribute(const QString &attribute, QVariant data) {
                 ok = true;
                 emit stateChanged(m_id, m_state);
 
-                m_stateAsString =
-                    Util::convertEnumToString<ClimateStates::Enum>(static_cast<ClimateStates::Enum>(m_state));
+                m_stateAsString = ClimateStates::getTranslatedString(static_cast<ClimateStates::Enum>(m_state));
                 emit stateAsStringChanged();
 
                 m_stateInfo1 = getStateAsString();
@@ -297,6 +296,17 @@ bool Climate::updateAttribute(const QString &attribute, QVariant data) {
     }
 
     return ok;
+}
+
+void Climate::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = ClimateStates::getTranslatedString(static_cast<ClimateStates::Enum>(m_state));
+        emit stateAsStringChanged();
+
+        m_stateInfo1 = getStateAsString();
+        emit stateInfoChanged();
+    });
 }
 
 void Climate::onUnitSystemChanged(Config::UnitSystems unitSystem) {

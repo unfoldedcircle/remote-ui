@@ -2724,6 +2724,12 @@ void Api::processResponseDocks(int reqId, int code, QVariant msgData) {
             dock.state = Util::convertStringToEnum<DockEnums::DockState>(map.value("state").toString());
             dock.learningActive = map.value("learning_active").toBool();
             dock.description = map.value("descriptions").toString();
+            if (map.contains("led_brightness")) {
+                dock.ledBrightness = map.value("led_brightness").toInt();
+            }
+            if (map.contains("eth_led_brightness")) {
+                dock.ethLedBrightness = map.value("eth_led_brightness").toInt();
+            }
 
             respList.append(dock);
         }
@@ -2747,6 +2753,12 @@ void Api::processResponseDock(int reqId, int code, QVariant msgData) {
     dock.state = Util::convertStringToEnum<DockEnums::DockState>(map.value("state").toString());
     dock.learningActive = map.value("learning_active").toBool();
     dock.description = map.value("descriptions").toString();
+    if (map.contains("led_brightness")) {
+        dock.ledBrightness = map.value("led_brightness").toInt();
+    }
+    if (map.contains("eth_led_brightness")) {
+        dock.ethLedBrightness = map.value("eth_led_brightness").toInt();
+    }
 
     emit respDock(reqId, code, dock);
 }
@@ -2850,6 +2862,12 @@ void Api::processDockChange(QVariant msgData) {
     dock.state = Util::convertStringToEnum<DockEnums::DockState>(newState.value("state").toString());
     dock.learningActive = newState.value("learning_active").toBool();
     dock.description = newState.value("description").toString();
+    if (newState.contains("led_brightness")) {
+        dock.ledBrightness = newState.value("led_brightness").toInt();
+    }
+    if (newState.contains("eth_led_brightness")) {
+        dock.ethLedBrightness = newState.value("eth_led_brightness").toInt();
+    }
 
     switch (eventType) {
         case MsgEventTypes::NEW:

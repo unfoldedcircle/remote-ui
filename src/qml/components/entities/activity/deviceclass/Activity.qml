@@ -88,6 +88,7 @@ EntityComponents.BaseDetail {
     }
 
     Component.onCompleted: {
+        console.info("Setting up button mappings for activity: " + entityObj.name);
         entityObj.buttonMapping.forEach((buttonMap) => {
                                             if (buttonMap.short_press) {
                                                 overrideConfig[buttonMap.button] =  ({});
@@ -100,6 +101,8 @@ EntityComponents.BaseDetail {
                                                         const cmdString = String(buttonMap.short_press.cmd_id);
                                                         const canRepeat = !cmdString.includes("remote.");
 
+                                                        console.info(entityObj.name + " button mapping: " + buttonMap.button + " -> " + JSON.stringify(buttonMap.short_press));
+
                                                         overrideConfig[buttonMap.button]["pressed"] = function() {
                                                             if (e) {
                                                                 switch (e.type) {
@@ -108,8 +111,8 @@ EntityComponents.BaseDetail {
                                                                         if (buttonMap.button === "VOLUME_UP" || buttonMap.button === "VOLUME_DOWN") {
                                                                             volume.start(e, buttonMap.button === "VOLUME_UP");
                                                                         }
-                                                                        activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                                     }
+                                                                    activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                                     break;
                                                                 case EntityTypes.Remote: {
                                                                     if (!activityBase.buttonLongPressStep1[buttonMap.button]) {
@@ -168,6 +171,8 @@ EntityComponents.BaseDetail {
                                                                     activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                                     break;
                                                                 }
+                                                            } else {
+                                                                console.warn("Entity " + entityId + " is not loaded. Button mapping failed for press: " + buttonMap.button);
                                                             }
                                                         }
 
@@ -198,8 +203,12 @@ EntityComponents.BaseDetail {
                                                                                 "remote.stop_send",
                                                                                 {});
                                                                 }
+                                                            } else {
+                                                                console.warn("Entity " + entityId + " is not loaded. Button mapping failed for release: " + buttonMap.button);
                                                             }
                                                         }
+                                                    } else {
+                                                        console.warn("Entity " + entityId + " is not loaded. Button mapping failed.");
                                                     }
                                                 })
                                             }

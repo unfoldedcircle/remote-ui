@@ -109,8 +109,7 @@ bool Sensor::updateAttribute(const QString &attribute, QVariant data) {
                 ok = true;
                 emit stateChanged(m_id, m_state);
 
-                m_stateAsString =
-                    Util::convertEnumToString<SensorStates::Enum>(static_cast<SensorStates::Enum>(m_state));
+                m_stateAsString = SensorStates::getTranslatedString(static_cast<SensorStates::Enum>(m_state));
                 emit stateAsStringChanged();
             }
             break;
@@ -132,6 +131,14 @@ bool Sensor::updateAttribute(const QString &attribute, QVariant data) {
     }
 
     return ok;
+}
+
+void Sensor::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = SensorStates::getTranslatedString(static_cast<SensorStates::Enum>(m_state));
+        emit stateAsStringChanged();
+    });
 }
 }  // namespace entity
 }  // namespace ui

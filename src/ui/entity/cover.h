@@ -28,10 +28,29 @@ class CoverAttributes : public QObject {
 };
 
 class CoverStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, Opening, Open, Closing, Closed };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Cover state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Cover state", "Unknown");
+            case Enum::Opening:
+                return QCoreApplication::translate("Cover state", "Opening");
+            case Enum::Open:
+                return QCoreApplication::translate("Cover state", "Open");
+            case Enum::Closing:
+                return QCoreApplication::translate("Cover state", "Closing");
+            case Enum::Closed:
+                return QCoreApplication::translate("Cover state", "Closed");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class CoverCommands : public QObject {
@@ -80,6 +99,8 @@ class Cover : public Base {
     void sendCommand(CoverCommands::Enum cmd, QVariantMap params);
     void sendCommand(CoverCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+
+    void onLanguageChangedTypeSpecific() override;
 
  signals:
     void positionChanged();

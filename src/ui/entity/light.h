@@ -56,14 +56,29 @@ class LightAttributes : public QObject {
 };
 
 class LightStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, On, Off };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Light state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Light state", "Unknown");
+            case Enum::On:
+                return QCoreApplication::translate("Light state", "On");
+            case Enum::Off:
+                return QCoreApplication::translate("Light state", "Off");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class LightCommands : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { On, Off, Toggle };
     Q_ENUM(Enum)
@@ -99,7 +114,7 @@ class Light : public Base {
     // options
     int getColorTempSteps() { return m_colorTempSteps; }
 
-    QString getStateInfo() override { return m_stateInfo1 + " " + m_state == LightStates::On ? m_stateInfo2 : ""; }
+    QString getStateInfo() override { return m_stateInfo1 + " " + (m_state == LightStates::On ? m_stateInfo2 : ""); }
 
     Q_INVOKABLE void turnOn() override;
     Q_INVOKABLE void turnOff() override;
@@ -112,10 +127,13 @@ class Light : public Base {
     void sendCommand(LightCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
 
+    void onLanguageChangedTypeSpecific() override;
+
  signals:
     void brightnessChanged();
     void colorChanged();
     void colorTempChanged();
+
 
  private:
     int    m_hue;

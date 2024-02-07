@@ -32,6 +32,7 @@ class DockController : public QObject {
 
     Q_INVOKABLE QObject* getDiscoveredDock(const QString& dockId);
     Q_INVOKABLE QObject* getConfiguredDock(const QString& dockId);
+    Q_INVOKABLE void     getConfiguredDockFromCore(const QString &dockId);
 
     Q_INVOKABLE void startDiscovery();
     Q_INVOKABLE void stopDiscovery();
@@ -69,6 +70,8 @@ class DockController : public QObject {
     void dockNameChanged(QString dockId);
     void dockPasswordChanged(QString dockId);
     void error(QString messsage);
+
+    void gotDock(bool success, QString id);
 
  private:
     static DockController* s_instance;

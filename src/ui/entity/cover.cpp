@@ -124,7 +124,7 @@ bool Cover::updateAttribute(const QString &attribute, QVariant data) {
                 ok = true;
                 emit stateChanged(m_id, m_state);
 
-                m_stateAsString = Util::convertEnumToString<CoverStates::Enum>(static_cast<CoverStates::Enum>(m_state));
+                m_stateAsString = CoverStates::getTranslatedString(static_cast<CoverStates::Enum>(m_state));
                 emit stateAsStringChanged();
 
                 m_stateInfo1 = getStateAsString();
@@ -157,6 +157,17 @@ bool Cover::updateAttribute(const QString &attribute, QVariant data) {
     }
 
     return ok;
+}
+
+void Cover::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = CoverStates::getTranslatedString(static_cast<CoverStates::Enum>(m_state));
+        emit stateAsStringChanged();
+
+        m_stateInfo1 = getStateAsString();
+        emit stateInfoChanged();
+    });
 }
 
 }  // namespace entity

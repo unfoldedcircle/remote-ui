@@ -28,10 +28,25 @@ class ButtonAttributes : public QObject {
 };
 
 class ButtonStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, Available, On };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Button state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Button state", "Unknown");
+            case Enum::Available:
+                return QCoreApplication::translate("Button state", "Available");
+            case Enum::On:
+                return QCoreApplication::translate("Button state", "On");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class ButtonCommands : public QObject {
@@ -63,6 +78,8 @@ class Button : public Base {
     void sendCommand(ButtonCommands::Enum cmd, QVariantMap params);
     void sendCommand(ButtonCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+
+    void onLanguageChangedTypeSpecific() override;
 };
 
 }  // namespace entity

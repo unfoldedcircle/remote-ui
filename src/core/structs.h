@@ -260,6 +260,8 @@ struct DockConfiguration {
     DockEnums::DockState state;
     bool                 learningActive;
     QString              description;
+    int                  ledBrightness = -1;
+    int                  ethLedBrightness = -1;
 };
 
 struct DockDiscovery {

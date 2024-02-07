@@ -22,6 +22,7 @@ Item {
         property string name
         property int state
         property string connectionType
+        property int ledBrightness
     }
 
     property string dockId
@@ -32,7 +33,13 @@ Item {
 
     onDockIdChanged: {
         if (dockId) {
-            dockObj = DockController.getConfiguredDock(dockId);
+            DockController.getConfiguredDockFromCore(dockId);
+            connectSignalSlot(DockController.gotDock, function(success, dockIdFromCore) {
+                dockObj = DockController.getConfiguredDock(dockIdFromCore);
+                if (!success) {
+                    ui.createNotification("There was an error while getting the latest dock data", true);
+                }
+            });
         } else {
             dockObj = dockObjDummy;
         }
@@ -287,7 +294,7 @@ Item {
             Components.AboutInfo {
                 Layout.bottomMargin: 10
 
-                key: qsTr("Connection")
+                key: qsTr("Connection type")
                 value: dockObj.connectionType ? dockObj.connectionType : qsTr("N/A")
             }
 
@@ -347,10 +354,10 @@ Item {
 
                 Components.Slider {
                     height: 60
-                    from: 10
+                    from: 0
                     to: 100
                     stepSize: 1
-                    value: 60
+                    value: dockObj.ledBrightness
                     live: true
 
                     onUserInteractionEnded: {

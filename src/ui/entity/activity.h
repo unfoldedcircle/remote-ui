@@ -25,10 +25,31 @@ class ActivityAttributes : public QObject {
 };
 
 class ActivityStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, On, Off, Running, Error, Completed };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Activity state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Activity state", "Unknown");
+            case Enum::On:
+                return QCoreApplication::translate("Activity state", "On");
+            case Enum::Off:
+                return QCoreApplication::translate("Activity state", "Off");
+            case Enum::Running:
+                return QCoreApplication::translate("Activity state", "Running");
+            case Enum::Error:
+                return QCoreApplication::translate("Activity state", "Error");
+            case Enum::Completed:
+                return QCoreApplication::translate("Activity state", "Completed");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class ActivityCommands : public QObject {
@@ -87,6 +108,8 @@ class Activity : public Base {
     void sendCommand(ActivityCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
     bool updateOptions(QVariant data) override;
+
+    void onLanguageChangedTypeSpecific() override;
 
  signals:
     void totalStepsChanged();
