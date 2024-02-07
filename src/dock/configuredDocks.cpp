@@ -10,7 +10,7 @@ namespace dock {
 
 ConfiguredDock::ConfiguredDock(const QString &id, const QString &name, const QString &customWsUrl, bool active,
                                const QString &model, const QString &connectionType, const QString &version, State state,
-                               bool learningActive, const QString &description, QObject *parent)
+                               bool learningActive, const QString &description, int ledBrightness, QObject *parent)
     : QObject(parent),
       m_id(id),
       m_name(name),
@@ -21,7 +21,8 @@ ConfiguredDock::ConfiguredDock(const QString &id, const QString &name, const QSt
       m_version(version),
       m_state(state),
       m_learningActive(learningActive),
-      m_description(description) {}
+      m_description(description),
+      m_ledBrightness(ledBrightness) {}
 
 ConfiguredDock::~ConfiguredDock() {
     qCDebug(lcDockController()) << "Configured dock destructor" << m_id;
@@ -65,6 +66,12 @@ void ConfiguredDock::setLearningActive(bool learningActive) {
 void ConfiguredDock::setDescription(const QString &description) {
     m_description = description;
     emit descriptionChanged();
+}
+
+void ConfiguredDock::setLedBrgithess(int brightness)
+{
+    m_ledBrightness = brightness;
+    emit ledBrightnessChanged();
 }
 
 ConfiguredDocks::ConfiguredDocks(QObject *parent) : QAbstractListModel(parent), m_count(0) {}
@@ -123,6 +130,8 @@ QVariant ConfiguredDocks::data(const QModelIndex &index, int role) const {
             return item->getLearningActive();
         case DescriptionRole:
             return item->getDescription();
+        case LedBrightnessRole:
+            return item->getLedBrightness();
     }
     return QVariant();
 }
@@ -139,6 +148,7 @@ QHash<int, QByteArray> ConfiguredDocks::roleNames() const {
     roles[StateRole] = "dockState";
     roles[LearningActiveRole] = "dockLearningActive";
     roles[DescriptionRole] = "dockDescription";
+    roles[LedBrightnessRole] = "dockLedBrightness";
     return roles;
 }
 
@@ -282,6 +292,16 @@ void ConfiguredDocks::updateDescription(const QString &key, const QString &descr
 
     if (dock) {
         dock->setDescription(description);
+        emit dataChanged(getModelIndexByKey(key), getModelIndexByKey(key));
+    }
+}
+
+void ConfiguredDocks::updateLedBrightness(const QString &key, int brightness)
+{
+    auto dock = get(key);
+
+    if (dock) {
+        dock->setLedBrgithess(brightness);
         emit dataChanged(getModelIndexByKey(key), getModelIndexByKey(key));
     }
 }

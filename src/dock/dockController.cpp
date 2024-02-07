@@ -46,6 +46,52 @@ QObject *DockController::getConfiguredDock(const QString &dockId) {
     return m_configuredDocks.get(dockId);
 }
 
+void DockController::getConfiguredDockFromCore(const QString &dockId)
+{
+    int id = m_core->getDock(dockId);
+
+    m_core->onResponseWithErrorResult(
+        id, &core::Api::respDock, [=](core::DockConfiguration dock){
+            qCDebug(lcDockController()) << "Got dock from core with id:" << dock.id;
+
+            if (m_configuredDocks.contains(dockId)) {
+                m_configuredDocks.updateActive(dockId, dock.active);
+                m_configuredDocks.updateLearningActive(dockId, dock.learningActive);
+
+                if (!dock.name.isEmpty()) {
+                    m_configuredDocks.updateName(dockId, dock.name);
+                }
+                if (!dock.customWsUrl.isEmpty()) {
+                    m_configuredDocks.updateCustomWsUrl(dockId, dock.customWsUrl);
+                }
+                if (!dock.connectionType.isEmpty()) {
+                    m_configuredDocks.updateConnectionType(dockId, dock.connectionType);
+                }
+                if (!dock.version.isEmpty()) {
+                    m_configuredDocks.updateVersion(dockId, dock.version);
+                }
+                if (!dock.description.isEmpty()) {
+                    m_configuredDocks.updateDescription(dockId, dock.description);
+                }
+                if (dock.ledBrightness != -1) {
+                    m_configuredDocks.updateLedBrightness(dockId, dock.ledBrightness);
+                }
+
+                qCDebug(lcDockController()) << "Dock updated:" << dockId;
+                emit dockChanged(dockId);
+                emit gotDock(true, dockId);
+            } else {
+                qCWarning(lcDockController()) << "The dock with id" << dockId << "does not exists";
+                emit gotDock(false, dockId);
+            }
+
+        },[=](int code, QString message) {
+            // fail
+            qCWarning(lcDockController()) << "Failed to get dock from core with id:" << dockId << code << message;
+            emit gotDock(false, dockId);
+        });
+}
+
 void DockController::startDiscovery() {
     m_discoveredDocks.clear();
 
@@ -263,7 +309,7 @@ void DockController::getDocks(int limit, int page) {
                         if (!m_configuredDocks.contains(i->id)) {
                             m_configuredDocks.append(new ConfiguredDock(
                                 i->id, i->name, i->customWsUrl, i->active, i->model, i->connectionType, i->version,
-                                static_cast<ConfiguredDock::State>(i->state), i->learningActive, i->description, this));
+                                static_cast<ConfiguredDock::State>(i->state), i->learningActive, i->description, i->ledBrightness, this));
                             qCDebug(lcDockController()) << "Dock created:" << i->name << i->id;
                         }
                     }
@@ -382,7 +428,7 @@ void DockController::onDockAdded(QString dockId, core::DockConfiguration dock) {
     if (!m_configuredDocks.contains(dockId)) {
         m_configuredDocks.append(new ConfiguredDock(
             dockId, dock.name, dock.customWsUrl, dock.active, dock.model, dock.connectionType, dock.version,
-            static_cast<ConfiguredDock::State>(dock.state), dock.learningActive, dock.description, this));
+            static_cast<ConfiguredDock::State>(dock.state), dock.learningActive, dock.description, dock.ledBrightness, this));
 
         qCDebug(lcDockController()) << "Dock added:" << dockId;
         emit dockAdded(dockId);
@@ -408,6 +454,9 @@ void DockController::onDockChanged(QString dockId, core::DockConfiguration dock)
         }
         if (!dock.description.isEmpty()) {
             m_configuredDocks.updateDescription(dockId, dock.description);
+        }
+        if (dock.ledBrightness != -1) {
+            m_configuredDocks.updateLedBrightness(dockId, dock.ledBrightness);
         }
 
         qCDebug(lcDockController()) << "Dock updated:" << dockId;

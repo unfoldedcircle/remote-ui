@@ -21,10 +21,23 @@ class SensorAttributes : public QObject {
 };
 
 class SensorStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, On };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Sensor state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Sensor state", "Unknown");
+            case Enum::On:
+                return QCoreApplication::translate("Sensor state", "On");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class SensorCommands : public QObject {
@@ -75,6 +88,8 @@ class Sensor : public Base {
     bool updateAttribute(const QString &attribute, QVariant data) override;
 
     QString getStateInfo() override { return m_value.toString() + " " + m_unit; }
+
+    void onLanguageChangedTypeSpecific() override;
 
  signals:
     void valueChanged();

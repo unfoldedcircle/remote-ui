@@ -24,10 +24,25 @@ class RemoteAttributes : public QObject {
 };
 
 class RemoteStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, On, Off };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Remote state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Remote state", "Unknown");
+            case Enum::On:
+                return QCoreApplication::translate("Remote state", "On");
+            case Enum::Off:
+                return QCoreApplication::translate("Remote state", "Off");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class RemoteCommands : public QObject {
@@ -69,6 +84,8 @@ class Remote : public Base {
     void sendCommand(RemoteCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
     bool updateOptions(QVariant data) override;
+
+    void onLanguageChangedTypeSpecific() override;
 
  signals:
     void buttonMappingChanged();

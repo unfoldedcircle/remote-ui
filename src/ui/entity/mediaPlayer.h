@@ -86,11 +86,34 @@ class MediaPlayerAttributes : public QObject {
 };
 
 class MediaPlayerStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
 
  public:
     enum Enum { Unavailable = 0, Unknown, On, Off, Playing, Paused, Standby, Buffering };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Media platyer state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Media platyer state", "Unknown");
+            case Enum::On:
+                return QCoreApplication::translate("Media platyer state", "On");
+            case Enum::Off:
+                return QCoreApplication::translate("Media platyer state", "Off");
+            case Enum::Playing:
+                return QCoreApplication::translate("Media platyer state", "Playing");
+            case Enum::Paused:
+                return QCoreApplication::translate("Media platyer state", "Paused");
+            case Enum::Standby:
+                return QCoreApplication::translate("Media platyer state", "Standby");
+            case Enum::Buffering:
+                return QCoreApplication::translate("Media platyer state", "Buffering");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class MediaPlayerCommands : public QObject {
@@ -257,6 +280,8 @@ class MediaPlayer : public Base {
     void sendCommand(MediaPlayerCommands::Enum cmd, QVariantMap params);
     void sendCommand(MediaPlayerCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+
+    void onLanguageChangedTypeSpecific() override;
 
  signals:
     void volumeChanged();

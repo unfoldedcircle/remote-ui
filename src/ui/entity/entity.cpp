@@ -157,6 +157,8 @@ void Base::onLanguageChanged(QString language) {
     emit nameChanged();
 
     m_sorting = m_name.toLower() + m_integration.toLower() + m_id.toLower() + m_area.toLower();
+
+    onLanguageChangedTypeSpecific();
 }
 
 void Base::onStateChanged(QString entityId, int newState) {

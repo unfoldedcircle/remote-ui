@@ -36,10 +36,33 @@ class ClimateAttributes : public QObject {
 };
 
 class ClimateStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, Off, Heat, Cool, Heat_cool, Fan, Auto };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Climate state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Climate state", "Unknown");
+            case Enum::Off:
+                return QCoreApplication::translate("Climate state", "Off");
+            case Enum::Heat:
+                return QCoreApplication::translate("Climate state", "Heat");
+            case Enum::Cool:
+                return QCoreApplication::translate("Climate state", "Cool");
+            case Enum::Heat_cool:
+                return QCoreApplication::translate("Climate state", "Heat/Cool");
+            case Enum::Fan:
+                return QCoreApplication::translate("Climate state", "Fan");
+            case Enum::Auto:
+                return QCoreApplication::translate("Climate state", "Auto");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class ClimateCommands : public QObject {
@@ -117,6 +140,8 @@ class Climate : public Base {
     void sendCommand(ClimateCommands::Enum cmd, QVariantMap params);
     void sendCommand(ClimateCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+
+    void onLanguageChangedTypeSpecific() override;
 
  signals:
     void currentTemperatureChanged();

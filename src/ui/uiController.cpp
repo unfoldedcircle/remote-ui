@@ -95,7 +95,7 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     QObject::connect(m_config, &Config::soundVolumeChanged, this,
                      [=](int volume) { m_soundEffects->setVolume(volume); });
 
-    QObject::connect(m_config, &Config::languageChanged, this, &Controller::onLanguageChanged);
+    QObject::connect(m_config, &Config::languageChanged, m_entityController, &EntityController::onLanguageChanged);
     QObject::connect(m_config, &Config::unitSystemChanged, m_entityController, &EntityController::onUnitSystemChanged);
 
     QObject::connect(m_config, &Config::displayBrightnessChanged, this, &Controller::onBrightnessChanged);
@@ -664,11 +664,6 @@ void Controller::onWarning(core::MsgEventTypes::WarningEvent event, bool shutdow
         auto obj = getQMLObject("remoteOpenLoader");
         obj->setProperty("active", true);
     }
-}
-
-void Controller::onLanguageChanged(QString language) {
-    // TODO(Marton) why is this a manual call and not setup with a signal / slot?
-    m_entityController->onLanguageChanged(language);
 }
 
 void Controller::onBrightnessChanged(int brightness) {

@@ -181,7 +181,6 @@ class Controller : public QObject {
     void onCoreProblem();
     void onWarning(core::MsgEventTypes::WarningEvent event, bool shutdown, QString message);
 
-    void onLanguageChanged(QString language);
     void onBrightnessChanged(int brightness);
 
     void onProfileIdChanged();

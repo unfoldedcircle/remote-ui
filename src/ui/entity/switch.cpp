@@ -84,8 +84,7 @@ bool Switch::updateAttribute(const QString &attribute, QVariant data) {
                 ok = true;
                 emit stateChanged(m_id, m_state);
 
-                m_stateAsString =
-                    Util::convertEnumToString<SwitchStates::Enum>(static_cast<SwitchStates::Enum>(m_state));
+                m_stateAsString = SwitchStates::getTranslatedString(static_cast<SwitchStates::Enum>(m_state));
                 emit stateAsStringChanged();
 
                 m_stateInfo = getStateAsString();
@@ -96,6 +95,17 @@ bool Switch::updateAttribute(const QString &attribute, QVariant data) {
     }
 
     return ok;
+}
+
+void Switch::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = SwitchStates::getTranslatedString(static_cast<SwitchStates::Enum>(m_state));
+        emit stateAsStringChanged();
+
+        m_stateInfo = getStateAsString();
+        emit stateInfoChanged();
+    });
 }
 
 }  // namespace entity

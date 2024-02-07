@@ -125,8 +125,7 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
                 m_state = newState;
                 ok      = true;
 
-                m_stateAsString =
-                    Util::convertEnumToString<ActivityStates::Enum>(static_cast<ActivityStates::Enum>(m_state));
+                m_stateAsString = ActivityStates::getTranslatedString(static_cast<ActivityStates::Enum>(m_state));
                 m_stateInfo = getStateAsString();
 
                 emit stateAsStringChanged();
@@ -193,6 +192,18 @@ bool Activity::updateOptions(QVariant data) {
     }
 
     return ok;
+}
+
+void Activity::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = ActivityStates::getTranslatedString(static_cast<ActivityStates::Enum>(m_state));
+        m_stateInfo = getStateAsString();
+
+        emit stateAsStringChanged();
+        emit stateInfoChanged();
+        emit stateChanged(m_id, m_state);
+    });
 }
 
 void Activity::sendButtonMappingCommand(const QString &buttonName, bool shortPress) {

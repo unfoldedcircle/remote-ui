@@ -25,10 +25,27 @@ class MacroAttributes : public QObject {
 };
 
 class MacroStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, Running, Error, Completed };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Macro state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Macro state", "Unknown");
+            case Enum::Running:
+                return QCoreApplication::translate("Macro state", "Running");
+            case Enum::Error:
+                return QCoreApplication::translate("Macro state", "Error");
+            case Enum::Completed:
+                return QCoreApplication::translate("Macro state", "Completed");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class MacroCommands : public QObject {
@@ -64,10 +81,13 @@ class Macro : public Base {
 
     Q_INVOKABLE void run();
     Q_INVOKABLE void stop();
+    Q_INVOKABLE void clearCurrentStep();
 
     void sendCommand(MacroCommands::Enum cmd, QVariantMap params);
     void sendCommand(MacroCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+
+    void onLanguageChangedTypeSpecific() override;
 
  signals:
     void totalStepsChanged();

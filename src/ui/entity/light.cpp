@@ -121,7 +121,7 @@ bool Light::updateAttribute(const QString &attribute, QVariant data) {
                 ok = true;
                 emit stateChanged(m_id, m_state);
 
-                m_stateAsString = Util::convertEnumToString<LightStates::Enum>(static_cast<LightStates::Enum>(m_state));
+                m_stateAsString = LightStates::getTranslatedString(static_cast<LightStates::Enum>(m_state));
                 emit stateAsStringChanged();
 
                 m_stateInfo1 = getStateAsString();
@@ -178,6 +178,17 @@ bool Light::updateAttribute(const QString &attribute, QVariant data) {
     }
 
     return ok;
+}
+
+void Light::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = LightStates::getTranslatedString(static_cast<LightStates::Enum>(m_state));
+        emit stateAsStringChanged();
+
+        m_stateInfo1 = getStateAsString();
+        emit stateInfoChanged();
+    });
 }
 
 void Light::calculateQColor() {

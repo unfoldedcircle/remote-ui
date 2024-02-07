@@ -73,8 +73,7 @@ bool Button::updateAttribute(const QString &attribute, QVariant data) {
                 ok = true;
                 emit stateChanged(m_id, m_state);
 
-                m_stateAsString =
-                    Util::convertEnumToString<ButtonStates::Enum>(static_cast<ButtonStates::Enum>(m_state));
+                m_stateAsString = ButtonStates::getTranslatedString(static_cast<ButtonStates::Enum>(m_state));
                 emit stateAsStringChanged();
 
                 m_stateInfo = getStateAsString();
@@ -85,6 +84,17 @@ bool Button::updateAttribute(const QString &attribute, QVariant data) {
     }
 
     return ok;
+}
+
+void Button::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = ButtonStates::getTranslatedString(static_cast<ButtonStates::Enum>(m_state));
+        emit stateAsStringChanged();
+
+        m_stateInfo = getStateAsString();
+        emit stateInfoChanged();
+    });
 }
 
 }  // namespace entity

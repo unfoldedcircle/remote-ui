@@ -28,10 +28,25 @@ class SwitchAttributes : public QObject {
 };
 
 class SwitchStates : public QObject {
-    Q_GADGET
+    Q_OBJECT
  public:
     enum Enum { Unavailable = 0, Unknown, On, Off };
     Q_ENUM(Enum)
+
+    static QString getTranslatedString(Enum state) {
+        switch (state) {
+            case Enum::Unavailable:
+                return QCoreApplication::translate("Switch state", "Unavailable");
+            case Enum::Unknown:
+                return QCoreApplication::translate("Switch state", "Unknown");
+            case Enum::On:
+                return QCoreApplication::translate("Switch state", "On");
+            case Enum::Off:
+                return QCoreApplication::translate("Switch state", "Off");
+            default:
+                return Util::convertEnumToString<Enum>(state);
+        }
+    }
 };
 
 class SwitchCommands : public QObject {
@@ -64,6 +79,8 @@ class Switch : public Base {
     void sendCommand(SwitchCommands::Enum cmd, QVariantMap params);
     void sendCommand(SwitchCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+
+    void onLanguageChangedTypeSpecific() override;
 
     // Options
  private:

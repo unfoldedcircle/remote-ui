@@ -56,6 +56,12 @@ void Macro::stop() {
     sendCommand(MacroCommands::Stop);
 }
 
+void Macro::clearCurrentStep()
+{
+    m_totalSteps = 0;
+    emit totalStepsChanged();
+}
+
 void Macro::sendCommand(MacroCommands::Enum cmd, QVariantMap params) {
     Base::sendCommand(QVariant::fromValue(cmd).toString(), params);
 }
@@ -78,7 +84,7 @@ bool Macro::updateAttribute(const QString &attribute, QVariant data) {
                 m_state = newState;
                 ok = true;
 
-                m_stateAsString = Util::convertEnumToString<MacroStates::Enum>(static_cast<MacroStates::Enum>(m_state));
+                m_stateAsString = MacroStates::getTranslatedString(static_cast<MacroStates::Enum>(m_state));
                 emit stateAsStringChanged();
                 emit stateChanged(m_id, m_state);
             }
@@ -107,6 +113,15 @@ bool Macro::updateAttribute(const QString &attribute, QVariant data) {
     }
 
     return ok;
+}
+
+void Macro::onLanguageChangedTypeSpecific()
+{
+    QTimer::singleShot(500, [=]() {
+        m_stateAsString = MacroStates::getTranslatedString(static_cast<MacroStates::Enum>(m_state));
+        emit stateAsStringChanged();
+        emit stateChanged(m_id, m_state);
+    });
 }
 
 }  // namespace entity

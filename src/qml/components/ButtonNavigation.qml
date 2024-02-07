@@ -25,16 +25,16 @@ Item {
 
     function takeControl() {
         ui.inputController.takeControl(String(buttonNavigation.parent));
-        console.debug("Button control enabled for: " + String(buttonNavigation.parent));
+        console.info("Button control enabled for: " + String(buttonNavigation.parent));
     }
 
     function releaseControl(newNavigation = "") {
         ui.inputController.releaseControl(newNavigation);
-        console.debug("Button control disabled for: " + String(buttonNavigation.parent));
+        console.info("Button control disabled for: " + String(buttonNavigation.parent));
     }
 
     function extendDefaultConfig(config, overWrite = false) {
-        console.debug("Extending default config for: " + String(buttonNavigation.parent));
+        console.info("Extending default config for: " + String(buttonNavigation.parent));
         buttonNavigation.defaultConfigOriginal = buttonNavigation.defaultConfig;
 
         for (const [key, value] of Object.entries(config)) {
@@ -47,12 +47,12 @@ Item {
     }
 
     function restoreDefaultConfig() {
-        console.debug("Restoring default config for: " + String(buttonNavigation.parent));
+        console.info("Restoring default config for: " + String(buttonNavigation.parent));
         buttonNavigation.defaultConfig = buttonNavigation.defaultConfigOriginal;
     }
 
     function extendOverrideConfig(config, overWrite = false) {
-        console.debug("Extending override config for: " + String(buttonNavigation.parent));
+        console.info("Extending override config for: " + String(buttonNavigation.parent));
         buttonNavigation.overrideConfigOriginal = buttonNavigation.overrideConfig;
 
         for (const [key, value] of Object.entries(config)) {
@@ -65,7 +65,7 @@ Item {
     }
 
     function restoreOverrideConfig() {
-        console.debug("Restoring override config for: " + String(buttonNavigation.parent));
+        console.info("Restoring override config for: " + String(buttonNavigation.parent));
         buttonNavigation.overrideConfig = buttonNavigation.overrideConfigOriginal;
     }
 
@@ -77,14 +77,14 @@ Item {
             if (overrideConfig[key]) {
                 // execute override config
                 if (overrideConfig[key].pressed) {
-                    console.debug("OVERRIDE PRESSED: " + key + " " + buttonNavigation.parent);
+                    console.info("OVERRIDE PRESSED: " + key + " " + buttonNavigation.parent);
                     overrideConfig[key].pressed();
                 }
 
             } else if (defaultConfig[key]) {
                 // execute default config
                 if (defaultConfig[key].pressed) {
-                    console.debug("DEFAULT PRESSED: " + key + " " + buttonNavigation.parent);
+                    console.info("DEFAULT PRESSED: " + key + " " + buttonNavigation.parent);
                     defaultConfig[key].pressed();
                 }
             }
@@ -94,14 +94,14 @@ Item {
             if (overrideConfig[key]) {
                 // execute override config
                 if (overrideConfig[key].long_press) {
-                    console.debug("OVERRIDE LONG_PRESS: " + key + " " + buttonNavigation.parent);
+                    console.info("OVERRIDE LONG_PRESS: " + key + " " + buttonNavigation.parent);
                     overrideConfig[key].long_press();
                 }
 
             } else if (defaultConfig[key]) {
                 // execute default config
                 if (defaultConfig[key].long_press) {
-                    console.debug("DEFAULT LONG_PRESS: " + key + " " + buttonNavigation.parent);
+                    console.info("DEFAULT LONG_PRESS: " + key + " " + buttonNavigation.parent);
                     defaultConfig[key].long_press();
                 }
             }
@@ -111,14 +111,14 @@ Item {
             if (overrideConfig[key]) {
                 // execute override config
                 if (overrideConfig[key].released) {
-                    console.debug("OVERRIDE RELEASED: " + key + " " + buttonNavigation.parent);
+                    console.info("OVERRIDE RELEASED: " + key + " " + buttonNavigation.parent);
                     overrideConfig[key].released();
                 }
 
             } else if (defaultConfig[key]) {
                 // execute default config
                 if (defaultConfig[key].released) {
-                    console.debug("DEFAULT RELEASED: " + key + " " + buttonNavigation.parent);
+                    console.info("DEFAULT RELEASED: " + key + " " + buttonNavigation.parent);
                     defaultConfig[key].released();
                 }
             }

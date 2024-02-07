@@ -52,7 +52,7 @@ Rectangle {
                 }
                 PropertyAnimation { target: iconClose; properties: "opacity"; easing.type: Easing.OutExpo; duration: entityBaseDetailContainer.skipAnimation ? 0 : 300 }
                 PauseAnimation { duration: 500 }
-                ScriptAction { script: ui.inputController.blockInput(false); }
+//                ScriptAction { script: ui.inputController.blockInput(false); }
             }
         },
         Transition {
@@ -83,7 +83,7 @@ Rectangle {
 
     function open(skipAnimation = false) {
         buttonNavigation.takeControl();
-        ui.inputController.blockInput(true);
+//        ui.inputController.blockInput(true);
         entityBaseDetailContainer.skipAnimation = skipAnimation;
         entityBaseDetailContainer.state = "open";
     }
@@ -96,7 +96,7 @@ Rectangle {
             buttonNavigation.releaseControl();
         }
 
-        ui.inputController.blockInput(false);
+//        ui.inputController.blockInput(false);
     }
 
     Components.ButtonNavigation {
