@@ -1446,13 +1446,13 @@ Climate fan</extracomment>
 <context>
     <name>Page</name>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="182"/>
+        <location filename="../../src/qml/components/Page.qml" line="194"/>
         <source>%1 is %2</source>
         <extracomment>Used to show the entity state: %1 is the entity name, %2 is the state</extracomment>
         <translation type="unfinished">%1 is %2</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="203"/>
+        <location filename="../../src/qml/components/Page.qml" line="215"/>
         <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
         <extracomment>Web configurator is the name of the application, does not need translation</extracomment>
         <translation type="unfinished">Press and hold the Home button or use the Web Configurator to configure the page</translation>

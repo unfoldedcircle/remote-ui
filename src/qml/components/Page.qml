@@ -25,11 +25,16 @@ ListView {
     model: visualModel
     header: header
     currentIndex: 0
+    
+    // Disable scrolling when no items on page, otherwise header is movable
+    interactive: visualModel.count
 
     property string title: pageName
     property string _id: pageId
     property QtObject items: pageItems
     property bool isCurrentItem: ListView.isCurrentItem
+    property int headerHeight: 260
+
 
     Behavior on height {
         NumberAnimation { easing.type: Easing.OutExpo; duration: 200 }
@@ -65,6 +70,17 @@ ListView {
             }
         }
     }
+    onContentYChanged: {
+            // Adjust the height of the header image based on overscroll
+            if (contentY < -260){
+                headerHeight= Math.max(-contentY, 260);
+                // Return the header to its normal size when we release 
+                if (!dragging){
+                    contentY = -260;
+                }
+            }
+
+        }
 
     DelegateModel {
         id: visualModel
@@ -81,7 +97,7 @@ ListView {
 
             Image {
                 id: headerImage
-                width: parent.width; height: 260
+                width: parent.width; height: headerHeight
                 source: resource.getBackgroundImage(pageImage)
                 sourceSize.width: parent.width
                 sourceSize.height: 260
@@ -248,7 +264,6 @@ ListView {
 
             onReleased: {
                 page.interactive = true;
-
                 if (held) {
                     Haptic.play(Haptic.Click);
                     held = false;
@@ -361,3 +376,4 @@ ListView {
         }
     }
 }
+
