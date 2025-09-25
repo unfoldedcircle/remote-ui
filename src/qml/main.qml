@@ -8,6 +8,7 @@ import QtQuick.VirtualKeyboard.Settings 2.3
 import QtQuick.Window 2.2
 
 import Haptic 1.0
+import HwInfo 1.0
 import Config 1.0
 import Battery 1.0
 import Power 1.0
@@ -51,16 +52,24 @@ ApplicationWindow {
 
     function loadSecondContainer(source, parameters = {}, openAfterLoad = true) {
         if (!containerSecond.loader.active) {
-            console.debug("Loading second container");
+            console.debug("Loading second container", source);
             containerSecond.loader.openAfterLoad = openAfterLoad;
             containerSecond.loader.active = true;
             containerSecond.loader.setSource(source, parameters);
         }
     }
 
+    function loadActivityToSecondContainer(entityObj) {
+        ui.setTimeOut(1000, () => {
+                          loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityObj.id, "entityObj": entityObj });
+                      });
+    }
+
+    property bool isSecondContainerLoaded: containerSecond.loader.source != ""
+
     function loadThirdContainer(source, parameters = {}, openAfterLoad = true) {
         if (!containerThird.loaderThird.active) {
-            console.debug("Loading third container");
+            console.debug("Loading third container", source);
             containerThird.loaderThird.openAfterLoad = openAfterLoad;
             containerThird.loaderThird.active = true;
             containerThird.loaderThird.setSource(source, parameters);
@@ -73,6 +82,23 @@ ApplicationWindow {
             sig.disconnect(slotConn);
         }
         sig.connect(slotConn)
+    }
+
+    Connections {
+        target: Power
+        ignoreUnknownSignals: true
+
+        function onPowerModeChanged(fromPowerMode, toPowerMode) {
+            if (toPowerMode == PowerModes.Low_power && fromPowerMode == PowerModes.Idle) {
+                applicationWindow.visible = false;
+            }
+
+            if (toPowerMode == PowerModes.Normal) {
+                if (!applicationWindow.visible) {
+                    applicationWindow.visible = true;
+                }
+            }
+        }
     }
 
     Components.ButtonNavigation {
@@ -264,9 +290,9 @@ ApplicationWindow {
                     loader.source = "";
                     loader.active = false
                     containerSecond.close();
-//                    if (ui.inputController.activeObject !== String(containerMain.item)) {
-//                        ui.inputController.takeControl(String(containerMain.item));
-//                    }
+                    //                    if (ui.inputController.activeObject !== String(containerMain.item)) {
+                    //                        ui.inputController.takeControl(String(containerMain.item));
+                    //                    }
                 }
             }
         }
@@ -335,9 +361,9 @@ ApplicationWindow {
                     console.debug("Third container closed signal called");
                     containerThird.close();
                     containerSecondShowAnimation.start();
-//                    if (ui.inputController.activeObject !== String(containerMain.item)) {
-//                        ui.inputController.takeControl(String(containerMain.item));
-//                    }
+                    //                    if (ui.inputController.activeObject !== String(containerMain.item)) {
+                    //                        ui.inputController.takeControl(String(containerMain.item));
+                    //                    }
                 }
             }
         }
@@ -568,17 +594,17 @@ ApplicationWindow {
                 id: buttonNavigation
                 defaultConfig: {
                     "HOME": {
-                        "released": function() {
+                        "pressed": function() {
                             keyboard.hide();
                         }
                     },
                     "BACK": {
-                        "released": function() {
+                        "pressed": function() {
                             keyboard.hide();
                         }
                     },
                     "DPAD_MIDDLE": {
-                        "released": function() {
+                        "pressed": function() {
                             keyboard.hide();
                         }
                     }
@@ -699,58 +725,6 @@ ApplicationWindow {
             OpacityAnimator { duration: 300 }
         }
     }
-
-    //    Item {
-    //        anchors.fill: parent
-    //        parent: Overlay.overlay
-
-    //        MouseArea {
-    //            anchors.fill: parent
-
-    //            propagateComposedEvents: true
-
-    //            onClicked: {
-    //                pos.text = "X: " + Math.round(mouse.x) + " Y: " + Math.round(mouse.y)
-    //                mouse.accepted = false;
-    //            }
-
-    //            onPositionChanged: {
-    //                pos.text = "X: " + Math.round(mouse.x) + " Y: " + Math.round(mouse.y)
-    //                mouse.accepted = false;
-    //            }
-    //        }
-
-    //        Text {
-    //            id: pos
-    //            color: colors.offwhite
-    //            font.pixelSize: 20
-    //            anchors { top: parent.top; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-    //        }
-
-    //        Repeater {
-    //            anchors.fill: parent
-    //            model: 24
-
-    //            Item {
-    //                y: 40*index
-    //                x: 0
-
-    //                Rectangle {
-    //                    width: 20
-    //                    height: 4
-    //                    color: colors.offwhite
-    //                    anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-    //                }
-
-    //                Text {
-    //                    text: parent.y
-    //                    color: colors.offwhite
-    //                    font.pixelSize: 20
-    //                    anchors { left: parent.left; leftMargin: 30; verticalCenter: parent.verticalCenter }
-    //                }
-    //            }
-    //        }
-    //    }
 
     Component.onCompleted: {
         ui.inputController.setSource(applicationWindow);

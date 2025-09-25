@@ -67,7 +67,7 @@ class Switch : public Base {
     Q_OBJECT
 
  public:
-    explicit Switch(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit Switch(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                     const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                     QVariantMap attributes, QVariantMap options, const QString &integrationId, QObject *parent);
     ~Switch();

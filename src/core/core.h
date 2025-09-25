@@ -118,8 +118,9 @@ class Api : public QObject {
     int getTimeZoneNames();
     int getLocalizationCountries();
     int getLocalizationLanguages();
+    void setLocalizationLanguages(int reqId, QString version, QVariantList languages);
     int getNetworkCfg();
-    int setNetworkCfg(bool bluetoothEnabled, bool wifiEnabled);
+    int setNetworkCfg(bool bluetoothEnabled, bool wifiEnabled, bool wowlanEnabled, QString band, int scanIntervalSec);
     int getPowerSavingCfg();
     int setPowerSavingCfg(int wakeupSensitivity, int displayOffSec, int standbySec);
     int getProfileCfg();
@@ -283,6 +284,10 @@ class Api : public QObject {
             QObject::disconnect(connFail);
         }
     }
+
+    // request signals
+ signals:
+    void reqGetLocalizationLanguages(int reqId);
 
     // response signals
  signals:
@@ -452,6 +457,7 @@ class Api : public QObject {
 
     void processEventMessage(QVariantMap map);
     void processResponseMessage(QVariantMap map);
+    void processRequestMessage(QVariantMap map);
 
     void                 setupTimerForRequest(int requestId);
     void                 removeRequestTimer(int requestId);
@@ -534,6 +540,10 @@ class Api : public QObject {
     void processSoftwareUpdateChange(QVariant msgData);
     void processPowerModeChange(QVariant msgData);
     void processBatteryStatusChange(QVariant msgData);
+
+    // processing requests
+ private:
+    void processRequestGetLocalizationLanguages(int reqId);
 };
 
 }  // namespace core

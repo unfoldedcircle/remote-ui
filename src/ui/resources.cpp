@@ -33,24 +33,45 @@ QString Resources::getIcon(const QString& id, const QString& suffix) {
     QString _id;
     QString ext;
 
-    if (id.contains(".png") || id.contains(".jpg")) {
-        _id = id.chopped(4);
-        ext = id.right(4);
-    } else if (id.contains(".jpeg")) {
-        _id = id.chopped(5);
-        ext = id.right(5);
+    if (id.isEmpty()) {
+        qCWarning(lcResources()) << "Empty ID passed to getIcon()";
+        return QString();
+    }
+
+    if (id.endsWith(".png") || id.endsWith(".jpg")) {
+        if (id.length() >= 4) {
+            _id = id.chopped(4);
+            ext = id.right(4);
+        } else {
+            qCWarning(lcResources()) << "ID too short for .png/.jpg extension:" << id;
+            return QString();  // Or handle it gracefully
+        }
+    } else if (id.endsWith(".jpeg")) {
+        if (id.length() >= 5) {
+            _id = id.chopped(5);
+            ext = id.right(5);
+        } else {
+            qCWarning(lcResources()) << "ID too short for .jpeg extension:" << id;
+            return QString();
+        }
     } else {
         _id = id;
     }
 
     QString icon;
+    ResourceType resourceType = Icon;
 
-    if (!suffix.isEmpty()) {
-        icon = getResource(Icon, _id + "-" + suffix.toLower() + ext);
+            // suffix not supported yet
+    //    if (!suffix.isEmpty()) {
+    //        icon = getResource(Icon, _id + "-" + suffix.toLower() + ext);
+    //    }
+
+    if (_id.contains("ctv:")) {
+        resourceType = TvChannelIcon;
     }
 
     if (icon.isEmpty()) {
-        icon = getResource(Icon, _id + ext);
+        icon = getResource(resourceType, _id + ext);
     }
 
     return icon;
@@ -98,21 +119,22 @@ void Resources::getAboutInfo(int type) {
     emit aboutInfo(ret, directory.absolutePath());
 }
 
-QString Resources::getLinkContent(const QString& baseDir, const QString& path) {
+void Resources::getLinkContent(const QString& baseDir, const QString& path) {
+    QDir directory(baseDir);
+
     QFile   file;
     QString dir = baseDir;
     file.setFileName(dir.replace("file:/", "") + path);
 
     if (!file.open(QIODevice::ReadOnly)) {
         qCWarning(lcResources()) << "Cannot open file" << file;
-        return QString();
     }
 
     QTextStream in(&file);
     QString     ret = in.readAll();
     file.close();
 
-    return ret;
+    emit aboutInfo(ret, directory.absolutePath());
 }
 
 QStringList Resources::getIconList() {
@@ -143,9 +165,13 @@ QString Resources::getResource(ResourceType type, const QString& id) {
     QString prefix;
     QString resourceName;
 
-    if (id.contains(":")) {
-        prefix = id.split(":")[0];
-        resourceName = id.split(":")[1];
+    QStringList parts = id.split(":");
+    if (parts.size() >= 2) {
+        prefix = parts[0];
+        resourceName = parts[1];
+    } else {
+        qCWarning(lcResources()) << "Invalid id format, missing ':' in" << id;
+        return QString();  // or some fallback
     }
 
     qCDebug(lcResources()) << "Prefix:" << prefix << "Name:" << resourceName;
@@ -171,7 +197,14 @@ QString Resources::getResource(ResourceType type, const QString& id) {
                 return QString();
             }
         }
-        case TvChannelIcon:
+        case TvChannelIcon: {
+            if (QFile::exists(m_resourcePaths.value(type) + resourceName)) {
+                return QString("file:" + m_resourcePaths.value(type) + resourceName);
+            }
+
+            qCDebug(lcResources()) << "Cannot find TV channel icon:" << id;
+            return QString();
+        }
         case BackgroundImage:
         case Sound: {
             if (QFile::exists(m_resourcePaths.value(type) + resourceName) && !resourceName.isEmpty()) {

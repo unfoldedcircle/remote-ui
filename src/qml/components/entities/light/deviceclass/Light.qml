@@ -39,12 +39,12 @@ EntityComponents.BaseDetail {
             }
         },
         "DPAD_MIDDLE": {
-            "released": function() {
+            "pressed": function() {
                 entityObj.toggle();
             }
         },
         "POWER": {
-            "released": function() {
+            "pressed": function() {
                 entityObj.toggle();
             }
         },

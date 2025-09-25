@@ -1,6 +1,10 @@
 <RCC>
     <qresource prefix="/">
-        <file>../images/dock_setup.png</file>
+        <file>../images/dock_2.png</file>
+        <file>../images/dock3_dark_charging.png</file>
+        <file>../images/dock3_dark_non_charging.png</file>
+        <file>../images/dock3_silver_charging.png</file>
+        <file>../images/dock3_silver_non_charging.png</file>
         <file>../images/loader_small.png</file>
         <file>../images/quarter_arc.svg</file>
         <file>../images/help-overlay/Main1.png</file>

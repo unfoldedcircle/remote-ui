@@ -31,7 +31,7 @@ Settings.Page {
                                                      }
                                                  },
                                                  "DPAD_MIDDLE": {
-                                                     "released": function() {
+                                                     "pressed": function() {
                                                          loadPage(menu.currentIndex);
                                                      }
                                                  }
@@ -78,12 +78,12 @@ Settings.Page {
                 {
                     itemTitle: QT_TR_NOOP("Power Saving"),
                     page: "Power",
-                    icon: "uc:battery"
+                    icon: "uc:battery-full"
                 },
                 {
                     itemTitle: QT_TR_NOOP("Wifi & Bluetooth"),
                     page: "Wifi",
-                    icon: "uc:wifi-03"
+                    icon: "uc:wifi"
                 },
                 {
                     itemTitle: QT_TR_NOOP("Localisation"),
@@ -93,12 +93,12 @@ Settings.Page {
                 {
                     itemTitle: QT_TR_NOOP("Administrator PIN"),
                     page: "AdminPin",
-                    icon: "uc:lock-alt"
+                    icon: "uc:lock"
                 },
                 {
                     itemTitle: QT_TR_NOOP("Factory reset"),
                     page: "Reset",
-                    icon: "uc:warning"
+                    icon: "uc:triangle-exclamation"
                 }
             ]
 

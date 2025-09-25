@@ -64,7 +64,7 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     actionableNotification.clearAll();
 
                     if (notificationList.depth == 1) {
@@ -73,7 +73,7 @@ Popup {
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     actionableNotification.clearAll();
 
                     if (notificationList.depth == 1) {
@@ -212,7 +212,7 @@ Popup {
 
             Components.Icon {
                 color: notificationObj.itemWarning() ? colors.red : colors.offwhite
-                icon: notificationObj.itemIcon() === "" ? "uc:warning" : notificationObj.itemIcon()
+                icon: notificationObj.itemIcon() === "" ? "uc:triangle-exclamation" : notificationObj.itemIcon()
                 anchors { left: parent.left; bottom: actionableNotificationTitle.top }
                 size: 140
             }

@@ -52,22 +52,6 @@ Item {
             font: fonts.secondaryFont(24)
         }
 
-        Item {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            Image {
-                width: parent.width
-                height: parent.height * 0.7
-                anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: -80 }
-                fillMode: Image.PreserveAspectFit
-                antialiasing: true
-                asynchronous: true
-                cache: true
-                source: "qrc:/images/dock_setup.png"
-            }
-        }
-
         Text {
             Layout.fillWidth: true
             Layout.leftMargin: 20
@@ -152,23 +136,6 @@ Item {
             elide: Text.ElideRight
             color: colors.red
             font: fonts.secondaryFont(24)
-        }
-
-        Item {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-
-            Image {
-                width: parent.width
-                height: parent.height * 0.7
-                anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: -80 }
-                fillMode: Image.PreserveAspectFit
-                antialiasing: true
-                asynchronous: true
-                cache: true
-                source: "qrc:/images/dock_setup.png"
-                opacity: 0.3
-            }
         }
 
         Components.Button {

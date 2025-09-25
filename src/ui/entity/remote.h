@@ -67,7 +67,7 @@ class Remote : public Base {
     Q_PROPERTY(QVariantMap ui READ getUiConfig NOTIFY uiConfigChanged)
 
  public:
-    explicit Remote(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit Remote(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                     const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                     QVariantMap attributes, QVariantMap options, const QString &integrationId, QObject *parent);
     ~Remote();

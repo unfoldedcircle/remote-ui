@@ -125,7 +125,7 @@ KeyboardStyle {
             anchors.margins: keyBackgroundMargin
             Components.Icon {
                 id: backspaceKeyIcon
-                icon: "uc:backspace"
+                icon: "uc:delete-left"
                 color: colors.offwhite
                 anchors.fill: parent
                 size: 60
@@ -325,7 +325,7 @@ KeyboardStyle {
             anchors.margins: keyBackgroundMargin
             Components.Icon {
                 id: hideKeyIcon
-                icon: "uc:down-arrow"
+                icon: "uc:keyboard-down"
                 color: colors.offwhite
                 anchors.fill: parent
                 size: 60
@@ -369,7 +369,7 @@ KeyboardStyle {
             anchors.margins: keyBackgroundMargin
             Components.Icon {
                 id: shiftKeyIcon
-                icon: "uc:shift-outline"
+                icon: "uc:up"
                 color: colors.offwhite
                 anchors.fill: parent
                 size: 60
@@ -384,7 +384,7 @@ KeyboardStyle {
                     }
                     PropertyChanges {
                         target: shiftKeyIcon
-                        icon: "uc:shift-fill"
+                        icon: "uc:up-to-line"
                     }
                 },
                 State {
@@ -392,7 +392,7 @@ KeyboardStyle {
                     when: InputContext.shift
                     PropertyChanges {
                         target: shiftKeyIcon
-                        icon: "uc:shift-fill"
+                        icon: "uc:up-to-line"
                     }
                 }
             ]

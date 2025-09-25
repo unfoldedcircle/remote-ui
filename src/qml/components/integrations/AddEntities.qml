@@ -53,7 +53,7 @@ Item {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     entitySelectionList.itemSelected(
                                 entitySelectionList.itemList.currentItem.key,
                                 !entitySelectionList.itemList.currentItem.selected);

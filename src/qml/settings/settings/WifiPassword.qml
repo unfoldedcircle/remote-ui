@@ -81,12 +81,12 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     wifiPassword.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     wifiPassword.close();
                 }
             }

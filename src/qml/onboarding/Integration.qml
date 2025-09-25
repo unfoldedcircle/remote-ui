@@ -124,13 +124,13 @@ Item {
             id: integrationSetupPopupButtonNavigation
             defaultConfig: {
                 "HOME": {
-                    "released": function() {
+                    "pressed": function() {
                         integrationSetupPopup.close();
                         goHome();
                     }
                 },
                 "BACK": {
-                    "released": function() {
+                    "pressed": function() {
                         integrationSetupPopup.close();
                     }
                 }

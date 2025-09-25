@@ -564,7 +564,7 @@ class UpdateEnums {
 
  public:
     enum UpdateChannel {
-        STABLE,
+        DEFAULT,
         TESTING,
         DEVELOPMENT,
     };

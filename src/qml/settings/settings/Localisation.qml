@@ -130,7 +130,7 @@ Settings.Page {
                             }
                         },
                         "DPAD_MIDDLE": {
-                            "released": function() {
+                            "pressed": function() {
                                 languageSelector.item.trigger();
                             }
                         }
@@ -245,7 +245,7 @@ Settings.Page {
                             }
                         },
                         "DPAD_MIDDLE": {
-                            "released": function() {
+                            "pressed": function() {
                                 countrySelector.item.trigger();
                             }
                         }
@@ -330,7 +330,7 @@ Settings.Page {
                             }
                         },
                         "DPAD_MIDDLE": {
-                            "released": function() {
+                            "pressed": function() {
                                 timeZoneSelector.item.trigger();
                             }
                         }
@@ -442,7 +442,7 @@ Settings.Page {
                             }
                         },
                         "DPAD_MIDDLE": {
-                            "released": function() {
+                            "pressed": function() {
                                 unitSelector.item.trigger();
                             }
                         }

@@ -97,7 +97,7 @@ Item {
                 color: colors.offwhite
 
                 Components.Icon {
-                    icon: dockConfigureContainer.needsWifi ? "uc:bluetooth" : "uc:unfolded-circle"
+                    icon: dockConfigureContainer.needsWifi ? "uc:bluetooth" : "uc:ethernet"
                     size: 60
                     color: colors.black
                     anchors.centerIn: parent
@@ -229,7 +229,7 @@ Item {
                             }
 
                             Components.Icon {
-                                icon: "uc:right-arrow-alt"
+                                icon: "uc:arrow-right"
                                 size: 60
                                 color: colors.offwhite
                             }
@@ -267,7 +267,7 @@ Item {
                             Layout.fillWidth: true
 
                             Components.Icon {
-                                icon: "uc:edit"
+                                icon: "uc:pen-to-square"
                                 size: 60
                                 color: colors.offwhite
                             }
@@ -285,14 +285,14 @@ Item {
                             Components.Icon {
                                 Layout.alignment: Qt.AlignVCenter
 
-                                icon: "uc:lock-alt"
+                                icon: "uc:lock"
                                 size: 40
                                 color: colors.offwhite
                                 visible: dockConfigureContainer.wifiPassword !== ""
                             }
 
                             Components.Icon {
-                                icon: "uc:close"
+                                icon: "uc:xmark"
                                 size: 60
                                 color: colors.offwhite
 
@@ -354,7 +354,7 @@ Item {
                     Layout.fillWidth: true
 
                     Components.Icon {
-                        icon: "uc:left-arrow-alt"
+                        icon: "uc:arrow-left"
                         size: 60
                         color: colors.offwhite
 

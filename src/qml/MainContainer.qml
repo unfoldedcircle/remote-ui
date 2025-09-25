@@ -3,14 +3,17 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 import QtGraphicalEffects 1.0
 import QtQml.Models 2.1
 
 import Entity.Controller 1.0
 import Entity.MediaPlayer 1.0
 import Group.Controller 1.0
+import Haptic 1.0
 
 import Config 1.0
+import HwInfo 1.0
 
 import "qrc:/components" as Components
 import "qrc:/components/entities" as EntityComponents
@@ -26,9 +29,6 @@ Item {
     Component.onCompleted: {
         buttonNavigation.takeControl();
     }
-    
-    property bool activitiesBarEnabled: EntityController.activities.length > 0
-    property QtObject currentActivity: activitiesBarEnabled ? EntityController.get(EntityController.activities[activitiesBarListView.currentIndex]) : QtObject
 
     property alias statusBar: statusBar
     property alias pages: pages
@@ -38,7 +38,8 @@ Item {
     property QtObject entityObjToEdit
     property QtObject groupObjToEdit
 
-    property bool dpadMiddleLongPressed: false
+    property int menuShift: 150
+    property double menuFade: 0
 
     function openPageEditMenu() {
         popupMenu.title = pages.currentItem.title;
@@ -62,7 +63,7 @@ Item {
 
         menuItems.push({
                            title: qsTr("Reorder"),
-                           icon: "uc:hamburger",
+                           icon: "uc:bars",
                            callback: function() {
                                if (currentPage.count > 0) {
                                    ui.editMode = true;
@@ -74,7 +75,7 @@ Item {
 
         menuItems.push({
                            title: qsTr("Show tips"),
-                           icon: "uc:about",
+                           icon: "uc:circle-info",
                            callback: function() {
                                ui.showHelp = true;
                            }
@@ -92,7 +93,7 @@ Item {
 
         menuItems.push({
                            title: qsTr("Rename"),
-                           icon: "uc:edit",
+                           icon: "uc:pen-to-square",
                            callback: function() {
                                loadSecondContainer("qrc:/components/entities/EntityRename.qml", { "entityId": obj.id, "entityName": obj.name });
                            }
@@ -134,7 +135,7 @@ Item {
 
         menuItems.push({
                            title: qsTr("Rename"),
-                           icon: "uc:edit",
+                           icon: "uc:pen-to-square",
                            callback: function() {
                                loadSecondContainer("qrc:/components/group/GroupRename.qml", { "groupId": obj.groupId(), "groupName": obj.groupName() });
                            }
@@ -162,14 +163,12 @@ Item {
         popupMenu.open();
     }
 
-    
-    onActivitiesBarEnabledChanged:  {
-        if (activitiesBarEnabled) {
-            currentActivity = EntityController.get(EntityController.activities[activitiesBarListView.currentIndex]);
-        } else {
-            currentActivity = null;
-            activitiesBar.y = mainContainerRoot.height;
-        }
+    function closeMenu() {
+        pages.anchors.topMargin = 0;
+        pages.opacity = 1;
+        statusBar.opacity = 1;
+        mainContainerRoot.menuFade = 0;
+        mainContainerBlockingMouseArea.enabled = false;
     }
 
     state: "visible"
@@ -217,12 +216,22 @@ Item {
         defaultConfig: {
             "DPAD_RIGHT": {
                 "pressed": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
+
                     pages.incrementCurrentIndex();
                     console.debug("Pages increment current index");
                 }
             },
             "DPAD_LEFT": {
                 "pressed": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
+
                     pages.decrementCurrentIndex();
                     console.debug("Pages decrement current index");
                 }
@@ -230,6 +239,11 @@ Item {
             // page navigation
             "DPAD_DOWN": {
                 "pressed": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
+
                     if (!currentEntity.delegateItem.groupObj) {
                         pages.currentItem.incrementCurrentIndex();
                         console.debug("Entitylist increment current index");
@@ -243,6 +257,11 @@ Item {
             },
             "DPAD_UP": {
                 "pressed": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
+
                     if (!currentEntity.delegateItem.groupObj) {
                         pages.currentItem.decrementCurrentIndex();
                         console.debug("Entitylist decrement current index");
@@ -255,58 +274,78 @@ Item {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
-                    if (mainContainerRoot.dpadMiddleLongPressed) {
-                        mainContainerRoot.dpadMiddleLongPressed = false;
+                "pressed": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
                         return;
                     }
 
-                    if (currentEntity.delegateItem.groupObj) {
-                        if (currentEntity.delegateItem.state === "closed") {
-                            currentEntity.delegateItem.toggle();
+                    if (!currentEntity.delegateItem.groupObj) {
+                        if (Config.entityButtonFuncInverted) {
+                            currentEntity.delegateItem.open();
                         } else {
+                            currentEntity.delegateItem.controlTrigger();
+                        }
+                    } else {
+                        if (currentEntity.delegateItem.state === "closed") {
                             if (Config.entityButtonFuncInverted) {
-                                if (currentEntity.delegateItem.groups.currentItem.item.enabled) {
-                                    currentEntity.delegateItem.groups.currentItem.item.open();
-                                } else {
-                                    ui.createNotification(currentEntity.delegateItem.groups.currentItem.item.name + " " + qsTr("is unavailable"), true);
-                                }
+                                currentEntity.delegateItem.open();
+                            } else {
+                                currentEntity.delegateItem.toggle();
+                            }
+                        } else {
+                            if (currentEntity.delegateItem.groups.currentItem.item.entityObj.state == 0) {
+                                return;
+                            }
+
+                            if (Config.entityButtonFuncInverted) {
+                                currentEntity.delegateItem.groups.currentItem.item.open();
                             } else {
                                 currentEntity.delegateItem.groups.currentItem.item.controlTrigger();
                             }
                         }
-                    } else {
-                        if (Config.entityButtonFuncInverted) {
-                            if (currentEntity.delegateItem.enabled) {
-                                currentEntity.delegateItem.open();
-                            } else {
-                                ui.createNotification(currentEntity.delegateItem.name + " " + qsTr("is unavailable"), true);
-                            }
-                        } else {
-                            currentEntity.delegateItem.controlTrigger();
-                        }
                     }
                 },
                 "long_press": function() {
-                    mainContainerRoot.dpadMiddleLongPressed = true;
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
 
                     if (!currentEntity.delegateItem.groupObj) {
                         if (Config.entityButtonFuncInverted) {
                             currentEntity.delegateItem.controlTrigger();
                         } else {
-                           currentEntity.delegateItem.open();
+                            currentEntity.delegateItem.open();
                         }
                     } else {
-                        if (Config.entityButtonFuncInverted) {
-                            currentEntity.delegateItem.groups.currentItem.item.controlTrigger();
+                        if (currentEntity.delegateItem.state === "closed") {
+                            if (Config.entityButtonFuncInverted) {
+                                currentEntity.delegateItem.toggle();
+                            } else {
+                                currentEntity.delegateItem.open();
+                            }
                         } else {
-                            currentEntity.delegateItem.groups.currentItem.item.open();
+                            if (currentEntity.delegateItem.groups.currentItem.item.entityObj.state == 0) {
+                                return;
+                            }
+
+                            if (Config.entityButtonFuncInverted) {
+                                currentEntity.delegateItem.groups.currentItem.item.controlTrigger();
+                            } else {
+                                currentEntity.delegateItem.groups.currentItem.item.open();
+                            }
                         }
                     }
                 }
             },
             "CHANNEL_UP": {
-                "released": function() {
+                "pressed": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
+
                     if (currentEntity.delegateItem.groupObj) {
                         if (currentEntity.delegateItem.state === "open") {
                             currentEntity.delegateItem.close();
@@ -315,7 +354,12 @@ Item {
                 }
             },
             "CHANNEL_DOWN": {
-                "released": function() {
+                "pressed": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
+
                     if (currentEntity.delegateItem.groupObj) {
                         if (currentEntity.delegateItem.state === "closed") {
                             currentEntity.delegateItem.open();
@@ -324,7 +368,12 @@ Item {
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
+
                     if (ui.editMode) {
                         ui.editMode = false;
                     }
@@ -332,99 +381,17 @@ Item {
                     pages.currentItem.positionViewAtBeginning();
                 },
                 "long_press": function() {
+                    if (mainContainerBlockingMouseArea.enabled) {
+                        mainContainerRoot.closeMenu();
+                        return;
+                    }
+
                     if (ui.profile.restricted) {
                         ui.createNotification(qsTr("Profile is restricted"), true);
                     } else {
                         openPageEditMenu();
                     }
                 }
-            }
-        }
-    }
-
-    Components.ButtonNavigation {
-        id: activitiesBarButtonNavigation
-        overrideActive: ui.inputController.activeObject === String(mainContainerRoot) && activitiesBarEnabled
-        defaultConfig: {
-            "VOLUME_UP": {
-                "pressed": function() {
-                    currentActivity.volumeUp();
-                    volume.start(currentActivity);
-                }
-            },
-            "VOLUME_DOWN": {
-                "pressed": function() {
-                    currentActivity.volumeDown();
-                    volume.start(currentActivity, false);
-                }
-            },
-            "MUTE": {
-                "released": function() {
-                    currentActivity.muteToggle();
-                }
-            },
-            "PLAY": {
-                "released": function() {
-                    currentActivity.playPause();
-                }
-            },
-            "PREV": {
-                "released": function() {
-                    currentActivity.previous();
-                }
-            },
-            "NEXT": {
-                "released": function() {
-                    currentActivity.next();
-                }
-            },
-            "POWER": {
-                "pressed": function() {
-                    if (EntityController.activities.length === 0) {
-                        return;
-                    }
-
-                    popupMenu.title = qsTr("Turn off");
-                    let menuItems = [];
-
-                    for (let i = 0; i<EntityController.activities.length; i++) {
-                        let e = EntityController.activities[i];
-
-                        menuItems.push({
-                                           title: EntityController.get(e).name,
-                                           icon: EntityController.get(e).icon,
-                                           callback: function() {
-                                               EntityController.get(e).turnOff();
-                                           }
-                                       });
-                    }
-
-                    if (EntityController.activities.length > 1) {
-                        menuItems.push({
-                                           title: qsTr("Turn off all"),
-                                           icon: "uc:power-on",
-                                           callback: function() {
-                                               for (let i = 0; i<EntityController.activities.length; i++) {
-                                                   EntityController.get(EntityController.activities[i]).turnOff();
-                                               }
-                                           }
-                                       });
-                    }
-
-                    popupMenu.menuItems = menuItems;
-                    popupMenu.open();
-                }
-            }
-        }
-    }
-
-    Connections {
-        target: currentPage
-        ignoreUnknownSignals: true
-
-        function onEditModeChanged() {
-            if (currentPage.editMode) {
-                activitiesBar.y = mainContainerRoot.height;
             }
         }
     }
@@ -449,7 +416,118 @@ Item {
         id: visualModel
 
         model: ui.pages
-        delegate: Components.Page { width: PathView.view.width; height: PathView.view.height - (activitiesBar.opened ? activitiesBar.height : 0); anchors.top: parent.top }
+        delegate: Components.Page { width: PathView.view.width; height: PathView.view.height; anchors.top: parent.top }
+    }
+
+    Item {
+        id: mainMenu
+        width: parent.width
+        height: 150
+        opacity: mainContainerRoot.menuFade * 2
+
+        RowLayout {
+            anchors.fill: parent
+            anchors.topMargin: 35
+            anchors.bottomMargin: 35
+
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 80
+
+                Components.HapticMouseArea {
+                    width: 80
+                    height: 80
+                    anchors.centerIn: parent
+
+                    Rectangle {
+                        width: parent.width; height: parent.height
+                        radius: width / 2
+                        color: colors.offwhite
+                        opacity: 0.1
+                        anchors.centerIn: parent
+                    }
+
+                    Components.Icon {
+                        Layout.alignment: Qt.AlignVCenter
+
+                        color: colors.offwhite
+                        icon: ui.profile.icon
+                        size: 80
+                    }
+
+                    onClicked: {
+                        mainContainerRoot.closeMenu();
+                        loadSecondContainer("qrc:/components/ProfileSwitch.qml");
+                    }
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 80
+                visible: !ui.profile.restricted
+
+                Components.HapticMouseArea {
+                    width: 80
+                    height: 80
+                    anchors.centerIn: parent
+
+                    Rectangle {
+                        width: parent.width; height: parent.height
+                        radius: width / 2
+                        color: colors.offwhite
+                        opacity: 0.1
+                        anchors.centerIn: parent
+                    }
+
+                    Components.Icon {
+                        Layout.alignment: Qt.AlignVCenter
+
+                        color: colors.offwhite
+                        icon: "uc:globe-pointer"
+                        size: 80
+                    }
+
+                    onClicked: {
+                        mainContainerRoot.closeMenu();
+                        loadSecondContainer("qrc:/components/WebConfig.qml");
+                    }
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
+                Layout.preferredHeight: 80
+                visible: !ui.profile.restricted
+
+                Components.HapticMouseArea {
+                    width: 80
+                    height: 80
+                    anchors.centerIn: parent
+
+                    Rectangle {
+                        width: parent.width; height: parent.height
+                        radius: width / 2
+                        color: colors.offwhite
+                        opacity: 0.1
+                        anchors.centerIn: parent
+                    }
+
+                    Components.Icon {
+                        Layout.alignment: Qt.AlignVCenter
+
+                        color: colors.offwhite
+                        icon: "uc:gear"
+                        size: 80
+                    }
+
+                    onClicked: {
+                        mainContainerRoot.closeMenu();
+                        loadSecondContainer("qrc:/components/SettingsNew.qml");
+                    }
+                }
+            }
+        }
     }
 
     PathView {
@@ -479,6 +557,38 @@ Item {
         preferredHighlightBegin: 0.5
 
         onCurrentIndexChanged: console.debug("Pages current index: " + currentIndex)
+
+        Behavior on anchors.topMargin {
+            NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
+        }
+
+        Behavior on opacity {
+            NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
+        }
+    }
+
+    Connections {
+        target: pages.currentItem
+        ignoreUnknownSignals: true
+
+        function onDraggedDownYChanged(contentY, treshold) {
+            if ((contentY < -treshold + 100) && !mainContainerBlockingMouseArea.enabled) {
+                // start fading
+                mainContainerRoot.menuFade = (100 - (Math.abs(treshold) - Math.abs(contentY))) / 200;
+                pages.anchors.topMargin = 100 - (Math.abs(treshold) - Math.abs(contentY));
+                pages.opacity = 1 - mainContainerRoot.menuFade;
+                statusBar.opacity = 1 - mainContainerRoot.menuFade * 2;
+            }
+
+            if ((contentY < -treshold) && !mainContainerBlockingMouseArea.enabled) {
+                Haptic.play(Haptic.Bump);
+                pages.anchors.topMargin = mainContainerRoot.menuShift;
+                mainContainerBlockingMouseArea.enabled = true;
+                pages.opacity = 0.5;
+                statusBar.opacity = 0;
+            }
+
+        }
     }
 
     // bottom gradient
@@ -505,122 +615,6 @@ Item {
         anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
     }
 
-    // activities bar
-    Rectangle {
-        id: activitiesBarIndicator
-        width: 80
-        height: 6
-        radius: 3
-        color: colors.offwhite
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: activitiesBarEnabled ? (activitiesBar.opened || (currentPage ? currentPage.editMode : false) ? -10 : 0) : -10 }
-
-        Behavior on anchors.bottomMargin {
-            NumberAnimation { easing.type: Easing.OutBack; easing.overshoot: 3; duration: 500 }
-        }
-    }
-
-    MouseArea {
-        width: ui.width
-        height: activitiesBar.opened ? 120 : 60
-        anchors.bottom: parent.bottom
-        enabled: activitiesBarEnabled
-        propagateComposedEvents: true //!activitiesBar.opened
-
-        property real velocity: 0.0
-        property int yStart: 0
-        property int yPrev: 0
-        property bool tracking: false
-        property int treshold: 2
-
-        onPressed: {
-            yStart = mouseY;
-            yPrev = mouseY;
-            velocity = 0;
-            tracking = true;
-        }
-
-        onCanceled: {
-            tracking = false;
-            mouse.accepted = false;
-        }
-
-        onPositionChanged: {
-            let currentVelocity = (mouseY - yPrev);
-            velocity = (velocity + currentVelocity) / 2.0
-            yPrev = mouseY
-        }
-
-        onReleased: {
-            tracking = false;
-
-            if (velocity > treshold) {
-                activitiesBar.y = mainContainerRoot.height;
-            } else if (velocity < -treshold) {
-                activitiesBar.y = mainContainerRoot.height - activitiesBar.height;
-            } else {
-                mouse.accepted = false;
-            }
-        }
-    }
-
-    Item {
-        id: activitiesBar
-        width: ui.width
-        height: 100
-        y: parent.height
-
-        property bool opened: activitiesBar.y == mainContainerRoot.height - activitiesBar.height
-
-        Behavior on y {
-            NumberAnimation { easing.type: Easing.OutExpo; duration: 300 }
-        }
-
-        ListView {
-            id: activitiesBarListView
-            anchors.fill: parent
-
-            orientation: ListView.Horizontal
-            snapMode: ListView.SnapOneItem
-            highlightRangeMode: ListView.StrictlyEnforceRange
-            maximumFlickVelocity: 6000
-            flickDeceleration: 1000
-            highlightMoveDuration: 200
-
-            model: EntityController.activities
-            delegate: activitiesBarDelegate
-
-            onCurrentIndexChanged: {
-                EntityController.load(EntityController.activities[activitiesBarListView.currentIndex]);
-
-                connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
-                    if (success) {
-                        currentActivity = EntityController.get(EntityController.activities[activitiesBarListView.currentIndex]);
-                    }
-                });
-
-                //                currentActivity = EntityController.get(EntityController.activities[activitiesBarListView.currentIndex]);
-            }
-        }
-
-        PageIndicator {
-            currentIndex: activitiesBarListView.currentIndex
-            count: activitiesBarListView.count
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            visible: EntityController.activities.length > 1
-            padding: 0
-
-            delegate: Component {
-                Rectangle {
-                    width: 6; height: 6
-                    radius: 3
-                    color: colors.offwhite
-                    opacity: index == activitiesBarListView.currentIndex ? 1 : 0.6
-                }
-            }
-        }
-    }
-
     Components.PopupMenu {
         id: popupMenu
     }
@@ -632,123 +626,11 @@ Item {
         source: "qrc:/components/help-overlay/Main.qml"
     }
 
-    Component {
-        id: activitiesBarDelegate
+    MouseArea {
+        id: mainContainerBlockingMouseArea
+        anchors.fill: pages
+        enabled: false
 
-        Item {
-            width: activitiesBarListView.width
-            height: activitiesBarListView.height
-
-            property QtObject entity: EntityController.get(modelData)
-
-            Rectangle {
-                id: activityBg
-                width: parent.width
-                height: parent.height - 10
-                color: entity.mediaImageColor ? entity.mediaImageColor : colors.dark
-                radius: ui.cornerRadiusSmall
-                anchors { horizontalCenter: parent.horizontalCenter; top: parent.top }
-
-                Behavior on color {
-                    ColorAnimation { duration: 300 }
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-
-                    onClicked: {
-                        loadSecondContainer("qrc:/components/entities/" + entity.getTypeAsString() + "/deviceclass/" + entity.getDeviceClass() + ".qml", { "entityId": entity.id, "entityObj": entity });
-                    }
-
-                }
-
-                Components.Icon {
-                    anchors.centerIn: albumArt
-                    icon: entity.icon
-                    size: 60
-                    color: colors.offwhite
-                }
-
-                Text {
-                    text: entity.name
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                    color: colors.offwhite
-                    anchors { left: albumArt.right; leftMargin: 20; right: playPauseButton.left; rightMargin: 20; verticalCenter: albumArt.verticalCenter }
-                    font: fonts.primaryFont(26)
-                    visible: entity.type === EntityTypes.Activity
-                }
-
-                MediaPlayerComponents.ImageLoader {
-                    id: albumArt
-                    width: 60; height: 60
-                    anchors { left: parent.left; leftMargin: 15; verticalCenter: parent.verticalCenter }
-                    url: entity.mediaImage ? entity.mediaImage : ""
-
-                    Behavior on opacity {
-                        NumberAnimation { duration: 300 }
-                    }
-                }
-
-                DropShadow {
-                    anchors.fill: albumArt
-                    horizontalOffset: 0
-                    verticalOffset: 0
-                    radius: 8.0
-                    samples: 12
-                    color: colors.black
-                    source: albumArt
-                    visible: entity.mediaImage ? true : false
-                }
-
-                Text {
-                    text: entity.mediaTitle ? entity.mediaTitle : ""
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                    color: Qt.lighter(activityBg.color, 5) //colors.offwhite
-                    anchors { left: albumArt.right; leftMargin: 20; right: playPauseButton.left; rightMargin: 20; top: albumArt.top; topMargin: -2 }
-                    font: fonts.primaryFont(26)
-                    visible: entity.type === EntityTypes.Media_player
-                }
-
-                Text {
-                    text: entity.name
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                    color: Qt.lighter(activityBg.color, 3) //colors.light
-                    anchors { left: albumArt.right; leftMargin: 20; right: playPauseButton.left; rightMargin: 20; bottom: albumArt.bottom; bottomMargin: -2 }
-                    font: fonts.secondaryFont(22)
-                    visible: entity.type === EntityTypes.Media_player
-                }
-
-                EntityComponents.BasePlayPauseButton {
-                    id: playPauseButton
-                    anchors { verticalCenter: parent.verticalCenter; right: parent.right }
-                    checked: entity.state === MediaPlayerStates.Playing ? false : true
-                    trigger: function() { entity.playPause() }
-                    width: parent.height; height: width
-                    visible: entity.type === EntityTypes.Media_player && entity.hasAllFeatures([MediaPlayerFeatures.Media_duration, MediaPlayerFeatures.Media_position]) && entity.mediaDuration !== 0
-                }
-
-                Rectangle {
-                    id: progressBar
-                    height: 4
-                    radius: 2
-                    anchors { bottom: parent.bottom; left: albumArt.left; right: parent.right; rightMargin: 15 }
-                    color: colors.offwhite
-                    opacity: 0.5
-                    visible: entity.type === EntityTypes.Media_player
-                }
-
-                Rectangle {
-                    visible: progressBar.visible
-                    width: progressBar.width * entity.mediaPosition / entity.mediaDuration
-                    height: progressBar.height
-                    radius: 2
-                    color: colors.offwhite
-                    anchors { left: progressBar.left; verticalCenter: progressBar.verticalCenter }
-                }
-            }
-        }
+        onClicked: mainContainerRoot.closeMenu()
     }
 }

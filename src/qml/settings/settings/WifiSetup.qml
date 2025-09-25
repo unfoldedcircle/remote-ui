@@ -59,12 +59,12 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     wifiSetup.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     wifiSetup.close();
                 }
             }

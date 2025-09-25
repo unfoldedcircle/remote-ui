@@ -20,7 +20,7 @@ Item {
 
     Text {
         id: infoText
-        text: sensorButton.value !== "" ? sensorButton.value : "N/A"
+        text: sensorButton.value !== "" ? sensorButton.value : qsTranslate("Abbreviation for not available", "N/A")
         maximumLineCount: 3
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         elide: Text.ElideRight

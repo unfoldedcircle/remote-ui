@@ -19,12 +19,12 @@ EntityComponents.BaseDetail {
 
     overrideConfig: {
         "DPAD_MIDDLE": {
-            "released": function() {
+            "pressed": function() {
                 macroRun();
             }
         },
         "POWER": {
-            "released": function() {
+            "pressed": function() {
                 macroRun();
             }
         }

@@ -10,10 +10,10 @@ namespace uc {
 namespace ui {
 namespace entity {
 
-Light::Light(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon, const QString &area,
+Light::Light(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
              const QString &deviceClass, const QStringList &features, bool enabled, QVariantMap attributes,
              QVariantMap options, const QString &integrationId, QObject *parent)
-    : Base(id, name, nameI18n, icon, area, Type::Light, enabled, attributes, integrationId, false, parent),
+    : Base(id, nameI18n, language, icon, area, Type::Light, enabled, attributes, integrationId, false, parent),
       m_colorTempSteps(100) {
     qCDebug(lcLight()) << "Light entity constructor";
 

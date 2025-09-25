@@ -50,12 +50,22 @@ class MediaPlayerFeatures : public QObject {
         Media_image_url,
         Media_type,
         Dpad,
+        Numpad,
         Home,
         Menu,
+        Context_menu,
+        Guide,
+        Info,
         Color_buttons,
         Channel_switcher,
         Select_source,
-        Select_sound_mode
+        Select_sound_mode,
+        Eject,
+        Open_close,
+        Audio_track,
+        Subtitle,
+        Record,
+        Settings
     };
     Q_ENUM(Enum)
 };
@@ -146,15 +156,36 @@ class MediaPlayerCommands : public QObject {
         Cursor_left,
         Cursor_right,
         Cursor_enter,
+        Digit_0,
+        Digit_1,
+        Digit_2,
+        Digit_3,
+        Digit_4,
+        Digit_5,
+        Digit_6,
+        Digit_7,
+        Digit_8,
+        Digit_9,
         Function_red,
         Function_green,
         Function_yellow,
         Function_blue,
         Home,
         Menu,
+        Context_menu,
+        Guide,
+        Info,
         Back,
         Select_source,
         Select_sound_mode,
+        Record,
+        My_recordings,
+        Live,
+        Eject,
+        Open_close,
+        Audio_track,
+        Subtitle,
+        Settings,
         Search
     };
     Q_ENUM(Enum)
@@ -176,20 +207,6 @@ class MediaPlayerRepeatMode : public QObject {
     Q_ENUM(Enum)
 };
 
-class MediaPlayerMediaType : public QObject {
-    Q_GADGET
-
- public:
-    enum Enum {
-        MUSIC,
-        RADIO,
-        TVSHOW,
-        MOVIE,
-        VIDEO,
-    };
-    Q_ENUM(Enum)
-};
-
 class MediaPlayer : public Base {
     Q_OBJECT
 
@@ -197,7 +214,7 @@ class MediaPlayer : public Base {
     Q_PROPERTY(bool muted READ getMuted NOTIFY mutedChanged)
     Q_PROPERTY(int mediaDuration READ getMediaDuration NOTIFY mediaDurationChanged)
     Q_PROPERTY(int mediaPosition READ getMediaPosition NOTIFY mediaPositionChanged)
-    Q_PROPERTY(int mediaType READ getMediaType NOTIFY mediaTypeChanged)
+    Q_PROPERTY(QString mediaType READ getMediaType NOTIFY mediaTypeChanged)
     Q_PROPERTY(QString mediaImageUrl READ getMediaImageUrl NOTIFY mediaImageUrlChanged)
     Q_PROPERTY(QString mediaImage READ getMediaImage NOTIFY mediaImageChanged)
     Q_PROPERTY(QColor mediaImageColor READ getMediaImageColor NOTIFY mediaImageColorChanged)
@@ -215,7 +232,7 @@ class MediaPlayer : public Base {
     Q_PROPERTY(int volumeSteps READ getVolumeSteps CONSTANT)
 
  public:
-    explicit MediaPlayer(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit MediaPlayer(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                          const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                          QVariantMap attributes, QVariantMap options, const QString &integrationId, QObject *parent);
     ~MediaPlayer();
@@ -224,7 +241,7 @@ class MediaPlayer : public Base {
     bool        getMuted() { return m_muted; }
     int         getMediaDuration() { return m_mediaDuration; }
     int         getMediaPosition() { return m_mediaPosition; }
-    int         getMediaType() { return m_mediaType; }
+    QString         getMediaType() { return m_mediaType; }
     QString     getMediaImageUrl() { return m_mediaImageUrl; }
     QString     getMediaImage() { return m_mediaImage; }
     QColor      getMediaImageColor() { return m_mediaImageColor; }
@@ -266,19 +283,41 @@ class MediaPlayer : public Base {
     Q_INVOKABLE void cursorLeft();
     Q_INVOKABLE void cursorRight();
     Q_INVOKABLE void cursorEnter();
+    Q_INVOKABLE void digit0();
+    Q_INVOKABLE void digit1();
+    Q_INVOKABLE void digit2();
+    Q_INVOKABLE void digit3();
+    Q_INVOKABLE void digit4();
+    Q_INVOKABLE void digit5();
+    Q_INVOKABLE void digit6();
+    Q_INVOKABLE void digit7();
+    Q_INVOKABLE void digit8();
+    Q_INVOKABLE void digit9();
     Q_INVOKABLE void functionRed();
     Q_INVOKABLE void functionGreen();
     Q_INVOKABLE void functionYellow();
     Q_INVOKABLE void functionBlue();
     Q_INVOKABLE void home();
     Q_INVOKABLE void menu();
+    Q_INVOKABLE void contextMenu();
+    Q_INVOKABLE void guide();
+    Q_INVOKABLE void info();
     Q_INVOKABLE void back();
     Q_INVOKABLE void selectSource(const QString &source);
+    Q_INVOKABLE void record();
+    Q_INVOKABLE void myRecordings();
+    Q_INVOKABLE void live();
+    Q_INVOKABLE void eject();
+    Q_INVOKABLE void openClose();
+    Q_INVOKABLE void audioTrack();
+    Q_INVOKABLE void subtitle();
+    Q_INVOKABLE void settings();
     //    Q_INVOKABLE void selectSoundMode(const QString &soundMode);
     //    Q_INVOKABLE void search(const QString &searchString);
 
     void sendCommand(MediaPlayerCommands::Enum cmd, QVariantMap params);
     void sendCommand(MediaPlayerCommands::Enum cmd);
+    void sendSimpleCommand(QString command);
     bool updateAttribute(const QString &attribute, QVariant data) override;
 
     void onLanguageChangedTypeSpecific() override;
@@ -309,7 +348,7 @@ class MediaPlayer : public Base {
     bool                        m_muted;
     int                         m_mediaDuration;
     int                         m_mediaPosition;
-    int                         m_mediaType = -1;
+    QString                     m_mediaType;
     QString                     m_mediaImageUrl;
     QString                     m_mediaImage;
     QColor                      m_mediaImageColor;
@@ -322,7 +361,8 @@ class MediaPlayer : public Base {
     QStringList                 m_sourceList;
 
     // options
-    int m_volumeSteps;
+    int         m_volumeSteps;
+    QStringList m_simpleCommands;
 
  private:
     QTimer m_positionTimer;

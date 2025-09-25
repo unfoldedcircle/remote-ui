@@ -67,7 +67,7 @@ class Button : public Base {
     Q_OBJECT
 
  public:
-    explicit Button(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit Button(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                     const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                     QVariantMap attributes, const QString &integrationId, QObject *parent);
     ~Button();

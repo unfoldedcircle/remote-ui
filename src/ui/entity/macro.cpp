@@ -10,10 +10,10 @@ namespace uc {
 namespace ui {
 namespace entity {
 
-Macro::Macro(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon, const QString &area,
+Macro::Macro(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
              const QString &deviceClass, const QStringList &features, bool enabled, QVariantMap attributes,
              const QString &integrationId, QObject *parent)
-    : Base(id, name, nameI18n, icon, area, Type::Macro, enabled, attributes, integrationId, false, parent),
+    : Base(id, nameI18n, language, icon, area, Type::Macro, enabled, attributes, integrationId, false, parent),
       m_currentStep(this) {
     qCDebug(lcMacro()) << "Macro entity constructor";
 

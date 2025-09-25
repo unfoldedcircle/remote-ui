@@ -21,6 +21,9 @@ Settings.Page {
     }
 
     Component.onCompleted: {
+        IntegrationController.getAllIntegrationDrivers();
+        IntegrationController.getAllIntegrations();
+
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
@@ -33,7 +36,7 @@ Settings.Page {
                                                      }
                                                  },
                                                  "DPAD_MIDDLE": {
-                                                     "released": function() {
+                                                     "pressed": function() {
                                                          loadIntegrationInfo(itemList.currentItem.key);
                                                      }
                                                  }
@@ -194,13 +197,13 @@ Settings.Page {
             id: integrationSetupPopupButtonNavigation
             defaultConfig: {
                 "HOME": {
-                    "released": function() {
+                    "pressed": function() {
                         integrationSetupPopup.close();
                         goHome();
                     }
                 },
                 "BACK": {
-                    "released": function() {
+                    "pressed": function() {
                         integrationSetupPopup.close();
                     }
                 }
@@ -254,7 +257,7 @@ Settings.Page {
 
                         Components.Icon {
                             color: colors.black
-                            icon: integrationIcon === "" ? "uc:integration" : integrationIcon
+                            icon: integrationIcon === "" ? "uc:puzzle" : integrationIcon
                             size: 80
                             anchors.centerIn: parent
                         }

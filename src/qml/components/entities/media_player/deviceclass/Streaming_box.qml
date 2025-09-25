@@ -8,6 +8,7 @@ import QtGraphicalEffects 1.0
 
 import Haptic 1.0
 import Entity.MediaPlayer 1.0
+import HwInfo 1.0
 
 import "qrc:/components" as Components
 import "qrc:/components/entities/media_player" as MediaPlayerComponents
@@ -35,6 +36,168 @@ EntityComponents.BaseDetail {
         nowPlayingFeatureLoader.item.imageIconAnimation.start();
     }
 
+    Component.onCompleted: {
+        if (entityObj.hasFeature(MediaPlayerFeatures.Home)) {
+            if (!overrideConfig["HOME"]) {
+                overrideConfig["HOME"] = ({});
+            }
+
+            overrideConfig["HOME"]["pressed"] = function() {
+                entityObj.home();
+            }
+        }
+
+        if (entityObj.hasAnyFeature([MediaPlayerFeatures.Home, MediaPlayerFeatures.Menu])) {
+            if (!overrideConfig["BACK"]) {
+                overrideConfig["BACK"] = ({});
+            }
+
+            overrideConfig["BACK"]["pressed"] = function() {
+                entityObj.back();
+            }
+        }
+
+        if (entityObj.hasFeature(MediaPlayerFeatures.Color_buttons)) {
+            if (!overrideConfig["RED"]) {
+                overrideConfig["RED"] = ({});
+            }
+
+            overrideConfig["RED"]["pressed"] = function() {
+                entityObj.functionRed();
+            }
+
+            if (!overrideConfig["GREEN"]) {
+                overrideConfig["GREEN"] = ({});
+            }
+
+            overrideConfig["GREEN"]["pressed"] = function() {
+                entityObj.functionGreen();
+            }
+
+            if (!overrideConfig["YELLOW"]) {
+                overrideConfig["YELLOW"] = ({});
+            }
+
+            overrideConfig["YELLOW"]["pressed"] = function() {
+                entityObj.functionYellow();
+            }
+
+            if (!overrideConfig["BLUE"]) {
+                overrideConfig["BLUE"] = ({});
+            }
+
+            overrideConfig["BLUE"]["pressed"] = function() {
+                entityObj.functionBlue();
+            }
+        }
+
+        if (entityObj.hasFeature(MediaPlayerFeatures.Dpad)) {
+            if (!overrideConfig["DPAD_UP"]) {
+                overrideConfig["DPAD_UP"] = ({});
+            }
+
+            overrideConfig["DPAD_UP"]["pressed"] = function() {
+                entityObj.cursorUp();
+            }
+
+            if (!overrideConfig["DPAD_DOWN"]) {
+                overrideConfig["DPAD_DOWN"] = ({});
+            }
+
+            overrideConfig["DPAD_DOWN"]["pressed"] = function() {
+                entityObj.cursorDown();
+            }
+
+            if (!overrideConfig["DPAD_LEFT"]) {
+                overrideConfig["DPAD_LEFT"] = ({});
+            }
+
+            overrideConfig["DPAD_LEFT"]["pressed"] = function() {
+                entityObj.cursorLeft();
+            }
+
+            if (!overrideConfig["DPAD_RIGHT"]) {
+                overrideConfig["DPAD_RIGHT"] = ({});
+            }
+
+            overrideConfig["DPAD_RIGHT"]["pressed"] = function() {
+                entityObj.cursorRight();
+            }
+
+            if (!overrideConfig["DPAD_MIDDLE"]) {
+                overrideConfig["DPAD_MIDDLE"] = ({});
+            }
+
+            overrideConfig["DPAD_MIDDLE"]["pressed"] = function() {
+                entityObj.cursorEnter();
+            }
+        }
+
+        if (entityObj.hasFeature(MediaPlayerFeatures.Context_menu)) {
+            if (!overrideConfig["DPAD_MIDDLE"]) {
+                overrideConfig["DPAD_MIDDLE"] = ({});
+            }
+
+            overrideConfig["DPAD_MIDDLE"]["long_press"] = function() {
+                entityObj.contextMenu();
+            }
+        }
+
+        if (entityObj.hasFeature(MediaPlayerFeatures.Channel_switcher)) {
+            if (!overrideConfig["CHANNEL_UP"]) {
+                overrideConfig["CHANNEL_UP"] = ({});
+            }
+
+            overrideConfig["CHANNEL_UP"]["pressed"] = function() {
+                entityObj.channelUp();
+            }
+
+            if (!overrideConfig["CHANNEL_DOWN"]) {
+                overrideConfig["CHANNEL_DOWN"] = ({});
+            }
+
+            overrideConfig["CHANNEL_DOWN"]["pressed"] = function() {
+                entityObj.channelDown();
+            }
+        }
+
+        if (entityObj.hasFeature(MediaPlayerFeatures.Fast_forward)) {
+            if (!overrideConfig["NEXT"]) {
+                overrideConfig["NEXT"] = ({});
+            }
+
+            overrideConfig["NEXT"]["pressed"] = function() {
+                entityObj.fastForward();
+            }
+        } else {
+            if (!overrideConfig["NEXT"]) {
+                overrideConfig["NEXT"] = ({});
+            }
+
+            overrideConfig["NEXT"]["pressed"] = function() {
+                entityObj.next();
+            }
+        }
+
+        if (entityObj.hasFeature(MediaPlayerFeatures.Rewind)) {
+            if (!overrideConfig["PREV"]) {
+                overrideConfig["PREV"] = ({});
+            }
+
+            overrideConfig["PREV"]["pressed"] = function() {
+                entityObj.rewind();
+            }
+        } else {
+            if (!overrideConfig["PREV"]) {
+                overrideConfig["PREV"] = ({});
+            }
+
+            overrideConfig["PREV"]["pressed"] = function() {
+                entityObj.previous();
+            }
+        }
+    }
+
     overrideConfig: {
         "VOLUME_UP": {
             "pressed": function() {
@@ -49,28 +212,18 @@ EntityComponents.BaseDetail {
             }
         },
         "MUTE": {
-            "released": function() {
+            "pressed": function() {
                 entityObj.muteToggle();
             }
         },
         "PLAY": {
-            "released": function() {
+            "pressed": function() {
                 entityObj.playPause();
                 mediaPlayerBase.startIconAnimation();
             }
         },
-        "PREV": {
-            "released": function() {
-                entityObj.previous();
-            }
-        },
-        "NEXT": {
-            "released": function() {
-                entityObj.next();
-            }
-        },
         "POWER": {
-            "released": function() {
+            "pressed": function() {
                 if (entityObj.state === MediaPlayerStates.Off) {
                     entityObj.turnOn();
                 } else {
@@ -106,6 +259,7 @@ EntityComponents.BaseDetail {
 
             Item {
                 width: parent.width
+                height: parent.height
                 anchors.horizontalCenter: parent.horizontalCenter
 
                 Components.Icon {
@@ -114,12 +268,13 @@ EntityComponents.BaseDetail {
                     icon: "uc:music"
                     anchors.centerIn: mediaImage
                     size: 200
+                    visible: entityObj.mediaImage == ""
                 }
 
                 MediaPlayerComponents.ImageLoader {
                     id: mediaImage
                     width: parent.width
-                    height: width
+                    height: HwInfo.modelNumber == "UCR2" ? width : width - 60
                     url: entityObj.mediaImage
                     anchors { top: parent.top }
                     scale: entityObj.state === MediaPlayerStates.Playing ? 1 : 0.8
@@ -273,11 +428,11 @@ EntityComponents.BaseDetail {
 
                     Text {
                         id: mediaPositionText
-                        text: mediaPlayerBase.formatTime(entityObj.mediaPosition)
+                        text: entityObj.mediaDuration === 0 ? qsTr("Live") : mediaPlayerBase.formatTime(entityObj.mediaPosition)
                         color: colors.offwhite
                         horizontalAlignment: Text.AlignLeft
                         font: fonts.secondaryFont(20)
-                        anchors { top: parent.top; left: parent.left }
+                        anchors { top: parent.top; left: entityObj.mediaDuration === 0 ? undefined : parent.left; horizontalCenter: entityObj.mediaDuration === 0 ? parent.horizontalCenter : undefined }
                     }
 
                     Text {
@@ -356,7 +511,7 @@ EntityComponents.BaseDetail {
 
                     width: parent.width
                     height: 80
-                    anchors { top: progressContainer.bottom; topMargin: 20 }
+                    anchors { bottom: parent.bottom }
 
                     Components.Icon {
                         id: shuffleIcon
@@ -429,7 +584,7 @@ EntityComponents.BaseDetail {
                         Layout.alignment: Qt.AlignVCenter
                         size: 80
                         color: colors.offwhite
-                        icon: "uc:apps"
+                        icon: "uc:grid-2"
                         visible: entityObj.hasFeature(MediaPlayerFeatures.Select_source) && entityObj.sourceList.length !== 0
 
                         Components.HapticMouseArea {
@@ -459,6 +614,13 @@ EntityComponents.BaseDetail {
 
     MediaPlayerComponents.SourceList {
         id: sourceList
+        parent: Overlay.overlay
+    }
+
+    Components.TouchSlider {
+        id: touchSlider
+        entityObj: mediaPlayerBase.entityObj
+        active: HwInfo.modelNumber == "UCR3" || HwInfo.modelNumber == "DEV"
         parent: Overlay.overlay
     }
 }

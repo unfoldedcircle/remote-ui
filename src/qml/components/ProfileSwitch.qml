@@ -23,6 +23,12 @@ Rectangle {
     property bool profileSelected: false
     property string selectedProfileId
 
+    signal closed
+
+    function open() {
+        profileSelector.state = "visible";
+    }
+
     state: "hidden"
 
     transform: Scale {
@@ -71,6 +77,8 @@ Rectangle {
                     return;
                 }
             }
+        } else {
+            closed();
         }
     }
 
@@ -123,21 +131,21 @@ Rectangle {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     if (keyboard.state === "") {
                         switchProfile(visualModel.items.get(profileList.currentIndex).model.profileId);
                     }
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     if (!profileSelector.noProfile) {
                         profileSelector.state = "hidden";
                     }
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     if (!profileSelector.noProfile) {
                         profileSelector.state = "hidden";
                         profileSelector.parent.closeAnimation.start();
@@ -209,7 +217,7 @@ Rectangle {
         Components.Icon {
             id: closeIcon
             color: colors.offwhite
-            icon: "uc:left-arrow-alt"
+            icon: "uc:arrow-left"
             anchors { verticalCenter: titleText.verticalCenter; left: parent.left }
             size: 80
             visible: !profileSelector.noProfile
@@ -366,7 +374,7 @@ Rectangle {
                 Components.Icon {
                     Layout.alignment: Qt.AlignVCenter
                     Layout.rightMargin: 10
-                    icon: "uc:lock-alt"
+                    icon: "uc:lock"
                     color: colors.offwhite
                     size: 40
                     visible: profileRestricted
@@ -401,7 +409,7 @@ Rectangle {
                                     {
                                         //: Menu item for profile rename
                                         title: qsTr("Rename"),
-                                        icon: "uc:edit",
+                                        icon: "uc:pen-to-square",
                                         callback: function() {
                                             profileRename.profileId = profileId;
                                             profileRename.inputFieldContainer.inputField.text = profileName;
@@ -411,7 +419,7 @@ Rectangle {
                                     {
                                         //: Menu item for changing icon
                                         title: qsTr("Edit icon"),
-                                        icon: "uc:profile",
+                                        icon: "uc:user",
                                         callback: function() {
                                             iconSelector.profileId = profileId;
                                             iconSelector.open();
@@ -472,7 +480,7 @@ Rectangle {
                                 {
                                     //: Menu item for adding a normal profile
                                     title: qsTr("Normal"),
-                                    icon: "uc:profile-hat",
+                                    icon: "uc:user",
                                     callback: function() {
                                         profileAdd.state = "visible";
                                         profileAdd.limited = false;
@@ -481,7 +489,7 @@ Rectangle {
                                 {
                                     //: Menu item for adding a limited guest profile
                                     title: qsTr("Restricted"),
-                                    icon: "uc:profile",
+                                    icon: "uc:ghost",
                                     callback: function() {
                                         profileAdd.state = "visible";
                                         profileAdd.limited = true;

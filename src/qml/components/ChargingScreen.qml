@@ -143,6 +143,21 @@ Popup {
                 "pressed": function() {
                     chargingScreenRoot.close();
                 }
+            },
+            "STOP": {
+                "pressed": function() {
+                    chargingScreenRoot.close();
+                }
+            },
+            "RECORD": {
+                "pressed": function() {
+                    chargingScreenRoot.close();
+                }
+            },
+            "MENU": {
+                "pressed": function() {
+                    chargingScreenRoot.close();
+                }
             }
         }
     }
@@ -261,7 +276,7 @@ Popup {
 
         Components.Icon {
             id: icon
-            icon: "uc:charging"
+            icon: "uc:bolt"
             color: colors.offwhite
             anchors { left: parent.left; leftMargin: -10 }
             size: 60

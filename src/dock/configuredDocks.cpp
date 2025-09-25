@@ -9,7 +9,7 @@ namespace uc {
 namespace dock {
 
 ConfiguredDock::ConfiguredDock(const QString &id, const QString &name, const QString &customWsUrl, bool active,
-                               const QString &model, const QString &connectionType, const QString &version, State state,
+                               const QString &model, const QString& revision, const QString &serial, const QString &connectionType, const QString &version, State state,
                                bool learningActive, const QString &description, int ledBrightness, QObject *parent)
     : QObject(parent),
       m_id(id),
@@ -17,12 +17,16 @@ ConfiguredDock::ConfiguredDock(const QString &id, const QString &name, const QSt
       m_customWsUrl(customWsUrl),
       m_active(active),
       m_model(model),
+      m_revision(revision),
+      m_serial(serial),
       m_connectionType(connectionType),
       m_version(version),
       m_state(state),
       m_learningActive(learningActive),
       m_description(description),
-      m_ledBrightness(ledBrightness) {}
+      m_ledBrightness(ledBrightness) {
+    qCDebug(lcDockController()) << "Configured dock created" << m_id << m_model << m_revision << m_serial;
+}
 
 ConfiguredDock::~ConfiguredDock() {
     qCDebug(lcDockController()) << "Configured dock destructor" << m_id;
@@ -120,6 +124,10 @@ QVariant ConfiguredDocks::data(const QModelIndex &index, int role) const {
             return item->getActive();
         case ModelRole:
             return item->getModel();
+        case RevisionRole:
+            return item->getRevision();
+        case SerialRole:
+            return item->getSerial();
         case ConnectionTypeRole:
             return item->getConnectionType();
         case VersionRole:
@@ -143,6 +151,8 @@ QHash<int, QByteArray> ConfiguredDocks::roleNames() const {
     roles[CustomWsUrlRole] = "dockCustomWsUrl";
     roles[ActiveRole] = "dockActive";
     roles[ModelRole] = "dockModel";
+    roles[RevisionRole] = "dockRevision";
+    roles[SerialRole] = "dockSerial";
     roles[ConnectionTypeRole] = "dockConnectionType";
     roles[VersionRole] = "dockVersion";
     roles[StateRole] = "dockState";

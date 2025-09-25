@@ -64,14 +64,14 @@ Rectangle {
                 let menuItems = [];
                 menuItems.push({
                                    title: qsTr("Turn activity on"),
-                                   icon: "uc:right-arrow-alt",
+                                   icon: "uc:arrow-right",
                                    callback: function() {
                                        entityObj.turnOn();
                                    }
                                });
                 menuItems.push({
                                    title: qsTr("Turn activity off"),
-                                   icon: "uc:left-arrow-alt",
+                                   icon: "uc:arrow-left",
                                    callback: function() {
                                        entityObj.turnOff();
                                    }
@@ -222,14 +222,11 @@ Rectangle {
     Components.HapticMouseArea {
         id: mouseArea
         anchors.fill: parent
-        onClicked: {
+        onClicked: {           
             if (entityObj.enabled) {
                 if (!editMode) {
                     entityBaseContainer.open();
                 }
-            } else {
-                //: Entity is unavailable
-                ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
             }
         }
         onPressAndHold: {
@@ -244,7 +241,7 @@ Rectangle {
     Components.Icon {
         id: icon
         color: colors.offwhite
-        icon: entityObj.icon
+        icon: entityObj.mediaImage && entityObj.mediaImage !== "" ? "" : entityObj.icon
         suffix: entityObj.stateAsString
         anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter; }
         size: 100
@@ -260,9 +257,10 @@ Rectangle {
             width: 100; height: 100
             anchors.centerIn: icon
             opacity: entityObj.mediaImage !== "" ? 1 : 0
-            enabled: entityObj.type === EntityTypes.Media_player
-            visible: imageClosed.enabled
+            enabled: visible
+            visible: entityObj.type === EntityTypes.Media_player && entityObj.mediaImage != ""
             url: entityObj.mediaImage ? entityObj.mediaImage : ""
+            aspectFit: true
 
             Behavior on opacity {
                 NumberAnimation { duration: 300 }

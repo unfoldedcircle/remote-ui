@@ -78,7 +78,7 @@ class Activity : public Base {
     Q_PROPERTY(QStringList includedEntities READ getIncludedEntities NOTIFY includedEntitiesChanged)
 
  public:
-    explicit Activity(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit Activity(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                       const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                       QVariantMap attributes, QVariantMap options, const QString &integrationId, QObject *parent);
     ~Activity();
@@ -123,7 +123,7 @@ class Activity : public Base {
     void sendCommandToEntity(QString entityId, QString command, QVariantMap params = QVariantMap());
 
  private:
-    int          m_totalSteps;
+    int          m_totalSteps = 0;
     SequenceStep m_currentStep;
 
     // options

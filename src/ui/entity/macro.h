@@ -69,7 +69,7 @@ class Macro : public Base {
     Q_PROPERTY(SequenceStep *currentStep READ getCurrentStep NOTIFY currentStepChanged)
 
  public:
-    explicit Macro(const QString &id, const QString &name, QVariantMap nameI18n,  const QString &icon, const QString &area,
+    explicit Macro(const QString &id, QVariantMap nameI18n, const QString &language,  const QString &icon, const QString &area,
                    const QString &deviceClass, const QStringList &features, bool enabled, QVariantMap attributes,
                    const QString &integrationId, QObject *parent);
     ~Macro();
@@ -94,7 +94,7 @@ class Macro : public Base {
     void currentStepChanged();
 
  private:
-    int          m_totalSteps;
+    int          m_totalSteps = 0;
     SequenceStep m_currentStep;
 };
 

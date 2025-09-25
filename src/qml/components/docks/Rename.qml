@@ -97,17 +97,17 @@ Rectangle {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     renameDockContainer.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     renameDockContainer.close();
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     renameDockContainer.rename();
                 }
             }

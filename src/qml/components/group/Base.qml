@@ -184,7 +184,7 @@ Rectangle {
     Components.Icon {
         id: icon
         color: colors.offwhite
-        icon: "uc:up-arrow"
+        icon: "uc:arrow-up"
         anchors { left: parent.left; leftMargin: 10; verticalCenter: titleContainer.verticalCenter; }
         size: container.state == "open" ? 60 : 100
         rotation: container.state == "open" ? 0 : 180

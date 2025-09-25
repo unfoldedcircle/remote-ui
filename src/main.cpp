@@ -5,6 +5,7 @@
 #include <QMetaObject>
 #include <QQmlApplicationEngine>
 #include <QScreen>
+#include <QQuickWindow>
 
 #include "config/config.h"
 #include "core/core.h"
@@ -32,13 +33,18 @@ int main(int argc, char *argv[]) {
     bool ok;
     int  width, height;
 
-    auto model = uc::hw::HardwareModel::fromString(qgetenv("UC_MODEL"), &ok);
+    auto model = uc::hw::HardwareModel::fromString(qgetenv("UC_MODEL").toUpper(), &ok);
 
     if (!ok) {
         model = uc::hw::HardwareModel::DEV;
     }
 
     QCoreApplication::setAttribute(Qt::AA_UseOpenGLES);
+
+    qputenv("QML_DISABLE_DISTANCEFIELD", "1");
+
+    // set text rendering to native
+    QQuickWindow::setTextRenderType(QQuickWindow::TextRenderType::NativeTextRendering);
 
     if (model == uc::hw::HardwareModel::DEV) {
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);

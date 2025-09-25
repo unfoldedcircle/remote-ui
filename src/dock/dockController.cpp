@@ -111,7 +111,7 @@ void DockController::startDiscovery() {
             qCWarning(lcDockController()) << "Error starting dock discovery:" << code << message;
             ui::Notification::createActionableWarningNotification(
                 tr("Failed to start dock discovery"), tr("There was an error starting dock discovery: %1").arg(message),
-                "uc:warning",
+                "uc:triangle-exclamation",
                 [](QVariant param) {
                     DockController *dc = qvariant_cast<DockController *>(param);
                     dc->startDiscovery();
@@ -135,7 +135,7 @@ void DockController::stopDiscovery() {
             qCWarning(lcDockController()) << "Error stopping dock discovery:" << code << message;
             ui::Notification::createActionableWarningNotification(
                 tr("Failed to stop dock discovery"), tr("There was an error stopping dock discovery: %1").arg(message),
-                "uc:warning",
+                "uc:triangle-exclamation",
                 [](QVariant param) {
                     DockController *dc = qvariant_cast<DockController *>(param);
                     dc->stopDiscovery();
@@ -308,7 +308,7 @@ void DockController::getDocks(int limit, int page) {
 
                         if (!m_configuredDocks.contains(i->id)) {
                             m_configuredDocks.append(new ConfiguredDock(
-                                i->id, i->name, i->customWsUrl, i->active, i->model, i->connectionType, i->version,
+                                i->id, i->name, i->customWsUrl, i->active, i->model, i->revision, i->serial, i->connectionType, i->version,
                                 static_cast<ConfiguredDock::State>(i->state), i->learningActive, i->description, i->ledBrightness, this));
                             qCDebug(lcDockController()) << "Dock created:" << i->name << i->id;
                         }
@@ -372,7 +372,7 @@ void DockController::onDockDiscovered(core::DockDiscovery dock) {
 
     if (!dock.configured && !m_discoveredDocks.contains(dock.id)) {
         m_discoveredDocks.append(new DiscoveredDock(
-            dock.id, dock.configured, dock.friendlyName, dock.address, dock.model, dock.version,
+            dock.id, dock.configured, dock.friendlyName, dock.address, dock.model, dock.revision, dock.serial, dock.version,
             Util::convertEnumToString(dock.discoveryType), dock.bluetoothSignal, dock.bluetoothLastSeenSeconds, this));
     }
 }
@@ -427,7 +427,7 @@ void DockController::onDockSetupChanged(core::MsgEventTypes::Enum type, QString 
 void DockController::onDockAdded(QString dockId, core::DockConfiguration dock) {
     if (!m_configuredDocks.contains(dockId)) {
         m_configuredDocks.append(new ConfiguredDock(
-            dockId, dock.name, dock.customWsUrl, dock.active, dock.model, dock.connectionType, dock.version,
+            dockId, dock.name, dock.customWsUrl, dock.active, dock.model, dock.revision, dock.serial, dock.connectionType, dock.version,
             static_cast<ConfiguredDock::State>(dock.state), dock.learningActive, dock.description, dock.ledBrightness, this));
 
         qCDebug(lcDockController()) << "Dock added:" << dockId;

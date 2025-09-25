@@ -34,17 +34,17 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     iconSelectorPopup.close();
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     iconSelectorPopup.close();
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     iconSelectorPopup.iconSelected(iconGridSwipeView.currentIndex === 0 ? iconGrid.currentItem.icon : iconGridCustom.currentItem.icon);
                     iconSelectorPopup.close();
                 }

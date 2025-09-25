@@ -14,7 +14,7 @@ class HardwareModel : public QObject {
     Q_OBJECT
 
  public:
-    enum Enum { DEV, YIO1, UCR2 };
+    enum Enum { DEV, YIO1, UCR2, UCR3 };
     Q_ENUM(Enum)
 
     static Enum fromString(const QString& key, bool* ok = nullptr) {

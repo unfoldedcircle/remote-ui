@@ -30,13 +30,13 @@ class Base : public QObject {
     Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabledChanged)
 
  public:
-    enum Type { Button, Switch, Climate, Cover, Light, Media_player, Remote, Sensor, Activity, Macro };
+    enum Type { Unsupported, Button, Switch, Climate, Cover, Light, Media_player, Remote, Sensor, Activity, Macro };
     Q_ENUM(Type)
 
     enum CommonAttributes { Name, Icon, Area };
     Q_ENUM(CommonAttributes)
 
-    explicit Base(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit Base(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                   const QString &area, Type type, bool enabled, QVariantMap attributes,
                   const QString &integration = QString(), bool selected = false, QObject *parent = nullptr);
     ~Base();
@@ -62,7 +62,7 @@ class Base : public QObject {
     virtual Q_INVOKABLE void turnOn() {}
     virtual Q_INVOKABLE void turnOff() {}
 
-    bool setFriendlyName(const QString &friendlyName);
+    bool setFriendlyName(QVariantMap nameI18n, const QString &language);
     bool setIcon(const QString &icon);
     bool setArea(const QString &area);
     bool setState(int state);
@@ -85,7 +85,6 @@ class Base : public QObject {
         return true;
     }
 
-    bool         updateCommonAttribute(const QString &attribute, QVariant data);
     virtual bool updateAttribute(const QString &attribute, QVariant data) {
         Q_UNUSED(attribute)
         Q_UNUSED(data)
@@ -98,7 +97,7 @@ class Base : public QObject {
     }
 
     QString getIntegration() { return m_integration; }
-    QString getSorting() { return m_sorting; }
+    QString getSorting() { return m_name.toLower() + m_integration.toLower() + m_id.toLower() + m_area.toLower(); }
     bool    getSelected() { return m_selected; }
     void    setSelected(bool selected) { m_selected = selected; }
 
@@ -143,7 +142,6 @@ class Base : public QObject {
     QList<int> m_features;
 
     QString m_integration;
-    QString m_sorting;
     bool    m_selected;
 };
 

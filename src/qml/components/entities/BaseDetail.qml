@@ -17,16 +17,6 @@ Rectangle {
 
     signal closed()
 
-    Connections {
-        target: entityObj
-
-        function onStateChanged(entityId, newState) {
-            if (entityObj.state === 0 && entityBaseDetailContainer.state == "open") {
-                entityBaseDetailContainer.close();
-            }
-        }
-    }
-
     state: "closed"
 
     states: [
@@ -52,7 +42,6 @@ Rectangle {
                 }
                 PropertyAnimation { target: iconClose; properties: "opacity"; easing.type: Easing.OutExpo; duration: entityBaseDetailContainer.skipAnimation ? 0 : 300 }
                 PauseAnimation { duration: 500 }
-//                ScriptAction { script: ui.inputController.blockInput(false); }
             }
         },
         Transition {
@@ -82,8 +71,11 @@ Rectangle {
     property alias buttonNavigation: buttonNavigation
 
     function open(skipAnimation = false) {
-        buttonNavigation.takeControl();
-//        ui.inputController.blockInput(true);
+        // get the latest entity data from the core
+        EntityController.refreshEntity(entityId);
+
+//        buttonNavigation.takeControl();
+        ui.inputController.takeControl(String(entityBaseDetailContainer));
         entityBaseDetailContainer.skipAnimation = skipAnimation;
         entityBaseDetailContainer.state = "open";
     }
@@ -96,21 +88,30 @@ Rectangle {
             buttonNavigation.releaseControl();
         }
 
-//        ui.inputController.blockInput(false);
     }
 
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
+                    if (entityBaseDetailContainer.state == "open") {
+                        entityBaseDetailContainer.close();
+                    }
+                },
+                "long_press": function() {
                     if (entityBaseDetailContainer.state == "open") {
                         entityBaseDetailContainer.close();
                     }
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
+                    if (entityBaseDetailContainer.state == "open") {
+                        entityBaseDetailContainer.close();
+                    }
+                },
+                "long_press": function() {
                     if (entityBaseDetailContainer.state == "open") {
                         entityBaseDetailContainer.close();
                     }
@@ -124,7 +125,7 @@ Rectangle {
         id: iconClose
         color: colors.offwhite
         opacity: 0
-        icon: "uc:close"
+        icon: "uc:xmark"
         anchors { right: parent.right; top: parent.top; topMargin: 5 }
         size: 70
         z: 1000
@@ -136,6 +137,63 @@ Rectangle {
             onClicked: {
                 entityBaseDetailContainer.close();
             }
+        }
+    }
+
+    Rectangle {
+        id: unavailableOverlay
+        color: colors.black
+        opacity: entityObj.state == 0 ? 0.85 : 0
+        anchors { top: iconClose.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
+        z: 2000
+
+        onOpacityChanged: {
+            if (unavailableOverlay.opacity == 0) {
+                showUnavailableIconTimer.stop();
+                unavailableOverlayIcon.visible = false;
+            } else {
+                showUnavailableIconTimer.start();
+            }
+        }
+
+        Timer {
+            id: showUnavailableIconTimer
+            repeat: false
+            running: false
+            interval: 1000
+
+            onTriggered: {
+                unavailableOverlayIcon.visible = true;
+            }
+        }
+
+        MouseArea {
+            enabled: unavailableOverlay.opacity != 0
+            anchors.fill: parent
+        }
+
+        Components.Icon {
+            id: unavailableOverlayIcon
+            color: colors.red
+            anchors.centerIn: parent
+            icon: "uc:ban"
+            size: 120
+            visible: false
+        }
+
+        Text {
+            visible: unavailableOverlayIcon.visible
+            text: qsTr("Entity unavailable")
+            width: parent.width - 40
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            maximumLineCount: 2
+            elide: Text.ElideRight
+            color: colors.red
+            font: fonts.primaryFont(30)
+            lineHeight: 0.8
+            anchors { horizontalCenter: parent.horizontalCenter; top: unavailableOverlayIcon.bottom; topMargin: 20 }
         }
     }
 }

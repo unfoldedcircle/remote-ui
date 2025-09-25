@@ -63,9 +63,15 @@ class Config : public QObject {
     Q_PROPERTY(bool checkForUpdates READ getCheckForUpdates WRITE setCheckForUpdates NOTIFY checkForUpdatesChanged)
     Q_PROPERTY(QString otaWindowStart READ getOtaWindowStart NOTIFY otaWindowStartChanged)
     Q_PROPERTY(QString otaWindowEnd READ getOtaWindowEnd NOTIFY otaWindowEndChanged)
+    Q_PROPERTY(QString updateChannel READ getUpdateChannel NOTIFY updateChannelChanged)
 
     Q_PROPERTY(bool bluetoothEnabled READ getBluetoothEnabled WRITE setBluetoothEnabled NOTIFY bluetoothEnabledChanged)
+
     Q_PROPERTY(bool wifiEnabled READ getWifiEnabled WRITE setWifiEnabled NOTIFY wifiEnabledChanged)
+    Q_PROPERTY(bool wowlanEnabled READ getWowlanEnabled WRITE setWowlanEnabled NOTIFY wowlanChanged)
+    Q_PROPERTY(QStringList wifiBands READ getWifiBands NOTIFY wifiBandsChanged)
+    Q_PROPERTY(QString wifiBand READ getWifiBand WRITE setWifiBand NOTIFY wifiBandChanged)
+    Q_PROPERTY(int scanIntervalSec READ getScanIntervalSec WRITE setScanIntervalSec NOTIFY scanIntervalSecChanged)
     Q_PROPERTY(QString bluetoothMac READ getBluetoothMac CONSTANT)
 
     Q_PROPERTY(QString legalPath READ getLegalPath CONSTANT)
@@ -79,6 +85,10 @@ class Config : public QObject {
                    entityButtonFuncInvertedChanged)
 
     Q_PROPERTY(bool showBatteryPercentage READ getShowBatteryPercentage WRITE setShowBatteryPercentage NOTIFY showBatteryPercentageChanged)
+
+    Q_PROPERTY(bool enableActivityBar READ getEnableActivityBar WRITE setEnableActivityBar NOTIFY enableActivityBarChanged)
+    Q_PROPERTY(bool fillMediaArtwork READ getFillMediaArtwork WRITE setFillMediaArtwork NOTIFY fillMediaArtworkChanged)
+
 
  public:
     explicit Config(core::Api* core, QObject* parent = nullptr);
@@ -138,6 +148,12 @@ class Config : public QObject {
     bool getShowBatteryPercentage();
     void setShowBatteryPercentage(bool value);
 
+    bool getEnableActivityBar();
+    void setEnableActivityBar(bool value);
+
+    bool getFillMediaArtwork();
+    void setFillMediaArtwork(bool value);
+
     enum WakeupSensitivities { off = 0, low = 1, medium = 2, high = 3 };
     Q_ENUM(WakeupSensitivities)
 
@@ -155,11 +171,22 @@ class Config : public QObject {
     void    setCheckForUpdates(bool enabled);
     QString getOtaWindowStart() { return m_otaWindowStart; }
     QString getOtaWindowEnd() { return m_otaWindowEnd; }
+    QString getUpdateChannel() { return m_updateChannel; }
 
     bool    getBluetoothEnabled() { return m_bluetoothEnabled; }
     void    setBluetoothEnabled(bool enabled);
     bool    getWifiEnabled() { return m_wifiEnabled; }
     void    setWifiEnabled(bool enabled);
+    bool    getWowlanEnabled() { return m_wowlanEnabled; }
+    void    setWowlanEnabled(bool enabled);
+
+    void    setWifiBand(QString value);
+    void    setScanIntervalSec(int value);
+
+    QStringList getWifiBands() { return m_bands; }
+    QString     getWifiBand() { return m_band; }
+    int         getScanIntervalSec() { return m_scanIntervalSec; }
+
     QString getBluetoothMac() { return m_bluetoothMac; }
 
     Q_INVOKABLE QString     getLanguageAsNative(const QString language);
@@ -181,7 +208,8 @@ class Config : public QObject {
 
     QString getLegalPath() { return QCoreApplication::applicationDirPath() + "/legal"; }
 
-    void    getConfig();
+    Q_INVOKABLE void    getConfig();
+
     void    getApiAccess();
     void    getActiveProfile();
     bool    getWebConfiguratorEnabled() { return m_webConfiguratorEnabled; }
@@ -229,18 +257,24 @@ class Config : public QObject {
     void checkForUpdatesChanged(bool value);
     void otaWindowStartChanged(QString value);
     void otaWindowEndChanged(QString value);
+    void updateChannelChanged(QString value);
 
     void webConfiguratorEnabledChanged(bool value);
     void webConfiguratorPinChanged(QString pin);
 
     void bluetoothEnabledChanged(bool value);
     void wifiEnabledChanged(bool value);
+    void wowlanChanged(bool value);
+    void wifiBandsChanged(QStringList value);
+    void wifiBandChanged(QString value);
+    void scanIntervalSecChanged(int value);
 
     void adminPinSet(bool success);
 
     void entityButtonFuncInvertedChanged();
-
     void showBatteryPercentageChanged();
+    void enableActivityBarChanged();
+    void fillMediaArtworkChanged();
 
  public slots:
     void onCoreConnected();
@@ -298,9 +332,16 @@ class Config : public QObject {
     bool    m_checkForUpdates;
     QString m_otaWindowStart;
     QString m_otaWindowEnd;
+    QString m_updateChannel = "DEFAULT";
 
     bool    m_bluetoothEnabled;
     bool    m_wifiEnabled;
+    bool    m_wowlanEnabled;
+
+    QStringList m_bands;
+    QString     m_band;
+    int         m_scanIntervalSec;
+
     QString m_bluetoothMac;
 
     bool    m_webConfiguratorEnabled = false;

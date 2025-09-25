@@ -173,7 +173,7 @@ Item {
 
             Components.Icon {
                 color: colors.offwhite
-                icon: "uc:left-arrow"
+                icon: "uc:arrow-left"
                 anchors.centerIn: parent
                 size: 80
             }

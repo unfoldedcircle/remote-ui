@@ -96,17 +96,17 @@ Rectangle {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     dockPasswordContainer.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     dockPasswordContainer.close();
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     dockPasswordContainer.rename();
                 }
             }

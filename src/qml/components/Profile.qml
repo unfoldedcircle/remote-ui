@@ -97,12 +97,12 @@ Item {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     loadPage(menu.currentIndex);
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     if (profileRoot.state == "showLargeQr") {
                         profileRoot.state = "";
                     } else {
@@ -111,7 +111,7 @@ Item {
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     if (profileRoot.state == "showLargeQr") {
                         profileRoot.state = "";
                     } else {
@@ -213,7 +213,7 @@ Item {
                 id: closeIcon
 
                 color: colors.offwhite
-                icon: "uc:close"
+                icon: "uc:xmark"
                 size: 80
 
                 Components.HapticMouseArea {
@@ -279,7 +279,7 @@ Item {
                         Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
                         color: colors.offwhite
-                        icon: "uc:right-arrow-alt"
+                        icon: "uc:arrow-right"
                         size: 60
                     }
                 }
@@ -482,7 +482,7 @@ Item {
 
                                 Components.Icon {
                                     id: generateQrCodeIcon
-                                    icon: "uc:reboot"
+                                    icon: "uc:arrow-rotate-right"
                                     color: colors.light
                                     size: 60
                                     anchors.centerIn: parent
@@ -540,7 +540,7 @@ Item {
 
                         Components.Icon {
                             id: lockIcon
-                            icon: "uc:lock-alt"
+                            icon: "uc:lock"
                             color: colors.offwhite
                             opacity: 0.6
                             anchors { left: parent.left }
@@ -748,9 +748,9 @@ Item {
                         case 3:
                             return DockController.configuredDocks.count;
                         case 4:
-                            return "N/A";
+                            return qsTranslate("Abbreviation for not available", "N/A");
                         case 5:
-                            return "N/A";
+                            return qsTranslate("Abbreviation for not available", "N/A");
                         default:
                             return "";
                         }

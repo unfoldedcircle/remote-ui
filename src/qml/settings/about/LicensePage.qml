@@ -17,6 +17,7 @@ Settings.Page {
     property var stringList
     property string baseDir
     property bool followLinks: true
+    property bool isMarkdown: true
 
     function scrollDown() {
         flickable.contentY += 100 * scrollCounter;
@@ -66,6 +67,11 @@ Settings.Page {
             aboutPageContent.baseDir = "file:" + baseDir + "/";
 
             const lines = res.split("\n");
+            if (!aboutPageContent.isMarkdown) {
+                aboutPageContent.stringList = lines;
+                return;
+            }
+
             const parts = [];
             let currentPart = "";
 
@@ -107,7 +113,7 @@ Settings.Page {
             color: colors.light
             baseUrl: aboutPageContent.baseDir
             text: model.modelData
-            textFormat: aboutPageContent.type === ResourceTypes.Licenses ? Text.MarkdownText : Text.RichText
+            textFormat: aboutPageContent.isMarkdown ? Text.MarkdownText : Text.RichText
             font: fonts.secondaryFont(24)
             onLinkActivated: {
                 if (link.includes("http")) {
@@ -116,8 +122,8 @@ Settings.Page {
 
                 if (aboutPageContent.followLinks) {
                     aboutPageContent.followLinks = false;
-                    let res = resource.getLinkContent(content.baseUrl, link);
-                    aboutPageContent.stringList = res.split('\n');
+                    aboutPageContent.isMarkdown = false;
+                    resource.getLinkContent(content.baseUrl, link);
                 }
             }
         }

@@ -66,7 +66,7 @@ EntityComponents.BaseDetail {
             }
         },
         "DPAD_MIDDLE": {
-            "released": function() {
+            "pressed": function() {
                 if (entityObj.hasFeature(CoverFeatures.Stop)) {
                     entityObj.stop();
                 }

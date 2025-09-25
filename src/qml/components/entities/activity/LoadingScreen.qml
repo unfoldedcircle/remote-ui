@@ -26,7 +26,8 @@ Popup {
     onOpened: {
         activityLoading.prevController = ui.inputController.activeObject
         mouseArea.enabled = false;
-        buttonNavigation.takeControl();
+//        buttonNavigation.takeControl();
+        ui.inputController.takeControl(String(activityLoading));
     }
 
     onClosed: {
@@ -110,12 +111,12 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     activityLoading.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     activityLoading.close();
                 }
             }

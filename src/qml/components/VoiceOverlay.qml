@@ -81,7 +81,7 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "VOICE": {
-                "released": function() {
+                "pressed": function() {
                     if (voice.listening) {
                         voice.listening = false;
                         Voice.stopListening();
@@ -90,12 +90,12 @@ Popup {
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     voice.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     voice.close();
                 }
             }

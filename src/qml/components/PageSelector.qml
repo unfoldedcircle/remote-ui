@@ -87,7 +87,7 @@ Rectangle {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     if (keyboard.state === "") {
                         editMode = false;
                         roomSelector.close();
@@ -95,13 +95,13 @@ Rectangle {
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     editMode = false;
                     roomSelector.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     editMode = false;
                     roomSelector.close();
                 }
@@ -173,7 +173,7 @@ Rectangle {
         Components.Icon {
             visible: !ui.profile.restricted
             color: editMode ? colors.offwhite : colors.light
-            icon: "uc:edit"
+            icon: "uc:pen-to-square"
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
             size: 60
 
@@ -291,7 +291,7 @@ Rectangle {
 
                 Components.Icon {
                     color: colors.red
-                    icon: "uc:close"
+                    icon: "uc:xmark"
                     anchors.centerIn: parent
                     size: 80
                 }
@@ -424,7 +424,7 @@ Rectangle {
                     id: moveIcon
                     color: colors.light
                     opacity: editMode ? 1 : 0
-                    icon: "uc:hamburger"
+                    icon: "uc:bars"
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
                     size: 80
 
@@ -437,7 +437,7 @@ Rectangle {
                     color: colors.light
                     visible: !deleteOpen
                     opacity: editMode ? deleteOpen ? 0 : 1 : 0
-                    icon: "uc:edit"
+                    icon: "uc:pen-to-square"
                     anchors { left: parent.left; verticalCenter: parent.verticalCenter }
                     size: 80
 

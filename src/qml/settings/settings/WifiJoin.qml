@@ -63,12 +63,12 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     wifiJoin.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     wifiJoin.close();
                 }
             }
@@ -140,6 +140,10 @@ Popup {
             }
 
             Item {
+                height: 10
+            }
+
+            Item {
                 Layout.alignment: Qt.AlignLeft
                 width: parent.width
                 height: currentNetworkStrenght.height
@@ -156,8 +160,8 @@ Popup {
                 }
 
                 Components.Icon {
-                    icon: "uc:wifi-03"
-                    opacity: 0.3
+                    icon: "uc:wifi"
+                    opacity: 1
                     anchors { right: parent.right; verticalCenter: currentNetworkSSID.verticalCenter }
                 }
 
@@ -168,19 +172,24 @@ Popup {
                         case SignalStrength.NONE:
                             return "";
                         case SignalStrength.WEAK:
-                            return "uc:wifi-01";
+                            return "uc:wifi-weak";
                         case SignalStrength.OK:
                         case SignalStrength.GOOD:
-                            return "uc:wifi-02";
+                            return "uc:wifi-fair";
                         case SignalStrength.EXCELLENT:
-                            return "uc:wifi-03";
+                            return "uc:wifi";
                         default:
                             return "";
                         }
                     }
                     opacity: icon === "" ? 0 : 1
+                    size: 60
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
                 }
+            }
+
+            Item {
+                height: 20
             }
 
             Item {

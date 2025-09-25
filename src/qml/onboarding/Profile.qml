@@ -13,7 +13,7 @@ Item {
         overrideActive: OnboardingController.currentStep === OnboardingController.Profile
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     OnboardingController.previousStep();
                 }
             },

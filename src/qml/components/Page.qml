@@ -9,9 +9,16 @@ import QtGraphicalEffects 1.0
 
 import Entity.Controller 1.0
 import Group.Controller 1.0
+import Entity.Activity 1.0
+import Entity.MediaPlayer 1.0
 import Haptic 1.0
 
+import HwInfo 1.0
+import Config 1.0
+
 import "qrc:/components" as Components
+import "qrc:/components/entities/media_player" as MediaPlayerComponents
+import "qrc:/components/entities/activity" as ActivityComponents
 
 ListView {
     id: page
@@ -26,17 +33,21 @@ ListView {
     header: header
     currentIndex: 0
 
+    signal draggedDownYChanged(int contentY, int treshold)
+
     property string title: pageName
     property string _id: pageId
     property QtObject items: pageItems
-    property bool isCurrentItem: ListView.isCurrentItem
+    property bool _isCurrentItem: pages.currentItem._id === page._id
+
+    property bool blockDraggedDownSignal: false
 
     Behavior on height {
-        NumberAnimation { easing.type: Easing.OutExpo; duration: 200 }
+        NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
     }
 
     Behavior on contentY {
-        NumberAnimation { easing.type: Easing.OutExpo; duration: 200 }
+        NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
     }
 
     Connections {
@@ -44,7 +55,7 @@ ListView {
         ignoreUnknownSignals: true
 
         function onEditModeChanged() {
-            if (!page.isCurrentItem) {
+            if (!page._isCurrentItem) {
                 return;
             }
 
@@ -57,8 +68,35 @@ ListView {
         }
     }
 
-    onIsCurrentItemChanged: {
-        if (!isCurrentItem) {
+    Connections {
+        target: Config
+        ignoreUnknownSignals: true
+
+        function onEnableActivityBarChanged() {
+            page.headerItem.reCalculateHeaderHeight();
+        }
+    }
+
+    onVerticalVelocityChanged: {
+        if (Math.abs(verticalVelocity) > 2500 && !blockDraggedDownSignal) {
+            blockDraggedDownSignal = true;
+        }
+    }
+
+    onFlickingChanged: {
+        if (!flicking && blockDraggedDownSignal) {
+            blockDraggedDownSignal = false;
+        }
+    }
+
+    onContentYChanged: {
+        if (!blockDraggedDownSignal) {
+            draggedDownYChanged(contentY, headerItem.height + 100);
+        }
+    }
+
+    on_IsCurrentItemChanged: {
+        if (!page._isCurrentItem) {
             ui.setTimeOut(100, () =>{ page.currentIndex = 0; });
             if (ui.editMode) {
                 ui.editMode = false;
@@ -77,18 +115,30 @@ ListView {
         id: header
 
         Item {
-            width: ListView.view.width; height: headerImage.height
+            id: headerContainer
+            width: ListView.view.width
+            height: activityList.count > 0 && Config.enableActivityBar ? 680 - (activityList.currentItem.entityIcon.visible ? 240 : 0) : 260
+            //            clip: true
+
+            Behavior on height {
+                NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
+            }
+
+            onHeightChanged: {
+                page.positionViewAtBeginning();
+            }
 
             Image {
                 id: headerImage
-                width: parent.width; height: 260
+                width: parent.width; height: parent.height
                 source: resource.getBackgroundImage(pageImage)
                 sourceSize.width: parent.width
-                sourceSize.height: 260
+                sourceSize.height: parent.height
                 asynchronous: true
                 fillMode: Image.PreserveAspectCrop
                 cache: true
                 visible: pageImage != ""
+                anchors.top: parent.top
 
                 Rectangle {
                     visible: headerImage.visible
@@ -117,6 +167,12 @@ ListView {
                     }
                 }
 
+                Behavior on height {
+                    NumberAnimation {
+                        duration: 500
+                        easing.type: Easing.OutExpo
+                    }
+                }
             }
 
             Components.HapticMouseArea {
@@ -133,13 +189,16 @@ ListView {
 
             ColumnLayout {
                 width: parent.width
-                anchors.centerIn: headerImage
+                height: parent.height
+                anchors.top: parent.top
                 spacing: 0
 
                 Text {
                     id: titleText
 
                     Layout.fillWidth: true
+                    Layout.fillHeight: activityList.count == 0
+                    Layout.topMargin: activityList.count > 0 && Config.enableActivityBar ? 60 : 0
                     Layout.leftMargin: 10
                     Layout.rightMargin: 10
 
@@ -156,36 +215,323 @@ ListView {
                 ListView {
                     id: activityList
                     Layout.fillWidth: true
-                    Layout.preferredHeight: activityList.count * 30
+                    Layout.fillHeight: true
                     Layout.topMargin: 10
                     Layout.leftMargin: 10
                     Layout.rightMargin: 10
 
-                    visible: activityList.count > 0 && !ui.editMode
+                    orientation: ListView.Horizontal
+                    snapMode: ListView.SnapOneItem
+                    highlightRangeMode: ListView.StrictlyEnforceRange
+                    maximumFlickVelocity: 6000
+                    flickDeceleration: 1000
+                    highlightMoveDuration: 200
+                    pressDelay: 100
+                    keyNavigationEnabled: false
+                    clip: true
+
+                    visible: activityList.count > 0 && !ui.editMode && Config.enableActivityBar
                     model: pageActivities
 
                     delegate: Components.HapticMouseArea {
+                        id: activityListItem
                         width: ListView.view.width
-                        height: 30
+                        height: ListView.view.height
 
-                        property QtObject entity: EntityController.get(pageItemId)
+                        property QtObject entity: QtObject
+                        property QtObject mediaComponentEntity: QtObject
+                        property bool _isCurrentItem: ListView.isCurrentItem
+
+                        property alias entityIcon: entityIcon
+
+                        function findButtonMap(entity, buttonName) {
+                            const buttonMap = entity.buttonMapping.find(buttonMap => buttonMap.button === buttonName);
+                            return buttonMap ? buttonMap["short_press"] : undefined;
+                        }
+
+                        function triggerCommand(entityId, cmdId, params) {
+                            let e = EntityController.get(entityId);
+
+                            if (e.type === EntityTypes.Macro) {
+                                activityLoading.start(entityId, EntityTypes.Macro);
+                            }
+
+                            EntityController.onEntityCommand(
+                                        entityId,
+                                        cmdId,
+                                        (params ? params : {}))
+                        }
+
+                        Component.onCompleted: {
+                            entity = EntityController.get(pageItemId);
+                            mediaComponentEntity = entity;
+                            activityMediaComponent.entityId = pageItemId;
+
+                            if (entity.type === EntityTypes.Activity) {
+                                const activityPages = entity.ui.pages;
+
+                                for (const activityPage of activityPages) {
+                                    const pageItems = activityPage.items;
+
+                                    for (const item of pageItems) {
+                                        if (item.type === "media_player") {
+                                            mediaComponentEntity = EntityController.get(item.media_player_id);
+                                            activityMediaComponent.entityId = item.media_player_id;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
 
                         onClicked: {
                             loadSecondContainer("qrc:/components/entities/" + entity.getTypeAsString() + "/deviceclass/" + entity.getDeviceClass() + ".qml", { "entityId": entity.id, "entityObj": entity });
                         }
 
-                        Text {
-                            anchors.centerIn: parent
-                            color: Qt.lighter(colors.light)
-                            text: {
-                                //: Used to show the entity state: %1 is the entity name, %2 is the state
-                                return qsTr("%1 is %2").arg(entity.name).arg(entity.stateAsString.toLowerCase());
+                        Components.TouchSlider {
+                            id: touchSlider
+                            entityObj: mediaComponentEntity
+                            active: (HwInfo.modelNumber == "UCR3" || HwInfo.modelNumber == "DEV") && !isSecondContainerLoaded &&  page._isCurrentItem && activityListItem._isCurrentItem
+                            parent: Overlay.overlay
+                        }
+
+                        // TODO: map buttons to activity button mapping if exists
+
+                        Components.ButtonNavigation {
+                            overrideActive: page._isCurrentItem && activityListItem._isCurrentItem && ui.inputController.activeObject === String(mainContainerRoot)
+                            defaultConfig: {
+                                "VOLUME_UP": {
+                                    "pressed": function() {
+                                        if (mainContainerBlockingMouseArea.enabled) {
+                                            mainContainerRoot.closeMenu();
+                                            return;
+                                        }
+
+                                        if (entity.type === EntityTypes.Activity) {
+                                            const mapping = findButtonMap(entity, "VOLUME_UP");
+                                            if (mapping) {
+                                                triggerCommand(mapping.entity_id, mapping.cmd_id, mapping.params);
+                                            }
+                                        } else if (entity.type === EntityTypes.Media_player) {
+                                            mediaComponentEntity.volumeUp();
+                                            volume.start(mediaComponentEntity);
+                                        }
+                                    }
+                                },
+                                "VOLUME_DOWN": {
+                                    "pressed": function() {
+                                        if (mainContainerBlockingMouseArea.enabled) {
+                                            mainContainerRoot.closeMenu();
+                                            return;
+                                        }
+
+                                        if (entity.type === EntityTypes.Activity) {
+                                            const mapping = findButtonMap(entity, "VOLUME_DOWN");
+                                            if (mapping) {
+                                                triggerCommand(mapping.entity_id, mapping.cmd_id, mapping.params);
+                                            }
+                                        } else if (entity.type === EntityTypes.Media_player) {
+                                            mediaComponentEntity.volumeDown();
+                                            volume.start(mediaComponentEntity, false);
+                                        }
+                                    }
+                                },
+                                "MUTE": {
+                                    "pressed": function() {
+                                        if (mainContainerBlockingMouseArea.enabled) {
+                                            mainContainerRoot.closeMenu();
+                                            return;
+                                        }
+
+                                        if (entity.type === EntityTypes.Activity) {
+                                            const mapping = findButtonMap(entity, "MUTE");
+                                            if (mapping) {
+                                                triggerCommand(mapping.entity_id, mapping.cmd_id, mapping.params);
+                                            }
+                                        } else if (entity.type === EntityTypes.Media_player) {
+                                            mediaComponentEntity.muteToggle();
+                                        }
+                                    }
+                                },
+                                "PLAY": {
+                                    "pressed": function() {
+                                        if (mainContainerBlockingMouseArea.enabled) {
+                                            mainContainerRoot.closeMenu();
+                                            return;
+                                        }
+
+                                        if (entity.type === EntityTypes.Activity) {
+                                            const mapping = findButtonMap(entity, "PLAY");
+                                            if (mapping) {
+                                                triggerCommand(mapping.entity_id, mapping.cmd_id, mapping.params);
+                                            }
+                                        } else if (entity.type === EntityTypes.Media_player) {
+                                            mediaComponentEntity.playPause();
+                                        }
+                                    }
+                                },
+                                "PREV": {
+                                    "pressed": function() {
+                                        if (mainContainerBlockingMouseArea.enabled) {
+                                            mainContainerRoot.closeMenu();
+                                            return;
+                                        }
+
+                                        if (entity.type === EntityTypes.Activity) {
+                                            const mapping = findButtonMap(entity, "PREV");
+                                            if (mapping) {
+                                                triggerCommand(mapping.entity_id, mapping.cmd_id, mapping.params);
+                                            }
+                                        } else if (entity.type === EntityTypes.Media_player) {
+                                            mediaComponentEntity.previous();
+                                        }
+                                    }
+                                },
+                                "NEXT": {
+                                    "pressed": function() {
+                                        if (mainContainerBlockingMouseArea.enabled) {
+                                            mainContainerRoot.closeMenu();
+                                            return;
+                                        }
+
+                                        if (entity.type === EntityTypes.Activity) {
+                                            const mapping = findButtonMap(entity, "NEXT");
+                                            if (mapping) {
+                                                triggerCommand(mapping.entity_id, mapping.cmd_id, mapping.params);
+                                            }
+                                        } else if (entity.type === EntityTypes.Media_player) {
+                                            mediaComponentEntity.next();
+                                        }
+                                    }
+                                },
+                                "POWER": {
+                                    "pressed": function() {
+                                        if (mainContainerBlockingMouseArea.enabled) {
+                                            mainContainerRoot.closeMenu();
+                                            return;
+                                        }
+
+                                        if (EntityController.activities.length === 0) {
+                                            return;
+                                        }
+
+                                        popupMenu.title = qsTr("Turn off");
+                                        let menuItems = [];
+
+                                        for (let i = 0; i<EntityController.activities.length; i++) {
+                                            let e = EntityController.activities[i];
+
+                                            const entityObj = EntityController.get(EntityController.activities[i]);
+
+                                            if (entityObj.hasFeature(MediaPlayerFeatures.On_off) || entityObj.type == EntityTypes.Activity) {
+                                                menuItems.push({
+                                                                   title: EntityController.get(e).name,
+                                                                   icon: EntityController.get(e).icon,
+                                                                   callback: function() {
+                                                                       EntityController.get(e).turnOff();
+                                                                   }
+                                                               });
+                                            }
+                                        }
+
+                                        if (EntityController.activities.length > 1) {
+                                            menuItems.push({
+                                                               title: qsTr("Turn off all"),
+                                                               icon: "uc:power-off",
+                                                               callback: function() {
+                                                                   for (let i = 0; i<EntityController.activities.length; i++) {
+                                                                       EntityController.get(EntityController.activities[i]).turnOff();
+                                                                   }
+                                                               }
+                                                           });
+                                        }
+
+                                        popupMenu.menuItems = menuItems;
+                                        popupMenu.open();
+                                    }
+                                }
+                            }
+                        }
+
+                        ColumnLayout {
+                            width: parent.width
+                            height: parent.height
+                            spacing: 0
+
+                            Text {
+                                Layout.fillWidth: true
+                                color: Qt.lighter(colors.light)
+                                text: {
+                                    //: Used to show the entity state: %1 is the entity name, %2 is the state
+                                    return qsTr("%1 is %2").arg(entity.name).arg(entity.stateAsString.toLowerCase());
+                                }
+                                elide: Text.ElideRight
+                                maximumLineCount: 1
+                                horizontalAlignment: Text.AlignHCenter
+                                font: fonts.secondaryFont(22)
                             }
 
-                            elide: Text.ElideRight
-                            maximumLineCount: 1
-                            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-                            font: fonts.secondaryFont(22)
+                            Item {
+                                Layout.fillWidth: true
+                                Layout.preferredHeight: entityIcon.visible ? 180 : 420
+                                Layout.leftMargin: 20
+                                Layout.rightMargin: 20
+
+                                Rectangle {
+                                    id: entityIcon
+                                    width: 180
+                                    height: 180
+                                    color: colors.dark
+                                    radius: 8
+                                    visible: mediaComponentEntity.mediaImage == "" || mediaComponentEntity.type != EntityTypes.Media_player
+                                    anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+
+                                    Components.Icon {
+                                        anchors.fill: parent
+                                        icon: entity.icon
+                                        size: 90
+                                        color: colors.offwhite
+                                    }
+                                }
+
+                                ActivityComponents.MediaComponent {
+                                    id: activityMediaComponent
+                                    width: parent.width
+                                    height: parent.height
+                                    isComponentHorizontal: false
+                                    visible: !entityIcon.visible
+                                    anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
+
+                                    Component.onCompleted: {
+                                        mediaImage.shrinkHeight = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 10
+                    Layout.topMargin: 10
+                    Layout.bottomMargin: 10
+                    visible: activityList.count > 1
+
+                    PageIndicator {
+                        anchors.horizontalCenter: parent.horizontalCenter
+
+                        currentIndex: activityList.currentIndex
+                        count: activityList.count
+                        padding: 0
+
+                        delegate: Component {
+                            Rectangle {
+                                width: 10; height: 10
+                                radius: 5
+                                color: colors.offwhite
+                                opacity: index === activityList.currentIndex ? 1 : 0.6
+                            }
                         }
                     }
                 }
@@ -339,7 +685,7 @@ ListView {
                     z: delegate.item ? delegate.item.z + 100 : 100
                     color: colors.light
                     opacity: delegate.editMode ? 1 : 0
-                    icon: "uc:hamburger"
+                    icon: "uc:bars"
                     anchors { right: delegate.right; rightMargin: 20; top: delegate.top; topMargin: 35 }
                     size: 80
 

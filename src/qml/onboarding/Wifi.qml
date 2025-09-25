@@ -21,7 +21,8 @@ Item {
         function onCurrentStepChanged() {
             if (OnboardingController.currentStep == OnboardingController.Wifi) {
                 Wifi.getWifiStatus();
-                Wifi.startNetworkScan();
+                ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
+                ui.setTimeOut(1000, ()=>{ Wifi.startNetworkScan(); });
                 scanTimer.start();
             }
         }
@@ -113,7 +114,9 @@ Item {
         anchors { top: macAddressContainer.bottom; bottom: skipStepButton.top; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         popupParent: onboardingWifiPage
         interactive: true
-        model: Wifi.unfilteredNetworkList
+        model: Wifi.networkList
+        state: "open"
+        parentObj: onboardingWifiPage
     }
 
     Components.Button {

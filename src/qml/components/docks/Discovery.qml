@@ -47,12 +47,12 @@ ListView {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     DockController.stopDiscovery();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     DockController.stopDiscovery();
                 }
             }
@@ -91,32 +91,6 @@ ListView {
                 width: parent.width - 40
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 40
-
-                Image {
-                    Layout.fillWidth: true
-                    Layout.topMargin: 20
-
-                    fillMode: Image.PreserveAspectFit
-                    antialiasing: true
-                    asynchronous: true
-                    cache: true
-                    source: "qrc:/images/dock_setup.png"
-
-                    Rectangle {
-                        width: 6; height: 6
-                        x: parent.width * 0.3; y: parent.height * 0.71
-                        radius: 3
-                        color: colors.orange
-
-                        SequentialAnimation on opacity {
-                            loops: Animation.Infinite
-                            NumberAnimation { from: 0; to: 1; duration: 1 }
-                            PauseAnimation { duration: 1000 }
-                            NumberAnimation { from: 1; to: 0; duration: 1 }
-                            PauseAnimation { duration: 1000 }
-                        }
-                    }
-                }
 
                 ColumnLayout {
                     Layout.fillWidth: true
@@ -158,7 +132,7 @@ ListView {
                     Layout.fillWidth: true
 
                     color: colors.light
-                    text: qsTr("Ensure the dock is nearby the remote and displaying a blinking orange light or connected via an ethernet cable. To reset, press and hold the bottom pin for over 10 seconds.")
+                    text: qsTr("Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.")
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     font: fonts.secondaryFont(22)
@@ -174,7 +148,7 @@ ListView {
                     Layout.preferredWidth: parent.width
                     Layout.bottomMargin: 20
 
-                    text: qsTr("Discover docks")
+                    text: qsTr("Discover")
                     trigger: function() {
                         startMessageContainer.opacity = 0;
                         DockController.startDiscovery();
@@ -311,7 +285,7 @@ ListView {
                     color: colors.offwhite
 
                     Components.Icon {
-                        icon: itemDiscoveryType === "NET" ? "uc:unfolded-circle" : "uc:bluetooth"
+                        icon: itemDiscoveryType === "NET" ? "uc:ethernet" : "uc:bluetooth"
                         size: 60
                         color: colors.black
                         anchors.centerIn: parent

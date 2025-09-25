@@ -93,7 +93,7 @@ Popup {
             Components.Icon {
                 id: iconClose
                 color: colors.offwhite
-                icon: "uc:close"
+                icon: "uc:xmark"
                 anchors { right: parent.right; top: parent.top }
                 size: 70
 
@@ -154,7 +154,7 @@ Popup {
             Components.Icon {
                 id: icon
                 color: colors.offwhite
-                icon: integrationObj.icon === "" ? "uc:integration" : integrationObj.icon
+                icon: integrationObj.icon === "" ? "uc:puzzle" : integrationObj.icon
                 anchors { left: parent.left; verticalCenter: parent.verticalCenter; }
                 size: 40
             }

@@ -98,7 +98,7 @@ Rectangle {
 
         Components.Icon {
             size: 60
-            icon: "uc:close"
+            icon: "uc:xmark"
             color: colors.offwhite
             anchors { top: parent.top; right: parent.right }
             visible: entityList.showCloseIcon
@@ -329,25 +329,25 @@ Rectangle {
 
                                 ListElement {
                                     typeName: qsTr("Button")
-                                    typeIcon: "uc:power-on"
+                                    typeIcon: "uc:power-off"
                                     typeValue: EntityTypes.Button
                                     typeChecked: false
                                 }
                                 ListElement {
                                     typeName: qsTr("Climate")
-                                    typeIcon: "uc:climate"
+                                    typeIcon: "uc:temperature-half"
                                     typeValue: EntityTypes.Climate
                                     typeChecked: false
                                 }
                                 ListElement {
                                     typeName: qsTr("Cover")
-                                    typeIcon: "uc:blind"
+                                    typeIcon: "uc:blinds"
                                     typeValue: EntityTypes.Cover
                                     typeChecked: false
                                 }
                                 ListElement {
                                     typeName: qsTr("Light")
-                                    typeIcon: "uc:light"
+                                    typeIcon: "uc:lightbulb"
                                     typeValue: EntityTypes.Light
                                     typeChecked: false
                                 }
@@ -365,7 +365,7 @@ Rectangle {
                                 }
                                 ListElement {
                                     typeName: qsTr("Switch")
-                                    typeIcon: "uc:power-on"
+                                    typeIcon: "uc:light-switch"
                                     typeValue: EntityTypes.Switch
                                     typeChecked: false
                                 }

@@ -73,12 +73,12 @@ Flickable {
         overrideActive: ui.inputController.activeObject === String(popup)
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     integrationInfoFlickable.popup.close()
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     integrationInfoFlickable.popup.close()
                 }
             }
@@ -104,7 +104,7 @@ Flickable {
 
                 Components.Icon {
                     color: colors.black
-                    icon: integrationObj.icon === "" ? "uc:integration" : integrationObj.icon
+                    icon: integrationObj.icon === "" ? "uc:puzzle" : integrationObj.icon
                     size: 80
                     anchors.centerIn: parent
                 }
@@ -119,7 +119,7 @@ Flickable {
 
                 color: colors.offwhite
                 size: 80
-                icon: "uc:close"
+                icon: "uc:xmark"
 
                 Components.HapticMouseArea {
                     anchors.fill: parent
@@ -440,17 +440,17 @@ Flickable {
             id: deleteContainerButtonNavigation
             defaultConfig: {
                 "BACK": {
-                    "released": function() {
+                    "pressed": function() {
                         deleteContainer.state = "closed";
                     }
                 },
                 "HOME": {
-                    "released": function() {
+                    "pressed": function() {
                         deleteContainer.state = "closed";
                     }
                 },
                 "DPAD_MIDDLE": {
-                    "released": function() {
+                    "pressed": function() {
                         deleteContainer.deleteIntegration();
                     }
                 }
@@ -567,7 +567,7 @@ Flickable {
 
                         Layout.alignment: Qt.AlignRight
 
-                        icon: "uc:close"
+                        icon: "uc:xmark"
                         size: 100
                         color: colors.offwhite
 

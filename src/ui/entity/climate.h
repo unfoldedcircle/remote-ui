@@ -105,7 +105,7 @@ class Climate : public Base {
     Q_PROPERTY(QVariantList model READ getModel NOTIFY modelChanged)
 
  public:
-    explicit Climate(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit Climate(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                      const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                      QVariantMap attributes, QVariantMap options, const QString &integrationId,
                      const Config::UnitSystems unitSystem, QObject *parent);

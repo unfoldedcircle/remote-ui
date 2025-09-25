@@ -80,6 +80,7 @@ class Translation : public QObject {
 
  public slots:
     void onLanguageChanged(QString language);
+    void onReqGetLocalizationLanguages(int reqId);
 
  private:
     QQmlEngine* m_engine;

@@ -35,8 +35,6 @@ IntegrationDriver::IntegrationDriver(const QString &key, QVariantMap name, const
       m_selected(selected) {
     m_name = Util::getLanguageString(m_name_i18n, m_language);
 
-    m_sorting = m_name + m_description + m_developerName + m_id;
-
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 }
 
@@ -44,13 +42,9 @@ IntegrationDriver::~IntegrationDriver() {
     qCDebug(lcIntegrationDriver()) << "IntegrationDriver destructor" << m_id;
 }
 
-void IntegrationDriver::setName(const QString &name) {
-    m_name = name;
-    emit nameChanged();
-}
-
 void IntegrationDriver::setNameI18n(QVariantMap nameI18n) {
     m_name_i18n = nameI18n;
+    // note: IntegrationController calls updateLanguage afterwards!
 }
 
 void IntegrationDriver::setDriverUrl(const QString &driverUrl) {
@@ -118,8 +112,6 @@ void IntegrationDriver::updateLanguage(const QString &language) {
 
     m_name = Util::getLanguageString(m_name_i18n, m_language);
     emit nameChanged();
-
-    m_sorting = m_name + m_description + m_developerName + m_id;
 }
 
 IntegrationDrivers::IntegrationDrivers(QObject *parent) : QAbstractListModel(parent), m_count(0) {}

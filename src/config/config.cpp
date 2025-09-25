@@ -376,6 +376,28 @@ void Config::setShowBatteryPercentage(bool value)
     emit showBatteryPercentageChanged();
 }
 
+bool Config::getEnableActivityBar()
+{
+    return m_settings->value("ui/activityBar", true).toBool();
+}
+
+void Config::setEnableActivityBar(bool value)
+{
+    m_settings->setValue("ui/activityBar", value);
+    emit enableActivityBarChanged();
+}
+
+bool Config::getFillMediaArtwork()
+{
+    return m_settings->value("ui/fillMediaArtwork", false).toBool();
+}
+
+void Config::setFillMediaArtwork(bool value)
+{
+    m_settings->setValue("ui/fillMediaArtwork", value);
+    emit fillMediaArtworkChanged();
+}
+
 void Config::setWakeupSensitivity(Config::WakeupSensitivities sensitivity) {
     if (m_wakeupSensitivity != sensitivity) {
         int id = m_core->setPowerSavingCfg(sensitivity, getDisplayTimeout(), getSleepTimeout());
@@ -478,7 +500,7 @@ void Config::setCheckForUpdates(bool enabled) {
 
 void Config::setBluetoothEnabled(bool enabled) {
     if (m_bluetoothEnabled != enabled) {
-        int id = m_core->setNetworkCfg(enabled, m_wifiEnabled);
+        int id = m_core->setNetworkCfg(enabled, m_wifiEnabled, m_wowlanEnabled, m_band, m_scanIntervalSec);
 
         m_core->onResult(
             id,
@@ -498,7 +520,7 @@ void Config::setBluetoothEnabled(bool enabled) {
 
 void Config::setWifiEnabled(bool enabled) {
     if (m_wifiEnabled != enabled) {
-        int id = m_core->setNetworkCfg(m_bluetoothEnabled, enabled);
+        int id = m_core->setNetworkCfg(m_bluetoothEnabled, enabled, m_wowlanEnabled, m_band, m_scanIntervalSec);
 
         m_core->onResult(
             id,
@@ -510,6 +532,67 @@ void Config::setWifiEnabled(bool enabled) {
             [=](int code, QString message) {
                 // fail
                 QString errorMsg = "Error setting WiFi: " + message;
+                qCWarning(lcConfig()) << code << errorMsg;
+                ui::Notification::createNotification(errorMsg, true);
+            });
+    }
+}
+
+void Config::setWowlanEnabled(bool enabled)
+{
+    if (m_wowlanEnabled != enabled) {
+        int id = m_core->setNetworkCfg(m_bluetoothEnabled, m_wifiEnabled, enabled, m_band, m_scanIntervalSec);
+
+        m_core->onResult(
+            id,
+            [=]() {
+                // success
+                m_wowlanEnabled = enabled;
+                emit wowlanChanged(m_wowlanEnabled);
+            },
+            [=](int code, QString message) {
+                // fail
+                QString errorMsg = "Error setting Wowlan: " + message;
+                qCWarning(lcConfig()) << code << errorMsg;
+                ui::Notification::createNotification(errorMsg, true);
+            });
+    }
+}
+
+void Config::setWifiBand(QString value)
+{
+    int id = m_core->setNetworkCfg(m_bluetoothEnabled, m_wifiEnabled, m_wowlanEnabled, value, m_scanIntervalSec);
+
+    m_core->onResult(
+        id,
+        [=]() {
+            // success
+            m_band = value;
+            emit wifiBandChanged(m_band);
+        },
+        [=](int code, QString message) {
+            // fail
+            QString errorMsg = "Error setting Wifi band: " + message;
+            qCWarning(lcConfig()) << code << errorMsg;
+            ui::Notification::createNotification(errorMsg, true);
+        });
+}
+
+void Config::setScanIntervalSec(int value)
+{
+    if (m_scanIntervalSec != value) {
+        int id = m_core->setNetworkCfg(m_bluetoothEnabled, m_wifiEnabled, m_wowlanEnabled, m_band, value);
+
+        m_core->onResult(
+            id,
+            [=]() {
+                // success
+                m_scanIntervalSec = value;
+                emit scanIntervalSecChanged(m_scanIntervalSec);
+            },
+            [=](int code, QString message) {
+                // fail
+                QString errorMsg = "Error setting Wifi scan interval: " + message;
                 qCWarning(lcConfig()) << code << errorMsg;
                 ui::Notification::createNotification(errorMsg, true);
             });
@@ -807,6 +890,18 @@ void Config::onNetworkCfgChanged(core::cfgNetwork cfgNetwork) {
     m_wifiEnabled = cfgNetwork.wifiEnabled;
     emit wifiEnabledChanged(m_wifiEnabled);
 
+    m_wowlanEnabled = cfgNetwork.wifi.wowlan;
+    emit wowlanChanged(m_wowlanEnabled);
+
+    m_bands = cfgNetwork.wifi.bands;
+    emit wifiBandsChanged(m_bands);
+
+    m_band = cfgNetwork.wifi.band;
+    emit wifiBandChanged(m_band);
+
+    m_scanIntervalSec = cfgNetwork.wifi.scanIntervalSec;
+    emit scanIntervalSecChanged(m_scanIntervalSec);
+
     m_bluetoothMac = cfgNetwork.bluetoothMac;
 }
 
@@ -837,6 +932,9 @@ void Config::onSoftwareUpdateCfgChanged(core::cfgSoftwareUpdate cfgSoftwareUpdat
         m_otaWindowEnd = cfgSoftwareUpdate.otaWindowEnd;
         emit otaWindowEndChanged(m_otaWindowEnd);
     }
+
+    m_updateChannel = Util::convertEnumToString(cfgSoftwareUpdate.channel);
+    emit updateChannelChanged(m_updateChannel);
 }
 
 void Config::onSoundCfgChanged(core::cfgSound cfgSound) {

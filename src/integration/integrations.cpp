@@ -23,20 +23,15 @@ Integration::Integration(const QString &key, const QString &driverId, const QStr
       m_language(language),
       m_selected(selected) {
     m_name = Util::getLanguageString(m_name_i18n, m_language);
-    m_sorting = m_name + m_driverId;
 
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 }
 
 Integration::~Integration() {}
 
-void Integration::setName(const QString &name) {
-    m_name = name;
-    emit nameChanged();
-}
-
 void Integration::setNameI18n(QVariantMap nameI18n) {
     m_name_i18n = nameI18n;
+    // note: IntegrationController calls updateLanguage afterwards!
 }
 
 void Integration::setIcon(const QString &icon) {
@@ -68,8 +63,6 @@ void Integration::updateLanguage(const QString &language) {
 
     m_name = Util::getLanguageString(m_name_i18n, m_language);
     emit nameChanged();
-
-    m_sorting = m_name + m_driverId;
 }
 
 Integrations::Integrations(QObject *parent) : QAbstractListModel(parent), m_count(0) {}

@@ -24,13 +24,13 @@ Item {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     profileRoot.goBack();
                     buttonNavigation.restoreDefaultConfig();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     profileRoot.goHome();
                 }
             }

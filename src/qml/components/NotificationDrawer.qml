@@ -34,12 +34,12 @@ Drawer {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     notifications.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     notifications.close();
                 }
             }
@@ -110,7 +110,7 @@ Drawer {
                 Components.Icon {
                     id: notificationIcon
                     color: itemWarning ? colors.red : colors.offwhite
-                    icon: itemIcon === "" ? "uc:warning" : itemIcon
+                    icon: itemIcon === "" ? "uc:triangle-exclamation" : itemIcon
                     anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
                     size: 60
                 }
