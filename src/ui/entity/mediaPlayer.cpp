@@ -10,10 +10,10 @@ namespace uc {
 namespace ui {
 namespace entity {
 
-MediaPlayer::MediaPlayer(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+MediaPlayer::MediaPlayer(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                          const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                          QVariantMap attributes, QVariantMap options, const QString &integrationId, QObject *parent)
-    : Base(id, name, nameI18n, icon, area, Type::Media_player, enabled, attributes, integrationId, false, parent),
+    : Base(id, nameI18n, language, icon, area, Type::Media_player, enabled, attributes, integrationId, false, parent),
       m_volume(0),
       m_muted(false),
       m_mediaDuration(0),
@@ -26,14 +26,14 @@ MediaPlayer::MediaPlayer(const QString &id, const QString &name, QVariantMap nam
 
     updateFeatures<MediaPlayerFeatures::Enum>(features);
 
-    // attributes
+            // attributes
     if (attributes.size() > 0) {
         for (QVariantMap::iterator i = attributes.begin(); i != attributes.end(); i++) {
             updateAttribute(uc::Util::FirstToUpper(i.key()), i.value());
         }
     }
 
-    // device class
+            // device class
     int deviceClassEnum = -1;
 
     if (!deviceClass.isEmpty()) {
@@ -46,12 +46,16 @@ MediaPlayer::MediaPlayer(const QString &id, const QString &name, QVariantMap nam
         m_deviceClass = QVariant::fromValue(MediaPlayerDeviceClass::Speaker).toString();
     }
 
-    // options
+            // options
     if (options.contains("volume_steps")) {
         m_volumeSteps = options.value("volume_steps").toInt();
     }
 
-    // setup position timer
+    if (options.contains("simple_commands")) {
+        m_simpleCommands = options.value("simple_commands").toStringList();
+    }
+
+            // setup position timer
     m_positionTimer.setInterval(1000);
     m_positionTimer.setTimerType(Qt::VeryCoarseTimer);
 
@@ -64,11 +68,15 @@ MediaPlayer::~MediaPlayer() {
 }
 
 void MediaPlayer::turnOn() {
-    sendCommand(MediaPlayerCommands::On);
+    if (hasFeature(MediaPlayerFeatures::On_off)) {
+        sendCommand(MediaPlayerCommands::On);
+    }
 }
 
 void MediaPlayer::turnOff() {
-    sendCommand(MediaPlayerCommands::Off);
+    if (hasFeature(MediaPlayerFeatures::On_off)) {
+        sendCommand(MediaPlayerCommands::Off);
+    }
 }
 
 void MediaPlayer::toggle() {
@@ -193,6 +201,56 @@ void MediaPlayer::cursorEnter() {
     sendCommand(MediaPlayerCommands::Cursor_enter);
 }
 
+void MediaPlayer::digit0()
+{
+    sendCommand(MediaPlayerCommands::Digit_0);
+}
+
+void MediaPlayer::digit1()
+{
+    sendCommand(MediaPlayerCommands::Digit_1);
+}
+
+void MediaPlayer::digit2()
+{
+    sendCommand(MediaPlayerCommands::Digit_2);
+}
+
+void MediaPlayer::digit3()
+{
+    sendCommand(MediaPlayerCommands::Digit_3);
+}
+
+void MediaPlayer::digit4()
+{
+    sendCommand(MediaPlayerCommands::Digit_4);
+}
+
+void MediaPlayer::digit5()
+{
+    sendCommand(MediaPlayerCommands::Digit_5);
+}
+
+void MediaPlayer::digit6()
+{
+    sendCommand(MediaPlayerCommands::Digit_6);
+}
+
+void MediaPlayer::digit7()
+{
+    sendCommand(MediaPlayerCommands::Digit_7);
+}
+
+void MediaPlayer::digit8()
+{
+    sendCommand(MediaPlayerCommands::Digit_8);
+}
+
+void MediaPlayer::digit9()
+{
+    sendCommand(MediaPlayerCommands::Digit_9);
+}
+
 void MediaPlayer::functionRed() {
     sendCommand(MediaPlayerCommands::Function_red);
 }
@@ -217,6 +275,21 @@ void MediaPlayer::menu() {
     sendCommand(MediaPlayerCommands::Menu);
 }
 
+void MediaPlayer::contextMenu()
+{
+    sendCommand(MediaPlayerCommands::Context_menu);
+}
+
+void MediaPlayer::guide()
+{
+    sendCommand(MediaPlayerCommands::Guide);
+}
+
+void MediaPlayer::info()
+{
+    sendCommand(MediaPlayerCommands::Info);
+}
+
 void MediaPlayer::back() {
     sendCommand(MediaPlayerCommands::Back);
 }
@@ -225,6 +298,46 @@ void MediaPlayer::selectSource(const QString &source) {
     QVariantMap params;
     params.insert("source", source);
     sendCommand(MediaPlayerCommands::Select_source, params);
+}
+
+void MediaPlayer::record()
+{
+    sendCommand(MediaPlayerCommands::Record);
+}
+
+void MediaPlayer::myRecordings()
+{
+    sendCommand(MediaPlayerCommands::My_recordings);
+}
+
+void MediaPlayer::live()
+{
+    sendCommand(MediaPlayerCommands::Live);
+}
+
+void MediaPlayer::eject()
+{
+    sendCommand(MediaPlayerCommands::Eject);
+}
+
+void MediaPlayer::openClose()
+{
+    sendCommand(MediaPlayerCommands::Open_close);
+}
+
+void MediaPlayer::audioTrack()
+{
+    sendCommand(MediaPlayerCommands::Audio_track);
+}
+
+void MediaPlayer::subtitle()
+{
+    sendCommand(MediaPlayerCommands::Subtitle);
+}
+
+void MediaPlayer::settings()
+{
+    sendCommand(MediaPlayerCommands::Settings);
 }
 
 void MediaPlayer::getMediaImageColor(QString imageUrl) {
@@ -250,56 +363,71 @@ void MediaPlayer::sendCommand(MediaPlayerCommands::Enum cmd) {
     sendCommand(cmd, QVariantMap());
 }
 
+void MediaPlayer::sendSimpleCommand(QString command)
+{
+    if (!m_simpleCommands.contains(command)) {
+        qCWarning(lcMediaPlayer()) << "Simple command is not supported" << command;
+        return;
+    }
+
+    Base::sendCommand(command);
+}
+
 bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
     bool ok = false;
 
-    // convert to enum
+            // convert to enum
     MediaPlayerAttributes::Enum attributeEnum = Util::convertStringToEnum<MediaPlayerAttributes::Enum>(attribute);
 
     switch (attributeEnum) {
         case MediaPlayerAttributes::State: {
             int newState = Util::convertStringToEnum<MediaPlayerStates::Enum>(uc::Util::FirstToUpper(data.toString()));
-                m_state = newState;
-                ok = true;
-                emit stateChanged(m_id, m_state);
+            m_state = newState;
+            ok = true;
+            emit stateChanged(m_id, m_state);
 
-                m_stateAsString = MediaPlayerStates::getTranslatedString(static_cast<MediaPlayerStates::Enum>(m_state));
-                emit stateAsStringChanged();
+            m_stateAsString = MediaPlayerStates::getTranslatedString(static_cast<MediaPlayerStates::Enum>(m_state));
+            emit stateAsStringChanged();
 
-                // enable/disable media position timer
-                if (m_state == MediaPlayerStates::Playing) {
-                    m_positionTimer.start();
-                    emit addToActivities(m_id);
-                } else {
-                    m_positionTimer.stop();
-                }
+                    // enable/disable media position timer
+            if (m_state == MediaPlayerStates::Playing) {
+                m_positionTimer.start();
+                emit addToActivities(m_id);
+            } else {
+                m_positionTimer.stop();
+            }
 
-                if (m_state == MediaPlayerStates::Off || m_state == MediaPlayerStates::Unavailable ||
-                    m_state == MediaPlayerStates::Unknown) {
-                    m_mediaDuration = 0;
-                    emit mediaDurationChanged();
+            if (m_state == MediaPlayerStates::Off) {
+                m_mediaDuration = 0;
+                emit mediaDurationChanged();
 
-                    m_mediaPosition = 0;
-                    emit mediaPositionChanged();
+                m_mediaPosition = 0;
+                emit mediaPositionChanged();
 
-                    m_mediaImageUrl.clear();
-                    emit mediaImageUrlChanged();
+                m_mediaImageUrl.clear();
+                emit mediaImageUrlChanged();
+                m_mediaImage = QString();
+                emit mediaImageChanged();
+                m_mediaImageColor = QColor(255,255,255);
+                emit mediaImageColorChanged();
 
-                    m_mediaTitle.clear();
-                    emit mediaTitleChanged();
-                    emit stateInfoChanged();
+                //                getMediaImageColor(m_mediaImageUrl);
 
-                    m_mediaAlbum.clear();
-                    emit mediaAlbumChanged();
+                m_mediaTitle.clear();
+                emit mediaTitleChanged();
+                emit stateInfoChanged();
 
-                    m_mediaArtist.clear();
-                    emit mediaArtistChanged();
+                m_mediaAlbum.clear();
+                emit mediaAlbumChanged();
 
-                    m_mediaType = -1;
-                    emit mediaTypeChanged();
+                m_mediaArtist.clear();
+                emit mediaArtistChanged();
 
-                    emit removeFromActivities(m_id);
-                }
+                m_mediaType = "";
+                emit mediaTypeChanged();
+
+                emit removeFromActivities(m_id);
+            }
             break;
         }
         case MediaPlayerAttributes::Volume: {
@@ -343,9 +471,9 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
             break;
         }
         case MediaPlayerAttributes::Media_type: {
-            int newType = Util::convertStringToEnum<MediaPlayerMediaType::Enum>(data.toString());
+            QString newType = data.toString();
 
-            m_mediaType = newType;
+            m_mediaType = Util::FirstToUpper(newType);
             ok = true;
             emit mediaTypeChanged();
             break;
@@ -454,14 +582,12 @@ void MediaPlayer::onPositionTimerTimeout() {
 void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
     if (reply->error()) {
         qCWarning(lcMediaPlayer()).noquote() << "ERROR" << reply->error();
-        m_mediaImage = QString();
-        emit mediaImageChanged();
 
-        if (m_mediaImageDownloadTries >= 3) {
-            m_mediaImageDownloadTries = 0;
+        if (m_mediaImageDownloadTries > 2) {
+            return;
         } else {
             qCDebug(lcMediaPlayer()) << "Image download failed, trying agian" << m_mediaImageUrl;
-            QTimer::singleShot(500, [=] { getMediaImageColor(m_mediaImageUrl); });
+            QTimer::singleShot(1000, [=] { getMediaImageColor(m_mediaImageUrl); });
             m_mediaImageDownloadTries++;
         }
 
@@ -480,35 +606,35 @@ void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
         QBuffer    buffer(&byteArray);
         image.save(&buffer, "PNG");
 
-        m_mediaImage = QString("data:image/png;base64,");
-        m_mediaImage.append(QString::fromLatin1(byteArray.toBase64().data()));
-        emit mediaImageChanged();
+        if (!byteArray.isEmpty()) {
+            m_mediaImage = QString("data:image/png;base64,");
+            m_mediaImage.append(QString::fromLatin1(byteArray.toBase64().data()));
+            emit mediaImageChanged();
 
-        for (int i = 0; i < p.width(); i += step) {
-            for (int j = 0; j < p.height(); j += step) {
-                if (image.valid(i, j)) {
-                    t++;
-                    QColor c = image.pixel(i, j);
-                    r += c.red();
-                    b += c.blue();
-                    g += c.green();
+            for (int i = 0; i < p.width(); i += step) {
+                for (int j = 0; j < p.height(); j += step) {
+                    if (image.valid(i, j)) {
+                        t++;
+                        QColor c = image.pixel(i, j);
+                        r += c.red();
+                        b += c.blue();
+                        g += c.green();
+                    }
                 }
             }
+
+            m_mediaImageColor =
+                QColor(static_cast<int>(brightness * r / t) > 255 ? 255 : static_cast<int>(brightness * r / t),
+                       static_cast<int>(brightness * g / t) > 255 ? 255 : static_cast<int>(brightness * g / t),
+                       static_cast<int>(brightness * b / t) > 255 ? 255 : static_cast<int>(brightness * b / t));
+            if (m_mediaImageColor.lightness() < 30) {
+                m_mediaImageColor.setHsl(m_mediaImageColor.hslHue(), m_mediaImageColor.hslSaturation(), 30);
+            }
+
+            qCDebug(lcMediaPlayer()).noquote() << "Background image lightness" << m_mediaImageColor.lightness();
+
+            emit mediaImageColorChanged();
         }
-
-        m_mediaImageColor =
-            QColor(static_cast<int>(brightness * r / t) > 255 ? 255 : static_cast<int>(brightness * r / t),
-                   static_cast<int>(brightness * g / t) > 255 ? 255 : static_cast<int>(brightness * g / t),
-                   static_cast<int>(brightness * b / t) > 255 ? 255 : static_cast<int>(brightness * b / t));
-        if (m_mediaImageColor.lightness() < 30) {
-            m_mediaImageColor.setHsl(m_mediaImageColor.hslHue(), m_mediaImageColor.hslSaturation(), 30);
-        }
-
-        qCDebug(lcMediaPlayer()).noquote() << "Background image lightness" << m_mediaImageColor.lightness();
-
-        emit mediaImageColorChanged();
-
-        m_mediaImageDownloadTries = 0;
 
         reply->deleteLater();
     }

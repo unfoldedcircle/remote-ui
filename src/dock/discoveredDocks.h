@@ -15,7 +15,7 @@ class DiscoveredDock : public QObject {
 
  public:
     explicit DiscoveredDock(const QString& id, bool configured, const QString& friendlyName, const QString& address,
-                            const QString& model, const QString& version, const QString& discoveryType,
+                            const QString& model, const QString& revision, const QString& serial, const QString& version, const QString& discoveryType,
                             int bluetoothSignal, int bluetoothLastSeenSeconds, QObject* parent = nullptr);
     ~DiscoveredDock();
 
@@ -24,6 +24,8 @@ class DiscoveredDock : public QObject {
     Q_INVOKABLE QString itemFriendlyName() const { return m_friendlyName; }
     Q_INVOKABLE QString itemAddress() const { return m_address; }
     QString             itemModel() const { return m_model; }
+    QString             itemRevision() const { return m_revision; }
+    QString             itemSerial() const { return m_serial; }
     QString             itemVersion() const { return m_version; }
     Q_INVOKABLE QString itemDiscoveryType() const { return m_discoveryType; }
     int                 itemBluetoothSignal() const { return m_bluetoothSignal; }
@@ -35,6 +37,8 @@ class DiscoveredDock : public QObject {
     QString m_friendlyName;
     QString m_address;
     QString m_model;
+    QString m_revision;
+    QString m_serial;
     QString m_version;
     QString m_discoveryType;
     int     m_bluetoothSignal;
@@ -53,6 +57,8 @@ class DiscoveredDocks : public QAbstractListModel {
         FirendlyNameRole,
         AddressRole,
         ModelRole,
+        RevisionRole,
+        SerialRole,
         VersionRole,
         DiscoveryTypeRole,
         BluetoothSignalRole,

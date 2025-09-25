@@ -30,6 +30,11 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
             m_width = height;
             m_height = width;
             break;
+        case hw::HardwareModel::UCR3:
+            m_rotateScreen = false;
+            m_height = height;
+            m_width = width;
+            break;
         case hw::HardwareModel::DEV:
             m_ratio = qgetenv("QT_SCALE_FACTOR").toDouble() != 0.0 ? (1 / qgetenv("QT_SCALE_FACTOR").toDouble()) : 1;
             break;
@@ -43,7 +48,7 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     engine->setObjectOwnership(this, QQmlEngine::CppOwnership);
 
     // load icons
-    if (loadFont(":icons.ttf")) {
+    if (loadFont(":icons.otf")) {
         qCDebug(lcUi()) << "Icons loaded";
     } else {
         qCWarning(lcUi()) << "Icons failed to load";
@@ -179,6 +184,7 @@ void Controller::setEditMode(bool editMode) {
 bool Controller::getKeyNavigationEnabled() {
     switch (m_model) {
         case HardwareModel::UCR2:
+        case HardwareModel::UCR3:
         case HardwareModel::YIO1:
         case HardwareModel::DEV:
             return true;
@@ -190,6 +196,7 @@ bool Controller::getKeyNavigationEnabled() {
 bool Controller::getShowRegulatoryInfo() {
     switch (m_model) {
         case HardwareModel::UCR2:
+        case HardwareModel::UCR3:
             return true;
         default:
             return false;
@@ -217,7 +224,7 @@ void Controller::getProfilesFromCore() {
                 for (QList<core::Profile>::iterator i = profiles.begin(); i != profiles.end(); i++) {
                     QString icon = i->icon;
                     if (icon.isEmpty()) {
-                        icon = "uc:profile";
+                        icon = "uc:user";
                     }
                     m_profiles.append(new Profile(i->id, i->name, i->restricted, icon, this));
                 }
@@ -526,7 +533,7 @@ void Controller::loadProfile(const QString &profileId) {
             m_profile.setName(profile.name);
             QString icon = profile.icon;
             if (icon.isEmpty()) {
-                icon = "uc:profile";
+                icon = "uc:user";
             }
             m_profile.setIcon(icon);
             m_profile.setRestricted(profile.restricted);
@@ -558,7 +565,7 @@ int Controller::updateProfile(const QString &profileId, const QString &name, con
             qCDebug(lcUi()) << "Profile updated successfully";
             QString icon = profile.icon;
             if (icon.isEmpty()) {
-                icon = "uc:profile";
+                icon = "uc:user";
             }
 
             m_profiles.updateProfileName(profileId, profile.name);
@@ -574,7 +581,7 @@ int Controller::updateProfile(const QString &profileId, const QString &name, con
         [=](int code, QString message) {
             // fail
             qCWarning(lcUi()) << "Error:" << code << message;
-            m_notification.createActionableWarningNotification(tr("Profile update error"), message, "uc:warning");
+            m_notification.createActionableWarningNotification(tr("Profile update error"), message, "uc:triangle-exclamation");
         });
 
     return id;
@@ -697,7 +704,7 @@ void Controller::onIntegrationIsConnecting(bool value) {
 void Controller::onIntegrationError(QString name, QString id) {
     if (!m_isOnboarding) {
         m_notification.createActionableWarningNotification(
-            tr("%1 error").arg(name), tr("Error while connecting to %1, with id %2").arg(name).arg(id), "uc:warning");
+            tr("%1 error").arg(name), tr("Error while connecting to %1, with id %2").arg(name).arg(id), "uc:triangle-exclamation");
     }
 }
 
@@ -709,7 +716,7 @@ void Controller::onProfileAdded(QString profileId, core::Profile profile) {
         emit isNoProfileChanged();
     }
     m_profiles.append(new Profile(profileId, profile.name, profile.restricted,
-                                  profile.icon.isEmpty() ? "uc:profile" : profile.icon, this));
+                                  profile.icon.isEmpty() ? "uc:user" : profile.icon, this));
 }
 
 void Controller::onProfileChanged(QString profileId, core::Profile profile) {

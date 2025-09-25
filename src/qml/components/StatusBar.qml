@@ -239,7 +239,7 @@ Item {
             visible: SoftwareUpdate.updateAvailable ? 1 : 0
 
             Components.Icon {
-                icon: "uc:down-arrow"
+                icon: "uc:arrow-down"
                 size: 30
                 color: colors.light
             }
@@ -250,11 +250,11 @@ Item {
             Layout.leftMargin: -10
             Layout.rightMargin: -10
 
-            icon: "uc:wifi-03"
+            icon: "uc:wifi"
             color: colors.offwhite
             opacity: 0.5
             size: 60
-            visible: !Wifi.isConnected || Wifi.currentNetwork.signalStrength === SignalStrength.NONE ||  Wifi.currentNetwork.signalStrength === SignalStrength.WEAK
+            visible: !Wifi.isConnected || Wifi.currentNetwork.signalStrength === SignalStrength.NONE
 
             Components.Icon {
                 size: 60
@@ -262,8 +262,6 @@ Item {
                     switch (Wifi.currentNetwork.signalStrength) {
                     case SignalStrength.NONE:
                         return "";
-                    case SignalStrength.WEAK:
-                        return "uc:wifi-01";
                     default:
                         return "";
                     }
@@ -311,7 +309,7 @@ Item {
 
                 Components.Icon {
                     id: chargingIcon
-                    icon: "uc:charging"
+                    icon: "uc:bolt"
                     color: colors.offwhite
                     size: 40
                     visible: Battery.isCharging

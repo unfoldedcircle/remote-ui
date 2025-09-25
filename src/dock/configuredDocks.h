@@ -18,6 +18,8 @@ class ConfiguredDock : public QObject {
     Q_PROPERTY(QString customWsUrl READ getCustomWsUrl NOTIFY customWsUrlChanged)
     Q_PROPERTY(bool active READ getActive NOTIFY activeChanged)
     Q_PROPERTY(QString model READ getModel CONSTANT)
+    Q_PROPERTY(QString revision READ getRevision CONSTANT)
+    Q_PROPERTY(QString serial READ getSerial CONSTANT)
     Q_PROPERTY(QString connectionType READ getConnectionType NOTIFY connectionTypeChanged)
     Q_PROPERTY(QString version READ getVersion NOTIFY versionChanged)
     Q_PROPERTY(State state READ getState NOTIFY stateChanged)
@@ -36,7 +38,7 @@ class ConfiguredDock : public QObject {
     Q_ENUM(State)
 
     explicit ConfiguredDock(const QString& id, const QString& name, const QString& customWsUrl, bool active,
-                            const QString& model, const QString& connectionType, const QString& version, State state,
+                            const QString& model, const QString& revision, const QString &serial, const QString& connectionType, const QString& version, State state,
                             bool learningActive, const QString& description, int ledBrightness, QObject* parent = nullptr);
     ~ConfiguredDock();
 
@@ -48,6 +50,8 @@ class ConfiguredDock : public QObject {
     bool    getActive() const { return m_active; }
     void    setActive(bool active);
     QString getModel() const { return m_model; }
+    QString getRevision() const { return m_revision; }
+    QString getSerial() const { return m_serial; }
     QString getConnectionType() const { return m_connectionType; }
     void    setConnectionType(const QString& connectionType);
     QString getVersion() const { return m_version; }
@@ -78,6 +82,8 @@ class ConfiguredDock : public QObject {
     QString m_customWsUrl;
     bool    m_active;
     QString m_model;
+    QString m_revision;
+    QString m_serial;
     QString m_connectionType;
     QString m_version;
     State   m_state;
@@ -98,6 +104,8 @@ class ConfiguredDocks : public QAbstractListModel {
         CustomWsUrlRole,
         ActiveRole,
         ModelRole,
+        RevisionRole,
+        SerialRole,
         ConnectionTypeRole,
         VersionRole,
         StateRole,

@@ -98,12 +98,12 @@ Settings.Page {
             id: confirmationPopupButtonNavigation
             defaultConfig: {
                 "BACK": {
-                    "released": function() {
+                    "pressed": function() {
                         confirmationPopup.close();
                     }
                 },
                 "HOME": {
-                    "released": function() {
+                    "pressed": function() {
                         confirmationPopup.close();
                     }
                 }

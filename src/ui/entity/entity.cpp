@@ -9,11 +9,10 @@ namespace uc {
 namespace ui {
 namespace entity {
 
-Base::Base(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon, const QString &area,
+Base::Base(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
            Type type, bool enabled, QVariantMap attributes, const QString &integration, bool selected, QObject *parent)
     : QObject(parent),
       m_id(id),
-      m_name(name),
       m_name_i18n(nameI18n),
       m_icon(icon),
       m_area(area),
@@ -22,19 +21,11 @@ Base::Base(const QString &id, const QString &name, QVariantMap nameI18n, const Q
       m_enabled(enabled),
       m_integration(integration),
       m_selected(selected) {
-    qCDebug(lcEntity()) << "Base constructor" << m_id;
+    m_name = Util::getLanguageString(m_name_i18n, language);
+
+    qCDebug(lcEntity()) << "Base constructor" << m_id << m_name;
 
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
-
-    if (attributes.size() > 0) {
-        for (QVariantMap::iterator i = attributes.begin(); i != attributes.end(); i++) {
-            updateCommonAttribute(uc::Util::FirstToUpper(i.key()), i.value());
-        }
-    }
-
-    if (m_name.isEmpty()) {
-        m_name = Util::getLanguageString(m_name_i18n, "en");
-    }
 
     onStateChanged(m_id, m_state);
 
@@ -78,8 +69,6 @@ Base::Base(const QString &id, const QString &name, QVariantMap nameI18n, const Q
                 break;
         }
     }
-
-    m_sorting = m_name.toLower() + m_integration.toLower() + m_id.toLower() + m_area.toLower();
 
     QObject::connect(this, &Base::stateChanged, this, &Base::onStateChanged);
 }
@@ -129,34 +118,9 @@ void Base::sendCommand(const QString &cmd) {
     sendCommand(cmd, QVariantMap());
 }
 
-bool Base::updateCommonAttribute(const QString &attribute, QVariant data) {
-    bool ok = false;
-
-    CommonAttributes attributeEnum = Util::convertStringToEnum<CommonAttributes>(attribute);
-
-    switch (attributeEnum) {
-        case Name: {
-            ok = setFriendlyName(data.toString());
-            break;
-        }
-        case Icon: {
-            ok = setIcon(data.toString());
-            break;
-        }
-        case Area: {
-            ok = setArea(data.toString());
-            break;
-        }
-    }
-
-    return ok;
-}
-
 void Base::onLanguageChanged(QString language) {
     m_name = Util::getLanguageString(m_name_i18n, language);
     emit nameChanged();
-
-    m_sorting = m_name.toLower() + m_integration.toLower() + m_id.toLower() + m_area.toLower();
 
     onLanguageChangedTypeSpecific();
 }
@@ -173,8 +137,9 @@ void Base::onStateChanged(QString entityId, int newState) {
     }
 }
 
-bool Base::setFriendlyName(const QString &friendlyName) {
-    m_name = friendlyName;
+bool Base::setFriendlyName(QVariantMap nameI18n, const QString &language) {
+    m_name_i18n = nameI18n;
+    m_name = Util::getLanguageString(m_name_i18n, language);;
     emit nameChanged();
     return true;
 }

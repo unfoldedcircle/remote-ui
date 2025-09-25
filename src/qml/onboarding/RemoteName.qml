@@ -6,6 +6,7 @@ import QtQuick 2.15
 import Onboarding 1.0
 import Config 1.0
 import Haptic 1.0
+import HwInfo 1.0
 
 import "qrc:/components" as Components
 
@@ -49,12 +50,12 @@ Item {
         overrideActive: OnboardingController.currentStep === OnboardingController.RemoteName
         defaultConfig: {
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     remoteNameStep.next();
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     OnboardingController.previousStep();
                 }
             },
@@ -82,8 +83,8 @@ Item {
         width: parent.width; height: 80
         anchors { top: title.bottom; horizontalCenter: parent.horizontalCenter }
 
-        inputField.text: "Remote Two"
-        inputField.placeholderText: "Remote Two"
+        inputField.text: HwInfo.modelNumber == "UCR3" ? "Remote 3" : "Remote Two"
+        inputField.placeholderText: HwInfo.modelNumber == "UCR3" ? "Remote 3" : "Remote Two"
         inputField.onAccepted: {
             if (inputFieldContainer.isEmpty()) {
                 inputFieldContainer.showError();

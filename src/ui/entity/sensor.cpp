@@ -10,35 +10,21 @@ namespace uc {
 namespace ui {
 namespace entity {
 
-Sensor::Sensor(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon, const QString &area,
+Sensor::Sensor(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
                const QString &deviceClass, bool enabled, QVariantMap attributes, QVariantMap options,
                const QString &integrationId, QObject *parent)
-    : Base(id, name, nameI18n, icon, area, Type::Sensor, enabled, attributes, integrationId, false, parent),
+    : Base(id, nameI18n, language, icon, area, Type::Sensor, enabled, attributes, integrationId, false, parent),
+      m_sensorDeviceClass(SensorDeviceClass::Custom),
+      m_binarySensorDeviceClass(BinarySensorDeviceClass::None),
       m_customLabel(QString()),
       m_customUnit(QString()),
       m_nativeUnit(QString()),
       m_decimals(0) {
     qCDebug(lcSensor()) << "Sensor entity constructor";
 
-    // attributes
-    if (attributes.size() > 0) {
-        for (QVariantMap::iterator i = attributes.begin(); i != attributes.end(); i++) {
-            updateAttribute(uc::Util::FirstToUpper(i.key()), i.value());
-        }
-    }
-
     // device class
-    int deviceClassEnum = -1;
-
-    if (!deviceClass.isEmpty()) {
-        deviceClassEnum = Util::convertStringToEnum<SensorDeviceClass::Enum>(deviceClass);
-    }
-
-    if (deviceClassEnum != -1) {
-        m_deviceClass = deviceClass;
-    } else {
-        m_deviceClass = QVariant::fromValue(SensorDeviceClass::Custom).toString();
-    }
+    m_sensorDeviceClass = SensorDeviceClass::fromString(deviceClass);
+    m_deviceClass = SensorDeviceClass::toString(m_sensorDeviceClass);
 
     // options
     if (options.contains("custom_label")) {
@@ -61,17 +47,13 @@ Sensor::Sensor(const QString &id, const QString &name, QVariantMap nameI18n, con
     }
 
     // set default unit based on device class
-    switch (deviceClassEnum) {
-        case SensorDeviceClass::Custom:
-            m_unit = "";
-            break;
+    switch (m_sensorDeviceClass) {
         case SensorDeviceClass::Battery:
             m_unit = "%";
             break;
         case SensorDeviceClass::Current:
             m_unit = "A";
             break;
-
         case SensorDeviceClass::Energy:
             m_unit = "kWh";
             break;
@@ -87,6 +69,24 @@ Sensor::Sensor(const QString &id, const QString &name, QVariantMap nameI18n, con
         case SensorDeviceClass::Voltage:
             m_unit = "V";
             break;
+        case SensorDeviceClass::Binary: {
+            // initialize binary device class from unit attribute
+            QVariant data = attributes.value("unit", QVariant::fromValue(QString("None")));
+            if (!data.isNull()) {
+                updateAttribute("unit", data);
+            }
+            break;
+        }
+        case SensorDeviceClass::Custom:
+            // handled in QML screen
+            break;
+    }
+
+    // attributes last: requires m_sensorDeviceClass
+    if (attributes.size() > 0) {
+        for (QVariantMap::iterator i = attributes.begin(); i != attributes.end(); i++) {
+            updateAttribute(i.key(), i.value());
+        }
     }
 }
 
@@ -98,7 +98,11 @@ bool Sensor::updateAttribute(const QString &attribute, QVariant data) {
     bool ok = false;
 
     // convert to enum
-    SensorAttributes::Enum attributeEnum = Util::convertStringToEnum<SensorAttributes::Enum>(attribute);
+    bool converted;
+    SensorAttributes::Enum attributeEnum = SensorAttributes::fromString(attribute, &converted);
+    if (!converted) {
+        return false;
+    }
 
     switch (attributeEnum) {
         case SensorAttributes::State: {
@@ -115,14 +119,22 @@ bool Sensor::updateAttribute(const QString &attribute, QVariant data) {
             break;
         }
         case SensorAttributes::Value: {
-            m_value = data;
+            if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
+                m_value = BinarySensorDeviceClass::getTranslatedValue(m_binarySensorDeviceClass, data.toString());
+            } else {
+                m_value = data;
+            }
             ok = true;
             emit valueChanged();
             emit stateInfoChanged();
             break;
         }
         case SensorAttributes::Unit: {
-            m_value = data.toString();
+            if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
+                m_binarySensorDeviceClass = BinarySensorDeviceClass::fromString(data.toString());
+            } else {
+                m_unit = data.toString();
+            }
             ok = true;
             emit unitChanged();
             emit stateInfoChanged();

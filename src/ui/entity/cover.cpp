@@ -10,10 +10,10 @@ namespace uc {
 namespace ui {
 namespace entity {
 
-Cover::Cover(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon, const QString &area,
+Cover::Cover(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
              const QString &deviceClass, const QStringList &features, bool enabled, QVariantMap attributes,
              const QString &integrationId, QObject *parent)
-    : Base(id, name, nameI18n, icon, area, Type::Cover, enabled, attributes, integrationId, false, parent) {
+    : Base(id, nameI18n, language, icon, area, Type::Cover, enabled, attributes, integrationId, false, parent) {
     qCDebug(lcCover()) << "Cover entity constructor";
 
     updateFeatures<CoverFeatures::Enum>(features);

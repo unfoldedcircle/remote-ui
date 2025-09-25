@@ -17,9 +17,6 @@ EntityComponents.BaseDetail {
 
     property var pages: entityObj.ui.pages
 
-    property var buttonLongPressStep1: ({})
-    property var buttonLongPressStep2: ({})
-
     function parsePageItems(page, index, container) {
         console.debug("Page item: " + container)
 
@@ -69,60 +66,38 @@ EntityComponents.BaseDetail {
         });
     }
 
-    Component.onCompleted: {
+    function updateButtonMapping() {
+        let overrideConfig = overrideConfigDefault;
+
         entityObj.buttonMapping.forEach((buttonMap) => {
+                                            if (!overrideConfig[buttonMap.button]) {
+                                                overrideConfig[buttonMap.button] =  ({});
+                                            }
+
                                             if (buttonMap.short_press) {
                                                 const cmdString = String(buttonMap.short_press.cmd_id);
                                                 const canRepeat = !cmdString.includes("remote.");
 
-                                                overrideConfig[buttonMap.button] =  ({});
                                                 overrideConfig[buttonMap.button]["pressed"] = function() {
-                                                    if (!remoteBase.buttonLongPressStep1[buttonMap.button]) {
-                                                        remoteBase.buttonLongPressStep1[buttonMap.button] = {
-                                                            "running": false,
-                                                            "timer": null
-                                                        };
-                                                    }
+                                                    EntityController.onEntityCommand(
+                                                                entityObj.id,
+                                                                buttonMap.short_press.cmd_id,
+                                                                buttonMap.short_press.params ? buttonMap.short_press.params : {});
+                                                }
 
-                                                    if (!remoteBase.buttonLongPressStep2[buttonMap.button]) {
-                                                        remoteBase.buttonLongPressStep2[buttonMap.button] = {
-                                                            "running": false,
-                                                            "timer": null
-                                                        };
-                                                    }
-
+                                                overrideConfig[buttonMap.button]["pressed_repeat"] = function() {
                                                     if (canRepeat) {
-                                                        // if the repeat timer is not on (step2), keep sending the press event commands
-                                                        if (remoteBase.buttonLongPressStep2[buttonMap.button]["running"] === false) {
-                                                            EntityController.onEntityCommand(
-                                                                        entityObj.id,
-                                                                        "remote.send",
-                                                                        {"command": buttonMap.short_press.cmd_id});
-
-                                                            // start a timer that will run repeat commands after 1 second
-                                                            if (remoteBase.buttonLongPressStep1[buttonMap.button]["running"] === false) {
-                                                                remoteBase.buttonLongPressStep1[buttonMap.button]["timer"] = longPressStartTimer.createObject(remoteBase, { action: function() {
-                                                                    remoteBase.buttonLongPressStep2[buttonMap.button]["running"] = true;
-                                                                    remoteBase.buttonLongPressStep1[buttonMap.button]["running"] = false;
-                                                                    remoteBase.buttonLongPressStep2[buttonMap.button]["timer"] = longPressTimer.createObject(remoteBase, { action: function() {
-                                                                        EntityController.onEntityCommand(
-                                                                                    entityObj.id,
-                                                                                    "remote.send",
-                                                                                    {
-                                                                                        "command": buttonMap.short_press.cmd_id,
-                                                                                        "repeat": ui.inputController.repeatCount
-                                                                                    });
-                                                                    }});
-
-                                                                    remoteBase.buttonLongPressStep1[buttonMap.button]["timer"].destroy();
-                                                                    remoteBase.buttonLongPressStep1[buttonMap.button]["timer"] = null;
-                                                                }});
-                                                                remoteBase.buttonLongPressStep1[buttonMap.button]["running"] = true;
-                                                            }
-                                                        }
+                                                        EntityController.onEntityCommand(
+                                                                    entityObj.id,
+                                                                    "remote.send",
+                                                                    {
+                                                                        "command": buttonMap.short_press.cmd_id,
+                                                                        "repeat": ui.inputController.repeatCount,
+                                                                        "press": true
+                                                                    });
                                                     } else {
                                                         EntityController.onEntityCommand(
-                                                                    e.id,
+                                                                    entityObj.id,
                                                                     buttonMap.short_press.cmd_id,
                                                                     buttonMap.short_press.params ? buttonMap.short_press.params : {});
                                                     }
@@ -131,24 +106,6 @@ EntityComponents.BaseDetail {
                                                 // on release of a button we send the stop send command
                                                 overrideConfig[buttonMap.button]["released"] = function() {
                                                     if (canRepeat) {
-                                                        // stop and delete the timeout for starting repeat commands
-                                                        if (remoteBase.buttonLongPressStep1[buttonMap.button]["timer"] !== null) {
-                                                            remoteBase.buttonLongPressStep1[buttonMap.button]["timer"].stop();
-                                                            let t = remoteBase.buttonLongPressStep1[buttonMap.button]["timer"];
-                                                            t.destroy();
-                                                            remoteBase.buttonLongPressStep1[buttonMap.button]["timer"] = null;
-                                                        }
-                                                        remoteBase.buttonLongPressStep1[buttonMap.button]["running"] = false;
-
-                                                        // stop the repeat sending timer
-                                                        if (remoteBase.buttonLongPressStep2[buttonMap.button]["timer"] !== null) {
-                                                            remoteBase.buttonLongPressStep2[buttonMap.button]["timer"].stop();
-                                                            let t = remoteBase.buttonLongPressStep2[buttonMap.button]["timer"];
-                                                            t.destroy();
-                                                            remoteBase.buttonLongPressStep2[buttonMap.button]["timer"] = null;
-                                                        }
-                                                        remoteBase.buttonLongPressStep2[buttonMap.button]["running"] = false;
-
                                                         EntityController.onEntityCommand(
                                                                     entityObj.id,
                                                                     "remote.stop_send",
@@ -156,10 +113,36 @@ EntityComponents.BaseDetail {
                                                     }
                                                 }
                                             }
+
+                                            if (buttonMap.long_press) {
+                                                overrideConfig[buttonMap.button]["long_press"] = function() {
+                                                    EntityController.onEntityCommand(
+                                                                entityObj.id,
+                                                                buttonMap.long_press.cmd_id,
+                                                                buttonMap.long_press.params ? buttonMap.long_press.params : {});
+                                                }
+                                            }
                                         });
+
+        buttonNavigation.overrideConfig = overrideConfig;
     }
 
-    overrideConfig: {
+    Component.onCompleted: updateButtonMapping()
+
+    Connections {
+        target: entityObj
+        ignoreUnknownSignals: true
+
+        function onButtonMappingChanged() {
+            updateButtonMapping();
+        }
+
+        function onUiConfigChanged() {
+            remoteBase.pages = entityObj.ui.pages;
+        }
+    }
+
+    property var overrideConfigDefault: {
         "DPAD_LEFT": {
             "pressed": function() {
                 uiPages.decrementCurrentIndex();
@@ -169,42 +152,6 @@ EntityComponents.BaseDetail {
             "pressed": function() {
                 uiPages.incrementCurrentIndex();
             }
-        }
-    }
-
-    Component {
-        id: longPressStartTimer
-        Timer {
-            property var action
-            running: true
-            interval: 1000
-            repeat: false
-            onTriggered: {
-                console.debug("One second passed, start sending repeat commands with a timer")
-                if (action) {
-                    action();
-                }
-            }
-            Component.onCompleted: console.debug("longPressStartTimer created: " + this);
-            Component.onDestruction: console.debug("longPressStartTimer destroyed: " + this);
-        }
-    }
-
-    Component {
-        id: longPressTimer
-        Timer {
-            property var action
-            running: true
-            interval: 200
-            repeat: true
-            onTriggered: {
-                if (action) {
-                    action();
-                }
-                console.debug("Long press triggered, sending repeat command again");
-            }
-            Component.onCompleted: console.debug("longPressTimer created: " + this);
-            Component.onDestruction: console.debug("longPressTimer destroyed: " + this);
         }
     }
 

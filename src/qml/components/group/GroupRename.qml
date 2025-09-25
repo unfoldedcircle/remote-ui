@@ -87,17 +87,17 @@ Rectangle {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     cancel();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     cancel();
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     rename();
                 }
             }

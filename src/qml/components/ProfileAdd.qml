@@ -99,7 +99,7 @@ Rectangle {
                             ui.createActionableWarningNotification(
                                         qsTr("Profile already exists"),
                                         qsTr("The profile name you've entered already exists. Would you like to continue with an existing profile?"),
-                                        "uc:profile",
+                                        "uc:user",
                                         function() {
                                             addProfileContainer.cancelForm();
                                             addProfileContainer.state = "hidden";
@@ -119,12 +119,12 @@ Rectangle {
         id: buttonNavigation
         defaultConfig: {
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     addProfileContainer.submitForm();
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     addProfileContainer.cancelForm();
                 }
             },

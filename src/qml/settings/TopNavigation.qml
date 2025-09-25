@@ -17,7 +17,7 @@ Rectangle {
     Components.Icon {
         id: backIcon
         color: colors.offwhite
-        icon: "uc:left-arrow-alt"
+        icon: "uc:arrow-left"
         anchors { verticalCenter: parent.verticalCenter; left: parent.left }
         size: 60
 

@@ -239,7 +239,7 @@ Settings.Page {
                 }
 
                 Components.Icon {
-                    icon: "uc:right-arrow"
+                    icon: "uc:arrow-right"
                     size: 40
                     color: colors.offwhite
                     anchors { right: parent.right; verticalCenter: releaseNoteText.verticalCenter }
@@ -282,7 +282,40 @@ Settings.Page {
             }
 
             Item {
-                height: 40
+                height: 10
+            }
+
+            RowLayout {
+                Layout.alignment: Qt.AlignCenter
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                spacing: 10
+                visible: Config.updateChannel == "TESTING";
+
+                Text {
+                    Layout.alignment: Qt.AlignLeft
+                    wrapMode: Text.NoWrap
+                    elide: Text.ElideNone
+                    color: colors.light
+                    text: qsTr("Beta updates")
+                    font: fonts.primaryFont(20)
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignRight
+                    wrapMode: Text.NoWrap
+                    elide: Text.ElideRight
+                    horizontalAlignment: Text.AlignRight
+                    color: colors.light
+                    text: qsTr("Enabled")
+                    font: fonts.secondaryFont(20)
+                }
+            }
+
+            Item {
+                height: 30
             }
 
             ColumnLayout {

@@ -49,17 +49,17 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     iconGrid.currentItem.callBack();
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     sourceListPopup.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     sourceListPopup.close();
                 }
             }
@@ -78,7 +78,7 @@ Popup {
         Components.Icon {
             id: iconClose
             color: colors.offwhite
-            icon: "uc:close"
+            icon: "uc:xmark"
             anchors { right: parent.right; top: parent.top; topMargin: 5 }
             size: 70
 

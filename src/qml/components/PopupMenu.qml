@@ -40,7 +40,7 @@ Popup {
     property var closeCallback: function() {}
 
     onOpened: {
-        buttonNavigation.takeControl();
+        ui.setTimeOut(1500, () => { buttonNavigation.takeControl(); });
     }
 
     onClosed: {
@@ -73,7 +73,7 @@ Popup {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     if (footerSelected) {
                         close();
                     } else {
@@ -82,12 +82,12 @@ Popup {
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     popupMenu.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     popupMenu.close();
                 }
             }
@@ -225,7 +225,7 @@ Popup {
             Components.Icon {
                 id: icon
                 color: colors.offwhite
-                icon: "uc:close"
+                icon: "uc:xmark"
                 anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter; }
                 size: 60
             }

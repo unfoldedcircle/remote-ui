@@ -24,6 +24,8 @@ Settings.Page {
     }
 
     Component.onCompleted: {
+        Config.getConfig();
+
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
@@ -36,7 +38,7 @@ Settings.Page {
                                                      }
                                                  },
                                                  "DPAD_MIDDLE": {
-                                                     "released": function() {
+                                                     "pressed": function() {
                                                          loadPage(menu.currentIndex);
                                                      }
                                                  }

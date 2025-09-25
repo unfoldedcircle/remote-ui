@@ -36,7 +36,7 @@ MouseArea {
 
             opacity: content.currentIndex > 0
             enabled: opacity === 1
-            icon: "uc:left-arrow-alt"
+            icon: "uc:arrow-left"
             size: 60
             color: colors.offwhite
 
@@ -63,7 +63,7 @@ MouseArea {
 
             opacity: content.currentIndex !== content.count - 1
             enabled: opacity === 1
-            icon: "uc:right-arrow-alt"
+            icon: "uc:arrow-right"
             size: 60
             color: colors.offwhite
 
@@ -80,17 +80,17 @@ MouseArea {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     showHelpBase.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     showHelpBase.close();
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     showHelpBase.close();
                 }
             },

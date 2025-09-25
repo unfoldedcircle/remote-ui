@@ -7,8 +7,10 @@ import QtQuick.Controls 2.15
 import Haptic 1.0
 import Entity.Activity 1.0
 import Entity.MediaPlayer 1.0
-
 import Entity.Controller 1.0
+import Config 1.0
+import Wifi 1.0
+import Wifi.SignalStrength 1.0
 
 import "qrc:/components" as Components
 import "qrc:/components/entities" as EntityComponents
@@ -17,9 +19,7 @@ EntityComponents.BaseDetail {
     id: activityBase
 
     property var pages: entityObj.ui.pages
-
-    property var buttonLongPressStep1: ({})
-    property var buttonLongPressStep2: ({})
+    property QtObject mediaWidgetEntityObj
 
     function triggerCommand(entityId, cmdId, params) {
         let e = EntityController.get(entityId);
@@ -32,6 +32,11 @@ EntityComponents.BaseDetail {
                     entityId,
                     cmdId,
                     (params ? params : {}))
+
+        if (e.type === EntityTypes.Activity && cmdId === "activity.start") {
+            loadActivityToSecondContainer(e);
+            activityBase.close();
+        }
     }
 
     function parsePageItems(page, index, container) {
@@ -77,8 +82,10 @@ EntityComponents.BaseDetail {
                                                 "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
                                                 "entityId": item.media_player_id,
                                                 "gridWidth": gridWidth,
-                                                "gridHeight": gridHeight
+                                                "gridHeight": gridHeight,
+                                                "aspectFit": !Config.fillMediaArtwork
                                             });
+                activityBase.mediaWidgetEntityObj = EntityController.get(item.media_player_id);
                 break;
             default:
                 console.log("Not implemented item type: " + item.type);
@@ -87,21 +94,33 @@ EntityComponents.BaseDetail {
         });
     }
 
-    Component.onCompleted: {
+    function updateButtonMapping() {
+        let overrideConfig = overrideConfigDefault;
+
         console.info("Setting up button mappings for activity: " + entityObj.name);
         entityObj.buttonMapping.forEach((buttonMap) => {
-                                            if (buttonMap.short_press) {
+                                            if (!overrideConfig[buttonMap.button]) {
                                                 overrideConfig[buttonMap.button] =  ({});
-                                                EntityController.load(buttonMap.short_press.entity_id);
+                                            }
 
-                                                connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
-                                                    if (success) {
+                                            if (buttonMap.short_press) {
+                                                EntityController.load(buttonMap.short_press.entity_id);
+                                            }
+
+                                            if (buttonMap.long_press) {
+                                                EntityController.load(buttonMap.long_press.entity_id);
+                                            }
+
+                                            connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
+                                                if (success) {
+                                                    if (buttonMap.short_press) {
+                                                        // let's setup short press first
                                                         let e = EntityController.get(buttonMap.short_press.entity_id);
 
                                                         const cmdString = String(buttonMap.short_press.cmd_id);
                                                         const canRepeat = !cmdString.includes("remote.");
 
-                                                        console.info(entityObj.name + " button mapping: " + buttonMap.button + " -> " + JSON.stringify(buttonMap.short_press));
+                                                        console.info(entityObj.name + " button mapping short press: " + buttonMap.button + " -> " + JSON.stringify(buttonMap.short_press));
 
                                                         overrideConfig[buttonMap.button]["pressed"] = function() {
                                                             if (e) {
@@ -115,50 +134,41 @@ EntityComponents.BaseDetail {
                                                                     activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                                     break;
                                                                 case EntityTypes.Remote: {
-                                                                    if (!activityBase.buttonLongPressStep1[buttonMap.button]) {
-                                                                        activityBase.buttonLongPressStep1[buttonMap.button] = {
-                                                                            "running": false,
-                                                                            "timer": null
-                                                                        };
-                                                                    }
+                                                                    EntityController.onEntityCommand(
+                                                                                e.id,
+                                                                                buttonMap.short_press.cmd_id,
+                                                                                buttonMap.short_press.params ? buttonMap.short_press.params : {});
+                                                                    break;
+                                                                }
+                                                                default:
+                                                                    activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
+                                                                    break;
+                                                                }
+                                                            } else {
+                                                                console.warn("Entity " + entityId + " is not loaded. Button mapping failed for press: " + buttonMap.button);
+                                                            }
+                                                        }
 
-                                                                    if (!activityBase.buttonLongPressStep2[buttonMap.button]) {
-                                                                        activityBase.buttonLongPressStep2[buttonMap.button] = {
-                                                                            "running": false,
-                                                                            "timer": null
-                                                                        };
-                                                                    }
-
-                                                                    // if it's a simple command, we can run the repeat logic
-                                                                    if (canRepeat) {
-                                                                        // if the repeat timer is not on (step2), keep sending the press event commands
-                                                                        if (activityBase.buttonLongPressStep2[buttonMap.button]["running"] === false) {
-                                                                            EntityController.onEntityCommand(
-                                                                                        e.id,
-                                                                                        "remote.send",
-                                                                                        {"command": buttonMap.short_press.cmd_id});
-
-                                                                            // start a timer that will run repeat commands after 1 second
-                                                                            if (activityBase.buttonLongPressStep1[buttonMap.button]["running"] === false) {
-                                                                                activityBase.buttonLongPressStep1[buttonMap.button]["timer"] = longPressStartTimer.createObject(activityBase, { action: function() {
-                                                                                    activityBase.buttonLongPressStep2[buttonMap.button]["running"] = true;
-                                                                                    activityBase.buttonLongPressStep1[buttonMap.button]["running"] = false;
-                                                                                    activityBase.buttonLongPressStep2[buttonMap.button]["timer"] = longPressTimer.createObject(activityBase, { action: function() {
-                                                                                        EntityController.onEntityCommand(
-                                                                                                    e.id,
-                                                                                                    "remote.send",
-                                                                                                    {
-                                                                                                        "command": buttonMap.short_press.cmd_id,
-                                                                                                        "repeat": ui.inputController.repeatCount
-                                                                                                    });
-                                                                                    }});
-
-                                                                                    activityBase.buttonLongPressStep1[buttonMap.button]["timer"].destroy();
-                                                                                    activityBase.buttonLongPressStep1[buttonMap.button]["timer"] = null;
-                                                                                }});
-                                                                                activityBase.buttonLongPressStep1[buttonMap.button]["running"] = true;
-                                                                            }
+                                                        overrideConfig[buttonMap.button]["pressed_repeat"] = function() {
+                                                            if (e) {
+                                                                switch (e.type) {
+                                                                case EntityTypes.Media_player:
+                                                                    if (e.hasFeature(MediaPlayerFeatures.Volume_up_down)){
+                                                                        if (buttonMap.button === "VOLUME_UP" || buttonMap.button === "VOLUME_DOWN") {
+                                                                            volume.start(e, buttonMap.button === "VOLUME_UP");
                                                                         }
+                                                                    }
+                                                                    activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
+                                                                    break;
+                                                                case EntityTypes.Remote: {
+                                                                    if (canRepeat) {
+                                                                        EntityController.onEntityCommand(
+                                                                                    e.id,
+                                                                                    "remote.send",
+                                                                                    {
+                                                                                        "command": buttonMap.short_press.cmd_id,
+                                                                                        "repeat": ui.inputController.repeatCount
+                                                                                    });
                                                                     } else {
                                                                         EntityController.onEntityCommand(
                                                                                     e.id,
@@ -171,8 +181,8 @@ EntityComponents.BaseDetail {
                                                                     activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                                     break;
                                                                 }
-                                                            } else {
-                                                                console.warn("Entity " + entityId + " is not loaded. Button mapping failed for press: " + buttonMap.button);
+                                                            }  else {
+                                                                console.warn("Entity " + entityId + " is not loaded. Button mapping failed for press repeat: " + buttonMap.button);
                                                             }
                                                         }
 
@@ -180,24 +190,6 @@ EntityComponents.BaseDetail {
                                                         overrideConfig[buttonMap.button]["released"] = function() {
                                                             if (e) {
                                                                 if (e.type === EntityTypes.Remote && canRepeat) {
-                                                                    // stop and delete the timeout for starting repeat commands
-                                                                    if (activityBase.buttonLongPressStep1[buttonMap.button]["timer"] !== null) {
-                                                                        activityBase.buttonLongPressStep1[buttonMap.button]["timer"].stop();
-                                                                        let t = activityBase.buttonLongPressStep1[buttonMap.button]["timer"];
-                                                                        t.destroy();
-                                                                        activityBase.buttonLongPressStep1[buttonMap.button]["timer"] = null;
-                                                                    }
-                                                                    activityBase.buttonLongPressStep1[buttonMap.button]["running"] = false;
-
-                                                                    // stop the repeat sending timer
-                                                                    if (activityBase.buttonLongPressStep2[buttonMap.button]["timer"] !== null) {
-                                                                        activityBase.buttonLongPressStep2[buttonMap.button]["timer"].stop();
-                                                                        let t = activityBase.buttonLongPressStep2[buttonMap.button]["timer"];
-                                                                        t.destroy();
-                                                                        activityBase.buttonLongPressStep2[buttonMap.button]["timer"] = null;
-                                                                    }
-                                                                    activityBase.buttonLongPressStep2[buttonMap.button]["running"] = false;
-
                                                                     EntityController.onEntityCommand(
                                                                                 e.id,
                                                                                 "remote.stop_send",
@@ -207,16 +199,47 @@ EntityComponents.BaseDetail {
                                                                 console.warn("Entity " + entityId + " is not loaded. Button mapping failed for release: " + buttonMap.button);
                                                             }
                                                         }
-                                                    } else {
-                                                        console.warn("Entity " + entityId + " is not loaded. Button mapping failed.");
                                                     }
-                                                })
-                                            }
+
+                                                    if (buttonMap.long_press) {
+                                                        // now tackle the long press
+                                                        let eL = EntityController.get(buttonMap.long_press.entity_id);
+
+                                                        console.info(entityObj.name + " button mapping long press: " + buttonMap.button + " -> " + JSON.stringify(buttonMap.long_press));
+
+                                                        overrideConfig[buttonMap.button]["long_press"] = function() {
+                                                            if (eL) {
+                                                                activityBase.triggerCommand(buttonMap.long_press.entity_id, buttonMap.long_press.cmd_id, buttonMap.long_press.params);
+                                                            }  else {
+                                                                console.warn("Entity " + entityId + " is not loaded. Button mapping failed for long press: " + buttonMap.button);
+                                                            }
+                                                        }
+                                                    }
+                                                } else {
+                                                    console.warn("Entity " + entityId + " is not loaded. Button mapping failed.");
+                                                }
+                                            })
                                         });
+
+        buttonNavigation.overrideConfig = overrideConfig;
     }
 
+    Component.onCompleted: updateButtonMapping()
 
-    overrideConfig: {
+    Connections {
+        target: entityObj
+        ignoreUnknownSignals: true
+
+        function onButtonMappingChanged() {
+            updateButtonMapping();
+        }
+
+        function onUiConfigChanged() {
+            activityBase.pages = entityObj.ui.pages;
+        }
+    }
+
+    property var overrideConfigDefault: {
         "DPAD_LEFT": {
             "pressed": function() {
                 uiPages.decrementCurrentIndex();
@@ -228,46 +251,10 @@ EntityComponents.BaseDetail {
             }
         },
         "POWER": {
-            "released": function() {
+            "pressed": function() {
                 entityObj.turnOff();
                 activityBase.close();
             }
-        }
-    }
-
-    Component {
-        id: longPressStartTimer
-        Timer {
-            property var action
-            running: true
-            interval: 1000
-            repeat: false
-            onTriggered: {
-                console.debug("One second passed, start sending repeat commands with a timer")
-                if (action) {
-                    action();
-                }
-            }
-            Component.onCompleted: console.debug("longPressStartTimer created: " + this);
-            Component.onDestruction: console.debug("longPressStartTimer destroyed: " + this);
-        }
-    }
-
-    Component {
-        id: longPressTimer
-        Timer {
-            property var action
-            running: true
-            interval: 200
-            repeat: true
-            onTriggered: {
-                if (action) {
-                    action();
-                }
-                console.debug("Long press triggered, sending repeat command again");
-            }
-            Component.onCompleted: console.debug("longPressTimer created: " + this);
-            Component.onDestruction: console.debug("longPressTimer destroyed: " + this);
         }
     }
 
@@ -327,6 +314,41 @@ EntityComponents.BaseDetail {
 
                     activityMenu.open();
                 }
+            }
+        }
+
+        Components.Icon {
+            icon: "uc:wifi"
+            color: colors.offwhite
+            opacity: 0.5
+            size: 60
+            anchors { right: parent.right; rightMargin: 60; verticalCenter: parent.verticalCenter }
+            visible: !Wifi.isConnected || Wifi.currentNetwork.signalStrength === SignalStrength.NONE ||  Wifi.currentNetwork.signalStrength === SignalStrength.WEAK
+
+            Components.Icon {
+                size: 60
+                icon: {
+                    switch (Wifi.currentNetwork.signalStrength) {
+                    case SignalStrength.NONE:
+                        return "";
+                    case SignalStrength.WEAK:
+                        return "uc:wifi-weak";
+                    default:
+                        return "";
+                    }
+                }
+                opacity: icon === "" ? 0 : 1
+                anchors.centerIn: parent
+            }
+
+            Rectangle {
+                width: 30
+                height: 2
+                color: colors.red
+                rotation: -45
+                transformOrigin: Item.Center
+                anchors.centerIn: parent
+                visible: !Wifi.isConnected
             }
         }
     }
@@ -399,7 +421,7 @@ EntityComponents.BaseDetail {
                     Components.Icon {
                         id: iconIssue
                         color: colors.offwhite
-                        icon: "uc:warning"
+                        icon: "uc:triangle-exclamation"
                         anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
                         size: 80
                     }
@@ -417,7 +439,7 @@ EntityComponents.BaseDetail {
 
                     Components.Icon {
                         color: colors.offwhite
-                        icon: "uc:right-arrow"
+                        icon: "uc:arrow-right"
                         anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter }
                         size: 80
                     }
@@ -461,7 +483,7 @@ EntityComponents.BaseDetail {
                     Components.Icon {
                         id: iconIssueBack
                         color: colors.offwhite
-                        icon: "uc:left-arrow"
+                        icon: "uc:arrow-left"
                         anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
                         size: 80
                     }
@@ -642,5 +664,12 @@ EntityComponents.BaseDetail {
                 }
             }
         }
+    }
+
+    Components.TouchSlider {
+        id: touchSlider
+        entityObj: activityBase.mediaWidgetEntityObj
+        active: activityBase.mediaWidgetEntityObj.hasFeature(MediaPlayerFeatures.Volume)
+        parent: Overlay.overlay
     }
 }

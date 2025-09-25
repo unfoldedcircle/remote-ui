@@ -43,12 +43,12 @@ ListView {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     IntegrationController.stopDriverDiscovery();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     IntegrationController.stopDriverDiscovery();
                 }
             }

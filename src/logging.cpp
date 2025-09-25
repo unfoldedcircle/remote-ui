@@ -34,6 +34,7 @@ Q_LOGGING_CATEGORY(lcHwHaptic, "uc.hw.haptic");
 Q_LOGGING_CATEGORY(lcHwBattery, "uc.hw.battery");
 Q_LOGGING_CATEGORY(lcHwMic, "uc.hw.mic");
 Q_LOGGING_CATEGORY(lcHwWifi, "uc.hw.wifi");
+Q_LOGGING_CATEGORY(lcHwTouchSlider, "uc.hw.touchslider");
 
 /// Entities
 Q_LOGGING_CATEGORY(lcEntity, "uc.entity");

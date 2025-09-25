@@ -59,9 +59,14 @@ class WifiNetwork : public QObject {
     Q_PROPERTY(uc::hw::SignalStrength::Enum signalStrength READ getSignalStrength CONSTANT)
     Q_PROPERTY(bool encrypted READ isEncrypted CONSTANT)
     Q_PROPERTY(uc::hw::Security::Enum security READ getSecurity CONSTANT)
+    Q_PROPERTY(QString keyManagement READ getKeyManagement CONSTANT)
+    Q_PROPERTY(QString pairwiseCipher READ getPairwiseCipher CONSTANT)
+    Q_PROPERTY(QString groupCipher READ getGroupCipher CONSTANT)
+    Q_PROPERTY(int frequency READ getFrequency CONSTANT)
+    Q_PROPERTY(bool enabled READ getEnabled CONSTANT)
 
  public:
-    explicit WifiNetwork(int id, const QString &ssid, Security::Enum security, int rssi, QObject *parent = nullptr);
+    explicit WifiNetwork(int id, const QString &ssid, Security::Enum security, int rssi, const QString keyManagement, const QString pairwiseChiper, const QString groupCipher, int frequency, bool enabeled, QObject *parent = nullptr);
     ~WifiNetwork();
 
     int                  getId() const { return m_id; }
@@ -69,12 +74,22 @@ class WifiNetwork : public QObject {
     SignalStrength::Enum getSignalStrength() const { return m_signalStrenght; }
     bool                 isEncrypted() const { return m_security != Security::OPEN; }
     Security::Enum       getSecurity() const { return m_security; }
+    QString              getKeyManagement() const { return m_keyManagement; }
+    QString              getPairwiseCipher() const { return m_pairwiseCipher; }
+    QString              getGroupCipher() const { return m_groupCipher; }
+    int                  getFrequency() const { return m_frequency; }
+    bool                 getEnabled() const { return m_enabled; }
 
  private:
     int                  m_id;
     QString              m_ssid;
     Security::Enum       m_security;
     SignalStrength::Enum m_signalStrenght;
+    QString              m_keyManagement;
+    QString              m_pairwiseCipher;
+    QString              m_groupCipher;
+    int                  m_frequency;
+    bool                 m_enabled;
 };
 
 class Wifi : public QObject {
@@ -85,9 +100,9 @@ class Wifi : public QObject {
     Q_PROPERTY(QString ipAddress READ getIpAddress NOTIFY ipAddressChanged)
     Q_PROPERTY(QString macAddress READ getMac NOTIFY macAddressChanged)
     Q_PROPERTY(QList<WifiNetwork *> networkList READ getNetworkList NOTIFY networkListChanged)
-    Q_PROPERTY(QList<WifiNetwork *> unfilteredNetworkList READ getUnfilteredNetworkList NOTIFY networkListChanged)
     Q_PROPERTY(QList<WifiNetwork *> knownNetworkList READ getKnownNetworkList NOTIFY knownNetworkListChanged)
     Q_PROPERTY(bool scanActive READ getScanActive NOTIFY scanActiveChanged);
+    Q_PROPERTY(bool wowlanEnabled READ isWowlan CONSTANT)
 
  public:
     explicit Wifi(core::Api *core, QObject *parent = nullptr);
@@ -99,14 +114,15 @@ class Wifi : public QObject {
     QString              getIpAddress() { return m_ipAddress; }
     QString              getMac() { return m_mac; }
     QList<WifiNetwork *> getNetworkList();
-    QList<WifiNetwork *> getUnfilteredNetworkList();
     QList<WifiNetwork *> getKnownNetworkList();
     bool                 getScanActive() { return m_scanActive; }
+    bool                 isWowlan() const { return m_wowlan; }
 
     Q_INVOKABLE void turnOn();
     Q_INVOKABLE void turnOff();
     Q_INVOKABLE void connect(const QString &ssid, const QString &password, uc::hw::Security::Enum security);
     Q_INVOKABLE void connectSavedNetwork(int id);
+    Q_INVOKABLE void enableSavedNetwork(int id, bool enable);
     Q_INVOKABLE void disconnect();
 
     Q_INVOKABLE void getWifiStatus();
@@ -154,6 +170,7 @@ class Wifi : public QObject {
     QHash<QString, WifiNetwork *> m_networkList;
     QHash<QString, WifiNetwork *> m_knownNetworkList;
     bool                          m_scanActive = true;
+    bool                          m_wowlan = false;
 
  private:
     QString m_lastConnectedSSid;

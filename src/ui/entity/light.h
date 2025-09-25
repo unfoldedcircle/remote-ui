@@ -102,7 +102,7 @@ class Light : public Base {
     Q_PROPERTY(int colorTempSteps READ getColorTempSteps CONSTANT)
 
  public:
-    explicit Light(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit Light(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                    const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                    QVariantMap attributes, QVariantMap options, const QString &integrationId, QObject *parent);
     ~Light();

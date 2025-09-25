@@ -98,7 +98,7 @@ Rectangle {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     itemSelected(itemList.model.get(itemList.currentIndex).value);
                     if (closeOnSelected) {
                         popupList.state = "hidden";
@@ -106,14 +106,14 @@ Rectangle {
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     if (!hideClose) {
                         popupList.state = "hidden";
                     }
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     if (!hideClose) {
                         popupList.state = "hidden";
                     }
@@ -147,7 +147,7 @@ Rectangle {
         Components.Icon {
             id: closeIcon
             color: colors.offwhite
-            icon: "uc:close"
+            icon: "uc:xmark"
             anchors { verticalCenter: titleText.verticalCenter; right: parent.right }
             size: 80
             visible: !hideClose

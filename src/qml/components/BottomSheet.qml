@@ -85,12 +85,12 @@ Item {
         id: buttonNavigation
         defaultConfig: {
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     bottomSheetContainer.state = "closed";
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     bottomSheetContainer.state = "closed";
                 }
             }

@@ -15,12 +15,12 @@ EntityComponents.BaseDetail {
 
     overrideConfig: {
         "DPAD_MIDDLE": {
-            "released": function() {
+            "pressed": function() {
                 entityObj.push();
             }
         },
         "POWER": {
-            "released": function() {
+            "pressed": function() {
                 entityObj.push();
             }
         }

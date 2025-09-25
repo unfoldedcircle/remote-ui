@@ -62,7 +62,7 @@ EntityComponents.BaseDetail {
             Layout.rightMargin: 10
             Layout.fillWidth: true
             Layout.fillHeight: true
-            text: entityObj.value !== "" ? entityObj.value : "N/A"
+            text: entityObj.value !== "" ? entityObj.value : qsTranslate("Abbreviation for not available", "N/A")
             elide: Text.ElideRight
             maximumLineCount: 1
             color: colors.offwhite

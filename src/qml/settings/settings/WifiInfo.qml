@@ -36,7 +36,8 @@ Popup {
         }
     }
 
-    function showWifiInfo(ssid, macAddress, ipAddress) {
+    function showWifiInfo(id, ssid, macAddress, ipAddress) {
+        wifiInfo.wifiNetworkId = id;
         wifiInfo.ssid = ssid;
         wifiInfo.macAddress = macAddress;
         wifiInfo.ipAddress = ipAddress;
@@ -44,6 +45,7 @@ Popup {
     }
 
     property string parentController
+    property string wifiNetworkId
     property string ssid
     property string macAddress
     property string ipAddress
@@ -63,12 +65,12 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     wifiInfo.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     wifiInfo.close();
                 }
             }
@@ -130,8 +132,29 @@ Popup {
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 color: colors.offwhite
-                text: wifiInfo.ssid
+                text: wifiInfo.ssid == "" ? Wifi.currentNetwork.id : wifiInfo.ssid
                 font: fonts.primaryFont(30)
+            }
+
+            Item {
+                Layout.topMargin: -20
+                Layout.leftMargin: -10
+                Layout.preferredHeight: 30
+
+                Components.Icon {
+                    id: currentNetworkConnectedIcon
+                    icon: Wifi.isConnected ? "uc:check" : "uc:xmark"
+                    size: 60
+                    anchors.verticalCenter: parent.verticalCenter
+                }
+
+                Text {
+                    width: parent.width
+                    color: colors.offwhite
+                    text: Wifi.currentNetwork.frequency < 5000 ? "2.4 GHz" : "5 GHz"
+                    font: fonts.secondaryFont(24)
+                    anchors { left: currentNetworkConnectedIcon.right; verticalCenter: currentNetworkConnectedIcon.verticalCenter }
+                }
             }
 
             Rectangle {
@@ -192,11 +215,59 @@ Popup {
                 }
             }
 
+            Rectangle {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width; height: 2
+                color: colors.medium
+            }
+
+            Item {
+                width: parent.width
+                height: childrenRect.height
+
+                Text {
+                    id: keyManagementLabel
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    color: colors.light
+                    text: qsTr("Key management")
+                    font: fonts.secondaryFont(24)
+                }
+
+                Text {
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    color: colors.offwhite
+                    text: Wifi.currentNetwork.keyManagement
+                    font: fonts.secondaryFont(24)
+                    anchors { top: keyManagementLabel.bottom }
+                }
+            }
+
+            Components.Button {
+                width: parent.width
+                text: Wifi.isConnected ? qsTr("Disconnect") : qsTr("Connect")
+                trigger: function() {
+                    if (Wifi.isConnected) {
+                        Wifi.disconnect();
+                    } else {
+                        Wifi.connectSavedNetwork(wifiInfo.wifiNetworkId);
+                    }
+
+                    wifiInfo.close();
+                    ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
+                }
+            }
+
             Components.Button {
                 width: parent.width
                 text: qsTr("Delete")
                 color: colors.red
-                trigger: function() { Wifi.deleteSavedNetwork(wifiInfo.ssid); }
+                trigger: function() {
+                    Wifi.deleteSavedNetwork(wifiInfo.ssid);
+                    wifiInfo.close();
+                    ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
+                }
             }
 
             Components.Button {

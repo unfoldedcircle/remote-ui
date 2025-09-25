@@ -226,7 +226,7 @@ Item {
 
                         Components.Icon {
                             id: generateQrCodeIcon
-                            icon: "uc:reboot"
+                            icon: "uc:arrow-rotate-left"
                             color: colors.light
                             size: 60
                             anchors.centerIn: parent
@@ -250,19 +250,24 @@ Item {
                     source: "data:image/png;base64," + ui.createQrCode(("http://%1/configurator").arg(Config.webConfiguratorAddress))
                     visible: Config.webConfiguratorAddress != "" && Config.webConfiguratorEnabled
                 }
-            }
-        }
-    }
 
-    Components.Button {
-        id: skipButton
-        text: qsTr("Done")
-        width: parent.width - 40
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom }
-        trigger: function() {
-            ui.setOnboarding(false);
-            ui.inputController.activeController = containerMain;
-            ui.showHelp = true;
+                Item {
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 20
+                }
+
+                Components.Button {
+                    id: skipButton
+                    text: qsTr("Done")
+                    Layout.fillWidth: true
+                    Layout.preferredHeight: 80
+                    trigger: function() {
+                        ui.setOnboarding(false);
+                        ui.inputController.activeController = containerMain;
+                        ui.showHelp = true;
+                    }
+                }
+            }
         }
     }
 }

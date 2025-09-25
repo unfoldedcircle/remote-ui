@@ -109,7 +109,10 @@ void ConfiguredEntities::loadFromCore(int limit, int page) {
                             entity.type, entity.id, entity.name, entity.icon, entity.area, entity.deviceClass,
                             entity.features, entity.options, entity.enabled, entity.attributes, entity.integrationId,
                             this);
-                        add(obj);
+
+                        if (obj != nullptr) {
+                            add(obj);
+                        }
                     }
                 }
             }

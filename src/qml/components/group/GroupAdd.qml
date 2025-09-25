@@ -128,12 +128,12 @@ Rectangle {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     close();
                 }
             }

@@ -66,7 +66,7 @@ Popup {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     if (poweroffContainer.currentSelection === cancelButton) {
                         poweroffContainer.close();
                     } else if (poweroffContainer.currentSelection === rebootButton) {
@@ -77,12 +77,12 @@ Popup {
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     poweroffContainer.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     poweroffContainer.close();
                 }
             }

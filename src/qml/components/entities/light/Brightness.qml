@@ -253,7 +253,7 @@ Item {
 
         Components.Icon {
             color: Qt.lighter(colors.light)
-            icon: "uc:up-arrow"
+            icon: "uc:arrow-up"
             size: 60
             anchors { right: colorTempSlider.right; rightMargin: 10; top: colorTempSlider.top; topMargin: 20 }
             visible: entityObj.hasFeature(LightFeatures.Color_temperature)
@@ -261,7 +261,7 @@ Item {
 
         Components.Icon {
             color: Qt.lighter(colors.light)
-            icon: "uc:down-arrow"
+            icon: "uc:arrow-down"
             size: 60
             anchors { right: colorTempSlider.right; rightMargin: 10; bottom: colorTempSlider.bottom; bottomMargin: 20 }
             visible: entityObj.hasFeature(LightFeatures.Color_temperature)
@@ -270,7 +270,7 @@ Item {
         Components.Icon {
             id: colorTempIcon
             color: colors.light
-            icon: "uc:climate"
+            icon: "uc:temperature-half"
             anchors { left: colorTempSlider.left; leftMargin: 10; top: colorTempSlider.top; topMargin: 10 }
             size: 80
         }

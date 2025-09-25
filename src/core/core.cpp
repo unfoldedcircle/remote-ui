@@ -753,14 +753,47 @@ int Api::getLocalizationLanguages() {
     return sendRequest(RequestTypes::get_localization_languages);
 }
 
+void Api::setLocalizationLanguages(int reqId, QString verison, QVariantList languages)
+{
+    QVariantMap msgData;
+    msgData.insert("version", verison);
+    msgData.insert("translations", languages);
+
+    QVariantMap map;
+    map.insert("kind", "resp");
+    map.insert("req_id", reqId);
+    map.insert("msg", "localization_languages");
+    map.insert("msg_data", msgData);
+
+    QJsonDocument doc = QJsonDocument::fromVariant(map);
+    QString       message = doc.toJson(QJsonDocument::JsonFormat::Compact);
+    qCDebug(lcCore()).noquote() << "Sending response:" << message;
+
+    sendMessage(message);
+}
+
 int Api::getNetworkCfg() {
     return sendRequest(RequestTypes::get_network_cfg);
 }
 
-int Api::setNetworkCfg(bool bluetoothEnabled, bool wifiEnabled) {
+int Api::setNetworkCfg(bool bluetoothEnabled, bool wifiEnabled, bool wowlanEnabled, QString band, int scanIntervalSec) {
     QVariantMap msgData;
     msgData.insert("bt_enabled", bluetoothEnabled);
     msgData.insert("wifi_enabled", wifiEnabled);
+
+    QVariantMap msgDataWifi;
+
+    QVariantMap msgDataWowlan;
+    msgDataWowlan.insert("enabled", wowlanEnabled);
+
+    msgDataWifi.insert("wake_on_wlan", msgDataWowlan);
+    if (!band.isEmpty()) {
+        msgDataWifi.insert("band", band);
+    }
+    msgDataWifi.insert("scan_interval_sec", scanIntervalSec);
+
+    msgData.insert("wifi", msgDataWifi);
+
     return sendRequest(RequestTypes::set_network_cfg, msgData);
 }
 
@@ -1242,6 +1275,11 @@ void Api::onTextMessageReceived(const QString& message) {
     if (kind == "resp") {
         processResponseMessage(map);
     }
+
+    // process request message
+    if (kind == "req") {
+        processRequestMessage(map);
+    }
 }
 
 void Api::onStateChanged(QAbstractSocket::SocketState state) {
@@ -1631,6 +1669,22 @@ void Api::processResponseMessage(QVariantMap map) {
             processResponsePowerMode(reqId, code, msgData);
             break;
         }
+        default:
+            break;
+    }
+}
+
+void Api::processRequestMessage(QVariantMap map)
+{
+    RequestTypes::Enum req = Util::convertStringToEnum<RequestTypes::Enum>(map.value("msg").toString());
+
+    int  reqId = map.value("id").toInt();
+    auto msgData = map.value("msg_data");
+
+    switch (req) {
+        case RequestTypes::get_localization_languages:
+            processRequestGetLocalizationLanguages(reqId);
+            break;
         default:
             break;
     }
@@ -2298,10 +2352,20 @@ void Api::processResponseConfig(int reqId, int code, QVariant msgData) {
     localization.measurementUnit = msgData.toMap().value("localization").toMap().value("measurement_unit").toString();
     config.localizationCfg = localization;
 
+    struct cfgWifi wifi;
+    wifi.wowlan = msgData.toMap().value("network").toMap().value("wifi").toMap().value("wake_on_wlan").toMap().value("enabled").toBool();
+    if (msgData.toMap().value("network").toMap().value("wifi").toMap().contains("band")) {
+        wifi.bands = msgData.toMap().value("network").toMap().value("wifi").toMap().value("bands").toStringList();
+        wifi.band = msgData.toMap().value("network").toMap().value("wifi").toMap().value("band").toString();
+    }
+    wifi.ipv4Type = msgData.toMap().value("network").toMap().value("wifi").toMap().value("ipv4_type").toString();
+    wifi.scanIntervalSec = msgData.toMap().value("network").toMap().value("wifi").toMap().value("scan_interval_sec").toInt();
+
     struct cfgNetwork network;
     network.bluetoothEnabled = msgData.toMap().value("network").toMap().value("bt_enabled").toBool();
     network.wifiEnabled = msgData.toMap().value("network").toMap().value("wifi_enabled").toBool();
     network.bluetoothMac = msgData.toMap().value("network").toMap().value("bt").toMap().value("address").toString();
+    network.wifi = wifi;
     config.networkCfg = network;
 
     struct cfgPowerSaving powerSaving;
@@ -2392,10 +2456,20 @@ void Api::processConfigChange(QVariant msgData) {
     if (newState.contains("network")) {
         auto data = newState.value("network").toMap();
 
+        struct cfgWifi wifi;
+        wifi.wowlan = data.value("wifi").toMap().value("wake_on_wlan").toMap().value("enabled").toBool();
+        if (data.value("wifi").toMap().contains("band")) {
+            wifi.bands = data.value("wifi").toMap().value("bands").toStringList();
+            wifi.band = data.value("wifi").toMap().value("band").toString();
+        }
+        wifi.ipv4Type = data.value("wifi").toMap().value("ipv4_type").toString();
+        wifi.scanIntervalSec = data.value("wifi").toMap().value("scan_interval_sec").toInt();
+
         struct cfgNetwork network;
         network.bluetoothEnabled = data.value("bt_enabled").toBool();
         network.wifiEnabled = data.value("wifi_enabled").toBool();
         network.bluetoothMac = data.value("bt").toMap().value("address").toString();
+        network.wifi = wifi;
 
         emit cfgNetworkChanged(network);
     }
@@ -2651,7 +2725,7 @@ void Api::processWifiScanStatus(int reqId, int code, QVariant msgData) {
             QVariantMap            listMap = i->toMap();
 
             accessPointScan.bssid = listMap.value("bssid").toString();
-            accessPointScan.frequency = listMap.value("frequency").toString();
+            accessPointScan.frequency = listMap.value("frequency").toInt();
             accessPointScan.signalLevel = listMap.value("signal_level").toInt();
             accessPointScan.auth = listMap.value("auth").toString();
             accessPointScan.ssid = listMap.value("ssid").toString();
@@ -2719,6 +2793,8 @@ void Api::processResponseDocks(int reqId, int code, QVariant msgData) {
             dock.customWsUrl = map.value("custom_ws_url").toString();
             dock.active = map.value("active").toBool();
             dock.model = map.value("model").toString();
+            dock.revision = map.value("revision").toString();
+            dock.serial = map.value("serial").toString();
             dock.connectionType = map.value("connection_type").toString();
             dock.version = map.value("version").toString();
             dock.state = Util::convertStringToEnum<DockEnums::DockState>(map.value("state").toString());
@@ -2748,6 +2824,8 @@ void Api::processResponseDock(int reqId, int code, QVariant msgData) {
     dock.customWsUrl = map.value("custom_ws_url").toString();
     dock.active = map.value("active").toBool();
     dock.model = map.value("model").toString();
+    dock.revision = map.value("revision").toString();
+    dock.serial = map.value("serial").toString();
     dock.connectionType = map.value("connection_type").toString();
     dock.version = map.value("version").toString();
     dock.state = Util::convertStringToEnum<DockEnums::DockState>(map.value("state").toString());
@@ -2857,6 +2935,8 @@ void Api::processDockChange(QVariant msgData) {
     dock.name = newState.value("name").toString();
     dock.active = newState.value("active").toBool();
     dock.model = newState.value("model").toString();
+    dock.revision = newState.value("revision").toString();
+    dock.serial = newState.value("serial").toString();
     dock.connectionType = newState.value("connection_type").toString();
     dock.version = newState.value("version").toString();
     dock.state = Util::convertStringToEnum<DockEnums::DockState>(newState.value("state").toString());
@@ -3171,6 +3251,11 @@ void Api::processBatteryStatusChange(QVariant msgData) {
         Util::convertStringToEnum<PowerEnums::PowerStatus>(msgDataMap.value("status").toString());
 
     emit batteryStatusChanged(capacity, powerStatus);
+}
+
+void Api::processRequestGetLocalizationLanguages(int reqId)
+{
+    emit reqGetLocalizationLanguages(reqId);
 }
 
 }  // namespace core

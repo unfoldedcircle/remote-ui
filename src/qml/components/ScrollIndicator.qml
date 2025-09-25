@@ -25,7 +25,7 @@ Rectangle {
 
     Components.Icon {
         id: icon
-        icon: "uc:down-arrow-alt"
+        icon: "uc:arrow-down"
         size: 40
         color: colors.light
         anchors.centerIn: parent

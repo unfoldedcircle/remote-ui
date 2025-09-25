@@ -68,10 +68,3 @@ Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute 
 ## License
 
 The Remote-UI is published under the [GPL v3](LICENSE) open source license.
-
-## Copyright and trademarks
-The Unfolded Circle logo is a registered trademark of Unfolded Circle ApS.
-
-Graphics, icons and design elements are protected by copyright law and are the intellectual property of Unfolded Circle ApS. These elements may not be used, reproduced, distributed, or modified in any form without the prior written consent of Unfolded Circle ApS.
-
-Thank you for respecting our intellectual property rights.

@@ -74,7 +74,7 @@ class Cover : public Base {
     Q_PROPERTY(int tiltPosition READ getTiltPosition NOTIFY tiltPositionChanged)
 
  public:
-    explicit Cover(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon,
+    explicit Cover(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                    const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                    QVariantMap attributes, const QString &integrationId, QObject *parent);
     ~Cover();

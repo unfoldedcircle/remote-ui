@@ -13,7 +13,10 @@
 #include "info.h"
 #include "power.h"
 #include "ucr2/hapticUCR2.h"
+#include "ucr2/hapticUCR3.h"
+#include "ucr3/touchSliderUCR3.h"
 #include "wifi.h"
+#include "touchSlider.h"
 
 namespace uc {
 namespace hw {
@@ -30,6 +33,7 @@ class Controller : public QObject {
     Battery* getBattery() { return m_battery; }
     Power*   getPower() { return m_power; }
     Wifi*    getWifi() { return m_wifi; }
+    TouchSlider* getTouchSlider() { return m_touchSlider; }
 
  private slots:
     void onHapticEnabledChanged(bool enabled);
@@ -43,6 +47,7 @@ class Controller : public QObject {
     Battery* m_battery;
     Power*   m_power;
     Wifi*    m_wifi;
+    TouchSlider* m_touchSlider;
 };
 
 }  // namespace hw

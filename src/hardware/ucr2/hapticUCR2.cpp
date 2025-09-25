@@ -18,7 +18,7 @@ void HapticUCR2::play(Haptic::Effects effect) {
     }
 
     QFile file;
-    file.setFileName(m_devicePath + "/effect_to_play");
+    file.setFileName(m_devicePath);
 
     if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         file.write(QString::number(effect).toUtf8());

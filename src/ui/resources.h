@@ -31,7 +31,7 @@ class Resources : public QObject {
     Q_INVOKABLE QString getBackgroundImage(const QString& id) { return getResource(BackgroundImage, id); }
     Q_INVOKABLE QString getSound(const QString& id) { return getResource(Sound, id); }
     Q_INVOKABLE void    getAboutInfo(int type);
-    Q_INVOKABLE QString getLinkContent(const QString& baseDir, const QString& path);
+    Q_INVOKABLE void    getLinkContent(const QString& baseDir, const QString& path);
 
     Q_INVOKABLE QStringList getIconList();
     Q_INVOKABLE QStringList getCustomIconList();

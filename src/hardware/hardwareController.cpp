@@ -39,9 +39,15 @@ Controller::Controller(HardwareModel::Enum model, core::Api* core, Config* confi
     switch (model) {
         case HardwareModel::UCR2:
             m_haptic = new HapticUCR2(qgetenv("UC_HAPTIC_DEV_PATH"), this);
+            m_touchSlider = new TouchSlider(this);
+            break;
+        case HardwareModel::UCR3:
+            m_haptic = new HapticUCR3(qgetenv("UC_HAPTIC_DEV_PATH"), this);
+            m_touchSlider = new TouchSliderUCR3(qgetenv("UC_TOUCHSLIDER_DEV_PATH"), this);
             break;
         default:
             m_haptic = new Haptic(this);
+            m_touchSlider = new TouchSlider(this);
             break;
     }
 
@@ -50,6 +56,7 @@ Controller::Controller(HardwareModel::Enum model, core::Api* core, Config* confi
     qmlRegisterSingletonType<Haptic>("Haptic", 1, 0, "Haptic", &Haptic::qmlInstance);
     qmlRegisterSingletonType<Battery>("Battery", 1, 0, "Battery", &Battery::qmlInstance);
     qmlRegisterSingletonType<Wifi>("Wifi", 1, 0, "Wifi", &Wifi::qmlInstance);
+    qmlRegisterSingletonType<TouchSlider>("TouchSlider", 1, 0, "TouchSliderProcessor", &TouchSlider::qmlInstance);
 
     QObject::connect(m_config, &Config::hapticEnabledChanged, this, &Controller::onHapticEnabledChanged);
 }
@@ -60,6 +67,7 @@ Controller::~Controller() {
     m_battery = nullptr;
     m_power = nullptr;
     m_wifi = nullptr;
+    m_touchSlider = nullptr;
 }
 
 void Controller::onHapticEnabledChanged(bool enabled) {

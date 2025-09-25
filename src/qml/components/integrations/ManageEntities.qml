@@ -51,7 +51,7 @@ Item {
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     entityListSwipeView.currentItem.itemSelected(
                                 entityListSwipeView.currentItem.itemList.currentItem.key,
                                 !entityListSwipeView.currentItem.itemList.currentItem.selected);
@@ -68,12 +68,12 @@ Item {
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     manageEntities.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     manageEntities.close();
                 }
             }
@@ -102,7 +102,7 @@ Item {
 
         Components.Icon {
             color: colors.offwhite
-            icon: "uc:close"
+            icon: "uc:xmark"
             anchors { verticalCenter: parent.verticalCenter; right: parent.right }
             size: 60
 

@@ -95,17 +95,17 @@ Rectangle {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     close();
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     close();
                 }
             }
@@ -346,7 +346,7 @@ Rectangle {
 
                 Components.Icon {
                     color: colors.red
-                    icon: "uc:close"
+                    icon: "uc:xmark"
                     anchors.centerIn: parent
                     size: 80
                 }
@@ -421,7 +421,7 @@ Rectangle {
                     z: delegate.item ? delegate.item.z + 100 : 100
                     color: colors.light
                     opacity: editMode ? 1 : 0
-                    icon: "uc:hamburger"
+                    icon: "uc:bars"
                     anchors { right: delegate.right; rightMargin: 20; top: delegate.top; topMargin: 35 }
                     size: 80
 

@@ -16,12 +16,12 @@ Item {
         overrideActive: OnboardingController.currentStep === OnboardingController.Terms
         defaultConfig: {
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     OnboardingController.nextStep();
                 }
             },
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     OnboardingController.previousStep();
                 }
             },
@@ -138,7 +138,7 @@ Item {
 
             Components.Icon {
                 color: colors.offwhite
-                icon: "uc:close"
+                icon: "uc:xmark"
                 anchors { right: parent.right; verticalCenter: parent.verticalCenter }
 
                 Components.HapticMouseArea {

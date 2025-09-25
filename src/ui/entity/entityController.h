@@ -67,6 +67,12 @@ class EntityController : public QObject {
     Q_INVOKABLE void load(const QString& entityId);
 
     /**
+     * @brief Refresh entity data from the core
+     * @param entityId: id of the entity to refresh
+     */
+    Q_INVOKABLE void refreshEntity(const QString& entityId);
+
+    /**
      * @return Entity Qbject for QML to use
      * @param entityId: id of the entity to get
      */
@@ -158,7 +164,6 @@ class EntityController : public QObject {
     QStringList                   m_activities;
 
     QHash<QString, int> m_entityCommandCount;
-    QHash<QString, QTimer*> m_entityCommandTimers;
     QStringList m_entityCommandBeingExecuted;
 
     /**

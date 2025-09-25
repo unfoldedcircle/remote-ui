@@ -5,9 +5,10 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
- 
+import HwInfo 1.0
 import Haptic 1.0
 import Config 1.0
+import Wifi 1.0
 
 import "qrc:/settings" as Settings
 import "qrc:/components" as Components
@@ -54,6 +55,63 @@ Settings.Page {
             spacing: 20
             width: parent.width
             anchors.horizontalCenter: parent.horizontalCenter
+
+            //** WAKE ON WLAN **/
+            ColumnLayout {
+                Layout.alignment: Qt.AlignCenter
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                spacing: 10
+                visible: HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled
+
+                RowLayout {
+                    spacing: 10
+
+                    Text {
+                        id: wowlanText
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: colors.offwhite
+                        //: Title for indication of wifi always on functionality
+                        text: qsTr("Keep WiFi connected in standby")
+                        font: fonts.primaryFont(30)
+                    }
+
+                    Components.Switch {
+                        id: wowlanSwitch
+                        icon: "uc:check"
+                        checked: Config.wowlanEnabled
+                        trigger: function() {
+                            Config.wowlanEnabled = !Config.wowlanEnabled;
+                        }
+
+                        /** KEYBOARD NAVIGATION **/
+                        KeyNavigation.down: wakeupSensitivitySlider
+                        highlight: activeFocus && ui.keyNavigationEnabled
+
+                        Component.onCompleted: {
+                            if (Wifi.wowlanEnabled) {
+                                wowlanSwitch.forceActiveFocus();
+                            }
+                        }
+                    }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    color: colors.light
+                    text: qsTr("Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.")
+                    font: fonts.secondaryFont(24)
+                }
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width - 20; height: 2
+                color: colors.medium
+                visible: HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled
+            }
 
             /** WAKEUP SENSITIVITY **/
             Item {
@@ -102,11 +160,14 @@ Settings.Page {
                     }
 
                     /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.up: (HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled) ? wowlanSwitch : undefined
                     KeyNavigation.down: displayoffTimeoutSlider
                     highlight: activeFocus && ui.keyNavigationEnabled
 
                     Component.onCompleted: {
-                        wakeupSensitivitySlider.forceActiveFocus();
+                        if (HwInfo.modelNumber != "UCR3") {
+                            wakeupSensitivitySlider.forceActiveFocus();
+                        }
                     }
                 }
             }

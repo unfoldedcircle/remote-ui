@@ -47,6 +47,9 @@ class InputController : public QQuickItem {
         PLAY = Qt::Key::Key_MediaTogglePlayPause,
         NEXT = Qt::Key::Key_AudioForward,
         POWER = Qt::Key::Key_PowerOff,
+        STOP = Qt::Key::Key_Stop,
+        RECORD = Qt::Key::Key_MediaRecord,
+        MENU = Qt::Key::Key_F4
     };
     Q_ENUM(Buttons)
 
@@ -64,7 +67,6 @@ class InputController : public QQuickItem {
 
  signals:
     void keyPressed(QString key);
-    void keyLongPressed(QString key);
     void keyReleased(QString key);
     void activeObjectChanged();
 
@@ -111,13 +113,12 @@ class InputController : public QQuickItem {
         {Qt::Key::Key_MediaTogglePlayPause, "PLAY"},
         {Qt::Key::Key_AudioForward, "NEXT"},
         {Qt::Key::Key_PowerOff, "POWER"},
+        {Qt::Key::Key_Stop, "STOP"},
+        {Qt::Key::Key_MediaRecord, "RECORD"},
+        {Qt::Key::Key_F4, "MENU"},
     };
 
-    int                  m_longPressTimeOut = 500;
-    QHash<int, bool>     m_longPressTriggered;
-    QHash<int, QTimer *> m_longPressTimers;
-
-    int m_repeatCount = 3;
+    int m_repeatCount = 4;
 };
 
 }  // namespace ui

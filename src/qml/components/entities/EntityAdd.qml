@@ -45,17 +45,17 @@ Entities.EntityList {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     entitySelectionList.close();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     entitySelectionList.close();
                 }
             },
             "DPAD_MIDDLE": {
-                "released": function() {
+                "pressed": function() {
                     entitySelectionList.okTrigger();
                 }
             }

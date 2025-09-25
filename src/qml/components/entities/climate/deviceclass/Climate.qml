@@ -25,7 +25,7 @@ EntityComponents.BaseDetail {
                 menuItems.push({
                                    //: Climate device state
                                    title: qsTr("Off"),
-                                   icon: "uc:power-on",
+                                   icon: "uc:power-off",
                                    callback: function() {
                                        entityObj.turnOff();
                                    }
@@ -47,7 +47,7 @@ EntityComponents.BaseDetail {
                 menuItems.push({
                                    //: Climate device state
                                    title: qsTr("Cool"),
-                                   icon: "uc:cool",
+                                   icon: "uc:snowflake",
                                    callback: function() {
                                        entityObj.setHvacMode(ClimateStates.Cool);
                                    }
@@ -57,7 +57,7 @@ EntityComponents.BaseDetail {
                 menuItems.push({
                                    //: Climate device state
                                    title: qsTr("Auto"),
-                                   icon: "uc:climate",
+                                   icon: "uc:temperature-half",
                                    callback: function() {
                                        entityObj.setHvacMode(ClimateStates.Auto);
                                    }
@@ -120,12 +120,12 @@ EntityComponents.BaseDetail {
             }
         },
         "GREEN": {
-            "released": function() {
+            "pressed": function() {
                 modeOpen();
             }
         },
         "YELLOW": {
-            "released": function() {
+            "pressed": function() {
                 fanOpen();
             }
         }

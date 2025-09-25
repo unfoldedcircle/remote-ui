@@ -72,13 +72,13 @@ Popup {
         id: buttonNavigation
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     volume.close();
                     volume.done();
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     volume.close();
                     volume.done();
                 }
@@ -122,7 +122,7 @@ Popup {
 
     Components.Icon {
         id: volumeIcon
-        icon: volume.volumePosition == 0 && volume.supportsVolumeSet ? "uc:mute" : "uc:volume"
+        icon: volume.volumePosition == 0 && volume.supportsVolumeSet ? "uc:volume-xmark" : "uc:volume"
         color: colors.offwhite
         anchors { left: parent.left; leftMargin: 40; verticalCenter: volumeBar.verticalCenter; }
         size: 60
@@ -173,7 +173,7 @@ Popup {
         text: resource.getIcon(volume.up ? "uc:plus" : "uc:minus")
         anchors { left: volumeBar.right; leftMargin: 60; verticalCenter: volumeBar.verticalCenter }
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignRight
-        font { family: "icons"; pixelSize: 180 }
+        font { family: "Font Awesome 6 Pro"; pixelSize: 180 }
         visible: !volume.supportsVolumeSet
     }
 

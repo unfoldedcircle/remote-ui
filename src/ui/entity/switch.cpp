@@ -10,10 +10,10 @@ namespace uc {
 namespace ui {
 namespace entity {
 
-Switch::Switch(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon, const QString &area,
+Switch::Switch(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
                const QString &deviceClass, const QStringList &features, bool enabled, QVariantMap attributes,
                QVariantMap options, const QString &integrationId, QObject *parent)
-    : Base(id, name, nameI18n, icon, area, Type::Switch, enabled, attributes, integrationId, false, parent),
+    : Base(id, nameI18n, language, icon, area, Type::Switch, enabled, attributes, integrationId, false, parent),
       m_readable(true) {
     qCDebug(lcSwitch()) << "Switch entity constructor";
 

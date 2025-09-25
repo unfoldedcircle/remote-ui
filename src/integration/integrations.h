@@ -37,8 +37,12 @@ class Integration : public QObject {
     QString getDriverId() const { return m_driverId; }
     QString getDeviceId() const { return m_deviceId; }
 
-    void        setName(const QString& name);
     QString     getName() const { return m_name; }
+    /**
+     * @brief Set a new language text map.
+     * Note: the integration name is not updated, the client has to call updateLanguage afterwards!
+     * @param nameI18n language text map
+     */
     void        setNameI18n(QVariantMap nameI18n);
     QVariantMap getNameI18n() const { return m_name_i18n; }
     void        setIcon(const QString& icon);
@@ -51,7 +55,11 @@ class Integration : public QObject {
     QVariantMap getSetupData() const { return m_setupData; }
     void        setSelected(bool selected);
     bool        getSelected() const { return m_selected; }
-    QString     getSorting() const { return m_sorting; }
+    /**
+     * @brief to enable the proxy model filtering on multiple roles, we use a sort role
+     * and return all searchable string
+     */
+    QString     getSorting() const { return m_name + m_driverId; }
 
     void updateLanguage(const QString& language);
 
@@ -74,12 +82,6 @@ class Integration : public QObject {
     QString     m_state;
 
     QString m_language;
-
-    /**
-     * @brief to enable the proxy model filtering on multiple roles, we use a sort role
-     * and store all searchable string in this variable
-     */
-    QString m_sorting;
     bool    m_selected;
 };
 

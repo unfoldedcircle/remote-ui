@@ -33,7 +33,7 @@ Settings.Page {
                                                      }
                                                  },
                                                  "DPAD_MIDDLE": {
-                                                     "released": function() {
+                                                     "pressed": function() {
                                                          loadDockInfo(itemList.currentItem.key);
                                                      }
                                                  }
@@ -194,7 +194,7 @@ Settings.Page {
             // if a dock is selected for setup, we open the popup
             function onDockToSetupChanged(dockId) {
                 if (dockId) {
-                    dockSetupLoader.active = true;   
+                    dockSetupLoader.active = true;
                 }
             }
         }
@@ -203,13 +203,13 @@ Settings.Page {
             id: dockSetupPopupButtonNavigation
             defaultConfig: {
                 "HOME": {
-                    "released": function() {
+                    "pressed": function() {
                         dockSetupPopup.close();
                         goHome();
                     }
                 },
                 "BACK": {
-                    "released": function() {
+                    "pressed": function() {
                         dockSetupPopup.close();
                     }
                 }
@@ -248,7 +248,36 @@ Settings.Page {
                 antialiasing: true
                 asynchronous: true
                 cache: true
-                source: "qrc:/images/dock_setup.png"
+                source: {
+                    const model = dockModel.toUpperCase();
+                    const serial = dockSerial.toUpperCase();
+
+                    if (model == "UCD2") {
+                        return "qrc:/images/dock_2.png"
+                    } else if (model == "UCD3") {
+                        if (serial.length >= 2) {
+                            const dockType = serial[serial.length - 1];
+                            const dockColor = serial[serial.length - 2];
+
+                            if (dockType == "C" && dockColor == "D") {
+                                return "qrc:/images/dock3_dark_charging.png"
+                            } else if (dockType == "N" && dockColor == "D") {
+                                return "qrc:/images/dock3_dark_non_charging.png"
+                            } else if (dockType == "C" && dockColor == "S") {
+                                return "qrc:/images/dock3_silver_charging.png"
+                            } else if (dockType == "N" && dockColor == "S") {
+                                return "qrc:/images/dock3_silver_non_charging.png"
+                            } else {
+                                return "qrc:/images/dock3_dark_charging.png"
+                            }
+                        } else {
+                            return "qrc:/images/dock3_dark_charging.png"
+                        }
+                    } else {
+                        return "qrc:/images/dock3_dark_charging.png"
+                    }
+                }
+
                 anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: -80 }
                 opacity: dockState === DockStates.ACTIVE || dockState === DockStates.IDLE ? 0.8 : 0.25
 
@@ -309,7 +338,7 @@ Settings.Page {
                         radius: width / 2
 
                         Components.Icon {
-                            icon: dockState === DockStates.ERROR ? "uc:close" : "uc:check"
+                            icon: dockState === DockStates.ERROR ? "uc:xmark" : "uc:check"
                             size: 26
                             color: colors.black
                             anchors.centerIn: parent

@@ -17,6 +17,8 @@ Translation::Translation(QQmlEngine* engine, core::Api* core, QObject* parent)
     if (!loadTranslations()) {
         qCWarning(lcI18n()) << "Cannot load available translations";
     }
+
+    QObject::connect(m_core, &core::Api::reqGetLocalizationLanguages, this, &Translation::onReqGetLocalizationLanguages);
 }
 
 Translation::~Translation() {}
@@ -145,6 +147,22 @@ QStringList Translation::getTimeZones(const QString& countryCode) {
 
 void Translation::onLanguageChanged(QString language) {
     loadTranslation(language);
+}
+
+void Translation::onReqGetLocalizationLanguages(int reqId)
+{
+    qCDebug(lcI18n()) << "Request from core for localization languages" << reqId;
+
+    QVariantList list;
+
+    for (const auto &item : m_translations) {
+        QVariantMap map;
+        map.insert("name", getNativeLanguageName(item));
+        map.insert("code", item);
+        list.append(map);
+    }
+
+    m_core->setLocalizationLanguages(reqId, APP_VERSION, list);
 }
 }  // namespace ui
 }  // namespace uc

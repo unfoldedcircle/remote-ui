@@ -45,7 +45,7 @@ ColumnLayout {
         Components.Icon {
             id: closeIcon
             color: colors.offwhite
-            icon: "uc:close"
+            icon: "uc:xmark"
             anchors { verticalCenter: parent.verticalCenter; right: parent.right }
             size: 60
             visible: integrationSetupSwipeView.currentIndex == 1;
@@ -119,6 +119,7 @@ ColumnLayout {
                 configureStep.goToStart();
                 break;
             case IntegrationControllerEnums.Ok:
+                finishStep.success = true;
                 loading.success();
                 integrationSetupSwipeView.currentIndex = 1;
                 entitiesStep.currentItem = true;

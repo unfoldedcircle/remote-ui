@@ -20,11 +20,11 @@ static constexpr float MAX_TEMP_CELSIUS = 30;
 static constexpr float MIN_TEMP_FAHRENHEIT = 50;
 static constexpr float MAX_TEMP_FAHRENHEIT = 86;
 
-Climate::Climate(const QString &id, const QString &name, QVariantMap nameI18n, const QString &icon, const QString &area,
+Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
                  const QString &deviceClass, const QStringList &features, bool enabled, QVariantMap attributes,
                  QVariantMap options, const QString &integrationId, const Config::UnitSystems unitSystem,
                  QObject *parent)
-    : Base(id, name, nameI18n, icon, area, Type::Climate, enabled, attributes, integrationId, false, parent),
+    : Base(id, nameI18n, language, icon, area, Type::Climate, enabled, attributes, integrationId, false, parent),
       // set defaults for Celsius
       m_temperatureUnit(TemperatureUnit::CELSIUS),
       m_currentTemperature(0),

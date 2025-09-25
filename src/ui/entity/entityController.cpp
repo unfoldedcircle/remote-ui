@@ -25,10 +25,10 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     m_language   = language;
     m_unitSystem = unitSystem;
 
-    //    qRegisterMetaType<uc::ui::entity::Base::Type>("Entity Types");
+            //    qRegisterMetaType<uc::ui::entity::Base::Type>("Entity Types");
     qmlRegisterUncreatableType<entity::Base>("Entity.Controller", 1, 0, "EntityTypes", "Enum is not a type");
 
-    // button enums
+            // button enums
     qRegisterMetaType<entity::ButtonStates::Enum>("Button States");
     qRegisterMetaType<entity::ButtonFeatures::Enum>("Button Features");
     qRegisterMetaType<entity::ButtonDeviceClass::Enum>("Button Device Classes");
@@ -37,7 +37,7 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::ButtonDeviceClass>("Entity.Button", 1, 0, "ButtonDeviceClasses",
                                                           "Enum is not a type");
 
-    // climate enums
+            // climate enums
     qRegisterMetaType<entity::ClimateStates::Enum>("Climate States");
     qRegisterMetaType<entity::ClimateFeatures::Enum>("Climate Features");
     qRegisterMetaType<entity::ClimateDeviceClass::Enum>("Climate Device Classes");
@@ -47,7 +47,7 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::ClimateDeviceClass>("Entity.Climate", 1, 0, "ClimateDeviceClasses",
                                                            "Enum is not a type");
 
-    // cover enums
+            // cover enums
     qRegisterMetaType<entity::CoverStates::Enum>("Cover States");
     qRegisterMetaType<entity::CoverFeatures::Enum>("Cover Features");
     qRegisterMetaType<entity::CoverDeviceClass::Enum>("Cover Device Classes");
@@ -56,7 +56,7 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::CoverDeviceClass>("Entity.Cover", 1, 0, "CoverDeviceClasses",
                                                          "Enum is not a type");
 
-    // light enums
+            // light enums
     qRegisterMetaType<entity::LightStates::Enum>("Light States");
     qRegisterMetaType<entity::LightFeatures::Enum>("Light Features");
     qRegisterMetaType<entity::LightDeviceClass::Enum>("Light Device Classes");
@@ -65,12 +65,11 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::LightDeviceClass>("Entity.Light", 1, 0, "LightDeviceClasses",
                                                          "Enum is not a type");
 
-    // media player enums
+            // media player enums
     qRegisterMetaType<entity::MediaPlayerStates::Enum>("MediaPlayer States");
     qRegisterMetaType<entity::MediaPlayerFeatures::Enum>("MediaPlayer Features");
     qRegisterMetaType<entity::MediaPlayerDeviceClass::Enum>("MediaPlayer Device Classes");
     qRegisterMetaType<entity::MediaPlayerRepeatMode::Enum>("MediaPlayer Repeat Mode");
-    qRegisterMetaType<entity::MediaPlayerMediaType::Enum>("MediaPlayer Media Type");
     qmlRegisterUncreatableType<entity::MediaPlayerStates>("Entity.MediaPlayer", 1, 0, "MediaPlayerStates",
                                                           "Enum is not a type");
     qmlRegisterUncreatableType<entity::MediaPlayerFeatures>("Entity.MediaPlayer", 1, 0, "MediaPlayerFeatures",
@@ -79,17 +78,15 @@ EntityController::EntityController(core::Api* core, const QString& language, con
                                                                "Enum is not a type");
     qmlRegisterUncreatableType<entity::MediaPlayerRepeatMode>("Entity.MediaPlayer", 1, 0, "MediaPlayerRepeatMode",
                                                               "Enum is not a type");
-    qmlRegisterUncreatableType<entity::MediaPlayerMediaType>("Entity.MediaPlayer", 1, 0, "MediaPlayerMediaType",
-                                                             "Enum is not a type");
 
-    // sensor enums
+            // sensor enums
     qRegisterMetaType<entity::SensorStates::Enum>("Sensor States");
     qRegisterMetaType<entity::SensorDeviceClass::Enum>("Sensor Device Classes");
     qmlRegisterUncreatableType<entity::SensorStates>("Entity.Sensor", 1, 0, "SensorStates", "Enum is not a type");
     qmlRegisterUncreatableType<entity::SensorDeviceClass>("Entity.Sensor", 1, 0, "SensorDeviceClasses",
                                                           "Enum is not a type");
 
-    // switch enums
+            // switch enums
     qRegisterMetaType<entity::SwitchStates::Enum>("Switch States");
     qRegisterMetaType<entity::SwitchFeatures::Enum>("Switch Features");
     qRegisterMetaType<entity::SwitchDeviceClass::Enum>("Switch Device Classes");
@@ -98,7 +95,7 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::SwitchDeviceClass>("Entity.Switch", 1, 0, "SwitchDeviceClasses",
                                                           "Enum is not a type");
 
-    // remote enums
+            // remote enums
     qRegisterMetaType<entity::RemoteStates::Enum>("Remote States");
     qRegisterMetaType<entity::RemoteFeatures::Enum>("Remote Features");
     qRegisterMetaType<entity::RemoteDeviceClass::Enum>("Remote Device Classes");
@@ -107,7 +104,7 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::RemoteDeviceClass>("Entity.Remote", 1, 0, "RemoteDeviceClasses",
                                                           "Enum is not a type");
 
-    // activity enums
+            // activity enums
     qRegisterMetaType<entity::ActivityStates::Enum>("Activity States");
     qRegisterMetaType<entity::ActivityFeatures::Enum>("Activity Features");
     qRegisterMetaType<entity::ActivityDeviceClass::Enum>("Activity Device Classes");
@@ -117,7 +114,7 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::ActivityDeviceClass>("Entity.Activity", 1, 0, "ActivityDeviceClasses",
                                                             "Enum is not a type");
 
-    // macro enums
+            // macro enums
     qRegisterMetaType<entity::MacroStates::Enum>("Macro States");
     qRegisterMetaType<entity::MacroFeatures::Enum>("Macro Features");
     qRegisterMetaType<entity::MacroDeviceClass::Enum>("Macro Device Classes");
@@ -126,7 +123,7 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::MacroDeviceClass>("Entity.Macro", 1, 0, "MacroDeviceClasses",
                                                          "Enum is not a type");
 
-    // sequence types
+            // sequence types
     qRegisterMetaType<entity::SequenceStep::Type>("Sequence Step Type");
     qmlRegisterUncreatableType<entity::SequenceStep>("SequenceStep.Type", 1, 0, "SequenceStep", "Enum is not a type");
 
@@ -170,37 +167,37 @@ entity::Base* EntityController::createEntityObject(const QString& type, const QS
 
     switch (entityType) {
         case entity::Base::Type::Light:
-            return new entity::Light(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
+            return new entity::Light(id, name, m_language, icon, area, deviceClass, features,
                                      enabled, attributes, options, integrationId, parent);
         case entity::Base::Type::Button:
-            return new entity::Button(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
+            return new entity::Button(id, name, m_language, icon, area, deviceClass, features,
                                       enabled, attributes, integrationId, parent);
         case entity::Base::Type::Switch:
-            return new entity::Switch(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
+            return new entity::Switch(id, name, m_language, icon, area, deviceClass, features,
                                       enabled, attributes, options, integrationId, parent);
         case entity::Base::Type::Climate:
-            return new entity::Climate(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
+            return new entity::Climate(id, name, m_language, icon, area, deviceClass, features,
                                        enabled, attributes, options, integrationId, m_unitSystem, parent);
         case entity::Base::Type::Cover:
-            return new entity::Cover(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
+            return new entity::Cover(id, name, m_language, icon, area, deviceClass, features,
                                      enabled, attributes, integrationId, parent);
         case entity::Base::Type::Media_player:
-            return new entity::MediaPlayer(id, name.value(m_language).toString(), name, icon, area, deviceClass,
+            return new entity::MediaPlayer(id, name, m_language, icon, area, deviceClass,
                                            features, enabled, attributes, options, integrationId, parent);
         case entity::Base::Type::Activity:
-            return new entity::Activity(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
+            return new entity::Activity(id, name, m_language, icon, area, deviceClass, features,
                                         enabled, attributes, options, integrationId, parent);
         case entity::Base::Type::Macro:
-            return new entity::Macro(id, name.value(m_language).toString(), name, icon, area, deviceClass, features, enabled,
+            return new entity::Macro(id, name, m_language, icon, area, deviceClass, features, enabled,
                                      attributes, integrationId, parent);
         case entity::Base::Type::Remote:
-            return new entity::Remote(id, name.value(m_language).toString(), name, icon, area, deviceClass, features,
+            return new entity::Remote(id, name, m_language, icon, area, deviceClass, features,
                                       enabled, attributes, options, integrationId, parent);
         case entity::Base::Type::Sensor:
-            return new entity::Sensor(id, name.value(m_language).toString(), name, icon, area, deviceClass, enabled,
+            return new entity::Sensor(id, name, m_language, icon, area, deviceClass, enabled,
                                       attributes, options, integrationId, parent);
         default:
-            return nullptr;
+            return new entity::Base(id, name, m_language, icon, area, entity::Base::Type::Unsupported, true, QVariantMap(), integrationId, false, parent);
     }
 }
 
@@ -308,7 +305,7 @@ void EntityController::addEntityObject(core::Entity entity) {
         return;
     }
 
-    // create entity object here
+            // create entity object here
     entity::Base* obj = createEntityObject(entity.type, entity.id, entity.name, entity.icon, entity.area,
                                            entity.deviceClass, entity.features, entity.options, entity.enabled,
                                            entity.attributes, entity.integrationId, this);
@@ -317,7 +314,7 @@ void EntityController::addEntityObject(core::Entity entity) {
         QObject::connect(obj, &entity::Base::command, this, &EntityController::onEntityCommand);
         QObject::connect(this, &EntityController::languageChanged, obj, &entity::Base::onLanguageChanged);
 
-        // if media player, then hook up signals to add to activites bar
+                // if media player, then hook up signals to add to activites bar
         if (obj->getType() == entity::Base::Type::Media_player) {
             auto mediaPlayer = qobject_cast<entity::MediaPlayer*>(obj);
 
@@ -333,7 +330,7 @@ void EntityController::addEntityObject(core::Entity entity) {
             }
         }
 
-        // if activity, then hook up signals to add to activites bar
+                // if activity, then hook up signals to add to activites bar
         if (obj->getType() == entity::Base::Type::Activity) {
             auto activity = qobject_cast<entity::Activity*>(obj);
 
@@ -353,7 +350,7 @@ void EntityController::addEntityObject(core::Entity entity) {
             }
         }
 
-        // climate entity might switch between celsius & fahrenheit
+                // climate entity might switch between celsius & fahrenheit
         if (obj->getType() == entity::Base::Type::Climate) {
             auto climate = qobject_cast<entity::Climate*>(obj);
 
@@ -386,7 +383,7 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
     auto entityObj = m_entities.value(entityId);
 
     if (!entity.name.isEmpty()) {
-        entityObj->setFriendlyName(Util::getLanguageString(entity.name, "en"));
+        entityObj->setFriendlyName(entity.name, m_language);
     }
 
     if (!entity.icon.isEmpty()) {
@@ -394,8 +391,46 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
     }
 
     for (QVariantMap::iterator i = entity.attributes.begin(); i != entity.attributes.end(); i++) {
-        entityObj->updateCommonAttribute(uc::Util::FirstToUpper(i.key()), i.value());
         entityObj->updateAttribute(uc::Util::FirstToUpper(i.key()), i.value());
+    }
+
+    if (entity.features.size() > 0) {
+        entity::Base::Type entityType = uc::Util::convertStringToEnum<entity::Base::Type>(entity.type);
+
+        switch (entityType) {
+            case entity::Base::Type::Button:
+                entityObj->updateFeatures<entity::ButtonFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Switch:
+                entityObj->updateFeatures<entity::SwitchFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Climate:
+                entityObj->updateFeatures<entity::ClimateFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Cover:
+                entityObj->updateFeatures<entity::CoverFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Light:
+                entityObj->updateFeatures<entity::LightFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Media_player:
+                entityObj->updateFeatures<entity::MediaPlayerFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Remote:
+                entityObj->updateFeatures<entity::RemoteFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Activity:
+                entityObj->updateFeatures<entity::ActivityFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Macro:
+                entityObj->updateFeatures<entity::MacroFeatures::Enum>(entity.features);
+                break;
+
+            case entity::Base::Type::Sensor:
+            default:
+                qCWarning(lcEntityController()) << "Not updating features, unsupported entity type.";
+                break;
+        }
     }
 
     if (entity.options.size() > 0) {
@@ -429,28 +464,41 @@ void EntityController::load(const QString& entityId) {
         });
 }
 
+void EntityController::refreshEntity(const QString &entityId)
+{
+    int id = m_core->getEntity(entityId);
+
+    m_core->onResponseWithErrorResult(
+        id, &core::Api::respEntity, [=](core::Entity entity) { onEntityChanged(entityId, entity); },
+        [=](int code, QString message) {
+            // fail
+            qCWarning(lcEntityController()) << "Cannot get entity:" << entityId << code << message;
+        });
+}
+
 void EntityController::onEntityCommand(const QString& entityId, const QString& command, QVariantMap params) {
     const QString commandId = entityId + command;
 
-    if (m_entityCommandBeingExecuted.contains(commandId)) {
-        qCDebug(lcEntityController()) << "The command is still being executed. Not doing anything." << entityId << command;
-        return;
-    } else {
-        m_entityCommandBeingExecuted.append(commandId);
-        qCDebug(lcEntityController()) << "Executing command" << entityId << command;
+    const bool repeating = params.contains("repeat");
+
+            // if the entity is unavailbe, we do nothing
+    entity::Base* e = m_entities.value(entityId);
+
+    if (e) {
+        if (e->getState() == 0) {
+            return;
+        }
     }
 
-    if (!m_entityCommandCount.contains(commandId)) {
-        m_entityCommandCount.insert(commandId, 0);
+    if (!repeating) {
+        if (m_entityCommandBeingExecuted.contains(commandId)) {
+            qCDebug(lcEntityController()) << "The command is still being executed. Not doing anything." << entityId << command;
+            return;
+        } else {
+            m_entityCommandBeingExecuted.append(commandId);
+            qCDebug(lcEntityController()) << "Executing command" << entityId << command;
+        }
     }
-
-//    QTimer* timer = m_entityCommandTimers.value(command);
-//    if (timer) {
-//        if (timer->isActive()) {
-//            qCDebug(lcEntityController()) << "There is an active timer for this command. Not doing anything." << entityId << command;
-//            return;
-//        }
-//    }
 
     int id = m_core->entityCommand(entityId, command, params);
 
@@ -459,55 +507,17 @@ void EntityController::onEntityCommand(const QString& entityId, const QString& c
         [=]() {
             // success
             qCDebug(lcEntityController()) << "Command executed successfully" << entityId << command;
-            m_entityCommandCount.remove(commandId);
             m_entityCommandBeingExecuted.removeAll(commandId);
         },
         [=](int code, QString message) {
             // fail
+            qCWarning(lcEntityController()) << "Cannot execute command:" << entityId << command << code << message;
             m_entityCommandBeingExecuted.removeAll(commandId);
-            qCDebug(lcEntityController())
-                << "Command failed" << code << entityId << command << "Try count" << m_entityCommandCount.value(commandId);
-
-            if (m_entityCommandCount.value(commandId) >= 3 || (code == 400 || code == 404)) {
-                qCWarning(lcEntityController()) << "Cannot execute command:" << command << code << message;
-                Notification::createNotification(message, true);
-                m_entityCommandCount.remove(commandId);
-                qCDebug(lcEntityController()) << "Deleting timer" << command;
-                QTimer* timer = m_entityCommandTimers.value(commandId);
-                if (timer) {
-                    qCDebug(lcEntityController()) << "Timer exits" << command;
-                    timer->stop();
-                    timer->deleteLater();
-                }
-                m_entityCommandTimers.remove(commandId);
-                qCDebug(lcEntityController()) << "Timer removed" << command;
-            } else {
-                qCDebug(lcEntityController()) << "Trying again in 1s" << entityId << command;
-                int val = m_entityCommandCount.value(commandId) + 1;
-                m_entityCommandCount.insert(commandId, val);
-                if (!m_entityCommandTimers.contains(commandId)) {
-                    QTimer* timer = new QTimer();
-                    timer->setSingleShot(true);
-                    timer->setInterval(1000);
-                    QObject::connect(timer, &QTimer::timeout, [=]{
-                        qCDebug(lcEntityController()) << "Timer is done, re-executing command" << entityId << command;
-                        onEntityCommand(entityId, command, params);
-                        QTimer* timer = m_entityCommandTimers.value(commandId);
-                        if (timer) {
-                            qCDebug(lcEntityController()) << "Timer exits" << command;;
-                            timer->deleteLater();
-                        }
-                        m_entityCommandTimers.remove(commandId);
-                    });
-                    timer->start();
-                    m_entityCommandTimers.insert(commandId, timer);
-                }
-            }
+            Notification::createNotification(message, true);
         });
 }
 
 void EntityController::onLanguageChanged(QString language) {
-    language   = language.split("_")[0];
     m_language = language;
     emit languageChanged(m_language);
 }

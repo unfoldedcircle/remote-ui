@@ -10,19 +10,25 @@ Item {
     clip: true
 
     Behavior on height {
-
+        enabled: imageLoader.shrinkHeight
         NumberAnimation { easing.type: Easing.OutBack; duration: 300 }
     }
 
     property string url: ""
     property string prevUrl: ""
     property bool aspectFit: false
+    property bool shrinkHeight: false
+    property bool alignCentered: false
 
     property alias image1: image1
 
     signal done()
 
     onUrlChanged: {
+        if (url == prevUrl) {
+            return;
+        }
+
         if (url == "") {
             image1.source = "";
             image2.source = "";
@@ -36,9 +42,9 @@ Item {
     Image {
         id: image1
         width: parent.width
-        height: imageLoader.aspectFit ? undefined : parent.height
+        height: parent.height
         anchors.top: parent.top
-        verticalAlignment: Image.AlignTop
+        verticalAlignment: alignCentered ? Image.AlignVCenter : Image.AlignTop
         fillMode: imageLoader.aspectFit ? Image.PreserveAspectFit : Image.PreserveAspectCrop
         asynchronous: true
         cache: false
@@ -53,7 +59,7 @@ Item {
 
             if (image1.status == Image.Error) {
                 image1.source = "";
-                image1.source = imageLoader.url;
+                console.error("Failed to load image into image 1");
             }
         }
     }
@@ -61,9 +67,9 @@ Item {
     Image {
         id: image2
         width: parent.width
-        height: imageLoader.aspectFit ? undefined : parent.height
+        height: parent.height
         anchors.top: parent.top
-        verticalAlignment: Image.AlignTop
+        verticalAlignment: alignCentered ? Image.AlignVCenter : Image.AlignTop
         fillMode: imageLoader.aspectFit ? Image.PreserveAspectFit : Image.PreserveAspectCrop
         asynchronous: true
         opacity: 0
@@ -77,25 +83,45 @@ Item {
 
         onStatusChanged: {
             if (image2.status == Image.Loading) {
-                loader.opacity = 1;
+                loadingDelay.restart();
+                console.debug("Loading image");
+            }
+
+            if (image2.status === Image.Ready || image2.status === Image.Error) {
+                loadingDelay.stop();
+                loader.opacity = 0;
             }
 
             if (image2.status == Image.Ready) {
-                loader.opacity = 0;
                 image2.opacity = 1;
+
+                if (imageLoader.shrinkHeight && !imageLoader.aspectFit) {
+                    imageLoader.height = image2.paintedHeight;
+                }
+
+                console.debug("Image loaded");
             }
 
-            if (image2.status == Image.Error) {
+            if (image2.status == Image.Error && image2.source != "") {
                 image2.source = "";
-                image2.source = imageLoader.url;
+                console.error("Failed to load image into image 2");
             }
         }
 
         onOpacityChanged: {
             if (image2.opacity == 1) {
-                image1.source = url;
+                if (image1.source != url) {
+                    image1.source = url;
+                }
             }
         }
+    }
+
+    Timer {
+        id: loadingDelay
+        interval: 500
+        repeat: false
+        onTriggered: loader.opacity = 1
     }
 
     Rectangle {
@@ -106,10 +132,18 @@ Item {
         anchors.centerIn: parent
         transformOrigin: Item.Center
         opacity: 0
+        visible: opacity > 0
+
+        onOpacityChanged: {
+            if (loader.opacity == 1)
+                integrationLoadinganimation.start();
+            else
+                integrationLoadinganimation.stop();
+        }
 
         SequentialAnimation {
             id: integrationLoadinganimation
-            running: loader.opacity == 1
+            running: false
             loops: Animation.Infinite
 
             NumberAnimation { target: loader; properties: "width, height"; to: 2; easing.type: Easing.OutExpo; duration: 600  }

@@ -11,7 +11,7 @@ namespace integration {
 IntegrationController *IntegrationController::s_instance = nullptr;
 
 IntegrationController::IntegrationController(core::Api *core, const QString &language, QObject *parent)
-    : QObject(parent), m_core(core), m_language(language.split("_")[0]), m_integrationDriverToSetup(nullptr) {
+    : QObject(parent), m_core(core), m_language(language), m_integrationDriverToSetup(nullptr) {
     Q_ASSERT(s_instance == nullptr);
     s_instance = this;
 
@@ -478,7 +478,7 @@ void IntegrationController::setupIntegration(const QString &integrationDriverId,
                         tr("Failed to start setup"),
                         tr("There is already a running setup for this integration. Would you like to stop "
                            "that?"),
-                        "uc:warning",
+                        "uc:triangle-exclamation",
                         [](QVariant param) {
                             IntegrationController *ic =
                                 qvariant_cast<IntegrationController *>(param.toMap().value("obj"));
@@ -609,7 +609,7 @@ void IntegrationController::integrationSetUserDataSettings(const QString &integr
                         tr("Failed to start setup"),
                         tr("There is already a running setup for this integration. Would you like to stop "
                            "that?"),
-                        "uc:warning",
+                        "uc:triangle-exclamation",
                         [](QVariant param) {
                             IntegrationController *ic =
                                 qvariant_cast<IntegrationController *>(param.toMap().value("obj"));
@@ -666,7 +666,7 @@ void IntegrationController::integrationSetUserDataConfirm(const QString &integra
                         tr("Failed to start setup"),
                         tr("There is already a running setup for this integration. Would you like to stop "
                            "that?"),
-                        "uc:warning",
+                        "uc:triangle-exclamation",
                         [](QVariant param) {
                             IntegrationController *ic =
                                 qvariant_cast<IntegrationController *>(param.toMap().value("obj"));
@@ -711,7 +711,7 @@ void IntegrationController::onIntegrationDeviceStateChanged(QString integrationI
 }
 
 void IntegrationController::onLanguageChanged(QString language) {
-    m_language = language.split("_")[0];
+    m_language = language;
 
     m_integrations.setLanguage(m_language);
     m_integrationDrivers.setLanguage(m_language);

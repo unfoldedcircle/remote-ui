@@ -47,7 +47,7 @@ Components.HapticMouseArea {
     Components.Icon {
         id: icon
         color: colors.offwhite
-        icon: "uc:up-arrow"
+        icon: "uc:arrow-up"
         anchors.centerIn: parent
         size: 80
         transformOrigin: Item.Center

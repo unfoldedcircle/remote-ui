@@ -22,18 +22,6 @@ Rectangle {
     radius: ui.cornerRadiusSmall
     clip: true
 
-    function calculateMaxFontSize() {
-        let size = mediaComponent.isComponentHorizontal ? mediaComponent.height / mediaComponent.gridWidth : mediaComponent.width / mediaComponent.gridHeight;
-        size = size * 0.6;
-        if (size > 46) {
-            size = 46;
-        } else if (size < 24) {
-            size = 24;
-        }
-
-        return size;
-    }
-
     function formatTime(time) {
         var hrs = ~~(time / 3600);
         var mins = ~~((time % 3600) / 60);
@@ -52,32 +40,58 @@ Rectangle {
     readonly property int requiredTextArea: 120
     property int gridWidth: 4
     property int gridHeight: 6
-    property int baseFontSize: mediaComponent.calculateMaxFontSize();
+    property int baseFontSize: 24
 
     property string entityId
     property QtObject entityObj
 
-    property bool isComponentHorizontal: mediaComponent.width > mediaComponent.height
+    property double mediaInfoHeight: mediaTitle.implicitHeight + mediaArtist.implicitHeight + progressContainer.implicitHeight + 60
+
+    property bool isComponentHorizontal: mediaComponent.height < 260
     property bool isSpaceForMediaInfo: {
-         if (mediaComponent.isComponentHorizontal) {
-             return mediaComponent.width - mediaComponent.height > ui.width / 2
-         } else {
-             return (mediaComponent.height - mediaComponent.width > mediaComponent.requiredTextArea) && mediaComponent.width > ui.width / 2
-         }
+        return mediaComponent.height >= 240;
     }
+
+    property alias mediaImage: mediaImage
+    property alias aspectFit: mediaImage.aspectFit
 
     Component.onCompleted: {
         entityObj = EntityController.get(entityId);
     }
 
+    onEntityIdChanged: entityObj = EntityController.get(entityId)
+
+    Connections {
+        target: entityObj
+        ignoreUnknownSignals: true
+
+        function onStateChanged() {
+            if (entityObj.state === MediaPlayerStates.Playing) {
+                mediaImageScaleChanger.stop();
+                mediaImage.scale = 1;
+            } else {
+                mediaImageScaleChanger.start();
+            }
+        }
+    }
+
+    Timer {
+        id:  mediaImageScaleChanger
+        running: false
+        repeat: false
+        interval: 1000
+        onTriggered: mediaImage.scale = 0.8
+    }
+
     MediaPlayerComponents.ImageLoader {
         id: mediaImage
-        width: mediaComponent.isComponentHorizontal ? (mediaComponent.isSpaceForMediaInfo ? parent.height : parent.width) : parent.width
-        height: mediaComponent.isSpaceForMediaInfo ? width : parent.height
-        aspectFit: mediaComponent.isSpaceForMediaInfo
+        width: mediaComponent.isComponentHorizontal ? parent.width / 3 : parent.width
+        height: mediaComponent.isSpaceForMediaInfo ? (parent.height - mediaInfoHeight) : parent.height
+        aspectFit: true
+        alignCentered: true
         url: entityObj.mediaImage
-        anchors { horizontalCenter: mediaComponent.isComponentHorizontal ? undefined : parent.horizontalCenter; top: parent.top; left: mediaComponent.isComponentHorizontal ? parent.left : undefined }
-        scale: entityObj.state === MediaPlayerStates.Playing ? 1 : 0.8
+        anchors { top: parent.top; horizontalCenter: mediaComponent.isComponentHorizontal ? undefined : parent.horizontalCenter; left: mediaComponent.isComponentHorizontal ? parent.left : undefined }
+        scale: 1
 
         Behavior on scale {
             NumberAnimation { easing.type: Easing.OutExpo; duration: 300 }
@@ -160,9 +174,9 @@ Rectangle {
             top: mediaComponent.isComponentHorizontal ? mediaImage.top : mediaImage.bottom
             topMargin: mediaComponent.isComponentHorizontal ? 5 : 10
             left: mediaComponent.isComponentHorizontal ? mediaImage.right : undefined
-            leftMargin: 20
+            leftMargin: mediaComponent.isComponentHorizontal ? 20 : 0
         }
-        width: mediaComponent.isComponentHorizontal ? mediaComponent.width - mediaImage.width - 20 : mediaComponent.width
+        width: mediaComponent.isComponentHorizontal ? mediaComponent.width - mediaImage.width - 40 : mediaComponent.width
         height: mediaTitleText.implicitHeight
         clip: true
         visible: mediaComponent.isSpaceForMediaInfo
@@ -210,7 +224,6 @@ Rectangle {
             maximumLineCount: 1
             x: 0; y: 0
         }
-
     }
 
     Text {
@@ -232,7 +245,7 @@ Rectangle {
         id: progressContainer
         width: mediaTitle.width
         implicitHeight: childrenRect.height
-        anchors { top: mediaArtist.bottom; topMargin: 5; left: mediaTitle.left }
+        anchors { top: mediaComponent.isComponentHorizontal ? undefined : mediaArtist.bottom; topMargin: 5; bottom: mediaComponent.isComponentHorizontal ? mediaImage.bottom : undefined; bottomMargin: 5; left: mediaTitle.left }
         visible: entityObj.hasAllFeatures([MediaPlayerFeatures.Media_duration, MediaPlayerFeatures.Media_position]) && entityObj.mediaDuration !== 0 && mediaTitle.visible
         enabled: visible
 

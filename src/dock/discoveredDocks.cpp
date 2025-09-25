@@ -9,7 +9,7 @@ namespace uc {
 namespace dock {
 
 DiscoveredDock::DiscoveredDock(const QString &id, bool configured, const QString &friendlyName, const QString &address,
-                               const QString &model, const QString &version, const QString &discoveryType,
+                               const QString &model, const QString& revision, const QString& serial, const QString &version, const QString &discoveryType,
                                int bluetoothSignal, int bluetoothLastSeenSeconds, QObject *parent)
     : QObject(parent),
       m_id(id),
@@ -17,6 +17,8 @@ DiscoveredDock::DiscoveredDock(const QString &id, bool configured, const QString
       m_friendlyName(friendlyName),
       m_address(address),
       m_model(model),
+      m_revision(revision),
+      m_serial(serial),
       m_version(version),
       m_discoveryType(discoveryType),
       m_bluetoothSignal(bluetoothSignal),
@@ -72,6 +74,10 @@ QVariant DiscoveredDocks::data(const QModelIndex &index, int role) const {
             return item->itemAddress();
         case ModelRole:
             return item->itemModel();
+        case RevisionRole:
+            return item->itemRevision();
+        case SerialRole:
+            return item->itemSerial();
         case VersionRole:
             return item->itemVersion();
         case DiscoveryTypeRole:
@@ -91,6 +97,8 @@ QHash<int, QByteArray> DiscoveredDocks::roleNames() const {
     roles[FirendlyNameRole] = "itemFriendlyName";
     roles[AddressRole] = "itemAddress";
     roles[ModelRole] = "itemModel";
+    roles[RevisionRole] = "itemRevision";
+    roles[SerialRole] = "itemSerial";
     roles[VersionRole] = "itemVersion";
     roles[DiscoveryTypeRole] = "itemDiscoveryType";
     roles[BluetoothSignalRole] = "itemBluetoothSignal";

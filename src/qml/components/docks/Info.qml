@@ -56,12 +56,12 @@ Item {
         overrideActive: ui.inputController.activeObject === String(popup)
         defaultConfig: {
             "BACK": {
-                "released": function() {
+                "pressed": function() {
                     dockInfoContainer.popup.close()
                 }
             },
             "HOME": {
-                "released": function() {
+                "pressed": function() {
                     dockInfoContainer.popup.close()
                 }
             }
@@ -97,7 +97,35 @@ Item {
                     antialiasing: true
                     asynchronous: true
                     cache: true
-                    source: "qrc:/images/dock_setup.png"
+                    source: {
+                        const model = dockInfoContainer.dockObj.model.toUpperCase();
+                        const serial = dockInfoContainer.dockObj.serial.toUpperCase();
+
+                        if (model == "UCR2") {
+                            return "qrc:/images/dock_2.png"
+                        } else if (model == "UCR3") {
+                            if (serial.length >= 2) {
+                                const dockType = serial[serial.length - 1];
+                                const dockColor = serial[serial.length - 2];
+
+                                if (dockType == "C" && dockColor == "D") {
+                                    return "qrc:/images/dock3_dark_charging.png"
+                                } else if (dockType == "N" && dockColor == "D") {
+                                    return "qrc:/images/dock3_dark_non_charging.png"
+                                } else if (dockType == "C" && dockColor == "S") {
+                                    return "qrc:/images/dock3_silver_charging.png"
+                                } else if (dockType == "N" && dockColor == "S") {
+                                    return "qrc:/images/dock3_silver_non_charging.png"
+                                } else {
+                                    return "qrc:/images/dock3_dark_charging.png"
+                                }
+                            } else {
+                                return "qrc:/images/dock3_dark_charging.png"
+                            }
+                        } else {
+                            return "qrc:/images/dock3_dark_charging.png"
+                        }
+                    }
                     opacity: dockInfoContainer.dockObj.state === DockStates.ACTIVE || dockInfoContainer.dockObj.state === DockStates.IDLE ? 0.8 : 0.25
                     anchors { horizontalCenter: parent.horizontalCenter; top: parent.top }
 
@@ -161,7 +189,7 @@ Item {
                                 radius: width / 2
 
                                 Components.Icon {
-                                    icon: dockInfoContainer.dockObj.state === DockStates.ERROR ? "uc:close" : "uc:check"
+                                    icon: dockInfoContainer.dockObj.state === DockStates.ERROR ? "uc:xmark" : "uc:check"
                                     size: 26
                                     color: colors.black
                                     anchors.centerIn: parent
@@ -195,7 +223,7 @@ Item {
 
                             color: colors.offwhite
                             size: 80
-                            icon: "uc:close"
+                            icon: "uc:xmark"
 
                             Components.HapticMouseArea {
                                 anchors.fill: parent
@@ -295,7 +323,7 @@ Item {
                 Layout.bottomMargin: 10
 
                 key: qsTr("Connection type")
-                value: dockObj.connectionType ? dockObj.connectionType : qsTr("N/A")
+                value: dockObj.connectionType ? dockObj.connectionType : qsTranslate("Abbreviation for not available", "N/A")
             }
 
             Components.AboutInfo {
@@ -319,7 +347,7 @@ Item {
                 Layout.bottomMargin: 10
 
                 key: qsTr("Firmware version")
-                value: dockObj.version ? dockObj.version : qsTr("N/A")
+                value: dockObj.version ? dockObj.version : qsTranslate("Abbreviation for not available", "N/A")
 //                lineBottom: false
             }
 
@@ -440,7 +468,7 @@ Item {
                 onClicked: {
                     ui.createActionableWarningNotification(qsTr("Factory reset"),
                                                            qsTr("Are you sure you want to factory reset %1?").arg(dockObj.name),
-                                                           "uc:warning",
+                                                           "uc:triangle-exclamation",
                                                            function(){
                                                                DockController.factoryReset(dockObj.id);
                                                                dockInfoContainer.reset();
@@ -608,7 +636,7 @@ Item {
 
                             Layout.alignment: Qt.AlignRight
 
-                            icon: "uc:close"
+                            icon: "uc:xmark"
                             size: 100
                             color: colors.offwhite
 

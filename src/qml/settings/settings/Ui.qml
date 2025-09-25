@@ -127,6 +127,7 @@ Settings.Page {
                         /** KEYBOARD NAVIGATION **/
                         highlight: activeFocus && ui.keyNavigationEnabled
                         KeyNavigation.up: buttonFuncSwitch
+                        KeyNavigation.down: activityBarSwitch
                     }
                 }
 
@@ -135,6 +136,103 @@ Settings.Page {
                     wrapMode: Text.WordWrap
                     color: colors.light
                     text: qsTr("Always show the battery percentage next to the icon.")
+                    font: fonts.secondaryFont(24)
+                }
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width - 20; height: 2
+                color: colors.medium
+            }
+
+            /** ENABLE ACTIVITY BAR **/
+            ColumnLayout {
+                Layout.alignment: Qt.AlignCenter
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                spacing: 10
+
+                RowLayout {
+                    spacing: 10
+
+                    Text {
+                        id: activityBarText
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: colors.offwhite
+                        text: qsTr("Activities on pages")
+                        font: fonts.primaryFont(30)
+                    }
+
+                    Components.Switch {
+                        id: activityBarSwitch
+                        icon: "uc:check"
+                        checked: Config.enableActivityBar
+                        trigger: function() {
+                            Config.enableActivityBar = !Config.enableActivityBar;
+                        }
+
+                        /** KEYBOARD NAVIGATION **/
+                        highlight: activeFocus && ui.keyNavigationEnabled
+                        KeyNavigation.up: batteryPercentSwitch
+                        KeyNavigation.down: mediaComponentSwitch
+                    }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    color: colors.light
+                    text: qsTr("Show the running activities and playing media players in the page header.")
+                    font: fonts.secondaryFont(24)
+                }
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width - 20; height: 2
+                color: colors.medium
+            }
+
+            /** FILL IMAGE IN MEDIA COMPONENT **/
+            ColumnLayout {
+                Layout.alignment: Qt.AlignCenter
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                spacing: 10
+
+                RowLayout {
+                    spacing: 10
+
+                    Text {
+                        id: mediaComponentText
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: colors.offwhite
+                        text: qsTr("Zoom media image")
+                        font: fonts.primaryFont(30)
+                    }
+
+                    Components.Switch {
+                        id: mediaComponentSwitch
+                        icon: "uc:check"
+                        checked: Config.fillMediaArtwork
+                        trigger: function() {
+                            Config.fillMediaArtwork = !Config.fillMediaArtwork;
+                        }
+
+                        /** KEYBOARD NAVIGATION **/
+                        highlight: activeFocus && ui.keyNavigationEnabled
+                        KeyNavigation.up: activityBarSwitch
+                    }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    color: colors.light
+                    text: qsTr("Zoom & crop artwork in media player widgets instead of scaling to fit.")
                     font: fonts.secondaryFont(24)
                 }
             }

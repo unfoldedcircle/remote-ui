@@ -22,8 +22,11 @@ Item {
     property string icon
     property string suffix
     property string _icon: resource.getIcon(icon, suffix.toLowerCase())
-    property int size: 80
+    property int size: 5
     property alias color: iconText.color
+
+    layer.enabled: true
+    layer.smooth: true
 
     Image {
         id: image
@@ -46,7 +49,8 @@ Item {
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         anchors.centerIn: parent
         color: colors.offwhite
-        font { family: "icons"; pixelSize: size }
+        font { family: "Font Awesome 6 Pro"; pixelSize: Math.round(size / 2); }
         visible: image.source == ""
+        renderType: Text.NativeRendering
     }
 }

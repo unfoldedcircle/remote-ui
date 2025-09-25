@@ -165,10 +165,19 @@ struct cfgLocalization {
     QString measurementUnit;
 };
 
+struct cfgWifi {
+    bool wowlan;
+    QStringList bands;
+    QString band;
+    QString ipv4Type;
+    int scanIntervalSec;
+};
+
 struct cfgNetwork {
     bool    bluetoothEnabled;
     bool    wifiEnabled;
     QString bluetoothMac;
+    cfgWifi wifi;
 };
 
 struct cfgPowerSaving {
@@ -216,7 +225,7 @@ struct ApiAccess {
 
 struct AccessPointScan {
     QString bssid;
-    QString frequency;
+    int     frequency;
     int     signalLevel;
     QString auth;
     QString ssid;
@@ -255,6 +264,8 @@ struct DockConfiguration {
     QString              customWsUrl;
     bool                 active;
     QString              model;
+    QString              revision;
+    QString              serial;
     QString              connectionType;
     QString              version;
     DockEnums::DockState state;
@@ -270,6 +281,8 @@ struct DockDiscovery {
     QString                           address;
     bool                              configured;
     QString                           model;
+    QString                           revision;
+    QString                           serial;
     QString                           version;
     DockSetupEnums::DockDiscoveryType discoveryType;
     int                               bluetoothSignal;

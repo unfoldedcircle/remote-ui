@@ -110,21 +110,6 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
         case QEvent::KeyPress: {
             keyEvent = static_cast<QKeyEvent *>(event);
             int key = keyEvent->key();
-
-            m_longPressTriggered.insert(key, false);
-
-            QTimer *timer = new QTimer(this);
-            timer->setSingleShot(true);
-            timer->setInterval(m_longPressTimeOut);
-
-            QObject::connect(timer, &QTimer::timeout, this, [=]() {
-                qCInfo(lcInput()) << "Key press and hold:" << m_keyCodeMapping.value(key) << m_activeObject;
-                m_longPressTriggered.insert(key, true);
-                emit keyLongPressed(m_keyCodeMapping.value(key));
-            });
-            timer->start();
-            m_longPressTimers.insert(key, timer);
-
             emit keyPressed(m_keyCodeMapping.value(key));
             qCInfo(lcInput()) << "Key pressed:" << m_keyCodeMapping.value(key) << m_activeObject;
             break;
@@ -132,20 +117,8 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
         case QEvent::KeyRelease: {
             keyEvent = static_cast<QKeyEvent *>(event);
             int key = keyEvent->key();
-
-            if (m_longPressTimers.contains(key)) {
-                QTimer *timer = m_longPressTimers.value(key);
-                if (timer) {
-                    timer->stop();
-                    timer->deleteLater();
-                    m_longPressTimers.remove(key);
-                }
-            }
-
-                    //            if (!m_longPressTriggered.value(key)) {
             emit keyReleased(m_keyCodeMapping.value(key));
             qCInfo(lcInput()) << "Key released:" << m_keyCodeMapping.value(key) << m_activeObject;
-            //            }
             break;
         }
         case QEvent::MouseButtonPress:

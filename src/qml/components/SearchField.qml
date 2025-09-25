@@ -114,7 +114,7 @@ Rectangle {
         id: searchIcon
         color: colors.offwhite
         opacity: 0.5
-        icon: "uc:search"
+        icon: "uc:magnifying-glass"
         anchors { verticalCenter: inputField.verticalCenter; left: parent.left; leftMargin: 10 }
         size: 60
     }
@@ -124,7 +124,7 @@ Rectangle {
         visible: inputField.text.length > 0
         color: colors.offwhite
         opacity: 0.5
-        icon: "uc:fav-remove"
+        icon: "uc:xmark"
         anchors { verticalCenter: inputField.verticalCenter; right: inputField.right }
         size: 60
     }

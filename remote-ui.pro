@@ -25,6 +25,15 @@ QMAKE_CXXFLAGS_WARN_ON += \
 DEFINES += QT_DEPRECATED_WARNINGS
 DEFINES += QT_MESSAGELOGCONTEXT
 
+macx {
+    # Ensure OpenGL is linked correctly (pair stays together).
+    QMAKE_LIBS_OPENGL = -framework OpenGL
+
+    # Strip AGL from any places Qt might add it.
+    QMAKE_MAC_FRAMEWORKS -= AGL
+    LIBS -= -framework AGL
+}
+
 #DEFINES += "TEST_MODE"
 
 # === Version and build information ===========================================
@@ -80,7 +89,10 @@ HEADERS += \
     src/hardware/hardwareController.h \
     src/hardware/info.h \
     src/hardware/power.h \
+    src/hardware/touchSlider.h \
     src/hardware/ucr2/hapticUCR2.h \
+    src/hardware/ucr2/hapticUCR3.h \
+    src/hardware/ucr3/touchSliderUCR3.h \
     src/hardware/wifi.h \
     src/integration/confirmationPage.h \
     src/integration/integrationController.h \
@@ -139,7 +151,10 @@ SOURCES += \
         src/hardware/hardwareController.cpp \
         src/hardware/info.cpp \
         src/hardware/power.cpp \
+        src/hardware/touchSlider.cpp \
         src/hardware/ucr2/hapticUCR2.cpp \
+        src/hardware/ucr2/hapticUCR3.cpp \
+        src/hardware/ucr3/touchSliderUCR3.cpp \
         src/hardware/wifi.cpp \
         src/integration/confirmationPage.cpp \
         src/integration/setupSchema.cpp \
