@@ -118,4 +118,15 @@ EntityComponents.BaseDetail {
             }
         }
     }
+
+    onEntityObjChanged: {
+        touchSlider.entityObj = entityObj;
+    }
+
+    Components.TouchSlider {
+        id: touchSlider
+        feature: "brightness"
+        active: true
+        parent: Overlay.overlay
+    }
 }

@@ -10,7 +10,7 @@ import "qrc:/components" as Components
 
 Popup {
     id: chargingScreenRoot
-    width: parent.width; height: parent.height
+    width: ui.width; height: ui.height
     opacity: 0
     modal: false
     closePolicy: Popup.CloseOnPressOutside
@@ -19,8 +19,8 @@ Popup {
     Connections {
         target: Battery
 
-        function onIsChargingChanged() {
-            if (Battery.isCharging) {
+        function onPowerSupplyChanged(value) {
+            if (value) {
                 chargingScreenRoot.open();
             } else {
                 chargingScreenRoot.close();
@@ -284,7 +284,7 @@ Popup {
 
         Text {
             color: colors.offwhite
-            text: Battery.level + "%"
+            text: Battery.level + "%" + (Battery.isCharging ? qsTr(" - Charging") : "")
             anchors { left: icon.right; leftMargin: 10; verticalCenter: icon.verticalCenter }
             font: fonts.primaryFont(24)
         }

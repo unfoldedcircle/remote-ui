@@ -295,4 +295,15 @@ EntityComponents.BaseDetail {
     Components.PopupMenu {
         id: popupMenu
     }
+
+    onEntityObjChanged: {
+        touchSlider.entityObj = entityObj;
+    }
+
+    Components.TouchSlider {
+        id: touchSlider
+        feature: "position"
+        active: true
+        parent: Overlay.overlay
+    }
 }

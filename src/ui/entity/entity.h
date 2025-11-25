@@ -28,6 +28,7 @@ class Base : public QObject {
     Q_PROPERTY(QString stateInfo READ getStateInfo NOTIFY stateInfoChanged)
     Q_PROPERTY(Type type READ getType CONSTANT)
     Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(QString integrationId READ getIntegration CONSTANT)
 
  public:
     enum Type { Unsupported, Button, Switch, Climate, Cover, Light, Media_player, Remote, Sensor, Activity, Macro };
@@ -116,6 +117,7 @@ class Base : public QObject {
     void stateAsStringChanged();
     void stateInfoChanged();
     void enabledChanged();
+    void integrationIdChanged();
 
     void command(QString entityId, QString command, QVariantMap parmas);
 

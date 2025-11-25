@@ -8,6 +8,7 @@ import QtGraphicalEffects 1.0
 
 import Haptic 1.0
 import Entity.MediaPlayer 1.0
+
 import HwInfo 1.0
 
 import "qrc:/components" as Components
@@ -639,7 +640,7 @@ EntityComponents.BaseDetail {
     Components.TouchSlider {
         id: touchSlider
         entityObj: mediaPlayerBase.entityObj
-        active: HwInfo.modelNumber == "UCR3" || HwInfo.modelNumber == "DEV"
+        active: true
         parent: Overlay.overlay
     }
 }

@@ -17,6 +17,7 @@
         <file alias="components/IconSelector.qml">../../src/qml/components/IconSelector.qml</file>
         <file alias="components/ButtonAdd.qml">../../src/qml/components/ButtonAdd.qml</file>
         <file alias="components/ButtonIcon.qml">../../src/qml/components/ButtonIcon.qml</file>
+        <file alias="components/SensorWidget.qml">../../src/qml/components/SensorWidget.qml</file>
         <file alias="components/Poweroff.qml">../../src/qml/components/Poweroff.qml</file>
         <file alias="components/ChargingScreen.qml">../../src/qml/components/ChargingScreen.qml</file>
         <file alias="components/RemoteOpen.qml">../../src/qml/components/RemoteOpen.qml</file>
@@ -163,5 +164,9 @@
         <file alias="onboarding/Timezone.qml">../../src/qml/onboarding/Timezone.qml</file>
         <file alias="onboarding/Wifi.qml">../../src/qml/onboarding/Wifi.qml</file>
         <file alias="components/TouchSlider.qml">../../src/qml/components/TouchSlider.qml</file>
+        <file alias="components/TouchSliderVolume.qml">../../src/qml/components/TouchSliderVolume.qml</file>
+        <file alias="components/TouchSliderSeek.qml">../../src/qml/components/TouchSliderSeek.qml</file>
+        <file alias="components/TouchSliderBrightness.qml">../../src/qml/components/TouchSliderBrightness.qml</file>
+        <file alias="components/TouchSliderPosition.qml">../../src/qml/components/TouchSliderPosition.qml</file>
     </qresource>
 </RCC>

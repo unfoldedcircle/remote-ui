@@ -6,6 +6,46 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## v0.64.3 - 2025-11-23
+### Changed
+- Display brightness minimum value to 5%
+
+
+---
+## v0.64.1 - 2025-11-21
+### Fixed
+- Only load media image when it has changed
+
+---
+## v0.64.0 - 2025-11-18
+### Added
+- Touch slider configuration support
+
+---
+## v0.63.0 - 2025-11-06
+### Added
+- Sensor widget support for activities
+- Notify before starting an activity if an integration is not ready
+- Notify with option to try again if command fails due to device not being ready
+
+### Changed
+- Charging screen shows up when a power supply is detected with additional information if the device is charging or just being supplied with power
+- Show IP address instead of hostname by default for the Web Configurator
+
+### Fixed
+- Sensor UI screens
+- Popup menu button handling
+- Visilbity of software update icon in the status bar
+- Failed marco sequences not shown
+- Wifi network list empty during dock setup
+- Popup menu trims text for long text items
+
+---
+## v0.62.2 - 2025-09-26
+### Fixed
+- Popup menu button handling
+
+---
 ## v0.62.0 - 2025-09-23
 ### Changed
 - Reload entity data when entering UI screen

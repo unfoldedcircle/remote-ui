@@ -1253,7 +1253,7 @@ void Api::onTextMessageReceived(const QString& message) {
         return;
     }
 
-    qCDebug(lcCore()).noquote() << message.simplified();
+//    qCDebug(lcCore()).noquote() << message.simplified();
 
     // Parse message to JSON
     QJsonParseError parseerror;
@@ -2906,10 +2906,11 @@ void Api::processResponsePowerMode(int reqId, int code, QVariant msgData) {
 
     QVariantMap             battery = map.value("battery").toMap();
     int                     capacity = battery.value("capacity").toInt();
+    bool                    powerSupply = map.value("power_supply").toBool();
     PowerEnums::PowerStatus powerStatus =
         Util::convertStringToEnum<PowerEnums::PowerStatus>(battery.value("status").toString());
 
-    emit respPowerMode(reqId, code, powerMode, capacity, powerStatus);
+    emit respPowerMode(reqId, code, powerMode, capacity, powerSupply, powerStatus);
 }
 
 void Api::processWarning(QVariant msgData) {
@@ -3247,10 +3248,11 @@ void Api::processPowerModeChange(QVariant msgData) {
 void Api::processBatteryStatusChange(QVariant msgData) {
     QVariantMap             msgDataMap = msgData.toMap();
     int                     capacity = msgDataMap.value("capacity").toInt();
+    bool                    powerSupply = msgDataMap.value("power_supply").toBool();
     PowerEnums::PowerStatus powerStatus =
         Util::convertStringToEnum<PowerEnums::PowerStatus>(msgDataMap.value("status").toString());
 
-    emit batteryStatusChanged(capacity, powerStatus);
+    emit batteryStatusChanged(capacity, powerSupply, powerStatus);
 }
 
 void Api::processRequestGetLocalizationLanguages(int reqId)

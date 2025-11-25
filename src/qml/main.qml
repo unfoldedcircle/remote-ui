@@ -412,8 +412,8 @@ ApplicationWindow {
                 target: Battery
                 ignoreUnknownSignals: true
 
-                function onIsChargingChanged() {
-                    if (Battery.isCharging) {
+                function onPowerSupplyChanged(value) {
+                    if (value) {
                         chargingScreenLoader.active = true;
                         SoundEffects.play(SoundEffects.BatteryCharge);
                     }

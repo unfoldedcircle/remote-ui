@@ -118,7 +118,7 @@ Settings.Page {
                 Components.Slider {
                     id: displayBrightnessSlider
                     height: 60
-                    from: 20
+                    from: 5
                     to: 100
                     stepSize: 1
                     value: Config.displayBrightness

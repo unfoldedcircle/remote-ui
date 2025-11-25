@@ -87,6 +87,19 @@ EntityComponents.BaseDetail {
                                             });
                 activityBase.mediaWidgetEntityObj = EntityController.get(item.media_player_id);
                 break;
+            case "sensor":
+                let sensorComponent = Qt.createComponent("qrc:/components/SensorWidget.qml");
+                sensorComponent.createObject(container, {
+                                           "x": gridSizeW * item.location.x,
+                                           "y": gridSizeH * item.location.y,
+                                           "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
+                                           "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
+                                           "entityId": item.sensor.sensor_id,
+                                           "customText": item.text ? item.text : "",
+                                           "showLabel": item.sensor.show_label,
+                                           "showUnit": item.sensor.show_unit
+                                       });
+                break;
             default:
                 console.log("Not implemented item type: " + item.type);
                 break;
@@ -224,7 +237,16 @@ EntityComponents.BaseDetail {
         buttonNavigation.overrideConfig = overrideConfig;
     }
 
-    Component.onCompleted: updateButtonMapping()
+    function updateSliderConfig() {
+        touchSlider.feature = entityObj.sliderConfig.entityFeature === "default" ? "volume" : entityObj.sliderConfig.entityFeature;
+        touchSlider.entityObj = entityObj.sliderConfig.entityId === "default" ? activityBase.mediaWidgetEntityObj : EntityController.get(entityObj.sliderConfig.entityId);
+        touchSlider.active = entityObj.sliderConfig.enabled;
+    }
+
+    Component.onCompleted: {
+        updateButtonMapping();
+        updateSliderConfig();
+    }
 
     Connections {
         target: entityObj
@@ -236,6 +258,14 @@ EntityComponents.BaseDetail {
 
         function onUiConfigChanged() {
             activityBase.pages = entityObj.ui.pages;
+        }
+
+        function onSliderConfigChanged() {
+            console.info("Updating slider config");
+            console.info("Slider enabled", entityObj.sliderConfig.enabled);
+            console.info("Slider entity id", entityObj.sliderConfig.entityId);
+            console.info("Slider entity feature", entityObj.sliderConfig.entityFeature);
+            updateSliderConfig();
         }
     }
 
@@ -668,8 +698,6 @@ EntityComponents.BaseDetail {
 
     Components.TouchSlider {
         id: touchSlider
-        entityObj: activityBase.mediaWidgetEntityObj
-        active: activityBase.mediaWidgetEntityObj.hasFeature(MediaPlayerFeatures.Volume)
         parent: Overlay.overlay
     }
 }

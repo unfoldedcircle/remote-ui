@@ -43,16 +43,25 @@ void Battery::setCharging(bool value) {
     }
 }
 
+void Battery::setPowerSupply(bool value)
+{
+    if (m_powerSupply != value) {
+        m_powerSupply = value;
+        emit powerSupplyChanged(m_powerSupply);
+    }
+}
+
 void Battery::getPowerMode() {
     int id = m_core->getPowerMode();
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respPowerMode,
-        [=](core::PowerEnums::PowerMode powerMode, int capacitiy, core::PowerEnums::PowerStatus powerStatus) {
+        [=](core::PowerEnums::PowerMode powerMode, int capacitiy, bool powerSupply, core::PowerEnums::PowerStatus powerStatus) {
             // success
             Q_UNUSED(powerMode)
             setLevel(capacitiy);
             setCharging(powerStatus == core::PowerEnums::PowerStatus::CHARGING);
+            setPowerSupply(powerSupply);
         },
         [=](int code, QString message) {
             // fail
@@ -70,9 +79,10 @@ QObject *Battery::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {
     return obj;
 }
 
-void Battery::onBatteryStatusChanged(int capacitiy, core::PowerEnums::PowerStatus powerStatus) {
+void Battery::onBatteryStatusChanged(int capacitiy, bool powerSupply, core::PowerEnums::PowerStatus powerStatus) {
     setLevel(capacitiy);
     setCharging(powerStatus == core::PowerEnums::PowerStatus::CHARGING);
+    setPowerSupply(powerSupply);
 }
 
 void Battery::onWarning(core::MsgEventTypes::WarningEvent event, bool shutdown, QString message) {

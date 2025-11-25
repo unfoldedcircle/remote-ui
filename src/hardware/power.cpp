@@ -31,9 +31,10 @@ void Power::getPowerModeFromCore() {
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respPowerMode,
-        [=](core::PowerEnums::PowerMode powerMode, int capacitiy, core::PowerEnums::PowerStatus powerStatus) {
+        [=](core::PowerEnums::PowerMode powerMode, int capacitiy, bool powerSupply, core::PowerEnums::PowerStatus powerStatus) {
             // success
             Q_UNUSED(capacitiy)
+            Q_UNUSED(powerSupply)
             Q_UNUSED(powerStatus)
 
             auto oldPowerMode = m_powerMode;
