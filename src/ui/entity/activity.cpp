@@ -19,14 +19,14 @@ Activity::Activity(const QString &id, QVariantMap nameI18n, const QString &langu
 
     updateFeatures<ActivityFeatures::Enum>(features);
 
-    // attributes
+            // attributes
     if (attributes.size() > 0) {
         for (QVariantMap::iterator i = attributes.begin(); i != attributes.end(); i++) {
             updateAttribute(uc::Util::FirstToUpper(i.key()), i.value());
         }
     }
 
-    // device class
+            // device class
     int deviceClassEnum = -1;
 
     if (!deviceClass.isEmpty()) {
@@ -39,7 +39,7 @@ Activity::Activity(const QString &id, QVariantMap nameI18n, const QString &langu
         m_deviceClass = QVariant::fromValue(ActivityDeviceClass::Activity).toString();
     }
 
-    // options
+            // options
     if (options.contains("user_interface")) {
         m_uiConfig = options.value("user_interface").toMap();
     }
@@ -50,6 +50,10 @@ Activity::Activity(const QString &id, QVariantMap nameI18n, const QString &langu
 
     if (options.contains("included_entities")) {
         m_includedEntities = options.value("included_entities").toList();
+    }
+
+    if (options.contains("touch_slider")) {
+        updateSliderConfig(options.value("touch_slider").toMap());
     }
 }
 
@@ -115,7 +119,7 @@ void Activity::sendCommand(ActivityCommands::Enum cmd) { sendCommand(cmd, QVaria
 bool Activity::updateAttribute(const QString &attribute, QVariant data) {
     bool ok = false;
 
-    // convert to enum
+            // convert to enum
     ActivityAttributes::Enum attributeEnum = Util::convertStringToEnum<ActivityAttributes::Enum>(attribute);
 
     switch (attributeEnum) {
@@ -191,6 +195,11 @@ bool Activity::updateOptions(QVariant data) {
         emit includedEntitiesChanged();
     }
 
+    if (options.contains("touch_slider")) {
+        updateSliderConfig(options.value("touch_slider").toMap());
+        ok = true;
+    }
+
     return ok;
 }
 
@@ -204,6 +213,38 @@ void Activity::onLanguageChangedTypeSpecific()
         emit stateInfoChanged();
         emit stateChanged(m_id, m_state);
     });
+}
+
+void Activity::updateSliderConfig(QVariantMap data)
+{
+    // check if there's a target set
+    if (data.contains("target")) {
+        QVariantMap target = data.value("target").toMap();
+
+        m_sliderConfig.setEntityId(target.value("entity_id").toString());
+
+        QString feature = "default";
+
+        // check if there's a feature set
+        if (target.contains("feature")) {
+            feature = target.value("feature").toString();
+        }
+
+        m_sliderConfig.setEntityFeature(feature);
+
+    } else {
+        m_sliderConfig.setEntityId("default");
+    }
+
+    bool enabled = data.value("enabled").toBool();
+    m_sliderConfig.setEnabled(enabled);
+
+    if (!m_sliderConfig.getEnabled()) {
+        m_sliderConfig.setEntityId("default");
+        m_sliderConfig.setEntityFeature("default");
+    }
+
+    emit sliderConfigChanged();
 }
 
 void Activity::sendButtonMappingCommand(const QString &buttonName, bool shortPress) {
@@ -225,6 +266,24 @@ void Activity::sendButtonMappingCommand(const QString &buttonName, bool shortPre
             break;
         }
     }
+}
+
+void ActivitySliderConfig::setEnabled(bool value)
+{
+    m_enabled = value;
+    emit enabledChanged();
+}
+
+void ActivitySliderConfig::setEntityId(const QString &entityId)
+{
+    m_entityId = entityId;
+    emit entityIdChanged();
+}
+
+void ActivitySliderConfig::setEntityFeature(const QString &entityFeature)
+{
+    m_entityFeature = entityFeature;
+    emit entityFeatureChanged();
 }
 
 }  // namespace entity

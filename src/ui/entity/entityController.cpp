@@ -477,45 +477,116 @@ void EntityController::refreshEntity(const QString &entityId)
 }
 
 void EntityController::onEntityCommand(const QString& entityId, const QString& command, QVariantMap params) {
-    const QString commandId = entityId + command;
+    pendingCommand pendingCmd;
+    pendingCmd.entityId = entityId;
+    pendingCmd.command = command;
+    pendingCmd.params = params;
+    pendingCmd.commandId = entityId + command;;
+    pendingCmd.repeatCount = 0;
+    pendingCmd.repeating = params.contains("repeat");
 
-    const bool repeating = params.contains("repeat");
-
-            // if the entity is unavailbe, we do nothing
-    entity::Base* e = m_entities.value(entityId);
-
-    if (e) {
-        if (e->getState() == 0) {
-            return;
-        }
-    }
-
-    if (!repeating) {
-        if (m_entityCommandBeingExecuted.contains(commandId)) {
+    if (!pendingCmd.repeating) {
+        if (m_pendingCommands.contains(pendingCmd.commandId)) {
             qCDebug(lcEntityController()) << "The command is still being executed. Not doing anything." << entityId << command;
             return;
-        } else {
-            m_entityCommandBeingExecuted.append(commandId);
-            qCDebug(lcEntityController()) << "Executing command" << entityId << command;
         }
     }
 
-    int id = m_core->entityCommand(entityId, command, params);
+    m_pendingCommands.insert(pendingCmd.commandId, pendingCmd);
+
+    retrySendAttempt(pendingCmd.commandId);
+}
+
+void EntityController::retrySendAttempt(const QString& commandId)
+{
+    auto it = m_pendingCommands.find(commandId);
+    if (it == m_pendingCommands.end()) return;
+
+    const pendingCommand& live = it.value();
+    int id = m_core->entityCommand(live.entityId, live.command, live.params);
 
     m_core->onResult(
         id,
+        // success
         [=]() {
-            // success
-            qCDebug(lcEntityController()) << "Command executed successfully" << entityId << command;
-            m_entityCommandBeingExecuted.removeAll(commandId);
+            qCDebug(lcEntityController()) << "Command executed successfully" << commandId;
+            m_pendingCommands.remove(commandId);
         },
+        // failure
         [=](int code, QString message) {
-            // fail
-            qCWarning(lcEntityController()) << "Cannot execute command:" << entityId << command << code << message;
-            m_entityCommandBeingExecuted.removeAll(commandId);
-            Notification::createNotification(message, true);
+            qCWarning(lcEntityController())
+                << "Cannot execute command:" << commandId << code << message;
+
+            auto it2 = m_pendingCommands.find(commandId);
+            if (it2 == m_pendingCommands.end()) {
+                return;
+            }
+
+            pendingCommand live2 = it2.value();
+
+            // get entity name
+            QString entityName = "The device";
+            entity::Base* e = m_entities.value(live2.entityId);
+
+            if (e) {
+                entityName = e->getName();
+            }
+
+            // Helper to show actionable + remove pending
+            auto showActionable = [this, commandId, live2, entityName]() {
+                QVariantMap payload;
+                payload["commandId"] = commandId;
+                payload["entityId"]  = live2.entityId;
+                payload["command"]   = live2.command;
+                payload["params"]    = live2.params;
+                payload["self"]      = QVariant::fromValue(static_cast<QObject*>(this));
+
+                // Remove current pending; will recreate if user taps
+                m_pendingCommands.remove(commandId);
+
+                Notification::createActionableNotification(
+                    tr("%1 is not responding").arg(entityName),
+                    tr("The command did not reach the device. Would you like to try again?"),
+                    "uc:warning",
+                    [](QVariant param) {
+                        const auto m = param.toMap();
+                        auto* self = qobject_cast<EntityController*>(m.value("self").value<QObject*>());
+                        if (!self) return;
+
+                        const QString cmdId = m.value("commandId").toString();
+
+                        pendingCommand pc;
+                        pc.entityId    = m.value("entityId").toString();
+                        pc.command     = m.value("command").toString();
+                        pc.params      = m.value("params").toMap();
+                        pc.commandId   = cmdId;
+                        pc.repeating   = pc.params.contains("repeat");
+                        pc.repeatCount = 0;
+
+                        self->m_pendingCommands.insert(cmdId, pc);
+                        self->retrySendAttempt(cmdId);
+                    },
+                    payload,
+                    "Try again"
+                    );
+            };
+
+            switch (code) {
+                case 408:
+                case 503:
+                    showActionable();
+                    break;
+                default:
+                    m_pendingCommands.remove(commandId);
+                    Notification::createActionableWarningNotification(
+                        tr("Error sending the command"),
+                        tr("%1 is not responding. Error code: %2").arg(entityName).arg(code),
+                        "uc:warning");
+                    break;
+            }
         });
 }
+
 
 void EntityController::onLanguageChanged(QString language) {
     m_language = language;

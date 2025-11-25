@@ -160,7 +160,7 @@ Rectangle {
                             Text {
                                 id: webConfiguratorAddress
 
-                                property bool showIp: false
+                                property bool showIp: true
 
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter

@@ -411,7 +411,7 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
                 m_mediaImageColor = QColor(255,255,255);
                 emit mediaImageColorChanged();
 
-                //                getMediaImageColor(m_mediaImageUrl);
+                        //                getMediaImageColor(m_mediaImageUrl);
 
                 m_mediaTitle.clear();
                 emit mediaTitleChanged();
@@ -481,13 +481,15 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
         case MediaPlayerAttributes::Media_image_url: {
             QString newImageUrl = data.toString();
 
-            m_mediaImageUrl = newImageUrl;
-            ok = true;
-            emit mediaImageUrlChanged();
+            if (!m_mediaImageUrl.contains(newImageUrl) || newImageUrl.isEmpty()) {
+                m_mediaImageUrl = newImageUrl;
+                ok = true;
+                emit mediaImageUrlChanged();
 
-            m_mediaImageDownloadTries = 0;
+                m_mediaImageDownloadTries = 0;
 
-            getMediaImageColor(m_mediaImageUrl);
+                getMediaImageColor(m_mediaImageUrl);
+            }
             break;
         }
         case MediaPlayerAttributes::Media_title: {
@@ -583,7 +585,7 @@ void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
     if (reply->error()) {
         qCWarning(lcMediaPlayer()).noquote() << "ERROR" << reply->error();
 
-        if (m_mediaImageDownloadTries > 2) {
+        if (m_mediaImageDownloadTries > 3) {
             return;
         } else {
             qCDebug(lcMediaPlayer()) << "Image download failed, trying agian" << m_mediaImageUrl;

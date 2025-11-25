@@ -38,9 +38,14 @@ Popup {
     property var menuItems: []
     property bool footerSelected: false
     property var closeCallback: function() {}
+    property bool homeButtonEnabled: false
 
     onOpened: {
-        ui.setTimeOut(1500, () => { buttonNavigation.takeControl(); });
+        console.debug('Popup menu opened');
+        buttonNavigation.takeControl();
+        ui.setTimeOut(1500, () => {
+                          popupMenu.homeButtonEnabled = true;
+                      });
     }
 
     onClosed: {
@@ -77,7 +82,7 @@ Popup {
                     if (footerSelected) {
                         close();
                     } else {
-                       menuItemsListView.currentItem.callBack();
+                        menuItemsListView.currentItem.callBack();
                     }
                 }
             },
@@ -88,7 +93,9 @@ Popup {
             },
             "HOME": {
                 "pressed": function() {
-                    popupMenu.close();
+                    if (popupMenu.homeButtonEnabled) {
+                        popupMenu.close();
+                    }
                 }
             }
         }
@@ -124,7 +131,7 @@ Popup {
     ListView {
         id: menuItemsListView
         width: parent.width
-        height: 80 * (menuItems.length + 2) > parent.height ? parent.height : 80 * (menuItems.length + 2)
+        height: contentHeight
         anchors { bottom: parent.bottom }
 
         maximumFlickVelocity: 6000
@@ -167,7 +174,7 @@ Popup {
 
         Rectangle {
             width: parent.width - 20
-            height: 80
+            height: title.lineCount == 1 ? 80 : 120
             color: ListView.isCurrentItem && !footerSelected ? colors.dark : colors.black
             radius: ui.cornerRadiusSmall
             border {
@@ -195,6 +202,8 @@ Popup {
                 color: colors.offwhite
                 text: menuItems[index].title
                 elide: Text.ElideRight
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
                 anchors { left: icon.right; leftMargin: 10; verticalCenter: parent.verticalCenter }
                 font: fonts.primaryFont(28)
             }

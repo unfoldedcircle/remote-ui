@@ -26,12 +26,11 @@ Popup {
     onOpened: {
         activityLoading.prevController = ui.inputController.activeObject
         mouseArea.enabled = false;
-//        buttonNavigation.takeControl();
         ui.inputController.takeControl(String(activityLoading));
     }
 
     onClosed: {
-        buttonNavigation.releaseControl(activityLoading.prevController);
+        ui.inputController.releaseControl();
 
         if (!activityLoading.isMacro && entityObj.state === ActivityStates.On) {
             loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj });
@@ -77,7 +76,7 @@ Popup {
                 return;
             }
 
-            if ((entityObj.state === (activityLoading.isMacro ? MacroStates.Completed : ActivityStates.Completed)) || entityObj.state === ActivityStates.On || entityObj.state === ActivityStates.Off ) {
+            if ((entityObj.state === (activityLoading.isMacro ? MacroStates.Completed : ActivityStates.Completed)) || (!activityLoading.isMacro && (entityObj.state === ActivityStates.On || entityObj.state === ActivityStates.Off)) ) {
                 activityLoading.end(false);
             } else if (entityObj.state === (activityLoading.isMacro ? MacroStates.Error : ActivityStates.Error)) {
                 activityLoading.end(true);

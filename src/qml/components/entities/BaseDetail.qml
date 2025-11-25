@@ -7,6 +7,8 @@ import QtQuick.Controls 2.15
 import Entity.Controller 1.0
 import Haptic 1.0
 
+import Integration.Controller 1.0
+
 import "qrc:/components" as Components
 
 Rectangle {
@@ -64,6 +66,10 @@ Rectangle {
 
     property string entityId
     property QtObject entityObj
+    property QtObject integrationObj: QtObject {
+        property string state
+    }
+
     property bool skipAnimation: false
     property var overrideConfig: ([])
 
@@ -74,7 +80,6 @@ Rectangle {
         // get the latest entity data from the core
         EntityController.refreshEntity(entityId);
 
-//        buttonNavigation.takeControl();
         ui.inputController.takeControl(String(entityBaseDetailContainer));
         entityBaseDetailContainer.skipAnimation = skipAnimation;
         entityBaseDetailContainer.state = "open";
@@ -85,7 +90,7 @@ Rectangle {
 
         if (entityBaseDetailContainer.skipAnimation) {
             entityBaseDetailContainer.closed();
-            buttonNavigation.releaseControl();
+            ui.inputController.releaseControl();
         }
 
     }
@@ -138,6 +143,15 @@ Rectangle {
                 entityBaseDetailContainer.close();
             }
         }
+    }
+
+    Components.Icon {
+        color: colors.red
+        icon: "uc:link-slash"
+        anchors { right: iconClose.left; verticalCenter: iconClose.verticalCenter }
+        size: 40
+        visible: integrationObj.state != "connected" && integrationObj.state != ""
+        z: 1001
     }
 
     Rectangle {

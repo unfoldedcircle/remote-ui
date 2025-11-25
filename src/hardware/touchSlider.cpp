@@ -16,14 +16,6 @@ TouchSlider::TouchSlider(QObject *parent)
 {
     Q_ASSERT(s_instance == nullptr);
     s_instance = this;
-
-    QTimer::singleShot(5000, [=]{
-        emit touchPressed();
-    });
-
-    QTimer::singleShot(8000, [=]{
-        emit touchReleased();
-    });
 }
 
 TouchSlider::~TouchSlider() {

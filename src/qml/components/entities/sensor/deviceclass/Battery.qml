@@ -31,9 +31,8 @@ EntityComponents.BaseDetail {
         }
     }
 
-    GridLayout {
-        columns: 2
-        rows: 2
+    ColumnLayout {
+        spacing: 10
         anchors {
             left: parent.left
             right: parent.right
@@ -45,12 +44,12 @@ EntityComponents.BaseDetail {
             Layout.leftMargin: 10
             Layout.rightMargin: 20
             Layout.fillWidth: true
-            Layout.fillHeight: true
             text: qsTr("Battery")
             wrapMode: Text.WordWrap
             maximumLineCount: 1
             color: colors.light
             verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
             font: fonts.secondaryFont(24)
         }
 
@@ -58,32 +57,17 @@ EntityComponents.BaseDetail {
             id: valueText
 
             Layout.alignment: Qt.AlignVCenter
+            Layout.leftMargin: 10
             Layout.rightMargin: 10
             Layout.fillWidth: true
-            Layout.fillHeight: true
-            text: entityObj.value !== "" ? entityObj.value : qsTranslate("Abbreviation for not available", "N/A")
-            elide: Text.ElideRight
-            maximumLineCount: 1
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignRight
-            font: fonts.primaryFont(160,  "Light")
-            fontSizeMode: Text.HorizontalFit
-            minimumPixelSize: 30
-        }
-
-        Text {
-            Layout.columnSpan: 2
-            Layout.topMargin: -20
-            Layout.rightMargin: 20
-            Layout.fillWidth: true
-            text: entityObj.unit
-            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+            text: (entityObj.value !== "" ? entityObj.value : qsTranslate("Abbreviation for not available", "N/A")) + " " + entityObj.unit
             elide: Text.ElideRight
             maximumLineCount: 2
+            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             color: colors.offwhite
-            horizontalAlignment: Text.AlignRight
-            font: fonts.secondaryFont(40)
+            verticalAlignment: Text.AlignVCenter
+            horizontalAlignment: Text.AlignHCenter
+            font: fonts.primaryFont(56,  "Light")
         }
     }
 }

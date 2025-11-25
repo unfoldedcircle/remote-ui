@@ -163,8 +163,16 @@ class EntityController : public QObject {
     int                           m_configuredEntitiesCount;
     QStringList                   m_activities;
 
-    QHash<QString, int> m_entityCommandCount;
-    QStringList m_entityCommandBeingExecuted;
+    struct pendingCommand {
+        QString entityId;
+        QString command;
+        QVariantMap params;
+        QString commandId;
+        int repeatCount = 0;
+        bool repeating = false;
+    };
+
+    QHash<QString, pendingCommand> m_pendingCommands;
 
     /**
      * @brief Creates an entity object, connetcs signals and adds it to the hash storing entities
@@ -177,6 +185,8 @@ class EntityController : public QObject {
      * @param value: false if unavailable
      */
     void setAllEntitiesAvailable(bool value);
+
+    void retrySendAttempt(const QString& commandId);
 
  private slots:
     void onCoreConnected();

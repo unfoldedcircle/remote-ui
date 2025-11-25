@@ -349,7 +349,7 @@ Item {
                                 Text {
                                     id: webConfiguratorAddress
 
-                                    property bool showIp: false
+                                    property bool showIp: true
 
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
@@ -718,7 +718,7 @@ Item {
                 width: counterText.implicitWidth + 20
                 height: 30
                 radius: 15
-                color: pos == 0 ? colors.red : colors.medium
+                color: colors.medium
                 anchors { verticalCenter: parent.verticalCenter; left: menuItemText.right; leftMargin: 10 }
                 visible: {
                     switch (pos) {

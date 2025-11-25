@@ -37,7 +37,7 @@ EntityComponents.BaseDetail {
 
         Text {
             id: valueText
-            text: entityObj.value !== "" ? entityObj.value : qsTranslate("Abbreviation for not available", "N/A")
+            text: (entityObj.value !== "" ? entityObj.value : qsTranslate("Abbreviation for not available", "N/A")) + " " + entityObj.unit
             width: parent.width - 20
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             elide: Text.ElideRight
@@ -46,21 +46,7 @@ EntityComponents.BaseDetail {
             anchors.centerIn: parent
             anchors.verticalCenterOffset: -80
             horizontalAlignment: Text.AlignHCenter
-            font: fonts.primaryFont(180,  "Light")
-            fontSizeMode: Text.HorizontalFit
-            minimumPixelSize: 40
-        }
-
-        Text {
-            text: entityObj.unit
-            width: parent.width - 20
-            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-            elide: Text.ElideRight
-            maximumLineCount: 2
-            color: colors.offwhite
-            horizontalAlignment: Text.AlignHCenter
-            font: fonts.secondaryFont(40)
-            anchors { horizontalCenter: parent.horizontalCenter; top: valueText.bottom; topMargin: 10 }
+            font: fonts.primaryFont(56,  "Light")
         }
     }
 }

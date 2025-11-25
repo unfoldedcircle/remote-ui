@@ -241,6 +241,11 @@ ListView {
                         property QtObject entity: QtObject
                         property QtObject mediaComponentEntity: QtObject
                         property bool _isCurrentItem: ListView.isCurrentItem
+                        property bool _touchSliderActive: !isSecondContainerLoaded && page._isCurrentItem && activityListItem._isCurrentItem
+
+                        on_TouchSliderActiveChanged: {
+                            touchSlider.active = _touchSliderActive;
+                        }
 
                         property alias entityIcon: entityIcon
 
@@ -262,12 +267,27 @@ ListView {
                                         (params ? params : {}))
                         }
 
+                        onMediaComponentEntityChanged: {
+                            touchSlider.entityObj = mediaComponentEntity;
+                        }
+
                         Component.onCompleted: {
                             entity = EntityController.get(pageItemId);
-                            mediaComponentEntity = entity;
                             activityMediaComponent.entityId = pageItemId;
 
                             if (entity.type === EntityTypes.Activity) {
+                                if (!entity.sliderConfig.enabled) {
+                                    touchSlider.active = false;
+                                    return;
+                                }
+
+                                if (entity.sliderConfig.entityId !== "default") {
+                                    mediaComponentEntity = EntityController.get(entity.sliderConfig.entityId);
+                                    touchSlider.feature = entity.sliderConfig.entityFeature === "default" ? "volume" : entity.sliderConfig.entityFeature;
+                                    return;
+                                }
+
+                                // default is the first media_player widget
                                 const activityPages = entity.ui.pages;
 
                                 for (const activityPage of activityPages) {
@@ -281,6 +301,8 @@ ListView {
                                         }
                                     }
                                 }
+                            } else if (entity.type === EntityTypes.Media_player) {
+                                mediaComponentEntity = entity;
                             }
                         }
 
@@ -291,7 +313,7 @@ ListView {
                         Components.TouchSlider {
                             id: touchSlider
                             entityObj: mediaComponentEntity
-                            active: (HwInfo.modelNumber == "UCR3" || HwInfo.modelNumber == "DEV") && !isSecondContainerLoaded &&  page._isCurrentItem && activityListItem._isCurrentItem
+                            active: activityListItem._touchSliderActive //!isSecondContainerLoaded && page._isCurrentItem && activityListItem._isCurrentItem
                             parent: Overlay.overlay
                         }
 
@@ -488,7 +510,7 @@ ListView {
 
                                     Components.Icon {
                                         anchors.fill: parent
-                                        icon: entity.icon
+                                        icon: entity.icon ? entity.icon : ""
                                         size: 90
                                         color: colors.offwhite
                                     }

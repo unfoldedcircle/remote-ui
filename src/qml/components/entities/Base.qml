@@ -15,6 +15,8 @@ import Entity.MediaPlayer 1.0
 import Entity.Remote 1.0
 import Entity.Activity 1.0
 
+import Integration.Controller 1.0
+
 import Haptic 1.0
 
 import "qrc:/components" as Components
@@ -43,6 +45,13 @@ Rectangle {
         property string mediaImage
     }
 
+    property QtObject integrationObjDummy: QtObject {
+        property string state
+    }
+
+    property QtObject integrationObj: integrationObjDummy
+
+
     property bool isHighLightEnabled: true
     property bool isSelected: isHighLightEnabled ? parent.isCurrentItem : false
     property bool isInGroup: false
@@ -55,6 +64,67 @@ Rectangle {
 
     function handleActivityOpen() {
         if (entityBaseContainer.entityObj.type === EntityTypes.Activity) {
+            // check if all entities in the activity has a connected integraiton
+            let allIncludedEntitiesConnected = true;
+            let notReadyEntities = "";
+            let notReadyEntityQty = 0;
+
+            for (let i = 0; i < entityObj.includedEntities.length; i++) {
+                const includedEntityObj = EntityController.get(entityObj.includedEntities[i]);
+
+                if (includedEntityObj) {
+                    const includedEntitIntegraitonObj = IntegrationController.getModelItem(includedEntityObj.integrationId);
+                    if (includedEntitIntegraitonObj) {
+
+                        if (includedEntitIntegraitonObj.state !== "connected") {
+                            allIncludedEntitiesConnected = false;
+                            notReadyEntities += includedEntityObj.name + ",  ";
+                            notReadyEntityQty++;
+                        }
+                    }
+                }
+            }
+
+            // chop the last comma
+            notReadyEntities = notReadyEntities.slice(0, -3);
+
+            // if something is not connected, show a warning
+            if (!allIncludedEntitiesConnected) {
+                ui.createActionableNotification(qsTr("Some devices are not ready"), (notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(notReadyEntities)), "uc:link-slash", () => {
+                                                    switch (entityObj.state) {
+                                                        case ActivityStates.Off:
+                                                        entityObj.turnOn();
+                                                        break;
+                                                        case ActivityStates.Error:
+                                                        popupMenu.title = qsTr("Activity error. Select option below.");
+                                                        let menuItems = [];
+                                                        menuItems.push({
+                                                                           title: qsTr("Turn activity on"),
+                                                                           icon: "uc:arrow-right",
+                                                                           callback: function() {
+                                                                               entityObj.turnOn();
+                                                                           }
+                                                                       });
+                                                        menuItems.push({
+                                                                           title: qsTr("Turn activity off"),
+                                                                           icon: "uc:arrow-left",
+                                                                           callback: function() {
+                                                                               entityObj.turnOff();
+                                                                           }
+                                                                       });
+                                                        popupMenu.menuItems = menuItems;
+                                                        popupMenu.open();
+                                                        break;
+                                                        case ActivityStates.On:
+                                                        if (!entityObj.enabled) {
+                                                            ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
+                                                        }
+                                                        break;
+                                                    }
+                                                }, qsTr("Proceed"));
+                return false;
+            }
+
             switch (entityObj.state) {
             case ActivityStates.Off:
                 entityObj.turnOn();
@@ -95,7 +165,7 @@ Rectangle {
 
     function open() {
         if (entityBaseContainer.handleActivityOpen()) {
-            loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj });
+            loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
         }
     }
 
@@ -222,7 +292,7 @@ Rectangle {
     Components.HapticMouseArea {
         id: mouseArea
         anchors.fill: parent
-        onClicked: {           
+        onClicked: {
             if (entityObj.enabled) {
                 if (!editMode) {
                     entityBaseContainer.open();
@@ -303,17 +373,28 @@ Rectangle {
             lineHeight: 0.8
         }
 
-        Text {
-            id: statusText
+        RowLayout {
+            spacing: 4
 
-            Layout.fillWidth: true
-            text: entityObj.stateInfo
-            maximumLineCount: 1
-            elide: Text.ElideRight
-            color: colors.light
-            verticalAlignment: Text.AlignVCenter
-            font: fonts.secondaryFont(24)
-            visible: entityObj.stateInfo !== ""
+            Components.Icon {
+                color: colors.red
+                icon: "uc:link-slash"
+                size: 40
+                visible: integrationObj.state != "connected" && integrationObj.state != ""
+            }
+
+            Text {
+                id: statusText
+
+                Layout.fillWidth: true
+                text: entityObj.stateInfo;
+                maximumLineCount: 1
+                elide: Text.ElideRight
+                color: colors.light
+                verticalAlignment: Text.AlignVCenter
+                font: fonts.secondaryFont(24)
+                visible: entityObj.stateInfo !== ""
+            }
         }
     }
 
@@ -327,7 +408,24 @@ Rectangle {
 
         if (e) {
             entityBaseContainer.entityObj = e;
+            entityBaseContainer.integrationObj = IntegrationController.getModelItem(entityObj.integrationId);
+            if (!entityBaseContainer.integrationObj) {
+                entityBaseContainer.integrationObj = entityBaseContainer.integrationObjDummy;
+            }
+
             entityBaseContainer.build();
+        }
+    }
+
+    Connections {
+        target: IntegrationController
+        ignoreUnknownSignals: true
+
+        function onIntegrationsLoaded() {
+            entityBaseContainer.integrationObj = IntegrationController.getModelItem(entityObj.integrationId);
+            if (!entityBaseContainer.integrationObj) {
+                entityBaseContainer.integrationObj = entityBaseContainer.integrationObjDummy;
+            }
         }
     }
 }

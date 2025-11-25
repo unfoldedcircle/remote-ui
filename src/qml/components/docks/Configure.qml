@@ -386,7 +386,7 @@ Item {
                     Layout.alignment: Qt.AlignTop
 
                     popupParent: Overlay.overlay
-                    model: Wifi.unfilteredNetworkList
+                    model: Wifi.networkList
                     dockNetworkSelection: true
                     state: "dock"
 

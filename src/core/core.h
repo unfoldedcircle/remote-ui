@@ -341,7 +341,7 @@ class Api : public QObject {
 
     void respSystemUpdateInfo(int reqId, int code, SystemUpdate systemUpdate);
 
-    void respPowerMode(int reqId, int code, PowerEnums::PowerMode powerMode, int capacitiy,
+    void respPowerMode(int reqId, int code, PowerEnums::PowerMode powerMode, int capacitiy, bool powerSupply,
                        PowerEnums::PowerStatus powerStatus);
 
     // event signals
@@ -412,7 +412,7 @@ class Api : public QObject {
 
     void softwareUpdateChanged(MsgEventTypes::Enum type, QString updateId, SystemUpdateProgress progress);
     void powerModeChanged(PowerEnums::PowerMode powerMode);
-    void batteryStatusChanged(int capacitiy, PowerEnums::PowerStatus powerStatus);
+    void batteryStatusChanged(int capacitiy, bool powerSupply, PowerEnums::PowerStatus powerStatus);
     void wifiEventChanged(WifiEvent::Enum event);
 
  private slots:

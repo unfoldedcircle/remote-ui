@@ -229,21 +229,16 @@ Item {
         }
 
         // software update indicator
-        Rectangle {
-            Layout.alignment: Qt.AlignVCenter
-            Layout.leftMargin: 5
+        Components.Icon {
+            Layout.leftMargin: -10
+            Layout.rightMargin: -10
 
-            width: 30; height: 30
-            radius: 15
-            color: SoftwareUpdate.updateDownloadState === SoftwareUpdate.Downloaded ? colors.red : colors.medium
+            icon: "uc:cloud-arrow-down"
+            size: 60
+            color: colors.yellow
             visible: SoftwareUpdate.updateAvailable ? 1 : 0
-
-            Components.Icon {
-                icon: "uc:arrow-down"
-                size: 30
-                color: colors.light
-            }
         }
+
 
         // wifi icon, only shown when there's an issue
         Components.Icon {

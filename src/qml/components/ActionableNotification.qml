@@ -55,6 +55,12 @@ Popup {
         ignoreUnknownSignals: true
 
         function onActionableNotificationCreated(notificationObj) {
+            for (let i = 0; i < notificationList.depth; i++) {
+                if (notificationList.get(i).itemTitle() == notificationObj.itemTitle()) {
+                    return;
+                }
+            }
+
             actionableNotification.open();
             notificationList.push(notificationComponent.createObject(notificationList, {notificationObj: notificationObj}));
         }

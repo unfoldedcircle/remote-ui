@@ -31,9 +31,7 @@ EntityComponents.BaseDetail {
         }
     }
 
-    GridLayout {
-        columns: 2
-        rows: 2
+    ColumnLayout {
         anchors {
             left: parent.left
             right: parent.right
@@ -44,6 +42,7 @@ EntityComponents.BaseDetail {
             id: valueText
 
             Layout.alignment: Qt.AlignVCenter
+            Layout.leftMargin: 10
             Layout.rightMargin: 10
             Layout.fillWidth: true
             Layout.fillHeight: true
@@ -55,9 +54,8 @@ EntityComponents.BaseDetail {
             color: colors.offwhite
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-            font: fonts.primaryFont(160,  "Light")
+            font: fonts.primaryFont(56,  "Light")
             fontSizeMode: Text.HorizontalFit
-            minimumPixelSize: 30
         }
     }
 }

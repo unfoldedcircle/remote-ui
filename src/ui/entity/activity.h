@@ -66,6 +66,36 @@ class ActivityDeviceClass : public QObject {
     Q_ENUM(Enum)
 };
 
+class ActivitySliderConfig : public QObject {
+    Q_OBJECT
+
+    Q_PROPERTY(bool enabled READ getEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(QString entityId READ getEntityId NOTIFY entityIdChanged)
+    Q_PROPERTY(QString entityFeature READ getEntityFeature NOTIFY entityFeatureChanged)
+
+ public:
+    ActivitySliderConfig() {}
+    ~ActivitySliderConfig() {}
+
+    bool getEnabled() { return m_enabled; }
+    QString getEntityId() { return m_entityId; }
+    QString getEntityFeature() { return m_entityFeature; }
+
+    void setEnabled(bool value);
+    void setEntityId(const QString& entityId);
+    void setEntityFeature(const QString& entityFeature);
+
+ signals:
+    void enabledChanged();
+    void entityIdChanged();
+    void entityFeatureChanged();
+
+ private:
+    bool m_enabled = false;
+    QString m_entityId = "default";
+    QString m_entityFeature = "default";
+};
+
 class Activity : public Base {
     Q_OBJECT
 
@@ -76,6 +106,8 @@ class Activity : public Base {
     Q_PROPERTY(QVariantList buttonMapping READ getButtonMapping NOTIFY buttonMappingChanged)
     Q_PROPERTY(QVariantMap ui READ getUiConfig NOTIFY uiConfigChanged)
     Q_PROPERTY(QStringList includedEntities READ getIncludedEntities NOTIFY includedEntitiesChanged)
+
+    Q_PROPERTY(QObject* sliderConfig READ getSliderConfig NOTIFY sliderConfigChanged)
 
  public:
     explicit Activity(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
@@ -111,12 +143,15 @@ class Activity : public Base {
 
     void onLanguageChangedTypeSpecific() override;
 
+    QObject* getSliderConfig() { return &m_sliderConfig; }
+
  signals:
     void totalStepsChanged();
     void currentStepChanged();
     void buttonMappingChanged();
     void uiConfigChanged();
     void includedEntitiesChanged();
+    void sliderConfigChanged();
     void addToActivities(QString entityId);
     void removeFromActivities(QString entityId);
     void startedRunning(QString entityId);
@@ -130,6 +165,9 @@ class Activity : public Base {
     QVariantList m_buttonMapping;
     QVariantMap  m_uiConfig;
     QVariantList m_includedEntities;
+
+    ActivitySliderConfig m_sliderConfig;
+    void updateSliderConfig(QVariantMap data);
 
     void sendButtonMappingCommand(const QString &buttonName, bool shortPress = true);
 };
