@@ -105,7 +105,7 @@ int main(int argc, char *argv[]) {
     uc::integration::IntegrationController integrationController(&core, config.getLanguage(), &app);
     uc::dock::DockController               dockController(&core, &app);
     uc::ui::Translation                    translation(&engine, &core, &app);
-    uc::Voice                              voice(&core, socketUrl, &app);
+    uc::Voice                              voice(&core, &app);
 
     QObject::connect(&integrationController, &uc::integration::IntegrationController::integrationIsConnecting,
                      &uiController, &uc::ui::Controller::onIntegrationIsConnecting);

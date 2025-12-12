@@ -199,10 +199,32 @@ struct cfgSound {
     int  volume;
 };
 
+struct VoiceAssistantProfile {
+    QString     id;
+    QString     name;
+    QString     language;
+    QStringList features;
+};
+
+struct VoiceAssistant {
+    QString                         entity_id;
+    QVariantMap                     name;
+    QString                         icon;
+    QString                         state;
+    QStringList                     features;
+    QList<VoiceAssistantProfile>    profiles;
+    QString                         preferredProfile;
+};
+
+struct cfgVoiceAssistant {
+    VoiceAssistant      active;
+    QString             profile_id;
+    bool                speechResponse;
+};
+
 struct cfgVoiceControl {
-    bool    microphoneEnabled;
-    bool    enabled;
-    QString voiceAsssistant;
+    bool                microphoneEnabled;
+    cfgVoiceAssistant   voiceAsssistant;
 };
 
 struct Config {

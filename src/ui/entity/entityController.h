@@ -24,6 +24,7 @@
 #include "remote.h"
 #include "sensor.h"
 #include "switch.h"
+#include "voiceAssistant.h"
 
 namespace uc {
 namespace ui {
@@ -50,7 +51,7 @@ class EntityController : public QObject {
     Q_PROPERTY(QStringList activities READ getActivities NOTIFY activitiesChanged)
 
  public:
-    explicit EntityController(core::Api* core, const QString& language, const Config::UnitSystems unitSystem,
+    explicit EntityController(core::Api* core, const QString& language, const Config::UnitSystems unitSystem, int resumeTimeoutWindowSec,
                               QObject* parent = nullptr);
     ~EntityController();
 
@@ -135,6 +136,7 @@ class EntityController : public QObject {
     void languageChanged(QString language);
     void unitSystemChanged(Config::UnitSystems unitSystem);
     void activityStartedRunning(QString entityId);
+    void voiceAssistantCommandError(QString entityId);
 
  public slots:
     /**
@@ -150,6 +152,9 @@ class EntityController : public QObject {
     void onEntityChanged(const QString& entityId, core::Entity entity);
 
     void onEntityDeleted(const QString& entityId);
+
+    void onPowerModeChanged(core::PowerEnums::PowerMode powerMode);
+    void onResumeTimeoutWindowSecChanged(int value);
 
  private:
     static EntityController*   s_instance;
@@ -174,6 +179,10 @@ class EntityController : public QObject {
 
     QHash<QString, pendingCommand> m_pendingCommands;
 
+    core::PowerEnums::PowerMode m_previousPowerMode = core::PowerEnums::PowerMode::NORMAL;
+    bool   m_resumeWindow = false;
+    int    m_resumeTimerTimeout = 2000;
+
     /**
      * @brief Creates an entity object, connetcs signals and adds it to the hash storing entities
      * @param entity: eneity struct provided by the core
@@ -194,6 +203,7 @@ class EntityController : public QObject {
     void onAddToActivities(QString entityId);
     void onRemoveFromActivities(QString entityId);
     void onActivityStartedRunning(QString entityId);
+    void onResumeTimerTimeout();
 };
 
 }  // namespace ui

@@ -67,6 +67,10 @@ ColumnLayout {
         Layout.alignment: Qt.AlignHCenter
 
         text: {
+            if (!entityObj) {
+                return qsTranslate("Abbreviation for not available", "N/A");
+            }
+
             if (entityObj.customUnit !== "") {
                 return entityObj.value + " "  + (sensorWidget.showUnit ? entityObj.customUnit : "");
             }
@@ -87,7 +91,10 @@ ColumnLayout {
         entityObj = EntityController.get(entityId);
 
         if (!entityObj) {
-            sensorValueText.text = qsTranslate("Abbreviation for not available", "N/A");
+            EntityController.load(entityId);
+            connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
+                entityObj = EntityController.get(entityId);
+            });
         }
     }
 
@@ -95,7 +102,10 @@ ColumnLayout {
         entityObj = EntityController.get(entityId);
 
         if (!entityObj) {
-            sensorValueText.text = qsTranslate("Abbreviation for not available", "N/A");
+            EntityController.load(entityId);
+            connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
+                entityObj = EntityController.get(entityId);
+            });
         }
     }
 }

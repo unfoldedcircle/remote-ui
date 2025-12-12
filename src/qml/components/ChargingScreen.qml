@@ -16,24 +16,12 @@ Popup {
     closePolicy: Popup.CloseOnPressOutside
     padding: 0
 
-    Connections {
-        target: Battery
-
-        function onPowerSupplyChanged(value) {
-            if (value) {
-                chargingScreenRoot.open();
-            } else {
-                chargingScreenRoot.close();
-            }
-        }
-    }
-
     onOpened: {
-        buttonNavigation.takeControl();
+        ui.inputController.takeControl(String(chargingScreenRoot));
     }
 
     onClosed: {
-        buttonNavigation.releaseControl();
+        ui.inputController.releaseControl();
     }
 
     Components.ButtonNavigation {

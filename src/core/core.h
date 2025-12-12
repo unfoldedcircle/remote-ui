@@ -130,7 +130,7 @@ class Api : public QObject {
     int getSoundCfg();
     int setSoundCfg(bool enabled, int volume);
     int getVoiceControlCfg();
-    int setVoiceControlCfg(bool microphoneEnabled, bool enabled, const QString &voiceAsssistant);
+    int setVoiceControlCfg(bool microphoneEnabled, const QString& entityId, const QString& profileId, bool speechResponse);
     int getVoiceAssistants();
 
     // wifi handling
@@ -362,6 +362,7 @@ class Api : public QObject {
     void integrationSetupChange(IntegrationSetupInfo integrationSetupInfo);
 
     void configChanged(int reqId, int code, Config config);
+    void voiceAssistantsChanged(int reqId, int code, QList<VoiceAssistant>);
     void cfgButtonChanged(cfgButton config);
     void cfgDisplayChanged(cfgDisplay config);
     void cfgDeviceChanged(cfgDevice config);
@@ -414,6 +415,13 @@ class Api : public QObject {
     void powerModeChanged(PowerEnums::PowerMode powerMode);
     void batteryStatusChanged(int capacitiy, bool powerSupply, PowerEnums::PowerStatus powerStatus);
     void wifiEventChanged(WifiEvent::Enum event);
+
+    void assistantEventReady(QString entityId, int sessionId);
+    void assistantEventSttResponse(QString entityId, int sessionId, QString text);
+    void assistantEventTextResponse(QString entityId, int sessionId, bool success, QString text);
+    void assistantEventSpeechResponse(QString entityId, int sessionId, QString url, QString mimeType);
+    void assistantEventFinished(QString entityId, int sessionId);
+    void assistantEventError(QString entityId, int sessionId, AssistantErrorCodes::Enum code, QString message);
 
  private slots:
     void onTextMessageReceived(const QString &message);
@@ -493,6 +501,7 @@ class Api : public QObject {
     void processResponseGroups(int reqId, int code, QVariant msgData);
 
     void processResponseConfig(int reqId, int code, QVariant msgData);
+    void processResponseVoiceAssistants(int reqId, int code, QVariant msgData);
     void processResponseTimeZoneNames(int reqId, int code, QVariant msgData);
     void processResponseLocalizationCountires(int reqId, int code, QVariant msgData);
     void processResponseLocalizationLanguages(int reqId, int code, QVariant msgData);
@@ -540,6 +549,8 @@ class Api : public QObject {
     void processSoftwareUpdateChange(QVariant msgData);
     void processPowerModeChange(QVariant msgData);
     void processBatteryStatusChange(QVariant msgData);
+
+    void processAssistantEvent(QVariant msgData);
 
     // processing requests
  private:

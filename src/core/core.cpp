@@ -845,11 +845,17 @@ int Api::getVoiceControlCfg() {
     return sendRequest(RequestTypes::get_voice_control_cfg);
 }
 
-int Api::setVoiceControlCfg(bool microphoneEnabled, bool enabled, const QString& voiceAsssistant) {
+int Api::setVoiceControlCfg(bool microphoneEnabled, const QString& entityId, const QString& profileId, bool speechResponse) {
     QVariantMap msgData;
     msgData.insert("microphone", microphoneEnabled);
-    msgData.insert("enabled", enabled);
-    msgData.insert("voice_assistant", voiceAsssistant);
+
+    QVariantMap voiceAssistantData;
+    voiceAssistantData.insert("entity_id", entityId);
+    voiceAssistantData.insert("profile_id", profileId);
+    voiceAssistantData.insert("speech_response", speechResponse);
+
+    msgData.insert("voice_assistant", voiceAssistantData);
+
     return sendRequest(RequestTypes::set_voice_control_cfg, msgData);
 }
 
@@ -1455,6 +1461,10 @@ void Api::processEventMessage(QVariantMap map) {
             processBatteryStatusChange(msgData);
             break;
         }
+        case MsgEvent::assistant_event: {
+            processAssistantEvent(msgData);
+            break;
+        }
         default:
             break;
     }
@@ -1602,7 +1612,7 @@ void Api::processResponseMessage(QVariantMap map) {
         }
 
         case MsgResponse::voice_assistants: {
-            // TODO(marton): implement me
+            processResponseVoiceAssistants(reqId, code, msgData);
             break;
         }
 
@@ -2391,12 +2401,74 @@ void Api::processResponseConfig(int reqId, int code, QVariant msgData) {
     config.soundCfg = sound;
 
     struct cfgVoiceControl voiceControl;
-    voiceControl.enabled = msgData.toMap().value("voice_control").toMap().value("enabled").toBool();
-    voiceControl.microphoneEnabled = msgData.toMap().value("voice_control").toMap().value("microphone").toBool();
-    voiceControl.voiceAsssistant = msgData.toMap().value("voice_control").toMap().value("voice_assistant").toString();
+    voiceControl.microphoneEnabled = msgData.toMap().value("voice").toMap().value("microphone").toBool();
+
+    struct cfgVoiceAssistant cfgVoiceAssistant;
+    QVariantMap voiceAssistantData = msgData.toMap().value("voice").toMap().value("voice_assistant").toMap();
+    cfgVoiceAssistant.profile_id = voiceAssistantData.value("profile_id").toString();
+    cfgVoiceAssistant.speechResponse = voiceAssistantData.value("speech_response").toBool();
+
+    struct VoiceAssistant voiceAssistant;
+    voiceAssistant.entity_id = voiceAssistantData.value("active").toMap().value("entity_id").toString();
+    voiceAssistant.name = voiceAssistantData.value("active").toMap().value("name").toMap();
+
+    if (voiceAssistantData.value("active").toMap().contains("icon")) {
+        voiceAssistant.icon = voiceAssistantData.value("active").toMap().value("icon").toString();
+    }
+
+    if (voiceAssistantData.value("active").toMap().contains("state")) {
+        voiceAssistant.state = voiceAssistantData.value("active").toMap().value("state").toString();
+    }
+
+    if (voiceAssistantData.value("active").toMap().contains("features")) {
+        voiceAssistant.features = voiceAssistantData.value("active").toMap().value("features").toStringList();
+    }
+
+    if (voiceAssistantData.value("active").toMap().contains("preferred_profile")) {
+        voiceAssistant.preferredProfile = voiceAssistantData.value("active").toMap().value("preferred_profile").toString();
+    }
+
+    // iterate profiles
+    QList<VoiceAssistantProfile> voiceAssistantProfiles;
+    if ( voiceAssistantData.value("active").toMap().contains("profiles")) {
+        QVariantList assistantProfiles = voiceAssistantData.value("active").toMap().value("profiles").toList();
+        if (assistantProfiles.size() > 0) {
+            for (QVariantList::iterator i = assistantProfiles.begin(); i != assistantProfiles.end(); i++) {
+                struct VoiceAssistantProfile profile;
+                QVariantMap  map = i->toMap();
+
+                profile.id = map.value("id").toString();
+                profile.name = map.value("name").toString();
+
+                if (map.contains("langauge")) {
+                    profile.language = map.value("language").toString();
+                }
+
+                if (map.contains("features")) {
+                    profile.features = map.value("features").toStringList();
+                }
+
+                voiceAssistantProfiles.append(profile);
+            }
+        }
+    }
+    voiceAssistant.profiles = voiceAssistantProfiles;
+
+    if (!voiceAssistantData.isEmpty()) {
+        cfgVoiceAssistant.active = voiceAssistant;
+    }
+
+    voiceControl.voiceAsssistant = cfgVoiceAssistant;
     config.voiceControlCfg = voiceControl;
 
     emit configChanged(reqId, code, config);
+}
+
+void Api::processResponseVoiceAssistants(int reqId, int code, QVariant msgData)
+{
+    QList<VoiceAssistant> voiceAssistants;
+
+    emit voiceAssistantsChanged(reqId, code, voiceAssistants);
 }
 
 void Api::processConfigChange(QVariant msgData) {
@@ -2509,13 +2581,66 @@ void Api::processConfigChange(QVariant msgData) {
         emit cfgSoundChanged(sound);
     }
 
-    if (newState.contains("voice_control")) {
-        auto data = newState.value("voice_control").toMap();
+    if (newState.contains("voice")) {
+        auto data = newState.value("voice").toMap();
 
         struct cfgVoiceControl voiceControl;
-        voiceControl.enabled = data.value("enabled").toBool();
         voiceControl.microphoneEnabled = data.value("microphone").toBool();
-        voiceControl.voiceAsssistant = data.value("voice_assistant").toString();
+
+        struct cfgVoiceAssistant cfgVoiceAssistant;
+        QVariantMap voiceAssistantData = data.value("voice_assistant").toMap();
+        cfgVoiceAssistant.profile_id = voiceAssistantData.value("profile_id").toString();
+        cfgVoiceAssistant.speechResponse = voiceAssistantData.value("speech_response").toBool();
+
+        struct VoiceAssistant voiceAssistant;
+        voiceAssistant.entity_id = voiceAssistantData.value("active").toMap().value("entity_id").toString();
+        voiceAssistant.name = voiceAssistantData.value("active").toMap().value("name").toMap();
+
+        if (voiceAssistantData.value("active").toMap().contains("icon")) {
+            voiceAssistant.icon = voiceAssistantData.value("active").toMap().value("icon").toString();
+        }
+
+        if (voiceAssistantData.value("active").toMap().contains("state")) {
+            voiceAssistant.state = voiceAssistantData.value("active").toMap().value("state").toString();
+        }
+
+        if (voiceAssistantData.value("active").toMap().contains("features")) {
+            voiceAssistant.features = voiceAssistantData.value("active").toMap().value("features").toStringList();
+        }
+
+        if (voiceAssistantData.value("active").toMap().contains("preferred_profile")) {
+            voiceAssistant.preferredProfile = voiceAssistantData.value("active").toMap().value("preferred_profile").toString();
+        }
+
+                // iterate profiles
+        QList<VoiceAssistantProfile> voiceAssistantProfiles;
+        if ( voiceAssistantData.value("active").toMap().contains("profiles")) {
+            QVariantList assistantProfiles = voiceAssistantData.value("active").toMap().value("profiles").toList();
+            if (assistantProfiles.size() > 0) {
+                for (QVariantList::iterator i = assistantProfiles.begin(); i != assistantProfiles.end(); i++) {
+                    struct VoiceAssistantProfile profile;
+                    QVariantMap  map = i->toMap();
+
+                    profile.id = map.value("id").toString();
+                    profile.name = map.value("name").toString();
+
+                    if (map.contains("langauge")) {
+                        profile.language = map.value("language").toString();
+                    }
+
+                    if (map.contains("features")) {
+                        profile.features = map.value("features").toStringList();
+                    }
+
+                    voiceAssistantProfiles.append(profile);
+                }
+            }
+        }
+        voiceAssistant.profiles = voiceAssistantProfiles;
+
+        cfgVoiceAssistant.active = voiceAssistant;
+
+        voiceControl.voiceAsssistant = cfgVoiceAssistant;
 
         emit cfgVoiceControlChanged(voiceControl);
     }
@@ -2906,7 +3031,7 @@ void Api::processResponsePowerMode(int reqId, int code, QVariant msgData) {
 
     QVariantMap             battery = map.value("battery").toMap();
     int                     capacity = battery.value("capacity").toInt();
-    bool                    powerSupply = map.value("power_supply").toBool();
+    bool                    powerSupply = battery.value("power_supply").toBool();
     PowerEnums::PowerStatus powerStatus =
         Util::convertStringToEnum<PowerEnums::PowerStatus>(battery.value("status").toString());
 
@@ -3253,6 +3378,52 @@ void Api::processBatteryStatusChange(QVariant msgData) {
         Util::convertStringToEnum<PowerEnums::PowerStatus>(msgDataMap.value("status").toString());
 
     emit batteryStatusChanged(capacity, powerSupply, powerStatus);
+}
+
+void Api::processAssistantEvent(QVariant msgData)
+{
+    QVariantMap msgDataMap = msgData.toMap();
+
+    AssistantEventTypes::Enum eventType =
+        Util::convertStringToEnum<AssistantEventTypes::Enum>(msgDataMap.value("type").toString());
+
+    const QString entityId = msgDataMap.value("entity_id").toString();
+    int sessionId = msgDataMap.value("session_id").toInt();
+    QVariantMap data = msgDataMap.value("data").toMap();
+
+    switch (eventType) {
+        case AssistantEventTypes::Enum::ready: {
+            emit assistantEventReady(entityId, sessionId);
+            break;
+        }
+        case AssistantEventTypes::Enum::stt_response: {
+            QString sttResponseText = data.value("text").toString();
+            emit assistantEventSttResponse(entityId, sessionId, sttResponseText);
+            break;
+        }
+        case AssistantEventTypes::Enum::text_response: {
+            QString textResponseText = data.value("text").toString();
+            bool success = data.value("success").toBool();
+            emit assistantEventTextResponse(entityId, sessionId, success, textResponseText);
+            break;
+        }
+        case AssistantEventTypes::Enum::speech_response: {
+            QString speechResponseUrl = data.value("url").toString();
+            QString speechResponseMimeType = data.value("mime_type").toString();
+            emit assistantEventSpeechResponse(entityId, sessionId, speechResponseUrl, speechResponseMimeType);
+            break;
+        }
+        case AssistantEventTypes::Enum::finished: {
+            emit assistantEventFinished(entityId, sessionId);
+            break;
+        }
+        case AssistantEventTypes::Enum::error: {
+            AssistantErrorCodes::Enum code = Util::convertStringToEnum<AssistantErrorCodes::Enum>(msgDataMap.value("data").toMap().value("code").toString());
+            const QString message = msgDataMap.value("data").toMap().value("message").toString();
+            emit assistantEventError(entityId, sessionId, code, message);
+            break;
+        }
+    }
 }
 
 void Api::processRequestGetLocalizationLanguages(int reqId)

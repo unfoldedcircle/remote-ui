@@ -4,6 +4,7 @@
 import QtQuick 2.15
 
 import Haptic 1.0
+import Config 1.0
 
 import "qrc:/settings" as Settings
 import "qrc:/components" as Components
@@ -19,6 +20,8 @@ Settings.Page {
     }
 
     Component.onCompleted: {
+        Config.getConfig();
+
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
@@ -70,11 +73,11 @@ Settings.Page {
                     page: "Sound",
                     icon: "uc:volume"
                 },
-                //                {
-                //                    itemTitle: QT_TR_NOOP("Voice Control"),
-                //                    page: "Voice",
-                //                    icon: "uc:microphone"
-                //                },
+                {
+                    itemTitle: QT_TR_NOOP("Voice Control"),
+                    page: "Voice",
+                    icon: "uc:microphone"
+                },
                 {
                     itemTitle: QT_TR_NOOP("Power Saving"),
                     page: "Power",

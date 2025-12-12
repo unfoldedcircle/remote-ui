@@ -174,7 +174,7 @@ QString Resources::getResource(ResourceType type, const QString& id) {
         return QString();  // or some fallback
     }
 
-    qCDebug(lcResources()) << "Prefix:" << prefix << "Name:" << resourceName;
+    // qCDebug(lcResources()) << "Prefix:" << prefix << "Name:" << resourceName;
 
     switch (type) {
         case Icon: {

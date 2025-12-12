@@ -12,8 +12,10 @@ import QtQuick.Controls 2.15
 import QtGraphicalEffects 1.0
 
 import Voice 1.0
+import Config 1.0
 import Entity.Controller 1.0
 import Haptic 1.0
+import SoundEffects 1.0
 
 import "qrc:/components" as Components
 import "qrc:/components/entities" as Entities
@@ -26,80 +28,103 @@ Popup {
     closePolicy: Popup.CloseOnPressOutside
     padding: 0
 
-    onOpened: {
-        voice.listening = true;
-        Voice.startListening();
-        buttonNavigation.takeControl();
-    }
-
     onClosed: {
-        showExamples();
         circleContainer.reset();
-        entityList.model = [];
-        voice.multiple = false;
-        buttonNavigation.releaseControl();
+        titleText.text = qsTr("Listening ...");
+        voice.wasError = false;
+        voice.url = "";
+        voice.mimeType = "";
     }
 
     signal done
 
+    property QtObject voiceEntityObj
+    property string profileId
     property bool listening: false
-    property bool multiple: false
-    property string command
-    property var param
+    property int sessionId: 0
+    property bool wasError: false
+    property string url: ""
+    property string mimeType: ""
 
-    function showExamples() {
-        exampleTexts.opacity = 1;
-        //: Waiting for audio/voice input
-        titleText.text = qsTr("Listening ...");
+    function start(entityId = "", profileId = "") {
+        if (voice.opened) {
+            return;
+        }
+
+        let voiceEntityId = entityId;
+
+        if (voiceEntityId == "") {
+            voiceEntityId = Config.voiceAssistantId;
+        }
+
+        if (voiceEntityId == "" || !Config.micEnabled) {
+            return;
+        }
+
+        voice.open();
+
+        voice.profileId = profileId;
+
+        console.info("Starting voice assistant", voiceEntityId, voice.profileId);
+
+        voice.listening = true;
+
+        voice.voiceEntityObj = EntityController.get(voiceEntityId);
+
+        if (!voice.voiceEntityObj) {
+            EntityController.load(voiceEntityId);
+            connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
+                if (success && entityId == voiceEntityId) {
+                    voice.voiceEntityObj = EntityController.get(voiceEntityId);
+
+                    if (voice.voiceEntityObj) {
+                        voice.init();
+                    } else {
+                        circleContainer.start();
+                        showError(qsTr("Voice Assistant is not available."));
+                    }
+                }
+            });
+        } else {
+            voice.init();
+        }
     }
 
-    function hideExamples() {
-        exampleTexts.opacity = 0;
+    function stop() {
+        if (!voice.opened) {
+            return;
+        }
+
+        voice.listening = false;
+
+        if (voice.wasError) {
+            return;
+        }
+
+        circleContainer.start();
+
+        titleText.text = qsTr("Processing ...");
+
+        if (voice.voiceEntityObj) {
+            voice.voiceEntityObj.voiceEnd();
+        }
+
+        timeoutTimer.restart();
+    }
+
+    function init() {
+        voice.sessionId = Voice.getSessionId();
+        voice.voiceEntityObj.voiceStart(voice.sessionId, Config.voiceAssistantSpeechResponse, voice.profileId);
     }
 
     function showError(message) {
+        voice.wasError = true;
         titleText.text = message;
         circleContainer.failure();
     }
 
-    function executeCommand(entity) {
-        if (voice.command === "turnOff") {
-            titleText.text = "Turn off";
-            entity.turnOff();
-        } else if (voice.command === "turnOn") {
-            titleText.text = "Turn on";
-            entity.turnOn();
-        } else if (voice.command === "setBrightness") {
-            titleText.text = qsTr("Set brightness %1%").arg(voice.param);
-            entity.setBrightness(voice.param/100*255);
-        }
-
-        circleContainer.succeeded();
-    }
-
-    Components.ButtonNavigation {
-        id: buttonNavigation
-        defaultConfig: {
-            "VOICE": {
-                "pressed": function() {
-                    if (voice.listening) {
-                        voice.listening = false;
-                        Voice.stopListening();
-                        circleContainer.start();
-                    }
-                }
-            },
-            "BACK": {
-                "pressed": function() {
-                    voice.close();
-                }
-            },
-            "HOME": {
-                "pressed": function() {
-                    voice.close();
-                }
-            }
-        }
+    function checkSession(sessionId) {
+        return sessionId == voice.sessionId;
     }
 
     enter: Transition {
@@ -112,51 +137,108 @@ Popup {
 
     Connections {
         target: Voice
-        enabled: voice.opened
         ignoreUnknownSignals: true
 
-        function onTranscriptionUpdated(text) {
-            if (voice.listening)  {
-                hideExamples();
+        function onAssistantEventReady(entityId, sessionId) {
+            console.debug("Assistant Ready", entityId, sessionId);
+
+            if (!checkSession(sessionId)) {
+                return;
+            }
+        }
+
+        function onAssistantEventSttResponse(entityId, sessionId, text) {
+            console.debug("Assistant STT Response", entityId, sessionId, text);
+
+            if (!checkSession(sessionId)) {
+                return;
+            }
+
+            timeoutTimer.stop();
+
+            titleText.text = text;
+        }
+
+        function onAssistantEventTextResponse(entityId, sessionId, success, text) {
+            console.debug("Assistant Text Response", entityId, sessionId, success, text);
+
+            if (!checkSession(sessionId)) {
+                return;
+            }
+
+            timeoutTimer.stop();
+
+            if (success) {
                 titleText.text = text;
-            }
-        }
-
-        function onCommandExecuted(command, entity, param) {
-            voice.command = command;
-            voice.param = param;
-
-            if (command === "turnOff") {
-                titleText.text = "Turn off";
-            } else if (command === "turnOn") {
-                titleText.text = "Turn on";
-            } else if (command === "setBrightness") {
-                titleText.text = qsTr("Set brightness %1%").arg(param);
-            }
-
-            let objList = EntityController.getEntitiesByName(entity);
-
-            entityList.model = objList;
-
-            if (objList.length === 0) {
-                showError(qsTr("Entity was not recognised"));
-
-            } else if (objList.length === 1) {
-                voice.listening = false;
-                Voice.stopListening();
-                circleContainer.start();
-                voice.executeCommand(objList[0]);
             } else {
-                voice.multiple = true;
-                titleText.text = qsTr("Found %1 similar entities. Please select one to use").arg(objList.length);
-                voice.listening = false;
-                Voice.stopListening();
-                circleContainer.start();
+                voice.wasError = true;
+                voice.showError(text);
             }
         }
 
-        function onError(message) {
-            showError(message);
+        function onAssistantEventSpeechResponse(entityId, sessionId, url, mimeType) {
+            console.debug("Assistant Speech Response", entityId, sessionId, url, mimeType);
+
+            if (!checkSession(sessionId)) {
+                return;
+            }
+
+            timeoutTimer.stop();
+
+            if (Config.voiceAssistantSpeechResponse) {
+                voice.url = url;
+                voice.mimeType = mimeType;
+            }
+        }
+
+        function onAssistantEventFinished(entityId, sessionId) {
+            console.debug("Assistant Finihsed", entityId, sessionId);
+
+            if (!checkSession(sessionId)) {
+                return;
+            }
+
+            timeoutTimer.stop();
+
+            if (voice.wasError) {
+                circleContainer.failure();
+            } else {
+                circleContainer.succeeded();
+            }
+        }
+
+        function onAssistantEventError(entityId, sessionId, message) {
+            console.debug("Assistant Error", entityId, sessionId, message);
+
+            if (!checkSession(sessionId)) {
+                return;
+            }
+
+            timeoutTimer.stop();
+
+            voice.showError(message);
+        }
+
+        function onAssistantAudioSpeechResponseEnd() {
+            timeoutTimer.stop();
+            voice.close();
+        }
+    }
+
+    Connections {
+        target: EntityController
+        ignoreUnknownSignals: true
+
+        function onVoiceAssistantCommandError(entityId) {
+            if (voice.voiceEntityObj.id == entityId) {
+                voice.wasError = true;
+                circleContainer.start();
+                voice.listening = false;
+                timeoutTimer.stop();
+                ui.setTimeOut(500, () => {
+                                  voice.showError(qsTr("There was an error starting Voice Assistant."));
+                              });
+            }
         }
     }
 
@@ -165,11 +247,22 @@ Popup {
     Timer {
         id: hideTimer
         running: false
-        interval: 500
+        interval: 2000
         repeat: false
 
         onTriggered: {
             voice.close();
+        }
+    }
+
+    Timer {
+        id: timeoutTimer
+        running: false
+        interval: 15000
+        repeat: false
+
+        onTriggered: {
+            voice.showError(qsTr("It’s taking longer than expected. Please try your request again."));
         }
     }
 
@@ -198,7 +291,7 @@ Popup {
     Item {
         id: eqAnimation
         width: 120; height: 108
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: entityList.top; bottomMargin: 120 }
+        anchors { horizontalCenter: parent.horizontalCenter; bottom: titleText.top; bottomMargin: 120 }
         opacity: voice.listening ? 1 : 0
 
         Behavior on opacity {
@@ -308,7 +401,7 @@ Popup {
     Item {
         id: circleContainer
         width: 160; height: 160
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: entityList.top; bottomMargin: 120 }
+        anchors { horizontalCenter: parent.horizontalCenter; bottom: titleText.top; bottomMargin: 120 }
         opacity: 0
         transformOrigin: Item.Center
 
@@ -442,7 +535,9 @@ Popup {
             alwaysRunToEnd: true
 
             onFinished: {
-                hideTimer.start();
+                if (voice.url == "") {
+                    hideTimer.start();
+                }
             }
 
             ParallelAnimation {
@@ -451,6 +546,15 @@ Popup {
                 SequentialAnimation {
                     PauseAnimation { duration: 200 }
                     ParallelAnimation {
+                        SequentialAnimation {
+                            ScriptAction { script: SoundEffects.play(SoundEffects.Confirm) }
+                            ScriptAction { script: {
+                                    if (voice.url != "") {
+                                        Voice.playSpeechResponse(voice.url, voice.mimeType);
+                                    }
+                                }
+                            }
+                        }
                         NumberAnimation { target: fillCircle1; properties: "width"; to: 120; easing.type: Easing.OutExpo; duration: 300; }
                         NumberAnimation { target: fillCircle1; properties: "y"; to: circleContainer.height/2-60; easing.type: Easing.OutExpo; duration: 300; }
                     }
@@ -480,8 +584,10 @@ Popup {
                         PropertyAnimation { target: fillCircle2; property: "color"; to: colors.red; easing.type: Easing.OutExpo; duration: 300; }
                         NumberAnimation { target: fillCircle1; properties: "y"; to: circleContainer.height/2-60; easing.type: Easing.OutExpo; duration: 300; }
                     }
+                    ScriptAction { script: SoundEffects.play(SoundEffects.Error) }
                     PropertyAnimation { target: xone; properties: "width"; to: 70; easing.type: Easing.OutExpo; duration: 150 }
                     PropertyAnimation { target: xtwo; properties: "height"; to: 70; easing.type: Easing.OutExpo; duration: 150 }
+                    PauseAnimation { duration: 2000 }
                 }
             }
         }
@@ -496,74 +602,65 @@ Popup {
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
         width: parent.width - 80
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: entityList.top; bottomMargin: 20 }
+        anchors { horizontalCenter: parent.horizontalCenter; bottom: assistantNameText.top; bottomMargin: 10 }
         font: fonts.primaryFont(30)
     }
 
-    ListView {
-        id: entityList
-        maximumFlickVelocity: 6000
-        flickDeceleration: 1000
-        highlightMoveDuration: 200
-        width: parent.width - 40
-        height: voice.multiple ? 310 : exampleTexts.height + 60
-        clip: true
-        spacing: 10
+    Text {
+        id: assistantNameText
+        text: voice.voiceEntityObj ? voice.voiceEntityObj.name : ""
+        color: colors.light
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WordWrap
+        width: parent.width - 80
+        anchors { horizontalCenter: parent.horizontalCenter; bottom: assistantProfileNameText.top; bottomMargin: 0 }
+        font: fonts.primaryFont(24)
+    }
 
-        Behavior on height {
-            NumberAnimation { easing.type: Easing.OutExpo; duration: 300 }
-        }
+    Text {
+        id: assistantProfileNameText
+        text: {
+            if (voice.voiceEntityObj) {
+                const profileObj = voice.voiceEntityObj.getProfile(voice.profileId);
 
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 10 }
-
-        delegate: Entities.Base {
-            entityId: modelData.id
-            isSelected: true
-            width: entityList.width
-
-            Components.HapticMouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    voice.executeCommand(modelData);
-                    voice.multiple = false;
-                    entityList.model = modelData;
+                if (profileObj) {
+                    return profileObj.name;
+                } else {
+                    return "";
                 }
             }
         }
+
+        color: colors.light
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WordWrap
+        width: parent.width - 80
+        height: text == "" ? 0 : implicitHeight
+        anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 60 }
+        font: fonts.primaryFont(20)
     }
 
-    Item {
-        id: exampleTexts
-        width: parent.width - 20
-        height: exampleTitleText.implicitHeight + exampleVoiceCommandsText.implicitHeight
-        anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 20 }
 
-        Behavior on opacity {
-            OpacityAnimator { easing.type: Easing.OutExpo; duration: 300 }
+    MouseArea {
+        anchors.fill: parent
+        onClicked: {
+            voice.close();
         }
+    }
 
-        Text {
-            id: exampleTitleText
-            color: colors.offwhite
-            opacity: 0.6
-            text: qsTr("You can say commands like")
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-            width: parent.width
-            anchors { horizontalCenter: parent.horizontalCenter; bottom: exampleVoiceCommandsText.top; bottomMargin: 20 }
-            font: fonts.secondaryFont(22)
-        }
-
-        Text {
-            id: exampleVoiceCommandsText
-            color: colors.offwhite
-            opacity: 0.8
-            text: qsTr("“Turn on the Living room lights”\n“Start activity Watch TV”\n“Set Kitchen radiator temperature to 24º”")
-            horizontalAlignment: Text.AlignHCenter
-            wrapMode: Text.WordWrap
-            width: parent.width
-            anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 20 }
-            font: fonts.secondaryFont(22, "Italic")
+    Components.ButtonNavigation {
+        overrideActive: voice.opened
+        defaultConfig: {
+            "HOME": {
+                "pressed": function() {
+                    voice.close();
+                }
+            },
+            "BACK": {
+                "pressed": function() {
+                    voice.close();
+                }
+            }
         }
     }
 }

@@ -55,6 +55,10 @@ Activity::Activity(const QString &id, QVariantMap nameI18n, const QString &langu
     if (options.contains("touch_slider")) {
         updateSliderConfig(options.value("touch_slider").toMap());
     }
+
+    if (options.contains("voice_assistant")) {
+        updateVoiceAssistantConfig(options.value("voice_assistant").toMap());
+    }
 }
 
 Activity::~Activity() { qCDebug(lcActivity()) << "Activity entity destructor"; }
@@ -200,6 +204,11 @@ bool Activity::updateOptions(QVariant data) {
         ok = true;
     }
 
+    if (options.contains("voice_assistant")) {
+        updateVoiceAssistantConfig(options.value("voice_assistant").toMap());
+        ok = true;
+    }
+
     return ok;
 }
 
@@ -245,6 +254,27 @@ void Activity::updateSliderConfig(QVariantMap data)
     }
 
     emit sliderConfigChanged();
+}
+
+void Activity::updateVoiceAssistantConfig(QVariantMap data)
+{
+    if (data.contains("target")) {
+        QVariantMap target = data.value("target").toMap();
+
+        m_voiceAssistantEntityId = target.value("entity_id").toString();
+
+
+        if (target.contains("profile_id")) {
+            m_voiceAssistantProfileId = target.value("profile_id").toString();
+        } else {
+            m_voiceAssistantProfileId = "";
+        }
+    } else {
+        m_voiceAssistantEntityId = "";
+    }
+
+    emit voiceAssistantEntityIdChanged();
+    emit voiceAssistantProfileIdChanged();
 }
 
 void Activity::sendButtonMappingCommand(const QString &buttonName, bool shortPress) {

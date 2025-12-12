@@ -48,3 +48,4 @@ Q_LOGGING_CATEGORY(lcMediaPlayer, "uc.entity.mediaplayer");
 Q_LOGGING_CATEGORY(lcActivity, "uc.entity.activity");
 Q_LOGGING_CATEGORY(lcMacro, "uc.entity.macro");
 Q_LOGGING_CATEGORY(lcRemote, "uc.entity.remote");
+Q_LOGGING_CATEGORY(lcVoiceAssistant, "uc.entity.voiceassistant");

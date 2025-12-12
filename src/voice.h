@@ -3,86 +3,56 @@
 
 #pragma once
 
-#include <qendian.h>
-#include <stdio.h>
-
-#include <QAudioDeviceInfo>
-#include <QAudioInput>
-#include <QBuffer>
-#include <QByteArray>
-#include <QCoreApplication>
 #include <QJSEngine>
 #include <QJsonDocument>
 #include <QObject>
 #include <QQmlEngine>
-#include <QThread>
-#include <QWebSocket>
+#include <QProcess>
+#include <QNetworkAccessManager>
+#include <QNetworkReply>
 
 #include "core/core.h"
 
 namespace uc {
 
-class VoskWorker : public QObject {
-    Q_OBJECT
-
- public:
-    explicit VoskWorker(QObject* parent = nullptr);
-    ~VoskWorker();
-
- public slots:
-    void startListening(char* buffer, int len);
-    void stopListening();
-
- signals:
-    void result(QString text);
-    void finalResult(QString text);
-
- private:
-    void processVoskResult(QString message);
-
-    QString m_lastRecognition;
-};
-
 class Voice : public QObject {
     Q_OBJECT
 
  public:
-    explicit Voice(core::Api* core, const QString& url, QObject* parent = nullptr);
+    explicit Voice(core::Api* core, QObject* parent = nullptr);
     ~Voice();
 
-    Q_INVOKABLE void startListening();
-    Q_INVOKABLE void stopListening();
+    Q_INVOKABLE int getSessionId();
+    Q_INVOKABLE void playSpeechResponse(const QString& url, const QString &mimeType);
 
     static QObject* qmlInstance(QQmlEngine* engine, QJSEngine* scriptEngine);
 
  signals:
-    void transcriptionUpdated(QString text);
-    void commandExecuted(QString command, QString entity, QVariant param);
-    void error(QString message);
+    void assistantEventReady(QString entityId, int sessionId);
+    void assistantEventSttResponse(QString entityId, int sessionId, QString text);
+    void assistantEventTextResponse(QString entityId, int sessionId, bool success, QString text);
+    void assistantEventSpeechResponse(QString entityId, int sessionId, QString url, QString mimeType);
+    void assistantEventFinished(QString entityId, int sessionId);
+    void assistantEventError(QString entityId, int sessionId, QString message);
+    void assistantAudioSpeechResponseEnd();
 
-    void startWorker(char* buffer, int len);
-    void stopWorker();
+ public slots:
+    void onAssistantEventReady(const QString& entityId, int sesssionId);
+    void onAssistantEventSttResponse(QString entityId, int sessionId, QString text);
+    void onAssistantEventTextResponse(QString entityId, int sessionId, bool success, QString text);
+    void onAssistantEventSpeechResponse(QString entityId, int sessionId, QString url, QString mimeType);
+    void onAssistantEventFinished(QString entityId, int sessionId);
+    void onAssistantEventError(QString entityId, int sessionId, core::AssistantErrorCodes::Enum code, QString message);
 
  private slots:
-    void onTextMessageReceived(const QString& message);
-    void onStateChanged(QAbstractSocket::SocketState state);
-    void onError(QAbstractSocket::SocketError error);
-    void onResult(QString message);
-    void onFinalResult(QString message);
 
  private:
     static Voice* s_instance;
 
     core::Api* m_core;
 
-    QWebSocket m_webSocket;
-    QString    m_url;
+    QProcess m_process;
 
-    QAudioInput* m_audioInput;
-
-    QThread* m_workerThread;
-
-    QByteArray m_buffer;
-    int        m_bufferCount = 0;
+    int m_sessionId = 0;
 };
 }  // namespace uc
