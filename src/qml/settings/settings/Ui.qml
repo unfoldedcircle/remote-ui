@@ -235,7 +235,7 @@ Settings.Page {
                     text: qsTr("Zoom & crop artwork in media player widgets instead of scaling to fit.")
                     font: fonts.secondaryFont(24)
                 }
-            }
+            }   
         }
     }
 }

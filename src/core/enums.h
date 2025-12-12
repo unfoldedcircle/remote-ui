@@ -36,6 +36,8 @@ class MsgEvent {
         software_update,
         power_mode_change,
         battery_status,
+
+        assistant_event,
     };
     Q_ENUM(Enum)
 
@@ -632,6 +634,43 @@ class AvailableEntityEnums {
 
  private:
     AvailableEntityEnums() {}
+};
+
+class AssistantEventTypes {
+    Q_GADGET
+
+ public:
+    enum Enum {
+        ready,
+        stt_response,
+        text_response,
+        speech_response,
+        finished,
+        error
+    };
+    Q_ENUM(Enum)
+
+ private:
+    AssistantEventTypes() {}
+};
+
+class AssistantErrorCodes {
+    Q_GADGET
+
+ public:
+    enum Enum {
+        SERVICE_UNAVAILABLE,
+        INVALID_AUDIO,
+        NO_TEXT_RECOGNIZED,
+        INTENT_FAILED,
+        TTS_FAILED,
+        TIMEOUT,
+        UNEXPECTED_ERROR
+    };
+    Q_ENUM(Enum)
+
+ private:
+    AssistantErrorCodes() {}
 };
 
 }  // namespace core

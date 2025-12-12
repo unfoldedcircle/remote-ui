@@ -15,7 +15,7 @@ Config::Config(core::Api *core, QObject *parent) : QObject(parent), m_core(core)
 
     qmlRegisterSingletonType<Config>("Config", 1, 0, "Config", &Config::qmlInstance);
 
-    // after connected to the api, get the config
+            // after connected to the api, get the config
     QObject::connect(m_core, &uc::core::Api::connected, this, &uc::Config::onCoreConnected);
     QObject::connect(m_core, &uc::core::Api::configChanged, this, &uc::Config::onConfigChanged);
     QObject::connect(m_core, &uc::core::Api::cfgButtonChanged, this, &uc::Config::onButtonCfgChanged);
@@ -196,29 +196,9 @@ void Config::setHapticEnabled(bool enabled) {
     }
 }
 
-void Config::setVoiceEnabled(bool enabled) {
-    if (m_voiceEnabled != enabled) {
-        int id = m_core->setVoiceControlCfg(getMicEnabled(), enabled, "None");
-
-        m_core->onResult(
-            id,
-            [=]() {
-                // success
-                m_voiceEnabled = enabled;
-                emit voiceEnabledChanged(m_voiceEnabled);
-            },
-            [=](int code, QString message) {
-                // fail
-                QString errorMsg = "Error changing voice settings: " + message;
-                qCWarning(lcConfig()) << code << errorMsg;
-                ui::Notification::createNotification(errorMsg, true);
-            });
-    }
-}
-
 void Config::setMicEnabled(bool enabled) {
     if (m_micEnabled != enabled) {
-        int id = m_core->setVoiceControlCfg(enabled, getVoiceEnabled(), "None");
+        int id = m_core->setVoiceControlCfg(enabled, m_voiceAssistantId, m_voiceAssistantProfileId, m_voiceAssistantSpeechResponse);
 
         m_core->onResult(
             id,
@@ -230,6 +210,59 @@ void Config::setMicEnabled(bool enabled) {
             [=](int code, QString message) {
                 // fail
                 QString errorMsg = "Error setting microphone config: " + message;
+                qCWarning(lcConfig()) << code << errorMsg;
+                ui::Notification::createNotification(errorMsg, true);
+            });
+    }
+}
+
+void Config::setVoiceAssistantId(const QString &entityId)
+{
+    int id = m_core->setVoiceControlCfg(m_micEnabled, entityId, m_voiceAssistantProfileId, m_voiceAssistantSpeechResponse);
+
+    m_core->onResult(
+        id,
+        [=]() {
+            // success
+        },
+        [=](int code, QString message) {
+            // fail
+            QString errorMsg = "Error setting voice assistant config: " + message;
+            qCWarning(lcConfig()) << code << errorMsg;
+            ui::Notification::createNotification(errorMsg, true);
+        });
+}
+
+void Config::setVoiceAssistantProfileId(const QString &profileId)
+{
+    int id = m_core->setVoiceControlCfg(m_micEnabled, m_voiceAssistantId, profileId, m_voiceAssistantSpeechResponse);
+
+    m_core->onResult(
+        id,
+        [=]() {
+            // success
+        },
+        [=](int code, QString message) {
+            // fail
+            QString errorMsg = "Error setting voice assistant profile config: " + message;
+            qCWarning(lcConfig()) << code << errorMsg;
+            ui::Notification::createNotification(errorMsg, true);
+        });
+}
+
+void Config::setVoiceAssistantSpeechResponse(bool value)
+{
+    if (m_voiceAssistantSpeechResponse != value) {
+        int id = m_core->setVoiceControlCfg(m_micEnabled, m_voiceAssistantId, m_voiceAssistantProfileId, value);
+
+        m_core->onResult(
+            id,
+            [=]() {
+                // success
+            },
+            [=](int code, QString message) {
+                // fail
+                QString errorMsg = "Error setting voice assistant profile config: " + message;
                 qCWarning(lcConfig()) << code << errorMsg;
                 ui::Notification::createNotification(errorMsg, true);
             });
@@ -396,6 +429,17 @@ void Config::setFillMediaArtwork(bool value)
 {
     m_settings->setValue("ui/fillMediaArtwork", value);
     emit fillMediaArtworkChanged();
+}
+
+int Config::getResumeTimeoutWindowSec()
+{
+    return m_settings->value("ui/resumeTimeoutWindow", 2).toInt();
+}
+
+void Config::setResumeTimeoutWindowSec(int value)
+{
+    m_settings->setValue("ui/resumeTimeoutWindow", value);
+    emit resumeTimeoutWindowSecChanged(value);
 }
 
 void Config::setWakeupSensitivity(Config::WakeupSensitivities sensitivity) {
@@ -949,9 +993,14 @@ void Config::onVoiceControlCfgChanged(core::cfgVoiceControl cfgVoiceControl) {
     m_micEnabled = cfgVoiceControl.microphoneEnabled;
     emit micEnabledChanged(m_micEnabled);
 
-    m_voiceEnabled = cfgVoiceControl.enabled;
-    emit voiceEnabledChanged(m_voiceEnabled);
-    // add voice assistant type
+    m_voiceAssistantId = cfgVoiceControl.voiceAsssistant.active.entity_id;
+    emit voiceAssistantIdChanged(m_voiceAssistantId);
+
+    m_voiceAssistantProfileId = cfgVoiceControl.voiceAsssistant.profile_id;
+    emit voiceAssistantProfileIdChanged(m_voiceAssistantProfileId);
+
+    m_voiceAssistantSpeechResponse = cfgVoiceControl.voiceAsssistant.speechResponse;
+    emit voiceAssistantSpeechResponseChanged(m_voiceAssistantSpeechResponse);
 }
 
 QString Config::generateRandomPin() {

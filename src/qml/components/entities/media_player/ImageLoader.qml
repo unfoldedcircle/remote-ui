@@ -25,6 +25,9 @@ Item {
     signal done()
 
     onUrlChanged: {
+        loadingDelay.stop();
+        loader.opacity = 0;
+
         if (url == prevUrl) {
             return;
         }
@@ -32,11 +35,13 @@ Item {
         if (url == "") {
             image1.source = "";
             image2.source = "";
-        } else if (url != prevUrl) {
-            image2.opacity = 0;
-            image2.source = url;
-            prevUrl = url;
+            prevUrl = "";
+            return;
         }
+
+        image2.opacity = 0;
+        image2.source = url;
+        prevUrl = url;
     }
 
     Image {
@@ -87,7 +92,7 @@ Item {
                 console.debug("Loading image");
             }
 
-            if (image2.status === Image.Ready || image2.status === Image.Error) {
+            if (image2.status === Image.Ready || image2.status === Image.Error || image2.status === Image.Null) {
                 loadingDelay.stop();
                 loader.opacity = 0;
             }
@@ -104,6 +109,7 @@ Item {
 
             if (image2.status == Image.Error && image2.source != "") {
                 image2.source = "";
+                prevUrl = "";
                 console.error("Failed to load image into image 2");
             }
         }

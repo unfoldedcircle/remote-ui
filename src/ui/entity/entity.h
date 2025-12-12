@@ -31,7 +31,7 @@ class Base : public QObject {
     Q_PROPERTY(QString integrationId READ getIntegration CONSTANT)
 
  public:
-    enum Type { Unsupported, Button, Switch, Climate, Cover, Light, Media_player, Remote, Sensor, Activity, Macro };
+    enum Type { Unsupported, Button, Switch, Climate, Cover, Light, Media_player, Remote, Sensor, Activity, Macro, Voice_assistant };
     Q_ENUM(Type)
 
     enum CommonAttributes { Name, Icon, Area };

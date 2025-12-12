@@ -7,102 +7,101 @@
 
 namespace uc {
 
+static constexpr int IMAGE_REQUEST_TIMEOUT_MS = 15000;
+
 Voice *Voice::s_instance = nullptr;
 
-Voice::Voice(core::Api *core, const QString &url, QObject *parent) : QObject(parent), m_core(core), m_url(url) {
+Voice::Voice(core::Api *core, QObject *parent) : QObject(parent), m_core(core) {
     Q_ASSERT(s_instance == nullptr);
     s_instance = this;
 
-    QAudioFormat format;
-    format.setSampleRate(16000);
-    format.setChannelCount(1);
-    format.setSampleSize(16);
-    format.setSampleType(QAudioFormat::SignedInt);
-    format.setByteOrder(QAudioFormat::LittleEndian);
-    format.setCodec("audio/pcm");
+    QObject::connect(m_core, &core::Api::assistantEventReady, this, &Voice::onAssistantEventReady);
+    QObject::connect(m_core, &core::Api::assistantEventSttResponse, this, &Voice::onAssistantEventSttResponse);
+    QObject::connect(m_core, &core::Api::assistantEventTextResponse, this, &Voice::onAssistantEventTextResponse);
+    QObject::connect(m_core, &core::Api::assistantEventSpeechResponse, this, &Voice::onAssistantEventSpeechResponse);
+    QObject::connect(m_core, &core::Api::assistantEventFinished, this, &Voice::onAssistantEventFinished);
+    QObject::connect(m_core, &core::Api::assistantEventError, this, &Voice::onAssistantEventError);
 
-    QAudioDeviceInfo deviceInfo = QAudioDeviceInfo::defaultInputDevice();
-
-    for (auto &di : QAudioDeviceInfo::availableDevices(QAudio::AudioInput)) {
-        qCDebug(lcVoice()) << "Audio device" << di.deviceName();
-        if (!di.deviceName().contains("Microphonetop")) {
-            deviceInfo = di;
-        }
-    }
-
-    qCDebug(lcVoice()) << "Audio device" << deviceInfo.deviceName();
-
-    if (!deviceInfo.isFormatSupported(format)) {
-        qCWarning(lcVoice()) << "Default format not supported, using nearest";
-        format = deviceInfo.nearestFormat(format);
-    }
-
-    m_audioInput = new QAudioInput(deviceInfo, format);
-    m_audioInput->setBufferSize(3200 * 8);
-
-    m_workerThread = new QThread(this);
-
-    VoskWorker *voskWorker = new VoskWorker;
-    voskWorker->moveToThread(m_workerThread);
-
-    QObject::connect(m_workerThread, &QThread::finished, voskWorker, &QObject::deleteLater);
-    QObject::connect(this, &Voice::startWorker, voskWorker, &VoskWorker::startListening);
-    QObject::connect(this, &Voice::stopWorker, voskWorker, &VoskWorker::stopListening);
-    QObject::connect(voskWorker, &VoskWorker::result, this, &Voice::onResult);
-    QObject::connect(voskWorker, &VoskWorker::finalResult, this, &Voice::onFinalResult);
-
-    m_workerThread->start();
-
-    QString first = m_url.split(":")[1];
-    m_url = "ws:" + first + ":2700";
-
-    qCDebug(lcVoice()) << first << m_url;
-
-    QObject::connect(&m_webSocket, &QWebSocket::textMessageReceived, this, &Voice::onTextMessageReceived);
-    QObject::connect(&m_webSocket, static_cast<void (QWebSocket::*)(QAbstractSocket::SocketError)>(&QWebSocket::error),
-                     this, &Voice::onError);
-    QObject::connect(&m_webSocket, &QWebSocket::stateChanged, this, &Voice::onStateChanged);
+    QObject::connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+                     this, [=]{
+                         emit assistantAudioSpeechResponseEnd();
+                     });
 
     qmlRegisterSingletonType<Voice>("Voice", 1, 0, "Voice", &Voice::qmlInstance);
 }
 
 Voice::~Voice() {
     s_instance = nullptr;
-    m_workerThread->quit();
-    m_workerThread->wait();
 }
 
-void Voice::startListening() {
-    qCDebug(lcVoice()) << "Start listening";
-    m_webSocket.open(QUrl(m_url));
+int Voice::getSessionId()
+{
+    m_sessionId++;
+    return m_sessionId;
+}
 
-    auto io = m_audioInput->start();
-    //    m_audioInput->setVolume(1.0);
+void Voice::playSpeechResponse(const QString &url, const QString &mimeType)
+{
+    static const QSet<QString> allowedMimes = {
+        QStringLiteral("audio/mpeg"),
+        QStringLiteral("audio/mp3"),
+        QStringLiteral("audio/wav"),
+        QStringLiteral("audio/x-wav"),
+        QStringLiteral("audio/ogg"),
+        QStringLiteral("audio/opus"),
+        QStringLiteral("audio/webm"),
+        QStringLiteral("audio/flac"),
+        QStringLiteral("audio/aac")
+    };
 
-    QObject::connect(io, &QIODevice::readyRead, [=]() {
-        if (m_audioInput->state() == QAudio::State::StoppedState) {
-            return;
-        }
+    if (!allowedMimes.contains(mimeType)) {
+        qCWarning(lcVoice()) << "Refusing to play unsupported MIME type:" << mimeType;
+        emit assistantAudioSpeechResponseEnd();
+        return;
+    }
 
-        m_buffer.append(io->readAll());
-        m_bufferCount++;
+    if (m_process.state() != QProcess::NotRunning) {
+        m_process.kill();
+        m_process.waitForFinished();
+    }
 
-        if (m_bufferCount == 10) {
-            emit startWorker(m_buffer.data(), m_buffer.size());
+    QStringList args;
+    args
+        << "-nodisp"
+        << "-autoexit"
+        << "-";
 
-            m_bufferCount = 0;
-            m_buffer.clear();
-        }
+    m_process.start(QStringLiteral("/usr/bin/ffplay"), args);
+
+    if (!m_process.waitForStarted(5000)) {
+        qCWarning(lcVoice()) << "Failed to start ffplay";
+        emit assistantAudioSpeechResponseEnd();
+        return;
+    }
+
+    auto nam   = new QNetworkAccessManager(this);
+
+    QNetworkRequest request(url);
+    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
+    request.setTransferTimeout(IMAGE_REQUEST_TIMEOUT_MS);
+
+    // Create SSL configuration that ignores certificate errors
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+
+    request.setSslConfiguration(sslConfig);
+
+    auto reply = nam->get(request);
+
+    connect(reply, &QNetworkReply::readyRead, this, [this, reply]() {
+        QByteArray chunk = reply->readAll();
+        if (!chunk.isEmpty())
+            m_process.write(chunk);
     });
-}
 
-void Voice::stopListening() {
-    qCDebug(lcVoice()) << "Stop listening";
-    QTimer::singleShot(1000, [=] {
-        m_audioInput->stop();
-        m_buffer.clear();
-
-        emit stopWorker();
+    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+        reply->deleteLater();
+        m_process.closeWriteChannel();
     });
 }
 
@@ -115,130 +114,61 @@ QObject *Voice::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {
     return obj;
 }
 
-void Voice::onTextMessageReceived(const QString &message) {
-    // if not a valid socket, do nothing
-    if (!m_webSocket.isValid()) {
-        qCWarning(lcVoice()) << "Invalid socket, dropping message";
-        return;
-    }
-
-    //    qCDebug(lcVoice()).noquote() << message.simplified();
-
-    // Parse message to JSON
-    QJsonParseError parseerror;
-    QJsonDocument   doc = QJsonDocument::fromJson(message.toUtf8(), &parseerror);
-    if (parseerror.error != QJsonParseError::NoError) {
-        qCCritical(lcVoice()) << "JSON error:" << parseerror.errorString();
-        return;
-    }
-
-    QVariantMap map = doc.toVariant().toMap();
-
-    if (map.contains("intent")) {
-        if (map.value("intent").toMap().value("probability").toFloat() < 0.5) {
-            return;
-        }
-
-        QString command;
-
-        if (map.contains("intent")) {
-            command = map.value("intent").toMap().value("intentName").toString();
-            if (command.isEmpty()) {
-                if (m_webSocket.isValid()) {
-                    m_webSocket.close();
-                }
-                qCWarning(lcVoice()) << "Command was not recognised";
-                emit error(tr("Command was not recognised"));
-                return;
-            }
-        }
-
-        QString  entity;
-        QVariant param;
-
-        QVariantList intentSlots = map.value("slots").toList();
-
-        for (QVariantList::iterator i = intentSlots.begin(); i != intentSlots.end(); i++) {
-            if (i->toMap().value("slotName").toString().contains("entity")) {
-                entity = i->toMap().value("value").toMap().value("value").toString();
-            } else if (i->toMap().value("slotName").toString().contains("brightness")) {
-                param = i->toMap().value("value").toMap().value("value").toDouble();
-            }
-        }
-
-        if (entity.isEmpty()) {
-            if (m_webSocket.isValid()) {
-                m_webSocket.close();
-            }
-            qCWarning(lcVoice()) << "Entity was not recognised";
-            emit error(tr("Entity was not recognised"));
-            return;
-        }
-
-        emit commandExecuted(command, entity, param);
-
-        if (m_webSocket.isValid()) {
-            m_webSocket.close();
-        }
-    }
+void Voice::onAssistantEventReady(const QString &entityId, int sesssionId)
+{
+    emit assistantEventReady(entityId, sesssionId);
 }
 
-void Voice::onStateChanged(QAbstractSocket::SocketState state) {
-    qCDebug(lcVoice()) << "State:" << state;
+void Voice::onAssistantEventSttResponse(QString entityId, int sessionId, QString text)
+{
+    emit assistantEventSttResponse(entityId, sessionId, text);
 }
 
-void Voice::onError(QAbstractSocket::SocketError error) {
-    qCWarning(lcVoice()) << "Error: " << error << m_webSocket.errorString();
-
-    if (m_webSocket.isValid()) {
-        m_webSocket.close();
-    }
-
-    m_webSocket.open(QUrl(m_url));
+void Voice::onAssistantEventTextResponse(QString entityId, int sessionId, bool success, QString text)
+{
+    emit assistantEventTextResponse(entityId, sessionId, success, text);
 }
 
-void Voice::onResult(QString message) {
-    emit transcriptionUpdated(message);
+void Voice::onAssistantEventSpeechResponse(QString entityId, int sessionId, QString url, QString mimeType)
+{
+    emit assistantEventSpeechResponse(entityId, sessionId, url, mimeType);
 }
 
-void Voice::onFinalResult(QString message) {
-    emit transcriptionUpdated(message);
-    qCDebug(lcVoice()) << "Final message" << message;
-    m_webSocket.sendTextMessage(message);
+void Voice::onAssistantEventFinished(QString entityId, int sessionId)
+{
+    emit assistantEventFinished(entityId, sessionId);
 }
 
-VoskWorker::VoskWorker(QObject *parent) : QObject(parent) {}
+void Voice::onAssistantEventError(QString entityId, int sessionId, core::AssistantErrorCodes::Enum code, QString message)
+{
+    QString errorMsg;
 
-VoskWorker::~VoskWorker() {}
+    qWarning() << code << message;
 
-void VoskWorker::startListening(char *buffer, int len) {}
-
-void VoskWorker::stopListening() {}
-
-void VoskWorker::processVoskResult(QString message) {
-    QJsonParseError parseerror;
-    QJsonDocument   doc = QJsonDocument::fromJson(message.toUtf8(), &parseerror);
-    if (parseerror.error != QJsonParseError::NoError) {
-        qCCritical(lcVoice()) << "JSON error:" << parseerror.errorString();
-        return;
+    switch (code) {
+        case core::AssistantErrorCodes::Enum::SERVICE_UNAVAILABLE:
+            errorMsg = tr("The service is temporarily unavailable.");
+            break;
+        case core::AssistantErrorCodes::Enum::INVALID_AUDIO:
+            errorMsg = tr("Incorrect audio format.");
+            break;
+        case core::AssistantErrorCodes::Enum::NO_TEXT_RECOGNIZED:
+            errorMsg = tr("I didn’t catch any text from your input. Could you repeat that?");
+            break;
+        case core::AssistantErrorCodes::Enum::INTENT_FAILED:
+            errorMsg = tr("Please try rephrasing your request.");
+            break;
+        case core::AssistantErrorCodes::Enum::TTS_FAILED:
+            errorMsg = tr("I couldn’t generate the audio response.");
+            break;
+        case core::AssistantErrorCodes::Enum::TIMEOUT:
+            errorMsg = tr("It’s taking longer than expected. Please try your request again.");
+            break;
+        case core::AssistantErrorCodes::Enum::UNEXPECTED_ERROR:
+            errorMsg = tr("Something went wrong on our side. Please try again.");
+            break;
     }
 
-    QVariantMap map = doc.toVariant().toMap();
-
-    if (!map.value("text").toString().isEmpty()) {
-        auto str = map.value("text").toString();
-        m_lastRecognition = str;
-
-        emit result(str);
-        qCDebug(lcVoice()) << "Text:" << str;
-    }
-
-    if (!map.value("partial").toString().isEmpty()) {
-        auto str = map.value("partial").toString();
-        m_lastRecognition = str;
-
-        emit result(str);
-        qCDebug(lcVoice()) << "Partial:" << str;
-    }
+    emit assistantEventError(entityId, sessionId, errorMsg);
 }
 }  // namespace uc

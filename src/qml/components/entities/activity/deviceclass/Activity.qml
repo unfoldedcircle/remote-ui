@@ -116,6 +116,11 @@ EntityComponents.BaseDetail {
                                                 overrideConfig[buttonMap.button] =  ({});
                                             }
 
+                                            if (buttonMap.button == "VOICE" && (entityObj.voiceAssistantEntityId != "" || Config.voiceAssistantId != "")) {
+                                                console.info("Skipping VOICE button mapping, voice assistant is present");
+                                                return;
+                                            }
+
                                             if (buttonMap.short_press) {
                                                 EntityController.load(buttonMap.short_press.entity_id);
                                             }
@@ -243,9 +248,23 @@ EntityComponents.BaseDetail {
         touchSlider.active = entityObj.sliderConfig.enabled;
     }
 
+    function updateVoiceAssistantConfig() {
+        if (entityObj.voiceAssistantEntityId == "") {
+            return;
+        }
+
+        const e = EntityController.get(entityObj.voiceAssistantEntityId);
+
+        if (!e) {
+            EntityController.load(entityObj.voiceAssistantEntityId);
+        }
+    }
+
     Component.onCompleted: {
         updateButtonMapping();
         updateSliderConfig();
+        updateVoiceAssistantConfig();
+        root.isActivityOpen = true;
     }
 
     Connections {
@@ -267,6 +286,10 @@ EntityComponents.BaseDetail {
             console.info("Slider entity feature", entityObj.sliderConfig.entityFeature);
             updateSliderConfig();
         }
+
+        function onVoiceAssistantEntityIdChanged() {
+            updateVoiceAssistantConfig();
+        }
     }
 
     property var overrideConfigDefault: {
@@ -284,6 +307,14 @@ EntityComponents.BaseDetail {
             "pressed": function() {
                 entityObj.turnOff();
                 activityBase.close();
+            }
+        },
+        "VOICE": {
+            "long_press": function() {
+                voice.start(entityObj.voiceAssistantEntityId, entityObj.voiceAssistantProfileId);
+            },
+            "released": function() {
+                voice.stop();
             }
         }
     }

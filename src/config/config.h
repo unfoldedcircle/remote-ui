@@ -16,6 +16,7 @@
 #include "../translation/translation.h"
 #include "../ui/notification.h"
 #include "../util.h"
+#include "../ui/entity/voiceAssistant.h"
 
 namespace uc {
 
@@ -38,8 +39,11 @@ class Config : public QObject {
 
     Q_PROPERTY(bool hapticEnabled READ getHapticEnabled WRITE setHapticEnabled NOTIFY hapticEnabledChanged)
 
-    Q_PROPERTY(bool voiceEnabled READ getVoiceEnabled WRITE setVoiceEnabled NOTIFY voiceEnabledChanged)
     Q_PROPERTY(bool micEnabled READ getMicEnabled WRITE setMicEnabled NOTIFY micEnabledChanged)
+
+    Q_PROPERTY(QString voiceAssistantId READ getVoiceAssistantId WRITE setVoiceAssistantId NOTIFY voiceAssistantIdChanged)
+    Q_PROPERTY(QString voiceAssistantProfileId READ getVoiceAssistantProfileId WRITE setVoiceAssistantProfileId NOTIFY voiceAssistantProfileIdChanged)
+    Q_PROPERTY(bool voiceAssistantSpeechResponse READ getVoiceAssistantSpeechResponse WRITE setVoiceAssistantSpeechResponse NOTIFY voiceAssistantSpeechResponseChanged)
 
     Q_PROPERTY(bool soundEnabled READ getSoundEnabled WRITE setSoundEnabled NOTIFY soundEnabledChanged)
     Q_PROPERTY(int soundVolume READ getSoundVolume WRITE setSoundVolume NOTIFY soundVolumeChanged)
@@ -89,6 +93,8 @@ class Config : public QObject {
     Q_PROPERTY(bool enableActivityBar READ getEnableActivityBar WRITE setEnableActivityBar NOTIFY enableActivityBarChanged)
     Q_PROPERTY(bool fillMediaArtwork READ getFillMediaArtwork WRITE setFillMediaArtwork NOTIFY fillMediaArtworkChanged)
 
+    Q_PROPERTY(int resumeTimeoutWindowSec READ getResumeTimeoutWindowSec WRITE setResumeTimeoutWindowSec NOTIFY resumeTimeoutWindowSecChanged)
+
 
  public:
     explicit Config(core::Api* core, QObject* parent = nullptr);
@@ -122,10 +128,17 @@ class Config : public QObject {
     bool getHapticEnabled() { return m_hapticEnabled; }
     void setHapticEnabled(bool enabled);
 
-    bool getVoiceEnabled() { return m_voiceEnabled; }
-    void setVoiceEnabled(bool enabled);
     bool getMicEnabled() { return m_micEnabled; }
     void setMicEnabled(bool enabled);
+
+    QString getVoiceAssistantId() { return m_voiceAssistantId; }
+    void setVoiceAssistantId(const QString& entityId);
+
+    QString getVoiceAssistantProfileId() { return m_voiceAssistantProfileId; }
+    void setVoiceAssistantProfileId(const QString& profileId);
+
+    bool getVoiceAssistantSpeechResponse() { return m_voiceAssistantSpeechResponse; }
+    void setVoiceAssistantSpeechResponse(bool value);
 
     bool getSoundEnabled() { return m_soundEnabled; }
     void setSoundEnabled(bool enabled);
@@ -153,6 +166,9 @@ class Config : public QObject {
 
     bool getFillMediaArtwork();
     void setFillMediaArtwork(bool value);
+
+    int getResumeTimeoutWindowSec();
+    void setResumeTimeoutWindowSec(int value);
 
     enum WakeupSensitivities { off = 0, low = 1, medium = 2, high = 3 };
     Q_ENUM(WakeupSensitivities)
@@ -236,8 +252,10 @@ class Config : public QObject {
 
     void hapticEnabledChanged(bool value);
 
-    void voiceEnabledChanged(bool value);
     void micEnabledChanged(bool value);
+    void voiceAssistantIdChanged(QString voiceAssistantId);
+    void voiceAssistantProfileIdChanged(QString profileId);
+    void voiceAssistantSpeechResponseChanged(bool speechResponse);
 
     void soundEnabledChanged(bool value);
     void soundVolumeChanged(int volume);
@@ -275,6 +293,7 @@ class Config : public QObject {
     void showBatteryPercentageChanged();
     void enableActivityBarChanged();
     void fillMediaArtworkChanged();
+    void resumeTimeoutWindowSecChanged(int value);
 
  public slots:
     void onCoreConnected();
@@ -312,8 +331,10 @@ class Config : public QObject {
 
     bool m_hapticEnabled;
 
-    bool m_voiceEnabled;
-    bool m_micEnabled;
+    bool    m_micEnabled;
+    QString m_voiceAssistantId;
+    QString m_voiceAssistantProfileId;
+    bool    m_voiceAssistantSpeechResponse;
 
     bool m_soundEnabled;
     int  m_soundVolume;

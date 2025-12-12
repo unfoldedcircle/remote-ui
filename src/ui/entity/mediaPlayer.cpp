@@ -3,12 +3,16 @@
 
 #include "mediaPlayer.h"
 
+#include <QSslConfiguration>
+
 #include "../../logging.h"
 #include "../../util.h"
 
 namespace uc {
 namespace ui {
 namespace entity {
+
+static constexpr int IMAGE_REQUEST_TIMEOUT_MS = 15000;
 
 MediaPlayer::MediaPlayer(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                          const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
@@ -61,6 +65,9 @@ MediaPlayer::MediaPlayer(const QString &id, QVariantMap nameI18n, const QString 
 
     QObject::connect(&m_positionTimer, &QTimer::timeout, this, &MediaPlayer::onPositionTimerTimeout);
     QObject::connect(&m_nam, &QNetworkAccessManager::finished, this, &MediaPlayer::onNetworkRequestFinished);
+
+    QObject::connect(&m_nam, QOverload<QNetworkReply *, const QList<QSslError> &>::of(&QNetworkAccessManager::sslErrors),
+            this, &MediaPlayer::onSslErrors);
 }
 
 MediaPlayer::~MediaPlayer() {
@@ -352,7 +359,54 @@ void MediaPlayer::getMediaImageColor(QString imageUrl) {
 
     QNetworkRequest request(imageUrl);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
-    m_nam.get(request);
+    // weird API: no default timeout set in QNetworkRequest, calling setTransferTimeout without parameter sets it to 30s
+    request.setTransferTimeout(IMAGE_REQUEST_TIMEOUT_MS);
+
+    // Create SSL configuration that ignores certificate errors
+    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+
+    request.setSslConfiguration(sslConfig);
+
+    // note: not logging url because it might contain sensitive information like API keys (e.g. Plex)
+    qCInfo(lcMediaPlayer()) << "Starting image download with timeout:" << IMAGE_REQUEST_TIMEOUT_MS;
+    QNetworkReply *reply = m_nam.get(request);
+
+    connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
+            this, &MediaPlayer::onNetworkError);
+}
+
+QColor MediaPlayer::computeAverageImageColor(QImage image) {
+    if (image.isNull()) {
+        return QColor();
+    }
+
+    int    step = 20;
+    int    t = 0;
+    int    r = 0, g = 0, b = 0;
+    double brightness = 0.6;
+
+    for (int i = 0; i < image.width(); i += step) {
+        for (int j = 0; j < image.height(); j += step) {
+            if (image.valid(i, j)) {
+                t++;
+                QColor c = image.pixel(i, j);
+                r += c.red();
+                b += c.blue();
+                g += c.green();
+            }
+        }
+    }
+
+    QColor color = QColor(static_cast<int>(brightness * r / t) > 255 ? 255 : static_cast<int>(brightness * r / t),
+                  static_cast<int>(brightness * g / t) > 255 ? 255 : static_cast<int>(brightness * g / t),
+                  static_cast<int>(brightness * b / t) > 255 ? 255 : static_cast<int>(brightness * b / t));
+
+    if (color.lightness() < 30) {
+        color.setHsl(color.hslHue(), color.hslSaturation(), 30);
+    }
+
+    return color;
 }
 
 void MediaPlayer::sendCommand(MediaPlayerCommands::Enum cmd, QVariantMap params) {
@@ -481,14 +535,28 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
         case MediaPlayerAttributes::Media_image_url: {
             QString newImageUrl = data.toString();
 
-            if (!m_mediaImageUrl.contains(newImageUrl) || newImageUrl.isEmpty()) {
+            if (m_mediaImageUrl != newImageUrl) {
                 m_mediaImageUrl = newImageUrl;
                 ok = true;
                 emit mediaImageUrlChanged();
 
                 m_mediaImageDownloadTries = 0;
 
-                getMediaImageColor(m_mediaImageUrl);
+                bool isBase64 = newImageUrl.startsWith("data:image/", Qt::CaseInsensitive) && newImageUrl.contains(";base64,");
+
+                if (!isBase64) {
+                    getMediaImageColor(m_mediaImageUrl);
+                } else {
+                    m_mediaImage = newImageUrl;
+                    emit mediaImageChanged();
+
+                    QString base64Data = newImageUrl.section(",", 1);
+                    QByteArray imageData = QByteArray::fromBase64(base64Data.toLatin1());
+                    QImage img;
+                    img.loadFromData(imageData);
+                    m_mediaImageColor = computeAverageImageColor(img);
+                    emit mediaImageColorChanged();
+                }
             }
             break;
         }
@@ -581,16 +649,47 @@ void MediaPlayer::onPositionTimerTimeout() {
     emit mediaPositionChanged();
 }
 
+void MediaPlayer::onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors) {
+    for (const QSslError &error : errors) {
+        qCWarning(lcMediaPlayer()) << "Ignorning image download SSL error:" << error;
+
+        // Log certificate info
+        QSslCertificate cert = error.certificate();
+        if (!cert.isNull()) {
+            qCInfo(lcMediaPlayer()) << "Certificate Subject:" << cert.subjectInfo(QSslCertificate::CommonName)
+                                    << "Issuer:" << cert.issuerInfo(QSslCertificate::CommonName)
+                                    << "Validity:" << cert.effectiveDate().toString(Qt::ISODate)
+                                    << "-" << cert.expiryDate().toString(Qt::ISODate);
+        }
+    }
+
+    // Ignore ALL SSL errors (including hostname mismatch)
+    reply->ignoreSslErrors(errors);
+}
+
+void MediaPlayer::onNetworkError(QNetworkReply::NetworkError error) {
+    QNetworkReply *reply = qobject_cast<QNetworkReply *>(sender());
+    if (!reply) {
+        return;
+    }
+
+    qCWarning(lcMediaPlayer()) << "Image download network error:"
+                               << reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt()
+                               << error << reply->errorString();
+}
+
 void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
     if (reply->error()) {
-        qCWarning(lcMediaPlayer()).noquote() << "ERROR" << reply->error();
+        m_mediaImageDownloadTries++;
+        qCWarning(lcMediaPlayer()).nospace() << "Image download failed "
+                                             << m_mediaImageDownloadTries << "/3 ("
+                                             << reply->error() << " " << reply->errorString() << "): "
+                                             << m_mediaImageUrl;
 
-        if (m_mediaImageDownloadTries > 3) {
+        if (m_mediaImageDownloadTries >= 3) {
             return;
         } else {
-            qCDebug(lcMediaPlayer()) << "Image download failed, trying agian" << m_mediaImageUrl;
             QTimer::singleShot(1000, [=] { getMediaImageColor(m_mediaImageUrl); });
-            m_mediaImageDownloadTries++;
         }
 
         reply->deleteLater();
@@ -598,10 +697,7 @@ void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
         QPixmap p;
         p.loadFromData(reply->readAll());
 
-        int    step = 20;
-        int    t = 0;
-        int    r = 0, g = 0, b = 0;
-        double brightness = 0.6;
+        qCInfo(lcMediaPlayer()) << "Image successfully downloaded";
 
         QImage     image = p.toImage();
         QByteArray byteArray;
@@ -613,25 +709,7 @@ void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
             m_mediaImage.append(QString::fromLatin1(byteArray.toBase64().data()));
             emit mediaImageChanged();
 
-            for (int i = 0; i < p.width(); i += step) {
-                for (int j = 0; j < p.height(); j += step) {
-                    if (image.valid(i, j)) {
-                        t++;
-                        QColor c = image.pixel(i, j);
-                        r += c.red();
-                        b += c.blue();
-                        g += c.green();
-                    }
-                }
-            }
-
-            m_mediaImageColor =
-                QColor(static_cast<int>(brightness * r / t) > 255 ? 255 : static_cast<int>(brightness * r / t),
-                       static_cast<int>(brightness * g / t) > 255 ? 255 : static_cast<int>(brightness * g / t),
-                       static_cast<int>(brightness * b / t) > 255 ? 255 : static_cast<int>(brightness * b / t));
-            if (m_mediaImageColor.lightness() < 30) {
-                m_mediaImageColor.setHsl(m_mediaImageColor.hslHue(), m_mediaImageColor.hslSaturation(), 30);
-            }
+            m_mediaImageColor = computeAverageImageColor(image);
 
             qCDebug(lcMediaPlayer()).noquote() << "Background image lightness" << m_mediaImageColor.lightness();
 

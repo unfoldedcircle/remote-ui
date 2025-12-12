@@ -18,8 +18,8 @@ Power::Power(core::Api *core, QObject *parent) : QObject(parent), m_core(core) {
     QObject::connect(m_core, &core::Api::powerModeChanged, this, &Power::onPowerModeChanged);
     QObject::connect(m_core, &core::Api::connected, this, [=] { getPowerModeFromCore(); });
 
-    qRegisterMetaType<PowerMode>("PowerModes");
-    qmlRegisterUncreatableType<Power>("Power", 1, 0, "PowerModes", "Enum is not a type");
+    qRegisterMetaType<Power::PowerMode>("PowerModes");
+    qmlRegisterUncreatableType<Power>("Power.Modes", 1, 0, "PowerModes", "Enum is not a type");
 }
 
 Power::~Power() {

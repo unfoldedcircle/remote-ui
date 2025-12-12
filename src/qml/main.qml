@@ -12,6 +12,7 @@ import HwInfo 1.0
 import Config 1.0
 import Battery 1.0
 import Power 1.0
+import Power.Modes 1.0
 import SoundEffects 1.0
 import SoftwareUpdate 1.0
 
@@ -115,6 +116,18 @@ ApplicationWindow {
                         powerOffButtonTimer.stop();
                     }
                 }
+            },
+            "VOICE": {
+                "long_press": function() {
+                    if (!isSecondContainerLoaded || (isSecondContainerLoaded && !root.isActivityOpen)) {
+                        voice.start(Config.voiceAssistantId, Config.voiceAssistantProfileId);
+                    }
+                },
+                "released": function() {
+                    if (!isSecondContainerLoaded || (isSecondContainerLoaded && !root.isActivityOpen)) {
+                        voice.stop();
+                    }
+                }
             }
         }
     }
@@ -151,6 +164,7 @@ ApplicationWindow {
         property alias volume: volume
         property alias keyboard: keyboard
         property alias keyboardInputField: keyboardInputField
+        property bool isActivityOpen: false
 
         Loader {
             id: containerMain
@@ -290,9 +304,7 @@ ApplicationWindow {
                     loader.source = "";
                     loader.active = false
                     containerSecond.close();
-                    //                    if (ui.inputController.activeObject !== String(containerMain.item)) {
-                    //                        ui.inputController.takeControl(String(containerMain.item));
-                    //                    }
+                    root.isActivityOpen = false;
                 }
             }
         }
@@ -416,6 +428,10 @@ ApplicationWindow {
                     if (value) {
                         chargingScreenLoader.active = true;
                         SoundEffects.play(SoundEffects.BatteryCharge);
+                    } else {
+                        if (chargingScreenLoader.active) {
+                            chargingScreenLoader.item.close();
+                        }
                     }
                 }
             }
@@ -425,7 +441,7 @@ ApplicationWindow {
                 ignoreUnknownSignals: true
 
                 function onPowerModeChanged(fromPowerMode, toPowerMode) {
-                    if (toPowerMode === PowerModes.Normal && fromPowerMode !== PowerModes.Idle && Battery.isCharging) {
+                    if (toPowerMode === PowerModes.Normal && fromPowerMode !== PowerModes.Idle && Battery.isCharging && Battery.powerSupply) {
                         chargingScreenLoader.active = true;
                     }
                 }

@@ -64,6 +64,9 @@ Base::Base(const QString &id, QVariantMap nameI18n, const QString &language, con
             case Macro:
                 m_icon.append("activity");
                 break;
+            case Voice_assistant:
+                m_icon.append("microphone");
+                break;
             default:
                 m_icon.append("warning");
                 break;
@@ -110,8 +113,15 @@ bool Base::hasAnyFeature(QVariantList features) {
 }
 
 void Base::sendCommand(const QString &cmd, QVariantMap params) {
-    const QString finalCommand = Util::convertEnumToString(m_type).append(".").append(cmd);
-    emit          command(m_id, finalCommand.toLower(), params);
+    QString finalCommand;
+
+    if (m_type == Type::Voice_assistant) {
+        finalCommand = cmd;
+    } else {
+        finalCommand = Util::convertEnumToString(m_type).append(".").append(cmd);
+    }
+
+    emit command(m_id, finalCommand.toLower(), params);
 }
 
 void Base::sendCommand(const QString &cmd) {

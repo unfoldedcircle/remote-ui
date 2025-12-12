@@ -17,13 +17,14 @@ QString EntityController::m_language = QString();
 // FIXME(#279) because of static createEntityObject
 Config::UnitSystems EntityController::m_unitSystem = Config::UnitSystems::Metric;
 
-EntityController::EntityController(core::Api* core, const QString& language, const Config::UnitSystems unitSystem,
+EntityController::EntityController(core::Api* core, const QString& language, const Config::UnitSystems unitSystem, int resumeTimeoutWindowSec,
                                    QObject* parent)
     : QObject(parent), m_core(core), m_availableEntities(core, this), m_configuredEntities(core, this) {
     Q_ASSERT(s_instance == nullptr);
     s_instance   = this;
     m_language   = language;
     m_unitSystem = unitSystem;
+    m_resumeTimerTimeout = resumeTimeoutWindowSec * 1000;
 
             //    qRegisterMetaType<uc::ui::entity::Base::Type>("Entity Types");
     qmlRegisterUncreatableType<entity::Base>("Entity.Controller", 1, 0, "EntityTypes", "Enum is not a type");
@@ -127,6 +128,15 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qRegisterMetaType<entity::SequenceStep::Type>("Sequence Step Type");
     qmlRegisterUncreatableType<entity::SequenceStep>("SequenceStep.Type", 1, 0, "SequenceStep", "Enum is not a type");
 
+    // voice asssitant enums
+    qRegisterMetaType<entity::VoiceAssistantStates::Enum>("VoiceAssistant States");
+    qRegisterMetaType<entity::VoiceAssistantFeatures::Enum>("VoiceAssistant Features");
+    qRegisterMetaType<entity::VoiceAssistantDeviceClass::Enum>("VoiceAssistant Device Classes");
+    qmlRegisterUncreatableType<entity::VoiceAssistantStates>("Entity.VoiceAssistant", 1, 0, "VoiceAssistantStates", "Enum is not a type");
+    qmlRegisterUncreatableType<entity::VoiceAssistantFeatures>("Entity.VoiceAssistant", 1, 0, "VoiceAssistantFeatures", "Enum is not a type");
+    qmlRegisterUncreatableType<entity::VoiceAssistantDeviceClass>("Entity.VoiceAssistant", 1, 0, "VoiceAssistantDeviceClasses",
+                                                          "Enum is not a type");
+
     QObject::connect(m_core, &core::Api::connected, this, &EntityController::onCoreConnected);
     QObject::connect(m_core, &core::Api::disconnected, this, &EntityController::onCoreDisconnected);
 
@@ -196,6 +206,9 @@ entity::Base* EntityController::createEntityObject(const QString& type, const QS
         case entity::Base::Type::Sensor:
             return new entity::Sensor(id, name, m_language, icon, area, deviceClass, enabled,
                                       attributes, options, integrationId, parent);
+        case entity::Base::Type::Voice_assistant:
+            return new entity::VoiceAssistant(id, name, m_language, icon, area, deviceClass, features,
+                                      enabled, attributes, options, integrationId, parent);
         default:
             return new entity::Base(id, name, m_language, icon, area, entity::Base::Type::Unsupported, true, QVariantMap(), integrationId, false, parent);
     }
@@ -425,6 +438,9 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
             case entity::Base::Type::Macro:
                 entityObj->updateFeatures<entity::MacroFeatures::Enum>(entity.features);
                 break;
+            case entity::Base::Type::Voice_assistant:
+                entityObj->updateFeatures<entity::VoiceAssistantFeatures::Enum>(entity.features);
+                break;
 
             case entity::Base::Type::Sensor:
             default:
@@ -517,12 +533,26 @@ void EntityController::retrySendAttempt(const QString& commandId)
             qCWarning(lcEntityController())
                 << "Cannot execute command:" << commandId << code << message;
 
+            // if we're in the resume window, we try again in 500ms
+            if (m_resumeWindow) {
+                qCDebug(lcEntityController()) << "In resume window, trying command again:" << commandId;
+                QTimer::singleShot(500, [=]() { retrySendAttempt(commandId); });
+                return;
+            }
+
             auto it2 = m_pendingCommands.find(commandId);
             if (it2 == m_pendingCommands.end()) {
                 return;
             }
 
             pendingCommand live2 = it2.value();
+
+            // we ignore voice commands as they have their own error handling
+            if (live2.command == "voice_start") {
+                emit voiceAssistantCommandError(live2.entityId);
+                m_pendingCommands.remove(commandId);
+                return;
+            }
 
             // get entity name
             QString entityName = "The device";
@@ -617,6 +647,34 @@ void EntityController::onRemoveFromActivities(QString entityId) {
 }
 
 void EntityController::onActivityStartedRunning(QString entityId) { emit activityStartedRunning(entityId); }
+
+void EntityController::onResumeTimerTimeout()
+{
+    m_resumeWindow = false;
+    qCDebug(lcEntityController())  << "Resume timer disabled";
+}
+
+void EntityController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode)
+{
+    if (m_resumeTimerTimeout == 0) {
+        return;
+    }
+
+    if (powerMode == core::PowerEnums::PowerMode::NORMAL && m_previousPowerMode == core::PowerEnums::PowerMode::SUSPEND) {
+        m_resumeWindow = true;
+        QTimer::singleShot(m_resumeTimerTimeout, this, &EntityController::onResumeTimerTimeout);
+
+        qCDebug(lcEntityController())  << "Resume timer enabled" << m_resumeTimerTimeout << "ms";
+    }
+
+    m_previousPowerMode = powerMode;
+}
+
+void EntityController::onResumeTimeoutWindowSecChanged(int value)
+{
+    m_resumeTimerTimeout = value * 1000;
+    qCDebug(lcEntityController())  << "Resume timer changed" << m_resumeTimerTimeout << "ms";
+}
 
 }  // namespace ui
 }  // namespace uc

@@ -311,12 +311,16 @@ Rectangle {
     Components.Icon {
         id: icon
         color: colors.offwhite
-        icon: entityObj.mediaImage && entityObj.mediaImage !== "" ? "" : entityObj.icon
+        icon: hasMediaImage ? "" : entityObj.icon
         suffix: entityObj.stateAsString
         anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter; }
         size: 100
         visible: entityObj.enabled
         opacity: entityBaseContainer.iconOn ? 1 : 0.4
+
+        property bool hasMediaImage:
+                entityObj.type === EntityTypes.Media_player
+                && entityObj.mediaImage != ""
 
         Behavior on opacity {
             NumberAnimation { duration: 300 }
@@ -326,10 +330,10 @@ Rectangle {
             id: imageClosed
             width: 100; height: 100
             anchors.centerIn: icon
-            opacity: entityObj.mediaImage !== "" ? 1 : 0
+            opacity: hasMediaImage ? 1 : 0
             enabled: visible
-            visible: entityObj.type === EntityTypes.Media_player && entityObj.mediaImage != ""
-            url: entityObj.mediaImage ? entityObj.mediaImage : ""
+            visible: hasMediaImage
+            url: hasMediaImage ? entityObj.mediaImage : ""
             aspectFit: true
 
             Behavior on opacity {

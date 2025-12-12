@@ -371,8 +371,12 @@ class MediaPlayer : public Base {
     void                  getMediaImageColor(QString imageUrl);
     int                   m_mediaImageDownloadTries = 0;
 
+    QColor                computeAverageImageColor(QImage image);
+
  private slots:
     void onPositionTimerTimeout();
+    void onSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
+    void onNetworkError(QNetworkReply::NetworkError error);
     void onNetworkRequestFinished(QNetworkReply *reply);
 };
 

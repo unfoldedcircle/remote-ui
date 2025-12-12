@@ -73,7 +73,7 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     qmlRegisterSingletonType<SoundEffects>("SoundEffects", 1, 0, "SoundEffects", &SoundEffects::qmlInstance);
 
     // TODO(#279) climate entity requires localization info: current value & signal handler for changed setting
-    m_entityController = new EntityController(m_core, m_config->getLanguage(), m_config->getUnitSystemEnum(), this);
+    m_entityController = new EntityController(m_core, m_config->getLanguage(), m_config->getUnitSystemEnum(), m_config->getResumeTimeoutWindowSec(), this);
     qmlRegisterSingletonType<EntityController>("Entity.Controller", 1, 0, "EntityController",
                                                &EntityController::qmlInstance);
 
@@ -102,6 +102,8 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
 
     QObject::connect(m_config, &Config::languageChanged, m_entityController, &EntityController::onLanguageChanged);
     QObject::connect(m_config, &Config::unitSystemChanged, m_entityController, &EntityController::onUnitSystemChanged);
+    QObject::connect(m_core, &core::Api::powerModeChanged, m_entityController, &EntityController::onPowerModeChanged);
+    QObject::connect(m_config, &Config::resumeTimeoutWindowSecChanged, m_entityController, &EntityController::onResumeTimeoutWindowSecChanged);
 
     QObject::connect(m_config, &Config::displayBrightnessChanged, this, &Controller::onBrightnessChanged);
 

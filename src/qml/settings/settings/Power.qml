@@ -86,7 +86,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        KeyNavigation.down: wakeupSensitivitySlider
+                        KeyNavigation.down: resumeTimeoutValueSlider
                         highlight: activeFocus && ui.keyNavigationEnabled
 
                         Component.onCompleted: {
@@ -103,6 +103,65 @@ Settings.Page {
                     color: colors.light
                     text: qsTr("Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.")
                     font: fonts.secondaryFont(24)
+                }
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width - 20; height: 2
+                color: colors.medium
+            }
+
+            /** RESUME TIMEOUT WINDOW **/
+            Item {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width - 20
+                height: childrenRect.height + 40
+
+                Text {
+                    id: resumeTimeoutValueText
+                    width: parent.width - 80
+                    wrapMode: Text.WordWrap
+                    color: colors.offwhite
+                    text: qsTr("Retry commands after wakeup")
+                    anchors { left: parent.left; top:parent.top }
+                    font: fonts.primaryFont(30)
+                }
+
+                Text {
+                    id: resumeTimeoutValueSmallText
+                    width: parent.width
+                    wrapMode: Text.WordWrap
+                    color: colors.light
+                    text: qsTr("Retry commands within %1 second(s) after wakeup.").arg(Config.resumeTimeoutWindowSec)
+                    anchors { left: parent.left; top:resumeTimeoutValueText.bottom; topMargin: 5 }
+                    font: fonts.secondaryFont(24)
+                }
+
+                Components.Slider {
+                    id: resumeTimeoutValueSlider
+                    height: 60
+                    from: 0
+                    to: 10
+                    stepSize: 1
+                    value: Config.resumeTimeoutWindowSec
+                    lowValueText: qsTr("Disabled")
+                    highValueText: qsTr("%1 seconds").arg(to)
+                    live: true
+                    anchors { top: resumeTimeoutValueSmallText.bottom; topMargin: 10 }
+
+                    onValueChanged: {
+                        Config.resumeTimeoutWindowSec = value;
+                    }
+
+                    onUserInteractionEnded: {
+                        Config.resumeTimeoutWindowSec = value;
+                    }
+
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.up: (HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled) ? wowlanSwitch : undefined
+                    KeyNavigation.down: wakeupSensitivitySlider
+                    highlight: activeFocus && ui.keyNavigationEnabled
                 }
             }
 
@@ -160,7 +219,7 @@ Settings.Page {
                     }
 
                     /** KEYBOARD NAVIGATION **/
-                    KeyNavigation.up: (HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled) ? wowlanSwitch : undefined
+                    KeyNavigation.up: resumeTimeoutValueSlider
                     KeyNavigation.down: displayoffTimeoutSlider
                     highlight: activeFocus && ui.keyNavigationEnabled
 
