@@ -104,7 +104,7 @@ Settings.Page {
 
         onClosed: {
             dockDetailPopupInfo.reset();
-            dockDetailPopupInfo.buttonNavigation.releaseControl(String(docksPage))
+            dockDetailPopupInfo.buttonNavigation.releaseControl()
         }
 
         enter: Transition {

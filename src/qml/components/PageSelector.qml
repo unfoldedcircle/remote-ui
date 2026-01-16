@@ -37,7 +37,7 @@ Rectangle {
 
             SequentialAnimation {
                 PropertyAnimation { target: roomSelector; properties: "scale, opacity"; easing.type: Easing.InExpo; duration: 200 }
-                PropertyAction { target: roomSelector; property: "hiddenAnimationDone"; value: true }
+                ScriptAction { script: roomSelector.closed() }
             }
         },
         Transition {
@@ -45,6 +45,7 @@ Rectangle {
 
             SequentialAnimation {
                 PropertyAnimation { target: roomSelector; properties: "scale, opacity"; easing.type: Easing.OutExpo; duration: 300 }
+                ScriptAction { script: buttonNavigation.takeControl() }
             }
         }
     ]
@@ -53,19 +54,11 @@ Rectangle {
     signal closed
 
     property bool editMode: false
-    property bool hiddenAnimationDone: false
-
-    onHiddenAnimationDoneChanged: {
-        if (hiddenAnimationDone) {
-            console.debug("Animation is done");
-            roomSelector.closed();
-        }
-    }
 
     function open() {
         state = "visible";
         loading.stop();
-        buttonNavigation.takeControl();
+
     }
 
     function close() {

@@ -3,6 +3,8 @@
 
 import QtQuick 2.15
 
+import "qrc:/components" as Components
+
 Rectangle {
     id: dropDownMenu
     width: parent.width
@@ -16,9 +18,11 @@ Rectangle {
 
     function open() {
         dropDownMenu.y = title.height;
+        buttonNavigation.takeControl();
     }
     function close() {
         dropDownMenu.y = ui.height;
+        ui.setTimeOut(400, () => { buttonNavigation.releaseControl(); });
     }
 
     Behavior on y {
@@ -27,5 +31,21 @@ Rectangle {
 
     MouseArea {
         anchors.fill: parent
+    }
+
+    Components.ButtonNavigation {
+        id: buttonNavigation
+        defaultConfig: {
+            "BACK": {
+                "pressed": function() {
+                    dropDownMenu.close();
+                }
+            },
+            "HOME": {
+                "pressed": function() {
+                    dropDownMenu.close();
+                }
+            }
+        }
     }
 }

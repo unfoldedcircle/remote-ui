@@ -140,10 +140,10 @@ void Base::onStateChanged(QString entityId, int newState) {
 
     if (newState == 0) {
         m_enabled = false;
-        emit enabledChanged();
+        emit entityEnabledChanged();
     } else {
         m_enabled = true;
-        emit enabledChanged();
+        emit entityEnabledChanged();
     }
 }
 

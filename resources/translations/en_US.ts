@@ -6,8 +6,7 @@
     <message>
         <location filename="../../src/qml/components/Profile.qml" line="751"/>
         <location filename="../../src/qml/components/Profile.qml" line="753"/>
-        <location filename="../../src/qml/components/SensorWidget.qml" line="90"/>
-        <location filename="../../src/qml/components/SensorWidget.qml" line="98"/>
+        <location filename="../../src/qml/components/SensorWidget.qml" line="59"/>
         <location filename="../../src/qml/components/SettingsNew.qml" line="474"/>
         <location filename="../../src/qml/components/SettingsNew.qml" line="476"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="326"/>
@@ -91,7 +90,7 @@
 <context>
     <name>ActionableNotification</name>
     <message>
-        <location filename="../../src/qml/components/ActionableNotification.qml" line="180"/>
+        <location filename="../../src/qml/components/ActionableNotification.qml" line="183"/>
         <source>Cancel</source>
         <translation type="unfinished"></translation>
     </message>
@@ -99,45 +98,65 @@
 <context>
     <name>Activity</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="324"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="268"/>
+        <source>Some devices are not ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="268"/>
+        <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="268"/>
+        <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="268"/>
+        <source>Proceed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="379"/>
         <source>Tap to close</source>
         <extracomment>Tap to close menu or tap to see more</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="324"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="379"/>
         <source>Tap for more</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="461"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="515"/>
         <source>Fix states</source>
         <extracomment>Title referring to fixing device states that might out of sync</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="482"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="536"/>
         <source>Quickly access entities included in this activity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="523"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="577"/>
         <source>Back</source>
         <extracomment>Caption to go back</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="563"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="617"/>
         <source>Empty page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="575"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="629"/>
         <source>You can add UI elements via the Web Configurator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="686"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="740"/>
         <source>State: %1</source>
         <extracomment>Device state</extracomment>
         <translation type="unfinished"></translation>
@@ -180,6 +199,11 @@
         <source>Completed</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <location filename="../../src/ui/entity/activity.h" line="50"/>
+        <source>Timeout</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>AddEntities</name>
@@ -202,51 +226,61 @@
 <context>
     <name>Base</name>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="93"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="82"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="95"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="125"/>
         <source>Some devices are not ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="93"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="82"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="95"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="125"/>
         <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="93"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="82"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="95"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="125"/>
         <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="99"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="133"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="73"/>
         <source>Activity error. Select option below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="102"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="136"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="76"/>
         <source>Turn activity on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="109"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="143"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="89"/>
         <source>Turn activity off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="120"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="154"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="102"/>
+        <source>Open activity</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="136"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="155"/>
         <source>is unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="124"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="82"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="95"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="142"/>
         <source>Proceed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="304"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="303"/>
         <location filename="../../src/qml/components/group/Base.qml" line="176"/>
         <source>Profile is restricted</source>
         <translation type="unfinished"></translation>
@@ -670,7 +704,7 @@
 <context>
     <name>ChargingScreen</name>
     <message>
-        <location filename="../../src/qml/components/ChargingScreen.qml" line="287"/>
+        <location filename="../../src/qml/components/ChargingScreen.qml" line="275"/>
         <source> - Charging</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1724,18 +1758,33 @@ Climate fan</extracomment>
 <context>
     <name>LoadingScreen</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="149"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="75"/>
+        <source>Sequence didn&apos;t finish within %1 seconds. Check configuration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="92"/>
+        <source>There was an error during the sequence.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="95"/>
+        <source>The sequence timed out.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="175"/>
         <source>Tap to close</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="391"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="428"/>
         <source>Step %1/%2</source>
         <extracomment>Indicating the activity steps</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="419"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="461"/>
         <source>Delay %1 ms</source>
         <extracomment>Current activity step is a delay of %1 miliseconds</extracomment>
         <translation type="unfinished"></translation>
@@ -1822,63 +1871,63 @@ Climate fan</extracomment>
 <context>
     <name>MainContainer</name>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="49"/>
+        <location filename="../../src/qml/MainContainer.qml" line="50"/>
         <source>Add entity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="57"/>
+        <location filename="../../src/qml/MainContainer.qml" line="58"/>
         <source>Add group</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="65"/>
+        <location filename="../../src/qml/MainContainer.qml" line="66"/>
         <source>Reorder</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="71"/>
+        <location filename="../../src/qml/MainContainer.qml" line="72"/>
         <source>Page is empty</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="71"/>
+        <location filename="../../src/qml/MainContainer.qml" line="72"/>
         <source>There is nothing to reorder. Try adding entities or groups first.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="77"/>
+        <location filename="../../src/qml/MainContainer.qml" line="78"/>
         <source>Show tips</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="95"/>
-        <location filename="../../src/qml/MainContainer.qml" line="137"/>
+        <location filename="../../src/qml/MainContainer.qml" line="96"/>
+        <location filename="../../src/qml/MainContainer.qml" line="138"/>
         <source>Rename</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="103"/>
+        <location filename="../../src/qml/MainContainer.qml" line="104"/>
         <source>Change icon</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="112"/>
+        <location filename="../../src/qml/MainContainer.qml" line="113"/>
         <source>Remove</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="145"/>
+        <location filename="../../src/qml/MainContainer.qml" line="146"/>
         <source>Edit entities</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="153"/>
+        <location filename="../../src/qml/MainContainer.qml" line="154"/>
         <source>Delete</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/MainContainer.qml" line="390"/>
+        <location filename="../../src/qml/MainContainer.qml" line="391"/>
         <source>Profile is restricted</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2073,18 +2122,41 @@ Climate fan</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="461"/>
+        <location filename="../../src/qml/components/Page.qml" line="458"/>
+        <source>Some devices are not ready</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/Page.qml" line="458"/>
+        <location filename="../../src/qml/components/Page.qml" line="496"/>
+        <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/Page.qml" line="458"/>
+        <location filename="../../src/qml/components/Page.qml" line="496"/>
+        <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/Page.qml" line="458"/>
+        <location filename="../../src/qml/components/Page.qml" line="496"/>
+        <source>Proceed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/Page.qml" line="485"/>
         <source>Turn off all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="488"/>
+        <location filename="../../src/qml/components/Page.qml" line="538"/>
         <source>%1 is %2</source>
         <extracomment>Used to show the entity state: %1 is the entity name, %2 is the state</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="571"/>
+        <location filename="../../src/qml/components/Page.qml" line="621"/>
         <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
         <extracomment>Web configurator is the name of the application, does not need translation</extracomment>
         <translation type="unfinished"></translation>
@@ -2148,13 +2220,13 @@ Climate fan</extracomment>
 <context>
     <name>PageSelector</name>
     <message>
-        <location filename="../../src/qml/components/PageSelector.qml" line="168"/>
+        <location filename="../../src/qml/components/PageSelector.qml" line="161"/>
         <source>Edit pages</source>
         <extracomment>Title for the page selector menu</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/PageSelector.qml" line="168"/>
+        <location filename="../../src/qml/components/PageSelector.qml" line="161"/>
         <source>Select page</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2231,49 +2303,65 @@ Climate fan</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="128"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="126"/>
+        <source>Retry commands after wakeup</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="187"/>
         <source>Wakeup sensitivity</source>
         <extracomment>Movement the remote reacts to wake up</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="138"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="197"/>
         <source>Amount of movement needed to wake up the remote.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="153"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="212"/>
         <source>Off</source>
         <extracomment>Wakeup is turned off</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="155"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="214"/>
         <source>Sensitivity</source>
         <extracomment>More sensitive wakeup setting, as in the remote will be more sensitive to movement</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="193"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="252"/>
         <source>Display off timeout</source>
         <extracomment>How much time the display will turn off after</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="213"/>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="214"/>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="270"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="149"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="272"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="273"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="329"/>
         <source>%1 seconds</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="250"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="136"/>
+        <source>Retry commands within %1 second(s) after wakeup.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="148"/>
+        <source>Disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="309"/>
         <source>Sleep timeout</source>
         <extracomment>How much time the remote will enter sleep mode after</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Power.qml" line="271"/>
+        <location filename="../../src/qml/settings/settings/Power.qml" line="330"/>
         <source>%1 minutes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2685,42 +2773,47 @@ no return</source>
 <context>
     <name>Settings</name>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="54"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="57"/>
         <source>Display &amp; Brightness</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="59"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="62"/>
         <source>User interface</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="69"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="72"/>
         <source>Sound &amp; Haptic</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="79"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="77"/>
+        <source>Voice Control</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/Settings.qml" line="82"/>
         <source>Power Saving</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="84"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="87"/>
         <source>Wifi &amp; Bluetooth</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="89"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="92"/>
         <source>Localisation</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="94"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="97"/>
         <source>Administrator PIN</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="99"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="102"/>
         <source>Factory reset</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3061,6 +3154,58 @@ Tap the QR code to show it on the screen.</source>
     </message>
 </context>
 <context>
+    <name>TouchSliderBrightness</name>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderBrightness.qml" line="54"/>
+        <source>Touch slider is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderBrightness.qml" line="55"/>
+        <source>%1 is not available. Please check your configuration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TouchSliderPosition</name>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderPosition.qml" line="54"/>
+        <source>Touch slider is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderPosition.qml" line="55"/>
+        <source>%1 is not available. Please check your configuration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TouchSliderSeek</name>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderSeek.qml" line="65"/>
+        <source>Touch slider is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderSeek.qml" line="66"/>
+        <source>%1 is not available. Please check your configuration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TouchSliderVolume</name>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderVolume.qml" line="54"/>
+        <source>Touch slider is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderVolume.qml" line="55"/>
+        <source>%1 is not available. Please check your configuration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>Tv</name>
     <message>
         <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="381"/>
@@ -3182,63 +3327,138 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>Voice</name>
     <message>
-        <location filename="../../src/qml/settings/settings/Voice.qml" line="59"/>
-        <source>Voice control</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/settings/settings/Voice.qml" line="85"/>
-        <source>Disabling voice control will still let you use voice dictation with integrations.
-
-Press and hold the voice button and say the command.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/settings/settings/Voice.qml" line="108"/>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="64"/>
         <source>Microphone</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Voice.qml" line="130"/>
-        <source>Disabling the microphone will completely turn it off. You won’t be able to use voice control or dictation with integrations</source>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="85"/>
+        <source>Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="113"/>
+        <source>Voice Assistant</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="120"/>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="140"/>
+        <source>None selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="135"/>
+        <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="137"/>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="141"/>
+        <source>No profile selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="183"/>
+        <source>Use the Web Configurator to edit voice assistants.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="208"/>
+        <source>Speech response</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Voice.qml" line="229"/>
+        <source>Play speech response from Voice Assistant when supported.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Voice assistant state</name>
+    <message>
+        <location filename="../../src/ui/entity/voiceAssistant.h" line="39"/>
+        <source>Unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/voiceAssistant.h" line="41"/>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/voiceAssistant.h" line="43"/>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/voiceAssistant.h" line="45"/>
+        <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>VoiceOverlay</name>
     <message>
-        <location filename="../../src/qml/components/VoiceOverlay.qml" line="53"/>
-        <location filename="../../src/qml/components/VoiceOverlay.qml" line="494"/>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="91"/>
+        <source>Voice Assistant is not available.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="117"/>
+        <source>Processing ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="256"/>
+        <source>There was an error.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="266"/>
+        <source>Missing rights to use voice assistant.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="260"/>
+        <source>Request failed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="263"/>
+        <source>Not authenticated.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="269"/>
+        <source>Voice assistant not found. Please check configuration.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="272"/>
+        <source>There were too many requests. Please try again later.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="275"/>
+        <source>Internal server error.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="278"/>
+        <source>Voice assistant is unavailable.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="309"/>
+        <source>It’s taking longer than expected. Please try your request again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="38"/>
+        <location filename="../../src/qml/components/VoiceOverlay.qml" line="644"/>
         <source>Listening ...</source>
         <extracomment>Waiting for audio/voice input</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/VoiceOverlay.qml" line="73"/>
-        <location filename="../../src/qml/components/VoiceOverlay.qml" line="134"/>
-        <source>Set brightness %1%</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/VoiceOverlay.qml" line="142"/>
-        <source>Entity was not recognised</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/VoiceOverlay.qml" line="151"/>
-        <source>Found %1 similar entities. Please select one to use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/VoiceOverlay.qml" line="549"/>
-        <source>You can say commands like</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/VoiceOverlay.qml" line="561"/>
-        <source>“Turn on the Living room lights”
-“Start activity Watch TV”
-“Set Kitchen radiator temperature to 24º”</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3584,7 +3804,7 @@ Press and hold the voice button and say the command.</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../../src/qml/main.qml" line="634"/>
+        <location filename="../../src/qml/main.qml" line="699"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3592,7 +3812,7 @@ Press and hold the voice button and say the command.</source>
 <context>
     <name>uc::Config</name>
     <message>
-        <location filename="../../src/config/config.cpp" line="808"/>
+        <location filename="../../src/config/config.cpp" line="852"/>
         <source>Error while loading configuration. Trying again.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3629,30 +3849,55 @@ Press and hold the voice button and say the command.</source>
 <context>
     <name>uc::Voice</name>
     <message>
-        <location filename="../../src/voice.cpp" line="151"/>
-        <source>Command was not recognised</source>
+        <location filename="../../src/voice.cpp" line="150"/>
+        <source>The service is temporarily unavailable.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/voice.cpp" line="174"/>
-        <source>Entity was not recognised</source>
+        <location filename="../../src/voice.cpp" line="153"/>
+        <source>Incorrect audio format.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/voice.cpp" line="156"/>
+        <source>I didn’t catch any text from your input. Could you repeat that?</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/voice.cpp" line="159"/>
+        <source>Please try rephrasing your request.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/voice.cpp" line="162"/>
+        <source>I couldn’t generate the audio response.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/voice.cpp" line="165"/>
+        <source>It’s taking longer than expected. Please try your request again.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/voice.cpp" line="168"/>
+        <source>Something went wrong on our side. Please try again.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>uc::core::Api</name>
     <message>
-        <location filename="../../src/core/core.cpp" line="1341"/>
+        <location filename="../../src/core/core.cpp" line="1347"/>
         <source>Connection error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1342"/>
+        <location filename="../../src/core/core.cpp" line="1348"/>
         <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1736"/>
+        <location filename="../../src/core/core.cpp" line="1746"/>
         <source>Authentication to core failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3874,27 +4119,27 @@ Press and hold the voice button and say the command.</source>
 <context>
     <name>uc::ui::Controller</name>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="296"/>
+        <location filename="../../src/ui/uiController.cpp" line="298"/>
         <source>Error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="297"/>
+        <location filename="../../src/ui/uiController.cpp" line="299"/>
         <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="584"/>
+        <location filename="../../src/ui/uiController.cpp" line="586"/>
         <source>Profile update error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="707"/>
+        <location filename="../../src/ui/uiController.cpp" line="709"/>
         <source>%1 error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="707"/>
+        <location filename="../../src/ui/uiController.cpp" line="709"/>
         <source>Error while connecting to %1, with id %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3902,22 +4147,22 @@ Press and hold the voice button and say the command.</source>
 <context>
     <name>uc::ui::EntityController</name>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="548"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="578"/>
         <source>%1 is not responding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="549"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="579"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="583"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="613"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="582"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="612"/>
         <source>Error sending the command</source>
         <translation type="unfinished"></translation>
     </message>

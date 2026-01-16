@@ -549,7 +549,7 @@ void EntityController::retrySendAttempt(const QString& commandId)
 
             // we ignore voice commands as they have their own error handling
             if (live2.command == "voice_start") {
-                emit voiceAssistantCommandError(live2.entityId);
+                emit voiceAssistantCommandError(live2.entityId, code);
                 m_pendingCommands.remove(commandId);
                 return;
             }
@@ -651,6 +651,7 @@ void EntityController::onActivityStartedRunning(QString entityId) { emit activit
 void EntityController::onResumeTimerTimeout()
 {
     m_resumeWindow = false;
+    emit resumewindowChanged();
     qCDebug(lcEntityController())  << "Resume timer disabled";
 }
 
@@ -662,6 +663,7 @@ void EntityController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode)
 
     if (powerMode == core::PowerEnums::PowerMode::NORMAL && m_previousPowerMode == core::PowerEnums::PowerMode::SUSPEND) {
         m_resumeWindow = true;
+        emit resumewindowChanged();
         QTimer::singleShot(m_resumeTimerTimeout, this, &EntityController::onResumeTimerTimeout);
 
         qCDebug(lcEntityController())  << "Resume timer enabled" << m_resumeTimerTimeout << "ms";

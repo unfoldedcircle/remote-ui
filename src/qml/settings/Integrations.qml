@@ -107,7 +107,7 @@ Settings.Page {
 
         onClosed: {
             integrationDetailPopupInfo.reset();
-            integrationDetailPopupInfo.buttonNavigation.releaseControl(String(integrationsPage))
+            integrationDetailPopupInfo.buttonNavigation.releaseControl()
         }
 
         enter: Transition {

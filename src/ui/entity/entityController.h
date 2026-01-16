@@ -49,6 +49,7 @@ class EntityController : public QObject {
     Q_PROPERTY(ConfiguredEntities* configuredEntities READ getConfiguredEntities CONSTANT)
     Q_PROPERTY(int configuredEntitiesCount READ getConfiguredEntitiesCount NOTIFY configuredEntitiesCountChanged)
     Q_PROPERTY(QStringList activities READ getActivities NOTIFY activitiesChanged)
+    Q_PROPERTY(bool resumeWindow READ getResumeWindow NOTIFY resumewindowChanged)
 
  public:
     explicit EntityController(core::Api* core, const QString& language, const Config::UnitSystems unitSystem, int resumeTimeoutWindowSec,
@@ -60,6 +61,7 @@ class EntityController : public QObject {
     Q_INVOKABLE void    loadConfiguredEntities(const QString& integrationId);
     int                 getConfiguredEntitiesCount() { return m_configuredEntitiesCount; }
     QStringList         getActivities() { return m_activities; }
+    bool                getResumeWindow() { return m_resumeWindow; }
 
     /**
      * @brief Load a configured entity from the core
@@ -131,12 +133,13 @@ class EntityController : public QObject {
     void configuredEntitiesCountChanged();
     void entityLoaded(bool success, QString entityId);
     void activitiesChanged();
+    void resumewindowChanged();
     void activityAdded(QString entityId);
     void activityRemoved(QString entityId);
     void languageChanged(QString language);
     void unitSystemChanged(Config::UnitSystems unitSystem);
     void activityStartedRunning(QString entityId);
-    void voiceAssistantCommandError(QString entityId);
+    void voiceAssistantCommandError(QString entityId, int code);
 
  public slots:
     /**

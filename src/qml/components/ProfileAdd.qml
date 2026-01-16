@@ -66,7 +66,7 @@ Rectangle {
             buttonNavigation.takeControl();
         } else {
             keyboard.hide();
-            buttonNavigation.releaseControl(addProfileContainer.parentController);
+            buttonNavigation.releaseControl();
         }
     }
 

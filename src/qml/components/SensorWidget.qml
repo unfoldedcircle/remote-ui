@@ -20,6 +20,8 @@ import QtQuick.Layouts 1.15
 
 import Entity.Controller 1.0
 
+import "qrc:/components" as Components
+
 ColumnLayout {
     id: sensorWidget
     width: 80
@@ -32,33 +34,68 @@ ColumnLayout {
     property bool showLabel: true
     property bool showUnit: true
 
+    function ensureEntityLoaded() {
+        entityObj = EntityController.get(entityId);
+
+        if (!entityObj) {
+            EntityController.load(entityId);
+        }
+
+        evaluateSensor();
+    }
+
+    function evaluateSensor() {
+        // sensor label
+        if (sensorWidget.customText !== "") {
+            sensorLabelText.text = sensorWidget.customText;
+        }
+
+        if (sensorWidget.showLabel && entityObj && entityObj.customLabel && entityObj.customLabel !== "") {
+            sensorLabelText.text =  entityObj.customLabel;
+        }
+
+        // sensor value
+        if (!entityObj) {
+            sensorValueText.text = qsTranslate("Abbreviation for not available", "N/A");
+            return;
+        }
+
+        if (entityObj.customUnit !== "") {
+            sensorValueText.text = entityObj.value + " "  + (sensorWidget.showUnit ? entityObj.customUnit : "");
+        } else {
+            sensorValueText.text = entityObj.value + " "  + (sensorWidget.showUnit ? entityObj.unit : "");
+        }
+    }
+
     Item { Layout.fillHeight: true }
 
-    Text {
-        id: sensorLabelText
+    RowLayout {
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignHCenter
+        spacing: 0
 
-        text: {
-            if (sensorWidget.customText != "") {
-                return sensorWidget.customText;
-            }
+        Item { Layout.fillWidth: true }
 
-            if (sensorWidget.showLabel) {
-                if (entityObj.customLabel !== "") {
-                    return entityObj.customLabel;
-                } else {
-                    return entityObj.getDeviceClass();
-                }
-            }
-
-            return "";
+        Components.Icon {
+            color: colors.red
+            icon: "uc:link-slash"
+            size: 40
+            visible: entityObj && !entityObj.enabled
         }
-        maximumLineCount: 1
-        elide: Text.ElideRight
-        color: colors.light
-        verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-        font: fonts.primaryFont(24)
+
+        Item { Layout.preferredWidth: (entityObj && !entityObj.enabled) ? 2 : 0 }
+
+        Text {
+            id: sensorLabelText
+            text: ""
+            maximumLineCount: 1
+            elide: Text.ElideRight
+            color: colors.light
+            verticalAlignment: Text.AlignVCenter
+            font: fonts.primaryFont(24)
+        }
+
+        Item { Layout.fillWidth: true }
     }
 
     Text {
@@ -66,17 +103,7 @@ ColumnLayout {
         Layout.fillWidth: true
         Layout.alignment: Qt.AlignHCenter
 
-        text: {
-            if (!entityObj) {
-                return qsTranslate("Abbreviation for not available", "N/A");
-            }
-
-            if (entityObj.customUnit !== "") {
-                return entityObj.value + " "  + (sensorWidget.showUnit ? entityObj.customUnit : "");
-            }
-
-            return entityObj.value + " "  + (sensorWidget.showUnit ? entityObj.unit : "");
-        }
+        text: ""
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
         maximumLineCount: 2
         elide: Text.ElideRight
@@ -87,25 +114,34 @@ ColumnLayout {
 
     Item { Layout.fillHeight: true }
 
-    Component.onCompleted: {
-        entityObj = EntityController.get(entityId);
+    Component.onCompleted: ensureEntityLoaded()
+    onEntityIdChanged: ensureEntityLoaded()
 
-        if (!entityObj) {
-            EntityController.load(entityId);
-            connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
-                entityObj = EntityController.get(entityId);
-            });
+    Connections {
+        target: EntityController
+        ignoreUnknownSignals: true
+
+        function onEntityLoaded(success, loadedId) {
+            if (!success || loadedId !== sensorWidget.entityId) {
+                return;
+            }
+
+            sensorWidget.entityObj = EntityController.get(loadedId);
+            sensorWidget.evaluateSensor();
         }
     }
 
-    onEntityIdChanged: {
-        entityObj = EntityController.get(entityId);
+    Connections {
+        target: sensorWidget.entityObj
+        ignoreUnknownSignals: true
 
-        if (!entityObj) {
-            EntityController.load(entityId);
-            connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
-                entityObj = EntityController.get(entityId);
-            });
+        function onValueChanged() {
+            sensorWidget.evaluateSensor();
+        }
+
+        function onUnitChanged() {
+            sensorWidget.evaluateSensor();
         }
     }
+
 }

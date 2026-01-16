@@ -18,6 +18,7 @@ Item {
     property int sliderAnimationDuration: 200
     property int targetPosition: 0
     property int lastRawDelta: 0
+    property bool unavailableWarningShown: false
 
     signal open()
     signal close()
@@ -42,11 +43,31 @@ Item {
     }
 
     Connections {
+        target: sliderContainer.entityObj
+        ignoreUnknownSignals: true
+
+        function onEntityEnabledChanged() {
+            if (sliderContainer.entityObj.enabled) {
+                sliderContainer.unavailableWarningShown = false;
+            }
+        }
+    }
+
+    Connections {
         target: TouchSliderProcessor
         ignoreUnknownSignals: true
 
         function onTouchPressed() {
             console.log("Touch pressed");
+
+            // if entity is unavalable we do nothing
+            if (!entityObj.enabled) {
+                ui.createActionableNotification(qsTr("Touch slider is not available."),
+                                                qsTr("%1 is not available. Please check your configuration.").arg(entityObj.name),
+                                                "uc:link-slash");
+                sliderContainer.unavailableWarningShown = true;
+                return;
+            }
 
             sliderContainer.touchSliderActive = true;
 
@@ -63,6 +84,11 @@ Item {
 
         function onTouchXChanged(x) {
             console.log("Touch x: ", x);
+
+            // if entity is unavalable we do nothing
+            if (!entityObj.enabled) {
+                return;
+            }
 
             // Calculate the raw delta
             const rawDelta = TouchSliderProcessor.touchX - sliderContainer.prevTouchX;
@@ -90,6 +116,11 @@ Item {
 
         function onTouchReleased() {
             console.log("Touch released");
+
+            // if entity is unavalable we do nothing
+            if (!entityObj.enabled) {
+                return;
+            }
 
             updateDataTimer.stop();
 

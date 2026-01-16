@@ -27,7 +27,7 @@ class Base : public QObject {
     Q_PROPERTY(QString stateAsString READ getStateAsString NOTIFY stateAsStringChanged)
     Q_PROPERTY(QString stateInfo READ getStateInfo NOTIFY stateInfoChanged)
     Q_PROPERTY(Type type READ getType CONSTANT)
-    Q_PROPERTY(bool enabled READ isEnabled NOTIFY enabledChanged)
+    Q_PROPERTY(bool enabled READ isEnabled NOTIFY entityEnabledChanged)
     Q_PROPERTY(QString integrationId READ getIntegration CONSTANT)
 
  public:
@@ -116,7 +116,7 @@ class Base : public QObject {
     void stateChanged(QString entityId, int newState);
     void stateAsStringChanged();
     void stateInfoChanged();
-    void enabledChanged();
+    void entityEnabledChanged();
     void integrationIdChanged();
 
     void command(QString entityId, QString command, QVariantMap parmas);

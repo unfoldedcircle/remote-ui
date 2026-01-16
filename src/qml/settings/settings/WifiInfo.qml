@@ -55,7 +55,7 @@ Popup {
     }
 
     onClosed: {
-        buttonNavigation.releaseControl(wifiInfo.parentController);
+        buttonNavigation.releaseControl();
         wifiInfo.ssid = "";
         wifiInfo.macAddress = "";
         wifiInfo.ipAddress = "";

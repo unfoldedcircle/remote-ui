@@ -6,6 +6,89 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## v0.68.5 - 2026-01-15
+### Fixed
+- Entity state check before starting/stopping activities
+
+---
+## v0.68.4 - 2026-01-14
+### Fixed
+- Button control not working when entity opened from an activity
+- Activity page indicator visible when activity in header is disabled
+
+---
+## v0.68.3 - 2026-01-13
+### Fixed
+- Dropdown menu button control. Mainly present in activity included entities screen letting button presses through.
+
+---
+## v0.68.2 - 2026-01-12
+### Fixed
+- Long press timer key tracking
+
+---
+## v0.68.1 - 2026-01-11
+### Fixed
+- Media image not shown on page entity
+
+---
+## v0.68.0 - 2026-01-09
+### Fixed
+- Button navigation sproadically stops working
+- Voice assistant listening animation still showed after error
+- Activity start screen with 0 included entities
+- Activity error handling for sequences
+- Entity name missing when starting activity for first time
+- Text cut off on activity loading screen
+- Ignore button presses for unavailable entities
+
+---
+## v0.67.0 - 2025-12-24
+### Fixed
+- Touch slider warning if entity is unavailable
+- Sensor widget shows wrong values in activity UI
+
+---
+## v0.66.0 - 2025-12-19
+### Fixed
+- Same sensor value shown for all sensors
+- Customer sensor label shows "Custom"
+- Voice UI lets button presses through
+- Processing showed after voice assistant finished event
+- Activity sequence timeout handling
+- Activity's entities readyness check
+- Invalid media player state
+- Media image not shown on main page entities
+- Touch slider commands even when entity is unavailable
+
+### Changed
+- Improved voice assistant error handling
+- Improved activity turn on/off after resume from system sleep
+
+---
+## v0.65.10 - 2025-12-10
+### Fixed
+- Charging screen shown after reboot
+
+---
+## v0.65.2 - 2025-12-05
+### Added
+- Voice Assistant support
+- Command retry after wakeup. Wakeup window is configurable in Power Saving settings.
+
+### Fixed
+- Media image download timeout handling
+
+### Changed
+- Disable certificate validation for media image download
+
+---
+## v0.64.4 - 2025-11-27
+### Fixed
+- Media image not loaded sproadically
+- Sensor value not shown within activity
+
+---
 ## v0.64.3 - 2025-11-23
 ### Changed
 - Display brightness minimum value to 5%

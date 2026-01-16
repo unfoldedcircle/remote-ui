@@ -320,7 +320,7 @@ ListView {
                         // TODO: map buttons to activity button mapping if exists
 
                         Components.ButtonNavigation {
-                            overrideActive: page._isCurrentItem && activityListItem._isCurrentItem && ui.inputController.activeObject === String(mainContainerRoot)
+                            overrideActive: page._isCurrentItem && activityListItem._isCurrentItem && ui.inputController.activeItem == mainContainerRoot
                             defaultConfig: {
                                 "VOLUME_UP": {
                                     "pressed": function() {
@@ -441,16 +441,40 @@ ListView {
                                         let menuItems = [];
 
                                         for (let i = 0; i<EntityController.activities.length; i++) {
-                                            let e = EntityController.activities[i];
+                                            const e = EntityController.activities[i];
 
-                                            const entityObj = EntityController.get(EntityController.activities[i]);
+                                            const entityObj = EntityController.get(e);
 
                                             if (entityObj.hasFeature(MediaPlayerFeatures.On_off) || entityObj.type == EntityTypes.Activity) {
                                                 menuItems.push({
-                                                                   title: EntityController.get(e).name,
-                                                                   icon: EntityController.get(e).icon,
+                                                                   title: entityObj.name,
+                                                                   icon: entityObj.icon,
                                                                    callback: function() {
-                                                                       EntityController.get(e).turnOff();
+                                                                       function retry() {
+                                                                           const res = checkActivityIncludedEntities(entityObj);
+
+                                                                           if (!EntityController.resumeWindow) {
+                                                                               if (!res.allIncludedEntitiesConnected) {
+                                                                                   ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
+                                                                                   return;
+                                                                               }
+
+                                                                               entityObj.turnOff();
+                                                                               return;
+                                                                           }
+
+                                                                           if (!res.allIncludedEntitiesConnected) {
+                                                                               ui.setTimeOut(500, retry);
+                                                                           } else {
+                                                                               entityObj.turnOff();
+                                                                           }
+                                                                       }
+
+                                                                       if (entityObj.type == EntityTypes.Activity) {
+                                                                           retry();
+                                                                       } else {
+                                                                           entityObj.turnOff();
+                                                                       }
                                                                    }
                                                                });
                                             }
@@ -462,7 +486,33 @@ ListView {
                                                                icon: "uc:power-off",
                                                                callback: function() {
                                                                    for (let i = 0; i<EntityController.activities.length; i++) {
-                                                                       EntityController.get(EntityController.activities[i]).turnOff();
+                                                                       const eObj = EntityController.get(EntityController.activities[i]);
+
+                                                                       function retry() {
+                                                                           const res = checkActivityIncludedEntities(eObj);
+
+                                                                           if (!EntityController.resumeWindow) {
+                                                                               if (!res.allIncludedEntitiesConnected) {
+                                                                                   ui.createActionableNotification(eObj.name, (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { eObj.turnOff(); }, qsTr("Proceed"));
+                                                                                   return;
+                                                                               }
+
+                                                                               eObj.turnOff();
+                                                                               return;
+                                                                           }
+
+                                                                           if (!res.allIncludedEntitiesConnected) {
+                                                                               ui.setTimeOut(500, retry);
+                                                                           } else {
+                                                                               eObj.turnOff();
+                                                                           }
+                                                                       }
+
+                                                                       if (eObj.type == EntityTypes.Activity) {
+                                                                           retry();
+                                                                       } else {
+                                                                           eObj.turnOff();
+                                                                       }
                                                                    }
                                                                }
                                                            });
@@ -538,7 +588,7 @@ ListView {
                     Layout.preferredHeight: 10
                     Layout.topMargin: 10
                     Layout.bottomMargin: 10
-                    visible: activityList.count > 1
+                    visible: activityList.count > 1 && Config.enableActivityBar
 
                     PageIndicator {
                         anchors.horizontalCenter: parent.horizontalCenter

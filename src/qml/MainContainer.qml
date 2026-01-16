@@ -28,6 +28,7 @@ Item {
     
     Component.onCompleted: {
         buttonNavigation.takeControl();
+        ui.inputController.setBaseOwner(mainContainerRoot);
     }
 
     property alias statusBar: statusBar
@@ -205,11 +206,11 @@ Item {
         }
     ]
 
-    onStateChanged: {
-        if (mainContainerRoot.state === "visible") {
-            buttonNavigation.takeControl();
-        }
-    }
+//    onStateChanged: {
+//        if (mainContainerRoot.state === "visible") {
+//            buttonNavigation.takeControl();
+//        }
+//    }
     
     Components.ButtonNavigation {
         id: buttonNavigation
