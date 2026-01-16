@@ -17,11 +17,11 @@ Popup {
     padding: 0
 
     onOpened: {
-        ui.inputController.takeControl(String(chargingScreenRoot));
+        buttonNavigation.takeControl();
     }
 
     onClosed: {
-        ui.inputController.releaseControl();
+        buttonNavigation.releaseControl();
     }
 
     Components.ButtonNavigation {

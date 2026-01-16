@@ -39,7 +39,7 @@ Item {
         if (state == "opened") {
             buttonNavigation.takeControl();
         } else {
-            buttonNavigation.releaseControl(bottomSheetContainer.parentController);
+            buttonNavigation.releaseControl();
         }
     }
 

@@ -36,6 +36,7 @@ Popup {
     onOpened: {
         buttonNavigation.takeControl();
     }
+
     onClosed: {
         buttonNavigation.releaseControl();
     }
@@ -56,7 +57,7 @@ Popup {
 
         function onActionableNotificationCreated(notificationObj) {
             for (let i = 0; i < notificationList.depth; i++) {
-                if (notificationList.get(i).itemTitle() == notificationObj.itemTitle()) {
+                if (notificationList.get(i).notificationObj.itemTitle() == notificationObj.itemTitle()) {
                     return;
                 }
             }
@@ -71,11 +72,7 @@ Popup {
         defaultConfig: {
             "BACK": {
                 "pressed": function() {
-                    actionableNotification.clearAll();
-
-                    if (notificationList.depth == 1) {
-                        actionableNotification.close();
-                    }
+                    notificationList.currentItem.close();
                 }
             },
             "HOME": {
@@ -86,7 +83,13 @@ Popup {
                         actionableNotification.close();
                     }
                 }
-            }
+            },
+            "DPAD_MIDDLE": {
+                "pressed": function() {
+                    notificationList.currentItem.notificationObj.action();
+                    actionableNotification.close();
+                }
+            },
         }
     }
 

@@ -80,23 +80,23 @@ Rectangle {
         // get the latest entity data from the core
         EntityController.refreshEntity(entityId);
 
-        ui.inputController.takeControl(String(entityBaseDetailContainer));
+        buttonNavigation.takeControl();
         entityBaseDetailContainer.skipAnimation = skipAnimation;
         entityBaseDetailContainer.state = "open";
     }
 
     function close() {
         entityBaseDetailContainer.state = "closed";
+//        buttonNavigation.releaseControl();
 
         if (entityBaseDetailContainer.skipAnimation) {
             entityBaseDetailContainer.closed();
-            ui.inputController.releaseControl();
         }
-
     }
 
     Components.ButtonNavigation {
         id: buttonNavigation
+        ignoreInput: entityObj.state == 0
         defaultConfig: {
             "BACK": {
                 "pressed": function() {

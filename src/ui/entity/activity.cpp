@@ -146,10 +146,17 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
                         break;
                     case ActivityStates::Off:
                     case ActivityStates::Error:
+                    case ActivityStates::Timeout:
                         emit removeFromActivities(m_id);
                         break;
                 }
             }
+            break;
+        }
+        case ActivityAttributes::Timeout: {
+            m_timeout = data.toInt();
+            emit timeoutChanged();
+            ok = true;
             break;
         }
         case ActivityAttributes::Total_steps: {

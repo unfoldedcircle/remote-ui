@@ -435,15 +435,22 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
 
     switch (attributeEnum) {
         case MediaPlayerAttributes::State: {
-            int newState = Util::convertStringToEnum<MediaPlayerStates::Enum>(uc::Util::FirstToUpper(data.toString()));
-            m_state = newState;
+            ok = false;
+            int newState = Util::convertStringToEnum<MediaPlayerStates::Enum>(uc::Util::FirstToUpper(data.toString()), &ok);
+
+            if (!ok) {
+                m_state = MediaPlayerStates::Unknown;
+            } else {
+                m_state = newState;
+            }
+
             ok = true;
             emit stateChanged(m_id, m_state);
 
             m_stateAsString = MediaPlayerStates::getTranslatedString(static_cast<MediaPlayerStates::Enum>(m_state));
             emit stateAsStringChanged();
 
-                    // enable/disable media position timer
+             // enable/disable media position timer
             if (m_state == MediaPlayerStates::Playing) {
                 m_positionTimer.start();
                 emit addToActivities(m_id);

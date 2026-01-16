@@ -15,6 +15,8 @@ import Power 1.0
 import Power.Modes 1.0
 import SoundEffects 1.0
 import SoftwareUpdate 1.0
+import Entity.Controller 1.0
+import Integration.Controller 1.0
 
 import "qrc:/components" as Components
 import "qrc:/settings/softwareupdate" as Softwareupdate
@@ -83,6 +85,51 @@ ApplicationWindow {
             sig.disconnect(slotConn);
         }
         sig.connect(slotConn)
+    }
+
+    function checkActivityIncludedEntities(activityObj) {
+        // check if all entities in the activity has a connected integraiton
+        let allIncludedEntitiesConnected = true;
+        let notReadyEntities = "";
+        let notReadyEntityQty = 0;
+
+        if (activityObj.includedEntities.length === 0) {
+            return {
+                allIncludedEntitiesConnected: true,
+                notReadyEntities: notReadyEntities,
+                notReadyEntityQty: notReadyEntityQty
+            }
+        }
+
+        for (let i = 0; i < activityObj.includedEntities.length; i++) {
+            const includedEntityObj = EntityController.get(activityObj.includedEntities[i]);
+
+            if (includedEntityObj) {
+                const includedEntityIntegrationObj = IntegrationController.getModelItem(includedEntityObj.integrationId);
+                if (includedEntityIntegrationObj) {
+                    if (includedEntityIntegrationObj.state !== "connected") {
+                        allIncludedEntitiesConnected = false;
+                        notReadyEntities += includedEntityObj.name + ",  ";
+                        notReadyEntityQty++;
+                    } else if (includedEntityIntegrationObj.state === "connected") {
+                        if (!includedEntityObj.enabled) {
+                            allIncludedEntitiesConnected = false;
+                            notReadyEntities += includedEntityObj.name + ",  ";
+                            notReadyEntityQty++;
+                        }
+                    }
+                }
+            }
+        }
+
+        // chop the last comma
+        notReadyEntities = notReadyEntities.slice(0, -3);
+
+        return {
+            allIncludedEntitiesConnected: allIncludedEntitiesConnected,
+            notReadyEntities: notReadyEntities,
+            notReadyEntityQty: notReadyEntityQty
+        }
     }
 
     Connections {
@@ -356,10 +403,15 @@ ApplicationWindow {
 
                 property bool openAfterLoad: false
 
+                onActiveChanged: {
+                    if (active) {
+                        containerThird.open();
+                    }
+                }
+
                 onStatusChanged: {
                     if (status == Loader.Ready && loaderThird.openAfterLoad) {
                         loaderThird.item.open(true);
-                        containerThird.open();
                         containerSecondHideAnimation.start();
                     }
                 }
@@ -373,9 +425,6 @@ ApplicationWindow {
                     console.debug("Third container closed signal called");
                     containerThird.close();
                     containerSecondShowAnimation.start();
-                    //                    if (ui.inputController.activeObject !== String(containerMain.item)) {
-                    //                        ui.inputController.takeControl(String(containerMain.item));
-                    //                    }
                 }
             }
         }

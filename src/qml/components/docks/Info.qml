@@ -53,7 +53,7 @@ Item {
 
     Components.ButtonNavigation {
         id: buttonNavigation
-        overrideActive: ui.inputController.activeObject === String(popup)
+        overrideActive: ui.inputController.activeItem === popup
         defaultConfig: {
             "BACK": {
                 "pressed": function() {

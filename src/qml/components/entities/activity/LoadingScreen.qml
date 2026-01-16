@@ -24,13 +24,12 @@ Popup {
     property string prevController
 
     onOpened: {
-        activityLoading.prevController = ui.inputController.activeObject
         mouseArea.enabled = false;
-        ui.inputController.takeControl(String(activityLoading));
+        buttonNavigation.takeControl();
     }
 
     onClosed: {
-        ui.inputController.releaseControl();
+        buttonNavigation.releaseControl();
 
         if (!activityLoading.isMacro && entityObj.state === ActivityStates.On) {
             loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj });
@@ -71,6 +70,11 @@ Popup {
 
             console.info((activityLoading.isMacro ? "Macro" : "Activity") + " state changed to: " + entityObj.stateAsString);
 
+            if (entityObj.state === ActivityStates.Timeout) {
+                activityLoading.end(true);
+                errorText.text = qsTr("Sequence didn't finish within %1 seconds. Check configuration.").arg(entityObj.timeout / 1000);
+            }
+
             if (activityLoading.prevState !== (activityLoading.isMacro ? MacroStates.Running : ActivityStates.Running) && entityObj.state === ActivityStates.Off) {
                 activityLoading.end(false);
                 return;
@@ -80,18 +84,40 @@ Popup {
                 activityLoading.end(false);
             } else if (entityObj.state === (activityLoading.isMacro ? MacroStates.Error : ActivityStates.Error)) {
                 activityLoading.end(true);
-                errorText.text = entityObj.currentStep.error;
+
+                switch (entityObj.state) {
+                default:
+                case MacroStates.Error:
+                case ActivityStates.Error:
+                    errorText.text = qsTr("There was an error during the sequence.");
+                    break;
+                case ActivityStates.Timeout:
+                    errorText.text = qsTr("The sequence timed out.");
+                    break;
+                }
             }
 
             activityLoading.prevState = entityObj.state;
         }
 
         function onCurrentStepChanged() {
-            console.info("Current step changed: " + entityObj.currentStep.command);
+            console.info("Current step changed: " + entityObj.currentStep.commandId);
 
             let stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
-            activityLoading.stepIcon = stepEntityObj ? stepEntityObj.icon : "";
-            activityLoading.stepName = stepEntityObj ? stepEntityObj.name : "";
+            if (!stepEntityObj) {
+                EntityController.load(entityObj.currentStep.entityId);
+                connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
+                    if (success && entityId == entityObj.currentStep.entityId) {
+                        stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
+                        activityLoading.stepIcon = stepEntityObj ? stepEntityObj.icon : "uc:triangle-exclamation";
+                        activityLoading.stepName = stepEntityObj ? stepEntityObj.name : "N/A";
+                    }
+                });
+                return;
+            }
+
+            activityLoading.stepIcon = stepEntityObj ? stepEntityObj.icon : "uc:triangle-exclamation";
+            activityLoading.stepName = stepEntityObj ? stepEntityObj.name : "N/A";
         }
     }
 
@@ -226,20 +252,30 @@ Popup {
         PauseAnimation { duration: 500 }
     }
 
-    Item {
+    ColumnLayout {
         width: parent.width
-        height: ui.height / 2
+        height: ui.height
         anchors.bottom: parent.bottom
+        spacing: 10
+
+        Item {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+
+            Behavior on height {
+                NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
+            }
+        }
 
         Rectangle {
             id: backgroundCircle
             width: 108
             height: 108
             radius: width / 2
-            anchors.centerIn: parent
-            anchors.verticalCenterOffset: -100
             color: colors.transparent
             border { width: 14; color: colors.dark }
+
+            Layout.alignment: Qt.AlignHCenter
 
             Canvas {
                 id: canvas
@@ -377,8 +413,9 @@ Popup {
             maximumLineCount: 2
             horizontalAlignment: Text.AlignHCenter
             color: colors.offwhite
-            anchors { horizontalCenter: parent.horizontalCenter; top: backgroundCircle.bottom; topMargin: 40 }
             font: fonts.primaryFont(30)
+            Layout.topMargin: 40
+            Layout.alignment: Qt.AlignHCenter
         }
 
         Text {
@@ -389,15 +426,20 @@ Popup {
             opacity: 0.6
             //: Indicating the activity steps
             text: qsTr("Step %1/%2").arg(entityObj ? entityObj.currentStep.index : 0).arg(entityObj ? entityObj.totalSteps : 0)
-            anchors { horizontalCenter: parent.horizontalCenter; top: title.bottom; topMargin: 10 }
             font: fonts.secondaryFont(24,  "Medium")
             visible: entityObj ? entityObj.totalSteps !== 0 : false
+
+            Layout.topMargin: 10
+            Layout.alignment: Qt.AlignHCenter
         }
 
         RowLayout {
             spacing: 10
-            anchors { top: smallTitleText.bottom; topMargin: errorText.lineCount > 1 ? 10 : 30; horizontalCenter: parent.horizontalCenter }
             visible: entityObj ? entityObj.totalSteps !== 0 : false
+
+            Layout.topMargin: errorText.lineCount > 1 ? 10 : 30
+            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
 
             Components.Icon {
                 id: entityInfoIcon
@@ -407,7 +449,7 @@ Popup {
             }
 
             Text {
-                Layout.fillWidth: true
+                Layout.preferredWidth: implicitWidth
                 id: entityInfo
                 text: {
                     if (!entityObj) {
@@ -436,15 +478,17 @@ Popup {
 
         Text {
             id: errorText
-            width: parent.width - 40
-            maximumLineCount: 2
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
             color: colors.red
-            anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 15 }
             font: fonts.secondaryFont(24,  "Medium")
 //            lineHeight: 0.7
+            Layout.bottomMargin: 15
+            Layout.alignment: Qt.AlignHCenter
+            Layout.fillWidth: true
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
         }
     }
 

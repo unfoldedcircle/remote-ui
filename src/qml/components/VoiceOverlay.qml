@@ -28,12 +28,18 @@ Popup {
     closePolicy: Popup.CloseOnPressOutside
     padding: 0
 
+    onOpened: {
+        buttonNavigation.takeControl();
+    }
+
     onClosed: {
+        buttonNavigation.releaseControl();
         circleContainer.reset();
         titleText.text = qsTr("Listening ...");
         voice.wasError = false;
         voice.url = "";
         voice.mimeType = "";
+        voice.finished = false;
     }
 
     signal done
@@ -41,6 +47,7 @@ Popup {
     property QtObject voiceEntityObj
     property string profileId
     property bool listening: false
+    property bool finished: false
     property int sessionId: 0
     property bool wasError: false
     property string url: ""
@@ -95,6 +102,10 @@ Popup {
             return;
         }
 
+        if (voice.finished) {
+            return;
+        }
+
         voice.listening = false;
 
         if (voice.wasError) {
@@ -118,8 +129,12 @@ Popup {
     }
 
     function showError(message) {
+        voice.listening = false;
         voice.wasError = true;
         titleText.text = message;
+        if (!rotatingAnimation.running) {
+            circleContainer.start();
+        }
         circleContainer.failure();
     }
 
@@ -198,6 +213,8 @@ Popup {
                 return;
             }
 
+            voice.finished = true;
+
             timeoutTimer.stop();
 
             if (voice.wasError) {
@@ -229,14 +246,41 @@ Popup {
         target: EntityController
         ignoreUnknownSignals: true
 
-        function onVoiceAssistantCommandError(entityId) {
+        function onVoiceAssistantCommandError(entityId, code) {
             if (voice.voiceEntityObj.id == entityId) {
                 voice.wasError = true;
                 circleContainer.start();
                 voice.listening = false;
                 timeoutTimer.stop();
+
+                let errorMessage = qsTr("There was an error.");
+
+                switch (code) {
+                case 400:
+                    errorMessage = qsTr("Request failed.");
+                    break;
+                case 401:
+                    errorMessage = qsTr("Not authenticated.");
+                    break;
+                case 403:
+                    errorMessage = qsTr("Missing rights to use voice assistant.");
+                    break;
+                case 404:
+                    errorMessage = qsTr("Voice assistant not found. Please check configuration.");
+                    break;
+                case 429:
+                    errorMessage = qsTr("There were too many requests. Please try again later.");
+                    break;
+                case 500:
+                    errorMessage = qsTr("Internal server error.");
+                    break;
+                case 503:
+                    errorMessage = qsTr("Voice assistant is unavailable.");
+                    break;
+                }
+
                 ui.setTimeOut(500, () => {
-                                  voice.showError(qsTr("There was an error starting Voice Assistant."));
+                                  voice.showError(errorMessage);
                               });
             }
         }

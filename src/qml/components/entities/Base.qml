@@ -62,105 +62,104 @@ Rectangle {
 
     property alias button: button
 
+    property bool hasMediaImage: entityObj && entityObj.type === EntityTypes.Media_player && entityObj.mediaImage != ""
+
     function handleActivityOpen() {
-        if (entityBaseContainer.entityObj.type === EntityTypes.Activity) {
-            // check if all entities in the activity has a connected integraiton
-            let allIncludedEntitiesConnected = true;
-            let notReadyEntities = "";
-            let notReadyEntityQty = 0;
+        if (entityBaseContainer.entityObj.type !== EntityTypes.Activity) {
+            return true;
+        }
 
-            for (let i = 0; i < entityObj.includedEntities.length; i++) {
-                const includedEntityObj = EntityController.get(entityObj.includedEntities[i]);
+        function showActivityPopup() {
+            popupMenu.title = qsTr("Activity error. Select option below.");
+            let menuItems = [];
+            menuItems.push({
+                               title: qsTr("Turn activity on"),
+                               icon: "uc:arrow-right",
+                               callback: function() {
+                                   const res = checkActivityIncludedEntities(entityBaseContainer.entityObj);
 
-                if (includedEntityObj) {
-                    const includedEntitIntegraitonObj = IntegrationController.getModelItem(includedEntityObj.integrationId);
-                    if (includedEntitIntegraitonObj) {
+                                   if (!res.allIncludedEntitiesConnected) {
+                                       ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOn(); }, qsTr("Proceed"));
+                                   } else {
+                                       entityObj.turnOn();
+                                   }
+                               }
+                           });
+            menuItems.push({
+                               title: qsTr("Turn activity off"),
+                               icon: "uc:arrow-left",
+                               callback: function() {
+                                   const res = checkActivityIncludedEntities(entityBaseContainer.entityObj);
 
-                        if (includedEntitIntegraitonObj.state !== "connected") {
-                            allIncludedEntitiesConnected = false;
-                            notReadyEntities += includedEntityObj.name + ",  ";
-                            notReadyEntityQty++;
-                        }
-                    }
-                }
-            }
+                                   if (!res.allIncludedEntitiesConnected) {
+                                       ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
+                                   } else {
+                                       entityObj.turnOff();
+                                   }
+                               }
+                           });
+            menuItems.push({
+                               title: qsTr("Open activity"),
+                               icon: "uc:arrow-up-right-and-arrow-down-left-from-center",
+                               callback: function() {
+                                   loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
+                               }
+                           });
+            popupMenu.menuItems = menuItems;
+            popupMenu.open();
+        }
 
-            // chop the last comma
-            notReadyEntities = notReadyEntities.slice(0, -3);
 
-            // if something is not connected, show a warning
-            if (!allIncludedEntitiesConnected) {
-                ui.createActionableNotification(qsTr("Some devices are not ready"), (notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(notReadyEntities)), "uc:link-slash", () => {
+        switch (entityObj.state) {
+        case ActivityStates.Running:
+            return true;
+        case ActivityStates.Off: {
+            const res = checkActivityIncludedEntities(entityBaseContainer.entityObj);
+
+            if (EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
+                ui.setTimeOut(500, () => {
+                                  entityBaseContainer.handleActivityOpen();
+                              });
+                return false;
+            } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
+                ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => {
                                                     switch (entityObj.state) {
                                                         case ActivityStates.Off:
                                                         entityObj.turnOn();
                                                         break;
                                                         case ActivityStates.Error:
-                                                        popupMenu.title = qsTr("Activity error. Select option below.");
-                                                        let menuItems = [];
-                                                        menuItems.push({
-                                                                           title: qsTr("Turn activity on"),
-                                                                           icon: "uc:arrow-right",
-                                                                           callback: function() {
-                                                                               entityObj.turnOn();
-                                                                           }
-                                                                       });
-                                                        menuItems.push({
-                                                                           title: qsTr("Turn activity off"),
-                                                                           icon: "uc:arrow-left",
-                                                                           callback: function() {
-                                                                               entityObj.turnOff();
-                                                                           }
-                                                                       });
-                                                        popupMenu.menuItems = menuItems;
-                                                        popupMenu.open();
+                                                        case ActivityStates.Timeout:
+                                                        showActivityPopup();
                                                         break;
                                                         case ActivityStates.On:
                                                         if (!entityObj.enabled) {
                                                             ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
+                                                        } else {
+                                                            loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
                                                         }
                                                         break;
                                                     }
                                                 }, qsTr("Proceed"));
                 return false;
-            }
-
-            switch (entityObj.state) {
-            case ActivityStates.Off:
+            } else {
                 entityObj.turnOn();
                 return false;
-            case ActivityStates.Error:
-                popupMenu.title = qsTr("Activity error. Select option below.");
-                let menuItems = [];
-                menuItems.push({
-                                   title: qsTr("Turn activity on"),
-                                   icon: "uc:arrow-right",
-                                   callback: function() {
-                                       entityObj.turnOn();
-                                   }
-                               });
-                menuItems.push({
-                                   title: qsTr("Turn activity off"),
-                                   icon: "uc:arrow-left",
-                                   callback: function() {
-                                       entityObj.turnOff();
-                                   }
-                               });
-                popupMenu.menuItems = menuItems;
-                popupMenu.open();
-                return false;
-            case ActivityStates.On:
-                if (!entityObj.enabled) {
-                    ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
-                    return false;
-                }
-                break;
             }
-
+        }
+        case ActivityStates.Error:
+        case ActivityStates.Timeout:
+            showActivityPopup();
+            return false;
+        case ActivityStates.On:
+            if (!entityObj.enabled) {
+                ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
+                return false;
+            } else {
+                return true;
+            }
+        default:
             return true;
         }
-
-        return true;
     }
 
     function open() {
@@ -318,27 +317,8 @@ Rectangle {
         visible: entityObj.enabled
         opacity: entityBaseContainer.iconOn ? 1 : 0.4
 
-        property bool hasMediaImage:
-                entityObj.type === EntityTypes.Media_player
-                && entityObj.mediaImage != ""
-
         Behavior on opacity {
             NumberAnimation { duration: 300 }
-        }
-
-        MediaPlayerComponents.ImageLoader {
-            id: imageClosed
-            width: 100; height: 100
-            anchors.centerIn: icon
-            opacity: hasMediaImage ? 1 : 0
-            enabled: visible
-            visible: hasMediaImage
-            url: hasMediaImage ? entityObj.mediaImage : ""
-            aspectFit: true
-
-            Behavior on opacity {
-                NumberAnimation { duration: 300 }
-            }
         }
 
         Components.HapticMouseArea {
@@ -346,6 +326,22 @@ Rectangle {
             onClicked: {
                 entityBaseContainer.controlTrigger();
             }
+        }
+    }
+
+    MediaPlayerComponents.ImageLoader {
+        id: imageClosed
+        width: 100
+        anchors.centerIn: icon
+        opacity: visible ? 1 : 0
+        enabled: visible
+        visible: hasMediaImage && entityObj.enabled
+        url: entityObj.mediaImage
+        aspectFit: true
+        alignCentered: true
+
+        Behavior on opacity {
+            NumberAnimation { duration: 300 }
         }
     }
 

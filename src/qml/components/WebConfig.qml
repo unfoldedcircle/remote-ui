@@ -31,12 +31,12 @@ Rectangle {
     }
 
     function close() {
-        buttonNavigation.releaseControl(String(root.containerMain.item));
+        buttonNavigation.releaseControl();
         closed();
     }
 
     function goHome() {
-        buttonNavigation.releaseControl(String(root.containerMain.item));
+        buttonNavigation.releaseControl();
         closed();
     }
 

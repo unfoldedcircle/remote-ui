@@ -90,15 +90,15 @@ EntityComponents.BaseDetail {
             case "sensor":
                 let sensorComponent = Qt.createComponent("qrc:/components/SensorWidget.qml");
                 sensorComponent.createObject(container, {
-                                           "x": gridSizeW * item.location.x,
-                                           "y": gridSizeH * item.location.y,
-                                           "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
-                                           "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
-                                           "entityId": item.sensor.sensor_id,
-                                           "customText": item.text ? item.text : "",
-                                           "showLabel": item.sensor.show_label,
-                                           "showUnit": item.sensor.show_unit
-                                       });
+                                                 "x": gridSizeW * item.location.x,
+                                                 "y": gridSizeH * item.location.y,
+                                                 "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
+                                                 "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
+                                                 "entityId": item.sensor.sensor_id,
+                                                 "customText": item.text ? item.text : "",
+                                                 "showLabel": item.sensor.show_label,
+                                                 "showUnit": item.sensor.show_unit
+                                             });
                 break;
             default:
                 console.log("Not implemented item type: " + item.type);
@@ -260,6 +260,31 @@ EntityComponents.BaseDetail {
         }
     }
 
+    function powerOff() {
+        const res = checkActivityIncludedEntities(entityObj);
+
+        if (!EntityController.resumeWindow) {
+            if (!res.allIncludedEntitiesConnected) {
+                ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
+                return;
+            }
+
+            entityObj.turnOff();
+            activityBase.close();
+            return;
+        }
+
+        if (!res.allIncludedEntitiesConnected) {
+            ui.setTimeOut(500, () => {
+                              activityBase.powerOff();
+                          });
+            return;
+        }
+
+        entityObj.turnOff();
+        activityBase.close();
+    }
+
     Component.onCompleted: {
         updateButtonMapping();
         updateSliderConfig();
@@ -305,8 +330,7 @@ EntityComponents.BaseDetail {
         },
         "POWER": {
             "pressed": function() {
-                entityObj.turnOff();
-                activityBase.close();
+                activityBase.powerOff();
             }
         },
         "VOICE": {
@@ -323,7 +347,7 @@ EntityComponents.BaseDetail {
         id: title
         width: parent.width
         height: 80
-        color: entityObj.state === ActivityStates.Error ? colors.red : colors.transparent
+        color: (entityObj.state === ActivityStates.Error && entityObj.state === ActivityStates.Timeout) ? colors.red : colors.transparent
 
         Components.Icon {
             id: iconOpen
@@ -370,7 +394,6 @@ EntityComponents.BaseDetail {
                 if (activityMenu.opened) {
                     activityMenu.close();
                     extraContent.decrementCurrentIndex();
-                    activityBase.buttonNavigation.takeControl();
                 } else {
 
                     activityMenu.open();

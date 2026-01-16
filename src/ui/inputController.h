@@ -8,6 +8,8 @@
 #include <QQuickItem>
 #include <QTimer>
 #include <QMutex>
+#include <QPointer>
+#include <QVector>
 
 #include "../core/enums.h"
 #include "../hardware/hardwareModel.h"
@@ -18,7 +20,7 @@ namespace ui {
 class InputController : public QQuickItem {
     Q_OBJECT
 
-    Q_PROPERTY(QString activeObject READ getActiveObject NOTIFY activeObjectChanged)
+    Q_PROPERTY(QObject* activeItem READ activeItem NOTIFY activeItemChanged)
     Q_PROPERTY(int repeatCount READ getRepeatCount CONSTANT)
 
  public:
@@ -53,22 +55,24 @@ class InputController : public QQuickItem {
     };
     Q_ENUM(Buttons)
 
-    QString getActiveObject() { return m_activeObject; }
+    QObject* activeItem() const { return m_activeItem.data(); }
     int     getRepeatCount() { return m_repeatCount; }
 
     Q_INVOKABLE void setSource(QObject *source);
     Q_INVOKABLE void emitKey(Qt::Key key, bool release = false);
     Q_INVOKABLE void blockInput(bool value);
 
-    Q_INVOKABLE void takeControl(const QString &activeObject);
-    Q_INVOKABLE void releaseControl(const QString &activeObject = QString());
+    Q_INVOKABLE void setBaseOwner(QObject* obj);
+
+    Q_INVOKABLE void takeControl(QObject* item);
+    Q_INVOKABLE void releaseControl(QObject* item = nullptr);
 
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine);
 
  signals:
     void keyPressed(QString key);
     void keyReleased(QString key);
-    void activeObjectChanged();
+    void activeItemChanged();
 
  public slots:
     void onPowerModeChanged(core::PowerEnums::PowerMode powerMode);
@@ -79,14 +83,19 @@ class InputController : public QQuickItem {
  private:
     static InputController *s_instance;
 
+    void cleanupStack();
+    void updateActive();
+
     QMutex m_mutex;
 
     hw::HardwareModel::Enum m_model;
 
     QObject *m_source;
 
-    QString m_activeObject;
-    QString m_prevActiveObject;
+    QPointer<QObject> m_activeItem;
+    QPointer<QObject> m_baseOwner;
+    QVector<QPointer<QObject>> m_stack;
+    QHash<int, QPointer<QObject>> m_keyOwner;
 
     bool m_blockInput = false;
     bool m_blockTouchInput = false;

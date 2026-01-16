@@ -20,14 +20,14 @@ class ActivityFeatures : public QObject {
 class ActivityAttributes : public QObject {
     Q_GADGET
  public:
-    enum Enum { State, Step, Total_steps };
+    enum Enum { State, Step, Timeout, Total_steps };
     Q_ENUM(Enum)
 };
 
 class ActivityStates : public QObject {
     Q_OBJECT
  public:
-    enum Enum { Unavailable = 0, Unknown, On, Off, Running, Error, Completed };
+    enum Enum { Unavailable = 0, Unknown, On, Off, Running, Error, Completed, Timeout };
     Q_ENUM(Enum)
 
     static QString getTranslatedString(Enum state) {
@@ -46,6 +46,8 @@ class ActivityStates : public QObject {
                 return QCoreApplication::translate("Activity state", "Error");
             case Enum::Completed:
                 return QCoreApplication::translate("Activity state", "Completed");
+            case Enum::Timeout:
+                return QCoreApplication::translate("Activity state", "Timeout");
             default:
                 return Util::convertEnumToString<Enum>(state);
         }
@@ -101,6 +103,7 @@ class Activity : public Base {
 
     Q_PROPERTY(int totalSteps READ getTotalSteps NOTIFY totalStepsChanged)
     Q_PROPERTY(SequenceStep *currentStep READ getCurrentStep NOTIFY currentStepChanged)
+    Q_PROPERTY(int timeout READ getTimeout NOTIFY timeoutChanged)
 
     // options
     Q_PROPERTY(QVariantList buttonMapping READ getButtonMapping NOTIFY buttonMappingChanged)
@@ -120,6 +123,7 @@ class Activity : public Base {
 
     int           getTotalSteps() { return m_totalSteps; }
     SequenceStep *getCurrentStep() { return &m_currentStep; }
+    int           getTimeout() { return m_timeout; }
 
     // options
     QVariantList getButtonMapping() { return m_buttonMapping; }
@@ -155,6 +159,7 @@ class Activity : public Base {
  signals:
     void totalStepsChanged();
     void currentStepChanged();
+    void timeoutChanged();
     void buttonMappingChanged();
     void uiConfigChanged();
     void includedEntitiesChanged();
@@ -169,6 +174,7 @@ class Activity : public Base {
  private:
     int          m_totalSteps = 0;
     SequenceStep m_currentStep;
+    int          m_timeout = 0;
 
     // options
     QVariantList m_buttonMapping;
