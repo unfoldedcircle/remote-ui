@@ -117,6 +117,7 @@ HEADERS += \
     src/ui/entity/macro.h \
     src/ui/entity/mediaPlayer.h \
     src/ui/entity/remote.h \
+    src/ui/entity/select.h \
     src/ui/entity/sensor.h \
     src/ui/entity/sequenceStep.h \
     src/ui/entity/switch.h \
@@ -177,6 +178,7 @@ SOURCES += \
         src/ui/entity/macro.cpp \
         src/ui/entity/mediaPlayer.cpp \
         src/ui/entity/remote.cpp \
+        src/ui/entity/select.cpp \
         src/ui/entity/sensor.cpp \
         src/ui/entity/switch.cpp \
         src/ui/entity/entityController.cpp \

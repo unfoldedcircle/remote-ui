@@ -67,6 +67,9 @@ Base::Base(const QString &id, QVariantMap nameI18n, const QString &language, con
             case Voice_assistant:
                 m_icon.append("microphone");
                 break;
+            case Select:
+                m_icon.append("list-dropdown");
+                break;
             default:
                 m_icon.append("warning");
                 break;

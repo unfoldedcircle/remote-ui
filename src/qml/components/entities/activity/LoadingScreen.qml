@@ -433,46 +433,56 @@ Popup {
             Layout.alignment: Qt.AlignHCenter
         }
 
-        RowLayout {
-            spacing: 10
-            visible: entityObj ? entityObj.totalSteps !== 0 : false
-
-            Layout.topMargin: errorText.lineCount > 1 ? 10 : 30
-            Layout.alignment: Qt.AlignHCenter
+        Item {
             Layout.fillWidth: true
+            Layout.leftMargin: 10
+            Layout.rightMargin: 10
 
-            Components.Icon {
-                id: entityInfoIcon
-                color: colors.offwhite
-                icon: entityObj ? entityObj.currentStep.type === SequenceStep.Delay ? "uc:clock" : activityLoading.stepIcon : ""
-                size: 40
-            }
+            Layout.preferredHeight: centeredRow.implicitHeight
 
-            Text {
-                Layout.preferredWidth: implicitWidth
-                id: entityInfo
-                text: {
-                    if (!entityObj) {
-                        return "";
-                    }
+            RowLayout {
+                id: centeredRow
+                spacing: 4
+                visible: entityObj ? entityObj.totalSteps !== 0 : false
 
-                    if (entityObj.currentStep.type === SequenceStep.Delay) {
-                        //: Current activity step is a delay of %1 miliseconds
-                        return qsTr("Delay %1 ms").arg(entityObj.currentStep.delay);
-                    } else {
-                        let cmdId = entityObj.currentStep.commandId;
-                        let splitCmdId = cmdId.split(".");
+                anchors.horizontalCenter: parent.horizontalCenter
 
-                        return activityLoading.stepName + " → " + (splitCmdId.length > 1 ? splitCmdId[1].toUpperCase() : cmdId.toUpperCase())
-                    }
+                property int maxTextWidth: parent.width - entityInfoIcon.width - spacing
+
+                Components.Icon {
+                    id: entityInfoIcon
+                    color: colors.offwhite
+                    icon: entityObj ? entityObj.currentStep.type === SequenceStep.Delay ? "uc:clock" : activityLoading.stepIcon : ""
+                    size: 40
                 }
 
-                wrapMode: Text.NoWrap
-                elide: Text.ElideRight
-                maximumLineCount: 1
-                color: colors.offwhite
-                opacity: 0.6
-                font: fonts.secondaryFont(24,  "Medium")
+                Text {
+                    id: entityInfo
+
+                    Layout.preferredWidth: Math.min(implicitWidth, centeredRow.maxTextWidth)
+
+                    text: {
+                        if (!entityObj) {
+                            return "";
+                        }
+
+                        if (entityObj.currentStep.type === SequenceStep.Delay) {
+                            //: Current activity step is a delay of %1 miliseconds
+                            return qsTr("Delay %1 ms").arg(entityObj.currentStep.delay);
+                        } else {
+                            let cmdId = entityObj.currentStep.commandId;
+                            let splitCmdId = cmdId.split(".");
+
+                            return activityLoading.stepName + " → " + (splitCmdId.length > 1 ? splitCmdId[1].toUpperCase() : cmdId.toUpperCase())
+                        }
+                    }
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    elide: Text.ElideRight
+                    maximumLineCount: 2
+                    color: colors.offwhite
+                    opacity: 0.6
+                    font: fonts.secondaryFont(24,  "Medium")
+                }
             }
         }
 
@@ -483,7 +493,7 @@ Popup {
             horizontalAlignment: Text.AlignHCenter
             color: colors.red
             font: fonts.secondaryFont(24,  "Medium")
-//            lineHeight: 0.7
+            //            lineHeight: 0.7
             Layout.bottomMargin: 15
             Layout.alignment: Qt.AlignHCenter
             Layout.fillWidth: true
