@@ -6,6 +6,8 @@
     <message>
         <location filename="../../src/qml/components/Profile.qml" line="751"/>
         <location filename="../../src/qml/components/Profile.qml" line="753"/>
+        <location filename="../../src/qml/components/SelectWidget.qml" line="47"/>
+        <location filename="../../src/qml/components/SelectWidget.qml" line="48"/>
         <location filename="../../src/qml/components/SensorWidget.qml" line="59"/>
         <location filename="../../src/qml/components/SettingsNew.qml" line="474"/>
         <location filename="../../src/qml/components/SettingsNew.qml" line="476"/>
@@ -21,6 +23,14 @@
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Temperature.qml" line="63"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Voltage.qml" line="63"/>
         <source>N/A</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Abbreviation for nothing is selected</name>
+    <message>
+        <location filename="../../src/qml/components/SelectWidget.qml" line="59"/>
+        <source>None</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -98,65 +108,65 @@
 <context>
     <name>Activity</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="268"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
         <source>Some devices are not ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="268"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
         <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="268"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
         <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="268"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
         <source>Proceed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="379"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="420"/>
         <source>Tap to close</source>
         <extracomment>Tap to close menu or tap to see more</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="379"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="420"/>
         <source>Tap for more</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="515"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="556"/>
         <source>Fix states</source>
         <extracomment>Title referring to fixing device states that might out of sync</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="536"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="577"/>
         <source>Quickly access entities included in this activity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="577"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="618"/>
         <source>Back</source>
         <extracomment>Caption to go back</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="617"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="658"/>
         <source>Empty page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="629"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="670"/>
         <source>You can add UI elements via the Web Configurator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="740"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="781"/>
         <source>State: %1</source>
         <extracomment>Device state</extracomment>
         <translation type="unfinished"></translation>
@@ -226,61 +236,61 @@
 <context>
     <name>Base</name>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="82"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="95"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="125"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="83"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="96"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="126"/>
         <source>Some devices are not ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="82"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="95"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="125"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="83"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="96"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="126"/>
         <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="82"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="95"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="125"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="83"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="96"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="126"/>
         <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="73"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="74"/>
         <source>Activity error. Select option below.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="76"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="77"/>
         <source>Turn activity on</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="89"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="90"/>
         <source>Turn activity off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="102"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="103"/>
         <source>Open activity</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="136"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="155"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="137"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="156"/>
         <source>is unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="82"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="95"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="142"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="83"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="96"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="143"/>
         <source>Proceed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="303"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="309"/>
         <location filename="../../src/qml/components/group/Base.qml" line="176"/>
         <source>Profile is restricted</source>
         <translation type="unfinished"></translation>
@@ -1784,7 +1794,7 @@ Climate fan</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="461"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="471"/>
         <source>Delay %1 ms</source>
         <extracomment>Current activity step is a delay of %1 miliseconds</extracomment>
         <translation type="unfinished"></translation>
@@ -2013,6 +2023,14 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/ui/entity/mediaPlayer.h" line="122"/>
         <source>Buffering</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>No option is selected in the select entity</name>
+    <message>
+        <location filename="../../src/ui/entity/select.cpp" line="119"/>
+        <source>None</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2726,6 +2744,32 @@ no return</source>
     <message>
         <location filename="../../src/qml/settings/settings/Reset.qml" line="159"/>
         <source>Cancel</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>Select state</name>
+    <message>
+        <location filename="../../src/ui/entity/select.h" line="32"/>
+        <source>Unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/select.h" line="34"/>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/select.h" line="36"/>
+        <source>On</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SelectWidget</name>
+    <message>
+        <location filename="../../src/qml/components/SelectWidget.qml" line="300"/>
+        <source>Select an option</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4147,22 +4191,22 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>uc::ui::EntityController</name>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="578"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="589"/>
         <source>%1 is not responding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="579"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="590"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="613"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="624"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="612"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="623"/>
         <source>Error sending the command</source>
         <translation type="unfinished"></translation>
     </message>

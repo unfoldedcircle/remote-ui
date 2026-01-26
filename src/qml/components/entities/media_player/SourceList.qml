@@ -148,14 +148,6 @@ Popup {
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         padding: 10
                     }
-
-//                    Image {
-//                        anchors.fill: parent
-//                        source: resource.getBackgroundImage("living-room-1")
-//                        asynchronous: true
-//                        cache: true
-//                        fillMode: Image.PreserveAspectCrop
-//                    }
                 }
             }
         }

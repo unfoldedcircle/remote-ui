@@ -14,6 +14,7 @@ import Entity.Cover 1.0
 import Entity.MediaPlayer 1.0
 import Entity.Remote 1.0
 import Entity.Activity 1.0
+import Entity.Select 1.0
 
 import Integration.Controller 1.0
 
@@ -251,6 +252,11 @@ Rectangle {
 
         case EntityTypes.Sensor:
             entityBaseContainer.iconOn = true;
+            button.checked = false;
+            break;
+        case EntityTypes.Select:
+            entityBaseContainer.iconOn = true;
+            entityBaseContainer.controlTrigger = function() { entityObj.selectNext(); }
             button.checked = false;
             break;
         }

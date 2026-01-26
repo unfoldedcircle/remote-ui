@@ -25,6 +25,7 @@
 #include "sensor.h"
 #include "switch.h"
 #include "voiceAssistant.h"
+#include "select.h"
 
 namespace uc {
 namespace ui {

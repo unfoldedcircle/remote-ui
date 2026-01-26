@@ -18,6 +18,7 @@
         <file alias="components/ButtonAdd.qml">../../src/qml/components/ButtonAdd.qml</file>
         <file alias="components/ButtonIcon.qml">../../src/qml/components/ButtonIcon.qml</file>
         <file alias="components/SensorWidget.qml">../../src/qml/components/SensorWidget.qml</file>
+        <file alias="components/SelectWidget.qml">../../src/qml/components/SelectWidget.qml</file>
         <file alias="components/Poweroff.qml">../../src/qml/components/Poweroff.qml</file>
         <file alias="components/ChargingScreen.qml">../../src/qml/components/ChargingScreen.qml</file>
         <file alias="components/RemoteOpen.qml">../../src/qml/components/RemoteOpen.qml</file>
@@ -124,6 +125,7 @@
         <file alias="components/entities/media_player/SourceList.qml">../../src/qml/components/entities/media_player/SourceList.qml</file>
         <file alias="components/entities/remote/deviceclass/Remote.qml">../../src/qml/components/entities/remote/deviceclass/Remote.qml</file>
         <file alias="components/entities/macro/deviceclass/Macro.qml">../../src/qml/components/entities/macro/deviceclass/Macro.qml</file>
+        <file alias="components/entities/select/deviceclass/Select.qml">../../src/qml/components/entities/select/deviceclass/Select.qml</file>
         <file alias="components/integrations/AddEntities.qml">../../src/qml/components/integrations/AddEntities.qml</file>
         <file alias="components/integrations/Setup.qml">../../src/qml/components/integrations/Setup.qml</file>
         <file alias="components/integrations/Discovery.qml">../../src/qml/components/integrations/Discovery.qml</file>

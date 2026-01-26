@@ -137,6 +137,13 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::VoiceAssistantDeviceClass>("Entity.VoiceAssistant", 1, 0, "VoiceAssistantDeviceClasses",
                                                           "Enum is not a type");
 
+            // select enums
+    qRegisterMetaType<entity::SelectStates::Enum>("Select States");
+    qRegisterMetaType<entity::SelectDeviceClass::Enum>("Select Device Classes");
+    qmlRegisterUncreatableType<entity::SelectStates>("Entity.Select", 1, 0, "SelectStates", "Enum is not a type");
+    qmlRegisterUncreatableType<entity::SelectDeviceClass>("Entity.Select", 1, 0, "SelectDeviceClasses",
+                                                          "Enum is not a type");
+
     QObject::connect(m_core, &core::Api::connected, this, &EntityController::onCoreConnected);
     QObject::connect(m_core, &core::Api::disconnected, this, &EntityController::onCoreDisconnected);
 
@@ -209,6 +216,9 @@ entity::Base* EntityController::createEntityObject(const QString& type, const QS
         case entity::Base::Type::Voice_assistant:
             return new entity::VoiceAssistant(id, name, m_language, icon, area, deviceClass, features,
                                       enabled, attributes, options, integrationId, parent);
+        case entity::Base::Type::Select:
+            return new entity::Select(id, name, m_language, icon, area, deviceClass, enabled,
+                                      attributes, integrationId, parent);
         default:
             return new entity::Base(id, name, m_language, icon, area, entity::Base::Type::Unsupported, true, QVariantMap(), integrationId, false, parent);
     }
@@ -443,6 +453,7 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
                 break;
 
             case entity::Base::Type::Sensor:
+            case entity::Base::Type::Select:
             default:
                 qCWarning(lcEntityController()) << "Not updating features, unsupported entity type.";
                 break;

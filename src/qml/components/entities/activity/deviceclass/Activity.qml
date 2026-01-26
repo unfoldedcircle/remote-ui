@@ -11,6 +11,8 @@ import Entity.Controller 1.0
 import Config 1.0
 import Wifi 1.0
 import Wifi.SignalStrength 1.0
+import Power 1.0
+import Power.Modes 1.0
 
 import "qrc:/components" as Components
 import "qrc:/components/entities" as EntityComponents
@@ -20,6 +22,8 @@ EntityComponents.BaseDetail {
 
     property var pages: entityObj.ui.pages
     property QtObject mediaWidgetEntityObj
+    property bool resumeWindow: false
+    property bool powerOffPressed: false
 
     function triggerCommand(entityId, cmdId, params) {
         let e = EntityController.get(entityId);
@@ -98,6 +102,18 @@ EntityComponents.BaseDetail {
                                                  "customText": item.text ? item.text : "",
                                                  "showLabel": item.sensor.show_label,
                                                  "showUnit": item.sensor.show_unit
+                                             });
+                break;
+            case "select":
+                let selectComponent = Qt.createComponent("qrc:/components/SelectWidget.qml");
+                selectComponent.createObject(container, {
+                                                 "x": gridSizeW * item.location.x,
+                                                 "y": gridSizeH * item.location.y,
+                                                 "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
+                                                 "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
+                                                 "entityId": item.select.select_id,
+                                                 "customText": item.text ? item.text : "",
+                                                 "showName": item.select.show_name ? item.select.show_name : false
                                              });
                 break;
             default:
@@ -261,28 +277,30 @@ EntityComponents.BaseDetail {
     }
 
     function powerOff() {
+        if (Power.powerMode == PowerModes.Normal || Power.powerMode == PowerModes.Idle) {
+            activityBase.powerOffCommand();
+            return;
+        }
+
+        activityBase.powerOffPressed = true;
+        powerOffPressTimeout.start();
+    }
+
+    function powerOffCommand() {
         const res = checkActivityIncludedEntities(entityObj);
 
-        if (!EntityController.resumeWindow) {
-            if (!res.allIncludedEntitiesConnected) {
-                ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
-                return;
-            }
-
-            entityObj.turnOff();
-            activityBase.close();
-            return;
-        }
-
-        if (!res.allIncludedEntitiesConnected) {
+        if (EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
             ui.setTimeOut(500, () => {
-                              activityBase.powerOff();
+                              activityBase.powerOffCommand();
                           });
             return;
+        } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
+                ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
+                return;
+        } else {
+            entityObj.turnOff();
+            activityBase.close();
         }
-
-        entityObj.turnOff();
-        activityBase.close();
     }
 
     Component.onCompleted: {
@@ -290,6 +308,29 @@ EntityComponents.BaseDetail {
         updateSliderConfig();
         updateVoiceAssistantConfig();
         root.isActivityOpen = true;
+    }
+
+    Timer {
+        id: powerOffPressTimeout
+        running: false
+        interval: 2000
+        repeat: false
+        onTriggered: activityBase.powerOffPressed = false
+    }
+
+    Connections {
+        target: EntityController
+        ignoreUnknownSignals: true
+
+        function onResumewindowChanged() {
+            if (!activityBase.resumeWindow && EntityController.resumeWindow == true && activityBase.powerOffPressed) {
+                activityBase.powerOffCommand();
+                activityBase.powerOffPressed = false;
+                powerOffPressTimeout.stop();
+            }
+
+            activityBase.resumeWindow = EntityController.resumeWindow;
+        }
     }
 
     Connections {
