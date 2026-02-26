@@ -79,7 +79,7 @@ Rectangle {
                                callback: function() {
                                    const res = checkActivityIncludedEntities(entityBaseContainer.entityObj);
 
-                                   if (!res.allIncludedEntitiesConnected) {
+                                   if (!res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
                                        ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOn(); }, qsTr("Proceed"));
                                    } else {
                                        entityObj.turnOn();
@@ -90,9 +90,9 @@ Rectangle {
                                title: qsTr("Turn activity off"),
                                icon: "uc:arrow-left",
                                callback: function() {
-                                   const res = checkActivityIncludedEntities(entityBaseContainer.entityObj);
+                                   const res = checkActivityIncludedEntities(entityBaseContainer.entityObj, false);
 
-                                   if (!res.allIncludedEntitiesConnected) {
+                                   if (!res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
                                        ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
                                    } else {
                                        entityObj.turnOff();
@@ -122,7 +122,7 @@ Rectangle {
                                   entityBaseContainer.handleActivityOpen();
                               });
                 return false;
-            } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
+            } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
                 ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => {
                                                     switch (entityObj.state) {
                                                         case ActivityStates.Off:

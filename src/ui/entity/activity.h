@@ -109,11 +109,15 @@ class Activity : public Base {
     Q_PROPERTY(QVariantList buttonMapping READ getButtonMapping NOTIFY buttonMappingChanged)
     Q_PROPERTY(QVariantMap ui READ getUiConfig NOTIFY uiConfigChanged)
     Q_PROPERTY(QStringList includedEntities READ getIncludedEntities NOTIFY includedEntitiesChanged)
+    Q_PROPERTY(QStringList onSequenceEntities READ getOnSequenceEntities NOTIFY onSequenceEntitiesChanged)
+    Q_PROPERTY(QStringList offSequenceEntities READ getOffSequenceEntities NOTIFY offSequenceEntitiesChanged)
 
     Q_PROPERTY(QString voiceAssistantEntityId READ getVoiceAssistantEntityId NOTIFY voiceAssistantEntityIdChanged)
     Q_PROPERTY(QString voiceAssistantProfileId READ getVoiceAssistantProfileId NOTIFY voiceAssistantProfileIdChanged)
 
     Q_PROPERTY(QObject* sliderConfig READ getSliderConfig NOTIFY sliderConfigChanged)
+
+    Q_PROPERTY(bool readyCheck READ getReadyCheck NOTIFY readyCheckChanged)
 
  public:
     explicit Activity(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
@@ -133,6 +137,8 @@ class Activity : public Base {
     QString getVoiceAssistantProfileId() { return m_voiceAssistantProfileId; }
 
     QStringList  getIncludedEntities();
+    QStringList  getOnSequenceEntities() { return m_onSequenceEntities; }
+    QStringList  getOffSequenceEntities() { return m_offSequenceEntities; }
 
     Q_INVOKABLE void turnOn() override;
     Q_INVOKABLE void turnOff() override;
@@ -156,6 +162,8 @@ class Activity : public Base {
 
     QObject* getSliderConfig() { return &m_sliderConfig; }
 
+    bool getReadyCheck() { return m_readyCheck; }
+
  signals:
     void totalStepsChanged();
     void currentStepChanged();
@@ -163,7 +171,10 @@ class Activity : public Base {
     void buttonMappingChanged();
     void uiConfigChanged();
     void includedEntitiesChanged();
+    void onSequenceEntitiesChanged();
+    void offSequenceEntitiesChanged();
     void sliderConfigChanged();
+    void readyCheckChanged();
     void voiceAssistantEntityIdChanged();
     void voiceAssistantProfileIdChanged();
     void addToActivities(QString entityId);
@@ -180,13 +191,20 @@ class Activity : public Base {
     QVariantList m_buttonMapping;
     QVariantMap  m_uiConfig;
     QVariantList m_includedEntities;
+    QStringList  m_onSequenceEntities;
+    QStringList  m_offSequenceEntities;
 
     QString m_voiceAssistantEntityId;
     QString m_voiceAssistantProfileId;
 
     ActivitySliderConfig m_sliderConfig;
+
+    bool m_readyCheck = true;
+
     void updateSliderConfig(QVariantMap data);
     void updateVoiceAssistantConfig(QVariantMap data);
+    void updateSequences(QVariantMap data);
+    void updateReadyCheck(bool value);
 
     void sendButtonMappingCommand(const QString &buttonName, bool shortPress = true);
 };

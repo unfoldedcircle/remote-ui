@@ -451,10 +451,10 @@ ListView {
                                                                    icon: entityObj.icon,
                                                                    callback: function() {
                                                                        function retry() {
-                                                                           const res = checkActivityIncludedEntities(entityObj);
+                                                                           const res = checkActivityIncludedEntities(entityObj, false);
 
                                                                            if (!EntityController.resumeWindow) {
-                                                                               if (!res.allIncludedEntitiesConnected) {
+                                                                               if (!res.allIncludedEntitiesConnected && entityObj.readyCheck) {
                                                                                    ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
                                                                                    return;
                                                                                }
@@ -489,10 +489,10 @@ ListView {
                                                                        const eObj = EntityController.get(EntityController.activities[i]);
 
                                                                        function retry() {
-                                                                           const res = checkActivityIncludedEntities(eObj);
+                                                                           const res = checkActivityIncludedEntities(eObj, false);
 
                                                                            if (!EntityController.resumeWindow) {
-                                                                               if (!res.allIncludedEntitiesConnected) {
+                                                                               if (!res.allIncludedEntitiesConnected && eObj.readyCheck) {
                                                                                    ui.createActionableNotification(eObj.name, (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { eObj.turnOff(); }, qsTr("Proceed"));
                                                                                    return;
                                                                                }

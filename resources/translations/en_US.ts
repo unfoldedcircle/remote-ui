@@ -2768,7 +2768,7 @@ no return</source>
 <context>
     <name>SelectWidget</name>
     <message>
-        <location filename="../../src/qml/components/SelectWidget.qml" line="300"/>
+        <location filename="../../src/qml/components/SelectWidget.qml" line="299"/>
         <source>Select an option</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3328,42 +3328,42 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>UpdateProgress</name>
     <message>
-        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="59"/>
+        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="65"/>
         <source>Update in progress</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="87"/>
+        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="93"/>
         <source>Installing step %1/%2 %3%</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="98"/>
+        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="104"/>
         <source>Do not turn off the remote during the installation process!</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="120"/>
+        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="126"/>
         <source>Update success</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="130"/>
+        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="136"/>
         <source>Software update was successful.%1The remote will reboot now.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="153"/>
+        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="159"/>
         <source>Update failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="164"/>
+        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="170"/>
         <source>There was an error during installing the update.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="182"/>
+        <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="188"/>
         <source>Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3848,7 +3848,7 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>main</name>
     <message>
-        <location filename="../../src/qml/main.qml" line="699"/>
+        <location filename="../../src/qml/main.qml" line="700"/>
         <source>Done</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3864,28 +3864,28 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>uc::SoftwareUpdate</name>
     <message>
-        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="92"/>
+        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="103"/>
         <source>Update check failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="93"/>
+        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="104"/>
         <source>There was an error while checking for new updates. Please try again later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="110"/>
+        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="123"/>
         <source>Update error</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="110"/>
+        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="123"/>
         <source>Couldn&apos;t start the software update. Please try again later.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="162"/>
-        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="187"/>
+        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="180"/>
+        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="207"/>
         <source>Software update has failed.</source>
         <translation type="unfinished"></translation>
     </message>

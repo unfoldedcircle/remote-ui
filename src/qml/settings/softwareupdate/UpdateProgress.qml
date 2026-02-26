@@ -23,20 +23,26 @@ Popup {
         ignoreUnknownSignals: true
 
         function onUpdateSucceeded() {
+            console.debug("UpdateProgress: onUpdateSucceeded received, showing success screen");
             successScreen.opacity = 1;
         }
 
         function onUpdateFailed(error) {
+            console.debug("UpdateProgress: onUpdateFailed received, error:", error);
             failMessage.text = error;
             failedScreen.opacity = 1;
         }
     }
 
     onOpened: {
+        console.debug("UpdateProgress: popup opened, progress:", SoftwareUpdate.updateProgress,
+                       "step:", SoftwareUpdate.currentStep, "/", SoftwareUpdate.totalSteps);
         ui.inputController.blockInput(true);
     }
 
     onClosed: {
+        console.debug("UpdateProgress: popup closed, failedScreen.opacity:", failedScreen.opacity,
+                       "successScreen.opacity:", successScreen.opacity);
         failedScreen.opacity = 0;
         ui.inputController.blockInput(false);
     }
