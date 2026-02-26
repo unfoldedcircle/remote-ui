@@ -287,14 +287,14 @@ EntityComponents.BaseDetail {
     }
 
     function powerOffCommand() {
-        const res = checkActivityIncludedEntities(entityObj);
+        const res = checkActivityIncludedEntities(entityObj, false);
 
         if (EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
             ui.setTimeOut(500, () => {
                               activityBase.powerOffCommand();
                           });
             return;
-        } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
+        } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected && entityObj.readyCheck) {
                 ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
                 return;
         } else {

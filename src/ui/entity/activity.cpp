@@ -59,6 +59,14 @@ Activity::Activity(const QString &id, QVariantMap nameI18n, const QString &langu
     if (options.contains("voice_assistant")) {
         updateVoiceAssistantConfig(options.value("voice_assistant").toMap());
     }
+
+    if (options.contains("sequences")) {
+        updateSequences(options.value("sequences").toMap());
+    }
+
+    if (options.contains("ready_check")) {
+        updateReadyCheck(options.value("ready_check").toBool());
+    }
 }
 
 Activity::~Activity() { qCDebug(lcActivity()) << "Activity entity destructor"; }
@@ -216,6 +224,16 @@ bool Activity::updateOptions(QVariant data) {
         ok = true;
     }
 
+    if (options.contains("sequences")) {
+        updateSequences(options.value("sequences").toMap());
+        ok = true;
+    }
+
+    if (options.contains("ready_check")) {
+        updateReadyCheck(options.value("ready_check").toBool());
+        ok = true;
+    }
+
     return ok;
 }
 
@@ -282,6 +300,45 @@ void Activity::updateVoiceAssistantConfig(QVariantMap data)
 
     emit voiceAssistantEntityIdChanged();
     emit voiceAssistantProfileIdChanged();
+}
+
+void Activity::updateSequences(QVariantMap data)
+{
+    if (data.contains("on")) {
+        QVariantList onSequence = data.value("on").toList();
+
+        for (const QVariant &item : onSequence) {
+            const QVariantMap step = item.toMap();
+
+            const QVariantMap cmd = step.value("command").toMap();
+            const QString entityId = cmd.value("entity_id").toString();
+
+            if (!entityId.isEmpty()) {
+                m_onSequenceEntities.append(entityId);
+            }
+        }
+    }
+
+    if (data.contains("off")) {
+        QVariantList onSequence = data.value("off").toList();
+
+        for (const QVariant &item : onSequence) {
+            const QVariantMap step = item.toMap();
+
+            const QVariantMap cmd = step.value("command").toMap();
+            const QString entityId = cmd.value("entity_id").toString();
+
+            if (!entityId.isEmpty()) {
+                m_offSequenceEntities.append(entityId);
+            }
+        }
+    }
+}
+
+void Activity::updateReadyCheck(bool value)
+{
+    m_readyCheck = value;
+    emit readyCheckChanged();
 }
 
 void Activity::sendButtonMappingCommand(const QString &buttonName, bool shortPress) {

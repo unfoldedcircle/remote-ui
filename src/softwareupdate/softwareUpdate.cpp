@@ -31,12 +31,17 @@ SoftwareUpdate::~SoftwareUpdate() {
 }
 
 void SoftwareUpdate::checkForUpdate(bool force, bool silent) {
+    qCDebug(lcSoftwareUpdate()) << "checkForUpdate called, force:" << force << "silent:" << silent;
     int id = m_core->checkSystemUpdate(force);
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respSystemUpdateInfo,
         [=](core::SystemUpdate systemUpdate) {
             // success
+            qCDebug(lcSoftwareUpdate()) << "checkForUpdate response received, updateInProgress:"
+                                        << systemUpdate.updateInProgress
+                                        << "installedVersion:" << systemUpdate.installedVersion
+                                        << "available updates:" << systemUpdate.available.size();
 
             if (systemUpdate.updateInProgress) {
                 m_updateInProgress = true;
@@ -59,7 +64,12 @@ void SoftwareUpdate::checkForUpdate(bool force, bool silent) {
                     static_cast<SoftwareUpdate::DownloadState>(systemUpdate.available[0].downloadState);
                 emit updateDownloadStateChanged();
 
+                qCDebug(lcSoftwareUpdate())
+                    << "Update version:" << systemUpdate.available[0].version
+                    << "downloadState:" << static_cast<int>(m_updateDownloadState);
+
                 if (m_updateDownloadState == DownloadState::Error) {
+                    qCDebug(lcSoftwareUpdate()) << "Download state is Error, aborting update processing";
                     m_updateAvailable = true;
                     emit updateAvailableChanged();
                     return;
@@ -80,6 +90,7 @@ void SoftwareUpdate::checkForUpdate(bool force, bool silent) {
 
                 emit releaseNotesChanged();
             } else {
+                qCDebug(lcSoftwareUpdate()) << "No updates available";
                 m_updateAvailable = false;
                 emit updateAvailableChanged();
             }
@@ -96,12 +107,14 @@ void SoftwareUpdate::checkForUpdate(bool force, bool silent) {
 }
 
 void SoftwareUpdate::startUpdate() {
+    qCDebug(lcSoftwareUpdate()) << "startUpdate called, updateId:" << m_updateId;
     int id = m_core->updateSystem(m_updateId);
 
     m_core->onResult(
         id,
         [=]() {
             // success
+            qCDebug(lcSoftwareUpdate()) << "startUpdate request acknowledged by core";
         },
         [=](int code, QString message) {
             // fail
@@ -126,6 +139,7 @@ void SoftwareUpdate::onSoftwareUpdateChanged(core::MsgEventTypes::Enum type, QSt
 
     switch (type) {
         case core::MsgEventTypes::Enum::START: {
+            qCDebug(lcSoftwareUpdate()) << "Update START event, updateId:" << updateId;
             emit updateStarted();
 
             m_updateInProgress = true;
@@ -133,6 +147,11 @@ void SoftwareUpdate::onSoftwareUpdateChanged(core::MsgEventTypes::Enum type, QSt
             break;
         }
         case core::MsgEventTypes::Enum::PROGRESS: {
+            qCDebug(lcSoftwareUpdate()) << "Update PROGRESS event, step:" << progress.currentStep
+                                        << "/" << progress.totalSteps
+                                        << "percent:" << progress.currentPercent
+                                        << "state:" << progress.state;
+
             if (m_totalSteps != progress.totalSteps) {
                 m_totalSteps = progress.totalSteps;
                 emit totalStepsChanged();
@@ -145,8 +164,6 @@ void SoftwareUpdate::onSoftwareUpdateChanged(core::MsgEventTypes::Enum type, QSt
 
             m_updateProgress = progress.currentPercent;
             emit updateProgressChanged();
-
-            qCDebug(lcSoftwareUpdate()) << "Progress state:" << progress.state;
 
             switch (progress.state) {
                 case core::UpdateEnums::UpdateProgressType::SUCCESS:
@@ -175,16 +192,21 @@ void SoftwareUpdate::onSoftwareUpdateChanged(core::MsgEventTypes::Enum type, QSt
             break;
         }
         case core::MsgEventTypes::Enum::STOP: {
+            qCDebug(lcSoftwareUpdate()) << "Update STOP event, updateId:" << updateId
+                                        << "state:" << progress.state
+                                        << "step:" << progress.currentStep
+                                        << "/" << progress.totalSteps
+                                        << "percent:" << progress.currentPercent;
+
             m_updateInProgress = false;
             emit updateInProgressChanged();
 
-            qCDebug(lcSoftwareUpdate()) << "Progress event type:" << progress.state;
-
             if (progress.state == core::UpdateEnums::UpdateProgressType::FAILURE) {
-                m_updateInProgress = false;
-                emit updateInProgressChanged();
-
+                qCWarning(lcSoftwareUpdate()) << "Update STOP with FAILURE state";
                 emit updateFailed(tr("Software update has failed."));
+            } else {
+                qCDebug(lcSoftwareUpdate()) << "Update STOP with non-failure state, emitting updateSucceeded";
+                emit updateSucceeded();
             }
 
             m_totalSteps = 0;

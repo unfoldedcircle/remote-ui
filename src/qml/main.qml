@@ -87,13 +87,14 @@ ApplicationWindow {
         sig.connect(slotConn)
     }
 
-    function checkActivityIncludedEntities(activityObj) {
+    function checkActivityIncludedEntities(activityObj, onSequence = true) {
         // check if all entities in the activity has a connected integraiton
+        let entityListToCheck = onSequence ? activityObj.onSequenceEntities : activityObj.offSequenceEntities;
         let allIncludedEntitiesConnected = true;
         let notReadyEntities = "";
         let notReadyEntityQty = 0;
 
-        if (activityObj.includedEntities.length === 0) {
+        if (entityListToCheck.length === 0) {
             return {
                 allIncludedEntitiesConnected: true,
                 notReadyEntities: notReadyEntities,
@@ -101,8 +102,8 @@ ApplicationWindow {
             }
         }
 
-        for (let i = 0; i < activityObj.includedEntities.length; i++) {
-            const includedEntityObj = EntityController.get(activityObj.includedEntities[i]);
+        for (let i = 0; i < entityListToCheck.length; i++) {
+            const includedEntityObj = EntityController.get(entityListToCheck[i]);
 
             if (includedEntityObj) {
                 const includedEntityIntegrationObj = IntegrationController.getModelItem(includedEntityObj.integrationId);
