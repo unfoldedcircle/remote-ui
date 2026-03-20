@@ -225,6 +225,7 @@ Settings.Page {
                         /** KEYBOARD NAVIGATION **/
                         highlight: activeFocus && ui.keyNavigationEnabled
                         KeyNavigation.up: activityBarSwitch
+                        KeyNavigation.down: mediaCoverflowSwitch
                     }
                 }
 
@@ -235,7 +236,55 @@ Settings.Page {
                     text: qsTr("Zoom & crop artwork in media player widgets instead of scaling to fit.")
                     font: fonts.secondaryFont(24)
                 }
-            }   
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width - 20; height: 2
+                color: colors.medium
+            }
+
+            /** MEDIA BROWSER COVERFLOW DEFAULT **/
+            ColumnLayout {
+                Layout.alignment: Qt.AlignCenter
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                spacing: 10
+
+                RowLayout {
+                    spacing: 10
+
+                    Text {
+                        id: mediaCoverflowText
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: colors.offwhite
+                        text: qsTr("Coverflow in media browser")
+                        font: fonts.primaryFont(30)
+                    }
+
+                    Components.Switch {
+                        id: mediaCoverflowSwitch
+                        icon: "uc:check"
+                        checked: Config.mediaCoverflowDefault
+                        trigger: function() {
+                            Config.mediaCoverflowDefault = !Config.mediaCoverflowDefault;
+                        }
+
+                        /** KEYBOARD NAVIGATION **/
+                        highlight: activeFocus && ui.keyNavigationEnabled
+                        KeyNavigation.up: mediaComponentSwitch
+                    }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    color: colors.light
+                    text: qsTr("Use coverflow as the default view when opening the media browser.")
+                    font: fonts.secondaryFont(24)
+                }
+            }
         }
     }
 }

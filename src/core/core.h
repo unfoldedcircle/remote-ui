@@ -49,6 +49,8 @@ class Api : public QObject {
     int deleteEntities(const QStringList &entityIds, const QString &integrationId = QString());
 
     int entityCommand(const QString &entityId, const QString &cmd, QVariantMap params);
+    int browseMedia(const QString &entityId, QVariantMap params);
+    int searchMedia(const QString &entityId, QVariantMap params);
 
     // profile handling
     int switchProfile(const QString &profileId, const QString &pin);
@@ -344,6 +346,9 @@ class Api : public QObject {
     void respPowerMode(int reqId, int code, PowerEnums::PowerMode powerMode, int capacitiy, bool powerSupply,
                        PowerEnums::PowerStatus powerStatus);
 
+    void respMediaBrowse(int reqId, int code, core::BrowseMediaItem media, core::Pagination pagination);
+    void respMediaSearch(int reqId, int code, QList<core::BrowseMediaItem> items, core::Pagination pagination);
+
     // event signals
  signals:
     void connected();
@@ -525,6 +530,10 @@ class Api : public QObject {
     void processResponseSystemUpdateInfo(int reqId, int code, QVariant msgData);
 
     void processResponsePowerMode(int reqId, int code, QVariant msgData);
+
+    void processResponseMediaBrowse(int reqId, int code, QVariant msgData);
+    void processResponseMediaSearch(int reqId, int code, QVariant msgData);
+    BrowseMediaItem parseBrowseMediaItem(const QVariantMap &map);
 
     // processing events
  private:

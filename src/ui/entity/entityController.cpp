@@ -79,6 +79,11 @@ EntityController::EntityController(core::Api* core, const QString& language, con
                                                                "Enum is not a type");
     qmlRegisterUncreatableType<entity::MediaPlayerRepeatMode>("Entity.MediaPlayer", 1, 0, "MediaPlayerRepeatMode",
                                                               "Enum is not a type");
+    qmlRegisterUncreatableType<entity::MediaClass>("Entity.MediaPlayer", 1, 0, "MediaClass", "Enum is not a type");
+    qmlRegisterUncreatableType<entity::MediaContentType>("Entity.MediaPlayer", 1, 0, "MediaContentType",
+                                                         "Enum is not a type");
+    qmlRegisterUncreatableType<entity::MediaPlayAction>("Entity.MediaPlayer", 1, 0, "MediaPlayAction",
+                                                        "Enum is not a type");
 
             // sensor enums
     qRegisterMetaType<entity::SensorStates::Enum>("Sensor States");
@@ -346,6 +351,30 @@ void EntityController::addEntityObject(core::Entity entity) {
                                  &EntityController::onAddToActivities);
                 QObject::connect(mediaPlayer, &entity::MediaPlayer::removeFromActivities, this,
                                  &EntityController::onRemoveFromActivities);
+
+                QObject::connect(mediaPlayer, &entity::MediaPlayer::browseMediaRequested,
+                    this, [=](const QString &entityId, QVariantMap params) {
+                        int id = m_core->browseMedia(entityId, params);
+                        m_core->onResponseWithErrorResult(id, &core::Api::respMediaBrowse,
+                            [mediaPlayer](core::BrowseMediaItem media, core::Pagination pagination) {
+                                mediaPlayer->onBrowseMediaResult(media, pagination);
+                            },
+                            [mediaPlayer](int code, QString message) {
+                                mediaPlayer->onMediaBrowseError(code, message);
+                            });
+                    });
+
+                QObject::connect(mediaPlayer, &entity::MediaPlayer::searchMediaRequested,
+                    this, [=](const QString &entityId, QVariantMap params) {
+                        int id = m_core->searchMedia(entityId, params);
+                        m_core->onResponseWithErrorResult(id, &core::Api::respMediaSearch,
+                            [mediaPlayer](QList<core::BrowseMediaItem> items, core::Pagination pagination) {
+                                mediaPlayer->onSearchMediaResult(items, pagination);
+                            },
+                            [mediaPlayer](int code, QString message) {
+                                mediaPlayer->onMediaBrowseError(code, message);
+                            });
+                    });
 
                 if (mediaPlayer->getState() == entity::MediaPlayerStates::Playing) {
                     onAddToActivities(entity.id);

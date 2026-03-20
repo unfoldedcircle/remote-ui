@@ -1367,6 +1367,59 @@ int Api::entityCommand(const QString& entityId, const QString& cmd, QVariantMap 
     return sendRequest(RequestTypes::execute_entity_command, msgData);
 }
 
+int Api::browseMedia(const QString& entityId, QVariantMap params) {
+    if (entityId.isEmpty()) {
+        return -1;
+    }
+
+    QVariantMap msgData;
+    msgData.insert("entity_id", entityId);
+
+    if (params.contains("media_id")) {
+        msgData.insert("media_id", params.take("media_id"));
+    }
+    if (params.contains("media_type")) {
+        msgData.insert("media_type", params.take("media_type"));
+    }
+
+    if (params.contains("paging")) {
+        msgData.insert("paging", params.take("paging"));
+    }
+
+    if (params.count() > 0) {
+        msgData.insert("params", params);
+    }
+
+    return sendRequest(RequestTypes::browse_media, msgData);
+}
+
+int Api::searchMedia(const QString& entityId, QVariantMap params) {
+    if (entityId.isEmpty()) {
+        return -1;
+    }
+
+    QVariantMap msgData;
+    msgData.insert("entity_id", entityId);
+
+    if (params.contains("query")) {
+        msgData.insert("query", params.take("query"));
+    }
+
+    if (params.contains("paging")) {
+        msgData.insert("paging", params.take("paging"));
+    }
+
+    if (params.contains("filter")) {
+        msgData.insert("filter", params.take("filter"));
+    }
+
+    if (params.count() > 0) {
+        msgData.insert("params", params);
+    }
+
+    return sendRequest(RequestTypes::search_media, msgData);
+}
+
 void Api::processEventMessage(QVariantMap map) {
     MsgEvent::Enum event = Util::convertStringToEnum<MsgEvent::Enum>(map.value("msg").toString());
     auto           msgData = map.value("msg_data").toMap();
@@ -1677,6 +1730,14 @@ void Api::processResponseMessage(QVariantMap map) {
         }
         case MsgResponse::power_mode: {
             processResponsePowerMode(reqId, code, msgData);
+            break;
+        }
+        case MsgResponse::media_browse: {
+            processResponseMediaBrowse(reqId, code, msgData);
+            break;
+        }
+        case MsgResponse::media_search: {
+            processResponseMediaSearch(reqId, code, msgData);
             break;
         }
         default:
@@ -3429,6 +3490,62 @@ void Api::processAssistantEvent(QVariant msgData)
 void Api::processRequestGetLocalizationLanguages(int reqId)
 {
     emit reqGetLocalizationLanguages(reqId);
+}
+
+BrowseMediaItem Api::parseBrowseMediaItem(const QVariantMap &map) {
+    BrowseMediaItem item;
+    item.mediaId    = map.value("media_id").toString();
+    item.title      = map.value("title").toString();
+    item.artist     = map.value("artist").toString();
+    item.album      = map.value("album").toString();
+    item.mediaClass = map.value("media_class").toString();
+    item.mediaType  = map.value("media_type").toString();
+    item.canBrowse  = map.value("can_browse", false).toBool();
+    item.canPlay    = map.value("can_play", false).toBool();
+    item.canSearch  = map.value("can_search", false).toBool();
+    item.thumbnail        = map.value("thumbnail").toString();
+    item.duration         = map.value("duration", 0).toInt();
+    item.subtitle         = map.value("subtitle").toString();
+    item.playMediaActions = map.value("play_media_action").toStringList();
+
+    QVariantList childItems = map.value("items").toList();
+    for (const QVariant &child : childItems) {
+        item.items.append(parseBrowseMediaItem(child.toMap()));
+    }
+
+    return item;
+}
+
+void Api::processResponseMediaBrowse(int reqId, int code, QVariant msgData) {
+    QVariantMap map = msgData.toMap();
+
+    BrowseMediaItem item = parseBrowseMediaItem(map.value("media").toMap());
+
+    Pagination pagination;
+    QVariantMap paginationMap = map.value("pagination").toMap();
+    pagination.count = paginationMap.value("count", 0).toInt();
+    pagination.limit = paginationMap.value("limit", 0).toInt();
+    pagination.page  = paginationMap.value("page", 1).toInt();
+
+    emit respMediaBrowse(reqId, code, item, pagination);
+}
+
+void Api::processResponseMediaSearch(int reqId, int code, QVariant msgData) {
+    QVariantMap map = msgData.toMap();
+
+    QList<BrowseMediaItem> items;
+    QVariantList mediaList = map.value("media").toList();
+    for (const QVariant &entry : mediaList) {
+        items.append(parseBrowseMediaItem(entry.toMap()));
+    }
+
+    Pagination pagination;
+    QVariantMap paginationMap = map.value("pagination").toMap();
+    pagination.count = paginationMap.value("count", 0).toInt();
+    pagination.limit = paginationMap.value("limit", 0).toInt();
+    pagination.page  = paginationMap.value("page", 1).toInt();
+
+    emit respMediaSearch(reqId, code, items, pagination);
 }
 
 }  // namespace core

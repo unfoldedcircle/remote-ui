@@ -122,6 +122,8 @@
         <file alias="components/entities/media_player/deviceclass/Streaming_box.qml">../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml</file>
         <file alias="components/entities/media_player/deviceclass/Tv.qml">../../src/qml/components/entities/media_player/deviceclass/Tv.qml</file>
         <file alias="components/entities/media_player/ImageLoader.qml">../../src/qml/components/entities/media_player/ImageLoader.qml</file>
+        <file alias="components/entities/media_player/MarqueeText.qml">../../src/qml/components/entities/media_player/MarqueeText.qml</file>
+        <file alias="components/entities/media_player/MediaBrowser.qml">../../src/qml/components/entities/media_player/MediaBrowser.qml</file>
         <file alias="components/entities/media_player/SourceList.qml">../../src/qml/components/entities/media_player/SourceList.qml</file>
         <file alias="components/entities/remote/deviceclass/Remote.qml">../../src/qml/components/entities/remote/deviceclass/Remote.qml</file>
         <file alias="components/entities/macro/deviceclass/Macro.qml">../../src/qml/components/entities/macro/deviceclass/Macro.qml</file>

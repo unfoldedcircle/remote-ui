@@ -21,6 +21,7 @@ class SoftwareUpdate : public QObject {
     Q_PROPERTY(QString releaseNotes READ getReleaseNotes NOTIFY releaseNotesChanged)
     Q_PROPERTY(bool updateInProgress READ getUpdateInProgress NOTIFY updateInProgressChanged)
     Q_PROPERTY(int updateProgress READ getUpdateProgress NOTIFY updateProgressChanged)
+    Q_PROPERTY(int downloadProgress READ getDownloadProgress NOTIFY downloadProgressChanged)
     Q_PROPERTY(int currentStep READ getCurrentStep NOTIFY currentStepChanged);
     Q_PROPERTY(int totalSteps READ getTotalSteps NOTIFY totalStepsChanged);
 
@@ -47,6 +48,7 @@ class SoftwareUpdate : public QObject {
     QString       getReleaseNotes() { return m_releaseNotes; }
     bool          getUpdateInProgress() { return m_updateInProgress; }
     int           getUpdateProgress() { return m_updateProgress; }
+    int           getDownloadProgress() { return m_downloadProgress; }
     int           getCurrentStep() { return m_currentStep; }
     int           getTotalSteps() { return m_totalSteps; }
 
@@ -67,6 +69,7 @@ class SoftwareUpdate : public QObject {
     void releaseNotesChanged();
     void updateInProgressChanged();
     void updateProgressChanged();
+    void downloadProgressChanged();
     void currentStepChanged();
     void totalStepsChanged();
     void updateStarted();
@@ -92,6 +95,7 @@ class SoftwareUpdate : public QObject {
     QVariantMap   m_releaseNotesI18n;
     bool          m_updateInProgress = false;
     int           m_updateProgress = 0;
+    int           m_downloadProgress = 0;
     int           m_currentStep = 0;
     int           m_totalSteps = 0;
 

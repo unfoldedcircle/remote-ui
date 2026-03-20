@@ -19,6 +19,10 @@ Item {
     property bool aspectFit: false
     property bool shrinkHeight: false
     property bool alignCentered: false
+    property bool failed: false
+    property int retryCount: 0
+    property int maxRetries: 2
+    property int retryDelay: 1000
 
     property alias image1: image1
 
@@ -26,7 +30,10 @@ Item {
 
     onUrlChanged: {
         loadingDelay.stop();
+        retryTimer.stop();
         loader.opacity = 0;
+        failed = false;
+        retryCount = 0;
 
         if (url == prevUrl) {
             return;
@@ -98,6 +105,7 @@ Item {
             }
 
             if (image2.status == Image.Ready) {
+                failed = false;
                 image2.opacity = 1;
 
                 if (imageLoader.shrinkHeight && !imageLoader.aspectFit) {
@@ -108,9 +116,17 @@ Item {
             }
 
             if (image2.status == Image.Error && image2.source != "") {
-                image2.source = "";
-                prevUrl = "";
-                console.error("Failed to load image into image 2");
+                if (retryCount < maxRetries) {
+                    retryCount += 1;
+                    image2.source = "";
+                    retryTimer.restart();
+                    console.warn("Retrying failed image load", retryCount, "/", maxRetries, url);
+                } else {
+                    image2.source = "";
+                    prevUrl = "";
+                    failed = true;
+                    console.error("Failed to load image into image 2 after retries");
+                }
             }
         }
 
@@ -128,6 +144,17 @@ Item {
         interval: 500
         repeat: false
         onTriggered: loader.opacity = 1
+    }
+
+    Timer {
+        id: retryTimer
+        interval: retryDelay
+        repeat: false
+        onTriggered: {
+            if (url != "") {
+                image2.source = url;
+            }
+        }
     }
 
     Rectangle {

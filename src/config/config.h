@@ -92,6 +92,7 @@ class Config : public QObject {
 
     Q_PROPERTY(bool enableActivityBar READ getEnableActivityBar WRITE setEnableActivityBar NOTIFY enableActivityBarChanged)
     Q_PROPERTY(bool fillMediaArtwork READ getFillMediaArtwork WRITE setFillMediaArtwork NOTIFY fillMediaArtworkChanged)
+    Q_PROPERTY(bool mediaCoverflowDefault READ getMediaCoverflowDefault WRITE setMediaCoverflowDefault NOTIFY mediaCoverflowDefaultChanged)
 
     Q_PROPERTY(int resumeTimeoutWindowSec READ getResumeTimeoutWindowSec WRITE setResumeTimeoutWindowSec NOTIFY resumeTimeoutWindowSecChanged)
 
@@ -166,6 +167,9 @@ class Config : public QObject {
 
     bool getFillMediaArtwork();
     void setFillMediaArtwork(bool value);
+
+    bool getMediaCoverflowDefault();
+    void setMediaCoverflowDefault(bool value);
 
     int getResumeTimeoutWindowSec();
     void setResumeTimeoutWindowSec(int value);
@@ -293,6 +297,7 @@ class Config : public QObject {
     void showBatteryPercentageChanged();
     void enableActivityBarChanged();
     void fillMediaArtworkChanged();
+    void mediaCoverflowDefaultChanged();
     void resumeTimeoutWindowSecChanged(int value);
 
  public slots:

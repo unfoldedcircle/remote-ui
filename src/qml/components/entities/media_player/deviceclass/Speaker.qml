@@ -250,6 +250,7 @@ EntityComponents.BaseDetail {
             id: nowPlayingFeatureLoader
             sourceComponent: nowPlayingFeature
         }
+
     }
 
     Component {
@@ -269,7 +270,7 @@ EntityComponents.BaseDetail {
                     icon: "uc:music"
                     anchors.centerIn: mediaImage
                     size: 200
-                    visible: entityObj.mediaImage == ""
+                    visible: entityObj.mediaImage == "" || mediaImage.failed
                 }
 
                 MediaPlayerComponents.ImageLoader {
@@ -598,6 +599,22 @@ EntityComponents.BaseDetail {
                     }
 
                     Components.Icon {
+                        id: mediaBrowserIcon
+
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+                        size: 80
+                        color: colors.offwhite
+                        icon: "uc:album-collection"
+                        visible: entityObj.hasFeature(MediaPlayerFeatures.Browse_media) || entityObj.hasFeature(MediaPlayerFeatures.Search_media)
+
+                        Components.HapticMouseArea {
+                            anchors.fill: parent
+                            onClicked: mediaBrowser.open()
+                        }
+                    }
+
+                    Components.Icon {
                         id: sourceListIcon
 
                         Layout.fillWidth: true
@@ -605,7 +622,7 @@ EntityComponents.BaseDetail {
                         size: 80
                         color: colors.offwhite
                         icon: "uc:grid-2"
-//                        visible: entityObj.hasFeature(MediaPlayerFeatures.Select_source) && entityObj.sourceList.length !== 0
+                        visible: entityObj.hasFeature(MediaPlayerFeatures.Select_source) && entityObj.sourceList.length !== 0
 
                         Components.HapticMouseArea {
                             anchors.fill: parent
@@ -634,6 +651,12 @@ EntityComponents.BaseDetail {
 
     MediaPlayerComponents.SourceList {
         id: sourceList
+        parent: Overlay.overlay
+    }
+
+    MediaPlayerComponents.MediaBrowser {
+        id: mediaBrowser
+        entityObj: mediaPlayerBase.entityObj
         parent: Overlay.overlay
     }
 

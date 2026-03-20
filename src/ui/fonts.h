@@ -25,6 +25,12 @@ class Fonts : public QObject {
         return font;
     }
 
+    Q_INVOKABLE QFont primaryFontCapitalizedFirst(int size = 30, const QString& style = "Normal") {
+        QFont font = primaryFont(size, style);
+        font.setCapitalization(QFont::Capitalize);
+        return font;
+    }
+
     Q_INVOKABLE QFont primaryFontCapitalized(int size = 30, const QString& style = "Normal") {
         QFont font = primaryFont(size, style);
         font.setCapitalization(QFont::AllUppercase);
@@ -35,6 +41,12 @@ class Fonts : public QObject {
         QFont font = QFont("Space Mono");
         font.setPixelSize(size);
         font.setStyleName(style);
+        return font;
+    }
+
+    Q_INVOKABLE QFont secondaryFontCapitalizedFirst(int size = 30, const QString& style = "Normal") {
+        QFont font = secondaryFont(size, style);
+        font.setCapitalization(QFont::Capitalize);
         return font;
     }
 

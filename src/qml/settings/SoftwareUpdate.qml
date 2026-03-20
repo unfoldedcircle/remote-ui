@@ -212,6 +212,46 @@ Settings.Page {
             }
 
             Item {
+                Layout.alignment: Qt.AlignCenter
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                width: parent.width - 20
+                height: 10
+                visible: SoftwareUpdate.updateDownloadState === SoftwareUpdate.Downloading
+
+                Rectangle {
+                    width: parent.width
+                    height: parent.height
+                    color: colors.dark
+                    radius: 5
+
+                    Rectangle {
+                        width: parent.width * SoftwareUpdate.downloadProgress / 100
+                        height: parent.height
+                        color: colors.offwhite
+                        radius: parent.radius
+                        anchors.left: parent.left
+
+                        Behavior on width {
+                            NumberAnimation { duration: 300; easing.type: Easing.OutQuad }
+                        }
+                    }
+                }
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                Layout.fillWidth: true
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                horizontalAlignment: Text.AlignHCenter
+                color: colors.light
+                font: fonts.secondaryFont(20)
+                text: SoftwareUpdate.downloadProgress + "%"
+                visible: SoftwareUpdate.updateDownloadState === SoftwareUpdate.Downloading
+            }
+
+            Item {
                 height: 20
             }
 

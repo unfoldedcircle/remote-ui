@@ -163,6 +163,7 @@ Popup {
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                maximumLineCount: 2
                 anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
                 font: fonts.primaryFont(24, "Bold")
             }

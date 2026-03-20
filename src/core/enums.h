@@ -233,6 +233,10 @@ class RequestTypes {
         get_dock_setup_status,
         start_dock_setup,
         stop_dock_setup,
+
+        // media browsing
+        browse_media,
+        search_media,
     };
     Q_ENUM(Enum)
 
@@ -325,6 +329,10 @@ class MsgResponse {
         dock_system_info,
         dock_setup_processes,
         dock_setup_status,
+
+        // media browsing
+        media_browse,
+        media_search,
     };
     Q_ENUM(Enum)
 

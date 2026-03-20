@@ -165,6 +165,20 @@ void SoftwareUpdate::onSoftwareUpdateChanged(core::MsgEventTypes::Enum type, QSt
             m_updateProgress = progress.currentPercent;
             emit updateProgressChanged();
 
+            if (progress.state == core::UpdateEnums::UpdateProgressType::DOWNLOAD) {
+                if (m_updateDownloadState != DownloadState::Downloading) {
+                    m_updateDownloadState = DownloadState::Downloading;
+                    emit updateDownloadStateChanged();
+                }
+                m_downloadProgress = progress.downloadPercent;
+                emit downloadProgressChanged();
+
+                if (progress.downloadPercent >= 100) {
+                    m_updateDownloadState = DownloadState::Downloaded;
+                    emit updateDownloadStateChanged();
+                }
+            }
+
             switch (progress.state) {
                 case core::UpdateEnums::UpdateProgressType::SUCCESS:
                     qCDebug(lcSoftwareUpdate()) << "Update succeeded";
