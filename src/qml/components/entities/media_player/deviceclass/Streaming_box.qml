@@ -250,6 +250,7 @@ EntityComponents.BaseDetail {
             id: nowPlayingFeatureLoader
             sourceComponent: nowPlayingFeature
         }
+
     }
 
     Component {
@@ -269,7 +270,7 @@ EntityComponents.BaseDetail {
                     icon: "uc:music"
                     anchors.centerIn: mediaImage
                     size: 200
-                    visible: entityObj.mediaImage == ""
+                    visible: entityObj.mediaImage == "" || mediaImage.failed
                 }
 
                 MediaPlayerComponents.ImageLoader {
@@ -579,6 +580,22 @@ EntityComponents.BaseDetail {
                     }
 
                     Components.Icon {
+                        id: mediaBrowserIcon
+
+                        Layout.fillWidth: true
+                        Layout.alignment: Qt.AlignVCenter
+                        size: 80
+                        color: colors.offwhite
+                        icon: "uc:library"
+                        visible: entityObj.hasFeature(MediaPlayerFeatures.Browse_media) || entityObj.hasFeature(MediaPlayerFeatures.Search_media)
+
+                        Components.HapticMouseArea {
+                            anchors.fill: parent
+                            onClicked: mediaBrowser.open()
+                        }
+                    }
+
+                    Components.Icon {
                         id: sourceListIcon
 
                         Layout.fillWidth: true
@@ -615,6 +632,12 @@ EntityComponents.BaseDetail {
 
     MediaPlayerComponents.SourceList {
         id: sourceList
+        parent: Overlay.overlay
+    }
+
+    MediaPlayerComponents.MediaBrowser {
+        id: mediaBrowser
+        entityObj: mediaPlayerBase.entityObj
         parent: Overlay.overlay
     }
 

@@ -6,6 +6,45 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## v0.71.1 - 2026-03-19
+### Fixed
+- Adjust color contrast
+- Show play indication
+- Punch volume and play button through in media browsing
+- Search media class filter
+- Close media browser after starting
+
+---
+## v0.71.0 - 2026-03-18
+### Added
+- Download progress for software updates
+- Media browsing and search
+- Coverflow view mode for media browsing
+- Option to set coverflow as the default view
+
+---
+## v0.70.1 - 2026-02-24
+### Added
+- Log messages for software update process
+
+---
+## v0.70.0 - 2026-02-16
+### Added
+- Show warning when activity ready check is disabled
+
+### Fixed
+- Only check entities in activity on and off sequences
+
+---
+## v0.69.0 - 2026-01-22
+### Added
+- Select entity and select widget support
+
+### Fixed
+- Long entity names on activity loading screens won't break into multiple lines
+- Missing retry logic from activity power button mapping
+
+---
 ## v0.68.5 - 2026-01-15
 ### Fixed
 - Entity state check before starting/stopping activities

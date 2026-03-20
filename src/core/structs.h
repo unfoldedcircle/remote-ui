@@ -12,6 +12,17 @@
 namespace uc {
 namespace core {
 
+struct Paging {
+    int limit = 10;
+    int page = 1;
+};
+
+struct Pagination {
+    int count;
+    int limit;
+    int page;
+};
+
 struct Profile {
     QString     id;
     QString     name;
@@ -338,6 +349,31 @@ struct SystemUpdateProgress {
     int                             totalSteps;
     int                             currentStep;
     int                             currentPercent;
+};
+
+struct BrowseMediaItem {
+    QString                mediaId;
+    QString                title;
+    QString                subtitle;          // optional
+    QString                artist;
+    QString                album;
+    QString                mediaClass;
+    QString                mediaType;
+    bool                   canBrowse  = false;
+    bool                   canPlay    = false;
+    bool                   canSearch  = false;
+    QString                thumbnail;
+    int                    duration   = 0;
+    QStringList            playMediaActions;  // optional, e.g. ["PLAY_NOW","PLAY_NEXT"]
+    QList<BrowseMediaItem> items;
+};
+
+using SearchMediaItem = BrowseMediaItem;
+
+struct MediaSearchFilter {
+    QStringList mediaClasses;
+    QString     artist;
+    QString     album;
 };
 
 }  // namespace core

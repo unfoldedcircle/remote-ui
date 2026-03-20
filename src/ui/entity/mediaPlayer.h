@@ -15,6 +15,7 @@
 #include <QPixmap>
 #include <QTimer>
 
+#include "../../core/structs.h"
 #include "entity.h"
 
 namespace uc {
@@ -65,7 +66,11 @@ class MediaPlayerFeatures : public QObject {
         Audio_track,
         Subtitle,
         Record,
-        Settings
+        Settings,
+        Browse_media,
+        Search_media,
+        Search_media_classes,
+        Play_media_action
     };
     Q_ENUM(Enum)
 };
@@ -90,7 +95,10 @@ class MediaPlayerAttributes : public QObject {
         Source,
         Source_list,
         Sound_mode,
-        Sound_mode_list
+        Sound_mode_list,
+        Media_id,
+        Media_playlist,
+        Search_media_classes
     };
     Q_ENUM(Enum)
 };
@@ -186,7 +194,12 @@ class MediaPlayerCommands : public QObject {
         Audio_track,
         Subtitle,
         Settings,
-        Search
+        Search,
+        Play_media,
+        Clear_playlist,
+        Browse_media,
+        Search_media,
+        Search_media_classes
     };
     Q_ENUM(Enum)
 };
@@ -204,6 +217,36 @@ class MediaPlayerRepeatMode : public QObject {
 
  public:
     enum Enum { OFF, ALL, ONE };
+    Q_ENUM(Enum)
+};
+
+class MediaClass : public QObject {
+    Q_GADGET
+
+ public:
+    enum Enum {
+        Album, App, Artist, Channel, Composer, Directory, Episode, Game, Genre,
+        Image, Movie, Music, Playlist, Podcast, Radio, Season, Track, Tv_show, Url, Video
+    };
+    Q_ENUM(Enum)
+};
+
+class MediaContentType : public QObject {
+    Q_GADGET
+
+ public:
+    enum Enum {
+        Album, App, Apps, Artist, Channel, Channels, Composer, Episode, Game, Genre,
+        Image, Movie, Music, Playlist, Podcast, Radio, Season, Track, Tv_show, Url, Video
+    };
+    Q_ENUM(Enum)
+};
+
+class MediaPlayAction : public QObject {
+    Q_GADGET
+
+ public:
+    enum Enum { PLAY_NOW, PLAY_NEXT, ADD_TO_QUEUE };
     Q_ENUM(Enum)
 };
 
@@ -227,6 +270,9 @@ class MediaPlayer : public Base {
     Q_PROPERTY(QStringList sourceList READ getSourceList NOTIFY sourceListChanged)
     //    Q_PROPERTY(TODO soundMode READ getSoundMode NOTIFY soundModeChanged)
     //    Q_PROPERTY(TODO soundModeList READ getSoundModeList NOTIFY soundModeListChanged)
+    Q_PROPERTY(QString mediaId READ getMediaId NOTIFY mediaIdChanged)
+    Q_PROPERTY(QString mediaPlaylist READ getMediaPlaylist NOTIFY mediaPlaylistChanged)
+    Q_PROPERTY(QStringList searchMediaClasses READ getSearchMediaClasses NOTIFY searchMediaClassesChanged)
 
     // options
     Q_PROPERTY(int volumeSteps READ getVolumeSteps CONSTANT)
@@ -252,6 +298,9 @@ class MediaPlayer : public Base {
     int         getRepeat() { return m_repeat; }
     QString     getSource() { return m_source; }
     QStringList getSourceList() { return m_sourceList; }
+    QString     getMediaId() { return m_mediaId; }
+    QString     getMediaPlaylist() { return m_mediaPlaylist; }
+    QStringList getSearchMediaClasses() { return m_searchMediaClasses; }
 
     // options
     int getVolumeSteps() { return m_volumeSteps; }
@@ -313,7 +362,18 @@ class MediaPlayer : public Base {
     Q_INVOKABLE void subtitle();
     Q_INVOKABLE void settings();
     //    Q_INVOKABLE void selectSoundMode(const QString &soundMode);
-    //    Q_INVOKABLE void search(const QString &searchString);
+
+    Q_INVOKABLE void playMedia(const QString &mediaId, const QString &mediaType,
+                               const QString &action = QString());
+    Q_INVOKABLE void clearPlaylist();
+    Q_INVOKABLE void browseMedia(const QString &mediaId = QString(),
+                                 const QString &mediaType = QString(),
+                                 int limit = 10, int page = 1);
+    Q_INVOKABLE void searchMedia(const QString &query,
+                                 const QString &mediaId = QString(),
+                                 const QString &mediaType = QString(),
+                                 const QStringList &mediaClasses = QStringList(),
+                                 int limit = 10, int page = 1);
 
     void sendCommand(MediaPlayerCommands::Enum cmd, QVariantMap params);
     void sendCommand(MediaPlayerCommands::Enum cmd);
@@ -321,6 +381,11 @@ class MediaPlayer : public Base {
     bool updateAttribute(const QString &attribute, QVariant data) override;
 
     void onLanguageChangedTypeSpecific() override;
+
+ public slots:
+    void onBrowseMediaResult(const core::BrowseMediaItem &media, const core::Pagination &pagination);
+    void onSearchMediaResult(const QList<core::BrowseMediaItem> &items, const core::Pagination &pagination);
+    void onMediaBrowseError(int code, const QString &message);
 
  signals:
     void volumeChanged();
@@ -342,6 +407,16 @@ class MediaPlayer : public Base {
     void soundModeListChanged();
     void addToActivities(QString entityId);
     void removeFromActivities(QString entityId);
+    // outgoing — caught by EntityController
+    void browseMediaRequested(const QString &entityId, QVariantMap params);
+    void searchMediaRequested(const QString &entityId, QVariantMap params);
+    // incoming — results back to QML
+    void mediaIdChanged();
+    void mediaPlaylistChanged();
+    void searchMediaClassesChanged();
+    void browseMediaResult(QVariantMap media, QVariantMap pagination);
+    void searchMediaResult(QVariantList items, QVariantMap pagination);
+    void mediaBrowseError(int code, QString message);
 
  private:
     int                         m_volume;
@@ -359,16 +434,23 @@ class MediaPlayer : public Base {
     MediaPlayerRepeatMode::Enum m_repeat;
     QString                     m_source;
     QStringList                 m_sourceList;
+    QString                     m_mediaId;
+    QString                     m_mediaPlaylist;
+    QStringList                 m_searchMediaClasses;
 
     // options
     int         m_volumeSteps;
     QStringList m_simpleCommands;
+
+    static QVariantMap browseItemToVariant(const core::BrowseMediaItem &item);
+    static QVariantMap paginationToVariant(const core::Pagination &p);
 
  private:
     QTimer m_positionTimer;
 
     QNetworkAccessManager m_nam;
     void                  getMediaImageColor(QString imageUrl);
+    void                  clearMediaImageState();
     int                   m_mediaImageDownloadTries = 0;
 
     QColor                computeAverageImageColor(QImage image);

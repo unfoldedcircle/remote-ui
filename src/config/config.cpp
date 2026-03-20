@@ -431,6 +431,17 @@ void Config::setFillMediaArtwork(bool value)
     emit fillMediaArtworkChanged();
 }
 
+bool Config::getMediaCoverflowDefault()
+{
+    return m_settings->value("ui/mediaCoverflowDefault", false).toBool();
+}
+
+void Config::setMediaCoverflowDefault(bool value)
+{
+    m_settings->setValue("ui/mediaCoverflowDefault", value);
+    emit mediaCoverflowDefaultChanged();
+}
+
 int Config::getResumeTimeoutWindowSec()
 {
     return m_settings->value("ui/resumeTimeoutWindow", 2).toInt();

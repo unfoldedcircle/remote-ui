@@ -347,10 +347,109 @@ void MediaPlayer::settings()
     sendCommand(MediaPlayerCommands::Settings);
 }
 
+void MediaPlayer::playMedia(const QString &mediaId, const QString &mediaType, const QString &action) {
+    QVariantMap params;
+    params.insert("media_id", mediaId);
+    params.insert("media_type", mediaType);
+    if (!action.isEmpty()) {
+        params.insert("action", action);
+    }
+    sendCommand(MediaPlayerCommands::Play_media, params);
+}
+
+void MediaPlayer::clearPlaylist() {
+    sendCommand(MediaPlayerCommands::Clear_playlist);
+}
+
+void MediaPlayer::browseMedia(const QString &mediaId, const QString &mediaType, int limit, int page) {
+    QVariantMap params;
+    if (!mediaId.isEmpty()) {
+        params.insert("media_id", mediaId);
+    }
+    if (!mediaType.isEmpty()) {
+        params.insert("media_type", mediaType);
+    }
+    QVariantMap paging;
+    paging.insert("limit", limit);
+    paging.insert("page", page);
+    params.insert("paging", paging);
+    emit browseMediaRequested(m_id, params);
+}
+
+void MediaPlayer::searchMedia(const QString &query, const QString &mediaId, const QString &mediaType,
+                               const QStringList &mediaClasses, int limit, int page) {
+    QVariantMap params;
+    params.insert("query", query);
+    if (!mediaId.isEmpty()) {
+        params.insert("media_id", mediaId);
+    }
+    if (!mediaType.isEmpty()) {
+        params.insert("media_type", mediaType);
+    }
+    if (!mediaClasses.isEmpty()) {
+        QVariantMap filter;
+        filter.insert("media_classes", mediaClasses);
+        params.insert("filter", filter);
+    }
+    QVariantMap paging;
+    paging.insert("limit", limit);
+    paging.insert("page", page);
+    params.insert("paging", paging);
+    emit searchMediaRequested(m_id, params);
+}
+
+void MediaPlayer::onBrowseMediaResult(const core::BrowseMediaItem &media, const core::Pagination &pagination) {
+    emit browseMediaResult(browseItemToVariant(media), paginationToVariant(pagination));
+}
+
+void MediaPlayer::onSearchMediaResult(const QList<core::BrowseMediaItem> &items, const core::Pagination &pagination) {
+    QVariantList list;
+    for (const auto &item : items) {
+        list.append(browseItemToVariant(item));
+    }
+    emit searchMediaResult(list, paginationToVariant(pagination));
+}
+
+void MediaPlayer::onMediaBrowseError(int code, const QString &message) {
+    emit mediaBrowseError(code, message);
+}
+
+QVariantMap MediaPlayer::browseItemToVariant(const core::BrowseMediaItem &item) {
+    QVariantMap map;
+    map.insert("media_id", item.mediaId);
+    map.insert("title", item.title);
+    map.insert("artist", item.artist);
+    map.insert("album", item.album);
+    map.insert("media_class", item.mediaClass);
+    map.insert("media_type", item.mediaType);
+    map.insert("can_browse", item.canBrowse);
+    map.insert("can_play", item.canPlay);
+    map.insert("can_search", item.canSearch);
+    map.insert("thumbnail", item.thumbnail);
+    map.insert("duration", item.duration);
+    map.insert("subtitle", item.subtitle);
+    map.insert("play_media_action", item.playMediaActions);
+
+    QVariantList children;
+    for (const auto &child : item.items) {
+        children.append(browseItemToVariant(child));
+    }
+    map.insert("items", children);
+
+    return map;
+}
+
+QVariantMap MediaPlayer::paginationToVariant(const core::Pagination &p) {
+    QVariantMap map;
+    map.insert("count", p.count);
+    map.insert("limit", p.limit);
+    map.insert("page", p.page);
+    return map;
+}
+
 void MediaPlayer::getMediaImageColor(QString imageUrl) {
     if (imageUrl.isEmpty()) {
-        m_mediaImage = QString();
-        emit mediaImageChanged();
+        clearMediaImageState();
         return;
     }
 
@@ -371,9 +470,23 @@ void MediaPlayer::getMediaImageColor(QString imageUrl) {
     // note: not logging url because it might contain sensitive information like API keys (e.g. Plex)
     qCInfo(lcMediaPlayer()) << "Starting image download with timeout:" << IMAGE_REQUEST_TIMEOUT_MS;
     QNetworkReply *reply = m_nam.get(request);
+    reply->setProperty("mediaImageUrl", imageUrl);
 
     connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
             this, &MediaPlayer::onNetworkError);
+}
+
+void MediaPlayer::clearMediaImageState() {
+    if (!m_mediaImage.isEmpty()) {
+        m_mediaImage.clear();
+        emit mediaImageChanged();
+    }
+
+    const QColor defaultColor("#171717");
+    if (m_mediaImageColor != defaultColor) {
+        m_mediaImageColor = defaultColor;
+        emit mediaImageColorChanged();
+    }
 }
 
 QColor MediaPlayer::computeAverageImageColor(QImage image) {
@@ -635,6 +748,46 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
         case MediaPlayerAttributes::Sound_mode_list:
             // TODO(marton): implement me
             break;
+        case MediaPlayerAttributes::Media_id: {
+            QString newId = data.toString();
+            if (m_mediaId != newId) {
+                m_mediaId = newId;
+                ok = true;
+                emit mediaIdChanged();
+            }
+            break;
+        }
+        case MediaPlayerAttributes::Media_playlist: {
+            QString newPlaylist = data.toString();
+            if (m_mediaPlaylist != newPlaylist) {
+                m_mediaPlaylist = newPlaylist;
+                ok = true;
+                emit mediaPlaylistChanged();
+            }
+            break;
+        }
+        case MediaPlayerAttributes::Search_media_classes: {
+            QStringList newClasses;
+            const QStringList incomingClasses = data.toStringList();
+
+            for (const QString &mediaClass : incomingClasses) {
+                bool valid = false;
+                Util::convertStringToEnum<MediaClass::Enum>(mediaClass, &valid);
+
+                if (valid) {
+                    newClasses.append(mediaClass);
+                } else {
+                    qCWarning(lcMediaPlayer()) << "Ignoring unsupported media class" << mediaClass;
+                }
+            }
+
+            if (m_searchMediaClasses != newClasses) {
+                m_searchMediaClasses = newClasses;
+                ok = true;
+                emit searchMediaClassesChanged();
+            }
+            break;
+        }
     }
 
     return ok;
@@ -686,6 +839,13 @@ void MediaPlayer::onNetworkError(QNetworkReply::NetworkError error) {
 }
 
 void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
+    const QString replyImageUrl = reply->property("mediaImageUrl").toString();
+    if (replyImageUrl != m_mediaImageUrl) {
+        qCDebug(lcMediaPlayer()) << "Ignoring stale image download response";
+        reply->deleteLater();
+        return;
+    }
+
     if (reply->error()) {
         m_mediaImageDownloadTries++;
         qCWarning(lcMediaPlayer()).nospace() << "Image download failed "
@@ -694,9 +854,15 @@ void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
                                              << m_mediaImageUrl;
 
         if (m_mediaImageDownloadTries >= 3) {
+            clearMediaImageState();
+            reply->deleteLater();
             return;
         } else {
-            QTimer::singleShot(1000, [=] { getMediaImageColor(m_mediaImageUrl); });
+            QTimer::singleShot(1000, this, [this, replyImageUrl] {
+                if (replyImageUrl == m_mediaImageUrl) {
+                    getMediaImageColor(replyImageUrl);
+                }
+            });
         }
 
         reply->deleteLater();

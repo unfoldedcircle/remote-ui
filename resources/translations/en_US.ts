@@ -1986,43 +1986,206 @@ Climate fan</extracomment>
 <context>
     <name>Media platyer state</name>
     <message>
-        <location filename="../../src/ui/entity/mediaPlayer.h" line="108"/>
+        <location filename="../../src/ui/entity/mediaPlayer.h" line="116"/>
         <source>Unavailable</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/mediaPlayer.h" line="110"/>
+        <location filename="../../src/ui/entity/mediaPlayer.h" line="118"/>
         <source>Unknown</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/mediaPlayer.h" line="112"/>
+        <location filename="../../src/ui/entity/mediaPlayer.h" line="120"/>
         <source>On</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/mediaPlayer.h" line="114"/>
+        <location filename="../../src/ui/entity/mediaPlayer.h" line="122"/>
         <source>Off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/mediaPlayer.h" line="116"/>
+        <location filename="../../src/ui/entity/mediaPlayer.h" line="124"/>
         <source>Playing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/mediaPlayer.h" line="118"/>
+        <location filename="../../src/ui/entity/mediaPlayer.h" line="126"/>
         <source>Paused</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/mediaPlayer.h" line="120"/>
+        <location filename="../../src/ui/entity/mediaPlayer.h" line="128"/>
         <source>Standby</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/mediaPlayer.h" line="122"/>
+        <location filename="../../src/ui/entity/mediaPlayer.h" line="130"/>
         <source>Buffering</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>MediaBrowser</name>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="411"/>
+        <source>An error occurred while loading media content.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="426"/>
+        <source>Retry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="464"/>
+        <source>Browse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="527"/>
+        <source>Search…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="174"/>
+        <source>Track</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="156"/>
+        <source>Album</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="159"/>
+        <source>Artist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="170"/>
+        <source>Playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="166"/>
+        <source>Genre</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="171"/>
+        <source>Podcast</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="164"/>
+        <source>Episode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="172"/>
+        <source>Radio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="160"/>
+        <source>Channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="157"/>
+        <source>App</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="158"/>
+        <source>Apps</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="161"/>
+        <source>Channels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="162"/>
+        <source>Composer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="163"/>
+        <source>Directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="165"/>
+        <source>Game</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="167"/>
+        <source>Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="168"/>
+        <source>Movie</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="169"/>
+        <source>Music</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="173"/>
+        <source>Season</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="175"/>
+        <source>TV Show</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="176"/>
+        <source>URL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="177"/>
+        <source>Video</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="690"/>
+        <source>No results</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="696"/>
+        <source>Try something else.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="69"/>
+        <source>Play now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="72"/>
+        <source>Play next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="75"/>
+        <source>Add to queue</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/media_player/MediaBrowser.qml" line="410"/>
+        <source>Could not load media</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2604,22 +2767,22 @@ the Web Configurator</source>
 <context>
     <name>Receiver</name>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="451"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="452"/>
         <source>Live</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="580"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="581"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="582"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="583"/>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="613"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="630"/>
         <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2794,22 +2957,22 @@ no return</source>
 <context>
     <name>Set_top_box</name>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="432"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="433"/>
         <source>Live</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="561"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="562"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="563"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="564"/>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="594"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="611"/>
         <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2967,69 +3130,69 @@ the Web Configurator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="225"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="265"/>
         <source>Release Notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="236"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="276"/>
         <source>Release notes</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="256"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="296"/>
         <source>Install</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="256"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="296"/>
         <source>Download</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="265"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="305"/>
         <source>Low battery</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="265"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="305"/>
         <source>Minimum 50% battery charge is required to install software updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="277"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="317"/>
         <source>Check for update</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="301"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="341"/>
         <source>Beta updates</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="312"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="352"/>
         <source>Enabled</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="338"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="378"/>
         <source>Check for updates</source>
         <extracomment>Title for indication of checking for software updates are enabled</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="365"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="405"/>
         <source>Automatically check for updates.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="397"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="437"/>
         <source>Auto update</source>
         <extracomment>Title for indication of automatic software update is enabled</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="424"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="464"/>
         <source>Automatically update the remote when new software is available. Updates are installed between %1 and %2</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3055,22 +3218,22 @@ the Web Configurator</source>
 <context>
     <name>Speaker</name>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="451"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="452"/>
         <source>Live</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="580"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="581"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="582"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="583"/>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="613"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="630"/>
         <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3094,22 +3257,22 @@ the Web Configurator</source>
 <context>
     <name>Streaming_box</name>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="432"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="433"/>
         <source>Live</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="561"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="562"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="563"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="564"/>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="594"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="611"/>
         <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3252,32 +3415,32 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>Tv</name>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="381"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="383"/>
         <source>Nothing is playing</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="391"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="393"/>
         <source>Open an app or use the directional keys to navigate.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="477"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="479"/>
         <source>Live</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="608"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="610"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="610"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="612"/>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="641"/>
+        <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="659"/>
         <source>Apps</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3320,8 +3483,18 @@ Tap the QR code to show it on the screen.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="235"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="236"/>
         <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="262"/>
+        <source>Coverflow in media browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="284"/>
+        <source>Use coverflow as the default view when opening the media browser.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3856,7 +4029,7 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>uc::Config</name>
     <message>
-        <location filename="../../src/config/config.cpp" line="852"/>
+        <location filename="../../src/config/config.cpp" line="863"/>
         <source>Error while loading configuration. Trying again.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3884,8 +4057,8 @@ Tap the QR code to show it on the screen.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="180"/>
-        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="207"/>
+        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="193"/>
+        <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="220"/>
         <source>Software update has failed.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3941,7 +4114,7 @@ Tap the QR code to show it on the screen.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1746"/>
+        <location filename="../../src/core/core.cpp" line="1807"/>
         <source>Authentication to core failed</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4191,22 +4364,22 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>uc::ui::EntityController</name>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="589"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="618"/>
         <source>%1 is not responding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="590"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="619"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="624"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="653"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="623"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="652"/>
         <source>Error sending the command</source>
         <translation type="unfinished"></translation>
     </message>
