@@ -409,6 +409,17 @@ void Config::setShowBatteryPercentage(bool value)
     emit showBatteryPercentageChanged();
 }
 
+bool Config::getShowBatteryEveryWhere()
+{
+    return m_settings->value("ui/batteryEveryWhere", false).toBool();
+}
+
+void Config::setShowBatteryEveryWhere(bool value)
+{
+    m_settings->setValue("ui/batteryEveryWhere", value);
+    emit showBatteryEveryWhereChanged();
+}
+
 bool Config::getEnableActivityBar()
 {
     return m_settings->value("ui/activityBar", true).toBool();

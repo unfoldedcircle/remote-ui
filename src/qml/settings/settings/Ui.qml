@@ -127,7 +127,7 @@ Settings.Page {
                         /** KEYBOARD NAVIGATION **/
                         highlight: activeFocus && ui.keyNavigationEnabled
                         KeyNavigation.up: buttonFuncSwitch
-                        KeyNavigation.down: activityBarSwitch
+                        KeyNavigation.down: batteryEveryWhereSwitch
                     }
                 }
 
@@ -136,6 +136,55 @@ Settings.Page {
                     wrapMode: Text.WordWrap
                     color: colors.light
                     text: qsTr("Always show the battery percentage next to the icon.")
+                    font: fonts.secondaryFont(24)
+                }
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width - 20; height: 2
+                color: colors.medium
+            }
+
+            /** SHOW BATTERY EVERYWHERE **/
+            ColumnLayout {
+                Layout.alignment: Qt.AlignCenter
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                spacing: 10
+
+                RowLayout {
+                    spacing: 10
+
+                    Text {
+                        id: batteryEveryWhereText
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: colors.offwhite
+                        text: qsTr("Show battery indicator everywhere")
+                        font: fonts.primaryFont(30)
+                    }
+
+                    Components.Switch {
+                        id: batteryEveryWhereSwitch
+                        icon: "uc:check"
+                        checked: Config.showBatteryEveryWhere
+                        trigger: function() {
+                            Config.showBatteryEveryWhere = !Config.showBatteryEveryWhere;
+                        }
+
+                        /** KEYBOARD NAVIGATION **/
+                        highlight: activeFocus && ui.keyNavigationEnabled
+                        KeyNavigation.up: batteryPercentSwitch
+                        KeyNavigation.down: activityBarSwitch
+                    }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    color: colors.light
+                    text: qsTr("Shows the battery level indicator on all pages and activities.")
                     font: fonts.secondaryFont(24)
                 }
             }
@@ -175,7 +224,7 @@ Settings.Page {
 
                         /** KEYBOARD NAVIGATION **/
                         highlight: activeFocus && ui.keyNavigationEnabled
-                        KeyNavigation.up: batteryPercentSwitch
+                        KeyNavigation.up: batteryEveryWhereSwitch
                         KeyNavigation.down: mediaComponentSwitch
                     }
                 }

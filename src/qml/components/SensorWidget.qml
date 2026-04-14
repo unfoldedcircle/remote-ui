@@ -27,6 +27,7 @@ ColumnLayout {
     width: 80
     height: 80
     spacing: 4
+    clip: true
 
     property string customText
     property string entityId
@@ -87,6 +88,7 @@ ColumnLayout {
 
         Text {
             id: sensorLabelText
+            Layout.maximumWidth: sensorWidget.width
             text: ""
             maximumLineCount: 1
             elide: Text.ElideRight

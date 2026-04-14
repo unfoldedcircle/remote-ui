@@ -371,8 +371,10 @@ Popup {
 
             // Do NOT overwrite page.pageLimit from server response.
             page.pageHasMore = incoming.length > 0
-                               && pagination && pagination.count > 0
-                               && page.pageItems.length < pagination.count;
+                               && pagination
+                               && (pagination.count > 0
+                                   ? page.pageItems.length < pagination.count
+                                   : incoming.length >= page.pageLimit);
 
             page.pageLoadingMore = false;
             page.pageLoading = false;
@@ -398,25 +400,48 @@ Popup {
             var page = browseNav.currentItem; if (!page) return;
             page.pageLoading     = false;
             page.pageLoadingMore = false;
+
+            // 404: treat as empty result — show "no results" screen
+            if (code === 404) {
+                if (mediaBrowser.searchMode) {
+                    searchNoResults = true;
+                } else {
+                    page.pageItems = [];
+                }
+                return;
+            }
+
+            // Retryable errors: show retry notification
+            if (code === 408 || code === 503) {
+                ui.createActionableWarningNotification(
+                    qsTr("Could not load media"),
+                    message || qsTr("An error occurred while loading media content."),
+                    "uc:warning",
+                    function() {
+                        page.pageLoading = true;
+                        page.pageLoadingMore = false;
+                        page.pagePage = 1;
+                        page.requestedPage = 1;
+                        page.pageItems = [];
+                        page.pageHasMore = false;
+                        if (browseNav.depth <= 1) {
+                            entityObj.browseMedia("", "", page.pageLimit, 1);
+                        } else {
+                            entityObj.browseMedia(page.pageMediaId, page.pageMediaType, page.pageLimit, 1);
+                        }
+                    },
+                    qsTr("Retry")
+                );
+                return;
+            }
+
+            // All other errors: not retryable — close the browser
             ui.createActionableWarningNotification(
                 qsTr("Could not load media"),
                 message || qsTr("An error occurred while loading media content."),
-                "uc:warning",
-                function() {
-                    page.pageLoading = true;
-                    page.pageLoadingMore = false;
-                    page.pagePage = 1;
-                    page.requestedPage = 1;
-                    page.pageItems = [];
-                    page.pageHasMore = false;
-                    if (browseNav.depth <= 1) {
-                        entityObj.browseMedia("", "", page.pageLimit, 1);
-                    } else {
-                        entityObj.browseMedia(page.pageMediaId, page.pageMediaType, page.pageLimit, 1);
-                    }
-                },
-                qsTr("Retry")
+                "uc:warning"
             );
+            mediaBrowser.close();
         }
 
         function onSearchMediaClassesChanged() {
@@ -1133,7 +1158,7 @@ Popup {
                             anchors.centerIn: parent
                             icon: (modelData.thumbnail && modelData.thumbnail.startsWith("icon://"))
                                   ? modelData.thumbnail.replace("icon://", "") : "uc:music"
-                            size: coverFlowContainer.artSize * 0.5
+                            size: cfDelegate.PathView.isCurrentItem ? coverFlowContainer.artSize * 0.5 : coverFlowContainer.artSize * 0.3
                             color: colors.offwhite
                             visible: !cfArt.url || cfArt.failed
                         }
@@ -1195,7 +1220,7 @@ Popup {
 
                 // fixed title / artist strip at bottom
                 Column {
-                    anchors { bottom: parent.bottom; bottomMargin: 30; left: parent.left; leftMargin: 20; right: parent.right; rightMargin: 20 }
+                    anchors { bottom: parent.bottom; bottomMargin: 10; left: parent.left; leftMargin: 20; right: parent.right; rightMargin: 20 }
                     spacing: 6
 
                     property var cfItem: (pageRoot.pageItems.length > 0 && coverFlowView.currentIndex >= 1)
@@ -1209,8 +1234,8 @@ Popup {
                     Text {
                         width: parent.width
                         text: parent.cfItem ? (parent.cfItem.subtitle || parent.cfItem.artist || parent.cfItem.album || parent.cfItem.media_class || "") : ""
-                        color: colors.light; font: fonts.secondaryFont(22)
-                        elide: Text.ElideRight; horizontalAlignment: Text.AlignHCenter
+                        color: colors.light; font: fonts.secondaryFontCapitalizedFirst(22)
+                        elide: Text.ElideRight; horizontalAlignment: Text.AlignLeft
                         visible: text !== ""
                     }
                 }
