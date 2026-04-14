@@ -11,6 +11,7 @@ import Entity.Controller 1.0
 import Config 1.0
 import Wifi 1.0
 import Wifi.SignalStrength 1.0
+import Battery 1.0
 import Power 1.0
 import Power.Modes 1.0
 
@@ -474,6 +475,55 @@ EntityComponents.BaseDetail {
                 transformOrigin: Item.Center
                 anchors.centerIn: parent
                 visible: !Wifi.isConnected
+            }
+        }
+
+        Row {
+            anchors { right: parent.right; rightMargin: 60; verticalCenter: parent.verticalCenter }
+            spacing: 5
+            visible: Config.showBatteryEveryWhere
+
+            Text {
+                anchors.verticalCenter: parent.verticalCenter
+                color: colors.offwhite
+                text: Battery.level
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                font: fonts.primaryFontCapitalized(22)
+                visible: Battery.isCharging || Config.showBatteryPercentage
+            }
+
+            Components.Icon {
+                icon: "uc:bolt"
+                color: colors.offwhite
+                size: 40
+                visible: Battery.isCharging
+            }
+
+            Item {
+                width: 16
+                height: 30
+                anchors.verticalCenter: parent.verticalCenter
+                visible: !Battery.isCharging
+
+                Rectangle {
+                    width: parent.width
+                    height: (parent.height * Battery.level / 100) + (Battery.level < 10 ? 2 : 0)
+                    radius: 4
+                    color: Battery.low ? colors.red : colors.offwhite
+                    opacity: 0.8
+                    anchors { horizontalCenter: activityBatteryBg.horizontalCenter; bottom: activityBatteryBg.bottom; bottomMargin: 1 }
+                }
+
+                Rectangle {
+                    id: activityBatteryBg
+                    width: parent.width
+                    height: parent.height
+                    radius: 4
+                    color: colors.offwhite
+                    opacity: 0.3
+                    anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom }
+                }
             }
         }
     }

@@ -7,6 +7,7 @@
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.15
 
 import Entity.Controller 1.0
 import Entity.MediaPlayer 1.0
@@ -45,7 +46,8 @@ Rectangle {
     property string entityId
     property QtObject entityObj
 
-    property double mediaInfoHeight: mediaTitle.implicitHeight + mediaArtist.implicitHeight + progressContainer.implicitHeight + 60
+    readonly property int controlsContainerHeight: mediaComponent.height >= 320 ? 80 : 0
+    property double mediaInfoHeight: mediaTitle.implicitHeight + mediaArtist.implicitHeight + progressContainer.implicitHeight + controlsContainerHeight + 60
 
     property bool isComponentHorizontal: mediaComponent.height < 260
     property bool isSpaceForMediaInfo: {
@@ -135,35 +137,51 @@ Rectangle {
         property int xPrev: 0
         property bool tracking: false
         property int treshold: 4
+        property bool pressAndHoldTriggered: false
 
         onPressed: {
-            xStart = mouseX;
-            xPrev = mouseX;
-            velocity = 0;
-            tracking = true;
+            xStart = mouseX
+            xPrev = mouseX
+            velocity = 0
+            tracking = true
+            pressAndHoldTriggered = false
         }
 
-        onCanceled: tracking = false
-
+        onCanceled: {
+            tracking = false
+            pressAndHoldTriggered = false
+        }
 
         onPositionChanged: {
-            let currentVelocity = (mouseX - xPrev);
+            let currentVelocity = (mouseX - xPrev)
             velocity = (velocity + currentVelocity) / 2.0
             xPrev = mouseX
         }
 
         onReleased: {
-            tracking = false;
+            tracking = false
+
+            if (pressAndHoldTriggered) {
+                pressAndHoldTriggered = false
+                return
+            }
 
             if (velocity > treshold) {
-                entityObj.previous();
+                entityObj.previous()
             } else if (velocity < -treshold) {
-                entityObj.next();
+                entityObj.next()
             } else {
-                Haptic.play(Haptic.Click);
-                entityObj.playPause();
+                Haptic.play(Haptic.Click)
+                entityObj.playPause()
+                imageIconAnimation.start()
+            }
+        }
 
-                imageIconAnimation.start();
+        onPressAndHold: {
+            pressAndHoldTriggered = true
+            tracking = false
+            if  (entityObj.hasFeature(MediaPlayerFeatures.Browse_media) || entityObj.hasFeature(MediaPlayerFeatures.Search_media)) {
+                mediaBrowser.open();
             }
         }
     }
@@ -327,5 +345,124 @@ Rectangle {
                 implicitWidth: 40; implicitHeight: 40
             }
         }
+    }
+
+    RowLayout {
+        id: controlsContainer
+        width: mediaTitle.width
+        height: mediaComponent.controlsContainerHeight
+        anchors {
+            top: mediaComponent.isComponentHorizontal ? undefined : progressContainer.bottom
+            topMargin: 10
+            bottom: mediaComponent.isComponentHorizontal ? parent.bottom : undefined
+            left: mediaTitle.left
+        }
+        visible: mediaComponent.controlsContainerHeight > 0 && mediaTitle.visible
+
+        Components.Icon {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            size: 60
+            color: entityObj.shuffleIsOn ? colors.offwhite : colors.light
+            icon: "uc:shuffle"
+
+            Components.HapticMouseArea {
+                anchors.fill: parent
+                onClicked: entityObj.shuffle()
+            }
+        }
+
+        Components.Icon {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            size: 60
+            color: entityObj.repeatMode === MediaPlayerRepeatMode.OFF ? colors.light : colors.offwhite
+            icon: "uc:repeat"
+
+            Rectangle {
+                width: repeatText.implicitWidth + 20
+                height: repeatText.implicitHeight + 2
+                radius: ui.cornerRadiusSmall
+                color: colors.medium
+                anchors { centerIn: parent; horizontalCenterOffset: 40; verticalCenterOffset: -16 }
+                visible: entityObj.repeatMode !== MediaPlayerRepeatMode.OFF
+
+                Text {
+                    id: repeatText
+                    color: colors.white
+                    text: {
+                        switch (entityObj.repeatMode) {
+                        case MediaPlayerRepeatMode.OFF:
+                            return "";
+                        case MediaPlayerRepeatMode.ALL:
+                            return qsTr("All");
+                        case MediaPlayerRepeatMode.ONE:
+                            return qsTr("One");
+                        }
+                    }
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
+                    font: fonts.secondaryFontCapitalized(16)
+                    anchors.centerIn: parent
+                }
+            }
+
+            Components.HapticMouseArea {
+                anchors.fill: parent
+                onClicked: entityObj.repeat()
+            }
+        }
+
+        Components.Icon {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            size: 60
+            color: colors.offwhite
+            icon: "uc:album-collection"
+            visible: entityObj.hasFeature(MediaPlayerFeatures.Browse_media) || entityObj.hasFeature(MediaPlayerFeatures.Search_media)
+
+            Components.HapticMouseArea {
+                anchors.fill: parent
+                onClicked: mediaBrowser.open()
+            }
+        }
+
+        Components.Icon {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignVCenter
+            size: 60
+            color: colors.offwhite
+            icon: "uc:grid-2"
+            visible: entityObj.hasFeature(MediaPlayerFeatures.Select_source) && entityObj.sourceList.length !== 0
+
+            Components.HapticMouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    sourceList.title = qsTr("Sources")
+                    let items = [];
+                    for (const source of entityObj.sourceList) {
+                        items.push({
+                                       title: source,
+                                       callback: function() {
+                                           entityObj.selectSource(source);
+                                       }
+                                   });
+                    }
+                    sourceList.items = items;
+                    sourceList.open();
+                }
+            }
+        }
+    }
+
+    MediaPlayerComponents.MediaBrowser {
+        id: mediaBrowser
+        entityObj: mediaComponent.entityObj
+        parent: Overlay.overlay
+    }
+
+    MediaPlayerComponents.SourceList {
+        id: sourceList
+        parent: Overlay.overlay
     }
 }

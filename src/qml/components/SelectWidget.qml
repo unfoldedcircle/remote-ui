@@ -26,6 +26,7 @@ Item {
     id: selectWidget
     width: 80
     height: 80
+    clip: true
 
     property string customText
     property string entityId
@@ -86,6 +87,7 @@ Item {
 
         ColumnLayout {
             spacing: 4
+            Layout.fillWidth: true
             Layout.leftMargin: 20
             Layout.rightMargin: 20
 
@@ -104,6 +106,7 @@ Item {
 
                 Text {
                     id: selectNameText
+                    Layout.fillWidth: true
                     text: ""
                     maximumLineCount: 1
                     elide: Text.ElideRight
@@ -130,8 +133,6 @@ Item {
                 font: fonts.primaryFont(36)
             }
         }
-
-        Item { Layout.fillWidth: true }
 
         Components.Icon {
             color: colors.offwhite
