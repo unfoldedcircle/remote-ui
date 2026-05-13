@@ -57,11 +57,26 @@ Rectangle {
     property alias mediaImage: mediaImage
     property alias aspectFit: mediaImage.aspectFit
 
-    Component.onCompleted: {
+    function ensureEntityLoaded() {
         entityObj = EntityController.get(entityId);
+        if (!entityObj && entityId !== "") {
+            EntityController.load(entityId);
+        }
     }
 
-    onEntityIdChanged: entityObj = EntityController.get(entityId)
+    Component.onCompleted: ensureEntityLoaded()
+    onEntityIdChanged: ensureEntityLoaded()
+
+    Connections {
+        target: EntityController
+        ignoreUnknownSignals: true
+
+        function onEntityLoaded(success, loadedId) {
+            if (success && loadedId === mediaComponent.entityId && !mediaComponent.entityObj) {
+                mediaComponent.entityObj = EntityController.get(loadedId);
+            }
+        }
+    }
 
     Connections {
         target: entityObj

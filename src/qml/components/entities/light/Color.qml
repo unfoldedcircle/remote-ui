@@ -76,12 +76,21 @@ Item {
                         anchors.fill: parent
 
                         drag.target: parent
-                        drag.minimumX : Math.ceil(220 - Math.sqrt(440 * parent.y - Math.pow(parent.y, 2)))
-                        drag.maximumX : Math.floor(Math.sqrt(440 * parent.y - Math.pow(parent.y, 2)) + 220)
 
-                        drag.minimumY : Math.ceil(220 - Math.sqrt(440 * parent.x - Math.pow(parent.x, 2)))
-                        drag.maximumY : Math.floor(Math.sqrt(440 * parent.x - Math.pow(parent.x, 2)) + 220)
+                        function constrainToCircle() {
+                            const cx = 220, cy = 220, r = 220;
+                            const dx = picker.x - cx;
+                            const dy = picker.y - cy;
+                            const distSq = dx * dx + dy * dy;
+                            if (distSq > r * r) {
+                                const dist = Math.sqrt(distSq);
+                                picker.x = cx + dx * r / dist;
+                                picker.y = cy + dy * r / dist;
+                            }
+                        }
+
                         onPositionChanged: {
+                            constrainToCircle();
                             colorWheel.getColor(picker.x, picker.y);
                         }
 
@@ -89,10 +98,12 @@ Item {
                         onClicked: {
                             picker.x = mouseX - picker.width / 2;
                             picker.y = mouseY - picker.height / 2;
+                            constrainToCircle();
                             colorWheel.getColor(picker.x, picker.y);
                         }
 
                         onReleased: {
+                            constrainToCircle();
                             colorWheel.userChanged = true;
                             entityObj.setColor(picker.color);
                             resetUserChange.start();

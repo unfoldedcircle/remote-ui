@@ -240,6 +240,7 @@ ListView {
 
                         property QtObject entity: QtObject
                         property QtObject mediaComponentEntity: QtObject
+                        property string _expectedMediaEntityId: ""
                         property bool _isCurrentItem: ListView.isCurrentItem
                         property bool _touchSliderActive: !isSecondContainerLoaded && page._isCurrentItem && activityListItem._isCurrentItem
 
@@ -267,8 +268,30 @@ ListView {
                                         (params ? params : {}))
                         }
 
+                        function setMediaComponentEntity(id) {
+                            activityListItem._expectedMediaEntityId = id;
+                            const e = EntityController.get(id);
+                            if (e) {
+                                mediaComponentEntity = e;
+                            } else {
+                                EntityController.load(id);
+                            }
+                        }
+
                         onMediaComponentEntityChanged: {
                             touchSlider.entityObj = mediaComponentEntity;
+                        }
+
+                        Connections {
+                            target: EntityController
+                            ignoreUnknownSignals: true
+
+                            function onEntityLoaded(success, loadedId) {
+                                if (success && loadedId === activityListItem._expectedMediaEntityId
+                                        && activityListItem.mediaComponentEntity !== EntityController.get(loadedId)) {
+                                    activityListItem.mediaComponentEntity = EntityController.get(loadedId);
+                                }
+                            }
                         }
 
                         Component.onCompleted: {
@@ -282,7 +305,7 @@ ListView {
                                 }
 
                                 if (entity.sliderConfig.entityId !== "default") {
-                                    mediaComponentEntity = EntityController.get(entity.sliderConfig.entityId);
+                                    setMediaComponentEntity(entity.sliderConfig.entityId);
                                     touchSlider.feature = entity.sliderConfig.entityFeature === "default" ? "volume" : entity.sliderConfig.entityFeature;
                                     return;
                                 }
@@ -295,7 +318,7 @@ ListView {
 
                                     for (const item of pageItems) {
                                         if (item.type === "media_player") {
-                                            mediaComponentEntity = EntityController.get(item.media_player_id);
+                                            setMediaComponentEntity(item.media_player_id);
                                             activityMediaComponent.entityId = item.media_player_id;
                                             break;
                                         }

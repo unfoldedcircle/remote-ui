@@ -294,7 +294,7 @@ EntityComponents.BaseDetail {
             Text {
                 visible: entityObj.hasFeature(ClimateFeatures.Current_temperature)
                 //: Current temperature
-                text: qsTr("Current %1°").arg(entityObj.currentTemperature.toLocaleString(Qt.locale(), 'f', entityObj.targetTemperatureStep === 1 ? 0 : 1))
+                text: qsTr("Current %1").arg(entityObj.currentTemperature.toLocaleString(Qt.locale(), 'f', entityObj.targetTemperatureStep === 1 ? 0 : 1) + entityObj.temperatureLabel)
                 color: colors.light
                 opacity: temperatureTumbler.moving ? 0 : 1
                 font: fonts.secondaryFont(26)
