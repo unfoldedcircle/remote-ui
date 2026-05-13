@@ -80,7 +80,8 @@ void Light::setBrightness(int brightness) {
 
 void Light::setColor(QColor color) {
     QVariantMap params;
-    params.insert("hue", color.hsvHue());
+    int hue = color.hsvHue();
+    params.insert("hue", hue == -1 ? 0 : hue);
     params.insert("saturation", color.hsvSaturation());
     sendCommand(LightCommands::On, params);
 }

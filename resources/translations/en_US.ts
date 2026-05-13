@@ -108,65 +108,65 @@
 <context>
     <name>Activity</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="299"/>
         <source>Some devices are not ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="299"/>
         <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="299"/>
         <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="298"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="299"/>
         <source>Proceed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="420"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="421"/>
         <source>Tap to close</source>
         <extracomment>Tap to close menu or tap to see more</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="420"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="421"/>
         <source>Tap for more</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="556"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="606"/>
         <source>Fix states</source>
         <extracomment>Title referring to fixing device states that might out of sync</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="577"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="627"/>
         <source>Quickly access entities included in this activity:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="618"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="668"/>
         <source>Back</source>
         <extracomment>Caption to go back</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="658"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="708"/>
         <source>Empty page</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="670"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="720"/>
         <source>You can add UI elements via the Web Configurator</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="781"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="831"/>
         <source>State: %1</source>
         <extracomment>Device state</extracomment>
         <translation type="unfinished"></translation>
@@ -770,7 +770,7 @@ Climate fan</extracomment>
     </message>
     <message>
         <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="297"/>
-        <source>Current %1°</source>
+        <source>Current %1</source>
         <extracomment>Current temperature</extracomment>
         <translation type="unfinished"></translation>
     </message>
@@ -2194,17 +2194,17 @@ Climate fan</extracomment>
 <context>
     <name>MediaComponent</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/MediaComponent.qml" line="398"/>
+        <location filename="../../src/qml/components/entities/activity/MediaComponent.qml" line="413"/>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/MediaComponent.qml" line="400"/>
+        <location filename="../../src/qml/components/entities/activity/MediaComponent.qml" line="415"/>
         <source>One</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/MediaComponent.qml" line="441"/>
+        <location filename="../../src/qml/components/entities/activity/MediaComponent.qml" line="456"/>
         <source>Sources</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2318,46 +2318,46 @@ Climate fan</extracomment>
 <context>
     <name>Page</name>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="440"/>
+        <location filename="../../src/qml/components/Page.qml" line="463"/>
         <source>Turn off</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="458"/>
+        <location filename="../../src/qml/components/Page.qml" line="481"/>
         <source>Some devices are not ready</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="458"/>
-        <location filename="../../src/qml/components/Page.qml" line="496"/>
+        <location filename="../../src/qml/components/Page.qml" line="481"/>
+        <location filename="../../src/qml/components/Page.qml" line="519"/>
         <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="458"/>
-        <location filename="../../src/qml/components/Page.qml" line="496"/>
+        <location filename="../../src/qml/components/Page.qml" line="481"/>
+        <location filename="../../src/qml/components/Page.qml" line="519"/>
         <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="458"/>
-        <location filename="../../src/qml/components/Page.qml" line="496"/>
+        <location filename="../../src/qml/components/Page.qml" line="481"/>
+        <location filename="../../src/qml/components/Page.qml" line="519"/>
         <source>Proceed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="485"/>
+        <location filename="../../src/qml/components/Page.qml" line="508"/>
         <source>Turn off all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="538"/>
+        <location filename="../../src/qml/components/Page.qml" line="561"/>
         <source>%1 is %2</source>
         <extracomment>Used to show the entity state: %1 is the entity name, %2 is the state</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="621"/>
+        <location filename="../../src/qml/components/Page.qml" line="644"/>
         <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
         <extracomment>Web configurator is the name of the application, does not need translation</extracomment>
         <translation type="unfinished"></translation>
@@ -3489,31 +3489,41 @@ Tap the QR code to show it on the screen.</source>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="164"/>
-        <source>Activities on pages</source>
+        <source>Show battery indicator everywhere</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="187"/>
-        <source>Show the running activities and playing media players in the page header.</source>
+        <source>Shows the battery level indicator on all pages and activities.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="213"/>
-        <source>Zoom media image</source>
+        <source>Activities on pages</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="236"/>
-        <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
+        <source>Show the running activities and playing media players in the page header.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="262"/>
+        <source>Zoom media image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="285"/>
+        <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="311"/>
         <source>Coverflow in media browser</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="284"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="333"/>
         <source>Use coverflow as the default view when opening the media browser.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4049,7 +4059,7 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>uc::Config</name>
     <message>
-        <location filename="../../src/config/config.cpp" line="863"/>
+        <location filename="../../src/config/config.cpp" line="874"/>
         <source>Error while loading configuration. Trying again.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4384,22 +4394,22 @@ Tap the QR code to show it on the screen.</source>
 <context>
     <name>uc::ui::EntityController</name>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="618"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="673"/>
         <source>%1 is not responding</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="619"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="674"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="653"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="707"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="652"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="706"/>
         <source>Error sending the command</source>
         <translation type="unfinished"></translation>
     </message>

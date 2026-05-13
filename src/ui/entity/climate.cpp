@@ -76,7 +76,7 @@ Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &languag
         qCInfo(lcClimate()) << "Climate entity" << m_id
                             << "has no temperature_unit option. Using localization settings.";
         m_temperatureUnit =
-            unitSystem == Config::UnitSystems::Metric ? TemperatureUnit::CELSIUS : TemperatureUnit::FAHRENHEIT;
+            unitSystem == Config::UnitSystems::Us ? TemperatureUnit::FAHRENHEIT : TemperatureUnit::CELSIUS;
     }
 
     updateTemperaturUnitValues();
@@ -314,7 +314,7 @@ void Climate::onUnitSystemChanged(Config::UnitSystems unitSystem) {
         return;
     }
 
-    auto unit = unitSystem == Config::UnitSystems::Metric ? TemperatureUnit::CELSIUS : TemperatureUnit::FAHRENHEIT;
+    auto unit = unitSystem == Config::UnitSystems::Us ? TemperatureUnit::FAHRENHEIT : TemperatureUnit::CELSIUS;
 
     if (unit == m_temperatureUnit) {
         return;

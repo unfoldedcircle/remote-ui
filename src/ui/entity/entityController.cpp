@@ -4,12 +4,41 @@
 #include "entityController.h"
 
 #include <QGuiApplication>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QUuid>
 
 #include "../../logging.h"
 #include "./../notification.h"
 
 namespace uc {
 namespace ui {
+
+static bool isRepeatingCommand(const QString& command, const QVariantMap& params)
+{
+    return command == QStringLiteral("remote.send") && params.contains(QStringLiteral("repeat"));
+}
+
+static QString buildCommandKey(const QString& entityId, const QString& command, const QVariantMap& params)
+{
+    QVariantMap keyParts;
+    keyParts.insert(QStringLiteral("entityId"), entityId);
+    keyParts.insert(QStringLiteral("command"), command);
+    keyParts.insert(QStringLiteral("params"), params);
+
+    return QString::fromUtf8(
+        QJsonDocument(QJsonObject::fromVariantMap(keyParts)).toJson(QJsonDocument::Compact));
+}
+
+static QString buildCommandId(const QString& entityId, const QString& command, const QVariantMap& params, bool repeating)
+{
+    const QString commandKey = buildCommandKey(entityId, command, params);
+    if (!repeating) {
+        return commandKey;
+    }
+
+    return commandKey + QLatin1Char('#') + QUuid::createUuid().toString(QUuid::WithoutBraces);
+}
 
 EntityController* EntityController::s_instance = nullptr;
 // FIXME(#279) because of static createEntityObject
@@ -313,14 +342,12 @@ QObject* EntityController::qmlInstance(QQmlEngine* engine, QJSEngine* scriptEngi
 }
 
 void EntityController::onCoreConnected() {
-    m_entities.clear();
     m_activities.clear();
     emit activitiesChanged();
 }
 
 void EntityController::onCoreDisconnected() {
     setAllEntitiesAvailable(false);
-    m_entities.clear();
 
     m_activities.clear();
     emit activitiesChanged();
@@ -328,7 +355,8 @@ void EntityController::onCoreDisconnected() {
 
 void EntityController::addEntityObject(core::Entity entity) {
     if (m_entities.contains(entity.id)) {
-        qCDebug(lcEntityController()) << "Entity is already loaded:" << entity.id;
+        qCDebug(lcEntityController()) << "Entity already loaded, refreshing:" << entity.id;
+        onEntityChanged(entity.id, entity);
         emit entityLoaded(true, entity.id);
         return;
     }
@@ -537,9 +565,8 @@ void EntityController::onEntityCommand(const QString& entityId, const QString& c
     pendingCmd.entityId = entityId;
     pendingCmd.command = command;
     pendingCmd.params = params;
-    pendingCmd.commandId = entityId + command;;
-    pendingCmd.repeatCount = 0;
-    pendingCmd.repeating = params.contains("repeat");
+    pendingCmd.repeating = isRepeatingCommand(command, params);
+    pendingCmd.commandId = buildCommandId(entityId, command, params, pendingCmd.repeating);
 
     if (!pendingCmd.repeating) {
         if (m_pendingCommands.contains(pendingCmd.commandId)) {
@@ -558,34 +585,62 @@ void EntityController::retrySendAttempt(const QString& commandId)
     auto it = m_pendingCommands.find(commandId);
     if (it == m_pendingCommands.end()) return;
 
-    const pendingCommand& live = it.value();
+    pendingCommand& live = it.value();
     int id = m_core->entityCommand(live.entityId, live.command, live.params);
+    if (id < 0) {
+        qCWarning(lcEntityController()) << "Cannot execute command: invalid request id" << commandId;
+        m_pendingCommands.remove(commandId);
+        return;
+    }
+
+    live.requestId = id;
+    live.attemptCount += 1;
+
+    const int requestId = live.requestId;
+    const int attemptCount = live.attemptCount;
 
     m_core->onResult(
         id,
         // success
-        [=]() {
-            qCDebug(lcEntityController()) << "Command executed successfully" << commandId;
-            m_pendingCommands.remove(commandId);
-        },
-        // failure
-        [=](int code, QString message) {
-            qCWarning(lcEntityController())
-                << "Cannot execute command:" << commandId << code << message;
-
-            // if we're in the resume window, we try again in 500ms
-            if (m_resumeWindow) {
-                qCDebug(lcEntityController()) << "In resume window, trying command again:" << commandId;
-                QTimer::singleShot(500, [=]() { retrySendAttempt(commandId); });
+        [this, commandId, requestId, attemptCount]() {
+            auto current = m_pendingCommands.find(commandId);
+            if (current == m_pendingCommands.end() || current.value().requestId != requestId) {
+                qCDebug(lcEntityController()) << "Ignoring stale command success" << commandId << requestId;
                 return;
             }
 
+            qCDebug(lcEntityController()) << "Command executed successfully" << commandId << "attempt" << attemptCount;
+            m_pendingCommands.remove(commandId);
+        },
+        // failure
+        [this, commandId, requestId, attemptCount](int code, QString message) {
             auto it2 = m_pendingCommands.find(commandId);
             if (it2 == m_pendingCommands.end()) {
                 return;
             }
 
             pendingCommand live2 = it2.value();
+            if (live2.requestId != requestId) {
+                qCDebug(lcEntityController()) << "Ignoring stale command failure" << commandId << requestId;
+                return;
+            }
+
+            qCWarning(lcEntityController())
+                << "Cannot execute command:" << commandId << "attempt" << attemptCount << code << message;
+
+            // if we're in the resume window, we try again in 500ms
+            if (m_resumeWindow) {
+                qCDebug(lcEntityController()) << "In resume window, trying command again:" << commandId << "attempt" << attemptCount;
+                QTimer::singleShot(500, this, [this, commandId, requestId]() {
+                    auto current = m_pendingCommands.find(commandId);
+                    if (current == m_pendingCommands.end() || current.value().requestId != requestId) {
+                        return;
+                    }
+
+                    retrySendAttempt(commandId);
+                });
+                return;
+            }
 
             // we ignore voice commands as they have their own error handling
             if (live2.command == "voice_start") {
@@ -630,8 +685,7 @@ void EntityController::retrySendAttempt(const QString& commandId)
                         pc.command     = m.value("command").toString();
                         pc.params      = m.value("params").toMap();
                         pc.commandId   = cmdId;
-                        pc.repeating   = pc.params.contains("repeat");
-                        pc.repeatCount = 0;
+                        pc.repeating   = isRepeatingCommand(pc.command, pc.params);
 
                         self->m_pendingCommands.insert(cmdId, pc);
                         self->retrySendAttempt(cmdId);

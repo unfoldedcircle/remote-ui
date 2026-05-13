@@ -136,11 +136,11 @@ class Light : public Base {
 
 
  private:
-    int    m_hue;
-    int    m_saturation;
-    int    m_brightness;
+    int    m_hue = 0;
+    int    m_saturation = 0;
+    int    m_brightness = 0;
     QColor m_color;
-    int    m_colorTemp;
+    int    m_colorTemp = 0;
 
     QString m_stateInfo1;
     QString m_stateInfo2;

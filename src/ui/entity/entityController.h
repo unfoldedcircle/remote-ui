@@ -177,7 +177,8 @@ class EntityController : public QObject {
         QString command;
         QVariantMap params;
         QString commandId;
-        int repeatCount = 0;
+        int requestId = -1;
+        int attemptCount = 0;
         bool repeating = false;
     };
 
