@@ -6,6 +6,43 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## v0.73.5 - 2026-06-05
+### Changed
+- Standby state change detection for command retry logic
+
+
+---
+## v0.73.4 - 2026-05-08
+### Fixed
+- Entities not available for media widget and therefore not showing image
+
+---
+## v0.73.2 - 2026-05-07
+### Fixed
+- Prevent stale entity command retries from stopping early
+
+---
+## v0.73.1 - 2026-04-28
+### Fixed
+- Color wheel sending invalid hue values and the selector escaping the circle on fast drags
+- Climate detail view showing the temperature without the unit while the main view showed it with the unit
+- Entity widgets (notably the media widget) showing stale data after the remote wakes from sleep
+
+### Changed
+- Updated translations from Crowdin
+
+---
+## v0.72.0 - 2026-04-13
+### Added
+- Media browser and playback controls in the media widget
+- Option to show the battery indicator everywhere
+
+### Fixed
+- Sensor and select widget clipping
+- Media browsing pagination stopping early
+- Retry handling when media browsing fails
+
+---
 ## v0.71.1 - 2026-03-19
 ### Fixed
 - Adjust color contrast

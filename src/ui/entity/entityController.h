@@ -184,7 +184,7 @@ class EntityController : public QObject {
 
     QHash<QString, pendingCommand> m_pendingCommands;
 
-    core::PowerEnums::PowerMode m_previousPowerMode = core::PowerEnums::PowerMode::NORMAL;
+    bool   m_wasSuspended = false;
     bool   m_resumeWindow = false;
     int    m_resumeTimerTimeout = 2000;
 

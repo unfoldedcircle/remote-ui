@@ -755,15 +755,23 @@ void EntityController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode)
         return;
     }
 
-    if (powerMode == core::PowerEnums::PowerMode::NORMAL && m_previousPowerMode == core::PowerEnums::PowerMode::SUSPEND) {
-        m_resumeWindow = true;
-        emit resumewindowChanged();
-        QTimer::singleShot(m_resumeTimerTimeout, this, &EntityController::onResumeTimerTimeout);
-
-        qCDebug(lcEntityController())  << "Resume timer enabled" << m_resumeTimerTimeout << "ms";
+    if (powerMode == core::PowerEnums::PowerMode::SUSPEND) {
+        m_wasSuspended = true;
+        return;
     }
 
-    m_previousPowerMode = powerMode;
+    if (powerMode == core::PowerEnums::PowerMode::NORMAL) {
+        const bool shouldActivate = m_wasSuspended && !m_resumeWindow;
+        m_wasSuspended = false;
+
+        if (shouldActivate) {
+            m_resumeWindow = true;
+            emit resumewindowChanged();
+            QTimer::singleShot(m_resumeTimerTimeout, this, &EntityController::onResumeTimerTimeout);
+
+            qCDebug(lcEntityController())  << "Resume timer enabled" << m_resumeTimerTimeout << "ms";
+        }
+    }
 }
 
 void EntityController::onResumeTimeoutWindowSecChanged(int value)
