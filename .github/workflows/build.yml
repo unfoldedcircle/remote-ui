@@ -54,8 +54,9 @@ jobs:
 
     steps:
       - name: Checkout ${{ env.PROJECT_NAME }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
         with:
+          persist-credentials: false
           # history required to determine number of commits since last release tag
           fetch-depth: 0
           path: ${{ env.PROJECT_NAME }}
@@ -98,7 +99,7 @@ jobs:
           tar czvf ${{ env.ARTIFACT_NAME }}.tar.gz -C ${{ env.UC_BIN }} .
           ls -lah
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
         id: upload_artifact
         with:
           name: ${{ env.ARTIFACT_NAME }}
@@ -137,7 +138,7 @@ jobs:
     steps:
       - name: Cache libicu56 build
         id: cache-libicu56
-        uses: actions/cache@v3
+        uses: actions/cache@6f8efc29b200d32929f49075959781ed54ec270c # v3.5.0
         with:
           path: icu
           key: libicu56-${{ matrix.config.artifact }}
@@ -161,7 +162,7 @@ jobs:
           sudo make install
 
       - name: Install Qt
-        uses: jurplel/install-qt-action@v3
+        uses: jurplel/install-qt-action@b7840a6733f49e2a39c4355260d2375063d39b61 # v3 branch, post-v3.3.0 as of 2026-07-24
         with:
           version: ${{ env.QT_VERSION }}
           # modules & archives: https://ddalcino.github.io/aqt-list-server/
@@ -190,13 +191,14 @@ jobs:
           qmake -query
 
       - name: Checkout ${{ env.PROJECT_NAME }}
-        uses: actions/checkout@v3
+        uses: actions/checkout@a37ce9120846195fa4ece8f58b268e6043cb2f26 # v3.7.0
         with:
+          persist-credentials: false
           # history required to determine number of commits since last release tag
           fetch-depth: 0
           path: ${{ env.PROJECT_NAME }}
           submodules: recursive
-          
+
       - name: Fetch all tags to determine version
         run: |
           cd ${{ env.PROJECT_NAME }}
@@ -326,7 +328,7 @@ jobs:
           tar czvf ${{ env.ARTIFACT_NAME }}.tar.gz -C ${GITHUB_WORKSPACE}/${{env.BIN_OUTPUT_PATH }} .
           ls -lah
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@ff15f0306b3f739f7b6fd43fb5d26cd321bd4de5 # v3.2.1
         id: upload_artifact
         with:
           name: ${{ env.ARTIFACT_NAME }}
@@ -342,7 +344,7 @@ jobs:
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a # v3.0.2
 
       - name: Extract build archives from downloaded files
         run: |
@@ -369,7 +371,7 @@ jobs:
           for filename in *.tar.gz; do echo "sha256  `sha256sum $filename`" >> ${{ env.HASH_FILENAME }}; done;
 
       - name: Create Pre-Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1" # latest (repo is archived; no versioned tags)
         if: "!contains(github.ref, 'tags/v')"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
@@ -386,7 +388,7 @@ jobs:
           for filename in *.tar.gz; do echo "sha256  `sha256sum $filename`" >> ${{ env.HASH_FILENAME }}; done;
 
       - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+        uses: "marvinpinto/action-automatic-releases@d68defdd11f9dcc7f52f35c1b7c236ee7513bcc1" # latest (repo is archived; no versioned tags)
         if: "contains(github.ref, 'tags/v')"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
