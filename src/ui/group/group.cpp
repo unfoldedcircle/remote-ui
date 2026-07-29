@@ -35,6 +35,10 @@ int GroupItemList::rowCount(const QModelIndex &parent) const {
 }
 
 bool GroupItemList::removeRows(int row, int count, const QModelIndex &parent) {
+    if (row < 0 || count <= 0 || (row + count) > m_data.size()) {
+        return false;
+    }
+
     beginRemoveRows(parent, row, row + count - 1);
     for (int i = row + count - 1; i >= row; i--) {
         m_data.at(i)->deleteLater();
@@ -74,11 +78,15 @@ void GroupItemList::clear() {
 }
 
 GroupItem *GroupItemList::getGroupItem(int row) {
+    if (row < 0 || row >= m_data.count()) {
+        return nullptr;
+    }
+
     return m_data[row];
 }
 
 GroupItem *GroupItemList::getGroupItem(const QString &key) {
-    return m_data[getModelIndexByKey(key).row()];
+    return getGroupItem(getModelIndexByKey(key).row());
 }
 
 QModelIndex GroupItemList::getModelIndexByKey(const QString &key) {
@@ -160,7 +168,9 @@ QStringList Group::getEntities() {
     QStringList list;
 
     for (int i = 0; i < m_items->count(); i++) {
-        list.append(m_items->getGroupItem(i)->groupItemId());
+        if (GroupItem *item = m_items->getGroupItem(i)) {
+            list.append(item->groupItemId());
+        }
     }
 
     return list;
@@ -179,7 +189,6 @@ void Group::addEntity(const QString &entityId) {
         return;
     }
 
-    emit requestEntity(entityId);
     m_items->addItem(entityId);
 }
 

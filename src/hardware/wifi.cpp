@@ -115,6 +115,9 @@ void Wifi::getWifiStatus() {
                     security = Util::convertStringToEnum<Security::Enum>(wifiStatus.keyManagement.replace("-", "_"));
                 }
 
+                if (m_currentNetwork) {
+                    m_currentNetwork->deleteLater();
+                }
                 m_currentNetwork = new WifiNetwork(wifiStatus.id, wifiStatus.ssid, security, wifiStatus.rssi, wifiStatus.keyManagement, wifiStatus.pairwiseCipher, wifiStatus.groupCipher, wifiStatus.freq, true, this);
                 emit currentNetworkChanged();
 
@@ -160,7 +163,7 @@ void Wifi::getWifiScanStatus() {
         [=](bool active, QList<core::AccessPointScan> scan) {
             // success
             if (scan.size() > 0) {
-                m_networkList.clear();
+                clearNetworkList();
 
                 if (m_scanActive != active) {
                     m_scanActive = active;
@@ -198,7 +201,7 @@ void Wifi::stopNetworkScan() {
         [=](bool active, QList<core::AccessPointScan> scan) {
             // success
             if (scan.size() > 0) {
-                m_networkList.clear();
+                clearNetworkList();
 
                 if (m_scanActive != active) {
                     m_scanActive = active;
@@ -226,10 +229,24 @@ void Wifi::stopNetworkScan() {
         });
 }
 
-void Wifi::clearNetworkList() { m_networkList.clear(); }
+void Wifi::clearNetworkList() {
+    const auto networks = m_networkList.values();
+    for (WifiNetwork *network : networks) {
+        network->deleteLater();
+    }
+    m_networkList.clear();
+}
+
+void Wifi::clearKnownNetworkList() {
+    const auto networks = m_knownNetworkList.values();
+    for (WifiNetwork *network : networks) {
+        network->deleteLater();
+    }
+    m_knownNetworkList.clear();
+}
 
 void Wifi::getAllWifiNetworks() {
-    m_knownNetworkList.clear();
+    clearKnownNetworkList();
 
     int id = m_core->wifiGetAllNetworks();
 
@@ -269,7 +286,9 @@ void Wifi::deleteSavedNetwork(const QString &networkId) {
         id,
         [=]() {
             // success
-            m_knownNetworkList.remove(networkId);
+            if (WifiNetwork *removedNetwork = m_knownNetworkList.take(networkId)) {
+                removedNetwork->deleteLater();
+            }
             emit knownNetworkListChanged();
             QTimer::singleShot(1500, [=] { getAllWifiNetworks(); });
         },
@@ -287,7 +306,7 @@ void Wifi::deleteAllNetworks() {
         id,
         [=]() {
             // success
-            m_knownNetworkList.clear();
+            clearKnownNetworkList();
             emit knownNetworkListChanged();
         },
         [=](int code, QString message) {

@@ -103,19 +103,21 @@ Rectangle {
 
     function enableHighLight(value) {
         for (let i = 0; i < groups.count; i++) {
-            if (groups.itemAtIndex(i)) {
-                groups.itemAtIndex(i).item.isHighLightEnabled = value;
+            const groupItemLoader = groups.itemAtIndex(i);
+            if (groupItemLoader && groupItemLoader.item) {
+                groupItemLoader.item.isHighLightEnabled = value;
             }
         }
     }
 
     function turnOnGroupItems(value) {
         for (let i = 0; i < groups.count; i++) {
-            if (groups.itemAtIndex(i)) {
+            const groupItemLoader = groups.itemAtIndex(i);
+            if (groupItemLoader && groupItemLoader.item && groupItemLoader.item.entityObj) {
                 if (!value) {
-                    groups.itemAtIndex(i).item.entityObj.turnOff();
+                    groupItemLoader.item.entityObj.turnOff();
                 } else {
-                    groups.itemAtIndex(i).item.entityObj.turnOn();
+                    groupItemLoader.item.entityObj.turnOn();
                 }
             }
         }

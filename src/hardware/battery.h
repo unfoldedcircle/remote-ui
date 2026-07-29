@@ -48,7 +48,7 @@ class Battery : public QObject {
     static Battery *s_instance;
     core::Api      *m_core;
 
-    int  m_level;
+    int  m_level = 0;
     int  m_lowLevelTreshold = 10;
     bool m_batteryLow = false;
     bool m_isCharging = false;

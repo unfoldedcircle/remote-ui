@@ -634,7 +634,7 @@ EntityComponents.BaseDetail {
                 Layout.alignment: Qt.AlignVCenter
                 size: 80
                 color: colors.offwhite
-                icon: "uc:library"
+                icon: "uc:album-collection"
                 visible: entityObj.hasFeature(MediaPlayerFeatures.Browse_media) || entityObj.hasFeature(MediaPlayerFeatures.Search_media)
 
                 Components.HapticMouseArea {

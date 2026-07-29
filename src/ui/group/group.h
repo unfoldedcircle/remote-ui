@@ -142,7 +142,6 @@ class Group : public QObject {
  signals:
     void nameChanged();
     void iconChanged();
-    void requestEntity(QString entityId);
 
  private:
     QString m_id;

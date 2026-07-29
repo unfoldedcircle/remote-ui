@@ -92,6 +92,7 @@ HEADERS += \
     src/hardware/touchSlider.h \
     src/hardware/ucr2/hapticUCR2.h \
     src/hardware/ucr2/hapticUCR3.h \
+    src/hardware/ucr3/touchSliderEventFilter.h \
     src/hardware/ucr3/touchSliderUCR3.h \
     src/hardware/wifi.h \
     src/integration/confirmationPage.h \
@@ -128,6 +129,7 @@ HEADERS += \
     src/ui/group/groupController.h \
     src/ui/group/groupItem.h \
     src/ui/inputController.h \
+    src/ui/mediaImageProvider.h \
     src/ui/notification.h \
     src/ui/onboardingController.h \
     src/ui/page/page.h \
@@ -156,6 +158,7 @@ SOURCES += \
         src/hardware/touchSlider.cpp \
         src/hardware/ucr2/hapticUCR2.cpp \
         src/hardware/ucr2/hapticUCR3.cpp \
+        src/hardware/ucr3/touchSliderEventFilter.cpp \
         src/hardware/ucr3/touchSliderUCR3.cpp \
         src/hardware/wifi.cpp \
         src/integration/confirmationPage.cpp \
@@ -187,6 +190,7 @@ SOURCES += \
         src/ui/group/groupController.cpp \
         src/ui/group/groupItem.cpp \
         src/ui/inputController.cpp \
+        src/ui/mediaImageProvider.cpp \
         src/integration/integrationController.cpp \
         src/integration/integrationDrivers.cpp \
         src/integration/integrations.cpp \
@@ -233,7 +237,11 @@ TRANSLATIONS += resources/translations/da_DK.ts \
                resources/translations/hu_HU.ts \
                resources/translations/nl_NL.ts \
                resources/translations/fr_FR.ts \
-               resources/translations/it_IT.ts
+               resources/translations/it_IT.ts \
+               resources/translations/es_ES.ts \
+               resources/translations/no_NO.ts \
+               resources/translations/pl_PL.ts \
+               resources/translations/sv_SE.ts
 
 # -----------------------------------------------------------------------------
 # Qt Linguist tools
@@ -339,4 +347,3 @@ OBJECTS_DIR = $$PWD/build/$$DESTINATION_PATH/obj
 MOC_DIR = $$PWD/build/$$DESTINATION_PATH/moc
 RCC_DIR = $$PWD/build/$$DESTINATION_PATH/qrc
 UI_DIR = $$PWD/build/$$DESTINATION_PATH/ui
-

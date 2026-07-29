@@ -6,6 +6,7 @@
 #include <QJsonDocument>
 #include <QMetaEnum>
 #include <QObject>
+#include <QSharedPointer>
 #include <QTimer>
 #include <QWebSocket>
 
@@ -195,23 +196,55 @@ class Api : public QObject {
     // power mode
     int getPowerMode();
 
+ private:
+    // Shared handle of a response handler connection, so the handler can disconnect itself.
+    using ConnectionPtr = QSharedPointer<QMetaObject::Connection>;
+
+    static void disconnectHandler(const ConnectionPtr &connection) {
+        if (connection) {
+            QObject::disconnect(*connection);
+        }
+    }
+
+    static void disconnectHandlers(const ConnectionPtr &connSuccess, const ConnectionPtr &connFail) {
+        disconnectHandler(connSuccess);
+        disconnectHandler(connFail);
+    }
+
  public:
     /**
      * @brief This response handler is used for common response result processing, that doesn't return anything special.
      * Just status code and error message if any.
+     *
+     * The handler is a one-shot: it is disconnected as soon as the request is settled, no matter how many responses
+     * arrive for it. A request can be answered twice, e.g. when the request timeout fires and the real (slow) response
+     * arrives afterwards.
      */
     template <typename SuccessFunc, typename FailFunc>
     void onResult(int id, const SuccessFunc &functionSuccess, const FailFunc &functionFail) {
-        QMetaObject::Connection connection;
+        // A negative id means the request was never sent (disconnected or send failure), so no response
+        // or timeout will ever arrive to resolve and disconnect this handler. Bail out to avoid leaking a
+        // permanent connection to respResult that runs on every future response.
+        if (id < 0) {
+            return;
+        }
 
-        connection = QObject::connect(this, &Api::respResult, [=](int reqId, int code, QString message) {
-            if (reqId == id) {
-                if (code == 200 || code == 201) {
-                    functionSuccess();
-                } else {
-                    functionFail(code, message);
-                }
-                QObject::disconnect(connection);
+        // The connection handle has to be shared with the handler: a copy captured by the lambda is taken before
+        // connect() returns and would stay null forever, making the disconnect below a no-op.
+        ConnectionPtr connection = ConnectionPtr::create();
+
+        *connection = QObject::connect(this, &Api::respResult, [=](int reqId, int code, QString message) {
+            if (reqId != id) {
+                return;
+            }
+
+            // settle first, so a late duplicate response cannot run the callbacks a second time
+            disconnectHandler(connection);
+
+            if (code == 200 || code == 201) {
+                functionSuccess();
+            } else {
+                functionFail(code, message);
             }
         });
     }
@@ -219,28 +252,67 @@ class Api : public QObject {
     /**
      * @brief This response handler is used for responses which return something special, like a profile, but on error,
      * it's a common result response.
+     *
+     * See onResult() for the one-shot behaviour.
      */
     template <typename Signal, typename SuccessFunc, typename FailFunc>
     void onResponseWithErrorResult(int id, Signal signal, const SuccessFunc &functionSuccess,
                                    const FailFunc &functionFail) {
-        QMetaObject::Connection connSuccess;
-        QMetaObject::Connection connFail = onCommonFail(id, functionFail, connSuccess);
+        // See onResult(): a negative id never resolves, so skip to avoid leaking permanent connections.
+        if (id < 0) {
+            return;
+        }
 
-        connSuccess = QObject::connect(
+        ConnectionPtr connSuccess = ConnectionPtr::create();
+        ConnectionPtr connFail = ConnectionPtr::create();
+
+        *connFail = QObject::connect(this, &Api::respResult, [=](int reqId, int code, QString message) {
+            if (reqId != id) {
+                return;
+            }
+
+            // a common result response settles the request: either it failed, or it was answered without data
+            disconnectHandlers(connSuccess, connFail);
+
+            if (code != 200 && code != 201) {
+                functionFail(code, message);
+            }
+        });
+
+        *connSuccess = QObject::connect(
             this, signal, [=](auto... args) { onSuccess(id, functionSuccess, connSuccess, connFail, args...); });
     }
 
     /**
      * @brief This response handler is used for responses which return something special, even on error
+     *
+     * See onResult() for the one-shot behaviour.
      */
     template <typename Signal, typename SuccessFunc, typename FailFunc>
     void onResponse(int id, Signal signal, const SuccessFunc &functionSuccess, const FailFunc &functionFail) {
-        QMetaObject::Connection connSuccess;
-        QMetaObject::Connection connFail;
+        // See onResult(): a negative id never resolves, so skip to avoid leaking permanent connections.
+        if (id < 0) {
+            return;
+        }
 
-        connSuccess = QObject::connect(this, signal, [=](auto... args) {
-            onSuccess(id, functionSuccess, connSuccess, connFail, args...);
-            onFail(id, functionFail, connSuccess, connFail, args...);
+        ConnectionPtr connSuccess = ConnectionPtr::create();
+        ConnectionPtr connCleanup = ConnectionPtr::create();
+
+        // The request can also be answered with a common result response, e.g. on a request timeout, which never
+        // reaches `signal`. Release the handler in that case, otherwise it stays connected for the whole runtime.
+        *connCleanup = QObject::connect(this, &Api::respResult, [=](int reqId, int code, QString message) {
+            Q_UNUSED(code)
+            Q_UNUSED(message)
+            if (reqId != id) {
+                return;
+            }
+
+            disconnectHandlers(connSuccess, connCleanup);
+        });
+
+        *connSuccess = QObject::connect(this, signal, [=](auto... args) {
+            onSuccess(id, functionSuccess, connSuccess, connCleanup, args...);
+            onFail(id, functionFail, connSuccess, connCleanup, args...);
         });
     }
 
@@ -249,41 +321,29 @@ class Api : public QObject {
      * @brief helper template to process successful slot response
      */
     template <typename T1, typename T2, typename... Args, typename SuccessFunc>
-    void onSuccess(int id, const SuccessFunc &functionSuccess, QMetaObject::Connection connSuccess,
-                   QMetaObject::Connection connFail, T1 reqId, T2 code, Args... args) {
-        if (reqId == id && (code == 200 || code == 201)) {
-            functionSuccess(args...);
-            QObject::disconnect(connSuccess);
-            QObject::disconnect(connFail);
+    void onSuccess(int id, const SuccessFunc &functionSuccess, const ConnectionPtr &connSuccess,
+                   const ConnectionPtr &connFail, T1 reqId, T2 code, Args... args) {
+        if (reqId != id) {
+            return;
         }
-    }
 
-    /**
-     * @brief helper template to handle unsuccessful responses as these are the same for all calls
-     */
-    template <typename FailFunc>
-    QMetaObject::Connection onCommonFail(int id, const FailFunc &function, QMetaObject::Connection connSuccess) {
-        QMetaObject::Connection connFail;
-        connFail = QObject::connect(this, &Api::respResult, [=](int reqId, int code, QString message) {
-            if (reqId == id && (code != 200 && code != 201)) {
-                function(code, message);
-                QObject::disconnect(connFail);
-                QObject::disconnect(connSuccess);
-            }
-        });
-        return connFail;
+        // the response is for this request, so it is settled with either result: release both handlers
+        disconnectHandlers(connSuccess, connFail);
+
+        if (code == 200 || code == 201) {
+            functionSuccess(args...);
+        }
     }
 
     /**
      * @brief helper template to process failed slot response
      */
     template <typename T1, typename T2, typename... Args, typename FailFunc>
-    void onFail(int id, const FailFunc &functionFail, QMetaObject::Connection connSuccess,
-                QMetaObject::Connection connFail, T1 reqId, T2 code, Args... args) {
+    void onFail(int id, const FailFunc &functionFail, const ConnectionPtr &connSuccess, const ConnectionPtr &connFail,
+                T1 reqId, T2 code, Args... args) {
         if (reqId == id && (code != 200 && code != 201)) {
+            disconnectHandlers(connSuccess, connFail);
             functionFail(args...);
-            QObject::disconnect(connSuccess);
-            QObject::disconnect(connFail);
         }
     }
 

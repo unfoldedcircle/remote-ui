@@ -25,7 +25,7 @@ ListView {
     maximumFlickVelocity: 6000
     flickDeceleration: 1000
     highlightMoveDuration: 200
-    cacheBuffer: 260 * 30
+    cacheBuffer: 260 * 4
     pressDelay: 200
     keyNavigationEnabled: false
 
@@ -41,12 +41,16 @@ ListView {
     property bool _isCurrentItem: pages.currentItem._id === page._id
 
     property bool blockDraggedDownSignal: false
+    // Disables the contentY animation so the header resize logic can follow the
+    // top of the view instantly, frame by frame, instead of lagging behind.
+    property bool suppressContentYAnimation: false
 
     Behavior on height {
         NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
     }
 
     Behavior on contentY {
+        enabled: !page.suppressContentYAnimation
         NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
     }
 
@@ -117,15 +121,61 @@ ListView {
         Item {
             id: headerContainer
             width: ListView.view.width
-            height: activityList.count > 0 && Config.enableActivityBar ? 680 - (activityList.currentItem.entityIcon.visible ? 240 : 0) : 260
+            height: 260
+            property int targetHeight: 260
+            // While the header animates its height (e.g. album art appearing or
+            // disappearing when a media player starts/stops) the scroll position
+            // is preserved: a page that sits at the top keeps following the top,
+            // a page scrolled into its content is left alone because the view
+            // already keeps the items in place when the header resizes.
+            property bool pinToTop: false
             //            clip: true
 
-            Behavior on height {
-                NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
+            function reCalculateHeaderHeight() {
+                const hasMediaComponent = activityList.currentItem && activityList.currentItem.hasMediaComponent;
+                const nextHeight = activityList.count > 0 && Config.enableActivityBar
+                        ? 680 - (hasMediaComponent ? 0 : 240)
+                        : 260;
+
+                if (headerContainer.height === nextHeight) {
+                    return;
+                }
+
+                // The header lives above the first item, so the top of the view
+                // is contentY === originY (a negative value the size of the
+                // header), not 0. Only pin when the page really is at the top,
+                // and never while a finger is on the screen: the pull down
+                // gesture must not be fought by the header animation.
+                headerContainer.pinToTop = !page.dragging && page.contentY <= page.originY + 1;
+                // Pinning adjusts contentY every frame to track the growing or
+                // shrinking header, so bypass the contentY animation meanwhile.
+                page.suppressContentYAnimation = headerContainer.pinToTop;
+
+                headerContainer.targetHeight = nextHeight;
+                headerContainer.height = nextHeight;
+            }
+
+            Component.onCompleted: {
+                reCalculateHeaderHeight();
             }
 
             onHeightChanged: {
-                page.positionViewAtBeginning();
+                if (!headerContainer.pinToTop) {
+                    return;
+                }
+
+                // originY already reflects the new header size here, so the page
+                // stays glued to the top of the header while it animates.
+                page.contentY = page.originY;
+
+                if (headerContainer.height === headerContainer.targetHeight) {
+                    headerContainer.pinToTop = false;
+                    page.suppressContentYAnimation = false;
+                }
+            }
+
+            Behavior on height {
+                NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
             }
 
             Image {
@@ -157,7 +207,7 @@ ListView {
                     }
                 }
 
-                layer.enabled: true
+                layer.enabled: headerImage.visible
                 layer.effect: OpacityMask {
                     maskSource:
                         Rectangle {
@@ -167,12 +217,6 @@ ListView {
                     }
                 }
 
-                Behavior on height {
-                    NumberAnimation {
-                        duration: 500
-                        easing.type: Easing.OutExpo
-                    }
-                }
             }
 
             Components.HapticMouseArea {
@@ -233,6 +277,14 @@ ListView {
                     visible: activityList.count > 0 && !ui.editMode && Config.enableActivityBar
                     model: pageActivities
 
+                    onCountChanged: {
+                        headerContainer.reCalculateHeaderHeight();
+                    }
+
+                    onCurrentItemChanged: {
+                        headerContainer.reCalculateHeaderHeight();
+                    }
+
                     delegate: Components.HapticMouseArea {
                         id: activityListItem
                         width: ListView.view.width
@@ -240,7 +292,6 @@ ListView {
 
                         property QtObject entity: QtObject
                         property QtObject mediaComponentEntity: QtObject
-                        property string _expectedMediaEntityId: ""
                         property bool _isCurrentItem: ListView.isCurrentItem
                         property bool _touchSliderActive: !isSecondContainerLoaded && page._isCurrentItem && activityListItem._isCurrentItem
 
@@ -249,6 +300,23 @@ ListView {
                         }
 
                         property alias entityIcon: entityIcon
+                        property bool hasMediaComponent: false
+                        property int mediaComponentHeight: hasMediaComponent ? 420 : 180
+
+                        onHasMediaComponentChanged: {
+                            Qt.callLater(function() {
+                                activityList.forceLayout();
+                                if (activityListItem._isCurrentItem) {
+                                    headerContainer.reCalculateHeaderHeight();
+                                }
+                            });
+                        }
+
+                        function syncMediaComponentState() {
+                            hasMediaComponent = mediaComponentEntity
+                                                && mediaComponentEntity.type === EntityTypes.Media_player
+                                                && mediaComponentEntity.mediaImage !== "";
+                        }
 
                         function findButtonMap(entity, buttonName) {
                             const buttonMap = entity.buttonMapping.find(buttonMap => buttonMap.button === buttonName);
@@ -268,29 +336,17 @@ ListView {
                                         (params ? params : {}))
                         }
 
-                        function setMediaComponentEntity(id) {
-                            activityListItem._expectedMediaEntityId = id;
-                            const e = EntityController.get(id);
-                            if (e) {
-                                mediaComponentEntity = e;
-                            } else {
-                                EntityController.load(id);
-                            }
-                        }
-
                         onMediaComponentEntityChanged: {
                             touchSlider.entityObj = mediaComponentEntity;
+                            syncMediaComponentState();
                         }
 
                         Connections {
-                            target: EntityController
+                            target: mediaComponentEntity
                             ignoreUnknownSignals: true
 
-                            function onEntityLoaded(success, loadedId) {
-                                if (success && loadedId === activityListItem._expectedMediaEntityId
-                                        && activityListItem.mediaComponentEntity !== EntityController.get(loadedId)) {
-                                    activityListItem.mediaComponentEntity = EntityController.get(loadedId);
-                                }
+                            function onMediaImageChanged() {
+                                activityListItem.syncMediaComponentState();
                             }
                         }
 
@@ -301,12 +357,16 @@ ListView {
                             if (entity.type === EntityTypes.Activity) {
                                 if (!entity.sliderConfig.enabled) {
                                     touchSlider.active = false;
-                                    return;
                                 }
 
                                 if (entity.sliderConfig.entityId !== "default") {
-                                    setMediaComponentEntity(entity.sliderConfig.entityId);
-                                    touchSlider.feature = entity.sliderConfig.entityFeature === "default" ? "volume" : entity.sliderConfig.entityFeature;
+                                    mediaComponentEntity = EntityController.get(entity.sliderConfig.entityId);
+                                    activityMediaComponent.entityId = entity.sliderConfig.entityId;
+                                    if (entity.sliderConfig.enabled) {
+                                        // "default" is resolved by TouchSlider based on the target entity's type
+                                        touchSlider.feature = entity.sliderConfig.entityFeature;
+                                    }
+                                    syncMediaComponentState();
                                     return;
                                 }
 
@@ -318,14 +378,19 @@ ListView {
 
                                     for (const item of pageItems) {
                                         if (item.type === "media_player") {
-                                            setMediaComponentEntity(item.media_player_id);
-                                            activityMediaComponent.entityId = item.media_player_id;
+
+                                            const itemMediaPlayerId = item.media_player_id;
+
+                                            mediaComponentEntity = EntityController.get(itemMediaPlayerId);
+                                            activityMediaComponent.entityId = itemMediaPlayerId;
+                                            syncMediaComponentState();
                                             break;
                                         }
                                     }
                                 }
                             } else if (entity.type === EntityTypes.Media_player) {
                                 mediaComponentEntity = entity;
+                                syncMediaComponentState();
                             }
                         }
 
@@ -548,13 +613,13 @@ ListView {
                             }
                         }
 
-                        ColumnLayout {
+                        Column {
                             width: parent.width
-                            height: parent.height
-                            spacing: 0
+                            anchors.top: parent.top
+                            spacing: 10
 
                             Text {
-                                Layout.fillWidth: true
+                                width: parent.width
                                 color: Qt.lighter(colors.light)
                                 text: {
                                     //: Used to show the entity state: %1 is the entity name, %2 is the state
@@ -567,10 +632,9 @@ ListView {
                             }
 
                             Item {
-                                Layout.fillWidth: true
-                                Layout.preferredHeight: entityIcon.visible ? 180 : 420
-                                Layout.leftMargin: 20
-                                Layout.rightMargin: 20
+                                width: parent.width - 40
+                                height: activityListItem.mediaComponentHeight
+                                x: 20
 
                                 Rectangle {
                                     id: entityIcon
@@ -578,7 +642,7 @@ ListView {
                                     height: 180
                                     color: colors.dark
                                     radius: 8
-                                    visible: mediaComponentEntity.mediaImage == "" || mediaComponentEntity.type != EntityTypes.Media_player
+                                    visible: !activityListItem.hasMediaComponent
                                     anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
 
                                     Components.Icon {
@@ -594,7 +658,7 @@ ListView {
                                     width: parent.width
                                     height: parent.height
                                     isComponentHorizontal: false
-                                    visible: !entityIcon.visible
+                                    visible: activityListItem.hasMediaComponent
                                     anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
 
                                     Component.onCompleted: {
@@ -659,7 +723,7 @@ ListView {
             height: delegate.item ? delegate.item.height : delegate.height
             enabled: ui.editMode
             pressAndHoldInterval: 100
-            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.horizontalCenter: parent ? parent.horizontalCenter : undefined
 
             property alias dragArea: dragArea
             property alias delegate: delegate

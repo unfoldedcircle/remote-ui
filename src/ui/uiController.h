@@ -56,7 +56,6 @@ class Controller : public QObject {
 
     Q_PROPERTY(bool isConnecting READ getIsConnecting NOTIFY isConnectingChanged)
     Q_PROPERTY(bool isOnboarding READ getIsOnboarding NOTIFY isOnboardingChanged)
-    Q_PROPERTY(bool isNoProfile READ getIsNoProfile NOTIFY isNoProfileChanged)
     Q_PROPERTY(bool showHelp READ getShowHelp WRITE setShowHelp NOTIFY showHelpChanged)
 
     Q_PROPERTY(Profiles* profiles READ getProfiles CONSTANT)
@@ -97,7 +96,6 @@ class Controller : public QObject {
 
     bool getIsConnecting() { return m_isConnecting; }
     bool getIsOnboarding() { return m_isOnboarding; }
-    bool getIsNoProfile() { return m_isNoProfile; }
     bool getShowHelp() { return m_showHelp; }
     void setShowHelp(bool value);
 
@@ -206,8 +204,6 @@ class Controller : public QObject {
     void onActivityAdded(QString entityId);
     void onActivityRemoved(QString entityId);
 
-    void onEntityRequested(QString entityId);
-
  private:
     QQmlApplicationEngine* m_engine;
     Config*                m_config;
@@ -223,8 +219,6 @@ class Controller : public QObject {
     Profiles m_profiles;
     Profile  m_profile;
     Pages    m_pages;
-
-    bool m_isNoProfile = false;
 
     bool m_coreConnected = false;
     bool m_isConnecting = false;
@@ -269,10 +263,6 @@ class Controller : public QObject {
     OnboardingController* m_onboardingController;
 
     QString m_factoryResetToken;
-
-    void checkConfigLoaded();
-    bool m_profilesLoaded = false;
-    bool m_pagesLoaded = false;
 };
 
 }  // namespace ui

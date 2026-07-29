@@ -37,11 +37,6 @@ ColumnLayout {
 
     function ensureEntityLoaded() {
         entityObj = EntityController.get(entityId);
-
-        if (!entityObj) {
-            EntityController.load(entityId);
-        }
-
         evaluateSensor();
     }
 

@@ -4,6 +4,7 @@ import QtGraphicalEffects 1.0
 
 import Haptic 1.0
 import TouchSlider 1.0
+import Config 1.0
 
 import "qrc:/components" as Components
 
@@ -14,11 +15,19 @@ Item {
     property QtObject entityObj
     property bool touchSliderActive: false
     property double prevTouchX: 0
-    property int positionDelta: 0
     property int sliderAnimationDuration: 200
     property int targetPosition: 0
-    property int lastRawDelta: 0
     property bool unavailableWarningShown: false
+    property double lastHapticMs: 0
+
+    // value units per raw slider unit, computed at gesture start
+    property real touchScale: 0
+    // fractional value change accumulator, keeps sub-unit finger motion
+    property real deltaAcc: 0
+    // how much of the value range a full length swipe covers
+    readonly property real sweepGain: Config.touchSliderGainSeek
+    // raw axis range to assume when the driver does not report one
+    readonly property int fallbackAxisRange: 300
 
     signal open()
     signal close()
@@ -60,19 +69,31 @@ Item {
         function onTouchPressed() {
             console.log("Touch pressed");
 
-            // if entity is unavalable we do nothing
+            // if entity is unavalable we do nothing, but only warn once
             if (!entityObj.enabled) {
-                ui.createActionableNotification(qsTr("Touch slider is not available."),
-                                                qsTr("%1 is not available. Please check your configuration.").arg(entityObj.name),
-                                                "uc:link-slash");
-                sliderContainer.unavailableWarningShown = true;
+                if (!sliderContainer.unavailableWarningShown) {
+                    ui.createActionableNotification(qsTr("Touch slider is not available."),
+                                                    qsTr("%1 is not available. Please check your configuration.").arg(entityObj.name),
+                                                    "uc:link-slash");
+                    sliderContainer.unavailableWarningShown = true;
+                }
                 return;
             }
+
+            // entity is available: clear any stale warning latch so the gesture is never
+            // silently blocked after the entity recovers (e.g. reloaded on resume)
+            sliderContainer.unavailableWarningShown = false;
 
             sliderContainer.touchSliderActive = true;
 
             releaseTimer.stop();
             sliderContainer.prevTouchX = TouchSliderProcessor.touchX;
+            sliderContainer.deltaAcc = 0;
+            let axisRange = TouchSliderProcessor.touchXMax - TouchSliderProcessor.touchXMin;
+            if (axisRange <= 0) {
+                axisRange = sliderContainer.fallbackAxisRange;
+            }
+            sliderContainer.touchScale = entityObj.mediaDuration * sliderContainer.sweepGain / axisRange;
             sliderContentVisualValue.width = caclulateSliderWidth(entityObj.mediaPosition, entityObj.mediaDuration);
             timeElapsedText.text = sliderContainer.formatTime(entityObj.mediaPosition);
             sliderContainer.targetPosition = entityObj.mediaPosition;
@@ -83,35 +104,39 @@ Item {
         }
 
         function onTouchXChanged(x) {
-            console.log("Touch x: ", x);
-
-            // if entity is unavalable we do nothing
-            if (!entityObj.enabled) {
+            // if entity is unavalable or the gesture is not active we do nothing
+            if (!entityObj.enabled || !sliderContainer.touchSliderActive) {
                 return;
             }
 
-            // Calculate the raw delta
-            const rawDelta = TouchSliderProcessor.touchX - sliderContainer.prevTouchX;
-            sliderContainer.lastRawDelta = rawDelta;
+            // proportional mapping: the finger distance determines the value change,
+            // sub-unit motion accumulates in deltaAcc so slow drags still register
+            sliderContainer.deltaAcc += (x - sliderContainer.prevTouchX) * sliderContainer.touchScale;
+            sliderContainer.prevTouchX = x;
 
-            // We need minimum 5 pixel movement, otherwise it's way too sensitive
-            if (Math.abs(rawDelta) < 5) {
-                sliderContainer.lastRawDelta = 0;
+            const step = sliderContainer.deltaAcc > 0 ? Math.floor(sliderContainer.deltaAcc)
+                                                      : Math.ceil(sliderContainer.deltaAcc);
+            if (step === 0) {
                 return;
             }
+            sliderContainer.deltaAcc -= step;
 
-            if (sliderContainer.touchSliderActive) {
+            const newTarget = Math.max(0, Math.min(entityObj.mediaDuration, sliderContainer.targetPosition + step));
+            if (newTarget === sliderContainer.targetPosition) {
+                // pinned at an end stop
+                return;
+            }
+            sliderContainer.targetPosition = newTarget;
+
+            // rate limit haptic feedback, fast swipes generate a lot of value changes
+            const now = Date.now();
+            if (now - sliderContainer.lastHapticMs >= 30) {
                 Haptic.play(Haptic.Bump);
+                sliderContainer.lastHapticMs = now;
             }
-
-            sliderContainer.targetPosition += Math.sign(rawDelta);
-            sliderContainer.targetPosition = Math.max(0, Math.min(entityObj.mediaDuration, sliderContainer.targetPosition));
 
             sliderContentVisualValue.width = caclulateSliderWidth(sliderContainer.targetPosition, entityObj.mediaDuration);
             timeElapsedText.text = sliderContainer.formatTime(sliderContainer.targetPosition);
-
-            // Update previous touch position
-            sliderContainer.prevTouchX = TouchSliderProcessor.touchX;
         }
 
         function onTouchReleased() {
@@ -124,24 +149,11 @@ Item {
 
             updateDataTimer.stop();
 
-            // we do a last check to see if one just swiped across fast
-            if (sliderContainer.lastRawDelta != 0) {
-                const rawDelta = sliderContainer.lastRawDelta;
-                sliderContainer.sliderAnimationDuration = Math.abs(rawDelta) > 60 ? 1000 : 200;
-
-                // Limit the maximum effective delta to 10
-                sliderContainer.positionDelta = Math.sign(rawDelta) * (Math.abs(rawDelta) > 60 ? 10 : 1);
-                sliderContainer.targetPosition += sliderContainer.positionDelta;
-                sliderContainer.targetPosition = Math.max(0, Math.min(entityObj.mediaDuration, sliderContainer.targetPosition));
-            }
-
             if (entityObj.mediaPosition != sliderContainer.targetPosition) {
                 entityObj.seek(sliderContainer.targetPosition);
                 timeElapsedText.text = sliderContainer.formatTime(sliderContainer.targetPosition);
             }
-            sliderContainer.positionDelta = 0;
             sliderContainer.touchSliderActive = false;
-            sliderContainer.lastRawDelta = 0;
 
             releaseTimer.start();
         }

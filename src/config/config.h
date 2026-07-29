@@ -97,6 +97,12 @@ class Config : public QObject {
 
     Q_PROPERTY(int resumeTimeoutWindowSec READ getResumeTimeoutWindowSec WRITE setResumeTimeoutWindowSec NOTIFY resumeTimeoutWindowSecChanged)
 
+    Q_PROPERTY(bool touchSliderEnabled READ getTouchSliderEnabled WRITE setTouchSliderEnabled NOTIFY touchSliderEnabledChanged)
+    Q_PROPERTY(double touchSliderGainVolume READ getTouchSliderGainVolume WRITE setTouchSliderGainVolume NOTIFY touchSliderGainVolumeChanged)
+    Q_PROPERTY(double touchSliderGainBrightness READ getTouchSliderGainBrightness WRITE setTouchSliderGainBrightness NOTIFY touchSliderGainBrightnessChanged)
+    Q_PROPERTY(double touchSliderGainPosition READ getTouchSliderGainPosition WRITE setTouchSliderGainPosition NOTIFY touchSliderGainPositionChanged)
+    Q_PROPERTY(double touchSliderGainSeek READ getTouchSliderGainSeek WRITE setTouchSliderGainSeek NOTIFY touchSliderGainSeekChanged)
+
 
  public:
     explicit Config(core::Api* core, QObject* parent = nullptr);
@@ -177,6 +183,17 @@ class Config : public QObject {
 
     int getResumeTimeoutWindowSec();
     void setResumeTimeoutWindowSec(int value);
+
+    bool   getTouchSliderEnabled();
+    void   setTouchSliderEnabled(bool value);
+    double getTouchSliderGainVolume();
+    void   setTouchSliderGainVolume(double value);
+    double getTouchSliderGainBrightness();
+    void   setTouchSliderGainBrightness(double value);
+    double getTouchSliderGainPosition();
+    void   setTouchSliderGainPosition(double value);
+    double getTouchSliderGainSeek();
+    void   setTouchSliderGainSeek(double value);
 
     enum WakeupSensitivities { off = 0, low = 1, medium = 2, high = 3 };
     Q_ENUM(WakeupSensitivities)
@@ -304,6 +321,11 @@ class Config : public QObject {
     void fillMediaArtworkChanged();
     void mediaCoverflowDefaultChanged();
     void resumeTimeoutWindowSecChanged(int value);
+    void touchSliderEnabledChanged();
+    void touchSliderGainVolumeChanged();
+    void touchSliderGainBrightnessChanged();
+    void touchSliderGainPositionChanged();
+    void touchSliderGainSeekChanged();
 
  public slots:
     void onCoreConnected();
@@ -327,7 +349,6 @@ class Config : public QObject {
     QSettings* m_settings;
 
     QString m_currentProfile;
-    int     m_currentProfileLoadTries = 0;
 
     QString      m_language;
     QString      m_country;

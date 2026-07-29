@@ -67,6 +67,7 @@ struct Entity {
     QString     icon;
     QString     integrationId;
     QStringList features;
+    bool        featuresProvided = false;
     QString     area;
     QString     deviceClass;
     bool        enabled;

@@ -542,7 +542,7 @@ EntityComponents.BaseDetail {
                         size: 80
                         color: entityObj.shuffleIsOn ? colors.offwhite : colors.light
                         icon: "uc:shuffle"
-//                        visible: entityObj.hasFeature(MediaPlayerFeatures.Shuffle)
+                        visible: entityObj.hasFeature(MediaPlayerFeatures.Shuffle)
 
                         Components.HapticMouseArea {
                             anchors.fill: parent
@@ -560,7 +560,7 @@ EntityComponents.BaseDetail {
                         size: 80
                         color: entityObj.repeatMode === MediaPlayerRepeatMode.OFF ? colors.light : colors.offwhite
                         icon: "uc:repeat"
-//                        visible: entityObj.hasFeature(MediaPlayerFeatures.Repeat)
+                        visible: entityObj.hasFeature(MediaPlayerFeatures.Repeat)
 
                         Rectangle {
                             width: repeatText.implicitWidth + 20

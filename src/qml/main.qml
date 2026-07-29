@@ -150,21 +150,20 @@ ApplicationWindow {
         }
     }
 
+    Connections {
+        target: ui.inputController
+        ignoreUnknownSignals: true
+
+        function onGlobalPowerLongPressed() {
+            if (!SoftwareUpdate.updateInProgress) {
+                powerOffLoader.active = true;
+            }
+        }
+    }
+
     Components.ButtonNavigation {
         overrideActive: true
         defaultConfig: {
-            "POWER": {
-                "pressed": function() {
-                    if (!SoftwareUpdate.updateInProgress) {
-                        powerOffButtonTimer.start();
-                    }
-                },
-                "released": function() {
-                    if (!SoftwareUpdate.updateInProgress) {
-                        powerOffButtonTimer.stop();
-                    }
-                }
-            },
             "VOICE": {
                 "long_press": function() {
                     if (!isSecondContainerLoaded || (isSecondContainerLoaded && !root.isActivityOpen)) {
@@ -180,23 +179,11 @@ ApplicationWindow {
         }
     }
 
-    Timer {
-        id: powerOffButtonTimer
-        running: false
-        repeat: false
-        interval: 3000
-        onTriggered: {
-            powerOffLoader.active = true;
-        }
-    }
-
-
     Item {
         id: root
         objectName: "root"
         width: ui.width
         height: ui.height
-        layer.enabled: true
 
         anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
         transformOrigin: Item.Center
@@ -247,7 +234,7 @@ ApplicationWindow {
             }
 
             function onIsNoProfileChanged() {
-                if (ui.isNoProfile && !ui.isOnboarding) {
+                if (!ui.isOnboarding) {
                     loadingFirst.stop();
 
                     containerSecond.close();
@@ -257,12 +244,6 @@ ApplicationWindow {
                         containerMain.setSource("qrc:/components/ProfileAdd.qml", { state: "visible", noProfile: true })
                     } else {
                         containerMain.setSource("qrc:/components/ProfileSwitch.qml", { state: "visible", noProfile: true })
-                    }
-                }  else if (!ui.isNoProfile && !ui.isOnboarding) {
-                    if (ui.pages.count === 0) {
-                        containerMain.source = "qrc:/NoPage.qml";
-                    } else {
-                        containerMain.source = "qrc:/MainContainer.qml";
                     }
                 }
             }

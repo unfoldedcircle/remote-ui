@@ -4,6 +4,7 @@
 #include "uiController.h"
 
 #include "../logging.h"
+#include "mediaImageProvider.h"
 
 namespace uc {
 namespace ui {
@@ -65,6 +66,7 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     m_engine->rootContext()->setContextProperty("fonts", &m_fonts);
     m_engine->rootContext()->setContextProperty("colors", &m_colors);
     m_engine->rootContext()->setContextProperty("resource", &m_resources);
+    MediaImageProvider::install(m_engine);
 
     // load controllers
     m_soundEffects = new SoundEffects(m_config->getSoundVolume(), m_config->getSoundEnabled(),
@@ -100,6 +102,7 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     QObject::connect(m_config, &Config::soundVolumeChanged, this,
                      [=](int volume) { m_soundEffects->setVolume(volume); });
 
+    QObject::connect(m_entityController, &EntityController::allEntitiesLoaded, this, &Controller::getProfilesFromCore);
     QObject::connect(m_config, &Config::languageChanged, m_entityController, &EntityController::onLanguageChanged);
     QObject::connect(m_config, &Config::unitSystemChanged, m_entityController, &EntityController::onUnitSystemChanged);
     QObject::connect(m_core, &core::Api::powerModeChanged, m_entityController, &EntityController::onPowerModeChanged);
@@ -124,8 +127,6 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
 
     QObject::connect(m_core, &core::Api::entityDeleted, this, &Controller::onEntityDeleted);
     QObject::connect(m_core, &core::Api::groupDeleted, this, &Controller::onGroupDeleted);
-
-    QObject::connect(m_groupController, &GroupController::requestEntity, this, &Controller::onEntityRequested);
 
     QObject::connect(m_entityController, &EntityController::activityAdded, this, &Controller::onActivityAdded);
     QObject::connect(m_entityController, &EntityController::activityRemoved, this, &Controller::onActivityRemoved);
@@ -231,8 +232,6 @@ void Controller::getProfilesFromCore() {
                     m_profiles.append(new Profile(i->id, i->name, i->restricted, icon, this));
                 }
             }
-            m_profilesLoaded = true;
-            checkConfigLoaded();
         },
         [=](int code, QString message) {
             // fail
@@ -293,7 +292,7 @@ int Controller::changeProfileIcon(const QString &profileId, const QString &icon,
 }
 
 int Controller::deleteProfile(const QString &profileId, int pin) {
-    if (profileId.contains(m_profile.getId())) {
+    if (profileId == m_profile.getId()) {
         m_notification.createActionableWarningNotification(
             tr("Error"),
             tr("Deleting a current profile is not permitted. Please switch to another profile and try again."),
@@ -385,7 +384,9 @@ int Controller::updatePagePos() {
     QStringList list;
 
     for (int i = 0; i < m_pages.count(); i++) {
-        list.append(m_pages.getPage(i)->pageId());
+        if (Page *page = m_pages.getPage(i)) {
+            list.append(page->pageId());
+        }
     }
 
     return updateProfile(m_profile.getId(), "", "-1", -1, list);
@@ -394,13 +395,24 @@ int Controller::updatePagePos() {
 int Controller::updatePageItems(const QString &pageId) {
     qCDebug(lcUi()) << "Update page items for" << pageId;
 
+    Page *pageObj = m_pages.getPage(pageId);
+
+    if (!pageObj) {
+        qCWarning(lcUi()) << "Cannot update page items, page not found:" << pageId;
+        return -1;
+    }
+
     QVariantList  itemsList;
-    PageItemList *items = m_pages.getPage(pageId)->pageItems();
+    PageItemList *items = pageObj->pageItems();
 
     // iterate
     for (int i = 0; i < items->count(); i++) {
         QVariantMap map;
         PageItem   *page = items->getPageItem(i);
+
+        if (!page) {
+            continue;
+        }
 
         map.insert(page->pageItemType() == PageItem::Entity ? "entity_id" : "group_id", page->pageItemId());
         itemsList.append(map);
@@ -552,7 +564,7 @@ void Controller::loadProfile(const QString &profileId) {
             // fail
             QString errorMsg = "Error loading profile: " + message;
             qCWarning(lcUi()) << code << errorMsg;
-            m_notification.createNotification(errorMsg, true);
+            emit isNoProfileChanged();
         });
 }
 
@@ -602,13 +614,11 @@ void Controller::loadPages(const QString &profileId, int pin) {
             if (pages.size() > 0) {
                 for (QList<core::Page>::iterator i = pages.begin(); i != pages.end(); i++) {
                     auto page = new Page(i->id, i->name, i->image, this);
-                    QObject::connect(page, &Page::requestEntity, this, &Controller::onEntityRequested);
                     page->init(i->items);
                     m_pages.append(page);
                 }
             }
-            m_pagesLoaded = true;
-            checkConfigLoaded();
+            emit configLoaded();
             qCDebug(lcUi()).noquote() << pages.count() << "pages added";
 
             QStringList activities = m_entityController->getActivities();
@@ -621,6 +631,7 @@ void Controller::loadPages(const QString &profileId, int pin) {
         [=](int code, QString message) {
             // fail
             qCWarning(lcUi()) << "Error:" << code << message;
+            emit configLoaded();
         });
 }
 
@@ -652,8 +663,6 @@ void Controller::onCoreConnected() {
 
     m_coreConnected = true;
     emit coreConnectedChanged();
-
-    getProfilesFromCore();
 }
 
 void Controller::onCoreProblem() {
@@ -687,7 +696,6 @@ void Controller::onProfileIdChanged() {
 }
 
 void Controller::onNoCurrentProfileFound() {
-    m_isNoProfile = true;
     emit isNoProfileChanged();
 }
 
@@ -711,12 +719,7 @@ void Controller::onIntegrationError(QString name, QString id) {
 }
 
 void Controller::onProfileAdded(QString profileId, core::Profile profile) {
-    if (m_isNoProfile) {
-        switchProfile(profile.id);
-
-        m_isNoProfile = false;
-        emit isNoProfileChanged();
-    }
+    switchProfile(profile.id);
     m_profiles.append(new Profile(profileId, profile.name, profile.restricted,
                                   profile.icon.isEmpty() ? "uc:user" : profile.icon, this));
 }
@@ -724,7 +727,7 @@ void Controller::onProfileAdded(QString profileId, core::Profile profile) {
 void Controller::onProfileChanged(QString profileId, core::Profile profile) {
     qCDebug(lcUi()) << "Profile change" << profile.id;
 
-    if (m_profile.getId().contains(profileId)) {
+    if (m_profile.getId() == profileId) {
         qCDebug(lcUi()) << "Current profile change" << profile.id;
 
         if (!profile.name.isEmpty()) {
@@ -746,30 +749,26 @@ void Controller::onProfileChanged(QString profileId, core::Profile profile) {
 }
 
 void Controller::onProfileDeleted(QString profileId) {
-    if (m_profile.getId().contains(profileId)) {
+    if (m_profile.getId() == profileId) {
         qCDebug(lcUi()) << "Profile deleted" << profileId;
         m_profile.setId("-1");
         emit profileChanged();
-
-        m_isNoProfile = true;
-        emit isNoProfileChanged();
     }
 
     m_profiles.removeItem(profileId);
 }
 
 void Controller::onPageAdded(QString profileId, core::Page page) {
-    if (m_profile.getId().contains(profileId)) {
+    if (m_profile.getId() == profileId) {
         qCDebug(lcUi()) << "New page added" << page.id;
         auto pageObj = new Page(page.id, page.name, page.image, this);
-        QObject::connect(pageObj, &Page::requestEntity, this, &Controller::onEntityRequested);
         pageObj->init(page.items);
         m_pages.append(pageObj);
     }
 }
 
 void Controller::onPageChanged(QString profileId, core::Page page) {
-    if (m_profile.getId().contains(profileId)) {
+    if (m_profile.getId() == profileId) {
         qCDebug(lcUi()) << "Page changed" << page.id;
         m_pages.updatePageName(page.id, page.name);
         m_pages.updatePageImage(page.id, page.image);
@@ -802,7 +801,7 @@ void Controller::onPageChanged(QString profileId, core::Page page) {
 }
 
 void Controller::onPageDeleted(QString profileId, QString pageId) {
-    if (m_profile.getId().contains(profileId)) {
+    if (m_profile.getId() == profileId) {
         qCDebug(lcUi()) << "Page deleted" << pageId;
         m_pages.removeItem(pageId);
     }
@@ -813,7 +812,7 @@ void Controller::onEntityDeleted(QString entityId) {
 }
 
 void Controller::onGroupDeleted(QString profileId, QString groupId) {
-    if (!m_profile.getId().contains(profileId)) {
+    if (m_profile.getId() != profileId) {
         return;
     }
     m_pages.onGroupDeleted(groupId);
@@ -839,10 +838,6 @@ void Controller::onActivityRemoved(QString entityId) {
     onActivity(entityId, true);
 }
 
-void Controller::onEntityRequested(QString entityId) {
-    qCDebug(lcUi()) << "Entity requested:" << entityId;
-    m_entityController->load(entityId);
-}
 
 //============================================================================================================================================//
 // Private
@@ -865,12 +860,20 @@ void Controller::onActivity(QString entityId, bool remove) {
     for (int i = 0; i < m_pages.count(); i++) {
         auto page = m_pages.getPage(i);
 
+        if (!page) {
+            continue;
+        }
+
         if (page->m_items->count() == 0) {
             return;
         }
 
         for (int j = 0; j < page->m_items->count(); j++) {
             auto pageItem = page->m_items->getPageItem(j);
+
+            if (!pageItem) {
+                continue;
+            }
 
             if (pageItem->pageItemType() == PageItem::Type::Group) {
                 auto group = m_groupController->getGroup(pageItem->pageItemId());
@@ -912,12 +915,6 @@ QObject *Controller::getQMLObject(QList<QObject *> nodes, const QString &name) {
 
 QObject *Controller::getQMLObject(const QString &name) {
     return getQMLObject(m_engine->rootObjects(), name);
-}
-
-void Controller::checkConfigLoaded() {
-    if (m_profilesLoaded && m_pagesLoaded) {
-        emit configLoaded();
-    }
 }
 
 }  // namespace ui

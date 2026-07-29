@@ -4,7 +4,9 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <QHash>
 #include <QObject>
+#include <QVector>
 #include <QVariant>
 
 #include "../../core/core.h"
@@ -67,8 +69,9 @@ class Entities : public QAbstractListModel {
     void entitiesLoaded(int count);
 
  protected:
-    core::Api*                    m_core;
-    QHash<QString, entity::Base*> m_data;
+    core::Api*             m_core;
+    QVector<entity::Base*> m_rows;
+    QHash<QString, int>    m_rowById;
 
     int m_count = 0;
     int m_totalPages = 0;

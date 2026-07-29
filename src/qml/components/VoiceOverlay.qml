@@ -77,24 +77,7 @@ Popup {
         voice.listening = true;
 
         voice.voiceEntityObj = EntityController.get(voiceEntityId);
-
-        if (!voice.voiceEntityObj) {
-            EntityController.load(voiceEntityId);
-            connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
-                if (success && entityId == voiceEntityId) {
-                    voice.voiceEntityObj = EntityController.get(voiceEntityId);
-
-                    if (voice.voiceEntityObj) {
-                        voice.init();
-                    } else {
-                        circleContainer.start();
-                        showError(qsTr("Voice Assistant is not available."));
-                    }
-                }
-            });
-        } else {
-            voice.init();
-        }
+        voice.init();
     }
 
     function stop() {
@@ -673,6 +656,8 @@ Popup {
                     return "";
                 }
             }
+
+            return "";
         }
 
         color: colors.light

@@ -27,7 +27,7 @@ Rectangle {
     id: entityBaseContainer
     width: isInGroup ? ui.width - 40 : ui.width - 20; height: 130
     color: isSelected && !editMode ? Qt.darker(colors.medium) : colors.black
-    opacity: entityObj.enabled ? 1 : 0.5
+    opacity: currentEntityObj.enabled ? 1 : 0.5
     radius: ui.cornerRadiusSmall
     border {
         color: (isInGroup || isSelected) && !editMode ? colors.medium : colors.transparent
@@ -35,16 +35,19 @@ Rectangle {
     }
 
     property string entityId
-    property QtObject entityObj: QtObject {
+    property QtObject entityObjDummy: QtObject {
         property string name
         property string icon
         property string stateAsString
         property string stateInfo
+        property string integrationId
         property bool enabled
         property int state
         property int type
         property string mediaImage
     }
+    property QtObject entityObj: entityObjDummy
+    property QtObject currentEntityObj: entityObj ? entityObj : entityObjDummy
 
     property QtObject integrationObjDummy: QtObject {
         property string state
@@ -63,10 +66,36 @@ Rectangle {
 
     property alias button: button
 
-    property bool hasMediaImage: entityObj && entityObj.type === EntityTypes.Media_player && entityObj.mediaImage != ""
+    property bool hasMediaImage: currentEntityObj.type === EntityTypes.Media_player && currentEntityObj.mediaImage != ""
+
+    function ensureEntityLoaded() {
+        const e = EntityController.get(entityBaseContainer.entityId);
+
+        if (!e) {
+            entityBaseContainer.entityObj = entityBaseContainer.entityObjDummy;
+            entityBaseContainer.integrationObj = entityBaseContainer.integrationObjDummy;
+            entityBaseContainer.iconOn = false;
+            entityBaseContainer.controlTrigger = function() {}
+            button.checked = false;
+            return false;
+        }
+
+        entityBaseContainer.entityObj = e;
+        entityBaseContainer.integrationObj = IntegrationController.getModelItem(currentEntityObj.integrationId);
+        if (!entityBaseContainer.integrationObj) {
+            entityBaseContainer.integrationObj = entityBaseContainer.integrationObjDummy;
+        }
+
+        entityBaseContainer.build();
+        return true;
+    }
 
     function handleActivityOpen() {
-        if (entityBaseContainer.entityObj.type !== EntityTypes.Activity) {
+        if (!entityBaseContainer.entityObj) {
+            return false;
+        }
+
+        if (currentEntityObj.type !== EntityTypes.Activity) {
             return true;
         }
 
@@ -80,8 +109,18 @@ Rectangle {
                                    const res = checkActivityIncludedEntities(entityBaseContainer.entityObj);
 
                                    if (!res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
-                                       ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOn(); }, qsTr("Proceed"));
+                                       ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => {
+                                                                         if (!entityObj) {
+                                                                             return;
+                                                                         }
+
+                                                                         entityObj.turnOn();
+                                                                     }, qsTr("Proceed"));
                                    } else {
+                                       if (!entityObj) {
+                                           return;
+                                       }
+
                                        entityObj.turnOn();
                                    }
                                }
@@ -93,8 +132,18 @@ Rectangle {
                                    const res = checkActivityIncludedEntities(entityBaseContainer.entityObj, false);
 
                                    if (!res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
-                                       ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
+                                       ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => {
+                                                                         if (!entityObj) {
+                                                                             return;
+                                                                         }
+
+                                                                         entityObj.turnOff();
+                                                                     }, qsTr("Proceed"));
                                    } else {
+                                       if (!entityObj) {
+                                           return;
+                                       }
+
                                        entityObj.turnOff();
                                    }
                                }
@@ -103,6 +152,10 @@ Rectangle {
                                title: qsTr("Open activity"),
                                icon: "uc:arrow-up-right-and-arrow-down-left-from-center",
                                callback: function() {
+                                   if (!entityObj) {
+                                       return;
+                                   }
+
                                    loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
                                }
                            });
@@ -111,7 +164,7 @@ Rectangle {
         }
 
 
-        switch (entityObj.state) {
+        switch (currentEntityObj.state) {
         case ActivityStates.Running:
             return true;
         case ActivityStates.Off: {
@@ -124,7 +177,11 @@ Rectangle {
                 return false;
             } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
                 ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => {
-                                                    switch (entityObj.state) {
+                                                    if (!entityObj) {
+                                                        return;
+                                                    }
+
+                                                    switch (currentEntityObj.state) {
                                                         case ActivityStates.Off:
                                                         entityObj.turnOn();
                                                         break;
@@ -133,8 +190,8 @@ Rectangle {
                                                         showActivityPopup();
                                                         break;
                                                         case ActivityStates.On:
-                                                        if (!entityObj.enabled) {
-                                                            ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
+                                                        if (!currentEntityObj.enabled) {
+                                                            ui.createNotification(currentEntityObj.name + " " + qsTr("is unavailable"), true);
                                                         } else {
                                                             loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
                                                         }
@@ -143,6 +200,10 @@ Rectangle {
                                                 }, qsTr("Proceed"));
                 return false;
             } else {
+                if (!entityObj) {
+                    return false;
+                }
+
                 entityObj.turnOn();
                 return false;
             }
@@ -152,8 +213,8 @@ Rectangle {
             showActivityPopup();
             return false;
         case ActivityStates.On:
-            if (!entityObj.enabled) {
-                ui.createNotification(entityObj.name + " " + qsTr("is unavailable"), true);
+            if (!currentEntityObj.enabled) {
+                ui.createNotification(currentEntityObj.name + " " + qsTr("is unavailable"), true);
                 return false;
             } else {
                 return true;
@@ -164,86 +225,126 @@ Rectangle {
     }
 
     function open() {
+        if (!entityObj) {
+            return;
+        }
+
         if (entityBaseContainer.handleActivityOpen()) {
             loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
         }
     }
 
     function build() {
-        switch (entityBaseContainer.entityObj.type) {
+        switch (currentEntityObj.type) {
         case EntityTypes.Button:
-            entityBaseContainer.iconOn = Qt.binding( function() { return (entityObj.state === ButtonStates.Available || entityObj.state === ButtonStates.On) ? true : false });
-            entityBaseContainer.controlTrigger = function() { entityObj.push(); }
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state === ButtonStates.Available || currentEntityObj.state === ButtonStates.On; });
+            entityBaseContainer.controlTrigger = function() {
+                if (!entityObj) {
+                    return;
+                }
+
+                entityObj.push();
+            }
             button.checked = false;
             break;
 
         case EntityTypes.Switch:
-            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === SwitchStates.On });
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state === SwitchStates.On; });
 
-            if (entityObj.hasAnyFeature([SwitchFeatures.On_off, SwitchFeatures.Toggle])) {
-                entityBaseContainer.controlTrigger = function() { entityObj.toggle(); };
+            if (entityObj && entityObj.hasAnyFeature([SwitchFeatures.On_off, SwitchFeatures.Toggle])) {
+                entityBaseContainer.controlTrigger = function() {
+                    if (!entityObj) {
+                        return;
+                    }
+
+                    entityObj.toggle();
+                };
             }
 
-            button.checked = Qt.binding(()=>{ return entityObj.state === SwitchStates.On; });
+            button.checked = Qt.binding(() => { return currentEntityObj.state === SwitchStates.On; });
             break;
 
         case EntityTypes.Climate:
-            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state !== ClimateStates.Off });
-            button.checked = Qt.binding(()=>{ return entityObj.state !== ClimateStates.Off; });
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state !== ClimateStates.Off; });
+            button.checked = Qt.binding(() => { return currentEntityObj.state !== ClimateStates.Off; });
             break;
 
         case EntityTypes.Cover:
-            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === CoverStates.Closed });
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state === CoverStates.Closed; });
 
 
-            if (entityObj.hasAllFeatures([CoverFeatures.Open, CoverFeatures.Close])) {
+            if (entityObj && entityObj.hasAllFeatures([CoverFeatures.Open, CoverFeatures.Close])) {
                 entityBaseContainer.controlTrigger = function() {
-                    if (entityObj.state === CoverStates.Open) {
+                    if (!entityObj) {
+                        return;
+                    }
+
+                    if (currentEntityObj.state === CoverStates.Open) {
                         entityObj.close();
-                    } else if (entityObj.state === CoverStates.Closed) {
+                    } else if (currentEntityObj.state === CoverStates.Closed) {
                         entityObj.open();
                     }
                 }
             }
 
-            button.checked = Qt.binding(()=>{ return entityObj.state === CoverStates.Open; });
+            button.checked = Qt.binding(() => { return currentEntityObj.state === CoverStates.Open; });
             break;
 
         case EntityTypes.Light:
-            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === LightStates.On ? true : false });
-            entityBaseContainer.controlTrigger = function() { entityObj.toggle(); }
-            button.checked = Qt.binding(()=>{ return entityObj.state === LightStates.On; });
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state === LightStates.On; });
+            entityBaseContainer.controlTrigger = function() {
+                if (!entityObj) {
+                    return;
+                }
+
+                entityObj.toggle();
+            }
+            button.checked = Qt.binding(() => { return currentEntityObj.state === LightStates.On; });
             break;
 
         case EntityTypes.Media_player:
-            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state !== MediaPlayerStates.Off });
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state !== MediaPlayerStates.Off; });
             entityBaseContainer.controlTrigger = function() {
-                if (entityObj.state === MediaPlayerStates.Off) {
+                if (!entityObj) {
+                    return;
+                }
+
+                if (currentEntityObj.state === MediaPlayerStates.Off) {
                     entityObj.turnOn();
                 } else {
                     entityObj.playPause();
                 }
             }
-            button.checked = Qt.binding(()=>{ return entityObj.state !== MediaPlayerStates.Off; });
+            button.checked = Qt.binding(() => { return currentEntityObj.state !== MediaPlayerStates.Off; });
             break;
 
         case EntityTypes.Remote:
-            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === RemoteStates.On ? true : false });
-            entityBaseContainer.controlTrigger = function() { entityObj.toggle(); }
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state === RemoteStates.On; });
+            entityBaseContainer.controlTrigger = function() {
+                if (!entityObj) {
+                    return;
+                }
+
+                entityObj.toggle();
+            }
             button.checked = false;
             break;
 
         case EntityTypes.Activity:
-            entityBaseContainer.iconOn = Qt.binding( function() { return entityObj.state === ActivityStates.On ? true : false });
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state === ActivityStates.On; });
             entityBaseContainer.controlTrigger = function() {
                 entityBaseContainer.handleActivityOpen();
             }
-            button.checked = Qt.binding(()=>{ return entityObj.state === ActivityStates.On; });
+            button.checked = Qt.binding(() => { return currentEntityObj.state === ActivityStates.On; });
             break;
 
         case EntityTypes.Macro:
             entityBaseContainer.iconOn = true;
             entityBaseContainer.controlTrigger = function() {
+                if (!entityObj) {
+                    return;
+                }
+
                 activityLoading.start(entityId, EntityTypes.Macro);
                 entityObj.run();
             }
@@ -256,7 +357,13 @@ Rectangle {
             break;
         case EntityTypes.Select:
             entityBaseContainer.iconOn = true;
-            entityBaseContainer.controlTrigger = function() { entityObj.selectNext(); }
+            entityBaseContainer.controlTrigger = function() {
+                if (!entityObj) {
+                    return;
+                }
+
+                entityObj.selectNext();
+            }
             button.checked = false;
             break;
         }
@@ -264,21 +371,6 @@ Rectangle {
 
     Behavior on opacity {
         NumberAnimation { duration: 300 }
-    }
-
-    Connections {
-        id: entityControllerConnection
-        target: EntityController
-        ignoreUnknownSignals: true
-
-        function onEntityLoaded(success, entityId) {
-            if (success && entityBaseContainer.entityId === entityId) {
-                console.debug("ENTITY LOADED: " + entityId);
-                entityControllerConnection.enabled = false;
-                entityBaseContainer.entityObj = EntityController.get(entityBaseContainer.entityId);
-                entityBaseContainer.build();
-            }
-        }
     }
 
     Connections {
@@ -298,13 +390,17 @@ Rectangle {
         id: mouseArea
         anchors.fill: parent
         onClicked: {
-            if (entityObj.enabled) {
+            if (currentEntityObj.enabled) {
                 if (!editMode) {
                     entityBaseContainer.open();
                 }
             }
         }
         onPressAndHold: {
+            if (!entityObj) {
+                return;
+            }
+
             if (ui.profile.restricted) {
                 ui.createNotification(qsTr("Profile is restricted"), true);
             } else {
@@ -316,11 +412,11 @@ Rectangle {
     Components.Icon {
         id: icon
         color: colors.offwhite
-        icon: hasMediaImage ? "" : entityObj.icon
-        suffix: entityObj.stateAsString
+        icon: hasMediaImage ? "" : currentEntityObj.icon
+        suffix: currentEntityObj.stateAsString
         anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter; }
         size: 100
-        visible: entityObj.enabled
+        visible: currentEntityObj.enabled
         opacity: entityBaseContainer.iconOn ? 1 : 0.4
 
         Behavior on opacity {
@@ -338,11 +434,12 @@ Rectangle {
     MediaPlayerComponents.ImageLoader {
         id: imageClosed
         width: 100
+        height: width
         anchors.centerIn: icon
         opacity: visible ? 1 : 0
         enabled: visible
-        visible: hasMediaImage && entityObj.enabled
-        url: entityObj.mediaImage
+        visible: hasMediaImage && currentEntityObj.enabled
+        url: hasMediaImage ? currentEntityObj.mediaImage : ""
         aspectFit: true
         alignCentered: true
 
@@ -356,7 +453,33 @@ Rectangle {
         icon: "uc:ban"
         anchors.centerIn: icon
         size: 100
-        visible: !editMode && !entityObj.enabled
+        visible: !editMode && !currentEntityObj.enabled
+    }
+
+    // dark disc behind the spinner so it stays legible over album art
+    Rectangle {
+        width: 56; height: 56
+        radius: width / 2
+        color: colors.black
+        opacity: 0.2
+        anchors.centerIn: icon
+        visible: commandLoadingIndicator.visible
+    }
+
+    Image {
+        id: commandLoadingIndicator
+        width: 44; height: 44
+        anchors.centerIn: icon
+        source: "qrc:/images/loader_small.png"
+        fillMode: Image.PreserveAspectFit
+        visible: !editMode && currentEntityObj.commandInProgress
+
+        RotationAnimation on rotation {
+            running: commandLoadingIndicator.visible
+            loops: Animation.Infinite
+            from: 0; to: 360
+            duration: 1200
+        }
     }
 
     ColumnLayout {
@@ -369,7 +492,7 @@ Rectangle {
             id: titleText
 
             Layout.fillWidth: true
-            text: entityObj.name
+            text: currentEntityObj.name
             verticalAlignment: Text.AlignVCenter
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             maximumLineCount: 2
@@ -393,13 +516,13 @@ Rectangle {
                 id: statusText
 
                 Layout.fillWidth: true
-                text: entityObj.stateInfo;
+                text: currentEntityObj.stateInfo
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 color: colors.light
                 verticalAlignment: Text.AlignVCenter
                 font: fonts.secondaryFont(24)
-                visible: entityObj.stateInfo !== ""
+                visible: currentEntityObj.stateInfo !== ""
             }
         }
     }
@@ -409,29 +532,32 @@ Rectangle {
         parent: root
     }
 
-    Component.onCompleted: {
-        let e = EntityController.get(entityBaseContainer.entityId);
-
-        if (e) {
-            entityBaseContainer.entityObj = e;
-            entityBaseContainer.integrationObj = IntegrationController.getModelItem(entityObj.integrationId);
-            if (!entityBaseContainer.integrationObj) {
-                entityBaseContainer.integrationObj = entityBaseContainer.integrationObjDummy;
-            }
-
-            entityBaseContainer.build();
-        }
-    }
+    Component.onCompleted: ensureEntityLoaded()
+    onEntityIdChanged: ensureEntityLoaded()
 
     Connections {
         target: IntegrationController
         ignoreUnknownSignals: true
 
         function onIntegrationsLoaded() {
-            entityBaseContainer.integrationObj = IntegrationController.getModelItem(entityObj.integrationId);
+            entityBaseContainer.integrationObj = IntegrationController.getModelItem(currentEntityObj.integrationId);
             if (!entityBaseContainer.integrationObj) {
                 entityBaseContainer.integrationObj = entityBaseContainer.integrationObjDummy;
             }
+        }
+    }
+
+    Connections {
+        target: EntityController
+        ignoreUnknownSignals: true
+        enabled: !entityBaseContainer.entityObj || entityBaseContainer.entityObj === entityBaseContainer.entityObjDummy
+
+        function onEntityLoaded(success, loadedId) {
+            if (!success || loadedId !== entityBaseContainer.entityId) {
+                return;
+            }
+
+            entityBaseContainer.ensureEntityLoaded();
         }
     }
 }

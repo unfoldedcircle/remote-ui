@@ -121,29 +121,18 @@ Settings.Page {
                         return;
                     }
 
-                    let e = EntityController.get(Config.voiceAssistantId);
-                    if (!e) {
-                        EntityController.load(Config.voiceAssistantId);
-                        connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
-                            if (success && entityId == Config.voiceAssistantId) {
-                                e = EntityController.get(Config.voiceAssistantId);
-
-                                if (e) {
-                                    voiceAssistantName.text = e.name;
-                                    const p = e.getProfile(Config.voiceAssistantProfileId);
-                                    if (p) {
-                                        voiceAssistanProfiletName.text = qsTr("Profile: %1").arg(p.name);
-                                    } else {
-                                        voiceAssistanProfiletName.text = qsTr("No profile selected");
-                                    }
-                                } else {
-                                    voiceAssistantName.text = qsTr("None selected");
-                                    voiceAssistanProfiletName.text = qsTr("No profile selected");
-                                }
-                            }
-                        });
-                    } else {
+                    const e = EntityController.get(Config.voiceAssistantId);
+                    if (e) {
                         voiceAssistantName.text = e.name;
+                        const p = e.getProfile(Config.voiceAssistantProfileId);
+                        if (p) {
+                            voiceAssistanProfiletName.text = qsTr("Profile: %1").arg(p.name);
+                        } else {
+                            voiceAssistanProfiletName.text = qsTr("No profile selected");
+                        }
+                    } else {
+                        voiceAssistantName.text = qsTr("None selected");
+                        voiceAssistanProfiletName.text = qsTr("No profile selected");
                     }
                 }
 

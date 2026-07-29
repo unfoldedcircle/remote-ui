@@ -104,7 +104,7 @@ Popup {
         searchMode = false;
         browseNav.push(levelPage, {
             pageTitle:       title,
-            pageThumbnail:   (thumbnail && !thumbnail.startsWith("icon://")) ? thumbnail : "",
+            pageThumbnail:   (thumbnail && !thumbnail.startsWith("icon://")) ? decodeURIComponent(thumbnail) : "",
             pageMediaId:     mediaId,
             pageMediaType:   mediaType,
             pageLoading:     true,
@@ -898,7 +898,7 @@ Popup {
                         id: thumb
                         width: 60; height: 60
                         url: (!isContainerView && modelData.thumbnail &&
-                              !modelData.thumbnail.startsWith("icon://")) ? modelData.thumbnail : ""
+                              !modelData.thumbnail.startsWith("icon://")) ? decodeURIComponent(modelData.thumbnail) : ""
                         aspectFit: true
                         anchors { left: parent.left; leftMargin: 16; verticalCenter: parent.verticalCenter }
                         visible: !isContainerView
@@ -1150,7 +1150,7 @@ Popup {
                             id: cfArt
                             anchors.fill: parent
                             url: (modelData.thumbnail && !modelData.thumbnail.startsWith("icon://"))
-                                 ? modelData.thumbnail : ""
+                                 ? decodeURIComponent(modelData.thumbnail) : ""
                             aspectFit: false
                         }
 

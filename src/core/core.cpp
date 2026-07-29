@@ -104,6 +104,24 @@ int Api::switchProfile(const QString& profileId, const QString& pin) {
     return sendRequest(RequestTypes::switch_profile, msgData);
 }
 
+/**
+ * @brief Returns a copy of the map with values of sensitive keys masked, so requests can be logged
+ * without writing credentials (auth token, PINs, WiFi passwords) to the system log.
+ */
+static QVariantMap redactSensitiveFields(const QVariantMap& map) {
+    static const QStringList sensitiveKeys = {"token", "password", "pin", "admin_pin"};
+
+    QVariantMap redacted = map;
+    for (auto i = redacted.begin(); i != redacted.end(); ++i) {
+        if (sensitiveKeys.contains(i.key())) {
+            i.value() = QStringLiteral("<redacted>");
+        } else if (i.value().type() == QVariant::Map) {
+            i.value() = redactSensitiveFields(i.value().toMap());
+        }
+    }
+    return redacted;
+}
+
 int Api::sendRequest(RequestTypes::Enum type, const QVariantMap msgData) {
     if (!m_connected && type != RequestTypes::auth) {
         return -1;
@@ -123,7 +141,9 @@ int Api::sendRequest(RequestTypes::Enum type, const QVariantMap msgData) {
     QJsonDocument doc = QJsonDocument::fromVariant(map);
     QString       message = doc.toJson(QJsonDocument::JsonFormat::Compact);
 
-    qCDebug(lcCore()).noquote() << "Sending request:" << message;
+    qCDebug(lcCore()).noquote() << "Sending request:"
+                                << QJsonDocument::fromVariant(redactSensitiveFields(map))
+                                       .toJson(QJsonDocument::JsonFormat::Compact);
 
     if (sendMessage(message)) {
         setupTimerForRequest(id);
@@ -1860,7 +1880,7 @@ void Api::processResponseProfiles(int reqId, int code, QVariant msgData) {
                 profile.description = map.value("description").toString();
             }
             if (map.contains("pages")) {
-                profile.pages = map.value("description").toStringList();
+                profile.pages = map.value("pages").toStringList();
             }
 
             list.append(profile);
@@ -1885,7 +1905,7 @@ void Api::processResponseProfile(int reqId, int code, QVariant msgData) {
         profile.description = map.value("description").toString();
     }
     if (map.contains("pages")) {
-        profile.pages = map.value("description").toStringList();
+        profile.pages = map.value("pages").toStringList();
     }
 
     emit respProfile(reqId, code, profile);
@@ -1996,6 +2016,7 @@ void Api::processResponseAvailableEntities(int reqId, int code, QVariant msgData
             entity.integrationId = map.value("integration_id").toString();
             if (map.contains("features")) {
                 entity.features = uc::Util::FirstToUpperList(map.value("features").toStringList());
+                entity.featuresProvided = true;
             }
             if (map.contains("area")) {
                 entity.area = map.value("area").toString();
@@ -2031,6 +2052,7 @@ void Api::processResponseEntity(int reqId, int code, QVariant msgData) {
     entity.integrationId = map.value("integration_id").toString();
     if (map.contains("features")) {
         entity.features = uc::Util::FirstToUpperList(map.value("features").toStringList());
+        entity.featuresProvided = true;
     }
     if (map.contains("area")) {
         entity.area = map.value("area").toString();
@@ -2072,6 +2094,7 @@ void Api::processResponseEntities(int reqId, int code, QVariant msgData) {
             entity.integrationId = map.value("integration_id").toString();
             if (map.contains("features")) {
                 entity.features = uc::Util::FirstToUpperList(map.value("features").toStringList());
+                entity.featuresProvided = true;
             }
             if (map.contains("area")) {
                 entity.area = map.value("area").toString();
@@ -2116,6 +2139,7 @@ void Api::processEntityChange(QVariant msgData) {
 
         if (newState.contains("features")) {
             entity.features = uc::Util::FirstToUpperList(newState.value("features").toStringList());
+            entity.featuresProvided = true;
         }
         if (newState.contains("area")) {
             entity.area = newState.value("area").toString();
@@ -2790,7 +2814,7 @@ void Api::processProfileChange(QVariant msgData) {
                     profile.description = newProfile.value("description").toString();
                 }
                 if (newProfile.contains("pages")) {
-                    profile.pages = newProfile.value("description").toStringList();
+                    profile.pages = newProfile.value("pages").toStringList();
                 }
 
                 emit profileAdded(profileId, profile);
@@ -2855,7 +2879,7 @@ void Api::processProfileChange(QVariant msgData) {
                     profile.description = newProfile.value("description").toString();
                 }
                 if (newProfile.contains("pages")) {
-                    profile.pages = newProfile.value("description").toStringList();
+                    profile.pages = newProfile.value("pages").toStringList();
                 }
 
                 emit profileChanged(profileId, profile);

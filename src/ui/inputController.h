@@ -70,8 +70,11 @@ class InputController : public QQuickItem {
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine);
 
  signals:
+    void globalPowerLongPressed();
     void keyPressed(QString key);
+    void keyPressedFor(QObject* owner, QString key);
     void keyReleased(QString key);
+    void keyReleasedFor(QObject* owner, QString key);
     void activeItemChanged();
 
  public slots:
@@ -80,11 +83,16 @@ class InputController : public QQuickItem {
  protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
+ private slots:
+    void onOwnerDestroyed(QObject *owner);
+
  private:
     static InputController *s_instance;
 
     void cleanupStack();
     void updateActive();
+    void emitKeyRelease(int key, const QString &mappedKey);
+    void cancelDeferredRelease(int key);
 
     QMutex m_mutex;
 
@@ -96,6 +104,7 @@ class InputController : public QQuickItem {
     QPointer<QObject> m_baseOwner;
     QVector<QPointer<QObject>> m_stack;
     QHash<int, QPointer<QObject>> m_keyOwner;
+    QHash<int, QTimer*> m_deferredRelease;
 
     bool m_blockInput = false;
     bool m_blockTouchInput = false;
@@ -126,6 +135,10 @@ class InputController : public QQuickItem {
         {Qt::Key::Key_MediaRecord, "RECORD"},
         {Qt::Key::Key_F4, "MENU"},
     };
+
+    QTimer m_globalPowerHoldTimer;
+    bool m_globalPowerPressed = false;
+    bool m_globalPowerLongPressTriggered = false;
 
     int m_repeatCount = 4;
 };

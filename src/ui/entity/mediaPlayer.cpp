@@ -4,15 +4,154 @@
 #include "mediaPlayer.h"
 
 #include <QSslConfiguration>
+#include <functional>
+#include <utility>
 
 #include "../../logging.h"
 #include "../../util.h"
+#include "../mediaImageProvider.h"
 
 namespace uc {
 namespace ui {
 namespace entity {
 
 static constexpr int IMAGE_REQUEST_TIMEOUT_MS = 15000;
+static constexpr int MAX_MEDIA_IMAGE_DIMENSION = 1024;
+
+namespace {
+
+struct ProcessedMediaImage {
+    QImage  mediaImage;
+    QColor  mediaImageColor;
+    bool    success = false;
+    bool    cancelled = false;
+};
+
+QImage normalizeMediaImage(QImage image) {
+    if (image.isNull()) {
+        return image;
+    }
+
+    const int maxDimension = qMax(image.width(), image.height());
+    if (maxDimension <= MAX_MEDIA_IMAGE_DIMENSION) {
+        return image;
+    }
+
+    return image.scaled(MAX_MEDIA_IMAGE_DIMENSION, MAX_MEDIA_IMAGE_DIMENSION, Qt::KeepAspectRatio,
+                        Qt::SmoothTransformation);
+}
+
+QColor computeAverageImageColorForImage(const QImage &image,
+                                        const std::function<bool()> &isRequestCurrent = std::function<bool()>()) {
+    if (image.isNull()) {
+        return QColor();
+    }
+
+    int    step = 20;
+    int    t = 0;
+    int    r = 0, g = 0, b = 0;
+    double brightness = 0.6;
+
+    for (int i = 0; i < image.width(); i += step) {
+        if (isRequestCurrent && !isRequestCurrent()) {
+            return QColor();
+        }
+
+        for (int j = 0; j < image.height(); j += step) {
+            if (image.valid(i, j)) {
+                t++;
+                QColor c = image.pixel(i, j);
+                r += c.red();
+                b += c.blue();
+                g += c.green();
+            }
+        }
+    }
+
+    if (t == 0) {
+        return QColor();
+    }
+
+    QColor color = QColor(static_cast<int>(brightness * r / t) > 255 ? 255 : static_cast<int>(brightness * r / t),
+                          static_cast<int>(brightness * g / t) > 255 ? 255 : static_cast<int>(brightness * g / t),
+                          static_cast<int>(brightness * b / t) > 255 ? 255 : static_cast<int>(brightness * b / t));
+
+    if (color.lightness() < 30) {
+        color.setHsl(color.hslHue(), color.hslSaturation(), 30);
+    }
+
+    return color;
+}
+
+ProcessedMediaImage processDownloadedMediaImage(const QByteArray &imageData,
+                                                const std::function<bool()> &isRequestCurrent) {
+    ProcessedMediaImage result;
+
+    QImage image;
+    if (!image.loadFromData(imageData)) {
+        return result;
+    }
+
+    image = normalizeMediaImage(std::move(image));
+
+    if (isRequestCurrent && !isRequestCurrent()) {
+        result.cancelled = true;
+        return result;
+    }
+
+    result.mediaImage = image;
+    result.mediaImageColor = computeAverageImageColorForImage(image, isRequestCurrent);
+
+    if (isRequestCurrent && !isRequestCurrent()) {
+        result.cancelled = true;
+        return result;
+    }
+
+    if (!result.mediaImageColor.isValid()) {
+        result.mediaImageColor = QColor("#171717");
+    }
+
+    result.success = true;
+    return result;
+}
+
+ProcessedMediaImage processEmbeddedMediaImage(const QString &dataUrl, const QColor &fallbackColor,
+                                              const std::function<bool()> &isRequestCurrent) {
+    ProcessedMediaImage result;
+    result.mediaImageColor = fallbackColor;
+
+    const QString base64Data = dataUrl.section(",", 1);
+    const QByteArray imageData = QByteArray::fromBase64(base64Data.toLatin1());
+
+    QImage image;
+    if (!image.loadFromData(imageData)) {
+        return result;
+    }
+
+    image = normalizeMediaImage(std::move(image));
+
+    if (isRequestCurrent && !isRequestCurrent()) {
+        result.cancelled = true;
+        return result;
+    }
+
+    result.mediaImage = image;
+    result.mediaImageColor = computeAverageImageColorForImage(image, isRequestCurrent);
+
+    if (isRequestCurrent && !isRequestCurrent()) {
+        result.cancelled = true;
+        return result;
+    }
+
+    if (!result.mediaImageColor.isValid()) {
+        result.mediaImageColor = fallbackColor;
+    }
+
+    result.success = true;
+    return result;
+}
+
+}  // namespace
 
 MediaPlayer::MediaPlayer(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                          const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
@@ -71,6 +210,12 @@ MediaPlayer::MediaPlayer(const QString &id, QVariantMap nameI18n, const QString 
 }
 
 MediaPlayer::~MediaPlayer() {
+    if (!m_mediaImageCacheKey.isEmpty()) {
+        if (auto *provider = MediaImageProvider::instance()) {
+            provider->removeImage(m_mediaImageCacheKey);
+        }
+    }
+
     qCDebug(lcMediaPlayer()) << "MediaPlayer entity destructor";
 }
 
@@ -447,14 +592,11 @@ QVariantMap MediaPlayer::paginationToVariant(const core::Pagination &p) {
     return map;
 }
 
-void MediaPlayer::getMediaImageColor(QString imageUrl) {
+void MediaPlayer::getMediaImageColor(QString imageUrl, quint64 requestId) {
     if (imageUrl.isEmpty()) {
         clearMediaImageState();
         return;
     }
-
-    m_nam.clearAccessCache();
-    m_nam.clearConnectionCache();
 
     QNetworkRequest request(imageUrl);
     request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
@@ -471,12 +613,22 @@ void MediaPlayer::getMediaImageColor(QString imageUrl) {
     qCInfo(lcMediaPlayer()) << "Starting image download with timeout:" << IMAGE_REQUEST_TIMEOUT_MS;
     QNetworkReply *reply = m_nam.get(request);
     reply->setProperty("mediaImageUrl", imageUrl);
+    reply->setProperty("mediaImageRequestId", QVariant::fromValue<qulonglong>(requestId));
 
     connect(reply, QOverload<QNetworkReply::NetworkError>::of(&QNetworkReply::error),
             this, &MediaPlayer::onNetworkError);
 }
 
 void MediaPlayer::clearMediaImageState() {
+    ++m_mediaImageProcessingRequestId;
+
+    if (!m_mediaImageCacheKey.isEmpty()) {
+        if (auto *provider = MediaImageProvider::instance()) {
+            provider->removeImage(m_mediaImageCacheKey);
+        }
+        m_mediaImageCacheKey.clear();
+    }
+
     if (!m_mediaImage.isEmpty()) {
         m_mediaImage.clear();
         emit mediaImageChanged();
@@ -489,37 +641,92 @@ void MediaPlayer::clearMediaImageState() {
     }
 }
 
-QColor MediaPlayer::computeAverageImageColor(QImage image) {
-    if (image.isNull()) {
-        return QColor();
-    }
+void MediaPlayer::processMediaImageAsync(const QString &imageUrl, const QByteArray &imageData, quint64 requestId,
+                                         const QString &dataUrl) {
+    const QColor fallbackColor = QColor("#171717");
+    QPointer<MediaPlayer> guard(this);
 
-    int    step = 20;
-    int    t = 0;
-    int    r = 0, g = 0, b = 0;
-    double brightness = 0.6;
-
-    for (int i = 0; i < image.width(); i += step) {
-        for (int j = 0; j < image.height(); j += step) {
-            if (image.valid(i, j)) {
-                t++;
-                QColor c = image.pixel(i, j);
-                r += c.red();
-                b += c.blue();
-                g += c.green();
-            }
+    QThreadPool::globalInstance()->start([guard, requestId, imageUrl, imageData, dataUrl, fallbackColor]() {
+        if (!guard) {
+            return;
         }
+
+        const auto isRequestCurrent = [guard, requestId]() {
+            return guard && guard->isMediaImageRequestCurrent(requestId);
+        };
+
+        ProcessedMediaImage result;
+        if (dataUrl.isEmpty()) {
+            result = processDownloadedMediaImage(imageData, isRequestCurrent);
+        } else {
+            result = processEmbeddedMediaImage(dataUrl, fallbackColor, isRequestCurrent);
+        }
+
+        if (result.cancelled) {
+            return;
+        }
+
+        if (!guard) {
+            return;
+        }
+
+        QMetaObject::invokeMethod(
+            guard,
+            [guard, imageUrl, requestId, result]() {
+                if (!guard) {
+                    return;
+                }
+
+                guard->applyProcessedMediaImage(imageUrl, requestId, result.mediaImage, result.mediaImageColor,
+                                                result.success);
+            },
+            Qt::QueuedConnection);
+    });
+}
+
+void MediaPlayer::applyProcessedMediaImage(const QString &imageUrl, quint64 requestId, const QImage &mediaImage,
+                                           const QColor &mediaImageColor, bool success) {
+    if (requestId != m_mediaImageProcessingRequestId.load() || imageUrl != m_mediaImageUrl) {
+        qCDebug(lcMediaPlayer()) << "Ignoring stale processed image result";
+        return;
     }
 
-    QColor color = QColor(static_cast<int>(brightness * r / t) > 255 ? 255 : static_cast<int>(brightness * r / t),
-                  static_cast<int>(brightness * g / t) > 255 ? 255 : static_cast<int>(brightness * g / t),
-                  static_cast<int>(brightness * b / t) > 255 ? 255 : static_cast<int>(brightness * b / t));
-
-    if (color.lightness() < 30) {
-        color.setHsl(color.hslHue(), color.hslSaturation(), 30);
+    if (!success || mediaImage.isNull()) {
+        clearMediaImageState();
+        return;
     }
 
-    return color;
+    auto *provider = MediaImageProvider::instance();
+    if (!provider) {
+        qCWarning(lcMediaPlayer()) << "Media image provider is not available";
+        clearMediaImageState();
+        return;
+    }
+
+    const QString previousCacheKey = m_mediaImageCacheKey;
+    const QString nextCacheKey = provider->storeImage(m_id, requestId, mediaImage);
+    const QString nextMediaImage = MediaImageProvider::imageUrlForKey(nextCacheKey);
+
+    if (m_mediaImage != nextMediaImage) {
+        m_mediaImage = nextMediaImage;
+        emit mediaImageChanged();
+    }
+
+    m_mediaImageCacheKey = nextCacheKey;
+
+    if (!previousCacheKey.isEmpty() && previousCacheKey != nextCacheKey) {
+        provider->removeImage(previousCacheKey);
+    }
+
+    if (m_mediaImageColor != mediaImageColor) {
+        m_mediaImageColor = mediaImageColor;
+        qCDebug(lcMediaPlayer()).noquote() << "Background image lightness" << m_mediaImageColor.lightness();
+        emit mediaImageColorChanged();
+    }
+}
+
+bool MediaPlayer::isMediaImageRequestCurrent(quint64 requestId) const {
+    return m_mediaImageProcessingRequestId.load() == requestId;
 }
 
 void MediaPlayer::sendCommand(MediaPlayerCommands::Enum cmd, QVariantMap params) {
@@ -548,16 +755,16 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
 
     switch (attributeEnum) {
         case MediaPlayerAttributes::State: {
-            ok = false;
-            int newState = Util::convertStringToEnum<MediaPlayerStates::Enum>(uc::Util::FirstToUpper(data.toString()), &ok);
-
-            if (!ok) {
-                m_state = MediaPlayerStates::Unknown;
-            } else {
-                m_state = newState;
-            }
+            bool stateOk = false;
+            int newState = Util::convertStringToEnum<MediaPlayerStates::Enum>(uc::Util::FirstToUpper(data.toString()), &stateOk);
+            const int nextState = stateOk ? newState : MediaPlayerStates::Unknown;
 
             ok = true;
+            if (m_state == nextState) {
+                break;
+            }
+
+            m_state = nextState;
             emit stateChanged(m_id, m_state);
 
             m_stateAsString = MediaPlayerStates::getTranslatedString(static_cast<MediaPlayerStates::Enum>(m_state));
@@ -572,6 +779,8 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
             }
 
             if (m_state == MediaPlayerStates::Off) {
+                ++m_mediaImageProcessingRequestId;
+
                 m_mediaDuration = 0;
                 emit mediaDurationChanged();
 
@@ -580,6 +789,14 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
 
                 m_mediaImageUrl.clear();
                 emit mediaImageUrlChanged();
+
+                if (!m_mediaImageCacheKey.isEmpty()) {
+                    if (auto *provider = MediaImageProvider::instance()) {
+                        provider->removeImage(m_mediaImageCacheKey);
+                    }
+                    m_mediaImageCacheKey.clear();
+                }
+
                 m_mediaImage = QString();
                 emit mediaImageChanged();
                 m_mediaImageColor = QColor(255,255,255);
@@ -661,21 +878,14 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
                 emit mediaImageUrlChanged();
 
                 m_mediaImageDownloadTries = 0;
+                const quint64 requestId = ++m_mediaImageProcessingRequestId;
 
                 bool isBase64 = newImageUrl.startsWith("data:image/", Qt::CaseInsensitive) && newImageUrl.contains(";base64,");
 
                 if (!isBase64) {
-                    getMediaImageColor(m_mediaImageUrl);
+                    getMediaImageColor(m_mediaImageUrl, requestId);
                 } else {
-                    m_mediaImage = newImageUrl;
-                    emit mediaImageChanged();
-
-                    QString base64Data = newImageUrl.section(",", 1);
-                    QByteArray imageData = QByteArray::fromBase64(base64Data.toLatin1());
-                    QImage img;
-                    img.loadFromData(imageData);
-                    m_mediaImageColor = computeAverageImageColor(img);
-                    emit mediaImageColorChanged();
+                    processMediaImageAsync(m_mediaImageUrl, QByteArray(), requestId, newImageUrl);
                 }
             }
             break;
@@ -772,7 +982,7 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
 
             for (const QString &mediaClass : incomingClasses) {
                 bool valid = false;
-                Util::convertStringToEnum<MediaClass::Enum>(mediaClass, &valid);
+                Util::convertStringToEnum<MediaClass::Enum>(uc::Util::FirstToUpper(mediaClass), &valid);
 
                 if (valid) {
                     newClasses.append(mediaClass);
@@ -840,7 +1050,9 @@ void MediaPlayer::onNetworkError(QNetworkReply::NetworkError error) {
 
 void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
     const QString replyImageUrl = reply->property("mediaImageUrl").toString();
-    if (replyImageUrl != m_mediaImageUrl) {
+    const quint64 replyRequestId = reply->property("mediaImageRequestId").toULongLong();
+
+    if (replyImageUrl != m_mediaImageUrl || replyRequestId != m_mediaImageProcessingRequestId.load()) {
         qCDebug(lcMediaPlayer()) << "Ignoring stale image download response";
         reply->deleteLater();
         return;
@@ -858,36 +1070,19 @@ void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
             reply->deleteLater();
             return;
         } else {
-            QTimer::singleShot(1000, this, [this, replyImageUrl] {
-                if (replyImageUrl == m_mediaImageUrl) {
-                    getMediaImageColor(replyImageUrl);
+            QTimer::singleShot(1000, this, [this, replyImageUrl, replyRequestId] {
+                if (replyImageUrl == m_mediaImageUrl && replyRequestId == m_mediaImageProcessingRequestId.load()) {
+                    getMediaImageColor(replyImageUrl, replyRequestId);
                 }
             });
         }
 
         reply->deleteLater();
     } else {
-        QPixmap p;
-        p.loadFromData(reply->readAll());
+        const QByteArray imageData = reply->readAll();
 
         qCInfo(lcMediaPlayer()) << "Image successfully downloaded";
-
-        QImage     image = p.toImage();
-        QByteArray byteArray;
-        QBuffer    buffer(&byteArray);
-        image.save(&buffer, "PNG");
-
-        if (!byteArray.isEmpty()) {
-            m_mediaImage = QString("data:image/png;base64,");
-            m_mediaImage.append(QString::fromLatin1(byteArray.toBase64().data()));
-            emit mediaImageChanged();
-
-            m_mediaImageColor = computeAverageImageColor(image);
-
-            qCDebug(lcMediaPlayer()).noquote() << "Background image lightness" << m_mediaImageColor.lightness();
-
-            emit mediaImageColorChanged();
-        }
+        processMediaImageAsync(replyImageUrl, imageData, replyRequestId);
 
         reply->deleteLater();
     }

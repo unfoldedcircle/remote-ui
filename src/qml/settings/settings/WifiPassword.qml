@@ -36,7 +36,12 @@ Popup {
     signal wifiNetworkSelected(string ssid, string password)
 
     function start(wifiNetwork) {
-        wifiPassword.wifiNetwork = wifiNetwork;
+        // copy the values instead of holding the WifiNetwork object: a background scan
+        // deletes and recreates the scan-result objects, which would otherwise leave this
+        // reference dangling before the user finishes entering the password
+        wifiPassword.wifiNetwork.ssid = wifiNetwork.ssid;
+        wifiPassword.wifiNetwork.signalStrength = wifiNetwork.signalStrength;
+        wifiPassword.wifiNetwork.security = wifiNetwork.security;
         wifiPassword.open();
     }
 

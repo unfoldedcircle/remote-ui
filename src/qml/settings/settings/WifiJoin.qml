@@ -40,11 +40,18 @@ Popup {
 
     function start(wifiNetwork, savedNetwork = false) {
         wifiJoin.savedNetwork = savedNetwork;
-        wifiJoin.wifiNetwork = wifiNetwork;
+        // copy the values instead of holding the WifiNetwork object: a background scan
+        // deletes and recreates the scan-result objects, which would otherwise leave this
+        // reference dangling before the user confirms the join
+        wifiJoin.wifiNetwork.id = wifiNetwork.id;
+        wifiJoin.wifiNetwork.ssid = wifiNetwork.ssid;
+        wifiJoin.wifiNetwork.signalStrength = wifiNetwork.signalStrength;
+        wifiJoin.wifiNetwork.security = wifiNetwork.security;
         wifiJoin.open();
     }
 
     property QtObject wifiNetwork: QtObject {
+        property var id
         property string ssid
         property int signalStrength
         property int security

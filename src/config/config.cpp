@@ -39,7 +39,7 @@ Config::~Config() {
 }
 
 void Config::setCurrentProfileId(const QString &profileId) {
-    if (!m_currentProfile.contains(profileId)) {
+    if (m_currentProfile != profileId) {
         m_currentProfile = profileId;
         // send to core
         emit currentProfileIdChanged();
@@ -47,7 +47,7 @@ void Config::setCurrentProfileId(const QString &profileId) {
 }
 
 void Config::setLanguage(const QString &language) {
-    if (!m_language.contains(language)) {
+    if (m_language != language) {
         int id =
             m_core->setLocalizationCfg(language, getCountry(), getTimezone(), getClock24h(), getUnitSystem().toUpper());
 
@@ -464,6 +464,61 @@ void Config::setResumeTimeoutWindowSec(int value)
     emit resumeTimeoutWindowSecChanged(value);
 }
 
+bool Config::getTouchSliderEnabled()
+{
+    return m_settings->value("touchslider/enabled", true).toBool();
+}
+
+void Config::setTouchSliderEnabled(bool value)
+{
+    m_settings->setValue("touchslider/enabled", value);
+    emit touchSliderEnabledChanged();
+}
+
+double Config::getTouchSliderGainVolume()
+{
+    return m_settings->value("touchslider/gainVolume", 0.4).toDouble();
+}
+
+void Config::setTouchSliderGainVolume(double value)
+{
+    m_settings->setValue("touchslider/gainVolume", value);
+    emit touchSliderGainVolumeChanged();
+}
+
+double Config::getTouchSliderGainBrightness()
+{
+    return m_settings->value("touchslider/gainBrightness", 1.2).toDouble();
+}
+
+void Config::setTouchSliderGainBrightness(double value)
+{
+    m_settings->setValue("touchslider/gainBrightness", value);
+    emit touchSliderGainBrightnessChanged();
+}
+
+double Config::getTouchSliderGainPosition()
+{
+    return m_settings->value("touchslider/gainPosition", 1.2).toDouble();
+}
+
+void Config::setTouchSliderGainPosition(double value)
+{
+    m_settings->setValue("touchslider/gainPosition", value);
+    emit touchSliderGainPositionChanged();
+}
+
+double Config::getTouchSliderGainSeek()
+{
+    return m_settings->value("touchslider/gainSeek", 1.0).toDouble();
+}
+
+void Config::setTouchSliderGainSeek(double value)
+{
+    m_settings->setValue("touchslider/gainSeek", value);
+    emit touchSliderGainSeekChanged();
+}
+
 void Config::setWakeupSensitivity(Config::WakeupSensitivities sensitivity) {
     if (m_wakeupSensitivity != sensitivity) {
         int id = m_core->setPowerSavingCfg(sensitivity, getDisplayTimeout(), getSleepTimeout());
@@ -794,14 +849,8 @@ void Config::getActiveProfile() {
         },
         [=](int code, QString message) {
             // fail
-            if (m_currentProfileLoadTries == 2) {
-                m_currentProfileLoadTries = 0;
-                emit noCurrentProfileFound();
-            } else {
-                m_currentProfileLoadTries++;
-                QTimer::singleShot(500 * m_currentProfileLoadTries, [=] { getActiveProfile(); });
-                qCWarning(lcUi()) << "Error getting active profile:" << code << message;
-            }
+            qCWarning(lcUi()) << "Error getting active profile:" << code << message;
+            emit noCurrentProfileFound();
         });
 }
 
@@ -917,21 +966,21 @@ void Config::onHapticCfgChanged(core::cfgHaptic cfgHaptic) {
 }
 
 void Config::onLocalizationCfgChanged(core::cfgLocalization cfgLocalization) {
-    if (!m_language.contains(cfgLocalization.languageCode)) {
+    if (m_language != cfgLocalization.languageCode) {
         m_language = cfgLocalization.languageCode;
         emit languageChanged(m_language);
 
         setCountryNameAsSelectedLanguage();
     }
 
-    if (!m_country.contains(cfgLocalization.countryCode)) {
+    if (m_country != cfgLocalization.countryCode) {
         m_country = cfgLocalization.countryCode;
         emit countryChanged(true);
 
         setCountryNameAsSelectedLanguage();
     }
 
-    if (!m_timezone.contains(cfgLocalization.timezone)) {
+    if (m_timezone != cfgLocalization.timezone) {
         m_timezone = cfgLocalization.timezone;
         emit timezoneChanged(true);
     }
@@ -1026,14 +1075,7 @@ void Config::onVoiceControlCfgChanged(core::cfgVoiceControl cfgVoiceControl) {
 }
 
 QString Config::generateRandomPin() {
-    int     pinNumber = QRandomGenerator::global()->bounded(0, 9999);
-    QString pin = QString::number(pinNumber);
-
-    while (3 - pin.length() == 0) {
-        pin.prepend("0");
-    }
-
-    return pin;
+    return QStringLiteral("%1").arg(QRandomGenerator::global()->bounded(10000), 4, 10, QChar('0'));
 }
 
 void Config::setCountryNameAsSelectedLanguage() {

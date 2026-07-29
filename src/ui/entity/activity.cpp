@@ -138,6 +138,11 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
         case ActivityAttributes::State: {
             int newState = Util::convertStringToEnum<ActivityStates::Enum>(uc::Util::FirstToUpper(data.toString()));
             if (newState != -1) {
+                if (m_state == newState) {
+                    ok = true;
+                    break;
+                }
+
                 m_state = newState;
                 ok      = true;
 
@@ -240,12 +245,17 @@ bool Activity::updateOptions(QVariant data) {
 void Activity::onLanguageChangedTypeSpecific()
 {
     QTimer::singleShot(500, [=]() {
-        m_stateAsString = ActivityStates::getTranslatedString(static_cast<ActivityStates::Enum>(m_state));
-        m_stateInfo = getStateAsString();
+        const QString newStateAsString = ActivityStates::getTranslatedString(static_cast<ActivityStates::Enum>(m_state));
+        if (m_stateAsString != newStateAsString) {
+            m_stateAsString = newStateAsString;
+            emit stateAsStringChanged();
+        }
 
-        emit stateAsStringChanged();
-        emit stateInfoChanged();
-        emit stateChanged(m_id, m_state);
+        const QString newStateInfo = getStateAsString();
+        if (m_stateInfo != newStateInfo) {
+            m_stateInfo = newStateInfo;
+            emit stateInfoChanged();
+        }
     });
 }
 
@@ -268,6 +278,9 @@ void Activity::updateSliderConfig(QVariantMap data)
 
     } else {
         m_sliderConfig.setEntityId("default");
+        // reset the feature as well, otherwise a previously configured feature
+        // sticks around and is applied to the default target entity
+        m_sliderConfig.setEntityFeature("default");
     }
 
     bool enabled = data.value("enabled").toBool();
@@ -307,31 +320,39 @@ void Activity::updateSequences(QVariantMap data)
     if (data.contains("on")) {
         QVariantList onSequence = data.value("on").toList();
 
+        m_onSequenceEntities.clear();
+
         for (const QVariant &item : onSequence) {
             const QVariantMap step = item.toMap();
 
             const QVariantMap cmd = step.value("command").toMap();
             const QString entityId = cmd.value("entity_id").toString();
 
-            if (!entityId.isEmpty()) {
+            if (!entityId.isEmpty() && !m_onSequenceEntities.contains(entityId)) {
                 m_onSequenceEntities.append(entityId);
             }
         }
+
+        emit onSequenceEntitiesChanged();
     }
 
     if (data.contains("off")) {
-        QVariantList onSequence = data.value("off").toList();
+        QVariantList offSequence = data.value("off").toList();
 
-        for (const QVariant &item : onSequence) {
+        m_offSequenceEntities.clear();
+
+        for (const QVariant &item : offSequence) {
             const QVariantMap step = item.toMap();
 
             const QVariantMap cmd = step.value("command").toMap();
             const QString entityId = cmd.value("entity_id").toString();
 
-            if (!entityId.isEmpty()) {
+            if (!entityId.isEmpty() && !m_offSequenceEntities.contains(entityId)) {
                 m_offSequenceEntities.append(entityId);
             }
         }
+
+        emit offSequenceEntitiesChanged();
     }
 }
 

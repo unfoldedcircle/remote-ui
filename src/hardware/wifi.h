@@ -141,6 +141,7 @@ class Wifi : public QObject {
     void addNetwork(const QString &ssid, const QString &password, uc::hw::Security::Enum security);
     void wifiNetworkCommand(int networkId, core::WifiEnums::WifiNetworkCmd command);
     void wifiCommand(core::WifiEnums::WifiCmd command);
+    void clearKnownNetworkList();
 
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine);
 

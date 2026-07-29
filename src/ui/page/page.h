@@ -111,9 +111,6 @@ class Page : public QObject {
     void addActivity(QString entityId);
     void removeActivity(QString entityId);
 
- signals:
-    void requestEntity(QString entityId);
-
  private:
     QString m_id;
     QString m_name;

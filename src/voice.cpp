@@ -62,7 +62,10 @@ void Voice::playSpeechResponse(const QString &url, const QString &mimeType)
 
     if (m_process.state() != QProcess::NotRunning) {
         m_process.kill();
-        m_process.waitForFinished();
+        // don't block the UI thread for the default 30s if the process cannot be reaped
+        if (!m_process.waitForFinished(3000)) {
+            qCWarning(lcVoice()) << "Timed out waiting for previous playback process to finish";
+        }
     }
 
     QStringList args;
@@ -99,8 +102,9 @@ void Voice::playSpeechResponse(const QString &url, const QString &mimeType)
             m_process.write(chunk);
     });
 
-    connect(reply, &QNetworkReply::finished, this, [this, reply]() {
+    connect(reply, &QNetworkReply::finished, this, [this, reply, nam]() {
         reply->deleteLater();
+        nam->deleteLater();
         m_process.closeWriteChannel();
     });
 }

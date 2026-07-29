@@ -101,9 +101,9 @@ Item {
                         const model = dockInfoContainer.dockObj.model.toUpperCase();
                         const serial = dockInfoContainer.dockObj.serial.toUpperCase();
 
-                        if (model == "UCR2") {
+                        if (model == "UCD2") {
                             return "qrc:/images/dock_2.png"
-                        } else if (model == "UCR3") {
+                        } else if (model == "UCD3") {
                             if (serial.length >= 2) {
                                 const dockType = serial[serial.length - 1];
                                 const dockColor = serial[serial.length - 2];

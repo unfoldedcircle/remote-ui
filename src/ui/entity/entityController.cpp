@@ -181,6 +181,7 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     QObject::connect(m_core, &core::Api::connected, this, &EntityController::onCoreConnected);
     QObject::connect(m_core, &core::Api::disconnected, this, &EntityController::onCoreDisconnected);
 
+    QObject::connect(m_core, &core::Api::entityAdded, this, &EntityController::onEntityAdded);
     QObject::connect(m_core, &core::Api::entityChanged, this, &EntityController::onEntityChanged);
     QObject::connect(m_core, &core::Api::entityDeleted, this, &EntityController::onEntityDeleted);
     QObject::connect(m_core, &core::Api::reloadEntities, this, &EntityController::onCoreConnected);
@@ -307,7 +308,7 @@ QStringList EntityController::getIdsByIntegration(const QString& integrationId) 
     QStringList list;
 
     for (entity::Base* entity : qAsConst(m_entities)) {
-        if (entity->getIntegration().contains(integrationId)) {
+        if (entity->getIntegration() == integrationId) {
             list.append(entity->getId());
         }
     }
@@ -342,21 +343,63 @@ QObject* EntityController::qmlInstance(QQmlEngine* engine, QJSEngine* scriptEngi
 }
 
 void EntityController::onCoreConnected() {
-    m_activities.clear();
-    emit activitiesChanged();
+    const quint64 generation = ++m_entityLoadGeneration;
+    loadAllEntities(1, generation, QSharedPointer<QSet<QString>>::create());
+}
+
+void EntityController::loadAllEntities(int page, quint64 generation,
+                                       const QSharedPointer<QSet<QString>>& loadedEntityIds) {
+    int id = m_core->getEntities(100, page);
+
+    m_core->onResponseWithErrorResult(
+        id, &core::Api::respEntities,
+        [=](QList<core::Entity> entities, int count, int limit, int pageNum) {
+            if (generation != m_entityLoadGeneration || !loadedEntityIds) {
+                qCDebug(lcEntityController()) << "Ignoring stale bulk entity load page:" << pageNum;
+                return;
+            }
+
+            qCDebug(lcEntityController()) << "Bulk loading entities, page:" << pageNum
+                                         << "of" << (count > 0 ? qCeil(static_cast<float>(count) / limit) : 1)
+                                         << "total:" << count;
+            for (const auto& entity : entities) {
+                loadedEntityIds->insert(entity.id);
+
+                if (m_entities.contains(entity.id)) {
+                    onEntityChanged(entity.id, entity);
+                } else {
+                    addEntityObject(entity);
+                }
+            }
+            int totalPages = count > 0 ? qCeil(static_cast<float>(count) / static_cast<float>(limit)) : 1;
+            if (pageNum < totalPages) {
+                loadAllEntities(pageNum + 1, generation, loadedEntityIds);
+            } else {
+                removeMissingEntities(*loadedEntityIds);
+                emit allEntitiesLoaded();
+            }
+        },
+        [=](int code, QString message) {
+            if (generation != m_entityLoadGeneration) {
+                qCDebug(lcEntityController()) << "Ignoring stale bulk entity load failure:" << code << message;
+                return;
+            }
+
+            qCWarning(lcEntityController()) << "Failed to bulk load entities:" << code << message;
+            emit allEntitiesLoaded();
+        });
 }
 
 void EntityController::onCoreDisconnected() {
+    ++m_entityLoadGeneration;
     setAllEntitiesAvailable(false);
-
     m_activities.clear();
     emit activitiesChanged();
 }
 
 void EntityController::addEntityObject(core::Entity entity) {
     if (m_entities.contains(entity.id)) {
-        qCDebug(lcEntityController()) << "Entity already loaded, refreshing:" << entity.id;
-        onEntityChanged(entity.id, entity);
+        qCDebug(lcEntityController()) << "Entity is already loaded:" << entity.id;
         emit entityLoaded(true, entity.id);
         return;
     }
@@ -367,10 +410,9 @@ void EntityController::addEntityObject(core::Entity entity) {
                                            entity.attributes, entity.integrationId, this);
 
     if (obj != nullptr) {
+        // Eager signals — needed regardless of whether entity is displayed
         QObject::connect(obj, &entity::Base::command, this, &EntityController::onEntityCommand);
-        QObject::connect(this, &EntityController::languageChanged, obj, &entity::Base::onLanguageChanged);
 
-                // if media player, then hook up signals to add to activites bar
         if (obj->getType() == entity::Base::Type::Media_player) {
             auto mediaPlayer = qobject_cast<entity::MediaPlayer*>(obj);
 
@@ -380,37 +422,12 @@ void EntityController::addEntityObject(core::Entity entity) {
                 QObject::connect(mediaPlayer, &entity::MediaPlayer::removeFromActivities, this,
                                  &EntityController::onRemoveFromActivities);
 
-                QObject::connect(mediaPlayer, &entity::MediaPlayer::browseMediaRequested,
-                    this, [=](const QString &entityId, QVariantMap params) {
-                        int id = m_core->browseMedia(entityId, params);
-                        m_core->onResponseWithErrorResult(id, &core::Api::respMediaBrowse,
-                            [mediaPlayer](core::BrowseMediaItem media, core::Pagination pagination) {
-                                mediaPlayer->onBrowseMediaResult(media, pagination);
-                            },
-                            [mediaPlayer](int code, QString message) {
-                                mediaPlayer->onMediaBrowseError(code, message);
-                            });
-                    });
-
-                QObject::connect(mediaPlayer, &entity::MediaPlayer::searchMediaRequested,
-                    this, [=](const QString &entityId, QVariantMap params) {
-                        int id = m_core->searchMedia(entityId, params);
-                        m_core->onResponseWithErrorResult(id, &core::Api::respMediaSearch,
-                            [mediaPlayer](QList<core::BrowseMediaItem> items, core::Pagination pagination) {
-                                mediaPlayer->onSearchMediaResult(items, pagination);
-                            },
-                            [mediaPlayer](int code, QString message) {
-                                mediaPlayer->onMediaBrowseError(code, message);
-                            });
-                    });
-
                 if (mediaPlayer->getState() == entity::MediaPlayerStates::Playing) {
                     onAddToActivities(entity.id);
                 }
             }
         }
 
-                // if activity, then hook up signals to add to activites bar
         if (obj->getType() == entity::Base::Type::Activity) {
             auto activity = qobject_cast<entity::Activity*>(obj);
 
@@ -430,16 +447,6 @@ void EntityController::addEntityObject(core::Entity entity) {
             }
         }
 
-                // climate entity might switch between celsius & fahrenheit
-        if (obj->getType() == entity::Base::Type::Climate) {
-            auto climate = qobject_cast<entity::Climate*>(obj);
-
-            if (climate) {
-                QObject::connect(this, &EntityController::unitSystemChanged, climate,
-                                 &entity::Climate::onUnitSystemChanged);
-            }
-        }
-
         m_entities.insert(obj->getId(), obj);
         qCDebug(lcEntityController()) << "Entity added:" << entity.id;
         emit entityLoaded(true, entity.id);
@@ -448,10 +455,76 @@ void EntityController::addEntityObject(core::Entity entity) {
     }
 }
 
+void EntityController::connectLazySignals(entity::Base* obj) {
+    // Language updates — connect then sync to current language
+    QObject::connect(this, &EntityController::languageChanged, obj, &entity::Base::onLanguageChanged);
+    obj->onLanguageChanged(m_language);
+
+    if (obj->getType() == entity::Base::Type::Media_player) {
+        auto mediaPlayer = qobject_cast<entity::MediaPlayer*>(obj);
+
+        if (mediaPlayer) {
+            QObject::connect(mediaPlayer, &entity::MediaPlayer::browseMediaRequested,
+                this, [=](const QString &entityId, QVariantMap params) {
+                    int id = m_core->browseMedia(entityId, params);
+                    m_core->onResponseWithErrorResult(id, &core::Api::respMediaBrowse,
+                        [mediaPlayer](core::BrowseMediaItem media, core::Pagination pagination) {
+                            mediaPlayer->onBrowseMediaResult(media, pagination);
+                        },
+                        [mediaPlayer](int code, QString message) {
+                            mediaPlayer->onMediaBrowseError(code, message);
+                        });
+                });
+
+            QObject::connect(mediaPlayer, &entity::MediaPlayer::searchMediaRequested,
+                this, [=](const QString &entityId, QVariantMap params) {
+                    int id = m_core->searchMedia(entityId, params);
+                    m_core->onResponseWithErrorResult(id, &core::Api::respMediaSearch,
+                        [mediaPlayer](QList<core::BrowseMediaItem> items, core::Pagination pagination) {
+                            mediaPlayer->onSearchMediaResult(items, pagination);
+                        },
+                        [mediaPlayer](int code, QString message) {
+                            mediaPlayer->onMediaBrowseError(code, message);
+                        });
+                });
+        }
+    }
+
+    // Climate: unit system — connect then sync to current unit system
+    if (obj->getType() == entity::Base::Type::Climate) {
+        auto climate = qobject_cast<entity::Climate*>(obj);
+
+        if (climate) {
+            QObject::connect(this, &EntityController::unitSystemChanged, climate,
+                             &entity::Climate::onUnitSystemChanged);
+            climate->onUnitSystemChanged(m_unitSystem);
+        }
+    }
+}
+
 void EntityController::setAllEntitiesAvailable(bool value) {
     for (entity::Base* entity : qAsConst(m_entities)) {
         entity->setState(value);
     }
+}
+
+void EntityController::removeMissingEntities(const QSet<QString>& loadedEntityIds) {
+    const QStringList currentEntityIds = m_entities.keys();
+
+    for (const QString& entityId : currentEntityIds) {
+        if (!loadedEntityIds.contains(entityId)) {
+            onEntityDeleted(entityId);
+        }
+    }
+}
+
+void EntityController::onEntityAdded(core::Entity entity) {
+    if (m_entities.contains(entity.id)) {
+        onEntityChanged(entity.id, entity);
+        return;
+    }
+
+    addEntityObject(entity);
 }
 
 void EntityController::onEntityChanged(const QString& entityId, core::Entity entity) {
@@ -474,7 +547,7 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
         entityObj->updateAttribute(uc::Util::FirstToUpper(i.key()), i.value());
     }
 
-    if (entity.features.size() > 0) {
+    if (entity.featuresProvided) {
         entity::Base::Type entityType = uc::Util::convertStringToEnum<entity::Base::Type>(entity.type);
 
         switch (entityType) {
@@ -523,30 +596,29 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
 }
 
 void EntityController::onEntityDeleted(const QString& entityId) {
-    if (m_entities.contains(entityId)) {
-        // leave a bit of time for the UI to do it's thing to avoid QML type errors
-        QTimer::singleShot(100, [=] {
-            m_entities.value(entityId)->deleteLater();
-            m_entities.remove(entityId);
+    m_connectedEntities.remove(entityId);
+
+    entity::Base *entityObj = m_entities.take(entityId);
+    if (entityObj) {
+        // leave a bit of time for the UI to do its thing to avoid QML type errors,
+        // but detach the old object from lookup immediately so a same-id re-add can replace it.
+        QTimer::singleShot(100, this, [entityObj] {
+            entityObj->deleteLater();
         });
     }
 
     onRemoveFromActivities(entityId);
 }
 
-QObject* EntityController::get(const QString& entityId) { return m_entities.value(entityId); }
-
-void EntityController::load(const QString& entityId) {
-    int id = m_core->getEntity(entityId);
-
-    m_core->onResponseWithErrorResult(
-        id, &core::Api::respEntity, [=](core::Entity entity) { addEntityObject(entity); },
-        [=](int code, QString message) {
-            // fail
-            qCWarning(lcEntityController()) << "Cannot get entity:" << entityId << code << message;
-            emit entityLoaded(false, entityId);
-        });
+QObject* EntityController::get(const QString& entityId) {
+    auto* obj = m_entities.value(entityId);
+    if (obj && !m_connectedEntities.contains(entityId)) {
+        connectLazySignals(obj);
+        m_connectedEntities.insert(entityId);
+    }
+    return obj;
 }
+
 
 void EntityController::refreshEntity(const QString &entityId)
 {
@@ -558,6 +630,57 @@ void EntityController::refreshEntity(const QString &entityId)
             // fail
             qCWarning(lcEntityController()) << "Cannot get entity:" << entityId << code << message;
         });
+}
+
+// delay before a still-in-flight command shows a loading indicator, so fast commands don't flash
+static constexpr int kCommandBusyDelayMs = 200;
+
+bool EntityController::hasPendingForEntity(const QString& entityId) const {
+    for (auto it = m_pendingCommands.constBegin(); it != m_pendingCommands.constEnd(); ++it) {
+        if (it.value().entityId == entityId) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void EntityController::setEntityBusy(const QString& entityId, bool busy) {
+    bool changed = false;
+    if (busy) {
+        if (!m_busyEntities.contains(entityId)) {
+            m_busyEntities.insert(entityId);
+            changed = true;
+        }
+    } else {
+        changed = m_busyEntities.remove(entityId);
+    }
+
+    if (!changed) {
+        return;
+    }
+
+    if (entity::Base* e = m_entities.value(entityId)) {
+        e->setCommandInProgress(busy);
+    }
+
+    // the global property flips only when the set of busy entities becomes (non-)empty
+    if (m_busyEntities.size() == (busy ? 1 : 0)) {
+        emit commandInProgressChanged();
+    }
+}
+
+void EntityController::removePendingCommand(const QString& commandId) {
+    auto it = m_pendingCommands.find(commandId);
+    if (it == m_pendingCommands.end()) {
+        return;
+    }
+
+    const QString entityId = it.value().entityId;
+    m_pendingCommands.erase(it);
+
+    if (!hasPendingForEntity(entityId)) {
+        setEntityBusy(entityId, false);
+    }
 }
 
 void EntityController::onEntityCommand(const QString& entityId, const QString& command, QVariantMap params) {
@@ -589,7 +712,7 @@ void EntityController::retrySendAttempt(const QString& commandId)
     int id = m_core->entityCommand(live.entityId, live.command, live.params);
     if (id < 0) {
         qCWarning(lcEntityController()) << "Cannot execute command: invalid request id" << commandId;
-        m_pendingCommands.remove(commandId);
+        removePendingCommand(commandId);
         return;
     }
 
@@ -598,6 +721,16 @@ void EntityController::retrySendAttempt(const QString& commandId)
 
     const int requestId = live.requestId;
     const int attemptCount = live.attemptCount;
+
+    // on the first attempt, show a loading indicator if the command is still in flight after a short delay
+    if (attemptCount == 1) {
+        const QString entityId = live.entityId;
+        QTimer::singleShot(kCommandBusyDelayMs, this, [this, commandId, entityId]() {
+            if (m_pendingCommands.contains(commandId)) {
+                setEntityBusy(entityId, true);
+            }
+        });
+    }
 
     m_core->onResult(
         id,
@@ -610,7 +743,7 @@ void EntityController::retrySendAttempt(const QString& commandId)
             }
 
             qCDebug(lcEntityController()) << "Command executed successfully" << commandId << "attempt" << attemptCount;
-            m_pendingCommands.remove(commandId);
+            removePendingCommand(commandId);
         },
         // failure
         [this, commandId, requestId, attemptCount](int code, QString message) {
@@ -645,7 +778,7 @@ void EntityController::retrySendAttempt(const QString& commandId)
             // we ignore voice commands as they have their own error handling
             if (live2.command == "voice_start") {
                 emit voiceAssistantCommandError(live2.entityId, code);
-                m_pendingCommands.remove(commandId);
+                removePendingCommand(commandId);
                 return;
             }
 
@@ -667,7 +800,7 @@ void EntityController::retrySendAttempt(const QString& commandId)
                 payload["self"]      = QVariant::fromValue(static_cast<QObject*>(this));
 
                 // Remove current pending; will recreate if user taps
-                m_pendingCommands.remove(commandId);
+                removePendingCommand(commandId);
 
                 Notification::createActionableNotification(
                     tr("%1 is not responding").arg(entityName),
@@ -701,7 +834,7 @@ void EntityController::retrySendAttempt(const QString& commandId)
                     showActionable();
                     break;
                 default:
-                    m_pendingCommands.remove(commandId);
+                    removePendingCommand(commandId);
                     Notification::createActionableWarningNotification(
                         tr("Error sending the command"),
                         tr("%1 is not responding. Error code: %2").arg(entityName).arg(code),

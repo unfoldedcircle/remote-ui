@@ -130,12 +130,11 @@ Group *GroupController::getGroup(const QString &groupId) {
 }
 
 void GroupController::onGroupAdded(QString profileId, core::Group group) {
-    if (!m_profileId.contains(profileId)) {
+    if (m_profileId != profileId) {
         return;
     }
 
     Group *obj = new Group(group.id, group.profileId, group.name, group.icon, this);
-    QObject::connect(obj, &Group::requestEntity, this, &GroupController::onEntityRequested);
     obj->init(group.entities);
     m_groups.insert(group.id, obj);
 
@@ -143,7 +142,7 @@ void GroupController::onGroupAdded(QString profileId, core::Group group) {
 }
 
 void GroupController::onGroupChanged(QString profileId, core::Group group) {
-    if (!m_profileId.contains(profileId)) {
+    if (m_profileId != profileId) {
         return;
     }
 
@@ -162,7 +161,7 @@ void GroupController::onGroupChanged(QString profileId, core::Group group) {
 }
 
 void GroupController::onGroupDeleted(QString profileId, QString groupId) {
-    if (!m_profileId.contains(profileId)) {
+    if (m_profileId != profileId) {
         return;
     }
 
@@ -170,9 +169,6 @@ void GroupController::onGroupDeleted(QString profileId, QString groupId) {
     m_groups.remove(groupId);
 }
 
-void GroupController::onEntityRequested(QString entityId) {
-    emit requestEntity(entityId);
-}
 
 void GroupController::onEntityDeleted(QString entityId) {
     for (QHash<QString, Group *>::iterator i = m_groups.begin(); i != m_groups.end(); ++i) {

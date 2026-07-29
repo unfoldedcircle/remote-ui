@@ -28,6 +28,16 @@ InputController::InputController(hw::HardwareModel::Enum model) : m_model(model)
     s_instance = this;
 
     m_source = nullptr;
+    m_globalPowerHoldTimer.setInterval(3000);
+    m_globalPowerHoldTimer.setSingleShot(true);
+    connect(&m_globalPowerHoldTimer, &QTimer::timeout, this, [this]() {
+        if (!m_globalPowerPressed || m_globalPowerLongPressTriggered) {
+            return;
+        }
+
+        m_globalPowerLongPressTriggered = true;
+        emit globalPowerLongPressed();
+    });
 }
 
 InputController::~InputController() {
@@ -39,8 +49,20 @@ InputController::~InputController() {
 }
 
 void InputController::setSource(QObject *source) {
-    source->installEventFilter(this);
+    if (m_source == source) {
+        return;
+    }
+
+    if (m_source != nullptr) {
+        m_source->removeEventFilter(this);
+    }
+
     m_source = source;
+
+    if (m_source != nullptr) {
+        m_source->installEventFilter(this);
+    }
+
     qCDebug(lcInput()) << "Installed event filter for" << m_source;
 }
 
@@ -52,6 +74,12 @@ void InputController::emitKey(Qt::Key key, bool release) {
 
 void InputController::blockInput(bool value) {
     m_blockInput = value;
+
+    if (m_blockInput) {
+        m_globalPowerHoldTimer.stop();
+        m_globalPowerPressed = false;
+        m_globalPowerLongPressTriggered = false;
+    }
 }
 
 void InputController::setBaseOwner(QObject *obj) {
@@ -83,15 +111,23 @@ void InputController::takeControl(QObject* obj) {
     }
     m_stack.push_back(obj);
 
-            // auto-clean when destroyed
-    connect(obj, &QObject::destroyed, this, [this](QObject* dead){
-            QMutexLocker lock(&m_mutex);
-            for (int i = m_stack.size() - 1; i >= 0; --i) {
-                if (m_stack[i].data() == dead)
-                    m_stack.removeAt(i);
-            }
-            updateActive();
-        }, Qt::UniqueConnection);
+            // auto-clean when destroyed.
+            // Qt::UniqueConnection only works when connecting to a member function: with a lambda every
+            // takeControl() call for the same object would add yet another connection, and scopes like the
+            // main container are never destroyed, so those connections piled up for the whole runtime.
+    connect(obj, &QObject::destroyed, this, &InputController::onOwnerDestroyed, Qt::UniqueConnection);
+
+    updateActive();
+}
+
+void InputController::onOwnerDestroyed(QObject *owner) {
+    QMutexLocker lock(&m_mutex);
+
+    for (int i = m_stack.size() - 1; i >= 0; --i) {
+        if (m_stack[i].data() == owner) {
+            m_stack.removeAt(i);
+        }
+    }
 
     updateActive();
 }
@@ -145,33 +181,87 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
     QKeyEvent *keyEvent;
 
     if (m_blockInput) {
-        return false;
+        switch (event->type()) {
+            case QEvent::KeyPress:
+            case QEvent::KeyRelease:
+            case QEvent::MouseButtonPress:
+            case QEvent::MouseButtonRelease:
+            case QEvent::TouchBegin:
+            case QEvent::TouchUpdate:
+            case QEvent::TouchEnd:
+            case QEvent::TouchCancel:
+                event->accept();
+                return true;
+            default:
+                break;
+        }
     }
 
     switch (event->type()) {
         case QEvent::KeyPress: {
             keyEvent = static_cast<QKeyEvent *>(event);
             int key = keyEvent->key();
+            const QString mappedKey = m_keyCodeMapping.value(key);
 
-            m_keyOwner[key] = m_activeItem;
+            if (mappedKey.isEmpty()) {
+                break;
+            }
 
-            emit keyPressed(m_keyCodeMapping.value(key));
-            qCInfo(lcInput()) << "Key pressed:" << m_keyCodeMapping.value(key) << m_activeItem;
+            cancelDeferredRelease(key);
+
+            if (key == Qt::Key_PowerOff && !keyEvent->isAutoRepeat() && !m_globalPowerPressed) {
+                m_globalPowerPressed = true;
+                m_globalPowerLongPressTriggered = false;
+                m_globalPowerHoldTimer.start();
+            }
+
+            QPointer<QObject> owner;
+
+            if (keyEvent->isAutoRepeat()) {
+                owner = m_keyOwner.value(key);
+                if (owner.isNull()) {
+                    owner = m_activeItem.isNull() ? m_baseOwner : m_activeItem;
+                }
+            } else {
+                owner = m_activeItem.isNull() ? m_baseOwner : m_activeItem;
+                m_keyOwner[key] = owner;
+            }
+
+            emit keyPressed(mappedKey);
+            emit keyPressedFor(owner.data(), mappedKey);
+            qCDebug(lcInput()) << "Key pressed:" << mappedKey << owner.data();
             break;
         }
-        // Release events are always delivered to the component that pressed the key,
-        // even if focus has shifted. Uses QPointer for safe nulling if component destroyed.
         case QEvent::KeyRelease: {
             keyEvent = static_cast<QKeyEvent *>(event);
             int key = keyEvent->key();
+            const QString mappedKey = m_keyCodeMapping.value(key);
 
-            QPointer<QObject> owner = m_keyOwner.take(key);
-            QPointer<QObject> saved = m_activeItem;
-            m_activeItem = owner;
-            emit keyReleased(m_keyCodeMapping.value(key));
-            m_activeItem = saved;
+            if (mappedKey.isEmpty()) {
+                break;
+            }
 
-            qCInfo(lcInput()) << "Key released:" << m_keyCodeMapping.value(key) << m_activeItem;
+            if (keyEvent->isAutoRepeat()) {
+                // An auto-repeat flagged release is either a synthetic mid-hold release
+                // (followed by another press within the repeat period) or the terminal
+                // release of a held key. Defer it: a follow-up press cancels the timer,
+                // otherwise the release is delivered so stop handlers still fire.
+                QTimer *timer = m_deferredRelease.value(key, nullptr);
+                if (!timer) {
+                    timer = new QTimer(this);
+                    timer->setSingleShot(true);
+                    timer->setInterval(150);
+                    connect(timer, &QTimer::timeout, this, [this, key] {
+                        emitKeyRelease(key, m_keyCodeMapping.value(key));
+                    });
+                    m_deferredRelease.insert(key, timer);
+                }
+                timer->start();
+                break;
+            }
+
+            cancelDeferredRelease(key);
+            emitKeyRelease(key, mappedKey);
             break;
         }
         case QEvent::MouseButtonPress:
@@ -191,6 +281,30 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
     }
 
     return QQuickItem::eventFilter(obj, event);
+}
+
+void InputController::emitKeyRelease(int key, const QString &mappedKey) {
+    if (key == Qt::Key_PowerOff) {
+        m_globalPowerHoldTimer.stop();
+        m_globalPowerPressed = false;
+        m_globalPowerLongPressTriggered = false;
+    }
+
+    QPointer<QObject> owner = m_keyOwner.take(key);
+    if (owner.isNull()) {
+        owner = m_activeItem.isNull() ? m_baseOwner : m_activeItem;
+    }
+
+    emit keyReleased(mappedKey);
+    emit keyReleasedFor(owner.data(), mappedKey);
+    qCDebug(lcInput()) << "Key released:" << mappedKey << owner.data();
+}
+
+void InputController::cancelDeferredRelease(int key) {
+    QTimer *timer = m_deferredRelease.value(key, nullptr);
+    if (timer) {
+        timer->stop();
+    }
 }
 
 void InputController::cleanupStack() {

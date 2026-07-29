@@ -103,19 +103,7 @@ Popup {
         function onCurrentStepChanged() {
             console.info("Current step changed: " + entityObj.currentStep.commandId);
 
-            let stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
-            if (!stepEntityObj) {
-                EntityController.load(entityObj.currentStep.entityId);
-                connectSignalSlot(EntityController.entityLoaded, function(success, entityId) {
-                    if (success && entityId == entityObj.currentStep.entityId) {
-                        stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
-                        activityLoading.stepIcon = stepEntityObj ? stepEntityObj.icon : "uc:triangle-exclamation";
-                        activityLoading.stepName = stepEntityObj ? stepEntityObj.name : "N/A";
-                    }
-                });
-                return;
-            }
-
+            const stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
             activityLoading.stepIcon = stepEntityObj ? stepEntityObj.icon : "uc:triangle-exclamation";
             activityLoading.stepName = stepEntityObj ? stepEntityObj.name : "N/A";
         }

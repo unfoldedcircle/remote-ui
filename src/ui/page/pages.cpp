@@ -36,6 +36,10 @@ int Pages::rowCount(const QModelIndex &parent) const {
 }
 
 bool Pages::removeRows(int row, int count, const QModelIndex &parent) {
+    if (row < 0 || count <= 0 || (row + count) > m_data.size()) {
+        return false;
+    }
+
     beginRemoveRows(parent, row, row + count - 1);
     for (int i = row + count - 1; i >= row; i--) {
         m_data.at(i)->deleteLater();
@@ -67,6 +71,10 @@ QVariant Pages::data(const QModelIndex &index, int role) const {
 
 bool Pages::setData(const QModelIndex &index, const QVariant &value, int role) {
     bool ret = false;
+
+    if (index.row() < 0 || index.row() >= m_data.count()) {
+        return ret;
+    }
 
     Page *page = m_data[index.row()];
 
@@ -134,10 +142,14 @@ QModelIndex Pages::getModelIndexByKey(const QString &key) {
 }
 
 Page *Pages::getPage(const QString &key) {
-    return m_data[getModelIndexByKey(key).row()];
+    return getPage(getModelIndexByKey(key).row());
 }
 
 Page *Pages::getPage(int row) {
+    if (row < 0 || row >= m_data.count()) {
+        return nullptr;
+    }
+
     return m_data[row];
 }
 
@@ -146,19 +158,28 @@ void Pages::removeItem(const QString &key) {
 }
 
 void Pages::removeItem(int row) {
-    removeRows(row, 1, QModelIndex());
+    if (!removeRows(row, 1, QModelIndex())) {
+        return;
+    }
+
     emit countChanged(count());
 }
 
 void Pages::updatePageName(const QString &key, const QString &name) {
     auto i = getModelIndexByKey(key);
-    setData(i, name, TitleRole);
+    if (!setData(i, name, TitleRole)) {
+        return;
+    }
+
     emit dataChanged(i, i);
 }
 
 void Pages::updatePageImage(const QString &key, const QString &image) {
     auto i = getModelIndexByKey(key);
-    setData(i, image, ImageRole);
+    if (!setData(i, image, ImageRole)) {
+        return;
+    }
+
     emit dataChanged(i, i);
 }
 
@@ -184,7 +205,7 @@ void Pages::swapData(int from, int to) {
 }
 
 QObject *Pages::get(const QString &key) {
-    return m_data[getModelIndexByKey(key).row()];
+    return getPage(getModelIndexByKey(key).row());
 }
 
 void Pages::onEntityDeleted(QString entityId) {

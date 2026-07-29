@@ -43,6 +43,9 @@ Controller::Controller(HardwareModel::Enum model, core::Api* core, Config* confi
             break;
         case HardwareModel::UCR3:
             m_haptic = new HapticUCR3(qgetenv("UC_HAPTIC_DEV_PATH"), this);
+            // Note: no proactive reopen on resume. The driver self-heals from a stale fd
+            // when a read fails; tearing the device down on every wake was disruptive and
+            // is the suspected cause of a crash right after waking from suspend.
             m_touchSlider = new TouchSliderUCR3(qgetenv("UC_TOUCHSLIDER_DEV_PATH"), this);
             break;
         default:

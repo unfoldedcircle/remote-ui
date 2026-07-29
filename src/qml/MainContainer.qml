@@ -23,7 +23,6 @@ Item {
     id: mainContainerRoot
     width: parent.width; height: parent.height
     clip: true
-    layer.enabled: true
     enabled: state === "visible" ? true : false
     
     Component.onCompleted: {
@@ -223,7 +222,6 @@ Item {
                     }
 
                     pages.incrementCurrentIndex();
-                    console.debug("Pages increment current index");
                 }
             },
             "DPAD_LEFT": {
@@ -234,7 +232,6 @@ Item {
                     }
 
                     pages.decrementCurrentIndex();
-                    console.debug("Pages decrement current index");
                 }
             },
             // page navigation
@@ -247,10 +244,8 @@ Item {
 
                     if (!currentEntity.delegateItem.groupObj) {
                         pages.currentItem.incrementCurrentIndex();
-                        console.debug("Entitylist increment current index");
                     } else if (currentEntity.delegateItem.groups.currentIndex === currentEntity.delegateItem.groups.count - 1 || currentEntity.delegateItem.state === "closed") {
                         pages.currentItem.incrementCurrentIndex();
-                        console.debug("Entitylist increment current index");
                     } else {
                         currentEntity.delegateItem.groups.incrementCurrentIndex();
                     }
@@ -265,10 +260,8 @@ Item {
 
                     if (!currentEntity.delegateItem.groupObj) {
                         pages.currentItem.decrementCurrentIndex();
-                        console.debug("Entitylist decrement current index");
                     }  else if (currentEntity.delegateItem.groups.currentIndex === 0 || currentEntity.delegateItem.state === "closed") {
                         pages.currentItem.decrementCurrentIndex();
-                        console.debug("Entitylist decrement current index");
                     } else {
                         currentEntity.delegateItem.groups.decrementCurrentIndex();
                     }
@@ -556,8 +549,6 @@ Item {
 
         preferredHighlightEnd: 0.5
         preferredHighlightBegin: 0.5
-
-        onCurrentIndexChanged: console.debug("Pages current index: " + currentIndex)
 
         Behavior on anchors.topMargin {
             NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }

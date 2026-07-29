@@ -6,7 +6,7 @@ import QtQuick 2.15
 Item {
     id: imageLoader
 
-    height: image2.implicitHeight
+    height: image.implicitHeight
     clip: true
 
     Behavior on height {
@@ -24,7 +24,9 @@ Item {
     property int maxRetries: 2
     property int retryDelay: 1000
 
-    property alias image1: image1
+    property alias image1: image
+    readonly property bool isDataUrl: url.indexOf("data:") === 0
+    readonly property bool isProviderUrl: url.indexOf("image://media-art/") === 0
 
     signal done()
 
@@ -40,52 +42,27 @@ Item {
         }
 
         if (url == "") {
-            image1.source = "";
-            image2.source = "";
+            image.opacity = 0;
+            image.source = "";
             prevUrl = "";
             return;
         }
 
-        image2.opacity = 0;
-        image2.source = url;
+        image.opacity = 0;
+        image.source = url;
         prevUrl = url;
     }
 
     Image {
-        id: image1
+        id: image
         width: parent.width
         height: parent.height
         anchors.top: parent.top
         verticalAlignment: alignCentered ? Image.AlignVCenter : Image.AlignTop
         fillMode: imageLoader.aspectFit ? Image.PreserveAspectFit : Image.PreserveAspectCrop
         asynchronous: true
-        cache: false
-        sourceSize.width: parent.width
-        sourceSize.height: parent.height
-
-        onStatusChanged: {
-            if (image1.status == Image.Ready) {
-                image2.opacity = 0;
-                imageLoader.done();
-            }
-
-            if (image1.status == Image.Error) {
-                image1.source = "";
-                console.error("Failed to load image into image 1");
-            }
-        }
-    }
-
-    Image {
-        id: image2
-        width: parent.width
-        height: parent.height
-        anchors.top: parent.top
-        verticalAlignment: alignCentered ? Image.AlignVCenter : Image.AlignTop
-        fillMode: imageLoader.aspectFit ? Image.PreserveAspectFit : Image.PreserveAspectCrop
-        asynchronous: true
+        cache: !imageLoader.isDataUrl && !imageLoader.isProviderUrl
         opacity: 0
-        cache: false
         sourceSize.width: parent.width
         sourceSize.height: parent.height
 
@@ -94,46 +71,36 @@ Item {
         }
 
         onStatusChanged: {
-            if (image2.status == Image.Loading) {
+            if (image.status == Image.Loading) {
                 loadingDelay.restart();
-                console.debug("Loading image");
             }
 
-            if (image2.status === Image.Ready || image2.status === Image.Error || image2.status === Image.Null) {
+            if (image.status === Image.Ready || image.status === Image.Error || image.status === Image.Null) {
                 loadingDelay.stop();
                 loader.opacity = 0;
             }
 
-            if (image2.status == Image.Ready) {
+            if (image.status == Image.Ready) {
                 failed = false;
-                image2.opacity = 1;
+                image.opacity = 1;
 
                 if (imageLoader.shrinkHeight && !imageLoader.aspectFit) {
-                    imageLoader.height = image2.paintedHeight;
+                    imageLoader.height = image.paintedHeight;
                 }
 
-                console.debug("Image loaded");
+                imageLoader.done();
             }
 
-            if (image2.status == Image.Error && image2.source != "") {
+            if (image.status == Image.Error && image.source != "") {
                 if (retryCount < maxRetries) {
                     retryCount += 1;
-                    image2.source = "";
+                    image.source = "";
                     retryTimer.restart();
-                    console.warn("Retrying failed image load", retryCount, "/", maxRetries, url);
                 } else {
-                    image2.source = "";
+                    image.opacity = 0;
+                    image.source = "";
                     prevUrl = "";
                     failed = true;
-                    console.error("Failed to load image into image 2 after retries");
-                }
-            }
-        }
-
-        onOpacityChanged: {
-            if (image2.opacity == 1) {
-                if (image1.source != url) {
-                    image1.source = url;
                 }
             }
         }
@@ -152,7 +119,7 @@ Item {
         repeat: false
         onTriggered: {
             if (url != "") {
-                image2.source = url;
+                image.source = url;
             }
         }
     }

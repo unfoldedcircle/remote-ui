@@ -10,6 +10,7 @@
 #include <QCoreApplication>
 #include <QTimer>
 
+#include "../../logging.h"
 #include "../../util.h"
 
 namespace uc {
@@ -29,6 +30,7 @@ class Base : public QObject {
     Q_PROPERTY(Type type READ getType CONSTANT)
     Q_PROPERTY(bool enabled READ isEnabled NOTIFY entityEnabledChanged)
     Q_PROPERTY(QString integrationId READ getIntegration CONSTANT)
+    Q_PROPERTY(bool commandInProgress READ getCommandInProgress NOTIFY commandInProgressChanged)
 
  public:
     enum Type { Unsupported, Button, Switch, Climate, Cover, Light, Media_player, Remote, Sensor, Activity, Macro, Voice_assistant, Select };
@@ -55,10 +57,23 @@ class Base : public QObject {
     Q_INVOKABLE QString getTypeAsString() { return Util::convertEnumToString<Type>(m_type).toLower(); }
     Q_INVOKABLE QString getDeviceClass() { return m_deviceClass; }
     bool                isEnabled() { return m_enabled; }
+    bool                getCommandInProgress() { return m_commandInProgress; }
+
+    void setCommandInProgress(bool value) {
+        if (m_commandInProgress == value) {
+            return;
+        }
+        m_commandInProgress = value;
+        emit commandInProgressChanged();
+    }
 
     Q_INVOKABLE bool hasFeature(int feature);
     Q_INVOKABLE bool hasAllFeatures(QVariantList features);
     Q_INVOKABLE bool hasAnyFeature(QVariantList features);
+    // Whether the feature list has been populated. Configured entities are
+    // bulk-loaded without their features (only get_entity delivers them), so
+    // this is false until the entity has been fetched individually.
+    Q_INVOKABLE bool featuresLoaded() { return !m_features.isEmpty(); }
 
     virtual Q_INVOKABLE void turnOn() {}
     virtual Q_INVOKABLE void turnOff() {}
@@ -73,17 +88,25 @@ class Base : public QObject {
 
     template <class T>
     bool updateFeatures(const QStringList &features) {
-        if (features.size() == 0) {
-            return false;
-        }
-
         m_features.clear();
+        bool allValid = true;
 
-        for (QStringList::const_iterator i = features.begin(); i != features.end(); i++) {
-            m_features.append(Util::convertStringToEnum<T>(*i));
+        for (const QString &feature : features) {
+            bool ok = false;
+            const int featureValue = Util::convertStringToEnum<T>(uc::Util::FirstToUpper(feature), &ok);
+
+            if (!ok) {
+                qCWarning(lcEntity()) << "Ignoring unsupported feature" << feature << "for entity" << m_id;
+                allValid = false;
+                continue;
+            }
+
+            m_features.append(featureValue);
         }
 
-        return true;
+        emit featuresChanged();
+
+        return allValid;
     }
 
     virtual bool updateAttribute(const QString &attribute, QVariant data) {
@@ -118,6 +141,8 @@ class Base : public QObject {
     void stateInfoChanged();
     void entityEnabledChanged();
     void integrationIdChanged();
+    void commandInProgressChanged();
+    void featuresChanged();
 
     void command(QString entityId, QString command, QVariantMap parmas);
 
@@ -140,6 +165,7 @@ class Base : public QObject {
     Type        m_type;
     QString     m_deviceClass;
     bool        m_enabled;
+    bool        m_commandInProgress = false;
 
     QList<int> m_features;
 

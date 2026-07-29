@@ -135,6 +135,10 @@ int IntegrationDrivers::rowCount(const QModelIndex &parent) const {
 }
 
 bool IntegrationDrivers::removeRows(int row, int count, const QModelIndex &parent) {
+    if (row < 0 || count <= 0 || (row + count) > m_data.size()) {
+        return false;
+    }
+
     beginRemoveRows(parent, row, row + count - 1);
     for (int i = row + count - 1; i >= row; i--) {
         m_data.at(i)->deleteLater();
@@ -250,7 +254,7 @@ QModelIndex IntegrationDrivers::getModelIndexByKey(const QString &key) {
 
 bool IntegrationDrivers::contains(const QString &key) {
     for (int i = 0; i < m_data.count(); i++) {
-        if (m_data[i]->getId().contains(key)) {
+        if (m_data[i]->getId() == key) {
             return true;
         }
     }
@@ -259,7 +263,7 @@ bool IntegrationDrivers::contains(const QString &key) {
 
 IntegrationDriver *IntegrationDrivers::get(const QString &key) {
     for (int i = 0; i < m_data.count(); i++) {
-        if (m_data[i]->getId().contains(key)) {
+        if (m_data[i]->getId() == key) {
             return m_data[i];
         }
     }

@@ -6,6 +6,8 @@
 #include <QJSEngine>
 #include <QObject>
 #include <QQmlEngine>
+#include <QSet>
+#include <QSharedPointer>
 #include <QtMath>
 
 #include "../../config/config.h"
@@ -51,6 +53,7 @@ class EntityController : public QObject {
     Q_PROPERTY(int configuredEntitiesCount READ getConfiguredEntitiesCount NOTIFY configuredEntitiesCountChanged)
     Q_PROPERTY(QStringList activities READ getActivities NOTIFY activitiesChanged)
     Q_PROPERTY(bool resumeWindow READ getResumeWindow NOTIFY resumewindowChanged)
+    Q_PROPERTY(bool commandInProgress READ getCommandInProgress NOTIFY commandInProgressChanged)
 
  public:
     explicit EntityController(core::Api* core, const QString& language, const Config::UnitSystems unitSystem, int resumeTimeoutWindowSec,
@@ -63,12 +66,7 @@ class EntityController : public QObject {
     int                 getConfiguredEntitiesCount() { return m_configuredEntitiesCount; }
     QStringList         getActivities() { return m_activities; }
     bool                getResumeWindow() { return m_resumeWindow; }
-
-    /**
-     * @brief Load a configured entity from the core
-     * @param entityId: id of the entity to load
-     */
-    Q_INVOKABLE void load(const QString& entityId);
+    bool                getCommandInProgress() { return !m_busyEntities.isEmpty(); }
 
     /**
      * @brief Refresh entity data from the core
@@ -141,6 +139,8 @@ class EntityController : public QObject {
     void unitSystemChanged(Config::UnitSystems unitSystem);
     void activityStartedRunning(QString entityId);
     void voiceAssistantCommandError(QString entityId, int code);
+    void allEntitiesLoaded();
+    void commandInProgressChanged();
 
  public slots:
     /**
@@ -153,6 +153,7 @@ class EntityController : public QObject {
 
     void onLanguageChanged(QString language);
     void onUnitSystemChanged(Config::UnitSystems unitSystem);
+    void onEntityAdded(core::Entity entity);
     void onEntityChanged(const QString& entityId, core::Entity entity);
 
     void onEntityDeleted(const QString& entityId);
@@ -167,6 +168,7 @@ class EntityController : public QObject {
 
     core::Api*                    m_core;
     QHash<QString, entity::Base*> m_entities;
+    QSet<QString>                 m_connectedEntities;
     AvailableEntities             m_availableEntities;
     ConfiguredEntities            m_configuredEntities;
     int                           m_configuredEntitiesCount;
@@ -184,15 +186,29 @@ class EntityController : public QObject {
 
     QHash<QString, pendingCommand> m_pendingCommands;
 
+    // entities currently showing a "command in progress" indicator
+    QSet<QString> m_busyEntities;
+
+    // removes a pending command and clears the entity's busy indicator if it has no more pending commands
+    void removePendingCommand(const QString& commandId);
+    // true if any pending command targets this entity
+    bool hasPendingForEntity(const QString& entityId) const;
+    // flips the per-entity busy flag and the global commandInProgress state
+    void setEntityBusy(const QString& entityId, bool busy);
+
     bool   m_wasSuspended = false;
     bool   m_resumeWindow = false;
     int    m_resumeTimerTimeout = 2000;
+    quint64 m_entityLoadGeneration = 0;
 
     /**
      * @brief Creates an entity object, connetcs signals and adds it to the hash storing entities
      * @param entity: eneity struct provided by the core
      */
     void addEntityObject(core::Entity entity);
+    void connectLazySignals(entity::Base* obj);
+    void loadAllEntities(int page, quint64 generation, const QSharedPointer<QSet<QString>>& loadedEntityIds);
+    void removeMissingEntities(const QSet<QString>& loadedEntityIds);
 
     /**
      * @brief Updates availability of all entities

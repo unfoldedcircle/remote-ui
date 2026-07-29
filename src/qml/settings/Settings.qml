@@ -43,14 +43,20 @@ Settings.Page {
 
     Flow {
         width: parent.width
-        anchors { top: topNavigation.bottom }
+        anchors { top: topNavigation.bottom; bottom: parent.bottom }
 
         ListView {
             id: menu
-            width: parent.width; height: childrenRect.height
+            width: parent.width; height: parent.height
+            clip: true
 
-            interactive: false
+            interactive: true
+            boundsBehavior: Flickable.StopAtBounds
             highlightMoveDuration: 200
+            // keep the wheel-selected item within the viewport so the list scrolls with navigation
+            highlightRangeMode: ListView.ApplyRange
+            preferredHighlightBegin: height * 0.15
+            preferredHighlightEnd: height * 0.85
 
             model: [
                 {
@@ -62,6 +68,11 @@ Settings.Page {
                     itemTitle: QT_TR_NOOP("User interface"),
                     page: "Ui",
                     icon: "uc:list"
+                },
+                {
+                    itemTitle: QT_TR_NOOP("Touch Slider"),
+                    page: "TouchSlider",
+                    icon: "uc:sliders"
                 },
                 //                {
                 //                    itemTitle: QT_TR_NOOP("Colors"),

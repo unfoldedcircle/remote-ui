@@ -37,7 +37,6 @@ class GroupController : public QObject {
     void groupAdded(QString groupId, bool success);
     void groupUpdated(QString groupId, bool success);
     void groupAlreadyExists();
-    void requestEntity(QString entityId);
 
  public slots:
     void onEntityDeleted(QString entityId);
@@ -53,7 +52,6 @@ class GroupController : public QObject {
     void onGroupAdded(QString profileId, core::Group group);
     void onGroupChanged(QString profileId, core::Group group);
     void onGroupDeleted(QString profileId, QString groupId);
-    void onEntityRequested(QString entityId);
 };
 
 }  // namespace ui

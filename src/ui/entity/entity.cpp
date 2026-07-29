@@ -141,11 +141,9 @@ void Base::onLanguageChanged(QString language) {
 void Base::onStateChanged(QString entityId, int newState) {
     Q_UNUSED(entityId)
 
-    if (newState == 0) {
-        m_enabled = false;
-        emit entityEnabledChanged();
-    } else {
-        m_enabled = true;
+    const bool newEnabled = newState != 0;
+    if (m_enabled != newEnabled) {
+        m_enabled = newEnabled;
         emit entityEnabledChanged();
     }
 }

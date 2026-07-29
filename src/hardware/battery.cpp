@@ -29,8 +29,9 @@ void Battery::setLevel(int level) {
         m_level = level;
         emit levelChanged();
 
-        bool batteryLow = m_level <= m_lowLevelTreshold ? true : false;
+        bool batteryLow = m_level <= m_lowLevelTreshold;
         if (m_batteryLow != batteryLow) {
+            m_batteryLow = batteryLow;
             emit lowChanged(m_batteryLow);
         }
     }

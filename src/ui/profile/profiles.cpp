@@ -35,6 +35,10 @@ int Profiles::rowCount(const QModelIndex &parent) const {
 }
 
 bool Profiles::removeRows(int row, int count, const QModelIndex &parent) {
+    if (row < 0 || count <= 0 || (row + count) > m_data.size()) {
+        return false;
+    }
+
     beginRemoveRows(parent, row, row + count - 1);
     for (int i = row + count - 1; i >= row; i--) {
         Profile *profile = m_data.at(i);
@@ -65,6 +69,10 @@ QVariant Profiles::data(const QModelIndex &index, int role) const {
 
 bool Profiles::setData(const QModelIndex &index, const QVariant &value, int role) {
     bool ret = false;
+
+    if (index.row() < 0 || index.row() >= m_data.count()) {
+        return ret;
+    }
 
     Profile *profile = m_data[index.row()];
 
@@ -140,10 +148,14 @@ QModelIndex Profiles::getModelIndexByKey(const QString &key) {
 }
 
 Profile *Profiles::getProfile(const QString &key) {
-    return m_data[getModelIndexByKey(key).row()];
+    return getProfile(getModelIndexByKey(key).row());
 }
 
 Profile *Profiles::getProfile(int row) {
+    if (row < 0 || row >= m_data.count()) {
+        return nullptr;
+    }
+
     return m_data[row];
 }
 
@@ -152,7 +164,10 @@ void Profiles::removeItem(const QString &key) {
 }
 
 void Profiles::removeItem(int row) {
-    removeRows(row, 1, QModelIndex());
+    if (!removeRows(row, 1, QModelIndex())) {
+        return;
+    }
+
     emit countChanged(count());
 }
 
@@ -175,7 +190,9 @@ void Profiles::updateProfileRestricted(const QString &key, bool restricted) {
 // QML accesible methods
 
 QString Profiles::getProfileId(int row) {
-    return m_data[row]->getId();
+    Profile *profile = getProfile(row);
+
+    return profile ? profile->getId() : QString();
 }
 
 }  // namespace ui

@@ -49,6 +49,10 @@ int DiscoveredDocks::rowCount(const QModelIndex &parent) const {
 }
 
 bool DiscoveredDocks::removeRows(int row, int count, const QModelIndex &parent) {
+    if (row < 0 || count <= 0 || (row + count) > m_data.size()) {
+        return false;
+    }
+
     beginRemoveRows(parent, row, row + count - 1);
     for (int i = row + count - 1; i >= row; i--) {
         m_data.at(i)->deleteLater();
@@ -145,7 +149,7 @@ QModelIndex DiscoveredDocks::getModelIndexByKey(const QString &key) {
 
 bool DiscoveredDocks::contains(const QString &key) {
     for (int i = 0; i < m_data.count(); i++) {
-        if (m_data[i]->itemId().contains(key)) {
+        if (m_data[i]->itemId() == key) {
             return true;
         }
     }
@@ -153,9 +157,8 @@ bool DiscoveredDocks::contains(const QString &key) {
 }
 
 DiscoveredDock *DiscoveredDocks::get(const QString &key) {
-    //    return m_data[getModelIndexByKey(key).row()];
     for (int i = 0; i < m_data.count(); i++) {
-        if (m_data[i]->itemId().contains(key)) {
+        if (m_data[i]->itemId() == key) {
             return m_data[i];
         }
     }

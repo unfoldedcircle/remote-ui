@@ -10,6 +10,7 @@ import Battery 1.0
 import Wifi 1.0
 import Wifi.SignalStrength 1.0
 import SoftwareUpdate 1.0
+import Entity.Controller 1.0
 
 import "qrc:/components" as Components
 
@@ -142,6 +143,26 @@ Item {
 
         anchors { verticalCenter: parent.verticalCenter; right: parent.right; rightMargin: 5 }
         spacing: 5
+
+        // command-in-progress / background-retry indicator
+        Image {
+            id: commandLoadingIndicator
+
+            Layout.preferredWidth: 30
+            Layout.preferredHeight: 30
+            Layout.alignment: Qt.AlignVCenter
+
+            source: "qrc:/images/loader_small.png"
+            fillMode: Image.PreserveAspectFit
+            visible: EntityController.commandInProgress
+
+            RotationAnimation on rotation {
+                running: commandLoadingIndicator.visible
+                loops: Animation.Infinite
+                from: 0; to: 360
+                duration: 1200
+            }
+        }
 
         // loading indicator
         Item {

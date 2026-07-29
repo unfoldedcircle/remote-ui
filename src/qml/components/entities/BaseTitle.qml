@@ -38,45 +38,51 @@ Item {
         lineHeight: 0.8
     }
 
-    Components.Icon {
-        icon: "uc:wifi"
-        color: colors.offwhite
-        opacity: 0.5
-        size: 60
+    // right-aligned status cluster: wifi, battery, then the command-in-progress spinner
+    Row {
+        id: statusCluster
         anchors { right: parent.right; rightMargin: 60; verticalCenter: parent.verticalCenter }
-        visible: !Wifi.isConnected || Wifi.currentNetwork.signalStrength === SignalStrength.NONE ||  Wifi.currentNetwork.signalStrength === SignalStrength.WEAK
+        spacing: 10
 
         Components.Icon {
+            icon: "uc:wifi"
+            color: colors.offwhite
+            opacity: 0.5
             size: 60
-            icon: {
-                switch (Wifi.currentNetwork.signalStrength) {
-                case SignalStrength.NONE:
-                    return "";
-                case SignalStrength.WEAK:
-                    return "uc:wifi-weak";
-                default:
-                    return "";
+            anchors.verticalCenter: parent.verticalCenter
+            visible: !Wifi.isConnected || Wifi.currentNetwork.signalStrength === SignalStrength.NONE ||  Wifi.currentNetwork.signalStrength === SignalStrength.WEAK
+
+            Components.Icon {
+                size: 60
+                icon: {
+                    switch (Wifi.currentNetwork.signalStrength) {
+                    case SignalStrength.NONE:
+                        return "";
+                    case SignalStrength.WEAK:
+                        return "uc:wifi-weak";
+                    default:
+                        return "";
+                    }
                 }
+                opacity: icon === "" ? 0 : 1
+                anchors.centerIn: parent
             }
-            opacity: icon === "" ? 0 : 1
-            anchors.centerIn: parent
+
+            Rectangle {
+                width: 30
+                height: 2
+                color: colors.red
+                rotation: -45
+                transformOrigin: Item.Center
+                anchors.centerIn: parent
+                visible: !Wifi.isConnected
+            }
         }
 
-        Rectangle {
-            width: 30
-            height: 2
-            color: colors.red
-            rotation: -45
-            transformOrigin: Item.Center
-            anchors.centerIn: parent
-            visible: !Wifi.isConnected
-        }
-    }
-
-    Row {
-        anchors { right: parent.right; rightMargin: 60; verticalCenter: parent.verticalCenter }
-        spacing: 5
-        visible: Config.showBatteryEveryWhere
+        Row {
+            anchors.verticalCenter: parent.verticalCenter
+            spacing: 5
+            visible: Config.showBatteryEveryWhere
 
         Text {
             anchors.verticalCenter: parent.verticalCenter
@@ -118,6 +124,23 @@ Item {
                 color: colors.offwhite
                 opacity: 0.3
                 anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom }
+            }
+        }
+        }
+
+        Image {
+            id: commandLoadingIndicator
+            width: 32; height: 32
+            anchors.verticalCenter: parent.verticalCenter
+            source: "qrc:/images/loader_small.png"
+            fillMode: Image.PreserveAspectFit
+            visible: titleBase.parent && titleBase.parent.entityObj ? titleBase.parent.entityObj.commandInProgress : false
+
+            RotationAnimation on rotation {
+                running: commandLoadingIndicator.visible
+                loops: Animation.Infinite
+                from: 0; to: 360
+                duration: 1200
             }
         }
     }

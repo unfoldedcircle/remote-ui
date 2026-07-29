@@ -37,6 +37,10 @@ int PageItemList::rowCount(const QModelIndex &parent) const {
 }
 
 bool PageItemList::removeRows(int row, int count, const QModelIndex &parent) {
+    if (row < 0 || count <= 0 || (row + count) > m_data.size()) {
+        return false;
+    }
+
     beginRemoveRows(parent, row, row + count - 1);
     for (int i = row + count - 1; i >= row; i--) {
         m_data.at(i)->deleteLater();
@@ -78,9 +82,15 @@ void PageItemList::clear() {
     emit countChanged(count());
 }
 
-PageItem *PageItemList::getPageItem(int row) { return m_data[row]; }
+PageItem *PageItemList::getPageItem(int row) {
+    if (row < 0 || row >= m_data.count()) {
+        return nullptr;
+    }
 
-PageItem *PageItemList::getPageItem(const QString &key) { return m_data[getModelIndexByKey(key).row()]; }
+    return m_data[row];
+}
+
+PageItem *PageItemList::getPageItem(const QString &key) { return getPageItem(getModelIndexByKey(key).row()); }
 
 QModelIndex PageItemList::getModelIndexByKey(const QString &key) {
     QModelIndex idx;
@@ -97,7 +107,7 @@ QModelIndex PageItemList::getModelIndexByKey(const QString &key) {
 
 bool PageItemList::contains(const QString &key) {
     for (int i = 0; i < m_data.count(); i++) {
-        if (m_data[i]->pageItemId().contains(key)) {
+        if (m_data[i]->pageItemId() == key) {
             return true;
         }
     }
@@ -182,7 +192,6 @@ void Page::addEntity(const QString &entityId) {
         return;
     }
 
-    emit requestEntity(entityId);
     m_items->addItem(entityId, PageItem::Entity);
 }
 

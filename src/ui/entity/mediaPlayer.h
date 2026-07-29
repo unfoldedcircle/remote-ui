@@ -6,14 +6,16 @@
 /**
  * @see https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_media_player.md
  */
-
-#include <QBuffer>
 #include <QColor>
 #include <QImage>
+#include <QMetaObject>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QPixmap>
+#include <QPointer>
+#include <QThreadPool>
 #include <QTimer>
+
+#include <atomic>
 
 #include "../../core/structs.h"
 #include "entity.h"
@@ -70,7 +72,10 @@ class MediaPlayerFeatures : public QObject {
         Browse_media,
         Search_media,
         Search_media_classes,
-        Play_media_action
+        Search_media_filters,
+        Play_media,
+        Play_media_action,
+        Clear_playlist
     };
     Q_ENUM(Enum)
 };
@@ -426,6 +431,7 @@ class MediaPlayer : public Base {
     QString                     m_mediaType;
     QString                     m_mediaImageUrl;
     QString                     m_mediaImage;
+    QString                     m_mediaImageCacheKey;
     QColor                      m_mediaImageColor;
     QString                     m_mediaTitle;
     QString                     m_mediaArtist;
@@ -449,11 +455,16 @@ class MediaPlayer : public Base {
     QTimer m_positionTimer;
 
     QNetworkAccessManager m_nam;
-    void                  getMediaImageColor(QString imageUrl);
+    void                  getMediaImageColor(QString imageUrl, quint64 requestId);
     void                  clearMediaImageState();
+    void                  processMediaImageAsync(const QString &imageUrl, const QByteArray &imageData,
+                                                 quint64 requestId, const QString &dataUrl = QString());
+    void                  applyProcessedMediaImage(const QString &imageUrl, quint64 requestId,
+                                                   const QImage &mediaImage, const QColor &mediaImageColor,
+                                                   bool success);
     int                   m_mediaImageDownloadTries = 0;
-
-    QColor                computeAverageImageColor(QImage image);
+    std::atomic<quint64>  m_mediaImageProcessingRequestId{0};
+    bool                  isMediaImageRequestCurrent(quint64 requestId) const;
 
  private slots:
     void onPositionTimerTimeout();

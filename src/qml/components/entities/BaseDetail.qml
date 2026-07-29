@@ -154,6 +154,7 @@ Rectangle {
         z: 1001
     }
 
+
     Rectangle {
         id: unavailableOverlay
         color: colors.black

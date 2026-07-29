@@ -124,7 +124,7 @@ Rectangle {
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
         highlightMoveDuration: 200
-        cacheBuffer: 280 * 30
+        cacheBuffer: 280 * 4
 
         model: visualModel
 
