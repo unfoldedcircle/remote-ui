@@ -431,6 +431,10 @@
             <translation>Användargränssnitt</translation>
         </message>
         <message>
+            <source>Touch Slider</source>
+            <translation>Pekreglage</translation>
+        </message>
+        <message>
             <source>Sound &amp; Haptic</source>
             <translation>Ljud &amp; haptik</translation>
         </message>
@@ -758,7 +762,7 @@ om %1 sekunder.</translation>
         <name>Current</name>
         <message>
             <source>Current</source>
-            <translation>Nuvarande</translation>
+            <translation>Ström</translation>
         </message>
     </context>
     <context>
@@ -1160,6 +1164,45 @@ webbkonfiguratorn</translation>
         </message>
     </context>
     <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Volym</translation>
+        </message>
+        <message>
+            <source>Touch slider</source>
+            <translation>Pekreglage</translation>
+        </message>
+        <message>
+            <source>When off, the touch slider is disabled everywhere and swiping it does nothing.</source>
+            <translation>När detta är av så är pekreglaget avstängd överallt och svepning på den gör ingenting.</translation>
+        </message>
+        <message>
+            <source>Adjust how far the touch slider moves a value for a full-length swipe. Higher is more sensitive; 1.0 means one full swipe covers the whole range.</source>
+            <translation>Anpassa hur pass mycket pekreglaget ändrar värdet när man sveper längs dess hela längd. Högre värden ökar känsligheten; 1.0 innebär att en svepning längs hela pekreglaget täcker hela omfånget.</translation>
+        </message>
+        <message>
+            <source>Slide the hardware slider to test the highlighted setting.</source>
+            <translation>Svep på pekreglaget för att testa den markerade inställningen.</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Ljusstyrka</translation>
+        </message>
+        <message>
+            <source>Cover position</source>
+            <translation>Omslagsposition</translation>
+        </message>
+        <message>
+            <source>Seek</source>
+            <translation>Sök</translation>
+        </message>
+        <message>
+            <source>Test</source>
+            <translation>Test</translation>
+        </message>
+    </context>
+    <context>
         <name>Poweroff</name>
         <message>
             <source>Power off</source>
@@ -1441,7 +1484,7 @@ webbkonfiguratorn</translation>
         </message>
         <message>
             <source>Current %1</source>
-            <translation>Aktuell %1</translation>
+            <translation>Nuvarande %1</translation>
         </message>
         <message>
             <source>Heat/Cool</source>
@@ -2952,6 +2995,13 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>One</source>
             <translation>En</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state battery_charging</name>
+        <message>
+            <source>Charging</source>
+            <translation>Laddar</translation>
         </message>
     </context>
     <context>
