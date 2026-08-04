@@ -8,5 +8,10 @@
         <file alias="nl_NL.qm">../translations/nl_NL.qm</file>
         <file alias="fr_FR.qm">../translations/fr_FR.qm</file>
         <file alias="it_IT.qm">../translations/it_IT.qm</file>
+        <file alias="es_ES.qm">../translations/es_ES.qm</file>
+        <file alias="no_NO.qm">../translations/no_NO.qm</file>
+        <file alias="pl_PL.qm">../translations/pl_PL.qm</file>
+        <file alias="sv_SE.qm">../translations/sv_SE.qm</file>
+        <file alias="pt_PT.qm">../translations/pt_PT.qm</file>
     </qresource>
 </RCC>

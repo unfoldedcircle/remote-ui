@@ -241,7 +241,8 @@ TRANSLATIONS += resources/translations/da_DK.ts \
                resources/translations/es_ES.ts \
                resources/translations/no_NO.ts \
                resources/translations/pl_PL.ts \
-               resources/translations/sv_SE.ts
+               resources/translations/sv_SE.ts \
+               resources/translations/pt_PT.ts
 
 # -----------------------------------------------------------------------------
 # Qt Linguist tools
