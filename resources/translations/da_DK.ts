@@ -99,6 +99,10 @@
             <translation>Wifi-netværk</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Skjult netværk</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Næste</translation>
         </message>
@@ -1069,6 +1073,17 @@ Web-konfiguratoren</translation>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
             <translation>Vælg enheder, der skal tilføjes, ved at trykke på listen.</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Lydstyrke</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Lysstyrke</translation>
         </message>
     </context>
     <context>

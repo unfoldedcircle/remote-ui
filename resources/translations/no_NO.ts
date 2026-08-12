@@ -99,6 +99,10 @@
             <translation>Wifi-nettverk</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Skjult nettverk</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Neste</translation>
         </message>
@@ -1069,6 +1073,17 @@ webkonfigurasjonen</translation>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
             <translation>Vennligst velg enheter å legge til ved å trykke i listen.</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Volum</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Lysstyrke</translation>
         </message>
     </context>
     <context>

@@ -121,6 +121,10 @@
             <translation>Rete WiFi</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Rete nascosta</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Successivo</translation>
         </message>
@@ -1192,6 +1196,17 @@ del Configuratore Web</translation>
         <message>
             <source>Off</source>
             <translation>Spento/a</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Volume</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Luminosità</translation>
         </message>
     </context>
     <context>

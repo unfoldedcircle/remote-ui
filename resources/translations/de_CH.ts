@@ -156,6 +156,10 @@
             <translation>WiFi-Netzwärk</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Versteckts Netzwärk</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Wyter</translation>
         </message>
@@ -1377,6 +1381,17 @@ vom Web-Konfigurator</translation>
         <message>
             <source>Off</source>
             <translation>Aus</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Lutstärchi</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Helligkeit</translation>
         </message>
     </context>
     <context>

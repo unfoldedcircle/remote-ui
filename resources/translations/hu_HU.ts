@@ -99,6 +99,10 @@
             <translation>WiFi hálózat</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Rejtett hálózat</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Következő</translation>
         </message>
@@ -1073,6 +1077,17 @@ Web konfigurátor megnyitásához</translation>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
             <translation>Kérjük, válasszon entitásokat a hozzáadáshoz a listán való koppintással.</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Hangerő</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Fényerő</translation>
         </message>
     </context>
     <context>

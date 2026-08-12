@@ -156,6 +156,10 @@
             <translation>WiFi-Netzwerk</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Verstecktes Netzwerk</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Weiter</translation>
         </message>
@@ -803,7 +807,7 @@ in %1 Sekunden aus.</translation>
         </message>
         <message>
             <source>Season</source>
-            <translation>Saison</translation>
+            <translation>Staffel</translation>
         </message>
         <message>
             <source>TV Show</source>
@@ -1377,6 +1381,17 @@ den Web-Konfigurator zu öffnen</translation>
         <message>
             <source>Off</source>
             <translation>Aus</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Lautstärke</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Helligkeit</translation>
         </message>
     </context>
     <context>

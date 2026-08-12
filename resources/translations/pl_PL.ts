@@ -99,6 +99,10 @@
             <translation>Sieć Wi-Fi</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Ukryta sieć</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Dalej</translation>
         </message>
@@ -1067,6 +1071,17 @@ za %1 sekund.</translation>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
             <translation>Proszę wybrać funkcje do dodania, dotykając listy.</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Głośność</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Jasność</translation>
         </message>
     </context>
     <context>

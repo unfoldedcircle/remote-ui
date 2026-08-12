@@ -124,6 +124,10 @@
             <translation>WiFi-nätverk</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Dolt nätverk</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Nästa</translation>
         </message>

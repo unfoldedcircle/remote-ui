@@ -156,6 +156,10 @@
             <translation>Red WiFi</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Red oculta</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Siguiente</translation>
         </message>
@@ -1365,6 +1369,17 @@ el Configurador Web</translation>
         <message>
             <source>Off</source>
             <translation>Apagado</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Volumen</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Brillo</translation>
         </message>
     </context>
     <context>

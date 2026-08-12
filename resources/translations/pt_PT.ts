@@ -99,6 +99,10 @@
             <translation>Rede WiFi</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Rede oculta</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Próximo</translation>
         </message>
@@ -1072,6 +1076,17 @@ o Configurador Web</translation>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
             <translation>Por favor, selecione as entidades para adicionar tocando na lista.</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Volume</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Brilho</translation>
         </message>
     </context>
     <context>

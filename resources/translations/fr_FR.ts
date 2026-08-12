@@ -132,6 +132,10 @@
             <translation>Réseau WiFi</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Réseau masqué</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Suivant</translation>
         </message>
@@ -1212,6 +1216,17 @@ le configurateur web</translation>
         <message>
             <source>Off</source>
             <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Volume</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Luminosité</translation>
         </message>
     </context>
     <context>

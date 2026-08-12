@@ -99,6 +99,10 @@
             <translation>WiFi-netwerk</translation>
         </message>
         <message>
+            <source>Hidden network</source>
+            <translation>Verborgen netwerk</translation>
+        </message>
+        <message>
             <source>Next</source>
             <translation>Volgende</translation>
         </message>
@@ -1063,6 +1067,17 @@ over %1 seconden.</translation>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
             <translation>Selecteer entiteiten om toe te voegen door in de lijst te tikken.</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSlider</name>
+        <message>
+            <source>Volume</source>
+            <translation>Volume</translation>
+        </message>
+        <message>
+            <source>Brightness</source>
+            <translation>Helderheid</translation>
         </message>
     </context>
     <context>
