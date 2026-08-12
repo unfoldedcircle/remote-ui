@@ -4060,61 +4060,67 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>WifiSetup</name>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="103"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="106"/>
         <source>Enter SSID</source>
         <translation>Enter SSID</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="116"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="119"/>
         <source>Wifi network</source>
         <translation>Wifi network</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="125"/>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="193"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="130"/>
+        <source>Hidden network</source>
+        <extracomment>Checkbox to add a WiFi network which doesn&apos;t broadcast its name</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="139"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="207"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="134"/>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="228"/>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="301"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="148"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="242"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="316"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="153"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="167"/>
         <source>Choose WiFi security for
 %1</source>
         <translation>Choose WiFi security for
 %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="193"/>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="292"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="207"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="307"/>
         <source>Join</source>
         <extracomment>Join wifi network</extracomment>
         <translation>Join</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="205"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="219"/>
         <source>Select a security option</source>
         <translation>Select a security option</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="205"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="219"/>
         <source>Please select a security option</source>
         <translation>Please select a security option</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="266"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="281"/>
         <source>Enter WiFi password for
 %1</source>
         <translation>Enter WiFi password for
 %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="280"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="295"/>
         <source>Super secret</source>
         <extracomment>Placeholder text for password</extracomment>
         <translation>Super secret</translation>
@@ -4215,17 +4221,17 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>uc::core::Api</name>
     <message>
-        <location filename="../../src/core/core.cpp" line="1367"/>
+        <location filename="../../src/core/core.cpp" line="1372"/>
         <source>Connection error</source>
         <translation>Connection error</translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1368"/>
+        <location filename="../../src/core/core.cpp" line="1373"/>
         <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
         <translation>There was an error connecting to the core. If the issue persists, restart the remote.</translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1827"/>
+        <location filename="../../src/core/core.cpp" line="1832"/>
         <source>Authentication to core failed</source>
         <translation>Authentication to core failed</translation>
     </message>

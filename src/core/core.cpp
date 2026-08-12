@@ -909,12 +909,17 @@ int Api::wifiGetAllNetworks() {
     return sendRequest(RequestTypes::get_all_wifi_networks);
 }
 
-int Api::wifiAddNetwork(const QString& ssid, const QString& password) {
+int Api::wifiAddNetwork(const QString& ssid, const QString& password, bool hidden) {
     QVariantMap msgData;
     msgData.insert("ssid", ssid);
 
     if (!password.isEmpty()) {
         msgData.insert("password", password);
+    }
+
+    // optional field: only send it for a hidden network
+    if (hidden) {
+        msgData.insert("hidden", true);
     }
 
     return sendRequest(RequestTypes::add_wifi_network, msgData);

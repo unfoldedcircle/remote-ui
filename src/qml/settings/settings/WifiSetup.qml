@@ -39,6 +39,7 @@ Popup {
     property string networkId
     property string ssid
     property int security
+    property bool hidden: false
 
     onOpened: {
         buttonNavigation.takeControl();
@@ -53,6 +54,7 @@ Popup {
         ssidInputFieldContainer.inputField.clear();
         passwordInputFieldContainer.inputField.clear();
         securityGroup.checkState = Qt.Unchecked;
+        hiddenNetworkCheck.checked = false;
     }
 
     Components.ButtonNavigation {
@@ -90,6 +92,7 @@ Popup {
             function submitSsid() {
                 if (!ssidInputFieldContainer.isEmpty()) {
                     wifiSetup.ssid = ssidInputFieldContainer.inputField.text;
+                    wifiSetup.hidden = hiddenNetworkCheck.checked;
                     ssidInputFieldContainer.inputField.clear();
                     setupContainer.incrementCurrentIndex();
                 } else {
@@ -121,10 +124,21 @@ Popup {
                 moveInput: false
             }
 
+            Components.Checkbox {
+                id: hiddenNetworkCheck
+                //: Checkbox to add a WiFi network which doesn't broadcast its name
+                text: qsTr("Hidden network")
+                // the dock configuration doesn't support hidden networks
+                visible: !wifiSetup.dockNetworkSelection
+                width: parent.width - 20
+                height: visible ? implicitHeight : 0
+                anchors { left: ssidInputFieldContainer.left; leftMargin: 10; top: ssidInputFieldContainer.bottom; topMargin: visible ? 20 : 0 }
+            }
+
             Components.Button {
                 text: qsTr("Next")
                 width: parent.width / 2 - 10
-                anchors { right: ssidInputFieldContainer.right; top: ssidInputFieldContainer.bottom; topMargin: 40 }
+                anchors { right: ssidInputFieldContainer.right; top: hiddenNetworkCheck.bottom; topMargin: 40 }
                 trigger: function() {
                     ssidStep.submitSsid();
                 }
@@ -134,7 +148,7 @@ Popup {
                 text: qsTr("Cancel")
                 width: parent.width / 2 - 10
                 color: colors.secondaryButton
-                anchors { left: ssidInputFieldContainer.left; top: ssidInputFieldContainer.bottom; topMargin: 40 }
+                anchors { left: ssidInputFieldContainer.left; top: hiddenNetworkCheck.bottom; topMargin: 40 }
                 trigger: function() {
                     ssidInputFieldContainer.inputField.clear();
                     wifiSetup.close();
@@ -217,7 +231,7 @@ Popup {
                             if (!Wifi.isConnected) {
                                 loading.start();
                             }
-                            Wifi.connect(wifiSetup.ssid, "", wifiSetup.security);
+                            Wifi.connect(wifiSetup.ssid, "", wifiSetup.security, wifiSetup.hidden);
                         }
                         wifiSetup.close();
                     }
@@ -249,7 +263,8 @@ Popup {
                         if (!Wifi.isConnected) {
                             loading.start();
                         }
-                        Wifi.connect(wifiSetup.ssid, passwordInputFieldContainer.inputField.text, wifiSetup.security);
+                        Wifi.connect(wifiSetup.ssid, passwordInputFieldContainer.inputField.text, wifiSetup.security,
+                                     wifiSetup.hidden);
                     }
 
                     passwordInputFieldContainer.inputField.clear();

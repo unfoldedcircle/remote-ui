@@ -143,7 +143,7 @@ class Api : public QObject {
     int wifiScanStop();
     int wifiGetScanStatus();
     int wifiGetAllNetworks();
-    int wifiAddNetwork(const QString &ssid, const QString &password = "");
+    int wifiAddNetwork(const QString &ssid, const QString &password = "", bool hidden = false);
     int wifiDeleteAllNetworks();
     int wifiGetNetwork(int id);
     int wifiUpdateNetwork(int id, const QString &password);

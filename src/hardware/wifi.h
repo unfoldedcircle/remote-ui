@@ -120,7 +120,8 @@ class Wifi : public QObject {
 
     Q_INVOKABLE void turnOn();
     Q_INVOKABLE void turnOff();
-    Q_INVOKABLE void connect(const QString &ssid, const QString &password, uc::hw::Security::Enum security);
+    Q_INVOKABLE void connect(const QString &ssid, const QString &password, uc::hw::Security::Enum security,
+                             bool hidden = false);
     Q_INVOKABLE void connectSavedNetwork(int id);
     Q_INVOKABLE void enableSavedNetwork(int id, bool enable);
     Q_INVOKABLE void disconnect();
@@ -138,7 +139,8 @@ class Wifi : public QObject {
     Q_INVOKABLE QString getLastConnectedSsid() { return m_lastConnectedSSid; }
     Q_INVOKABLE QString getLastConnectedPassword() { return m_lastConnectedPassword; }
 
-    void addNetwork(const QString &ssid, const QString &password, uc::hw::Security::Enum security);
+    void addNetwork(const QString &ssid, const QString &password, uc::hw::Security::Enum security,
+                    bool hidden = false);
     void wifiNetworkCommand(int networkId, core::WifiEnums::WifiNetworkCmd command);
     void wifiCommand(core::WifiEnums::WifiCmd command);
     void clearKnownNetworkList();

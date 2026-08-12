@@ -60,11 +60,11 @@ void Wifi::turnOn() {}
 
 void Wifi::turnOff() {}
 
-void Wifi::connect(const QString &ssid, const QString &password, uc::hw::Security::Enum security) {
+void Wifi::connect(const QString &ssid, const QString &password, uc::hw::Security::Enum security, bool hidden) {
     qCDebug(lcHwWifi()) << "Connect with ssid security" << ssid << security;
     emit connecting();
 
-    addNetwork(ssid, password, security);
+    addNetwork(ssid, password, security, hidden);
     m_lastConnectedSSid     = ssid;
     m_lastConnectedPassword = password;
 }
@@ -316,10 +316,10 @@ void Wifi::deleteAllNetworks() {
         });
 }
 
-void Wifi::addNetwork(const QString &ssid, const QString &password, Security::Enum security) {
+void Wifi::addNetwork(const QString &ssid, const QString &password, Security::Enum security, bool hidden) {
     Q_UNUSED(security)
 
-    int id = m_core->wifiAddNetwork(ssid, password);
+    int id = m_core->wifiAddNetwork(ssid, password, hidden);
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::wifiNetworkChanged,
