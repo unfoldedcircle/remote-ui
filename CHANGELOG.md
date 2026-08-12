@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 ## Unreleased
+
+---
+
+## v0.76.0 - 2026-08-12
 ### Added
 - Hidden network option when joining a WiFi network by entering its name
 - WiFi security can be chosen when joining a network by entering its name: None, Auto, WPA/WPA2 Personal,
@@ -33,7 +37,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Joining a WiFi network from the list could configure the wrong network, or fail, if its name contains characters
   the remote cannot display. Two networks in range sharing such a displayed name were also shown as one entry
 
----
 ## v0.75.0 - 2026-08-07
 ### Added
 - Portuguese translation
