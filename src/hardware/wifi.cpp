@@ -197,20 +197,36 @@ void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan>
         emit scanActiveChanged();
     }
 
+    // a network can be broadcast by multiple access points: only keep the one with the strongest signal
+    QHash<QString, const core::AccessPointScan *> accessPoints;
+
     for (QList<core::AccessPointScan>::const_iterator i = scan.begin(); i != scan.end(); i++) {
-        if (!i->ssid.isEmpty()) {
-            Security::Enum security = fromApiSecurity(i->security);
-
-            if (security == Security::Enum::AUTO) {
-                // the core couldn't classify the network: fall back to secured or open
-                qCDebug(lcHwWifi()) << "Unclassified access point" << i->ssid << i->auth;
-                security = i->auth.isEmpty() ? Security::Enum::OPEN : Security::Enum::WPA2_PSK;
-            }
-
-            m_networkList.insert(i->ssid, new WifiNetwork(0, i->ssid, security, i->signalLevel, i->auth, "", "",
-                                                          i->frequency, true, this));
-            emit networkListChanged();
+        if (i->ssid.isEmpty()) {
+            continue;
         }
+
+        const core::AccessPointScan *accessPoint = accessPoints.value(i->ssid, nullptr);
+
+        if (accessPoint == nullptr || i->signalLevel > accessPoint->signalLevel) {
+            accessPoints.insert(i->ssid, &(*i));
+        }
+    }
+
+    for (QHash<QString, const core::AccessPointScan *>::const_iterator i = accessPoints.begin();
+         i != accessPoints.end(); i++) {
+        const core::AccessPointScan *accessPoint = i.value();
+        Security::Enum               security = fromApiSecurity(accessPoint->security);
+
+        if (security == Security::Enum::AUTO) {
+            // the core couldn't classify the network: fall back to secured or open
+            qCDebug(lcHwWifi()) << "Unclassified access point" << accessPoint->ssid << accessPoint->auth;
+            security = accessPoint->auth.isEmpty() ? Security::Enum::OPEN : Security::Enum::WPA2_PSK;
+        }
+
+        m_networkList.insert(accessPoint->ssid,
+                             new WifiNetwork(0, accessPoint->ssid, security, accessPoint->signalLevel,
+                                             accessPoint->auth, "", "", accessPoint->frequency, true, this));
+        emit networkListChanged();
     }
 }
 
