@@ -149,6 +149,7 @@ class Wifi : public QObject {
                     uc::hw::Security::Enum security = uc::hw::Security::AUTO, bool hidden = false);
 
     static core::WifiEnums::WifiSecurity toApiSecurity(uc::hw::Security::Enum security);
+    void updateNetworkList(bool scanActive, const QList<core::AccessPointScan> &scan);
     void wifiNetworkCommand(int networkId, core::WifiEnums::WifiNetworkCmd command);
     void wifiCommand(core::WifiEnums::WifiCmd command);
     void clearKnownNetworkList();

@@ -2971,7 +2971,7 @@ void Api::processWifiNetworks(int reqId, int code, QVariant msgData) {
             savedNetwork.ssid = listMap.value("ssid").toString();
             savedNetwork.state = Util::convertStringToEnum<WifiEnums::NetworkState>(listMap.value("state").toString());
             savedNetwork.secured = listMap.value("secured").toBool();
-            savedNetwork.signalLevel = listMap.value("signal_level").toBool();
+            savedNetwork.signalLevel = listMap.value("signal_level").toInt();
 
             networks.append(savedNetwork);
         }
@@ -2988,7 +2988,7 @@ void Api::processWifiNetwork(int reqId, int code, QVariant msgData) {
     savedNetwork.ssid = map.value("ssid").toString();
     savedNetwork.state = Util::convertStringToEnum<WifiEnums::NetworkState>(map.value("state").toString());
     savedNetwork.secured = map.value("secured").toBool();
-    savedNetwork.signalLevel = map.value("signal_level").toBool();
+    savedNetwork.signalLevel = map.value("signal_level").toInt();
 
     emit wifiNetworkChanged(reqId, code, savedNetwork);
 }

@@ -162,30 +162,7 @@ void Wifi::getWifiScanStatus() {
         id, &core::Api::wifiScanStatusChanged,
         [=](bool active, QList<core::AccessPointScan> scan) {
             // success
-            if (scan.size() > 0) {
-                clearNetworkList();
-
-                if (m_scanActive != active) {
-                    m_scanActive = active;
-                    emit scanActiveChanged();
-                }
-
-                for (QList<core::AccessPointScan>::iterator i = scan.begin(); i != scan.end(); i++) {
-                    if (!i->ssid.isEmpty()) {
-                        Security::Enum security;
-                        if (i->auth.isEmpty()) {
-                            security = Security::Enum::OPEN;
-                        } else {
-                            // TODO(marton): properly convert security
-                            qCDebug(lcHwWifi()) << "Access point" << i->ssid << i->auth;
-                            security = Security::Enum::WPA2_PSK;
-                        }
-
-                        m_networkList.insert(i->ssid, new WifiNetwork(0, i->ssid, security, i->signalLevel, i->auth, "", "", i->frequency, true, this));
-                        emit networkListChanged();
-                    }
-                }
-            }
+            updateNetworkList(active, scan);
         },
         [=](int code, QString message) {
             // fail
@@ -200,33 +177,42 @@ void Wifi::stopNetworkScan() {
         id, &core::Api::wifiScanStatusChanged,
         [=](bool active, QList<core::AccessPointScan> scan) {
             // success
-            if (scan.size() > 0) {
-                clearNetworkList();
-
-                if (m_scanActive != active) {
-                    m_scanActive = active;
-                    emit scanActiveChanged();
-                }
-
-                for (QList<core::AccessPointScan>::iterator i = scan.begin(); i != scan.end(); i++) {
-                    if (!i->ssid.isEmpty()) {
-                        Security::Enum security;
-                        if (i->auth.isEmpty()) {
-                            security = Security::Enum::OPEN;
-                        } else {
-                            security = Security::Enum::WPA2_PSK;
-                        }
-
-                        m_networkList.insert(i->ssid, new WifiNetwork(0, i->ssid, security, i->signalLevel, i->auth, "", "", i->frequency, true, this));
-                        emit networkListChanged();
-                    }
-                }
-            }
+            updateNetworkList(active, scan);
         },
         [=](int code, QString message) {
             // fail
             qCWarning(lcHwWifi()) << "Error while stopping network scan:" << code << message;
         });
+}
+
+void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan> &scan) {
+    if (scan.isEmpty()) {
+        return;
+    }
+
+    clearNetworkList();
+
+    if (m_scanActive != scanActive) {
+        m_scanActive = scanActive;
+        emit scanActiveChanged();
+    }
+
+    for (QList<core::AccessPointScan>::const_iterator i = scan.begin(); i != scan.end(); i++) {
+        if (!i->ssid.isEmpty()) {
+            Security::Enum security;
+            if (i->auth.isEmpty()) {
+                security = Security::Enum::OPEN;
+            } else {
+                // TODO(marton): properly convert security
+                qCDebug(lcHwWifi()) << "Access point" << i->ssid << i->auth;
+                security = Security::Enum::WPA2_PSK;
+            }
+
+            m_networkList.insert(i->ssid, new WifiNetwork(0, i->ssid, security, i->signalLevel, i->auth, "", "",
+                                                          i->frequency, true, this));
+            emit networkListChanged();
+        }
+    }
 }
 
 void Wifi::clearNetworkList() {
