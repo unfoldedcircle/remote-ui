@@ -60,8 +60,12 @@ Popup {
     }
     property bool savedNetwork: false
 
+    // let the popup take the keyboard focus so the buttons below can be reached with the d-pad
+    focus: true
+
     onOpened: {
         buttonNavigation.takeControl();
+        joinButton.forceActiveFocus();
     }
 
     onClosed: {
@@ -212,6 +216,11 @@ Popup {
                     text: qsTr("Join")
                     width: parent.width / 2 - 10
                     anchors { right: parent.right; bottom: parent.bottom }
+
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.left: cancelButton
+                    KeyNavigation.down: cancelButton
+
                     trigger: function() {
                         if (wifiJoin.savedNetwork) {
                             Wifi.connectSavedNetwork(wifiJoin.wifiNetwork.id);
@@ -229,10 +238,16 @@ Popup {
                 }
 
                 Components.Button {
+                    id: cancelButton
                     text: qsTr("Cancel")
                     width: parent.width / 2 - 10
                     color: colors.secondaryButton
                     anchors { left: parent.left; bottom: parent.bottom }
+
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.right: joinButton
+                    KeyNavigation.up: joinButton
+
                     trigger: function() {
                         wifiJoin.close();
                     }

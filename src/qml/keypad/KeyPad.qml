@@ -34,6 +34,73 @@ Item {
         keyPadContiner.pinToCheck = "";
     }
 
+    /** KEYBOARD NAVIGATION **/
+    // 3 x 4 grid, laid out in the same order as the Flow below. Index 9 is the empty filler cell
+    // and is skipped while navigating.
+    readonly property int columns: 3
+    readonly property int emptyIndex: 9
+    property int selectedIndex: 0
+
+    function moveSelection(deltaColumn, deltaRow) {
+        const columnCount = keyPadContiner.columns;
+        const rowCount = Math.ceil(keyModel.length / columnCount);
+
+        let column = keyPadContiner.selectedIndex % columnCount;
+        let row = Math.floor(keyPadContiner.selectedIndex / columnCount);
+
+        column = Math.max(0, Math.min(columnCount - 1, column + deltaColumn));
+        row = Math.max(0, Math.min(rowCount - 1, row + deltaRow));
+
+        let next = row * columnCount + column;
+
+        // the filler cell holds no key: keep going in the same direction, and stay put if that
+        // would leave the grid
+        if (next === keyPadContiner.emptyIndex) {
+            const shifted = next + (deltaColumn !== 0 ? deltaColumn : 0);
+            if (deltaColumn !== 0 && shifted >= 0 && shifted < keyModel.length) {
+                next = shifted;
+            } else {
+                return;
+            }
+        }
+
+        keyPadContiner.selectedIndex = next;
+    }
+
+    function applyKey(index) {
+        const key = keyModel[index];
+        if (!key) {
+            return;
+        }
+
+        if (key.backspace) {
+            keyPadContiner.pinToCheck = keyPadContiner.pinToCheck.slice(0, -1);
+        } else if (key.value !== "") {
+            keyPadContiner.pinToCheck += key.value;
+        }
+    }
+
+    function activateSelection() {
+        // the touch path gets its haptic from the key's own MouseArea
+        Haptic.play(Haptic.Click);
+        keyPadContiner.applyKey(keyPadContiner.selectedIndex);
+    }
+
+    readonly property var keyModel: [
+        { value: "1", backspace: false },
+        { value: "2", backspace: false },
+        { value: "3", backspace: false },
+        { value: "4", backspace: false },
+        { value: "5", backspace: false },
+        { value: "6", backspace: false },
+        { value: "7", backspace: false },
+        { value: "8", backspace: false },
+        { value: "9", backspace: false },
+        { value: "",  backspace: false },
+        { value: "0", backspace: false },
+        { value: "",  backspace: true }
+    ]
+
     // pin dots
     Flow {
         id: pinDots
@@ -94,95 +161,31 @@ Item {
         width: parent.width
         anchors.top: pinDots.bottom
 
-        Keypad.Key {
-            value: "1"
-            mouseArea.onClicked: pinToCheck += value
-        }
+        Repeater {
+            model: keyPadContiner.keyModel
 
-        Keypad.Key {
-            value: "2"
-            mouseArea.onClicked: pinToCheck += value
-        }
+            delegate: Item {
+                width: keyPad.width/3; height: 140
 
-        Keypad.Key {
-            value: "3"
-            mouseArea.onClicked: pinToCheck += value
-        }
+                Keypad.Key {
+                    anchors.fill: parent
+                    value: modelData.value
+                    highlight: keyPadContiner.selectedIndex === index
+                    // the filler cell in the bottom left row holds no key
+                    visible: modelData.value !== "" || modelData.backspace
 
-        Keypad.Key {
-            value: "4"
-            mouseArea.onClicked: pinToCheck += value
-        }
+                    mouseArea.onClicked: {
+                        keyPadContiner.selectedIndex = index;
+                        keyPadContiner.applyKey(index);
+                    }
 
-        Keypad.Key {
-            value: "5"
-            mouseArea.onClicked: pinToCheck += value
-        }
-
-        Keypad.Key {
-            value: "6"
-            mouseArea.onClicked: pinToCheck += value
-        }
-
-        Keypad.Key {
-            value: "7"
-            mouseArea.onClicked: pinToCheck += value
-        }
-
-        Keypad.Key {
-            value: "8"
-            mouseArea.onClicked: pinToCheck += value
-        }
-
-        Keypad.Key {
-            value: "9"
-            mouseArea.onClicked: pinToCheck += value
-        }
-
-        Item {
-            width: parent.width/3; height: 140
-        }
-
-        Keypad.Key {
-            value: "0"
-            mouseArea.onClicked: pinToCheck += value
-        }
-
-        Rectangle {
-            id: keypadKey
-            width: parent.width/3; height: 140
-            color: colors.black
-            radius: width/2
-
-            states: State {
-                name: "pressed"
-                when: mouseArea.pressed
-                PropertyChanges {
-                    target: keypadKey
-                    color: colors.offwhite
-                    border.color: colors.transparent
-                }
-            }
-
-            transitions: [
-                Transition {
-                    from: ""; to: "pressed"; reversible: true
-                    PropertyAnimation { target: keypadKey
-                        properties: "color"; duration: 300 }
-                }]
-
-            Components.Icon {
-                color: colors.offwhite
-                icon: "uc:arrow-left"
-                anchors.centerIn: parent
-                size: 80
-            }
-
-            Components.HapticMouseArea {
-                id: mouseArea
-                anchors.fill: parent
-                onClicked: {
-                    pinToCheck = pinToCheck.slice(0, -1);
+                    Components.Icon {
+                        color: colors.offwhite
+                        icon: "uc:arrow-left"
+                        anchors.centerIn: parent
+                        size: 80
+                        visible: modelData.backspace
+                    }
                 }
             }
         }

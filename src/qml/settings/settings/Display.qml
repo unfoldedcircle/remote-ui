@@ -14,6 +14,8 @@ import "qrc:/components" as Components
 
 Settings.Page {
     id: displayPageContent
+    scrollTarget: flickable
+    initialFocusItem: displayAutoBrightnessSwitch
 
     Flickable {
         id: flickable
@@ -25,15 +27,7 @@ Settings.Page {
 
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
-
-        onContentYChanged: {
-            if (contentY < 0) {
-                contentY = 0;
-            }
-            if (contentY > 1100) {
-                contentY = 1100;
-            }
-        }
+        boundsBehavior: Flickable.StopAtBounds
 
         Behavior on contentY {
             NumberAnimation { duration: 300 }
@@ -77,10 +71,6 @@ Settings.Page {
                         /** KEYBOARD NAVIGATION **/
                         KeyNavigation.down: displayBrightnessSlider
                         highlight: activeFocus && ui.keyNavigationEnabled
-
-                        Component.onCompleted: {
-                            displayAutoBrightnessSwitch.forceActiveFocus();
-                        }
                     }
                 }
 

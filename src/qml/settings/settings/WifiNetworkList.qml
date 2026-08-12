@@ -39,6 +39,83 @@ ListView {
         joinLoadingAnimation.visible = true;
     }
 
+    /** KEYBOARD NAVIGATION **/
+    // ListView handles DPAD_UP/DOWN itself while focused, and ignores the key at either end of the
+    // list, which lets the KeyNavigation of the page carry the focus on to the next control.
+    keyNavigationWraps: false
+
+    onActiveFocusChanged: {
+        // a collapsed section can not be expanded with the keypad, so open it on arrival
+        if (activeFocus && wifiNetworkList.state === "closed") {
+            wifiNetworkList.state = "open";
+        }
+    }
+
+    Keys.onReturnPressed: {
+        if (wifiNetworkList.currentItem && wifiNetworkList.currentItem.network) {
+            wifiNetworkList.selectNetwork(wifiNetworkList.currentItem.network,
+                                          wifiNetworkList.currentItem.loadingAnimation);
+        }
+
+        event.accepted = true;
+    }
+
+    function selectNetwork(network, loadingAnimation) {
+        if (!wifiNetworkList.knownNetworks) {
+            if (network.encrypted) {
+                wifiPassword.start(network);
+            } else if (wifiNetworkList.dockNetworkSelection) {
+                wifiNetworkList.wifiNetworkSelected(network.ssid, "");
+            } else {
+                wifiJoin.start(network);
+            }
+
+            return;
+        }
+
+        if (network.identifier === Wifi.currentNetwork.identifier) {
+            wifiInfo.showWifiInfo(network.id, Wifi.currentNetwork.ssid, network.identifier,
+                                  Wifi.macAddress, Wifi.ipAddress);
+            return;
+        }
+
+        popupMenu.title = network.ssid;
+        let menuItems = [];
+        menuItems.push({
+                           //: Wifi network join
+                           title: qsTr("Join and disable others"),
+                           icon: "uc:wifi",
+                           callback: function() {
+                               wifiNetworkList.joinNetwork(network.id, loadingAnimation);
+                               Wifi.connectSavedNetwork(network.id);
+                               ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
+                           }
+                       });
+        menuItems.push({
+                           //: Wifi network enable or disable
+                           title: network.enabled ? qsTr("Disable") : qsTr("Enable"),
+                           icon: network.enabled ? "uc:circle-xmark": "uc:circle-check",
+                           callback: function() {
+                               Wifi.enableSavedNetwork(network.id, !network.enabled);
+                               ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
+                           }
+                       });
+        menuItems.push({
+                           //: Wifi network delete
+                           title:qsTr("Delete"),
+                           icon: "uc:trash",
+                           callback: function() {
+                               ui.createActionableWarningNotification(qsTr("Remove WiFi network"), qsTr("Are you sure you want to remove the network %1?").arg(network.ssid), "uc:triangle-exclamation",
+                                                                      function(){
+                                                                          Wifi.deleteSavedNetwork(network.identifier);
+                                                                          ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
+                                                                      }, qsTr("Remove"));
+                           }
+                       });
+        popupMenu.menuItems = menuItems;
+        popupMenu.open();
+    }
+
     populate: Transition {
         NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 400 }
     }
@@ -179,64 +256,26 @@ ListView {
         id: wifiNetwork
 
         Components.HapticMouseArea {
+            id: networkDelegate
             width: ListView.view.width
             height: currentNetworkSSID.height + 40
 
+            property var network: modelData
+            property alias loadingAnimation: joinLoadingAnimation
+
             onClicked: {
-                if (wifiNetworkList.knownNetworks) {
-                    if (modelData.identifier === Wifi.currentNetwork.identifier) {
-                        wifiInfo.showWifiInfo(modelData.id, Wifi.currentNetwork.ssid, modelData.identifier,
-                                              Wifi.macAddress, Wifi.ipAddress);
-                    } else {
-                        if (wifiNetworkList.knownNetworks) {
-                            popupMenu.title = modelData.ssid;
-                            let menuItems = [];
-                            menuItems.push({
-                                               //: Wifi network join
-                                               title: qsTr("Join and disable others"),
-                                               icon: "uc:wifi",
-                                               callback: function() {
-                                                   wifiNetworkList.joinNetwork(modelData.id, joinLoadingAnimation);
-                                                   Wifi.connectSavedNetwork(modelData.id);
-                                                   ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
-                                               }
-                                           });
-                            menuItems.push({
-                                               //: Wifi network enable or disable
-                                               title: modelData.enabled ? qsTr("Disable") : qsTr("Enable"),
-                                               icon: modelData.enabled ? "uc:circle-xmark": "uc:circle-check",
-                                               callback: function() {
-                                                   Wifi.enableSavedNetwork(modelData.id, !modelData.enabled);
-                                                   ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
-                                               }
-                                           });
-                            menuItems.push({
-                                               //: Wifi network delete
-                                               title:qsTr("Delete"),
-                                               icon: "uc:trash",
-                                               callback: function() {
-                                                   ui.createActionableWarningNotification(qsTr("Remove WiFi network"), qsTr("Are you sure you want to remove the network %1?").arg(modelData.ssid), "uc:triangle-exclamation",
-                                                                                          function(){
-                                                                                              Wifi.deleteSavedNetwork(modelData.identifier);
-                                                                                              ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
-                                                                                          }, qsTr("Remove"));
-                                               }
-                                           });
-                            popupMenu.menuItems = menuItems;
-                            popupMenu.open();
-                        }
-                    }
-                } else {
-                    if (modelData.encrypted) {
-                        wifiPassword.start(modelData);
-                    } else {
-                        // if the component is used for dock wifi selection, we emit a signal
-                        if (wifiNetworkList.dockNetworkSelection) {
-                            wifiNetworkList.wifiNetworkSelected(modelData.ssid, "");
-                        } else {
-                            wifiJoin.start(modelData);
-                        }
-                    }
+                wifiNetworkList.currentIndex = index;
+                wifiNetworkList.selectNetwork(modelData, joinLoadingAnimation);
+            }
+
+            Rectangle {
+                anchors { fill: parent; margins: 2 }
+                radius: ui.cornerRadiusSmall
+                color: colors.transparent
+                border {
+                    width: 2
+                    color: networkDelegate.ListView.isCurrentItem && wifiNetworkList.activeFocus
+                           && ui.keyNavigationEnabled ? colors.highlight : colors.transparent
                 }
             }
 

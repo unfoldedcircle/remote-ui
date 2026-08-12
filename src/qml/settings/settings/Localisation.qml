@@ -14,6 +14,8 @@ import "qrc:/components" as Components
 
 Settings.Page {
     id: localisationPageContent
+    scrollTarget: flickable
+    initialFocusItem: languageSelector
 
     property var callBack
 
@@ -43,15 +45,7 @@ Settings.Page {
 
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
-
-        onContentYChanged: {
-            if (contentY < 0) {
-                contentY = 0;
-            }
-            if (contentY > 1100) {
-                contentY = 1100;
-            }
-        }
+        boundsBehavior: Flickable.StopAtBounds
 
         Behavior on contentY {
             NumberAnimation { duration: 300 }
@@ -116,10 +110,6 @@ Settings.Page {
                 }
 
                 /** KEYBOARD NAVIGATION **/
-                Component.onCompleted: {
-                    languageSelector.forceActiveFocus();
-                }
-
                 Components.ButtonNavigation {
                     overrideActive: languageSelector.activeFocus
                     defaultConfig: {

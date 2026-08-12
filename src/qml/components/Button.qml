@@ -27,15 +27,38 @@ Rectangle {
     width: title.implicitWidth + 40; height: 80
     color: colors.primaryButton
     radius: ui.cornerRadiusSmall
-    border { width: 2; color: Qt.lighter(button.color, 1.3) }
+    border { width: 2; color: highlight ? colors.highlight : Qt.lighter(button.color, 1.3) }
 
     signal triggered()
 
     property alias text: title.text
     property alias textColor: title.color
     property int fontSize: 26
-    property bool highlight: false
+    property bool highlight: activeFocus && ui.keyNavigationEnabled
     property var trigger
+
+    function activate() {
+        if (!button.enabled) {
+            return;
+        }
+
+        Haptic.play(Haptic.Click);
+        if (button.trigger) {
+            button.trigger();
+        }
+        button.triggered();
+    }
+
+    // DPAD_MIDDLE maps to Key_Return: activate the button when it holds the keyboard focus.
+    Keys.onReturnPressed: {
+        button.activate();
+        event.accepted = true;
+    }
+
+    Keys.onEnterPressed: {
+        button.activate();
+        event.accepted = true;
+    }
 
     states: State {
         name: "pressed"

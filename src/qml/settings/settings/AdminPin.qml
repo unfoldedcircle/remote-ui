@@ -12,6 +12,40 @@ import "qrc:/keypad" as Keypad
 Settings.Page {
     id: adminPinContent
 
+    function currentKeypad() {
+        return keyPadSwipeView.currentIndex === 0 ? keypadOne : keypadTwo;
+    }
+
+    Component.onCompleted: {
+        buttonNavigation.extendDefaultConfig({
+                                                 "DPAD_UP": {
+                                                     "pressed": function() {
+                                                         adminPinContent.currentKeypad().moveSelection(0, -1);
+                                                     }
+                                                 },
+                                                 "DPAD_DOWN": {
+                                                     "pressed": function() {
+                                                         adminPinContent.currentKeypad().moveSelection(0, 1);
+                                                     }
+                                                 },
+                                                 "DPAD_LEFT": {
+                                                     "pressed": function() {
+                                                         adminPinContent.currentKeypad().moveSelection(-1, 0);
+                                                     }
+                                                 },
+                                                 "DPAD_RIGHT": {
+                                                     "pressed": function() {
+                                                         adminPinContent.currentKeypad().moveSelection(1, 0);
+                                                     }
+                                                 },
+                                                 "DPAD_MIDDLE": {
+                                                     "pressed": function() {
+                                                         adminPinContent.currentKeypad().activateSelection();
+                                                     }
+                                                 }
+                                             });
+    }
+
     SwipeView {
         id: keyPadSwipeView
         interactive: false

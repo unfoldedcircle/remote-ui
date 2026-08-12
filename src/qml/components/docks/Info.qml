@@ -51,6 +51,15 @@ Item {
         dockId = "";
     }
 
+    function scrollDown() {
+        dockInfoFlickable.contentY = Math.min(dockInfoFlickable.contentY + 100,
+                                              Math.max(0, dockInfoFlickable.contentHeight - dockInfoFlickable.height));
+    }
+
+    function scrollUp() {
+        dockInfoFlickable.contentY = Math.max(0, dockInfoFlickable.contentY - 100);
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
         overrideActive: ui.inputController.activeItem === popup
@@ -63,6 +72,16 @@ Item {
             "HOME": {
                 "pressed": function() {
                     dockInfoContainer.popup.close()
+                }
+            },
+            "DPAD_DOWN": {
+                "pressed": function() {
+                    dockInfoContainer.scrollDown();
+                }
+            },
+            "DPAD_UP": {
+                "pressed": function() {
+                    dockInfoContainer.scrollUp();
                 }
             }
         }

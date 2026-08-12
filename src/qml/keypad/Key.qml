@@ -15,6 +15,12 @@ Rectangle {
     property int _height: 140
     property string value
     property alias mouseArea: mouseArea
+    property bool highlight: false
+
+    border {
+        width: 2
+        color: keypadKey.highlight && ui.keyNavigationEnabled ? colors.highlight : colors.transparent
+    }
 
     states: State {
         name: "pressed"

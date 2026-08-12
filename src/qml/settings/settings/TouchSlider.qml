@@ -15,6 +15,8 @@ import "qrc:/components" as Components
 
 Settings.Page {
     id: touchSliderPageContent
+    scrollTarget: flickable
+    initialFocusItem: enabledSwitch
 
     // the use case reflected by the test popup — the focused / last-adjusted sensitivity
     property real testGain: Config.touchSliderGainVolume
@@ -41,6 +43,7 @@ Settings.Page {
 
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
+        boundsBehavior: Flickable.StopAtBounds
 
         Behavior on contentY {
             NumberAnimation { duration: 300 }
@@ -79,8 +82,6 @@ Settings.Page {
 
                     KeyNavigation.down: volumeSlider
                     highlight: activeFocus && ui.keyNavigationEnabled
-
-                    Component.onCompleted: enabledSwitch.forceActiveFocus()
                 }
             }
 

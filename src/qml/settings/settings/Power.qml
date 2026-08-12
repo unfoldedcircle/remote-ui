@@ -15,6 +15,10 @@ import "qrc:/components" as Components
 
 Settings.Page {
     id: powerPageContent
+    scrollTarget: flickable
+    // the wowlan switch is hidden on some models, then the first slider takes the focus
+    initialFocusItem: (HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled) ? wowlanSwitch
+                                                                                 : resumeTimeoutValueSlider
 
     function secondsToTime(e){
         let m = Math.floor(e % 3600 / 60).toString();
@@ -36,15 +40,7 @@ Settings.Page {
 
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
-
-        onContentYChanged: {
-            if (contentY < 0) {
-                contentY = 0;
-            }
-            if (contentY > 1100) {
-                contentY = 1100;
-            }
-        }
+        boundsBehavior: Flickable.StopAtBounds
 
         Behavior on contentY {
             NumberAnimation { duration: 300 }
@@ -88,12 +84,6 @@ Settings.Page {
                         /** KEYBOARD NAVIGATION **/
                         KeyNavigation.down: resumeTimeoutValueSlider
                         highlight: activeFocus && ui.keyNavigationEnabled
-
-                        Component.onCompleted: {
-                            if (Wifi.wowlanEnabled) {
-                                wowlanSwitch.forceActiveFocus();
-                            }
-                        }
                     }
                 }
 
@@ -223,11 +213,6 @@ Settings.Page {
                     KeyNavigation.down: displayoffTimeoutSlider
                     highlight: activeFocus && ui.keyNavigationEnabled
 
-                    Component.onCompleted: {
-                        if (HwInfo.modelNumber != "UCR3") {
-                            wakeupSensitivitySlider.forceActiveFocus();
-                        }
-                    }
                 }
             }
 

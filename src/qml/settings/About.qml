@@ -16,6 +16,7 @@ import "qrc:/settings" as Settings
 
 Settings.Page {
     id: aboutPage
+    scrollTarget: flickable
 
     function loadPage(page) {
         parentSwipeView.thirdPage.setSource(menu.model[page].page === ResourceTypes.Licenses ? "qrc:/settings/about/LicensePage.qml" : "qrc:/settings/about/AboutPage.qml", { parentSwipeView: profileRoot, topNavigationText: qsTr(menu.model[page].itemTitle), type: menu.model[page].page });
@@ -45,110 +46,129 @@ Settings.Page {
                                              });
     }
 
-    buttonNavigation.enabled: ui.showRegulatoryInfo
-
-    Flow {
+    Flickable {
+        id: flickable
         width: parent.width
+        height: parent.height - topNavigation.height
         anchors { top: topNavigation.bottom }
+        contentWidth: width; contentHeight: aboutFlow.implicitHeight
+        clip: true
 
-        Loader {
-            sourceComponent: aboutInfo
-            onLoaded: {
-                item.title = qsTr("Model number");
-                item.value = HwInfo.modelNumber
-            }
+        maximumFlickVelocity: 6000
+        flickDeceleration: 1000
+        boundsBehavior: Flickable.StopAtBounds
+
+        Behavior on contentY {
+            NumberAnimation { duration: 300 }
         }
 
-        Loader {
-            sourceComponent: aboutInfo
-            onLoaded: {
-                item.title = qsTr("Serial number");
-                item.value = HwInfo.serialNumber
-            }
-        }
+        Flow {
+            id: aboutFlow
+            width: parent.width
 
-        Loader {
-            sourceComponent: aboutInfo
-            onLoaded: {
-                item.title = qsTr("Revision");
-                item.value = HwInfo.revision
-            }
-        }
-
-        Loader {
-            sourceComponent: aboutInfo
-            onLoaded: {
-                item.title = qsTr("Wi-Fi address");
-                item.value = Wifi.macAddress
-            }
-        }
-
-        Loader {
-            sourceComponent: aboutInfo
-            onLoaded: {
-                item.title = qsTr("Bluetooth address");
-                item.value = Config.bluetoothMac;
-            }
-        }
-
-        Loader {
-            sourceComponent: aboutInfo
-            onLoaded: {
-                item.title = qsTr("UI version")
-                item.value = SoftwareUpdate.uiVersion
-            }
-        }
-
-        Loader {
-            sourceComponent: aboutInfo
-            onLoaded: {
-                item.title = qsTr("Core version")
-                item.value = SoftwareUpdate.coreVersion
-            }
-        }
-
-        Loader {
-            sourceComponent: aboutInfo
-            onLoaded: {
-                item.title = qsTr("System version")
-                item.value = SoftwareUpdate.currentVersion
-                item.bottomLine.visible = false;
-            }
-        }
-
-        Item {
-            width: ui.width
-            height: 40
-        }
-
-        ListView {
-            id: menu
-            width: parent.width; height: childrenRect.height
-
-            interactive: false
-            highlightMoveDuration: 200
-            pressDelay: 200
-
-            model: [
-                {
-                    itemTitle: qsTr("Regulatory"),
-                    page: ResourceTypes.Regulatory
-                },
-                {
-                    itemTitle: qsTr("Terms & conditions"),
-                    page: ResourceTypes.Terms
-                },
-                {
-                    itemTitle: qsTr("Warranty information"),
-                    page: ResourceTypes.Warranty
-                },
-                {
-                    itemTitle: qsTr("Licenses"),
-                    page: ResourceTypes.Licenses
+            Loader {
+                sourceComponent: aboutInfo
+                onLoaded: {
+                    item.title = qsTr("Model number");
+                    item.value = HwInfo.modelNumber
                 }
-            ]
+            }
 
-            delegate: menuItem
+            Loader {
+                sourceComponent: aboutInfo
+                onLoaded: {
+                    item.title = qsTr("Serial number");
+                    item.value = HwInfo.serialNumber
+                }
+            }
+
+            Loader {
+                sourceComponent: aboutInfo
+                onLoaded: {
+                    item.title = qsTr("Revision");
+                    item.value = HwInfo.revision
+                }
+            }
+
+            Loader {
+                sourceComponent: aboutInfo
+                onLoaded: {
+                    item.title = qsTr("Wi-Fi address");
+                    item.value = Wifi.macAddress
+                }
+            }
+
+            Loader {
+                sourceComponent: aboutInfo
+                onLoaded: {
+                    item.title = qsTr("Bluetooth address");
+                    item.value = Config.bluetoothMac;
+                }
+            }
+
+            Loader {
+                sourceComponent: aboutInfo
+                onLoaded: {
+                    item.title = qsTr("UI version")
+                    item.value = SoftwareUpdate.uiVersion
+                }
+            }
+
+            Loader {
+                sourceComponent: aboutInfo
+                onLoaded: {
+                    item.title = qsTr("Core version")
+                    item.value = SoftwareUpdate.coreVersion
+                }
+            }
+
+            Loader {
+                sourceComponent: aboutInfo
+                onLoaded: {
+                    item.title = qsTr("System version")
+                    item.value = SoftwareUpdate.currentVersion
+                    item.bottomLine.visible = false;
+                }
+            }
+
+            Item {
+                width: ui.width
+                height: 40
+            }
+
+            ListView {
+                id: menu
+                width: parent.width; height: childrenRect.height
+
+                interactive: false
+                highlightMoveDuration: 200
+                pressDelay: 200
+
+                // the list is laid out at full height inside the page Flickable, so it never scrolls
+                // itself - keep the keypad selection visible by scrolling the page instead
+                onCurrentIndexChanged: aboutPage.ensureVisible(menu.currentItem)
+
+                model: [
+                    {
+                        itemTitle: qsTr("Regulatory"),
+                        page: ResourceTypes.Regulatory
+                    },
+                    {
+                        itemTitle: qsTr("Terms & conditions"),
+                        page: ResourceTypes.Terms
+                    },
+                    {
+                        itemTitle: qsTr("Warranty information"),
+                        page: ResourceTypes.Warranty
+                    },
+                    {
+                        itemTitle: qsTr("Licenses"),
+                        page: ResourceTypes.Licenses
+                    }
+                ]
+
+                delegate: menuItem
+            }
         }
     }
 

@@ -25,18 +25,37 @@ Item {
 
     property alias checked: button.checked
     property alias _opacity: button.opacity
-    property bool highlight: false
+    property bool highlight: activeFocus && ui.keyNavigationEnabled
     property var trigger
     property string icon
+
+    function activate() {
+        Haptic.play(Haptic.Click);
+        button.toggle();
+        if (trigger) {
+            trigger();
+        }
+    }
+
+    // DPAD_MIDDLE maps to Key_Return. The inner QtQuick Switch never sees it: focus is held by this
+    // container, and an unhandled key bubbles up the parent chain, not down to the child. Handle it
+    // here so a switch reached with the d-pad can actually be toggled.
+    Keys.onReturnPressed: {
+        buttonContainer.activate();
+        event.accepted = true;
+    }
+
+    Keys.onEnterPressed: {
+        buttonContainer.activate();
+        event.accepted = true;
+    }
 
     Switch {
         id: button
         implicitHeight: buttonContainer.height; implicitWidth: buttonContainer.width
 
         onClicked: {
-            Haptic.play(Haptic.Click);
-            button.toggle();
-            trigger();
+            buttonContainer.activate();
         }
 
         indicator: Rectangle {

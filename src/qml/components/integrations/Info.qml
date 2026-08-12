@@ -68,6 +68,15 @@ Flickable {
         integrationId = "";
     }
 
+    function scrollDown() {
+        integrationInfoFlickable.contentY = Math.min(integrationInfoFlickable.contentY + 100,
+                                                     Math.max(0, integrationInfoFlickable.contentHeight - integrationInfoFlickable.height));
+    }
+
+    function scrollUp() {
+        integrationInfoFlickable.contentY = Math.max(0, integrationInfoFlickable.contentY - 100);
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
         overrideActive: ui.inputController.activeItem === popup
@@ -80,6 +89,16 @@ Flickable {
             "HOME": {
                 "pressed": function() {
                     integrationInfoFlickable.popup.close()
+                }
+            },
+            "DPAD_DOWN": {
+                "pressed": function() {
+                    integrationInfoFlickable.scrollDown();
+                }
+            },
+            "DPAD_UP": {
+                "pressed": function() {
+                    integrationInfoFlickable.scrollUp();
                 }
             }
         }

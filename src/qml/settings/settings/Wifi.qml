@@ -19,6 +19,8 @@ import "qrc:/components" as Components
 Settings.Page {
     id: wifiPageContent
     topNavigation.z: 400
+    scrollTarget: flickableContent
+    initialFocusItem: bluetoothSwitch
 
     function loadList(title, list, showSearch = true, selectedItem = 0) {
         popupListLoader.setSource("qrc:/components/PopupList.qml", { title: title, listModel: list, showSearch: showSearch, initialSelected: selectedItem, countryList: title.includes("country") });
@@ -98,10 +100,6 @@ Settings.Page {
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.down: wifiSwitch
                     highlight: activeFocus && ui.keyNavigationEnabled
-
-                    Component.onCompleted: {
-                        bluetoothSwitch.forceActiveFocus();
-                    }
                 }
             }
 
@@ -180,6 +178,7 @@ Settings.Page {
 
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: wifiSwitch
+                    KeyNavigation.down: wifiScanIntervalValueSlider
                     highlight: activeFocus && ui.keyNavigationEnabled
                 }
             }
@@ -222,6 +221,7 @@ Settings.Page {
 
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: wifiScanIntervalSwitch
+                    KeyNavigation.down: bandSelector
                     highlight: activeFocus && ui.keyNavigationEnabled
                 }
             }
@@ -241,6 +241,19 @@ Settings.Page {
                 height: 60
                 sourceComponent: selector
                 visible: HwInfo.modelNumber == "UCR3" || HwInfo.modelNumber == "DEV"
+
+                /** KEYBOARD NAVIGATION **/
+                KeyNavigation.up: wifiScanIntervalValueSlider
+                KeyNavigation.down: knownNetworkList
+
+                Keys.onReturnPressed: {
+                    if (bandSelector.item && bandSelector.item.trigger) {
+                        bandSelector.item.trigger();
+                    }
+
+                    event.accepted = true;
+                }
+
                 onLoaded: {
                     if (HwInfo.modelNumber == "UCR2") {
                         return;
@@ -248,9 +261,7 @@ Settings.Page {
 
                     item.title = qsTr("WiFi band");
                     item.value = Qt.binding( function() { return Config.wifiBand == 'auto' ? 'Auto' : Config.wifiBand == 'a' ? '5 GHz' : '2.4 GHz'; });
-                    if (focus) {
-                        item.highlight = true;
-                    }
+                    item.highlight = Qt.binding( function() { return bandSelector.activeFocus && ui.keyNavigationEnabled; });
                     item.trigger = function() {
                         listModel.clear();
 
@@ -283,16 +294,26 @@ Settings.Page {
                visible: Config.wifiEnabled
 
                 WifiNetworkList {
+                    id: knownNetworkList
                     popupParent: wifiPageContent
                     model: Wifi.knownNetworkList
                     //: known WiFi networks
                     headerTitle: qsTr("Known Networks")
                     knownNetworks: true
+
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.up: bandSelector
+                    KeyNavigation.down: otherNetworkList
                 }
 
                 WifiNetworkList {
+                    id: otherNetworkList
                     popupParent: wifiPageContent
                     model: Wifi.networkList
+
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.up: knownNetworkList
+                    KeyNavigation.down: deleteAllNetworksButton
                 }
             }
 
@@ -303,9 +324,14 @@ Settings.Page {
                visible: Config.wifiEnabled
 
                Components.Button {
+                   id: deleteAllNetworksButton
                    width: parent.width
                    text: qsTr("Delete all networks")
                    color: colors.red
+
+                   /** KEYBOARD NAVIGATION **/
+                   KeyNavigation.up: otherNetworkList
+
                    trigger: function() {
                        ui.createActionableWarningNotification(
                                    qsTr("Delete all networks"),

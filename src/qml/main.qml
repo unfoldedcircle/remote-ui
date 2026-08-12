@@ -39,6 +39,10 @@ ApplicationWindow {
         visible: !ui.showRegulatoryInfo
         title: "Button simulator"
         color: colors.black
+        // Without this the simulator window takes the window manager focus, the main window never
+        // gets an active focus item, and every key-navigated settings page appears dead on the
+        // desktop simulator even though it works on the device (which has no second window).
+        flags: Qt.Window | Qt.WindowDoesNotAcceptFocus
         minimumWidth: ui.width * ui.ratio
         maximumWidth: minimumWidth
         minimumHeight: ui.width * ui.ratio * 0.95
@@ -775,7 +779,6 @@ ApplicationWindow {
 
     Component.onCompleted: {
         ui.inputController.setSource(applicationWindow);
-        ui.inputController.activeController = containerMain;
         VirtualKeyboardSettings.locale = Qt.binding(function() { return Config.language })
 
         if (ui.isOnboarding) {

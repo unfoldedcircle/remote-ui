@@ -16,47 +16,15 @@ import "qrc:/settings/softwareupdate" as Softwareupdate
 
 Settings.Page {
     id: softwareUpdatePage
+    scrollTarget: flickable
+    // the release notes row and the install button only exist while an update is offered
+    initialFocusItem: SoftwareUpdate.updateAvailable ? releaseNotesRow : checkForUpdateButton
 
-    property int scrollCounter: 1
-
-    function scrollDown() {
-        flickable.contentY += 100 * scrollCounter;
-        if (flickable.contentY > flickable.contentHeight - flickable.height) {
-            flickable.contentY = flickable.contentHeight - flickable.height;
-        }
-    }
-
-    function scrollUp() {
-        if (flickable.contentY == 0) {
-            return;
-        }
-        flickable.contentY -= 100 * scrollCounter;
-        if (flickable.contentY < 0) {
-            flickable.contentY = 0;
-        }
-    }
-
+    // Navigation on this page runs through the QML focus chain below (release notes -> buttons ->
+    // switches). It must not also scroll the Flickable from a DPAD_UP/DOWN handler: the input
+    // controller does not consume key events, so both would act on the same key press.
     Component.onCompleted: {
         SoftwareUpdate.checkForUpdate(false);
-
-        buttonNavigation.extendDefaultConfig({
-                                                 "DPAD_DOWN": {
-                                                     "pressed": function() {
-                                                         softwareUpdatePage.scrollDown();
-                                                     },
-                                                     "released": function() {
-                                                         scrollCounter = 1;
-                                                     }
-                                                 },
-                                                 "DPAD_UP": {
-                                                     "pressed": function() {
-                                                         softwareUpdatePage.scrollUp();
-                                                     },
-                                                     "released": function() {
-                                                         scrollCounter = 1;
-                                                     }
-                                                 }
-                                             });
     }
 
     Timer {
@@ -77,9 +45,10 @@ Settings.Page {
 
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
+        boundsBehavior: Flickable.StopAtBounds
 
         Behavior on contentY {
-            NumberAnimation { easing.type: scrollCounter === 1 ? Easing.OutExpo : Easing.Linear; duration: 500 }
+            NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
         }
 
         ColumnLayout {
@@ -256,16 +225,39 @@ Settings.Page {
             }
 
             Components.HapticMouseArea {
+                id: releaseNotesRow
                 Layout.alignment: Qt.AlignCenter
                 width: parent.width - 20
                 height: releaseNoteText.height
                 visible: SoftwareUpdate.updateAvailable
 
-                onClicked: {
+                function openReleaseNotes() {
                     parentSwipeView.thirdPage.setSource("qrc:/settings/softwareupdate/ReleaseNotes.qml", { parentSwipeView: profileRoot, topNavigationText: qsTr("Release Notes") });
 
                     parentSwipeView.thirdPage.active = true;
                     settingsSwipeView.incrementCurrentIndex();
+                }
+
+                onClicked: {
+                    releaseNotesRow.openReleaseNotes();
+                }
+
+                /** KEYBOARD NAVIGATION **/
+                KeyNavigation.down: installButton
+                Keys.onReturnPressed: {
+                    releaseNotesRow.openReleaseNotes();
+                    event.accepted = true;
+                }
+
+                Rectangle {
+                    anchors { fill: parent; margins: -6 }
+                    color: colors.transparent
+                    radius: ui.cornerRadiusSmall
+                    border {
+                        width: 2
+                        color: releaseNotesRow.activeFocus && ui.keyNavigationEnabled ? colors.highlight
+                                                                                      : colors.transparent
+                    }
                 }
 
                 Text {
@@ -291,12 +283,18 @@ Settings.Page {
             }
 
             Components.Button {
+                id: installButton
                 Layout.alignment: Qt.AlignCenter
                 width: parent.width - 20
                 text: SoftwareUpdate.updateDownloadState === SoftwareUpdate.Downloaded ? qsTr("Install") : qsTr("Download")
                 visible: SoftwareUpdate.updateAvailable
                 enabled: SoftwareUpdate.updateDownloadState !== SoftwareUpdate.Downloading
                 opacity: enabled ? 1 : 0.3
+
+                /** KEYBOARD NAVIGATION **/
+                KeyNavigation.up: releaseNotesRow
+                KeyNavigation.down: checkForUpdateButton
+
                 trigger: function() {
                     if (Battery.level > 50) {
                         SoftwareUpdate.startUpdate();
@@ -312,10 +310,16 @@ Settings.Page {
             }
 
             Components.Button {
+                id: checkForUpdateButton
                 Layout.alignment: Qt.AlignCenter
                 width: parent.width - 20
                 text: qsTr("Check for update")
                 visible: SoftwareUpdate.updateDownloadState !== SoftwareUpdate.Downloading
+
+                /** KEYBOARD NAVIGATION **/
+                KeyNavigation.up: installButton
+                KeyNavigation.down: checkForUpdatesSwitch
+
                 trigger: function() {
                     SoftwareUpdate.checkForUpdate(true);
                 }
@@ -388,12 +392,9 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
+                        KeyNavigation.up: checkForUpdateButton
                         KeyNavigation.down: autoUpdateSwitch
                         highlight: activeFocus && ui.keyNavigationEnabled
-
-                        Component.onCompleted: {
-                            checkForUpdatesSwitch.forceActiveFocus();
-                        }
                     }
                 }
 
@@ -449,10 +450,6 @@ Settings.Page {
                         /** KEYBOARD NAVIGATION **/
                         KeyNavigation.up: checkForUpdatesSwitch
                         highlight: activeFocus && ui.keyNavigationEnabled
-
-                        Component.onCompleted: {
-                            autoUpdateSwitch.forceActiveFocus();
-                        }
                     }
                 }
 

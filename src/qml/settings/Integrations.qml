@@ -20,6 +20,9 @@ Settings.Page {
         integrationDetailPopup.open();
     }
 
+    // the "add an integration" sheet sits below the list: DPAD_DOWN past the last entry selects it
+    property bool addSheetSelected: false
+
     Component.onCompleted: {
         IntegrationController.getAllIntegrationDrivers();
         IntegrationController.getAllIntegrations();
@@ -27,16 +30,39 @@ Settings.Page {
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
+                                                         if (integrationsPage.addSheetSelected) {
+                                                             return;
+                                                         }
+
+                                                         if (itemList.currentIndex >= itemList.count - 1) {
+                                                             integrationsPage.addSheetSelected = true;
+                                                             return;
+                                                         }
+
                                                          itemList.incrementCurrentIndex();
                                                      }
                                                  },
                                                  "DPAD_UP": {
                                                      "pressed": function() {
+                                                         if (integrationsPage.addSheetSelected) {
+                                                             integrationsPage.addSheetSelected = false;
+                                                             return;
+                                                         }
+
                                                          itemList.decrementCurrentIndex();
                                                      }
                                                  },
                                                  "DPAD_MIDDLE": {
                                                      "pressed": function() {
+                                                         if (integrationsPage.addSheetSelected) {
+                                                             addIntegrationSheet.state = "opened";
+                                                             return;
+                                                         }
+
+                                                         if (!itemList.currentItem) {
+                                                             return;
+                                                         }
+
                                                          loadIntegrationInfo(itemList.currentItem.key);
                                                      }
                                                  }
@@ -71,6 +97,7 @@ Settings.Page {
         titleOpened: qsTr("Add an integration")
         titleClosed: qsTr("Add an integration")
         openItemSource: "qrc:/components/integrations/Discovery.qml"
+        highlight: integrationsPage.addSheetSelected
 
         onOpened: {
             IntegrationController.startDriverDiscovery();
@@ -217,10 +244,10 @@ Settings.Page {
         Rectangle {
             width: ListView.view.width
             height: mainColumnLayout.height
-            color: isCurrentItem && ui.keyNavigationEnabled ? Qt.darker(colors.dark, 1.5) : colors.transparent
+            color: isCurrentItem && !integrationsPage.addSheetSelected && ui.keyNavigationEnabled ? Qt.darker(colors.dark, 1.5) : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
-                color: isCurrentItem && ui.keyNavigationEnabled ? colors.medium : colors.transparent
+                color: isCurrentItem && !integrationsPage.addSheetSelected && ui.keyNavigationEnabled ? colors.medium : colors.transparent
                 width: 1
             }
 

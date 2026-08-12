@@ -20,20 +20,46 @@ Settings.Page {
         dockDetailPopup.open();
     }
 
+    // the "add a new dock" sheet sits below the list: DPAD_DOWN past the last dock selects it
+    property bool addSheetSelected: false
+
     Component.onCompleted: {
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
+                                                         if (docksPage.addSheetSelected) {
+                                                             return;
+                                                         }
+
+                                                         if (itemList.currentIndex >= itemList.count - 1) {
+                                                             docksPage.addSheetSelected = true;
+                                                             return;
+                                                         }
+
                                                          itemList.incrementCurrentIndex();
                                                      }
                                                  },
                                                  "DPAD_UP": {
                                                      "pressed": function() {
+                                                         if (docksPage.addSheetSelected) {
+                                                             docksPage.addSheetSelected = false;
+                                                             return;
+                                                         }
+
                                                          itemList.decrementCurrentIndex();
                                                      }
                                                  },
                                                  "DPAD_MIDDLE": {
                                                      "pressed": function() {
+                                                         if (docksPage.addSheetSelected) {
+                                                             addDockSheet.state = "opened";
+                                                             return;
+                                                         }
+
+                                                         if (!itemList.currentItem) {
+                                                             return;
+                                                         }
+
                                                          loadDockInfo(itemList.currentItem.key);
                                                      }
                                                  }
@@ -68,6 +94,7 @@ Settings.Page {
         titleOpened: qsTr("Add a new dock")
         titleClosed: qsTr("Add a new dock")
         openItemSource: "qrc:/components/docks/Discovery.qml"
+        highlight: docksPage.addSheetSelected
 
         onOpened: {
             addDockSheet.openItem.buttonNavigation.overrideActive = true;
@@ -224,7 +251,7 @@ Settings.Page {
             id: dockListItem
             width: ListView.view.width
             height: 300
-            color: isCurrentItem && ui.keyNavigationEnabled ? Qt.darker(colors.dark, 1.5) : colors.transparent
+            color: isCurrentItem && !docksPage.addSheetSelected && ui.keyNavigationEnabled ? Qt.darker(colors.dark, 1.5) : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
                 color: colors.medium

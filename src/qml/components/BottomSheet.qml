@@ -32,6 +32,10 @@ Item {
     property alias openItem: openItemLoader.item
     property alias buttonNavigation: buttonNavigation
 
+    // set by the hosting page while the sheet is the keypad selection, so it can be opened with
+    // DPAD_MIDDLE instead of a tap
+    property bool highlight: false
+
     signal opened
     signal closed
 
@@ -117,6 +121,11 @@ Item {
         width: parent.width
         color: Qt.darker(colors.dark, 1.5)
         radius: ui.cornerRadiusLarge
+        border {
+            width: 2
+            color: bottomSheetContainer.highlight && bottomSheetContainer.state == "closed"
+                   && ui.keyNavigationEnabled ? colors.highlight : colors.transparent
+        }
 
         Item {
             id: titleBar

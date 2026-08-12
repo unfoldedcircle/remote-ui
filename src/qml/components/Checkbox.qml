@@ -26,6 +26,20 @@ CheckBox {
     property int textSize: 26
     property color primaryColor: colors.offwhite
     property color backgroundColor: colors.medium
+    property bool highlight: activeFocus && ui.keyNavigationEnabled
+
+    // QtQuick's AbstractButton only activates on Key_Space; DPAD_MIDDLE maps to Key_Return.
+    Keys.onReturnPressed: {
+        control.toggle();
+        control.toggled();
+        event.accepted = true;
+    }
+
+    Keys.onEnterPressed: {
+        control.toggle();
+        control.toggled();
+        event.accepted = true;
+    }
 
     indicator: Rectangle {
         implicitWidth: size
@@ -34,6 +48,7 @@ CheckBox {
         y: parent.height / 2 - height / 2
         radius: size / 2
         color: backgroundColor
+        border { width: 2; color: control.highlight ? colors.highlight : colors.transparent }
 
         Rectangle {
             width: size * 0.6

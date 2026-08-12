@@ -12,17 +12,31 @@ import "qrc:/settings" as Settings
 Settings.Page {
     id: releaseNotes
 
-    buttonNavigation.defaultConfig: {
-        "DPAD_DOWN": {
-            "pressed": function() {
-                flickable.contentY += 100;
-            }
-        },
-        "DPAD_UP": {
-            "pressed": function() {
-                flickable.contentY -= 100;
-            }
-        }
+    function scrollDown() {
+        flickable.contentY = Math.min(flickable.contentY + 100,
+                                      Math.max(0, flickable.contentHeight - flickable.height));
+    }
+
+    function scrollUp() {
+        flickable.contentY = Math.max(0, flickable.contentY - 100);
+    }
+
+    // extend, never assign: assigning buttonNavigation.defaultConfig replaces the whole object and
+    // drops the BACK / HOME handlers declared in Settings.Page, leaving the page impossible to exit
+    // with the keypad.
+    Component.onCompleted: {
+        buttonNavigation.extendDefaultConfig({
+                                                 "DPAD_DOWN": {
+                                                     "pressed": function() {
+                                                         releaseNotes.scrollDown();
+                                                     }
+                                                 },
+                                                 "DPAD_UP": {
+                                                     "pressed": function() {
+                                                         releaseNotes.scrollUp();
+                                                     }
+                                                 }
+                                             });
     }
 
     Flickable {
@@ -32,6 +46,7 @@ Settings.Page {
         contentWidth: parent.width - 20; contentHeight: content.implicitHeight
         clip: true
         flickableDirection: Flickable.VerticalFlick
+        boundsBehavior: Flickable.StopAtBounds
 
         Behavior on contentY {
             NumberAnimation { duration: 300 }

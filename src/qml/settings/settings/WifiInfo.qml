@@ -52,8 +52,12 @@ Popup {
     property string macAddress
     property string ipAddress
 
+    // let the popup take the keyboard focus so the buttons below can be reached with the d-pad
+    focus: true
+
     onOpened: {
         buttonNavigation.takeControl();
+        connectButton.forceActiveFocus();
     }
 
     onClosed: {
@@ -248,8 +252,13 @@ Popup {
             }
 
             Components.Button {
+                id: connectButton
                 width: parent.width
                 text: Wifi.isConnected ? qsTr("Disconnect") : qsTr("Connect")
+
+                /** KEYBOARD NAVIGATION **/
+                KeyNavigation.down: deleteButton
+
                 trigger: function() {
                     if (Wifi.isConnected) {
                         Wifi.disconnect();
@@ -263,9 +272,15 @@ Popup {
             }
 
             Components.Button {
+                id: deleteButton
                 width: parent.width
                 text: qsTr("Delete")
                 color: colors.red
+
+                /** KEYBOARD NAVIGATION **/
+                KeyNavigation.up: connectButton
+                KeyNavigation.down: closeButton
+
                 trigger: function() {
                     Wifi.deleteSavedNetwork(wifiInfo.identifier);
                     wifiInfo.close();
@@ -274,8 +289,13 @@ Popup {
             }
 
             Components.Button {
+                id: closeButton
                 width: parent.width
                 text: qsTr("Close")
+
+                /** KEYBOARD NAVIGATION **/
+                KeyNavigation.up: deleteButton
+
                 trigger: function() { wifiInfo.close(); }
             }
 
