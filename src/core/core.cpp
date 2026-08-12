@@ -2934,6 +2934,18 @@ void Api::processWifiStatus(int reqId, int code, QVariant msgData) {
     emit wifiStatusChanged(reqId, code, wifiStatus);
 }
 
+/**
+ * Read the optional `security` field of a scan result or a saved network.
+ *
+ * The field is omitted if the core could not classify the network security, which is mapped to AUTO.
+ */
+static WifiEnums::WifiSecurity readWifiSecurity(const QVariant& value) {
+    bool                    ok = false;
+    WifiEnums::WifiSecurity security = Util::convertStringToEnum<WifiEnums::WifiSecurity>(value.toString(), &ok);
+
+    return ok ? security : WifiEnums::WifiSecurity::AUTO;
+}
+
 void Api::processWifiScanStatus(int reqId, int code, QVariant msgData) {
     QVariantMap            map = msgData.toMap();
     bool                   active = map.value("active").toBool();
@@ -2949,6 +2961,7 @@ void Api::processWifiScanStatus(int reqId, int code, QVariant msgData) {
             accessPointScan.frequency = listMap.value("frequency").toInt();
             accessPointScan.signalLevel = listMap.value("signal_level").toInt();
             accessPointScan.auth = listMap.value("auth").toString();
+            accessPointScan.security = readWifiSecurity(listMap.value("security"));
             accessPointScan.ssid = listMap.value("ssid").toString();
 
             resp.append(accessPointScan);
@@ -2971,6 +2984,7 @@ void Api::processWifiNetworks(int reqId, int code, QVariant msgData) {
             savedNetwork.ssid = listMap.value("ssid").toString();
             savedNetwork.state = Util::convertStringToEnum<WifiEnums::NetworkState>(listMap.value("state").toString());
             savedNetwork.secured = listMap.value("secured").toBool();
+            savedNetwork.security = readWifiSecurity(listMap.value("security"));
             savedNetwork.signalLevel = listMap.value("signal_level").toInt();
 
             networks.append(savedNetwork);
@@ -2988,6 +3002,7 @@ void Api::processWifiNetwork(int reqId, int code, QVariant msgData) {
     savedNetwork.ssid = map.value("ssid").toString();
     savedNetwork.state = Util::convertStringToEnum<WifiEnums::NetworkState>(map.value("state").toString());
     savedNetwork.secured = map.value("secured").toBool();
+    savedNetwork.security = readWifiSecurity(map.value("security"));
     savedNetwork.signalLevel = map.value("signal_level").toInt();
 
     emit wifiNetworkChanged(reqId, code, savedNetwork);

@@ -258,11 +258,12 @@ struct ApiAccess {
 };
 
 struct AccessPointScan {
-    QString bssid;
-    int     frequency;
-    int     signalLevel;
-    QString auth;
-    QString ssid;
+    QString                 bssid;
+    int                     frequency;
+    int                     signalLevel;
+    QString                 auth;
+    WifiEnums::WifiSecurity security;
+    QString                 ssid;
 };
 
 struct SavedNetwork {
@@ -270,6 +271,7 @@ struct SavedNetwork {
     QString                 ssid;
     WifiEnums::NetworkState state;
     bool                    secured;
+    WifiEnums::WifiSecurity security;
     int                     signalLevel;
 };
 

@@ -199,13 +199,12 @@ void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan>
 
     for (QList<core::AccessPointScan>::const_iterator i = scan.begin(); i != scan.end(); i++) {
         if (!i->ssid.isEmpty()) {
-            Security::Enum security;
-            if (i->auth.isEmpty()) {
-                security = Security::Enum::OPEN;
-            } else {
-                // TODO(marton): properly convert security
-                qCDebug(lcHwWifi()) << "Access point" << i->ssid << i->auth;
-                security = Security::Enum::WPA2_PSK;
+            Security::Enum security = fromApiSecurity(i->security);
+
+            if (security == Security::Enum::AUTO) {
+                // the core couldn't classify the network: fall back to secured or open
+                qCDebug(lcHwWifi()) << "Unclassified access point" << i->ssid << i->auth;
+                security = i->auth.isEmpty() ? Security::Enum::OPEN : Security::Enum::WPA2_PSK;
             }
 
             m_networkList.insert(i->ssid, new WifiNetwork(0, i->ssid, security, i->signalLevel, i->auth, "", "",
@@ -244,9 +243,16 @@ void Wifi::getAllWifiNetworks() {
                 for (QList<core::SavedNetwork>::iterator i = networks.begin(); i != networks.end(); i++) {
                     qCDebug(lcHwWifi()) << "Saved network:" << i->id << i->ssid << i->state;
 
+                    Security::Enum security = fromApiSecurity(i->security);
+
+                    if (security == Security::Enum::AUTO) {
+                        // the core couldn't classify the network: fall back to secured or open
+                        security = i->secured ? Security::Enum::WPA2_PSK : Security::Enum::OPEN;
+                    }
+
                     m_knownNetworkList.insert(
                         i->ssid,
-                        new WifiNetwork(i->id, i->ssid, i->secured ? Security::Enum::WPA2_PSK : Security::Enum::OPEN,
+                        new WifiNetwork(i->id, i->ssid, security,
                                         i->signalLevel, "", "", "", 0, i->state == uc::core::WifiEnums::NetworkState::DISABLED ? false : true,  this));
                     emit knownNetworkListChanged();
                 }
@@ -316,6 +322,22 @@ core::WifiEnums::WifiSecurity Wifi::toApiSecurity(Security::Enum security) {
             // WPA2_PSK and the EAP types are classifications of an existing connection and are not
             // accepted by the core: let it choose the security type instead.
             return core::WifiEnums::WifiSecurity::AUTO;
+    }
+}
+
+Security::Enum Wifi::fromApiSecurity(core::WifiEnums::WifiSecurity security) {
+    switch (security) {
+        case core::WifiEnums::WifiSecurity::OPEN:
+            return Security::OPEN;
+        case core::WifiEnums::WifiSecurity::WPA_PSK:
+            return Security::WPA_PSK;
+        case core::WifiEnums::WifiSecurity::WPA2_WPA3:
+            return Security::WPA2_WPA3;
+        case core::WifiEnums::WifiSecurity::WPA3_SAE:
+            return Security::WPA3_SAE;
+        default:
+            // the core didn't classify the network
+            return Security::AUTO;
     }
 }
 

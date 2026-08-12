@@ -4302,12 +4302,12 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>uc::hw::Wifi</name>
     <message>
-        <location filename="../../src/hardware/wifi.cpp" line="265"/>
+        <location filename="../../src/hardware/wifi.cpp" line="271"/>
         <source>Failed to delete network. Wifi network does not exist.</source>
         <translation>Failed to delete network. Wifi network does not exist.</translation>
     </message>
     <message>
-        <location filename="../../src/hardware/wifi.cpp" line="423"/>
+        <location filename="../../src/hardware/wifi.cpp" line="445"/>
         <source>Wrong network key</source>
         <translation>Wrong network key</translation>
     </message>

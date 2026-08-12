@@ -386,10 +386,11 @@ class WifiEnums {
     Q_ENUM(WifiCmd)
 
     /**
-     * WiFi network security type of the `security` field in the add_wifi_network message.
+     * WiFi network security type of the `security` field.
      *
-     * AUTO is a UI only value: the field is omitted and the core creates the strongest profile
-     * the WiFi hardware supports.
+     * AUTO means that the field is not set: in an add_wifi_network message the core creates the
+     * strongest profile the WiFi hardware supports, in a scan result or a saved network the core
+     * could not classify the network (e.g. WEP or EAP-only).
      */
     enum WifiSecurity {
         AUTO,
