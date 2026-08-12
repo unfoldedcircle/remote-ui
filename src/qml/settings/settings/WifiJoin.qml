@@ -45,6 +45,7 @@ Popup {
         // reference dangling before the user confirms the join
         wifiJoin.wifiNetwork.id = wifiNetwork.id;
         wifiJoin.wifiNetwork.ssid = wifiNetwork.ssid;
+        wifiJoin.wifiNetwork.ssidHex = wifiNetwork.ssidHex;
         wifiJoin.wifiNetwork.signalStrength = wifiNetwork.signalStrength;
         wifiJoin.wifiNetwork.security = wifiNetwork.security;
         wifiJoin.open();
@@ -53,6 +54,7 @@ Popup {
     property QtObject wifiNetwork: QtObject {
         property var id
         property string ssid
+        property string ssidHex
         property int signalStrength
         property int security
     }
@@ -220,7 +222,7 @@ Popup {
 
                             // an open network from a scan result requires the OPEN classification,
                             // otherwise the connection fails
-                            Wifi.connect(wifiJoin.wifiNetwork.ssid, "", Security.OPEN);
+                            Wifi.connect(wifiJoin.wifiNetwork.ssid, wifiJoin.wifiNetwork.ssidHex, "", Security.OPEN);
                         }
                         wifiJoin.close();
                     }

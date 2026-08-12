@@ -278,7 +278,7 @@ Popup {
                         if (!Wifi.isConnected) {
                             loading.start();
                         }
-                        Wifi.connect(wifiSetup.ssid, "", wifiSetup.security, wifiSetup.hidden);
+                        Wifi.connect(wifiSetup.ssid, "", "", wifiSetup.security, wifiSetup.hidden);
                     }
                     wifiSetup.close();
                 }
@@ -309,8 +309,8 @@ Popup {
                         if (!Wifi.isConnected) {
                             loading.start();
                         }
-                        Wifi.connect(wifiSetup.ssid, passwordInputFieldContainer.inputField.text, wifiSetup.security,
-                                     wifiSetup.hidden);
+                        Wifi.connect(wifiSetup.ssid, "", passwordInputFieldContainer.inputField.text,
+                                     wifiSetup.security, wifiSetup.hidden);
                     }
 
                     passwordInputFieldContainer.inputField.clear();

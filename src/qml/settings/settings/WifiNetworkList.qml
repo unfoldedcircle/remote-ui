@@ -184,8 +184,9 @@ ListView {
 
             onClicked: {
                 if (wifiNetworkList.knownNetworks) {
-                    if (modelData.ssid === Wifi.currentNetwork.ssid) {
-                        wifiInfo.showWifiInfo(modelData.id, Wifi.currentNetwork.ssid, Wifi.macAddress, Wifi.ipAddress);
+                    if (modelData.identifier === Wifi.currentNetwork.identifier) {
+                        wifiInfo.showWifiInfo(modelData.id, Wifi.currentNetwork.ssid, modelData.identifier,
+                                              Wifi.macAddress, Wifi.ipAddress);
                     } else {
                         if (wifiNetworkList.knownNetworks) {
                             popupMenu.title = modelData.ssid;
@@ -216,7 +217,7 @@ ListView {
                                                callback: function() {
                                                    ui.createActionableWarningNotification(qsTr("Remove WiFi network"), qsTr("Are you sure you want to remove the network %1?").arg(modelData.ssid), "uc:triangle-exclamation",
                                                                                           function(){
-                                                                                              Wifi.deleteSavedNetwork(modelData.ssid);
+                                                                                              Wifi.deleteSavedNetwork(modelData.identifier);
                                                                                               ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
                                                                                           }, qsTr("Remove"));
                                                }
@@ -252,7 +253,7 @@ ListView {
 
             Text {
                 color: colors.offwhite
-                text: (wifiNetworkList.knownNetworks ? (modelData.ssid === Wifi.currentNetwork.ssid ? (Wifi.currentNetwork.frequency < 5000 ? "2.4 GHz - " : "5 GHz - ") : "") : (modelData.frequency < 5000 ? "2.4 GHz" : "5 GHz")) + (wifiNetworkList.knownNetworks ? (modelData.enabled ? "Enabled" : "Disabled") : "")
+                text: (wifiNetworkList.knownNetworks ? (modelData.identifier === Wifi.currentNetwork.identifier ? (Wifi.currentNetwork.frequency < 5000 ? "2.4 GHz - " : "5 GHz - ") : "") : (modelData.frequency < 5000 ? "2.4 GHz" : "5 GHz")) + (wifiNetworkList.knownNetworks ? (modelData.enabled ? "Enabled" : "Disabled") : "")
                 font: fonts.secondaryFont(18)
                 anchors { top: currentNetworkSSID.bottom; left: currentNetworkSSID.left }
             }
@@ -260,7 +261,7 @@ ListView {
             Rectangle {
                 anchors.fill: currentNetworkStrenght
                 radius: 30
-                color: modelData.ssid === Wifi.currentNetwork.ssid && Wifi.isConnected ? colors.green : colors.transparent
+                color: modelData.identifier === Wifi.currentNetwork.identifier && Wifi.isConnected ? colors.green : colors.transparent
             }
 
             Components.Icon {
@@ -296,7 +297,7 @@ ListView {
                 anchors.fill: currentNetworkStrenght
                 radius: 30
                 color: colors.red
-                visible: modelData.ssid === Wifi.currentNetwork.ssid && !Wifi.isConnected
+                visible: modelData.identifier === Wifi.currentNetwork.identifier && !Wifi.isConnected
 
                 Components.Icon {
                     icon: "uc:xmark"

@@ -40,6 +40,7 @@ Popup {
         // deletes and recreates the scan-result objects, which would otherwise leave this
         // reference dangling before the user finishes entering the password
         wifiPassword.wifiNetwork.ssid = wifiNetwork.ssid;
+        wifiPassword.wifiNetwork.ssidHex = wifiNetwork.ssidHex;
         wifiPassword.wifiNetwork.signalStrength = wifiNetwork.signalStrength;
         wifiPassword.wifiNetwork.security = wifiNetwork.security;
         wifiPassword.open();
@@ -55,7 +56,8 @@ Popup {
                 }
                 // no security type: the classification of a scan result is a guess,
                 // let the remote choose the security type of the network
-                Wifi.connect(wifiPassword.wifiNetwork.ssid, passwordInputFieldContainer.inputField.text);
+                Wifi.connect(wifiPassword.wifiNetwork.ssid, wifiPassword.wifiNetwork.ssidHex,
+                             passwordInputFieldContainer.inputField.text);
             }
 
             passwordInputFieldContainer.inputField.clear();
@@ -69,6 +71,7 @@ Popup {
     property bool dockNetworkSelection: false
     property QtObject wifiNetwork: QtObject {
         property string ssid
+        property string ssidHex
         property int signalStrength
         property int security
     }

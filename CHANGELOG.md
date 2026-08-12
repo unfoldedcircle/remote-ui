@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Known WiFi networks always showed a full signal strength instead of the measured one
 - A WiFi network reachable through several access points showed the signal strength of an arbitrary one instead of
   the strongest, and every additional access point kept memory allocated until the remote was restarted
+- Joining a WiFi network from the list could configure the wrong network, or fail, if its name contains characters
+  the remote cannot display. Two networks in range sharing such a displayed name were also shown as one entry
 
 ---
 ## v0.75.0 - 2026-08-07

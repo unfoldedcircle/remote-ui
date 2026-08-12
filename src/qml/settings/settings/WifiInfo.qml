@@ -36,9 +36,10 @@ Popup {
         }
     }
 
-    function showWifiInfo(id, ssid, macAddress, ipAddress) {
+    function showWifiInfo(id, ssid, identifier, macAddress, ipAddress) {
         wifiInfo.wifiNetworkId = id;
         wifiInfo.ssid = ssid;
+        wifiInfo.identifier = identifier;
         wifiInfo.macAddress = macAddress;
         wifiInfo.ipAddress = ipAddress;
         wifiInfo.open();
@@ -47,6 +48,7 @@ Popup {
     property string parentController
     property string wifiNetworkId
     property string ssid
+    property string identifier
     property string macAddress
     property string ipAddress
 
@@ -57,6 +59,7 @@ Popup {
     onClosed: {
         buttonNavigation.releaseControl();
         wifiInfo.ssid = "";
+        wifiInfo.identifier = "";
         wifiInfo.macAddress = "";
         wifiInfo.ipAddress = "";
     }
@@ -264,7 +267,7 @@ Popup {
                 text: qsTr("Delete")
                 color: colors.red
                 trigger: function() {
-                    Wifi.deleteSavedNetwork(wifiInfo.ssid);
+                    Wifi.deleteSavedNetwork(wifiInfo.identifier);
                     wifiInfo.close();
                     ui.setTimeOut(500, ()=>{ Wifi.getAllWifiNetworks(); });
                 }

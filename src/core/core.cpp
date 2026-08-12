@@ -909,10 +909,17 @@ int Api::wifiGetAllNetworks() {
     return sendRequest(RequestTypes::get_all_wifi_networks);
 }
 
-int Api::wifiAddNetwork(const QString& ssid, const QString& password, bool hidden,
-                        WifiEnums::WifiSecurity security) {
+int Api::wifiAddNetwork(const QString& ssid, const QString& ssidHex, const QString& password,
+                        WifiEnums::WifiSecurity security, bool hidden) {
     QVariantMap msgData;
-    msgData.insert("ssid", ssid);
+
+    // the friendly SSID name is a lossy conversion of the native SSID: only the hex representation of a scan
+    // result identifies the network unambiguously
+    if (ssidHex.isEmpty()) {
+        msgData.insert("ssid", ssid);
+    } else {
+        msgData.insert("ssid_hex", ssidHex);
+    }
 
     if (!password.isEmpty()) {
         msgData.insert("password", password);
@@ -2918,10 +2925,11 @@ void Api::processWifiStatus(int reqId, int code, QVariant msgData) {
     wifiStatus.id = map.value("id").toInt();
     wifiStatus.bssid = map.value("bssid").toString();
     wifiStatus.ssid = map.value("ssid").toString();
+    wifiStatus.ssidHex = map.value("ssid_hex").toString();
     wifiStatus.freq = map.value("freq").toInt();
     wifiStatus.address = map.value("address").toString();
     wifiStatus.pairwiseCipher = map.value("pairwise_cipher").toString();
-    wifiStatus.groupCipher = map.value("group_chipher").toString();
+    wifiStatus.groupCipher = map.value("group_cipher").toString();
     wifiStatus.keyManagement = map.value("key_mgmt").toString();
     wifiStatus.ipAddress = map.value("ip_address").toString();
     wifiStatus.noise = map.value("noise").toInt();
@@ -2963,6 +2971,7 @@ void Api::processWifiScanStatus(int reqId, int code, QVariant msgData) {
             accessPointScan.auth = listMap.value("auth").toString();
             accessPointScan.security = readWifiSecurity(listMap.value("security"));
             accessPointScan.ssid = listMap.value("ssid").toString();
+            accessPointScan.ssidHex = listMap.value("ssid_hex").toString();
 
             resp.append(accessPointScan);
         }
@@ -2982,6 +2991,7 @@ void Api::processWifiNetworks(int reqId, int code, QVariant msgData) {
 
             savedNetwork.id = listMap.value("id").toInt();
             savedNetwork.ssid = listMap.value("ssid").toString();
+            savedNetwork.ssidHex = listMap.value("ssid_hex").toString();
             savedNetwork.state = Util::convertStringToEnum<WifiEnums::NetworkState>(listMap.value("state").toString());
             savedNetwork.secured = listMap.value("secured").toBool();
             savedNetwork.security = readWifiSecurity(listMap.value("security"));
@@ -3000,6 +3010,7 @@ void Api::processWifiNetwork(int reqId, int code, QVariant msgData) {
 
     savedNetwork.id = map.value("id").toInt();
     savedNetwork.ssid = map.value("ssid").toString();
+    savedNetwork.ssidHex = map.value("ssid_hex").toString();
     savedNetwork.state = Util::convertStringToEnum<WifiEnums::NetworkState>(map.value("state").toString());
     savedNetwork.secured = map.value("secured").toBool();
     savedNetwork.security = readWifiSecurity(map.value("security"));

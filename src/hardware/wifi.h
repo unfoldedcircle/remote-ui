@@ -62,6 +62,8 @@ class WifiNetwork : public QObject {
 
     Q_PROPERTY(int id READ getId CONSTANT)
     Q_PROPERTY(QString ssid READ getSsid CONSTANT)
+    Q_PROPERTY(QString ssidHex READ getSsidHex CONSTANT)
+    Q_PROPERTY(QString identifier READ getIdentifier CONSTANT)
     Q_PROPERTY(uc::hw::SignalStrength::Enum signalStrength READ getSignalStrength CONSTANT)
     Q_PROPERTY(bool encrypted READ isEncrypted CONSTANT)
     Q_PROPERTY(uc::hw::Security::Enum security READ getSecurity CONSTANT)
@@ -72,11 +74,29 @@ class WifiNetwork : public QObject {
     Q_PROPERTY(bool enabled READ getEnabled CONSTANT)
 
  public:
-    explicit WifiNetwork(int id, const QString &ssid, Security::Enum security, int rssi, const QString keyManagement, const QString pairwiseChiper, const QString groupCipher, int frequency, bool enabeled, QObject *parent = nullptr);
+    explicit WifiNetwork(int id, const QString &ssid, const QString &ssidHex, Security::Enum security, int rssi, const QString keyManagement, const QString pairwiseCipher, const QString groupCipher, int frequency, bool enabled, QObject *parent = nullptr);
     ~WifiNetwork();
 
     int                  getId() const { return m_id; }
     QString              getSsid() const { return m_ssid; }
+    QString              getSsidHex() const { return m_ssidHex; }
+
+    /**
+     * Identifies the network by its native SSID, see identifier().
+     */
+    QString getIdentifier() const { return identifier(m_ssid, m_ssidHex); }
+
+    /**
+     * Identifies a network by its native SSID, to compare networks from a scan result, a saved network and the
+     * WiFi status.
+     *
+     * The friendly SSID name is a lossy conversion of the native SSID and is not unique: two networks can share
+     * it. If the remote didn't report the native SSID it is derived from the friendly name, which is exact for
+     * the valid UTF-8 names it can be derived from.
+     */
+    static QString identifier(const QString &ssid, const QString &ssidHex) {
+        return ssidHex.isEmpty() ? QString::fromLatin1(ssid.toUtf8().toHex()) : ssidHex;
+    }
     SignalStrength::Enum getSignalStrength() const { return m_signalStrenght; }
     bool                 isEncrypted() const { return m_security != Security::OPEN; }
     Security::Enum       getSecurity() const { return m_security; }
@@ -89,6 +109,7 @@ class WifiNetwork : public QObject {
  private:
     int                  m_id;
     QString              m_ssid;
+    QString              m_ssidHex;
     Security::Enum       m_security;
     SignalStrength::Enum m_signalStrenght;
     QString              m_keyManagement;
@@ -126,7 +147,7 @@ class Wifi : public QObject {
 
     Q_INVOKABLE void turnOn();
     Q_INVOKABLE void turnOff();
-    Q_INVOKABLE void connect(const QString &ssid, const QString &password,
+    Q_INVOKABLE void connect(const QString &ssid, const QString &ssidHex, const QString &password,
                              uc::hw::Security::Enum security = uc::hw::Security::AUTO, bool hidden = false);
     Q_INVOKABLE void connectSavedNetwork(int id);
     Q_INVOKABLE void enableSavedNetwork(int id, bool enable);
@@ -139,13 +160,13 @@ class Wifi : public QObject {
     Q_INVOKABLE void clearNetworkList();
 
     Q_INVOKABLE void getAllWifiNetworks();
-    Q_INVOKABLE void deleteSavedNetwork(const QString &networkId);
+    Q_INVOKABLE void deleteSavedNetwork(const QString &identifier);
     Q_INVOKABLE void deleteAllNetworks();
 
     Q_INVOKABLE QString getLastConnectedSsid() { return m_lastConnectedSSid; }
     Q_INVOKABLE QString getLastConnectedPassword() { return m_lastConnectedPassword; }
 
-    void addNetwork(const QString &ssid, const QString &password,
+    void addNetwork(const QString &ssid, const QString &ssidHex, const QString &password,
                     uc::hw::Security::Enum security = uc::hw::Security::AUTO, bool hidden = false);
 
     static core::WifiEnums::WifiSecurity toApiSecurity(uc::hw::Security::Enum security);

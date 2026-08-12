@@ -264,11 +264,13 @@ struct AccessPointScan {
     QString                 auth;
     WifiEnums::WifiSecurity security;
     QString                 ssid;
+    QString                 ssidHex;
 };
 
 struct SavedNetwork {
     int                     id;
     QString                 ssid;
+    QString                 ssidHex;
     WifiEnums::NetworkState state;
     bool                    secured;
     WifiEnums::WifiSecurity security;
@@ -280,6 +282,7 @@ struct WifiStatus {
     int                 id;
     QString             bssid;
     QString             ssid;
+    QString             ssidHex;
     int                 freq;
     QString             address;
     QString             pairwiseCipher;
