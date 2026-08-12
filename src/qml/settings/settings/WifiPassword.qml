@@ -53,7 +53,9 @@ Popup {
                 if (!Wifi.isConnected) {
                     loading.start();
                 }
-                Wifi.connect(wifiPassword.wifiNetwork.ssid, passwordInputFieldContainer.inputField.text, wifiPassword.wifiNetwork.security);
+                // no security type: the classification of a scan result is a guess,
+                // let the remote choose the security type of the network
+                Wifi.connect(wifiPassword.wifiNetwork.ssid, passwordInputFieldContainer.inputField.text);
             }
 
             passwordInputFieldContainer.inputField.clear();

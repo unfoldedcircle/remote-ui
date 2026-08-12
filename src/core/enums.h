@@ -385,6 +385,21 @@ class WifiEnums {
     };
     Q_ENUM(WifiCmd)
 
+    /**
+     * WiFi network security type of the `security` field in the add_wifi_network message.
+     *
+     * AUTO is a UI only value: the field is omitted and the core creates the strongest profile
+     * the WiFi hardware supports.
+     */
+    enum WifiSecurity {
+        AUTO,
+        OPEN,
+        WPA_PSK,
+        WPA3_SAE,
+        WPA2_WPA3,
+    };
+    Q_ENUM(WifiSecurity)
+
     enum WifiNetworkCmd {
         ENABLE,
         DISABLE,

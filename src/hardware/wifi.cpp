@@ -316,10 +316,25 @@ void Wifi::deleteAllNetworks() {
         });
 }
 
-void Wifi::addNetwork(const QString &ssid, const QString &password, Security::Enum security, bool hidden) {
-    Q_UNUSED(security)
+core::WifiEnums::WifiSecurity Wifi::toApiSecurity(Security::Enum security) {
+    switch (security) {
+        case Security::OPEN:
+            return core::WifiEnums::WifiSecurity::OPEN;
+        case Security::WPA_PSK:
+            return core::WifiEnums::WifiSecurity::WPA_PSK;
+        case Security::WPA2_WPA3:
+            return core::WifiEnums::WifiSecurity::WPA2_WPA3;
+        case Security::WPA3_SAE:
+            return core::WifiEnums::WifiSecurity::WPA3_SAE;
+        default:
+            // WPA2_PSK and the EAP types are classifications of an existing connection and are not
+            // accepted by the core: let it choose the security type instead.
+            return core::WifiEnums::WifiSecurity::AUTO;
+    }
+}
 
-    int id = m_core->wifiAddNetwork(ssid, password, hidden);
+void Wifi::addNetwork(const QString &ssid, const QString &password, Security::Enum security, bool hidden) {
+    int id = m_core->wifiAddNetwork(ssid, password, hidden, toApiSecurity(security));
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::wifiNetworkChanged,

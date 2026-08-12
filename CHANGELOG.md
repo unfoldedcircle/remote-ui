@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 ### Added
 - Hidden network option when joining a WiFi network by entering its name
+- WiFi security can be chosen when joining a network by entering its name: None, Auto, WPA/WPA2 Personal,
+  WPA2/WPA3 Personal and, on the Remote 3, WPA3 Personal. Auto leaves the choice to the remote and is preselected
 
 ---
 ## v0.75.0 - 2026-08-07

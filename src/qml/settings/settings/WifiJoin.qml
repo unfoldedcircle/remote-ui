@@ -218,7 +218,9 @@ Popup {
                                 loading.start();
                             }
 
-                            Wifi.connect(wifiJoin.wifiNetwork.ssid, "", wifiJoin.wifiNetwork.security);
+                            // an open network from a scan result requires the OPEN classification,
+                            // otherwise the connection fails
+                            Wifi.connect(wifiJoin.wifiNetwork.ssid, "", Security.OPEN);
                         }
                         wifiJoin.close();
                     }

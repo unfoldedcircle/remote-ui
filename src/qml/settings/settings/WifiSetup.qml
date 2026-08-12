@@ -6,6 +6,7 @@ import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import Haptic 1.0
+import HwInfo 1.0
 import Wifi 1.0
 import Wifi.Security 1.0
 
@@ -38,8 +39,43 @@ Popup {
     property bool dockNetworkSelection: false
     property string networkId
     property string ssid
-    property int security
+    property int security: Security.AUTO
     property bool hidden: false
+
+    // Hard coded security options with their friendly names, until the core API can report the
+    // security types supported by the device.
+    // WPA3 only networks require the WiFi hardware of the Remote 3, whereas WPA2/WPA3 transition
+    // mode falls back to WPA2 on older models. The dock only needs to know if a password is
+    // required, its security type is chosen by the dock itself.
+    readonly property var securityOptions: {
+        let options = [
+                    { "security": Security.OPEN, "name": "None" },
+                    { "security": Security.AUTO, "name": "Auto" }
+                ];
+
+        if (!wifiSetup.dockNetworkSelection) {
+            options.push({ "security": Security.WPA_PSK, "name": "WPA/WPA2 Personal" });
+            options.push({ "security": Security.WPA2_WPA3, "name": "WPA2/WPA3 Personal" });
+
+            if (HwInfo.modelNumber === "UCR3" || HwInfo.modelNumber === "DEV") {
+                options.push({ "security": Security.WPA3_SAE, "name": "WPA3 Personal" });
+            }
+        }
+
+        return options;
+    }
+
+    function resetSecuritySelection() {
+        // Note: iterate the repeater and not securityGroup.buttons. The latter still holds the
+        // checkboxes of a rebuilt option list until they are garbage collected.
+        for (let i = 0; i < securityRepeater.count; i++) {
+            let item = securityRepeater.itemAt(i);
+
+            if (item) {
+                item.securityCheckbox.checked = item.securityCheckbox.security === Security.AUTO;
+            }
+        }
+    }
 
     onOpened: {
         buttonNavigation.takeControl();
@@ -53,7 +89,7 @@ Popup {
         setupContainer.currentIndex = 0;
         ssidInputFieldContainer.inputField.clear();
         passwordInputFieldContainer.inputField.clear();
-        securityGroup.checkState = Qt.Unchecked;
+        wifiSetup.resetSecuritySelection();
         hiddenNetworkCheck.checked = false;
     }
 
@@ -161,6 +197,9 @@ Popup {
         Item {
             id: securityStep
 
+            readonly property bool openNetworkSelected: securityGroup.checkedButton !== null
+                                                        && securityGroup.checkedButton.security === Security.OPEN
+
             Text {
                 id: wifiSecurityContainerTitleText
                 color: colors.offwhite
@@ -183,58 +222,65 @@ Popup {
                 width: parent.width
                 anchors { top: wifiSecurityContainerTitleText.bottom; topMargin: 20 }
 
-                Components.Checkbox {
-                    id: noneCheck
-                    text: "NONE"
-                    ButtonGroup.group: securityGroup
-                }
+                Repeater {
+                    id: securityRepeater
+                    model: wifiSetup.securityOptions
 
-                Rectangle {
-                    Layout.alignment: Qt.AlignCenter
-                    width: ui.width - 20; height: 2
-                    color: colors.medium
-                }
+                    delegate: Column {
+                        Layout.fillWidth: true
+                        spacing: 20
 
-                Components.Checkbox {
-                    id: wpa2PskCheck
-                    text: "WPA/WPA2 Personal"
-                    ButtonGroup.group: securityGroup
+                        property alias securityCheckbox: securityCheck
+
+                        // separates the open network from the secured ones
+                        Rectangle {
+                            width: ui.width - 20; height: 2
+                            color: colors.medium
+                            visible: modelData.security === Security.AUTO
+                        }
+
+                        Components.Checkbox {
+                            id: securityCheck
+                            width: parent.width
+                            text: modelData.name
+                            checked: modelData.security === Security.AUTO
+                            ButtonGroup.group: securityGroup
+
+                            property int security: modelData.security
+                        }
+                    }
                 }
             }
 
             Components.Button {
                 //: Join wifi network
-                text: noneCheck.checked ? qsTr("Join") : qsTr("Next")
+                text: securityStep.openNetworkSelected ? qsTr("Join") : qsTr("Next")
                 width: parent.width / 2 - 10
                 anchors { right: parent.right; top: securitySelector.bottom; topMargin: 40 }
                 trigger: function() {
-                    let ok = true;
-
-                    if (noneCheck.checked) {
-                        wifiSetup.security = Security.OPEN;
-                    } else if (wpa2PskCheck.checked) {
-                        wifiSetup.security = Security.WPA2_PSK;
-                    } else {
-                        ok = false;
+                    if (securityGroup.checkedButton === null) {
                         ui.createActionableNotification(qsTr("Select a security option"), qsTr("Please select a security option"))
+                        return;
                     }
 
-                    if (ok && !noneCheck.checked) {
+                    wifiSetup.security = securityGroup.checkedButton.security;
+
+                    if (!securityStep.openNetworkSelected) {
                         setupContainer.incrementCurrentIndex();
                         keyboard.show();
                         passwordInputFieldContainer.focus();
-                    }  else if (ok && noneCheck.checked) {
-                        if (wifiSetup.dockNetworkSelection) {
-                            wifiSetup.wifiNetworkSelected(wifiSetup.ssid, "");
-                        } else {
-
-                            if (!Wifi.isConnected) {
-                                loading.start();
-                            }
-                            Wifi.connect(wifiSetup.ssid, "", wifiSetup.security, wifiSetup.hidden);
-                        }
-                        wifiSetup.close();
+                        return;
                     }
+
+                    if (wifiSetup.dockNetworkSelection) {
+                        wifiSetup.wifiNetworkSelected(wifiSetup.ssid, "");
+                    } else {
+                        if (!Wifi.isConnected) {
+                            loading.start();
+                        }
+                        Wifi.connect(wifiSetup.ssid, "", wifiSetup.security, wifiSetup.hidden);
+                    }
+                    wifiSetup.close();
                 }
             }
 

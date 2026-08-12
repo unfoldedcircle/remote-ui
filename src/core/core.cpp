@@ -909,7 +909,8 @@ int Api::wifiGetAllNetworks() {
     return sendRequest(RequestTypes::get_all_wifi_networks);
 }
 
-int Api::wifiAddNetwork(const QString& ssid, const QString& password, bool hidden) {
+int Api::wifiAddNetwork(const QString& ssid, const QString& password, bool hidden,
+                        WifiEnums::WifiSecurity security) {
     QVariantMap msgData;
     msgData.insert("ssid", ssid);
 
@@ -920,6 +921,11 @@ int Api::wifiAddNetwork(const QString& ssid, const QString& password, bool hidde
     // optional field: only send it for a hidden network
     if (hidden) {
         msgData.insert("hidden", true);
+    }
+
+    // optional field: omitting it lets the core choose the strongest supported security type
+    if (security != WifiEnums::WifiSecurity::AUTO) {
+        msgData.insert("security", Util::convertEnumToString(security));
     }
 
     return sendRequest(RequestTypes::add_wifi_network, msgData);
