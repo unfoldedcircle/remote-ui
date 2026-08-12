@@ -11,8 +11,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Hidden network option when joining a WiFi network by entering its name
 - WiFi security can be chosen when joining a network by entering its name: None, Auto, WPA/WPA2 Personal,
   WPA2/WPA3 Personal and, on the Remote 3, WPA3 Personal. Auto leaves the choice to the remote and is preselected
+- Switches, checkboxes and buttons in the settings can now be operated with the middle d-pad button
+- WiFi networks can be selected and joined with the d-pad, including the "Join other" and "Delete all networks" buttons
+- The administrator PIN can be entered with the d-pad
+- The "Add a new dock" and "Add an integration" panels can be opened with the d-pad
+- The dock and integration detail screens can be scrolled with the d-pad
 
 ### Fixed
+- The release notes of a software update could not be closed with the back button
+- Settings screens now scroll along when the d-pad moves the selection below the visible area
+- The Voice Control settings did not react to the d-pad at all
+- On the WiFi settings screen the d-pad stopped at "Active WiFi scanning" and could not reach the rest of the screen
+- The 24-hour time setting could not be changed with the d-pad
+- On the Software update screen a single d-pad press both scrolled the screen and moved the selection
+- The About screen could not be scrolled, hiding entries on smaller screens
+- Pressing the middle d-pad button on an empty dock or integration list did nothing instead of failing silently
+- Settings screens occasionally opened with nothing selected, leaving the d-pad without effect
 - Known WiFi networks always showed a full signal strength instead of the measured one
 - A WiFi network reachable through several access points showed the signal strength of an arbitrary one instead of
   the strongest, and every additional access point kept memory allocated until the remote was restarted
