@@ -3,6 +3,9 @@
 
 #include "entityController.h"
 
+#include <QCryptographicHash>
+#include <QDataStream>
+#include <QDateTime>
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -21,13 +24,17 @@ static bool isRepeatingCommand(const QString& command, const QVariantMap& params
 
 static QString buildCommandKey(const QString& entityId, const QString& command, const QVariantMap& params)
 {
-    QVariantMap keyParts;
-    keyParts.insert(QStringLiteral("entityId"), entityId);
-    keyParts.insert(QStringLiteral("command"), command);
-    keyParts.insert(QStringLiteral("params"), params);
+    // QVariantMap keeps its keys sorted, so the stream is stable for equal content. Unlike a conversion to
+    // JSON it is also lossless: a variant without a JSON representation would collapse to null there and
+    // make two commands that only differ in such a value share one key, silently deduplicating the second.
+    QByteArray  buffer;
+    QDataStream stream(&buffer, QIODevice::WriteOnly);
+    stream.setVersion(QDataStream::Qt_5_15);
+    stream << params;
 
-    return QString::fromUtf8(
-        QJsonDocument(QJsonObject::fromVariantMap(keyParts)).toJson(QJsonDocument::Compact));
+    // the readable prefix keeps the log output usable
+    return entityId + QLatin1Char('.') + command + QLatin1Char('#') +
+           QString::fromLatin1(QCryptographicHash::hash(buffer, QCryptographicHash::Sha1).toHex());
 }
 
 static QString buildCommandId(const QString& entityId, const QString& command, const QVariantMap& params, bool repeating)
@@ -392,6 +399,9 @@ void EntityController::loadAllEntities(int page, quint64 generation,
 
 void EntityController::onCoreDisconnected() {
     ++m_entityLoadGeneration;
+    // nothing can still be answered over a closed connection: without this the loading indicators of the
+    // in-flight commands would keep spinning, and an identical command would be refused as a duplicate
+    clearPendingCommands();
     setAllEntitiesAvailable(false);
     m_activities.clear();
     emit activitiesChanged();
@@ -597,6 +607,9 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
 
 void EntityController::onEntityDeleted(const QString& entityId) {
     m_connectedEntities.remove(entityId);
+    // drop the commands before the object goes away: a leftover busy entry would keep the global
+    // "command in progress" indicator running, and block the indicator of a new entity with the same id
+    removePendingCommandsForEntity(entityId);
 
     entity::Base *entityObj = m_entities.take(entityId);
     if (entityObj) {
@@ -634,6 +647,8 @@ void EntityController::refreshEntity(const QString &entityId)
 
 // delay before a still-in-flight command shows a loading indicator, so fast commands don't flash
 static constexpr int kCommandBusyDelayMs = 200;
+// delay between two send attempts of a command issued around a wakeup
+static constexpr int kResumeRetryDelayMs = 500;
 
 bool EntityController::hasPendingForEntity(const QString& entityId) const {
     for (auto it = m_pendingCommands.constBegin(); it != m_pendingCommands.constEnd(); ++it) {
@@ -683,6 +698,32 @@ void EntityController::removePendingCommand(const QString& commandId) {
     }
 }
 
+void EntityController::removePendingCommandsForEntity(const QString& entityId) {
+    for (auto it = m_pendingCommands.begin(); it != m_pendingCommands.end();) {
+        if (it.value().entityId == entityId) {
+            it = m_pendingCommands.erase(it);
+        } else {
+            ++it;
+        }
+    }
+
+    setEntityBusy(entityId, false);
+}
+
+void EntityController::clearPendingCommands() {
+    if (!m_pendingCommands.isEmpty()) {
+        qCDebug(lcEntityController()) << "Dropping" << m_pendingCommands.count() << "pending command(s)";
+        m_pendingCommands.clear();
+    }
+
+    // the responses of the dropped commands either never arrive or are ignored, so nothing would ever
+    // clear the indicators again
+    const QSet<QString> busyEntities = m_busyEntities;
+    for (const QString& busyEntityId : busyEntities) {
+        setEntityBusy(busyEntityId, false);
+    }
+}
+
 void EntityController::onEntityCommand(const QString& entityId, const QString& command, QVariantMap params) {
     pendingCommand pendingCmd;
     pendingCmd.entityId = entityId;
@@ -690,6 +731,16 @@ void EntityController::onEntityCommand(const QString& entityId, const QString& c
     pendingCmd.params = params;
     pendingCmd.repeating = isRepeatingCommand(command, params);
     pendingCmd.commandId = buildCommandId(entityId, command, params, pendingCmd.repeating);
+    pendingCmd.epoch = ++m_commandEpoch;
+    // The button press that wakes the remote sends its command before the core reports that the remote is
+    // awake again, so the resume window is not open yet at that point. m_wasSuspended still marks it: it is
+    // set when the remote goes to sleep and only cleared once the wakeup has been reported.
+    // A key repeat is excluded on purpose: by the time it could be sent again it is stale and resending it
+    // would replay a button press the user has long released.
+    pendingCmd.retryOnFailure =
+        m_resumeTimerTimeout > 0 && (m_resumeWindow || m_wasSuspended) && !pendingCmd.repeating;
+    // provisional as long as the remote is still waking up, extended to the end of the window once it opens
+    pendingCmd.retryDeadlineMs = QDateTime::currentMSecsSinceEpoch() + m_resumeTimerTimeout;
 
     if (!pendingCmd.repeating) {
         if (m_pendingCommands.contains(pendingCmd.commandId)) {
@@ -708,37 +759,49 @@ void EntityController::retrySendAttempt(const QString& commandId)
     auto it = m_pendingCommands.find(commandId);
     if (it == m_pendingCommands.end()) return;
 
-    pendingCommand& live = it.value();
-    int id = m_core->entityCommand(live.entityId, live.command, live.params);
-    if (id < 0) {
-        qCWarning(lcEntityController()) << "Cannot execute command: invalid request id" << commandId;
-        removePendingCommand(commandId);
+    it.value().attemptCount += 1;
+
+    const int     attemptCount = it.value().attemptCount;
+    const quint64 epoch        = it.value().epoch;
+    const QString entityId     = it.value().entityId;
+    const QString command      = it.value().command;
+    const QVariantMap params   = it.value().params;
+
+    const int id = m_core->entityCommand(entityId, command, params);
+
+    // sending can run the event loop, so the entry is looked up again instead of holding a reference to it
+    auto sent = m_pendingCommands.find(commandId);
+    if (sent == m_pendingCommands.end() || sent.value().epoch != epoch) {
         return;
     }
-
-    live.requestId = id;
-    live.attemptCount += 1;
-
-    const int requestId = live.requestId;
-    const int attemptCount = live.attemptCount;
+    sent.value().requestId = id;
 
     // on the first attempt, show a loading indicator if the command is still in flight after a short delay
     if (attemptCount == 1) {
-        const QString entityId = live.entityId;
-        QTimer::singleShot(kCommandBusyDelayMs, this, [this, commandId, entityId]() {
-            if (m_pendingCommands.contains(commandId)) {
+        QTimer::singleShot(kCommandBusyDelayMs, this, [this, commandId, entityId, epoch]() {
+            auto pending = m_pendingCommands.constFind(commandId);
+            if (pending != m_pendingCommands.constEnd() && pending.value().epoch == epoch) {
                 setEntityBusy(entityId, true);
             }
         });
     }
 
+    if (id < 0) {
+        // the request never left the remote: the core connection is down, or the socket rejected the
+        // message. No response and no timeout will ever arrive for it, so report the failure right away
+        // instead of dropping the command without the user noticing anything.
+        handleCommandFailure(commandId, id, 503, QStringLiteral("Not connected to the core"));
+        return;
+    }
+
     m_core->onResult(
         id,
         // success
-        [this, commandId, requestId, attemptCount]() {
-            auto current = m_pendingCommands.find(commandId);
-            if (current == m_pendingCommands.end() || current.value().requestId != requestId) {
-                qCDebug(lcEntityController()) << "Ignoring stale command success" << commandId << requestId;
+        [this, commandId, id, epoch, attemptCount]() {
+            auto current = m_pendingCommands.constFind(commandId);
+            if (current == m_pendingCommands.constEnd() || current.value().epoch != epoch ||
+                current.value().requestId != id) {
+                qCDebug(lcEntityController()) << "Ignoring stale command success" << commandId << id;
                 return;
             }
 
@@ -746,102 +809,123 @@ void EntityController::retrySendAttempt(const QString& commandId)
             removePendingCommand(commandId);
         },
         // failure
-        [this, commandId, requestId, attemptCount](int code, QString message) {
-            auto it2 = m_pendingCommands.find(commandId);
-            if (it2 == m_pendingCommands.end()) {
+        [this, commandId, id](int code, QString message) { handleCommandFailure(commandId, id, code, message); });
+}
+
+void EntityController::handleCommandFailure(const QString& commandId, int requestId, int code,
+                                            const QString& message) {
+    auto it = m_pendingCommands.constFind(commandId);
+    if (it == m_pendingCommands.constEnd()) {
+        return;
+    }
+
+    const pendingCommand live = it.value();
+    if (live.requestId != requestId) {
+        qCDebug(lcEntityController()) << "Ignoring stale command failure" << commandId << requestId;
+        return;
+    }
+
+    qCWarning(lcEntityController()) << "Cannot execute command:" << commandId << "attempt" << live.attemptCount << code
+                                    << message;
+
+    // a command issued around a wakeup keeps being sent for the configured window: the core and the
+    // integrations are likely still coming back up. Eligibility was sampled when the command was issued,
+    // because the failure is regularly reported only after the window has closed again.
+    if (live.retryOnFailure && QDateTime::currentMSecsSinceEpoch() < live.retryDeadlineMs) {
+        qCDebug(lcEntityController()) << "Issued around a wakeup, trying command again:" << commandId << "attempt"
+                                      << live.attemptCount;
+
+        const quint64 epoch = live.epoch;
+        QTimer::singleShot(kResumeRetryDelayMs, this, [this, commandId, requestId, epoch]() {
+            auto current = m_pendingCommands.constFind(commandId);
+            if (current == m_pendingCommands.constEnd() || current.value().epoch != epoch ||
+                current.value().requestId != requestId) {
                 return;
             }
 
-            pendingCommand live2 = it2.value();
-            if (live2.requestId != requestId) {
-                qCDebug(lcEntityController()) << "Ignoring stale command failure" << commandId << requestId;
-                return;
-            }
+            retrySendAttempt(commandId);
+        });
+        return;
+    }
 
-            qCWarning(lcEntityController())
-                << "Cannot execute command:" << commandId << "attempt" << attemptCount << code << message;
+    // we ignore voice commands as they have their own error handling
+    if (live.command == "voice_start") {
+        emit voiceAssistantCommandError(live.entityId, code);
+        removePendingCommand(commandId);
+        return;
+    }
 
-            // if we're in the resume window, we try again in 500ms
-            if (m_resumeWindow) {
-                qCDebug(lcEntityController()) << "In resume window, trying command again:" << commandId << "attempt" << attemptCount;
-                QTimer::singleShot(500, this, [this, commandId, requestId]() {
-                    auto current = m_pendingCommands.find(commandId);
-                    if (current == m_pendingCommands.end() || current.value().requestId != requestId) {
+    // a key repeat is stale the moment it fails: offering to send it again would replay a button press the
+    // user has long released, and a held button would raise one prompt per repeat
+    if (live.repeating) {
+        removePendingCommand(commandId);
+        return;
+    }
+
+    // get entity name
+    QString entityName = tr("The device");
+    entity::Base* e = m_entities.value(live.entityId);
+
+    if (e) {
+        entityName = e->getName();
+    }
+
+    switch (code) {
+        case 408:
+        case 503: {
+            QVariantMap payload;
+            payload["commandId"] = commandId;
+            payload["entityId"]  = live.entityId;
+            payload["command"]   = live.command;
+            payload["params"]    = live.params;
+
+            // Remove current pending; will recreate if user taps
+            removePendingCommand(commandId);
+
+            Notification::createActionableNotification(
+                tr("%1 is not responding").arg(entityName),
+                tr("The command did not reach the device. Would you like to try again?"), "uc:warning",
+                [](QVariant param) {
+                    // the action is a plain function pointer and cannot capture anything, so the controller
+                    // is reached through its singleton rather than through a raw pointer in the payload,
+                    // which the QVariant would not keep alive
+                    EntityController* self = s_instance;
+                    if (!self) {
                         return;
                     }
 
-                    retrySendAttempt(commandId);
-                });
-                return;
-            }
+                    const auto    m     = param.toMap();
+                    const QString cmdId = m.value("commandId").toString();
 
-            // we ignore voice commands as they have their own error handling
-            if (live2.command == "voice_start") {
-                emit voiceAssistantCommandError(live2.entityId, code);
-                removePendingCommand(commandId);
-                return;
-            }
+                    // the command may have been issued again in the meantime
+                    if (self->m_pendingCommands.contains(cmdId)) {
+                        return;
+                    }
 
-            // get entity name
-            QString entityName = "The device";
-            entity::Base* e = m_entities.value(live2.entityId);
+                    // retryOnFailure stays off: the user asked for exactly one more attempt and is asked
+                    // again if it fails, rather than the remote retrying on its own behind the prompt
+                    pendingCommand pc;
+                    pc.entityId  = m.value("entityId").toString();
+                    pc.command   = m.value("command").toString();
+                    pc.params    = m.value("params").toMap();
+                    pc.commandId = cmdId;
+                    pc.repeating = isRepeatingCommand(pc.command, pc.params);
+                    pc.epoch     = ++self->m_commandEpoch;
 
-            if (e) {
-                entityName = e->getName();
-            }
-
-            // Helper to show actionable + remove pending
-            auto showActionable = [this, commandId, live2, entityName]() {
-                QVariantMap payload;
-                payload["commandId"] = commandId;
-                payload["entityId"]  = live2.entityId;
-                payload["command"]   = live2.command;
-                payload["params"]    = live2.params;
-                payload["self"]      = QVariant::fromValue(static_cast<QObject*>(this));
-
-                // Remove current pending; will recreate if user taps
-                removePendingCommand(commandId);
-
-                Notification::createActionableNotification(
-                    tr("%1 is not responding").arg(entityName),
-                    tr("The command did not reach the device. Would you like to try again?"),
-                    "uc:warning",
-                    [](QVariant param) {
-                        const auto m = param.toMap();
-                        auto* self = qobject_cast<EntityController*>(m.value("self").value<QObject*>());
-                        if (!self) return;
-
-                        const QString cmdId = m.value("commandId").toString();
-
-                        pendingCommand pc;
-                        pc.entityId    = m.value("entityId").toString();
-                        pc.command     = m.value("command").toString();
-                        pc.params      = m.value("params").toMap();
-                        pc.commandId   = cmdId;
-                        pc.repeating   = isRepeatingCommand(pc.command, pc.params);
-
-                        self->m_pendingCommands.insert(cmdId, pc);
-                        self->retrySendAttempt(cmdId);
-                    },
-                    payload,
-                    "Try again"
-                    );
-            };
-
-            switch (code) {
-                case 408:
-                case 503:
-                    showActionable();
-                    break;
-                default:
-                    removePendingCommand(commandId);
-                    Notification::createActionableWarningNotification(
-                        tr("Error sending the command"),
-                        tr("%1 is not responding. Error code: %2").arg(entityName).arg(code),
-                        "uc:warning");
-                    break;
-            }
-        });
+                    self->m_pendingCommands.insert(cmdId, pc);
+                    self->retrySendAttempt(cmdId);
+                },
+                payload, tr("Try again"));
+            break;
+        }
+        default:
+            removePendingCommand(commandId);
+            Notification::createActionableWarningNotification(
+                tr("Error sending the command"),
+                tr("%1 is not responding. Error code: %2").arg(entityName).arg(code),
+                "uc:warning");
+            break;
+    }
 }
 
 
@@ -901,6 +985,17 @@ void EntityController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode)
             m_resumeWindow = true;
             emit resumewindowChanged();
             QTimer::singleShot(m_resumeTimerTimeout, this, &EntityController::onResumeTimerTimeout);
+
+            // commands issued while the remote was still waking up only got a provisional deadline, because
+            // the wakeup they belong to had not been reported yet. Give them the full configured window,
+            // measured from the wakeup, so a button press that wakes the remote is retried just as long as
+            // one made right after it.
+            const qint64 windowEndMs = QDateTime::currentMSecsSinceEpoch() + m_resumeTimerTimeout;
+            for (auto it = m_pendingCommands.begin(); it != m_pendingCommands.end(); ++it) {
+                if (it.value().retryOnFailure && it.value().retryDeadlineMs < windowEndMs) {
+                    it.value().retryDeadlineMs = windowEndMs;
+                }
+            }
 
             qCDebug(lcEntityController())  << "Resume timer enabled" << m_resumeTimerTimeout << "ms";
         }

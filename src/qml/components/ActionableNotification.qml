@@ -87,7 +87,9 @@ Popup {
             "DPAD_MIDDLE": {
                 "pressed": function() {
                     notificationList.currentItem.notificationObj.action();
-                    actionableNotification.close();
+                    // close() the item, not just the popup: an item left on the stack keeps matching the
+                    // duplicate check above and silently swallows every later notification with that title
+                    notificationList.currentItem.close();
                 }
             },
         }

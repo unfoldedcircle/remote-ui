@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 ## Unreleased
+### Fixed
+- A button pressed while the remote is asleep reported "device is not responding" the moment the remote woke up.
+  Such a command is now sent again for the whole interval configured under Power, and only reported as failed if it
+  has not gone through by the end of it. This also covers the press that wakes the remote in the first place, which
+  happens before the remote knows it is awake again and was therefore never retried
+- A command sent while the remote is not connected to the core disappeared without any reaction at all: no retry, no
+  error and no loading indicator
+- The loading indicator could keep spinning forever after an entity was deleted or the connection to the core was
+  lost, and sending the same command again was refused while it did
+- Holding down a button on an unreachable device queued up one "device is not responding" prompt per repeat, and
+  offered to send button presses again long after they were released
+- Retrying a command with the middle d-pad button left the notification behind, which then silently suppressed every
+  later message about the same device
 
 ---
 

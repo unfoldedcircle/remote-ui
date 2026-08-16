@@ -182,19 +182,36 @@ class EntityController : public QObject {
         int requestId = -1;
         int attemptCount = 0;
         bool repeating = false;
+        // set for a command issued around a wakeup. Sampled when the command is issued, not when it fails:
+        // the core reports an unanswered request only after its own timeout, which is longer than the
+        // configured resume window, so by then the window has regularly closed again
+        bool retryOnFailure = false;
+        // no further attempt is started after this point in time. It marks the end of the resume window,
+        // so retrying lasts as long as the user configured it, whatever the single attempts cost
+        qint64 retryDeadlineMs = 0;
+        // identifies this entry across re-uses of the same command id, so a callback or timer left over
+        // from an earlier command with the same id cannot settle a newer one
+        quint64 epoch = 0;
     };
 
     QHash<QString, pendingCommand> m_pendingCommands;
+    quint64                        m_commandEpoch = 0;
 
     // entities currently showing a "command in progress" indicator
     QSet<QString> m_busyEntities;
 
     // removes a pending command and clears the entity's busy indicator if it has no more pending commands
     void removePendingCommand(const QString& commandId);
+    // drops every pending command of an entity, e.g. when it is deleted
+    void removePendingCommandsForEntity(const QString& entityId);
+    // drops all pending commands and clears every busy indicator, e.g. when the core connection is lost
+    void clearPendingCommands();
     // true if any pending command targets this entity
     bool hasPendingForEntity(const QString& entityId) const;
     // flips the per-entity busy flag and the global commandInProgress state
     void setEntityBusy(const QString& entityId, bool busy);
+    // common handling for a command that was rejected, timed out or could not be sent at all
+    void handleCommandFailure(const QString& commandId, int requestId, int code, const QString& message);
 
     bool   m_wasSuspended = false;
     bool   m_resumeWindow = false;
