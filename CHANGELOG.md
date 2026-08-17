@@ -6,7 +6,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
-## Unreleased
+## v0.77.0 - 2026-08-17
 ### Added
 - New user interface setting "Open activities started with the API": when an activity is turned on from outside the
   remote, its screen is opened right away, replacing whatever is currently on screen. Activities started on the remote
