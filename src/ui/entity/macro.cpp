@@ -106,6 +106,8 @@ bool Macro::updateAttribute(const QString &attribute, QVariant data) {
             m_currentStep.setEntityId(newStep.value("command").toMap().value("entity_id").toString());
             m_currentStep.setCommandId(newStep.value("command").toMap().value("cmd_id").toString());
             m_currentStep.setError(newStep.value("error").toString());
+            m_currentStep.setErrorCode(newStep.value("error_code").toInt());
+            m_currentStep.setErrorMessage(newStep.value("error_message").toString());
             emit currentStepChanged();
             ok = true;
             break;

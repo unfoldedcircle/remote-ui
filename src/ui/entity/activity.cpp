@@ -92,6 +92,7 @@ void Activity::turnOn() {
         return;
     }
 
+    m_sequencePending = true;
     sendCommand(ActivityCommands::On);
     emit startedRunning(m_id);
 }
@@ -101,6 +102,7 @@ void Activity::turnOff() {
         return;
     }
 
+    m_sequencePending = true;
     sendCommand(ActivityCommands::Off);
     emit startedRunning(m_id);
 }
@@ -138,9 +140,25 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
         case ActivityAttributes::State: {
             int newState = Util::convertStringToEnum<ActivityStates::Enum>(uc::Util::FirstToUpper(data.toString()));
             if (newState != -1) {
-                if (m_state == newState) {
+                // Running is a step towards the outcome of a sequence, every other state is one
+                const bool sequenceResult = newState != ActivityStates::Running;
+
+                // A sequence can end in the state it started from: an activity that is already in Error and
+                // fails again never leaves Error, and a single-command sequence reports no Running state in
+                // between. Dropping such an update as churn leaves the loading screen waiting for a state
+                // change that never comes, so the outcome of a sequence we started is always reported.
+                // On and Off are left out: an activity is only turned on when it is not On yet and only
+                // turned off when it is not Off yet, so those outcomes change the state in any case.
+                const bool concludesOurSequence = m_sequencePending && sequenceResult &&
+                                                  newState != ActivityStates::On && newState != ActivityStates::Off;
+
+                if (m_state == newState && !concludesOurSequence) {
                     ok = true;
                     break;
+                }
+
+                if (sequenceResult) {
+                    m_sequencePending = false;
                 }
 
                 m_state = newState;
@@ -195,6 +213,8 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
             m_currentStep.setEntityId(newStep.value("command").toMap().value("entity_id").toString());
             m_currentStep.setCommandId(newStep.value("command").toMap().value("cmd_id").toString());
             m_currentStep.setError(newStep.value("error").toString());
+            m_currentStep.setErrorCode(newStep.value("error_code").toInt());
+            m_currentStep.setErrorMessage(newStep.value("error_message").toString());
             emit currentStepChanged();
             ok = true;
             break;

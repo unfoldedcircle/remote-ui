@@ -555,8 +555,24 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
         entityObj->setIcon(entity.icon);
     }
 
+    // The state summarizes the other attributes, so it is applied last: whatever reacts to the state change
+    // then sees the attributes that belong to it, for example the failed sequence step of an activity.
+    // A QVariantMap iterates its keys sorted, which would deliver "state" before "step".
+    bool     hasState = false;
+    QVariant state;
+
     for (QVariantMap::iterator i = entity.attributes.begin(); i != entity.attributes.end(); i++) {
+        if (i.key() == QLatin1String("state")) {
+            hasState = true;
+            state    = i.value();
+            continue;
+        }
+
         entityObj->updateAttribute(uc::Util::FirstToUpper(i.key()), i.value());
+    }
+
+    if (hasState) {
+        entityObj->updateAttribute(QStringLiteral("State"), state);
     }
 
     if (entity.featuresProvided) {

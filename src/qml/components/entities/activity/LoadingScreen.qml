@@ -37,6 +37,8 @@ Popup {
 
         activityLoading.entityId = "";
         activityLoading.isMacro = false;
+        // without this the next run starts with the state the previous one ended in
+        activityLoading.prevState = ActivityStates.Unknown;
         activityLoading.stepIcon = "";
         activityLoading.stepName = "";
 
@@ -82,19 +84,12 @@ Popup {
 
             if ((entityObj.state === (activityLoading.isMacro ? MacroStates.Completed : ActivityStates.Completed)) || (!activityLoading.isMacro && (entityObj.state === ActivityStates.On || entityObj.state === ActivityStates.Off)) ) {
                 activityLoading.end(false);
-            } else if (entityObj.state === (activityLoading.isMacro ? MacroStates.Error : ActivityStates.Error)) {
+            } else if (entityObj.state === (activityLoading.isMacro ? MacroStates.Error : ActivityStates.Error)
+                       || entityObj.state === ActivityStates.Unavailable) {
+                // Unavailable ends the run as well: the entity dropped out from under the sequence, for
+                // example because the connection to the core was lost, and no further state is coming
                 activityLoading.end(true);
-
-                switch (entityObj.state) {
-                default:
-                case MacroStates.Error:
-                case ActivityStates.Error:
-                    errorText.text = qsTr("There was an error during the sequence.");
-                    break;
-                case ActivityStates.Timeout:
-                    errorText.text = qsTr("The sequence timed out.");
-                    break;
-                }
+                errorText.text = activityLoading.sequenceErrorText();
             }
 
             activityLoading.prevState = entityObj.state;
@@ -153,6 +148,33 @@ Popup {
 
         console.debug("Starting activity loader for: " + entityId);
         activityLoading.open();
+    }
+
+    // The core reports why a command step failed, for example "Connection to dock not established". The
+    // generic text is only used when it does not, otherwise the screen would tell the user nothing about
+    // what went wrong.
+    function sequenceErrorText() {
+        const step = activityLoading.entityObj ? activityLoading.entityObj.currentStep : null;
+
+        if (!step) {
+            return qsTr("There was an error during the sequence.");
+        }
+
+        if (step.errorMessage !== "") {
+            if (step.errorCode > 0) {
+                //: %1 is an error message reported by the device, %2 the error code
+                return qsTr("%1 (error %2)").arg(step.errorMessage).arg(step.errorCode);
+            }
+
+            return step.errorMessage;
+        }
+
+        if (step.errorCode > 0) {
+            //: %1 is an error code reported by the device
+            return qsTr("There was an error during the sequence. Error code: %1").arg(step.errorCode);
+        }
+
+        return qsTr("There was an error during the sequence.");
     }
 
     function end(error) {

@@ -18,6 +18,8 @@ class SequenceStep : public QObject {
     Q_PROPERTY(QString entityId READ getEntityId NOTIFY entityIdChanged)
     Q_PROPERTY(QString commandId READ getCommandId NOTIFY commandIdChanged)
     Q_PROPERTY(QString error READ getError NOTIFY errorChanged)
+    Q_PROPERTY(int errorCode READ getErrorCode NOTIFY errorCodeChanged)
+    Q_PROPERTY(QString errorMessage READ getErrorMessage NOTIFY errorMessageChanged)
 
  public:
     explicit SequenceStep(QObject *parent) : QObject(parent) {}
@@ -62,6 +64,19 @@ class SequenceStep : public QObject {
         emit errorChanged();
     }
 
+    // the reason a command step failed, as reported by the core: an integration error code and its message
+    int  getErrorCode() { return m_errorCode; }
+    void setErrorCode(int errorCode) {
+        m_errorCode = errorCode;
+        emit errorCodeChanged();
+    }
+
+    QString getErrorMessage() { return m_errorMessage; }
+    void    setErrorMessage(const QString &errorMessage) {
+        m_errorMessage = errorMessage;
+        emit errorMessageChanged();
+    }
+
  signals:
     void typeChanged();
     void currentChanged();
@@ -69,6 +84,8 @@ class SequenceStep : public QObject {
     void entityIdChanged();
     void commandIdChanged();
     void errorChanged();
+    void errorCodeChanged();
+    void errorMessageChanged();
 
  private:
     Type    m_type;
@@ -77,6 +94,8 @@ class SequenceStep : public QObject {
     QString m_entityId;
     QString m_commandId;
     QString m_error;
+    int     m_errorCode = 0;
+    QString m_errorMessage;
 };
 
 }  // namespace entity

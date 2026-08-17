@@ -24,6 +24,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   offered to send button presses again long after they were released
 - Retrying a command with the middle d-pad button left the notification behind, which then silently suppressed every
   later message about the same device
+- Starting an activity whose start sequence fails could spin forever without ever showing an error. This happened
+  with a sequence of a single command, for example one infrared command sent to a dock that is not connected:
+  starting such an activity again after it had already failed never reported the second failure
+- The activity start screen now names the reason a step failed, for example "Connection to dock not established",
+  instead of only stating that something went wrong
+- The activity start screen kept spinning when the entity became unavailable mid-sequence, for instance after the
+  connection to the core was lost
 
 ---
 

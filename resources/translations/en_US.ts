@@ -1768,33 +1768,45 @@ Climate fan</extracomment>
 <context>
     <name>LoadingScreen</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="75"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="77"/>
         <source>Sequence didn&apos;t finish within %1 seconds. Check configuration.</source>
         <translation>Sequence didn&apos;t finish within %1 seconds. Check configuration.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="92"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="160"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="177"/>
         <source>There was an error during the sequence.</source>
         <translation>There was an error during the sequence.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="95"/>
         <source>The sequence timed out.</source>
-        <translation>The sequence timed out.</translation>
+        <translation type="vanished">The sequence timed out.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="163"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="166"/>
+        <source>%1 (error %2)</source>
+        <extracomment>%1 is an error message reported by the device, %2 the error code</extracomment>
+        <translation>%1 (error %2)</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="174"/>
+        <source>There was an error during the sequence. Error code: %1</source>
+        <extracomment>%1 is an error code reported by the device</extracomment>
+        <translation>There was an error during the sequence. Error code: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="185"/>
         <source>Tap to close</source>
         <translation>Tap to close</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="416"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="438"/>
         <source>Step %1/%2</source>
         <extracomment>Indicating the activity steps</extracomment>
         <translation>Step %1/%2</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="459"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="481"/>
         <source>Delay %1 ms</source>
         <extracomment>Current activity step is a delay of %1 miliseconds</extracomment>
         <translation>Delay %1 ms</translation>

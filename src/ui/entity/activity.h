@@ -212,6 +212,9 @@ class Activity : public Base {
     // set when a start command was sent from this remote, cleared when the activity settles again
     bool m_startedFromRemote = false;
 
+    // set while a sequence started from this remote has not reported its outcome yet
+    bool m_sequencePending = false;
+
     void updateSliderConfig(QVariantMap data);
     void updateVoiceAssistantConfig(QVariantMap data);
     void updateSequences(QVariantMap data);
