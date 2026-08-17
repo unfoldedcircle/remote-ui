@@ -3587,6 +3587,16 @@ Tap the QR code to show it on the screen.</translation>
         <translation>Show the running activities and playing media players in the page header.</translation>
     </message>
     <message>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="252"/>
+        <source>Open activities started with the API</source>
+        <translation>Open activities started with the API</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="275"/>
+        <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
+        <translation>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</translation>
+    </message>
+    <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="262"/>
         <source>Zoom media image</source>
         <translation>Zoom media image</translation>

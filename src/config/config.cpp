@@ -431,6 +431,17 @@ void Config::setEnableActivityBar(bool value)
     emit enableActivityBarChanged();
 }
 
+bool Config::getOpenActivityOnApiStart()
+{
+    return m_settings->value("ui/openActivityOnApiStart", false).toBool();
+}
+
+void Config::setOpenActivityOnApiStart(bool value)
+{
+    m_settings->setValue("ui/openActivityOnApiStart", value);
+    emit openActivityOnApiStartChanged();
+}
+
 bool Config::getFillMediaArtwork()
 {
     return m_settings->value("ui/fillMediaArtwork", false).toBool();

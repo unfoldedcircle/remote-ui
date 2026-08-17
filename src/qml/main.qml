@@ -74,6 +74,39 @@ ApplicationWindow {
 
     property bool isSecondContainerLoaded: containerSecond.loader.source != ""
 
+    /**
+      Drops whatever the second and third containers are showing, without playing their close
+      animations. Used when a screen has to be replaced by something else right away.
+      */
+    function unloadSecondAndThirdContainer() {
+        if (containerThird.loaderThird.active) {
+            containerThird.close();
+            containerThird.loaderThird.source = "";
+            containerThird.loaderThird.active = false;
+        }
+
+        if (containerSecond.loader.active) {
+            containerSecond.close();
+            containerSecond.loader.source = "";
+            containerSecond.loader.active = false;
+            root.isActivityOpen = false;
+        }
+    }
+
+    /**
+      Brings up an activity screen on top of everything else, replacing the currently open screens.
+      */
+    function openActivity(entityObj) {
+        // already showing this activity and nothing on top of it: leave it alone
+        if (containerSecond.loader.item && containerSecond.loader.item.entityId === entityObj.id
+                && !containerThird.loaderThird.active) {
+            return;
+        }
+
+        unloadSecondAndThirdContainer();
+        loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityObj.id, "entityObj": entityObj });
+    }
+
     function loadThirdContainer(source, parameters = {}, openAfterLoad = true) {
         if (!containerThird.loaderThird.active) {
             console.debug("Loading third container", source);
@@ -250,6 +283,28 @@ ApplicationWindow {
                         containerMain.setSource("qrc:/components/ProfileSwitch.qml", { state: "visible", noProfile: true })
                     }
                 }
+            }
+        }
+
+        Connections {
+            target: EntityController
+            ignoreUnknownSignals: true
+
+            // an activity turned on without being started here, e.g. through the API: optionally
+            // bring its screen up, replacing whatever is currently open
+            function onActivityStartedExternally(entityId) {
+                if (!Config.openActivityOnApiStart || ui.isOnboarding) {
+                    return;
+                }
+
+                const entityObj = EntityController.get(entityId);
+
+                if (!entityObj) {
+                    return;
+                }
+
+                console.debug("Opening activity started via the API:", entityId);
+                openActivity(entityObj);
             }
         }
 

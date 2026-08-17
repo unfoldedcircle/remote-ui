@@ -448,6 +448,8 @@ void EntityController::addEntityObject(core::Entity entity) {
                                  &EntityController::onRemoveFromActivities);
                 QObject::connect(activity, &entity::Activity::startedRunning, this,
                                  &EntityController::onActivityStartedRunning);
+                QObject::connect(activity, &entity::Activity::startedExternally, this,
+                                 &EntityController::onActivityStartedExternally);
                 QObject::connect(activity, &entity::Activity::sendCommandToEntity, this,
                                  &EntityController::onEntityCommand);
 
@@ -725,6 +727,15 @@ void EntityController::clearPendingCommands() {
 }
 
 void EntityController::onEntityCommand(const QString& entityId, const QString& command, QVariantMap params) {
+    // every activity start triggered on the remote passes through here, no matter if it comes from
+    // an entity page, an activity page or a button mapping: remember it so that the activity does
+    // not report the resulting On state as an external (API) start
+    if (command == "activity.on" || command == "activity.start") {
+        if (auto activity = qobject_cast<entity::Activity*>(m_entities.value(entityId))) {
+            activity->markStartedFromRemote();
+        }
+    }
+
     pendingCommand pendingCmd;
     pendingCmd.entityId = entityId;
     pendingCmd.command = command;
@@ -958,6 +969,8 @@ void EntityController::onRemoveFromActivities(QString entityId) {
 }
 
 void EntityController::onActivityStartedRunning(QString entityId) { emit activityStartedRunning(entityId); }
+
+void EntityController::onActivityStartedExternally(QString entityId) { emit activityStartedExternally(entityId); }
 
 void EntityController::onResumeTimerTimeout()
 {

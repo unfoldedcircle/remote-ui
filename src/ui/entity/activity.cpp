@@ -156,10 +156,17 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
                 switch (m_state) {
                     case ActivityStates::On:
                         emit addToActivities(m_id);
+
+                        if (m_startedFromRemote) {
+                            m_startedFromRemote = false;
+                        } else {
+                            emit startedExternally(m_id);
+                        }
                         break;
                     case ActivityStates::Off:
                     case ActivityStates::Error:
                     case ActivityStates::Timeout:
+                        m_startedFromRemote = false;
                         emit removeFromActivities(m_id);
                         break;
                 }

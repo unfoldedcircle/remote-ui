@@ -164,6 +164,12 @@ class Activity : public Base {
 
     bool getReadyCheck() { return m_readyCheck; }
 
+    /**
+     * @brief Marks the activity as started from this remote, so that the next transition to the On
+     *        state is not reported as an external start via startedExternally().
+     */
+    void markStartedFromRemote() { m_startedFromRemote = true; }
+
  signals:
     void totalStepsChanged();
     void currentStepChanged();
@@ -180,6 +186,8 @@ class Activity : public Base {
     void addToActivities(QString entityId);
     void removeFromActivities(QString entityId);
     void startedRunning(QString entityId);
+    // the activity turned on without being started from this remote, e.g. through the API
+    void startedExternally(QString entityId);
     void sendCommandToEntity(QString entityId, QString command, QVariantMap params = QVariantMap());
 
  private:
@@ -200,6 +208,9 @@ class Activity : public Base {
     ActivitySliderConfig m_sliderConfig;
 
     bool m_readyCheck = true;
+
+    // set when a start command was sent from this remote, cleared when the activity settles again
+    bool m_startedFromRemote = false;
 
     void updateSliderConfig(QVariantMap data);
     void updateVoiceAssistantConfig(QVariantMap data);

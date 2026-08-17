@@ -215,7 +215,7 @@ Settings.Page {
                         /** KEYBOARD NAVIGATION **/
                         highlight: activeFocus && ui.keyNavigationEnabled
                         KeyNavigation.up: batteryEveryWhereSwitch
-                        KeyNavigation.down: mediaComponentSwitch
+                        KeyNavigation.down: apiActivitySwitch
                     }
                 }
 
@@ -224,6 +224,55 @@ Settings.Page {
                     wrapMode: Text.WordWrap
                     color: colors.light
                     text: qsTr("Show the running activities and playing media players in the page header.")
+                    font: fonts.secondaryFont(24)
+                }
+            }
+
+            Rectangle {
+                Layout.alignment: Qt.AlignCenter
+                width: parent.width - 20; height: 2
+                color: colors.medium
+            }
+
+            /** OPEN ACTIVITIES STARTED VIA THE API **/
+            ColumnLayout {
+                Layout.alignment: Qt.AlignCenter
+                Layout.leftMargin: 10
+                Layout.rightMargin: 10
+                spacing: 10
+
+                RowLayout {
+                    spacing: 10
+
+                    Text {
+                        id: apiActivityText
+                        Layout.fillWidth: true
+                        wrapMode: Text.WordWrap
+                        color: colors.offwhite
+                        text: qsTr("Open activities started with the API")
+                        font: fonts.primaryFont(30)
+                    }
+
+                    Components.Switch {
+                        id: apiActivitySwitch
+                        icon: "uc:check"
+                        checked: Config.openActivityOnApiStart
+                        trigger: function() {
+                            Config.openActivityOnApiStart = !Config.openActivityOnApiStart;
+                        }
+
+                        /** KEYBOARD NAVIGATION **/
+                        highlight: activeFocus && ui.keyNavigationEnabled
+                        KeyNavigation.up: activityBarSwitch
+                        KeyNavigation.down: mediaComponentSwitch
+                    }
+                }
+
+                Text {
+                    Layout.fillWidth: true
+                    wrapMode: Text.WordWrap
+                    color: colors.light
+                    text: qsTr("Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.")
                     font: fonts.secondaryFont(24)
                 }
             }
@@ -263,7 +312,7 @@ Settings.Page {
 
                         /** KEYBOARD NAVIGATION **/
                         highlight: activeFocus && ui.keyNavigationEnabled
-                        KeyNavigation.up: activityBarSwitch
+                        KeyNavigation.up: apiActivitySwitch
                         KeyNavigation.down: mediaCoverflowSwitch
                     }
                 }

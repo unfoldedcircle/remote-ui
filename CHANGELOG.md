@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 ## Unreleased
+### Added
+- New user interface setting "Open activities started with the API": when an activity is turned on from outside the
+  remote, its screen is opened right away, replacing whatever is currently on screen. Activities started on the remote
+  keep opening their screen as before
 ### Fixed
 - A button pressed while the remote is asleep reported "device is not responding" the moment the remote woke up.
   Such a command is now sent again for the whole interval configured under Power, and only reported as failed if it

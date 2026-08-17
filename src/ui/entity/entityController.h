@@ -138,6 +138,7 @@ class EntityController : public QObject {
     void languageChanged(QString language);
     void unitSystemChanged(Config::UnitSystems unitSystem);
     void activityStartedRunning(QString entityId);
+    void activityStartedExternally(QString entityId);
     void voiceAssistantCommandError(QString entityId, int code);
     void allEntitiesLoaded();
     void commandInProgressChanged();
@@ -241,6 +242,7 @@ class EntityController : public QObject {
     void onAddToActivities(QString entityId);
     void onRemoveFromActivities(QString entityId);
     void onActivityStartedRunning(QString entityId);
+    void onActivityStartedExternally(QString entityId);
     void onResumeTimerTimeout();
 };
 
