@@ -992,6 +992,7 @@ void EntityController::onResumeTimerTimeout()
 {
     m_resumeWindow = false;
     emit resumewindowChanged();
+    emit resumePendingChanged();
     qCDebug(lcEntityController())  << "Resume timer disabled";
 }
 
@@ -1003,6 +1004,9 @@ void EntityController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode)
 
     if (powerMode == core::PowerEnums::PowerMode::SUSPEND) {
         m_wasSuspended = true;
+        // the remote is awake and taking input again before the core reports the wakeup, so everything that
+        // has to survive it is gated from here on, not only from the moment the resume window opens
+        emit resumePendingChanged();
         return;
     }
 
@@ -1034,6 +1038,9 @@ void EntityController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode)
 void EntityController::onResumeTimeoutWindowSecChanged(int value)
 {
     m_resumeTimerTimeout = value * 1000;
+    emit resumeTimeoutChanged();
+    // setting the window to zero turns retrying after a wakeup off altogether
+    emit resumePendingChanged();
     qCDebug(lcEntityController())  << "Resume timer changed" << m_resumeTimerTimeout << "ms";
 }
 

@@ -108,26 +108,6 @@
 <context>
     <name>Activity</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="267"/>
-        <source>Some devices are not ready</source>
-        <translation>Some devices are not ready</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="267"/>
-        <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-        <translation>%1 is not connected yet. Tap Proceed to continue anyway.</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="267"/>
-        <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-        <translation>%1 are not connected yet. Tap Proceed to continue anyway.</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="267"/>
-        <source>Proceed</source>
-        <translation>Proceed</translation>
-    </message>
-    <message>
         <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="389"/>
         <source>Tap to close</source>
         <extracomment>Tap to close menu or tap to see more</extracomment>
@@ -236,27 +216,6 @@
 <context>
     <name>Base</name>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="112"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="135"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="179"/>
-        <source>Some devices are not ready</source>
-        <translation>Some devices are not ready</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="112"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="135"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="179"/>
-        <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-        <translation>%1 is not connected yet. Tap Proceed to continue anyway.</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="112"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="135"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="179"/>
-        <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-        <translation>%1 are not connected yet. Tap Proceed to continue anyway.</translation>
-    </message>
-    <message>
         <location filename="../../src/qml/components/entities/Base.qml" line="103"/>
         <source>Activity error. Select option below.</source>
         <translation>Activity error. Select option below.</translation>
@@ -281,13 +240,6 @@
         <location filename="../../src/qml/components/entities/Base.qml" line="217"/>
         <source>is unavailable</source>
         <translation>is unavailable</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="118"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="141"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="200"/>
-        <source>Proceed</source>
-        <translation>Proceed</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/entities/Base.qml" line="405"/>
@@ -2335,29 +2287,6 @@ Climate fan</extracomment>
         <translation>Turn off</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="546"/>
-        <source>Some devices are not ready</source>
-        <translation>Some devices are not ready</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/Page.qml" line="546"/>
-        <location filename="../../src/qml/components/Page.qml" line="584"/>
-        <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-        <translation>%1 is not connected yet. Tap Proceed to continue anyway.</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/Page.qml" line="546"/>
-        <location filename="../../src/qml/components/Page.qml" line="584"/>
-        <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-        <translation>%1 are not connected yet. Tap Proceed to continue anyway.</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/Page.qml" line="546"/>
-        <location filename="../../src/qml/components/Page.qml" line="584"/>
-        <source>Proceed</source>
-        <translation>Proceed</translation>
-    </message>
-    <message>
         <location filename="../../src/qml/components/Page.qml" line="573"/>
         <source>Turn off all</source>
         <translation>Turn off all</translation>
@@ -4160,7 +4089,27 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../../src/qml/main.qml" line="681"/>
+        <location filename="../../src/qml/main.qml" line="244"/>
+        <source>Some devices are not ready</source>
+        <translation>Some devices are not ready</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="246"/>
+        <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+        <translation>%1 is not connected yet. Tap Proceed to continue anyway.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="247"/>
+        <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+        <translation>%1 are not connected yet. Tap Proceed to continue anyway.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="257"/>
+        <source>Proceed</source>
+        <translation>Proceed</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="830"/>
         <source>Done</source>
         <translation>Done</translation>
     </message>

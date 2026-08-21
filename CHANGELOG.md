@@ -31,6 +31,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   instead of only stating that something went wrong
 - The activity start screen kept spinning when the entity became unavailable mid-sequence, for instance after the
   connection to the core was lost
+- Starting or stopping an activity with the button press that wakes the remote asked "Some devices are not ready"
+  straight away. The readiness check now waits for the devices of the activity to come back for the whole interval
+  configured under Power, the same budget a single command gets, and only asks once that interval has passed
+- The readiness check reported an activity as ready when neither its devices nor their integrations were known to the
+  remote yet, which is exactly the case right after a wakeup, and started the activity into devices that were all
+  still disconnected
+- Pressing an activity, or the power button, several times while its devices were still coming back after a wakeup
+  ran the sequence once per press
+- Turning an activity off from its own screen while its devices were not ready left the activity screen open after
+  choosing Proceed
+- A power button press made on a sleeping remote was dropped when the wakeup took longer than two seconds, even with
+  a longer interval configured under Power
 
 ---
 

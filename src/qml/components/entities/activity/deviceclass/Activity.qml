@@ -256,20 +256,15 @@ EntityComponents.BaseDetail {
     }
 
     function powerOffCommand() {
-        const res = checkActivityIncludedEntities(entityObj, false);
+        checkActivityReadiness(entityObj, false, function(activityObj) {
+            activityObj.turnOff();
 
-        if (EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
-            ui.setTimeOut(500, () => {
-                              activityBase.powerOffCommand();
-                          });
-            return;
-        } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected && entityObj.readyCheck) {
-                ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => { entityObj.turnOff(); }, qsTr("Proceed"));
-                return;
-        } else {
-            entityObj.turnOff();
-            activityBase.close();
-        }
+            // the page can be gone by the time the check is through: the wait and the prompt both take
+            // their time, and QML nulls a reference to a destroyed object
+            if (activityBase) {
+                activityBase.close();
+            }
+        });
     }
 
     Component.onCompleted: {
@@ -282,7 +277,10 @@ EntityComponents.BaseDetail {
     Timer {
         id: powerOffPressTimeout
         running: false
-        interval: 2000
+        // how long a power press made on a sleeping remote stays armed while it waits for the wakeup to be
+        // reported. A wakeup that takes longer than the window configured under Power would otherwise drop
+        // the press, which is the very case the window is there for
+        interval: Math.max(2000, EntityController.resumeTimeout)
         repeat: false
         onTriggered: activityBase.powerOffPressed = false
     }

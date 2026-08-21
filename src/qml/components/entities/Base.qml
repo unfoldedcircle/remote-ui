@@ -106,46 +106,18 @@ Rectangle {
                                title: qsTr("Turn activity on"),
                                icon: "uc:arrow-right",
                                callback: function() {
-                                   const res = checkActivityIncludedEntities(entityBaseContainer.entityObj);
-
-                                   if (!res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
-                                       ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => {
-                                                                         if (!entityObj) {
-                                                                             return;
-                                                                         }
-
-                                                                         entityObj.turnOn();
-                                                                     }, qsTr("Proceed"));
-                                   } else {
-                                       if (!entityObj) {
-                                           return;
-                                       }
-
-                                       entityObj.turnOn();
-                                   }
+                                   checkActivityReadiness(entityBaseContainer.entityObj, true, function(activityObj) {
+                                       activityObj.turnOn();
+                                   });
                                }
                            });
             menuItems.push({
                                title: qsTr("Turn activity off"),
                                icon: "uc:arrow-left",
                                callback: function() {
-                                   const res = checkActivityIncludedEntities(entityBaseContainer.entityObj, false);
-
-                                   if (!res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
-                                       ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => {
-                                                                         if (!entityObj) {
-                                                                             return;
-                                                                         }
-
-                                                                         entityObj.turnOff();
-                                                                     }, qsTr("Proceed"));
-                                   } else {
-                                       if (!entityObj) {
-                                           return;
-                                       }
-
-                                       entityObj.turnOff();
-                                   }
+                                   checkActivityReadiness(entityBaseContainer.entityObj, false, function(activityObj) {
+                                       activityObj.turnOff();
+                                   });
                                }
                            });
             menuItems.push({
@@ -168,45 +140,27 @@ Rectangle {
         case ActivityStates.Running:
             return true;
         case ActivityStates.Off: {
-            const res = checkActivityIncludedEntities(entityBaseContainer.entityObj);
-
-            if (EntityController.resumeWindow && !res.allIncludedEntitiesConnected) {
-                ui.setTimeOut(500, () => {
-                                  entityBaseContainer.handleActivityOpen();
-                              });
-                return false;
-            } else if (!EntityController.resumeWindow && !res.allIncludedEntitiesConnected && entityBaseContainer.entityObj.readyCheck) {
-                ui.createActionableNotification(qsTr("Some devices are not ready"), (res.notReadyEntityQty == 1 ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities) : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)), "uc:link-slash", () => {
-                                                    if (!entityObj) {
-                                                        return;
-                                                    }
-
-                                                    switch (currentEntityObj.state) {
-                                                        case ActivityStates.Off:
-                                                        entityObj.turnOn();
-                                                        break;
-                                                        case ActivityStates.Error:
-                                                        case ActivityStates.Timeout:
-                                                        showActivityPopup();
-                                                        break;
-                                                        case ActivityStates.On:
-                                                        if (!currentEntityObj.enabled) {
-                                                            ui.createNotification(currentEntityObj.name + " " + qsTr("is unavailable"), true);
-                                                        } else {
-                                                            loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
-                                                        }
-                                                        break;
-                                                    }
-                                                }, qsTr("Proceed"));
-                return false;
-            } else {
-                if (!entityObj) {
-                    return false;
+            checkActivityReadiness(entityBaseContainer.entityObj, true, function(activityObj) {
+                // the state can have moved on while the check waited for the devices, or while the user
+                // was deciding whether to proceed anyway
+                switch (activityObj.state) {
+                case ActivityStates.Off:
+                    activityObj.turnOn();
+                    break;
+                case ActivityStates.Error:
+                case ActivityStates.Timeout:
+                    showActivityPopup();
+                    break;
+                case ActivityStates.On:
+                    if (!activityObj.enabled) {
+                        ui.createNotification(activityObj.name + " " + qsTr("is unavailable"), true);
+                    } else {
+                        loadSecondContainer("qrc:/components/entities/" + activityObj.getTypeAsString() + "/deviceclass/" + activityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": activityObj, "integrationObj": integrationObj });
+                    }
+                    break;
                 }
-
-                entityObj.turnOn();
-                return false;
-            }
+            });
+            return false;
         }
         case ActivityStates.Error:
         case ActivityStates.Timeout:

@@ -140,23 +140,22 @@ ApplicationWindow {
         }
 
         for (let i = 0; i < entityListToCheck.length; i++) {
-            const includedEntityObj = EntityController.get(entityListToCheck[i]);
+            const includedEntityId = entityListToCheck[i];
+            const includedEntityObj = EntityController.get(includedEntityId);
+            const includedEntityIntegrationObj = includedEntityObj ? IntegrationController.getModelItem(includedEntityObj.integrationId) : null;
 
-            if (includedEntityObj) {
-                const includedEntityIntegrationObj = IntegrationController.getModelItem(includedEntityObj.integrationId);
-                if (includedEntityIntegrationObj) {
-                    if (includedEntityIntegrationObj.state !== "connected") {
-                        allIncludedEntitiesConnected = false;
-                        notReadyEntities += includedEntityObj.name + ",  ";
-                        notReadyEntityQty++;
-                    } else if (includedEntityIntegrationObj.state === "connected") {
-                        if (!includedEntityObj.enabled) {
-                            allIncludedEntitiesConnected = false;
-                            notReadyEntities += includedEntityObj.name + ",  ";
-                            notReadyEntityQty++;
-                        }
-                    }
-                }
+            // An entity or an integration the ui does not know is not ready either. Skipping those reported
+            // an activity as ready while nothing of it was loaded yet, which is exactly the situation right
+            // after a wakeup: reconnecting to the core reloads the integrations, and until they are back the
+            // check passed on an activity whose devices were all still disconnected.
+            const ready = includedEntityObj && includedEntityIntegrationObj
+                    && includedEntityIntegrationObj.state === "connected"
+                    && includedEntityObj.enabled;
+
+            if (!ready) {
+                allIncludedEntitiesConnected = false;
+                notReadyEntities += (includedEntityObj ? includedEntityObj.name : includedEntityId) + ",  ";
+                notReadyEntityQty++;
             }
         }
 
@@ -168,6 +167,97 @@ ApplicationWindow {
             notReadyEntities: notReadyEntities,
             notReadyEntityQty: notReadyEntityQty
         }
+    }
+
+    // keyed by activity id and direction: the readiness check of a sequence that is already waiting
+    property var activityReadinessWaits: ({})
+
+    // Runs the readiness check of an activity and calls proceed(activityObj) once its sequence may run.
+    //
+    // A wakeup brings the integrations back one by one and the core reports it only once it is through, so
+    // an activity started by the very button press that woke the remote regularly finds all of its devices
+    // still disconnected. The sequence waits for them for as long as the resume window configured under
+    // Power lasts - the same budget EntityController gives a single entity command - and only asks the user
+    // whether to proceed anyway once that budget is spent.
+    // title overrides the heading of the prompt, for callers that would otherwise raise several
+    // indistinguishable ones at once
+    function checkActivityReadiness(activityObj, onSequence, proceed, title = "") {
+        if (!activityObj) {
+            return;
+        }
+
+        const activityId = activityObj.id;
+        const key = activityId + (onSequence ? ".on" : ".off");
+
+        // a second press while the first one is still waiting would wait on its own and run the sequence
+        // one more time once the devices are back
+        if (applicationWindow.activityReadinessWaits[key]) {
+            return;
+        }
+
+        // Eligibility is sampled once, when the sequence is requested: the wait exists for the devices that
+        // a wakeup took away, not for the ones that are down for good.
+        const waitForDevices = EntityController.resumePending;
+        // provisional as long as the remote is still waking up, extended below once the window opens
+        let deadline = Date.now() + EntityController.resumeTimeout;
+        let windowSeen = EntityController.resumeWindow;
+
+        function step() {
+            const obj = EntityController.get(activityId);
+
+            if (!obj) {
+                // the activity is gone, there is nothing left to start
+                delete applicationWindow.activityReadinessWaits[key];
+                return;
+            }
+
+            const res = checkActivityIncludedEntities(obj, onSequence);
+
+            if (res.allIncludedEntitiesConnected) {
+                delete applicationWindow.activityReadinessWaits[key];
+                proceed(obj);
+                return;
+            }
+
+            // the wakeup is reported after the fact, so the window opens while we are already waiting: give
+            // the sequence the full window from that point, the way EntityController extends its commands
+            if (!windowSeen && EntityController.resumeWindow) {
+                windowSeen = true;
+                deadline = Math.max(deadline, Date.now() + EntityController.resumeTimeout);
+            }
+
+            // waiting past a lost connection to the core is pointless: nothing can be sent over it, and the
+            // devices cannot come back before it does
+            if (waitForDevices && EntityController.resumePending && ui.coreConnected && Date.now() < deadline) {
+                applicationWindow.activityReadinessWaits[key] = true;
+                ui.setTimeOut(500, step);
+                return;
+            }
+
+            delete applicationWindow.activityReadinessWaits[key];
+
+            if (!obj.readyCheck) {
+                proceed(obj);
+                return;
+            }
+
+            ui.createActionableNotification(title !== "" ? title : qsTr("Some devices are not ready"),
+                                            res.notReadyEntityQty == 1
+                                                ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)
+                                                : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities),
+                                            "uc:link-slash",
+                                            () => {
+                                                // the activity may be gone by the time the user answers
+                                                const current = EntityController.get(activityId);
+
+                                                if (current) {
+                                                    proceed(current);
+                                                }
+                                            },
+                                            qsTr("Proceed"));
+        }
+
+        step();
     }
 
     Connections {

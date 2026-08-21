@@ -53,6 +53,8 @@ class EntityController : public QObject {
     Q_PROPERTY(int configuredEntitiesCount READ getConfiguredEntitiesCount NOTIFY configuredEntitiesCountChanged)
     Q_PROPERTY(QStringList activities READ getActivities NOTIFY activitiesChanged)
     Q_PROPERTY(bool resumeWindow READ getResumeWindow NOTIFY resumewindowChanged)
+    Q_PROPERTY(bool resumePending READ getResumePending NOTIFY resumePendingChanged)
+    Q_PROPERTY(int resumeTimeout READ getResumeTimeout NOTIFY resumeTimeoutChanged)
     Q_PROPERTY(bool commandInProgress READ getCommandInProgress NOTIFY commandInProgressChanged)
 
  public:
@@ -66,6 +68,15 @@ class EntityController : public QObject {
     int                 getConfiguredEntitiesCount() { return m_configuredEntitiesCount; }
     QStringList         getActivities() { return m_activities; }
     bool                getResumeWindow() { return m_resumeWindow; }
+    // true from the moment the remote goes to sleep until the resume window has closed again. The core
+    // reports a wakeup only once it is through, so the resume window alone leaves the span in which the
+    // remote is already awake and taking input uncovered, which is where a button press that wakes it up
+    // lands. Everything that has to survive a wakeup is gated on this, not on the window alone.
+    bool                getResumePending() const {
+        return m_resumeTimerTimeout > 0 && (m_resumeWindow || m_wasSuspended);
+    }
+    // length of the resume window in milliseconds, 0 if retrying after a wakeup is turned off
+    int                 getResumeTimeout() const { return m_resumeTimerTimeout; }
     bool                getCommandInProgress() { return !m_busyEntities.isEmpty(); }
 
     /**
@@ -133,6 +144,8 @@ class EntityController : public QObject {
     void entityLoaded(bool success, QString entityId);
     void activitiesChanged();
     void resumewindowChanged();
+    void resumePendingChanged();
+    void resumeTimeoutChanged();
     void activityAdded(QString entityId);
     void activityRemoved(QString entityId);
     void languageChanged(QString language);
