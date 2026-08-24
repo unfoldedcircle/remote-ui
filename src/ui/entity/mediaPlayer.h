@@ -389,8 +389,19 @@ class MediaPlayer : public Base {
 
  public slots:
     void onBrowseMediaResult(const core::BrowseMediaItem &media, const core::Pagination &pagination);
-    void onSearchMediaResult(const QList<core::BrowseMediaItem> &items, const core::Pagination &pagination);
     void onMediaBrowseError(int code, const QString &message);
+
+    /**
+     * @brief Remembers which search request the UI is waiting for.
+     *
+     * A live search sends one request per keystroke and every one of them installs its own response
+     * handler, so a slow answer to an earlier term can arrive after a later one. Only the answer to the
+     * most recent request is passed on to QML, the others are dropped.
+     */
+    void onSearchMediaRequested(int requestId);
+    void onSearchMediaResult(int requestId, const QList<core::BrowseMediaItem> &items,
+                             const core::Pagination &pagination);
+    void onSearchMediaError(int requestId, int code, const QString &message);
 
  signals:
     void volumeChanged();
@@ -421,7 +432,9 @@ class MediaPlayer : public Base {
     void searchMediaClassesChanged();
     void browseMediaResult(QVariantMap media, QVariantMap pagination);
     void searchMediaResult(QVariantList items, QVariantMap pagination);
+    // browsing and searching fail independently: a failed search must not discard the browsed page
     void mediaBrowseError(int code, QString message);
+    void searchMediaError(int code, QString message);
 
  private:
     int                         m_volume;
@@ -443,6 +456,9 @@ class MediaPlayer : public Base {
     QString                     m_mediaId;
     QString                     m_mediaPlaylist;
     QStringList                 m_searchMediaClasses;
+
+    // request id of the search the UI is waiting for, -1 if none is pending
+    int m_activeSearchRequestId = -1;
 
     // options
     int         m_volumeSteps;

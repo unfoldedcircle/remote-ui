@@ -547,12 +547,35 @@ void MediaPlayer::onBrowseMediaResult(const core::BrowseMediaItem &media, const 
     emit browseMediaResult(browseItemToVariant(media), paginationToVariant(pagination));
 }
 
-void MediaPlayer::onSearchMediaResult(const QList<core::BrowseMediaItem> &items, const core::Pagination &pagination) {
+void MediaPlayer::onSearchMediaRequested(int requestId) {
+    m_activeSearchRequestId = requestId;
+}
+
+void MediaPlayer::onSearchMediaResult(int requestId, const QList<core::BrowseMediaItem> &items,
+                                      const core::Pagination &pagination) {
+    if (requestId != m_activeSearchRequestId) {
+        qCDebug(lcMediaPlayer()) << "Dropping stale search result" << requestId << ", waiting for"
+                                 << m_activeSearchRequestId;
+        return;
+    }
+    m_activeSearchRequestId = -1;
+
     QVariantList list;
     for (const auto &item : items) {
         list.append(browseItemToVariant(item));
     }
     emit searchMediaResult(list, paginationToVariant(pagination));
+}
+
+void MediaPlayer::onSearchMediaError(int requestId, int code, const QString &message) {
+    if (requestId != m_activeSearchRequestId) {
+        qCDebug(lcMediaPlayer()) << "Dropping stale search error" << requestId << ", waiting for"
+                                 << m_activeSearchRequestId;
+        return;
+    }
+    m_activeSearchRequestId = -1;
+
+    emit searchMediaError(code, message);
 }
 
 void MediaPlayer::onMediaBrowseError(int code, const QString &message) {

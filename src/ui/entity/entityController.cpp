@@ -479,6 +479,12 @@ void EntityController::connectLazySignals(entity::Base* obj) {
             QObject::connect(mediaPlayer, &entity::MediaPlayer::browseMediaRequested,
                 this, [=](const QString &entityId, QVariantMap params) {
                     int id = m_core->browseMedia(entityId, params);
+                    // A request that was never sent never gets a response: report it right away,
+                    // otherwise the UI keeps waiting for it forever.
+                    if (id < 0) {
+                        mediaPlayer->onMediaBrowseError(503, QString());
+                        return;
+                    }
                     m_core->onResponseWithErrorResult(id, &core::Api::respMediaBrowse,
                         [mediaPlayer](core::BrowseMediaItem media, core::Pagination pagination) {
                             mediaPlayer->onBrowseMediaResult(media, pagination);
@@ -491,12 +497,19 @@ void EntityController::connectLazySignals(entity::Base* obj) {
             QObject::connect(mediaPlayer, &entity::MediaPlayer::searchMediaRequested,
                 this, [=](const QString &entityId, QVariantMap params) {
                     int id = m_core->searchMedia(entityId, params);
+                    // The request id lets the entity tell the answer to the current search term apart
+                    // from a late answer to an earlier one.
+                    mediaPlayer->onSearchMediaRequested(id);
+                    if (id < 0) {
+                        mediaPlayer->onSearchMediaError(id, 503, QString());
+                        return;
+                    }
                     m_core->onResponseWithErrorResult(id, &core::Api::respMediaSearch,
-                        [mediaPlayer](QList<core::BrowseMediaItem> items, core::Pagination pagination) {
-                            mediaPlayer->onSearchMediaResult(items, pagination);
+                        [mediaPlayer, id](QList<core::BrowseMediaItem> items, core::Pagination pagination) {
+                            mediaPlayer->onSearchMediaResult(id, items, pagination);
                         },
-                        [mediaPlayer](int code, QString message) {
-                            mediaPlayer->onMediaBrowseError(code, message);
+                        [mediaPlayer, id](int code, QString message) {
+                            mediaPlayer->onSearchMediaError(id, code, message);
                         });
                 });
         }

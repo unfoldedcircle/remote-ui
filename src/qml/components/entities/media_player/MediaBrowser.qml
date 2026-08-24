@@ -4,6 +4,7 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
+import QtQuick.VirtualKeyboard 2.3
 
 import Entity.MediaPlayer 1.0
 import Haptic 1.0
@@ -50,6 +51,7 @@ Popup {
     property var  searchResults: []
     property bool searchNoResults: false
     property bool searchLoading: false
+    property string lastSearchQuery: ""
     property var  selectedMediaClasses: []
     property string pendingPlayMediaId: ""
     property string pendingPlayIcon: "uc:play"
@@ -59,8 +61,10 @@ Popup {
     readonly property var  currentPage: browseNav.currentItem
     readonly property bool currentIsContainer: currentPage && currentPage.isContainerView
 
-    // drives the global loading-screen timer
-    readonly property bool isLoading: (currentPage ? currentPage.pageLoading : false) || searchLoading
+    // Drives the global loading-screen timer. Searching is deliberately left out: the loading screen
+    // blocks all input while it is up, which would swallow the keystrokes of the next search term.
+    // Searching shows an inline indicator instead.
+    readonly property bool isLoading: currentPage ? currentPage.pageLoading : false
 
     // ----------- play menu helper -----------
     function buildPlayMenu(mediaId, mediaType, actions) {
@@ -123,10 +127,15 @@ Popup {
 
     function clearSearch() {
         searchDebounce.stop();
+        // Hide the keyboard before dropping the focus, otherwise SearchField takes the focus straight
+        // back to keep the keyboard alive.
+        keyboard.hide();
         inlineSearch.inputField.clear();
         inlineSearch.inputField.focus = false;
         searchResults        = [];
         searchNoResults      = false;
+        searchLoading        = false;
+        lastSearchQuery      = "";
         selectedMediaClasses = [];
     }
 
@@ -140,10 +149,22 @@ Popup {
     }
 
     function doSearch(query) {
-        if (!query.trim()) return;
+        if (!query || !query.trim()) return;
+        lastSearchQuery = query.trim();
         searchLoading = true;
         searchNoResults = false;
-        entityObj.searchMedia(query.trim(), "", "", selectedMediaClasses, defaultPageLimit, 1);
+        entityObj.searchMedia(lastSearchQuery, "", "", selectedMediaClasses, defaultPageLimit, 1);
+    }
+
+    /**
+      Runs the search term that is currently in the input field and gets the keyboard out of the way so
+      the results are visible. Called from the keyboard's search key.
+      */
+    function submitSearch() {
+        searchDebounce.stop();
+        var query = inlineSearch.inputField.text;
+        keyboard.hide();
+        doSearch(query);
     }
 
     function requestPlayMedia(mediaId, mediaType, action) {
@@ -228,8 +249,8 @@ Popup {
 
     onClosed: {
         buttonNavigation.releaseControl();
-        searchMode = false;
         clearSearch();
+        searchMode = false;
         clearPendingPlay();
     }
 
@@ -253,13 +274,8 @@ Popup {
     Timer {
         id: searchDebounce
         repeat: false; interval: 800; running: false
-        onTriggered: {
-            var q = inlineSearch.inputField.text.trim();
-            if (q) {
-                inlineSearch.inputField.focus = false;
-                mediaBrowser.doSearch(q);
-            }
-        }
+        // The keyboard stays up and keeps the focus while the results are refreshed underneath it.
+        onTriggered: mediaBrowser.doSearch(inlineSearch.inputField.text)
     }
 
     Timer {
@@ -275,21 +291,25 @@ Popup {
         defaultConfig: {
             "DPAD_UP": {
                 "pressed": function() {
+                    if (keyboard.active) return;
                     var lv = currentPage ? currentPage.pageListView : null;
                     if (lv && lv.currentIndex > 0) lv.currentIndex--;
                 },
                 "pressed_repeat": function() {
+                    if (keyboard.active) return;
                     var lv = currentPage ? currentPage.pageListView : null;
                     if (lv && lv.currentIndex > 0) lv.currentIndex--;
                 }
             },
             "DPAD_DOWN": {
                 "pressed": function() {
+                    if (keyboard.active) return;
                     var lv    = currentPage ? currentPage.pageListView  : null;
                     var items = currentPage ? currentPage.displayItems  : [];
                     if (lv && lv.currentIndex < items.length - 1) lv.currentIndex++;
                 },
                 "pressed_repeat": function() {
+                    if (keyboard.active) return;
                     var lv    = currentPage ? currentPage.pageListView  : null;
                     var items = currentPage ? currentPage.displayItems  : [];
                     if (lv && lv.currentIndex < items.length - 1) lv.currentIndex++;
@@ -297,6 +317,12 @@ Popup {
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
+                    // While the keyboard is up the list is hidden behind it: run the search instead of
+                    // opening whatever happens to be selected out of sight.
+                    if (keyboard.active) {
+                        mediaBrowser.submitSearch();
+                        return;
+                    }
                     var page = currentPage; if (!page) return;
                     var item = page.displayItems[page.pageListView.currentIndex];
                     if (!item) return;
@@ -323,9 +349,12 @@ Popup {
             },
             "BACK": {
                 "pressed": function() {
-                    if (searchMode) {
-                        mediaBrowser.searchMode = false;
+                    // First back press only puts the keyboard away and keeps the term and its results.
+                    if (keyboard.active) {
+                        keyboard.hide();
+                    } else if (searchMode) {
                         mediaBrowser.clearSearch();
+                        mediaBrowser.searchMode = false;
                         mediaBrowser.loadRoot();
                     } else if (browseNav.depth > 1) {
                         mediaBrowser.goBack();
@@ -395,6 +424,38 @@ Popup {
             searchNoResults  = (items.length === 0);
         }
 
+        function onSearchMediaError(code, message) {
+            searchLoading = false;
+
+            // 404: treat as empty result — show "no results" screen
+            if (code === 404) {
+                searchResults   = [];
+                searchNoResults = true;
+                return;
+            }
+
+            var query = mediaBrowser.lastSearchQuery;
+
+            // Retryable errors: offer to run the same search again
+            if (code === 408 || code === 503) {
+                ui.createActionableWarningNotification(
+                    qsTr("Could not search media"),
+                    message || qsTr("An error occurred while searching media content."),
+                    "uc:warning",
+                    function() { mediaBrowser.doSearch(query); },
+                    qsTr("Retry")
+                );
+                return;
+            }
+
+            // Anything else: report it, but stay in the browser so the term can be corrected
+            ui.createActionableWarningNotification(
+                qsTr("Could not search media"),
+                message || qsTr("An error occurred while searching media content."),
+                "uc:warning"
+            );
+        }
+
         function onMediaBrowseError(code, message) {
             loading.stop();
             var page = browseNav.currentItem; if (!page) return;
@@ -403,11 +464,7 @@ Popup {
 
             // 404: treat as empty result — show "no results" screen
             if (code === 404) {
-                if (mediaBrowser.searchMode) {
-                    searchNoResults = true;
-                } else {
-                    page.pageItems = [];
-                }
+                page.pageItems = [];
                 return;
             }
 
@@ -548,10 +605,10 @@ Popup {
                     verticalCenter: parent.verticalCenter
                 }
                 height: 56
-                inputField.onAccepted: {
-                    searchDebounce.stop();
-                    mediaBrowser.doSearch(inputField.text);
-                }
+                enterKeyAction: EnterKeyAction.Search
+                enterKeyLabel: qsTr("Search")
+                inputField.inputMethodHints: Qt.ImhNoPredictiveText | Qt.ImhNoAutoUppercase
+                inputField.onAccepted: mediaBrowser.submitSearch()
                 inputField.onTextChanged: {
                     if (inputField.text.trim()) searchDebounce.restart();
                     else searchDebounce.stop();
@@ -568,9 +625,16 @@ Popup {
                 Components.HapticMouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        mediaBrowser.searchMode = !mediaBrowser.searchMode;
-                        if (mediaBrowser.searchMode) inlineSearch.focus();
-                        else { mediaBrowser.clearSearch(); mediaBrowser.loadRoot(); }
+                        // clearSearch() before hiding the field: it puts the keyboard away, and hiding a
+                        // focused input first would drop its focus while the keyboard is still up
+                        if (mediaBrowser.searchMode) {
+                            mediaBrowser.clearSearch();
+                            mediaBrowser.searchMode = false;
+                            mediaBrowser.loadRoot();
+                        } else {
+                            mediaBrowser.searchMode = true;
+                            inlineSearch.focusInput();
+                        }
                     }
                 }
             }
@@ -621,13 +685,8 @@ Popup {
                                     if (idx >= 0) classes.splice(idx, 1);
                                     else classes.push(modelData);
                                     mediaBrowser.selectedMediaClasses = classes;
-                                    var q = inlineSearch.inputField.text.trim();
-                                    if (q) {
-                                        searchDebounce.stop();
-                                        mediaBrowser.searchLoading = true;
-                                        mediaBrowser.searchNoResults = false;
-                                        entityObj.searchMedia(q, "", "", classes, mediaBrowser.defaultPageLimit, 1);
-                                    }
+                                    searchDebounce.stop();
+                                    mediaBrowser.doSearch(inlineSearch.inputField.text);
                                 }
                             }
                         }
@@ -654,6 +713,24 @@ Popup {
             popExit: Transition {
                 XAnimator { from: 0; to: browseNav.width; duration: 300; easing.type: Easing.OutCubic }
             }
+        }
+
+        /**
+          Tapping anywhere below the search field puts the keyboard away and uncovers the results,
+          without also activating whatever sits under the finger. Same idea as in EntityList.qml.
+          */
+        MouseArea {
+            anchors.fill: browseNav
+            enabled: keyboard.active
+            onClicked: keyboard.hide()
+        }
+
+        // inline search indicator: the global loading screen is not used while searching, see isLoading
+        BusyIndicator {
+            anchors { horizontalCenter: parent.horizontalCenter; top: filterRow.bottom; topMargin: 20 }
+            width: 60; height: 60
+            running: mediaBrowser.searchLoading
+            visible: running
         }
 
         Components.PopupMenu { id: popupMenu }
@@ -1094,11 +1171,14 @@ Popup {
 
                     onDraggingChanged: { if (!dragging) interactive = true; }
 
+                    // delayed: onCurrentIndexChanged above writes listView.currentIndex back, which feeds
+                    // straight into this value again — without it QML reports a binding loop on every move
                     Binding {
                         target: coverFlowView
                         property: "currentIndex"
                         value: listView.currentIndex + 1
                         when: !coverFlowView.moving
+                        delayed: true
                     }
 
                     // length-balanced path: L1=artSize (past, hidden), L2=0.4×artSize (first peek),

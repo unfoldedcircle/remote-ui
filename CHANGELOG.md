@@ -8,6 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 ## Unreleased
 ### Fixed
+- The on-screen keyboard closed after every single letter typed into the search field of a media player's browse
+  screen, so a search term had to be entered one letter at a time, tapping the search field again in between. The
+  keyboard now stays open until the search is submitted with its "Search" key, the back button is pressed, or the
+  result list is tapped
+- Searching a media player no longer brings up the full-screen loading indicator, which blocked the whole screen —
+  including the keyboard — whenever a search took longer than half a second. Searching now shows a small indicator
+  above the results instead
+- A media search that failed, timed out, or was sent while the remote was not connected to the core left the
+  loading indicator spinning and the remote unresponsive for minutes. Such a search now reports the failure right
+  away, and its "Retry" option repeats the search instead of reloading the browse screen
+- A media search error other than "not found" or a timeout closed the whole browse screen, discarding the search
+  term. The screen now stays open so the term can be corrected
+- Results of a slower earlier search could replace the results of the term that was actually typed
+- Clearing the search field with its ✕ button closed the keyboard as well
+- The up, down and middle keypad buttons moved and opened entries in the result list hidden behind the keyboard.
+  While the keyboard is up the middle button now runs the search, and up and down do nothing
 - The d-pad acted on the screen behind a popup as well as on the popup itself: moving up and down in a selection list,
   for example the WiFi band or any of the Localisation settings, also moved the selection on the page underneath, and
   the middle button could reopen the list that was already open
