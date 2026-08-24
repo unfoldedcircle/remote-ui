@@ -11,6 +11,7 @@
  - _opacity
  - trigger
  - highlight
+ - icon
 **/
 
 import QtQuick 2.15
@@ -27,7 +28,9 @@ Item {
     property alias _opacity: button.opacity
     property bool highlight: activeFocus && ui.keyNavigationEnabled
     property var trigger
-    property string icon
+    // Shown inside the knob while checked. Defaults to the check mark used throughout the settings;
+    // set to "" for a switch where a check mark would be misleading.
+    property string icon: "uc:check"
 
     function activate() {
         Haptic.play(Haptic.Click);

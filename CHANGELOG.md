@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   single press only took effect a moment later
 - The Regulatory, Terms, Warranty and Licenses screens scrolled their text off the top when it was shorter than the
   screen
+- The Microphone and Speech response switches in the voice control settings were missing the check mark that every
+  other switch shows when it is turned on
 
 ---
 ## v0.77.0 - 2026-08-17

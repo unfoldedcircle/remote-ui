@@ -240,6 +240,9 @@ Rectangle {
     Components.Switch {
         id: onOffSwitch
         checked: false
+        // checked already means "at least one entity is on" (see entitySwitchGroup), so the default
+        // check mark would claim the whole group is on
+        icon: ""
         anchors { right: parent.right; rightMargin: 10; verticalCenter: titleContainer.verticalCenter }
         visible: !editMode && groups.count !== 0
         trigger: function() {
