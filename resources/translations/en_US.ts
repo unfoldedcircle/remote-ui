@@ -2999,7 +2999,7 @@ no return</translation>
     <message>
         <location filename="../../src/qml/settings/Settings.qml" line="103"/>
         <source>Localisation</source>
-        <translation>Localisation</translation>
+        <translation>Localization</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/Settings.qml" line="108"/>
@@ -3508,7 +3508,7 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="57"/>
         <source>Inverted button behaviour</source>
-        <translation>Inverted button behaviour</translation>
+        <translation>Inverted button behavior</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="79"/>
