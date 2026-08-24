@@ -65,7 +65,6 @@ Popup {
 
     onOpened: {
         buttonNavigation.takeControl();
-        joinButton.forceActiveFocus();
     }
 
     onClosed: {
@@ -74,6 +73,8 @@ Popup {
 
     Components.ButtonNavigation {
         id: buttonNavigation
+        manageFocus: true
+        initialFocusItem: joinButton
         defaultConfig: {
             "BACK": {
                 "pressed": function() {

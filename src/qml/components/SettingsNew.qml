@@ -85,6 +85,8 @@ Item {
 
     Components.ButtonNavigation {
         id: buttonNavigation
+        // keeps the keyboard focus inside the settings overlay, so the screen behind it stays quiet
+        manageFocus: true
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {

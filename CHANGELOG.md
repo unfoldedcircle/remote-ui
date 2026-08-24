@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+## Unreleased
+### Fixed
+- The d-pad acted on the screen behind a popup as well as on the popup itself: moving up and down in a selection list,
+  for example the WiFi band or any of the Localisation settings, also moved the selection on the page underneath, and
+  the middle button could reopen the list that was already open
+- Leaving the release notes of a software update left the screen without a selection, so the d-pad did nothing until
+  the settings were closed and opened again. Coming back from any settings screen now returns to the entry the screen
+  was left from
+- Holding the d-pad down on the Localisation settings did not move the selection until the button was released, and a
+  single press only took effect a moment later
+- The Regulatory, Terms, Warranty and Licenses screens scrolled their text off the top when it was shorter than the
+  screen
+
+---
 ## v0.77.0 - 2026-08-17
 ### Added
 - New user interface setting "Open activities started with the API": when an activity is turned on from outside the

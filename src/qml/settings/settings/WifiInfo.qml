@@ -57,7 +57,6 @@ Popup {
 
     onOpened: {
         buttonNavigation.takeControl();
-        connectButton.forceActiveFocus();
     }
 
     onClosed: {
@@ -70,6 +69,8 @@ Popup {
 
     Components.ButtonNavigation {
         id: buttonNavigation
+        manageFocus: true
+        initialFocusItem: connectButton
         defaultConfig: {
             "BACK": {
                 "pressed": function() {

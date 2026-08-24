@@ -17,22 +17,12 @@ Settings.Page {
     scrollTarget: flickable
     initialFocusItem: languageSelector
 
-    property var callBack
-
     function loadList(title, list, showSearch = true, selectedItem = 0) {
         popupListLoader.setSource("qrc:/components/PopupList.qml", { title: title, listModel: list, showSearch: showSearch, initialSelected: selectedItem, countryList: title.includes("country") });
     }
 
     ListModel {
         id: listModel
-    }
-
-    Timer {
-        id: delayTimer
-        running: false
-        repeat: false
-        interval: 50
-        onTriggered: callBack()
     }
 
     Flickable {
@@ -110,21 +100,14 @@ Settings.Page {
                 }
 
                 /** KEYBOARD NAVIGATION **/
-                Components.ButtonNavigation {
-                    overrideActive: languageSelector.activeFocus
-                    defaultConfig: {
-                        "DPAD_DOWN": {
-                            "pressed": function() {
-                                callBack = function () { countrySelector.forceActiveFocus(); }
-                                delayTimer.start();
-                            }
-                        },
-                        "DPAD_MIDDLE": {
-                            "pressed": function() {
-                                languageSelector.item.trigger();
-                            }
-                        }
+                KeyNavigation.down: countrySelector
+
+                Keys.onReturnPressed: {
+                    if (languageSelector.item && languageSelector.item.trigger) {
+                        languageSelector.item.trigger();
                     }
+
+                    event.accepted = true;
                 }
             }
 
@@ -219,27 +202,15 @@ Settings.Page {
                 }
 
                 /** KEYBOARD NAVIGATION **/
-                Components.ButtonNavigation {
-                    overrideActive: countrySelector.activeFocus
-                    defaultConfig: {
-                        "DPAD_UP": {
-                            "pressed": function() {
-                                callBack = function() { languageSelector.forceActiveFocus(); }
-                                delayTimer.start();
-                            }
-                        },
-                        "DPAD_DOWN": {
-                            "pressed": function() {
-                                callBack = function() { timeZoneSelector.forceActiveFocus(); }
-                                delayTimer.start();
-                            }
-                        },
-                        "DPAD_MIDDLE": {
-                            "pressed": function() {
-                                countrySelector.item.trigger();
-                            }
-                        }
+                KeyNavigation.up: languageSelector
+                KeyNavigation.down: timeZoneSelector
+
+                Keys.onReturnPressed: {
+                    if (countrySelector.item && countrySelector.item.trigger) {
+                        countrySelector.item.trigger();
                     }
+
+                    event.accepted = true;
                 }
             }
 
@@ -304,27 +275,15 @@ Settings.Page {
                 }
 
                 /** KEYBOARD NAVIGATION **/
-                Components.ButtonNavigation {
-                    overrideActive: timeZoneSelector.activeFocus
-                    defaultConfig: {
-                        "DPAD_UP": {
-                            "pressed": function() {
-                                callBack = function() { countrySelector.forceActiveFocus(); }
-                                delayTimer.start();
-                            }
-                        },
-                        "DPAD_DOWN": {
-                            "pressed": function() {
-                                callBack = function() { clock24hSelector.forceActiveFocus(); }
-                                delayTimer.start();
-                            }
-                        },
-                        "DPAD_MIDDLE": {
-                            "pressed": function() {
-                                timeZoneSelector.item.trigger();
-                            }
-                        }
+                KeyNavigation.up: countrySelector
+                KeyNavigation.down: clock24hSelector
+
+                Keys.onReturnPressed: {
+                    if (timeZoneSelector.item && timeZoneSelector.item.trigger) {
+                        timeZoneSelector.item.trigger();
                     }
+
+                    event.accepted = true;
                 }
             }
 
@@ -339,6 +298,7 @@ Settings.Page {
                 }
 
                 Components.Switch {
+                    id: clock24hSwitch
                     z: item.z + 1
                     icon: "uc:check"
                     checked: Config.clock24h
@@ -346,8 +306,8 @@ Settings.Page {
                     trigger: function() {
                         Config.clock24h = !Config.clock24h;
                     }
-                    highlight: parent.activeFocus && ui.keyNavigationEnabled
-                    focus: parent.activeFocus
+                    // the row itself carries the focus, like every other row on this page
+                    highlight: clock24hSelector.activeFocus && ui.keyNavigationEnabled
                 }
 
                 onFocusChanged: {
@@ -359,22 +319,12 @@ Settings.Page {
                 }
 
                 /** KEYBOARD NAVIGATION **/
-                Components.ButtonNavigation {
-                    overrideActive: clock24hSelector.activeFocus
-                    defaultConfig: {
-                        "DPAD_UP": {
-                            "pressed": function() {
-                                callBack = function() { timeZoneSelector.forceActiveFocus(); }
-                                delayTimer.start();
-                            }
-                        },
-                        "DPAD_DOWN": {
-                            "pressed": function() {
-                                callBack = function() { unitSelector.forceActiveFocus(); }
-                                delayTimer.start();
-                            }
-                        }
-                    }
+                KeyNavigation.up: timeZoneSelector
+                KeyNavigation.down: unitSelector
+
+                Keys.onReturnPressed: {
+                    clock24hSwitch.activate();
+                    event.accepted = true;
                 }
             }
 
@@ -422,21 +372,14 @@ Settings.Page {
                 }
 
                 /** KEYBOARD NAVIGATION **/
-                Components.ButtonNavigation {
-                    overrideActive: unitSelector.activeFocus
-                    defaultConfig: {
-                        "DPAD_UP": {
-                            "pressed": function() {
-                                callBack = function() { clock24hSelector.forceActiveFocus(); }
-                                delayTimer.start();
-                            }
-                        },
-                        "DPAD_MIDDLE": {
-                            "pressed": function() {
-                                unitSelector.item.trigger();
-                            }
-                        }
+                KeyNavigation.up: clock24hSelector
+
+                Keys.onReturnPressed: {
+                    if (unitSelector.item && unitSelector.item.trigger) {
+                        unitSelector.item.trigger();
                     }
+
+                    event.accepted = true;
                 }
             }
         }
@@ -450,8 +393,8 @@ Settings.Page {
             target: popupListLoader.item
 
             function onDone() {
+                // the page takes the focus back on its own, on the row the user came from
                 popupListLoader.source = "";
-                languageSelector.forceActiveFocus();
             }
 
         }

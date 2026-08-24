@@ -398,8 +398,8 @@ Settings.Page {
             target: popupListLoader.item
 
             function onDone() {
+                // the page takes the focus back on its own, on the row the user came from
                 popupListLoader.source = "";
-                bandSelector.forceActiveFocus();
             }
 
         }

@@ -13,6 +13,7 @@
 **/
 
 import QtQuick 2.15
+import QtQuick.Window 2.15
 
 Item {
     id: buttonNavigation
@@ -20,9 +21,115 @@ Item {
 
     property bool ignoreInput: false
 
+    /**
+      FOCUS OWNERSHIP (opt-in, only needed when the scope navigates via the QML focus chain)
+
+      A key press travels two independent paths: the input controller, which routes it to whichever
+      scope holds takeControl(), and the QML focus chain (KeyNavigation, Keys handlers, ListView
+      arrows). takeControl() does not move the keyboard focus, so a page keeps its focus - and keeps
+      reacting to the same key press - while a popup is open on top of it.
+
+      With manageFocus the keyboard focus follows the input ownership: the focus is parked on this
+      inert item while another layer owns the input, and handed back to the control the user was on
+      when the scope becomes the front layer again.
+     */
+    property bool manageFocus: false
+
+    // control that should hold the focus the first time the scope becomes the front layer
+    property Item initialFocusItem: null
+
+    // control the user was last on inside this scope, restored when the scope comes back to front
+    property Item lastFocusItem: null
+
+    // the null guard keeps the binding quiet while the ui context is torn down on shutdown
+    readonly property bool hasInputControl: ui && ui.inputController
+                                            ? ui.inputController.activeItem === scope : false
+    readonly property Item windowFocusItem: Window.activeFocusItem
+
+    function isInScope(item) {
+        for (let p = item; p; p = p.parent) {
+            if (p === scope) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function focusTarget() {
+        if (lastFocusItem && lastFocusItem.visible && isInScope(lastFocusItem)) {
+            return lastFocusItem;
+        }
+
+        if (initialFocusItem && initialFocusItem.visible) {
+            return initialFocusItem;
+        }
+
+        return scope;
+    }
+
+    function claimFocus() {
+        if (!manageFocus || !hasInputControl || !scope || !scope.visible) {
+            return;
+        }
+
+        // the focus is already on a control of this scope: leave the user's selection alone.
+        // buttonNavigation itself is the parking spot, not a control, so it does not count.
+        if (windowFocusItem !== buttonNavigation && isInScope(windowFocusItem)) {
+            return;
+        }
+
+        const target = focusTarget();
+        if (target) {
+            target.forceActiveFocus();
+        }
+    }
+
+    // Park the focus on this item while another layer owns the input. It carries no key handlers,
+    // so the keys that still reach it do nothing, and the controls of the scope go quiet.
+    function parkFocus() {
+        if (manageFocus && isInScope(windowFocusItem) && windowFocusItem !== buttonNavigation) {
+            buttonNavigation.forceActiveFocus();
+        }
+    }
+
+    onManageFocusChanged: claimFocus()
+    onInitialFocusItemChanged: claimFocus()
+
+    onHasInputControlChanged: {
+        if (hasInputControl) {
+            claimFocus();
+        } else {
+            parkFocus();
+        }
+    }
+
+    onWindowFocusItemChanged: {
+        if (!manageFocus || !hasInputControl) {
+            return;
+        }
+
+        if (windowFocusItem !== buttonNavigation && isInScope(windowFocusItem)) {
+            // remember where the user is, so the scope comes back to the same control
+            buttonNavigation.lastFocusItem = windowFocusItem;
+            return;
+        }
+
+        // We own the input but the focus is not on one of our controls: it was parked, the focused
+        // control was hidden or destroyed, or the swipe view handed the focus to its page wrapper
+        // after a level change - which happens after we claimed it. Take it back.
+        claimFocus();
+    }
+
+    // a scope that gains the input while it is still hidden (popup opening, swipe view animating)
+    // can only take the focus once it is actually on screen
+    readonly property bool scopeVisible: scope ? scope.visible : false
+    onScopeVisibleChanged: claimFocus()
+
     property bool overrideActive: false
     property var defaultConfig: ({})
     property var defaultConfigOriginal: ({})
+    property bool defaultConfigCaptured: false
     property var overrideConfig: ({})
     property var overrideConfigOriginal: ({})
 
@@ -92,7 +199,13 @@ Item {
     }
 
     function extendDefaultConfig(config) {
-        buttonNavigation.defaultConfigOriginal = cloneConfig(buttonNavigation.defaultConfig);
+        // capture the untouched config once: extending twice must not make the second extension
+        // the "original" the scope is restored to
+        if (!buttonNavigation.defaultConfigCaptured) {
+            buttonNavigation.defaultConfigOriginal = cloneConfig(buttonNavigation.defaultConfig);
+            buttonNavigation.defaultConfigCaptured = true;
+        }
+
         const nextConfig = cloneConfig(buttonNavigation.defaultConfig);
 
         for (const [key, value] of Object.entries(config)) {
@@ -105,6 +218,12 @@ Item {
     }
 
     function restoreDefaultConfig() {
+        // nothing was ever extended: restoring the empty original would drop the handlers the
+        // scope declared itself, leaving it without a way out
+        if (!buttonNavigation.defaultConfigCaptured) {
+            return;
+        }
+
         buttonNavigation.defaultConfig = cloneConfig(buttonNavigation.defaultConfigOriginal);
     }
 

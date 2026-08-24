@@ -21,41 +21,11 @@ Item {
     // level-2/3 Loaders are asynchronous, so the page being replaced is sometimes destroyed after
     // the new page has completed, and destroying the focused item clears the window's active focus
     // again. Declaring it here lets the page reclaim the focus once it owns the input.
-    property Item initialFocusItem: null
+    property alias initialFocusItem: buttonNavigation.initialFocusItem
 
     readonly property Item focusedItem: Window.activeFocusItem
 
-    function claimFocus() {
-        if (!initialFocusItem || ui.inputController.activeItem !== settingsPageBase) {
-            return;
-        }
-
-        // never steal the focus from a control the user already moved to inside this page
-        if (isChildOf(settingsPageBase.focusedItem, settingsPageBase)) {
-            return;
-        }
-
-        initialFocusItem.forceActiveFocus();
-    }
-
-    onInitialFocusItemChanged: settingsPageBase.claimFocus()
-
-    onFocusedItemChanged: {
-        settingsPageBase.ensureVisible(settingsPageBase.focusedItem);
-
-        if (!settingsPageBase.focusedItem) {
-            settingsPageBase.claimFocus();
-        }
-    }
-
-    Connections {
-        target: ui.inputController
-        ignoreUnknownSignals: true
-
-        function onActiveItemChanged() {
-            settingsPageBase.claimFocus();
-        }
-    }
+    onFocusedItemChanged: settingsPageBase.ensureVisible(settingsPageBase.focusedItem)
 
     function isChildOf(item, ancestor) {
         for (let p = item; p; p = p.parent) {
@@ -98,6 +68,9 @@ Item {
 
     Components.ButtonNavigation {
         id: buttonNavigation
+        // settings pages navigate through the QML focus chain, so the focus has to be handed over
+        // whenever a popup takes the input, otherwise the page keeps reacting behind it
+        manageFocus: true
         defaultConfig: {
             "BACK": {
                 "pressed": function() {

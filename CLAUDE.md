@@ -83,6 +83,14 @@ A page must therefore commit to **one** idiom: either a `ListView` driven by `Bu
 
 Use `buttonNavigation.extendDefaultConfig({...})`, never `buttonNavigation.defaultConfig: {...}` — assigning replaces the whole object and silently drops the `BACK` / `HOME` handlers `Settings.Page` declares, leaving the page impossible to exit with the keypad.
 
+### Which layer the keys belong to
+
+`takeControl()` only redirects path 1. It does **not** move the keyboard focus, so a page keeps its focus — and keeps reacting to `KeyNavigation` and `Keys` handlers — while a popup is open on top of it. One key press then acts on two layers at once.
+
+`Components.ButtonNavigation` has an opt-in `manageFocus` that ties the focus to the input ownership: the focus is parked on the (inert) `ButtonNavigation` item while another layer owns the input, and handed back to the control the user was on when the scope returns to the front. `Settings.Page` sets it, so every settings page is covered; a popup only needs it if the popup itself navigates by focus (`WifiInfo`, `WifiJoin`). Set `initialFocusItem` for the control that should be focused on first entry.
+
+Two things to know when working on this: a swipe view hands the focus to its page wrapper *after* a level change, so `ButtonNavigation` re-claims the focus whenever it owns the input but the focus sits outside its scope; and `overrideActive: true` bypasses ownership entirely — a handler under it fires for *any* owner, so avoid it for anything a popup can cover.
+
 `Settings.Page` exposes `scrollTarget`: point it at the page's `Flickable` and the focused control is kept on screen. `Flickable` does not follow the keyboard focus on its own; `ListView` does scroll to its `currentIndex` by itself.
 
 ## Repo etiquette

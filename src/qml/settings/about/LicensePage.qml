@@ -20,9 +20,13 @@ Settings.Page {
     property bool isMarkdown: true
 
     function scrollDown() {
+        // content shorter than the screen has nothing to scroll: without the lower bound the page
+        // would scroll to a negative offset and push the text off the top
+        const maxContentY = Math.max(0, flickable.contentHeight - flickable.height);
+
         flickable.contentY += 100 * scrollCounter;
-        if (flickable.contentY > flickable.contentHeight - flickable.height) {
-            flickable.contentY = flickable.contentHeight - flickable.height;
+        if (flickable.contentY > maxContentY) {
+            flickable.contentY = maxContentY;
         }
     }
 
