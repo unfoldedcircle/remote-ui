@@ -72,28 +72,28 @@
             <translation>Einige Geräte sind nicht bereit</translation>
         </message>
         <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Wyterfahre</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Tippe zum Schliesse</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tippe für meh</translation>
         </message>
         <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Status korrigiere</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Wyterfahre</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -386,11 +386,11 @@
         </message>
         <message>
             <source>Failed to connect</source>
-            <translation>Han's nöd gschafft zum Verbindä</translation>
+            <translation>Has nid gschafft zum Verbindä</translation>
         </message>
         <message>
             <source>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won't be possible now.</source>
-            <translation>D Verbindig zum WiFi-Netzwärk isch fählgschlage. Du chaschs nomal probiere oder fortfahre ohni es WiFi-Netzwärk izrichte. Es WiFi-Netzwärk cha spöter unger Istelligge iigrichtet wärde. We dä Schritt überschprunge wird, isch ds Dock- und Integrations-Setup itz nümme möglech.</translation>
+            <translation>D Verbindig zum WiFi-Netzwärk isch fählgschlage. Du chaschs nomal probiere oder fortfahre ohni es WiFi-Netzwärk izrichte. Es WiFi-Netzwärk cha spöter unger Istelligge iigrichtet wärde. We dä Schritt überschprunge wird, isch ds Dock- u Integrations-Setup itz nümme möglech.</translation>
         </message>
         <message>
             <source>Set up later</source>
@@ -434,15 +434,15 @@
         </message>
         <message>
             <source>Delete all networks</source>
-            <translation>Alli Netzwärk lösche</translation>
+            <translation>Aui Netzwärk lösche</translation>
         </message>
         <message>
             <source>Are you sure you want to delete all WiFi networks?</source>
-            <translation>Bisch sicher, dass du alli WiFi-Netzwärk wosch lösche?</translation>
+            <translation>Bisch sicher, dass du aui WiFi-Netzwärk wosch lösche?</translation>
         </message>
         <message>
             <source>Delete all</source>
-            <translation>Alli lösche</translation>
+            <translation>Aui lösche</translation>
         </message>
     </context>
     <context>
@@ -632,7 +632,7 @@
         </message>
         <message>
             <source>Select all</source>
-            <translation>Alli uswähle</translation>
+            <translation>Aui uswähle</translation>
         </message>
         <message>
             <source>Search</source>
@@ -706,7 +706,7 @@
         <name>RemoteOpen</name>
         <message>
             <source>Do not operate the device disassembled.</source>
-            <translation>Betreiben Sie das Gerät nicht zerlegt.</translation>
+            <translation>Betrib ds Grät nid im zerlegte Zuestand.</translation>
         </message>
         <message>
             <source>The remote will turn off
@@ -820,6 +820,18 @@ i %1 Sekunde uus.</translation>
         <message>
             <source>Video</source>
             <translation>Video</translation>
+        </message>
+        <message>
+            <source>Could not search media</source>
+            <translation>Medie hei nid chönne dursuechtd wärde</translation>
+        </message>
+        <message>
+            <source>An error occurred while searching media content.</source>
+            <translation>Bim Sueche vo Medieinhalt isch en Fähler ufträte.</translation>
+        </message>
+        <message>
+            <source>Search</source>
+            <translation>Sueche</translation>
         </message>
         <message>
             <source>No results</source>
@@ -1019,7 +1031,7 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
-            <translation>Ds lösche vomene aktuelle Profil isch nid zuelässig. Bitte wächsle zumene andere Profil und versuechs erneut.</translation>
+            <translation>Ds lösche vomene aktuelle Profil isch nid zuelässig. Bitte wächsle zumene andere Profil u versuechs erneut.</translation>
         </message>
         <message>
             <source>Profile update error</source>
@@ -1181,12 +1193,12 @@ vom Web-Konfigurator</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Version: </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Integration hinzuefüegä</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Version: </translation>
         </message>
     </context>
     <context>
@@ -1252,12 +1264,20 @@ vom Web-Konfigurator</translation>
     <context>
         <name>uc::ui::EntityController</name>
         <message>
+            <source>The device</source>
+            <translation>Ds Grät</translation>
+        </message>
+        <message>
             <source>%1 is not responding</source>
             <translation>%1 antwortet nid</translation>
         </message>
         <message>
             <source>The command did not reach the device. Would you like to try again?</source>
             <translation>Der Befehl hat das Gerät nicht erreicht. Möchtest du es erneut versuchen?</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Nomau probiere</translation>
         </message>
         <message>
             <source>%1 is not responding. Error code: %2</source>
@@ -1390,8 +1410,28 @@ vom Web-Konfigurator</translation>
             <translation>Lutstärchi</translation>
         </message>
         <message>
+            <source>When off, the touch slider is disabled everywhere and swiping it does nothing.</source>
+            <translation>Wenn us, isch dr Touch-Slider überau deaktiviert u Wüsche macht nüt.</translation>
+        </message>
+        <message>
+            <source>Adjust how far the touch slider moves a value for a full-length swipe. Higher is more sensitive; 1.0 means one full swipe covers the whole range.</source>
+            <translation>Steu y, wie wyt dr Touch-Slider en Wärt bi emene vollständige Wüsche verschibt. Höcher isch empfindlicher; 1.0 bedütet, dass eis vollständigs Wüsche dr ganzi Bereich abdeckt.</translation>
+        </message>
+        <message>
+            <source>Slide the hardware slider to test the highlighted setting.</source>
+            <translation>Verschieb dr Hardware-Slider, zum d’markierti Ystellig z’teschte.</translation>
+        </message>
+        <message>
             <source>Brightness</source>
             <translation>Helligkeit</translation>
+        </message>
+        <message>
+            <source>Seek</source>
+            <translation>Spuele</translation>
+        </message>
+        <message>
+            <source>Test</source>
+            <translation>Teschte</translation>
         </message>
     </context>
     <context>
@@ -1768,6 +1808,18 @@ vom Web-Konfigurator</translation>
     <context>
         <name>main</name>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Einige Geräte sind nicht bereit</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Witer</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Fertig</translation>
         </message>
@@ -1777,6 +1829,18 @@ vom Web-Konfigurator</translation>
         <message>
             <source>Turn off</source>
             <translation>Usschalte</translation>
+        </message>
+        <message>
+            <source>Turn off all</source>
+            <translation>Aues Usschalte</translation>
+        </message>
+        <message>
+            <source>%1 is %2</source>
+            <translation>%1 ist %2</translation>
+        </message>
+        <message>
+            <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
+            <translation>Heb d Home-Taschte drückt oder bruch dr Web-Konfigurator für d Siite ds konfiguriere</translation>
         </message>
         <message>
             <source>Some devices are not ready</source>
@@ -1793,18 +1857,6 @@ vom Web-Konfigurator</translation>
         <message>
             <source>Proceed</source>
             <translation>Wyterfahre</translation>
-        </message>
-        <message>
-            <source>Turn off all</source>
-            <translation>Alles Usschalte</translation>
-        </message>
-        <message>
-            <source>%1 is %2</source>
-            <translation>%1 ist %2</translation>
-        </message>
-        <message>
-            <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
-            <translation>Heb d Home-Taschte drückt oder bruch dr Web-Konfigurator für d Siite ds konfiguriere</translation>
         </message>
     </context>
     <context>
@@ -1862,7 +1914,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Erase everything</source>
-            <translation>Alles lösche</translation>
+            <translation>Aues lösche</translation>
         </message>
         <message>
             <source>Point of
@@ -1872,7 +1924,7 @@ kes zrügg me</translation>
         </message>
         <message>
             <source>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</source>
-            <translation>D Bestätigung vor Werksrückstellig löscht alli Konfiguratione und persönlichi Date. Es cha nüt wieder hergstellt wärde.</translation>
+            <translation>D Bestätigung vor Werksrückstellig löscht aui Konfiguratione und persönlichi Date. Es cha nüt wieder hergstellt wärde.</translation>
         </message>
         <message>
             <source>Confirm</source>
@@ -2135,6 +2187,10 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
             <translation>Zeitüberschreitung der Sequenz.</translation>
         </message>
         <message>
+            <source>There was an error during the sequence. Error code: %1</source>
+            <translation>Während dr Sequänz isch en Fähler ufträte. Fählercode: %1</translation>
+        </message>
+        <message>
             <source>Tap to close</source>
             <translation>Tippe zum Schliesse</translation>
         </message>
@@ -2353,6 +2409,14 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
             <translation>Zeig di laufende Aktivitäte u Mediaplayer ir Chopfzyle vor Siite aa.</translation>
         </message>
         <message>
+            <source>Open activities started with the API</source>
+            <translation>Aktivitäte öffne, wo über d’API gstartet worde si</translation>
+        </message>
+        <message>
+            <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
+            <translation>Dr Aktivitätsbildschirm öffne, wenn e Aktivität usserhalb vo dr Färnbedienig gstartet wird, und ersetze was grad uf em Bildschirm isch.</translation>
+        </message>
+        <message>
             <source>Zoom media image</source>
             <translation>Titelbild vergrössere</translation>
         </message>
@@ -2550,7 +2614,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Automatically update the remote when new software is available. Updates are installed between %1 and %2</source>
-            <translation>Automatisch aktualisiere, we nöii Software verfüegbar isch. Updates wärde zwüsche %1 und %2 installiert</translation>
+            <translation>Automatisch aktualisiere, we nöii Software verfüegbar isch. Updates wärde zwüsche %1 u %2 installiert</translation>
         </message>
     </context>
     <context>
@@ -2698,7 +2762,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Clear all</source>
-            <translation>Alles lösche</translation>
+            <translation>Aues lösche</translation>
         </message>
         <message>
             <source>No notifications</source>
@@ -3296,18 +3360,6 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
     <context>
         <name>Base</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Einigi Grät si nid parat</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
             <source>Activity error. Select option below.</source>
             <translation>Aktivitätsfähler. Wähl unde eini vo de Optione us.</translation>
         </message>
@@ -3328,12 +3380,20 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
             <translation>isch nid verfüegbar</translation>
         </message>
         <message>
-            <source>Proceed</source>
-            <translation>Wyterfahre</translation>
+            <source>Some devices are not ready</source>
+            <translation>Einigi Grät si nid parat</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>Profile is restricted</source>
             <translation>Profil isch igschränkt</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3346,6 +3406,10 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         <message>
             <source>Close</source>
             <translation>Schliesse</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Wyterfahre</translation>
         </message>
     </context>
     <context>

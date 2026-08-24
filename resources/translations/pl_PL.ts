@@ -913,12 +913,12 @@ za %1 sekund.</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Wersja: </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Dodaj integrację</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Wersja: </translation>
         </message>
     </context>
     <context>

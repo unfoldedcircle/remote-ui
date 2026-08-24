@@ -915,12 +915,12 @@ Web-konfiguratoren</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Version: </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Tilføj en integration</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Version: </translation>
         </message>
     </context>
     <context>

@@ -919,12 +919,12 @@ Web konfigurátor megnyitásához</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Verzió: </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Adjon hozzá egy integrációt</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Verzió: </translation>
         </message>
     </context>
     <context>

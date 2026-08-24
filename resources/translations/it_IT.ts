@@ -1016,12 +1016,12 @@ del Configuratore Web</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Versione: </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Aggiungi un'integrazione</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Versione: </translation>
         </message>
     </context>
     <context>
@@ -1564,10 +1564,6 @@ del Configuratore Web</translation>
             <translation>Spegni</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Some devices are not ready</translation>
-        </message>
-        <message>
             <source>Turn off all</source>
             <translation>Spegni tutto</translation>
         </message>
@@ -1578,6 +1574,10 @@ del Configuratore Web</translation>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Premi e tieni premuto il tasto Home o utilizza il Web Configurator per configurare la pagina</translation>
+        </message>
+        <message>
+            <source>Some devices are not ready</source>
+            <translation>Some devices are not ready</translation>
         </message>
     </context>
     <context>

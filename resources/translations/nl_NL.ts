@@ -909,12 +909,12 @@ over %1 seconden.</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Versie: </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Voeg een integratie toe</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Versie: </translation>
         </message>
     </context>
     <context>

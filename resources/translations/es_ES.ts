@@ -72,28 +72,28 @@
             <translation>Algunos dispositivos no están listos</translation>
         </message>
         <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 aún no está conectado. Toque Proceder para continuar de todos modos.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 aún no están conectados. Pulse Proceder para continuar de todos modos.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Proceder</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Toca para cerrar</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 aún no está conectado. Toque Proceder para continuar de todos modos.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Toca para más</translation>
         </message>
         <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 aún no están conectados. Pulse Proceder para continuar de todos modos.</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Corregir estados</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Proceder</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1173,12 +1173,12 @@ el Configurador Web</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Versión: </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Añadir una integración</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Versión: </translation>
         </message>
     </context>
     <context>
@@ -1767,6 +1767,18 @@ el Configurador Web</translation>
             <translation>Apagar</translation>
         </message>
         <message>
+            <source>Turn off all</source>
+            <translation>Apagar todo</translation>
+        </message>
+        <message>
+            <source>%1 is %2</source>
+            <translation>%1 está %2</translation>
+        </message>
+        <message>
+            <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
+            <translation>Presiona y mantén presionado el botón Home o usa el Configurador Web para configurar la página</translation>
+        </message>
+        <message>
             <source>Some devices are not ready</source>
             <translation>Algunos dispositivos no están listos</translation>
         </message>
@@ -1781,18 +1793,6 @@ el Configurador Web</translation>
         <message>
             <source>Proceed</source>
             <translation>Proceder</translation>
-        </message>
-        <message>
-            <source>Turn off all</source>
-            <translation>Apagar todo</translation>
-        </message>
-        <message>
-            <source>%1 is %2</source>
-            <translation>%1 está %2</translation>
-        </message>
-        <message>
-            <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
-            <translation>Presiona y mantén presionado el botón Home o usa el Configurador Web para configurar la página</translation>
         </message>
     </context>
     <context>
@@ -3263,18 +3263,6 @@ Pulsa el código QR para mostrarlo en la pantalla.</translation>
     <context>
         <name>Base</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Algunos dispositivos no están listos</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 aún no está conectado. Presiona Proceder para continuar de todos modos.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 aún no están conectados. Toca Proceder para continuar de todas formas.</translation>
-        </message>
-        <message>
             <source>Activity error. Select option below.</source>
             <translation>Error en actividad. Seleccione una opción de abajo.</translation>
         </message>
@@ -3295,12 +3283,20 @@ Pulsa el código QR para mostrarlo en la pantalla.</translation>
             <translation>no está disponible</translation>
         </message>
         <message>
-            <source>Proceed</source>
-            <translation>Continuar</translation>
+            <source>Some devices are not ready</source>
+            <translation>Algunos dispositivos no están listos</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 aún no está conectado. Presiona Proceder para continuar de todos modos.</translation>
         </message>
         <message>
             <source>Profile is restricted</source>
             <translation>El perfil está restringido</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 aún no están conectados. Toca Proceder para continuar de todas formas.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3313,6 +3309,10 @@ Pulsa el código QR para mostrarlo en la pantalla.</translation>
         <message>
             <source>Close</source>
             <translation>Cerrar</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Continuar</translation>
         </message>
     </context>
     <context>

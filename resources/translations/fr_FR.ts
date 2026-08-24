@@ -1036,12 +1036,12 @@ le configurateur web</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Version : </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Ajouter une intégration</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Version : </translation>
         </message>
     </context>
     <context>

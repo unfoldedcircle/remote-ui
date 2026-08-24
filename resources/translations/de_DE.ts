@@ -72,28 +72,28 @@
             <translation>Einige Geräte sind nicht bereit</translation>
         </message>
         <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortfahren</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Zum Schließen tippen</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tippen für mehr</translation>
         </message>
         <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Status korrigieren</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Fortfahren</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -822,6 +822,18 @@ in %1 Sekunden aus.</translation>
             <translation>Video</translation>
         </message>
         <message>
+            <source>Could not search media</source>
+            <translation>Medien konnten nicht durchsucht werden</translation>
+        </message>
+        <message>
+            <source>An error occurred while searching media content.</source>
+            <translation>Beim Suchen von Medieninhalten ist ein Fehler aufgetreten.</translation>
+        </message>
+        <message>
+            <source>Search</source>
+            <translation>Suchen</translation>
+        </message>
+        <message>
             <source>No results</source>
             <translation>Keine Treffer</translation>
         </message>
@@ -1181,12 +1193,12 @@ den Web-Konfigurator zu öffnen</translation>
     <context>
         <name>Integrations</name>
         <message>
-            <source>Version:</source>
-            <translation>Version: </translation>
-        </message>
-        <message>
             <source>Add an integration</source>
             <translation>Integration hinzufügen</translation>
+        </message>
+        <message>
+            <source>Version:</source>
+            <translation>Version: </translation>
         </message>
     </context>
     <context>
@@ -1252,12 +1264,20 @@ den Web-Konfigurator zu öffnen</translation>
     <context>
         <name>uc::ui::EntityController</name>
         <message>
+            <source>The device</source>
+            <translation>Das Gerät</translation>
+        </message>
+        <message>
             <source>%1 is not responding</source>
             <translation>%1 antwortet nicht</translation>
         </message>
         <message>
             <source>The command did not reach the device. Would you like to try again?</source>
             <translation>Der Befehl hat das Gerät nicht erreicht. Möchtest du es erneut versuchen?</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Erneut versuchen</translation>
         </message>
         <message>
             <source>%1 is not responding. Error code: %2</source>
@@ -1390,8 +1410,28 @@ den Web-Konfigurator zu öffnen</translation>
             <translation>Lautstärke</translation>
         </message>
         <message>
+            <source>When off, the touch slider is disabled everywhere and swiping it does nothing.</source>
+            <translation>Wenn deaktiviert, ist der Touch-Slider überall deaktiviert und Wischen hat keine Wirkung.</translation>
+        </message>
+        <message>
+            <source>Adjust how far the touch slider moves a value for a full-length swipe. Higher is more sensitive; 1.0 means one full swipe covers the whole range.</source>
+            <translation>Einstellen, wie weit der Touch-Slider einen Wert bei einem vollständigen Wischen verschiebt. Höher bedeutet empfindlicher; 1.0 bedeutet, dass ein vollständiges Wischen den gesamten Bereich abdeckt.</translation>
+        </message>
+        <message>
+            <source>Slide the hardware slider to test the highlighted setting.</source>
+            <translation>Bewege den Hardware-Slider, um die hervorgehobene Einstellung zu testen.</translation>
+        </message>
+        <message>
             <source>Brightness</source>
             <translation>Helligkeit</translation>
+        </message>
+        <message>
+            <source>Seek</source>
+            <translation>Spulen</translation>
+        </message>
+        <message>
+            <source>Test</source>
+            <translation>Testen</translation>
         </message>
     </context>
     <context>
@@ -1768,6 +1808,18 @@ Web-Konfigurator zu öffnen</translation>
     <context>
         <name>main</name>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Einige Geräte sind nicht bereit</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Weiter</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Fertig</translation>
         </message>
@@ -1777,6 +1829,18 @@ Web-Konfigurator zu öffnen</translation>
         <message>
             <source>Turn off</source>
             <translation>Ausschalten</translation>
+        </message>
+        <message>
+            <source>Turn off all</source>
+            <translation>Alles ausschalten</translation>
+        </message>
+        <message>
+            <source>%1 is %2</source>
+            <translation>%1 ist %2</translation>
+        </message>
+        <message>
+            <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
+            <translation>Um die Seite zu anzupassen, Home-Taste gedrückt halten oder Web-Konfigurator verwenden</translation>
         </message>
         <message>
             <source>Some devices are not ready</source>
@@ -1793,18 +1857,6 @@ Web-Konfigurator zu öffnen</translation>
         <message>
             <source>Proceed</source>
             <translation>Fortfahren</translation>
-        </message>
-        <message>
-            <source>Turn off all</source>
-            <translation>Alles ausschalten</translation>
-        </message>
-        <message>
-            <source>%1 is %2</source>
-            <translation>%1 ist %2</translation>
-        </message>
-        <message>
-            <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
-            <translation>Um die Seite zu anzupassen, Home-Taste gedrückt halten oder Web-Konfigurator verwenden</translation>
         </message>
     </context>
     <context>
@@ -2131,6 +2183,10 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
             <translation>Zeitüberschreitung der Sequenz.</translation>
         </message>
         <message>
+            <source>There was an error during the sequence. Error code: %1</source>
+            <translation>Während der Sequenz ist ein Fehler aufgetreten. Fehlercode: %1</translation>
+        </message>
+        <message>
             <source>Tap to close</source>
             <translation>Zum Schließen tippen</translation>
         </message>
@@ -2347,6 +2403,14 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         <message>
             <source>Show the running activities and playing media players in the page header.</source>
             <translation>Zeigt die laufenden Aktivitäten und die abspielenden Medienplayer in der Kopfzeile der Seite an.</translation>
+        </message>
+        <message>
+            <source>Open activities started with the API</source>
+            <translation>Über die API gestartete Aktivitäten öffnen</translation>
+        </message>
+        <message>
+            <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
+            <translation>Den Aktivitätsbildschirm öffnen, wenn eine Aktivität ausserhalb der Fernbedienung gestartet wird, und den aktuellen Bildschirminhalt ersetzen.</translation>
         </message>
         <message>
             <source>Zoom media image</source>
@@ -3292,18 +3356,6 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
     <context>
         <name>Base</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Einige Geräte sind nicht bereit</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
             <source>Activity error. Select option below.</source>
             <translation>Aktivitätsfehler. Wähle unten eine der Optionen aus.</translation>
         </message>
@@ -3324,12 +3376,20 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
             <translation>ist nicht verfügbar</translation>
         </message>
         <message>
-            <source>Proceed</source>
-            <translation>Fortfahren</translation>
+            <source>Some devices are not ready</source>
+            <translation>Einige Geräte sind nicht bereit</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>Profile is restricted</source>
             <translation>Profil ist eingeschränkt</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3342,6 +3402,10 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         <message>
             <source>Close</source>
             <translation>Schließen</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Fortfahren</translation>
         </message>
     </context>
     <context>
