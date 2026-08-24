@@ -54,7 +54,7 @@
     <message>
         <location filename="../../src/qml/settings/About.qml" line="96"/>
         <source>Wi-Fi address</source>
-        <translation>Wi-Fi address</translation>
+        <translation>WiFi address</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/About.qml" line="104"/>
@@ -511,7 +511,7 @@
     <message>
         <location filename="../../src/ui/entity/sensor.h" line="236"/>
         <source>Ok</source>
-        <translation>Ok</translation>
+        <translation>OK</translation>
     </message>
 </context>
 <context>
@@ -1285,17 +1285,17 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/onboarding/Finish.qml" line="35"/>
         <source>You can add integrations or change configuration via the Web configurator.</source>
-        <translation>You can add integrations or change configuration via the Web configurator.</translation>
+        <translation>You can add integrations or change configuration via the Web Configurator.</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Finish.qml" line="77"/>
         <source>Web configurator enabled</source>
-        <translation>Web configurator enabled</translation>
+        <translation>Web Configurator enabled</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Finish.qml" line="77"/>
         <source>Web configurator disabled</source>
-        <translation>Web configurator disabled</translation>
+        <translation>Web Configurator disabled</translation>
     </message>
 </context>
 <context>
@@ -1948,7 +1948,7 @@ Climate fan</extracomment>
     </message>
 </context>
 <context>
-    <name>Media platyer state</name>
+    <name>Media player state</name>
     <message>
         <location filename="../../src/ui/entity/mediaPlayer.h" line="121"/>
         <source>Unavailable</source>
@@ -2209,7 +2209,7 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/NoPage.qml" line="45"/>
         <source>No page found. Ask your administrator to setup pages.</source>
-        <translation>No page found. Ask your administrator to setup pages.</translation>
+        <translation>No page found. Ask your administrator to set up pages.</translation>
     </message>
 </context>
 <context>
@@ -2318,7 +2318,7 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/components/Page.qml" line="673"/>
         <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
-        <extracomment>Web configurator is the name of the application, does not need translation</extracomment>
+        <extracomment>Web Configurator is the name of the application, does not need translation</extracomment>
         <translation>Press and hold the Home button or use the Web Configurator to configure the page</translation>
     </message>
 </context>
@@ -2588,12 +2588,12 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/components/Profile.qml" line="331"/>
         <source>Web configurator enabled</source>
-        <translation>Web configurator enabled</translation>
+        <translation>Web Configurator enabled</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/Profile.qml" line="331"/>
         <source>Web configurator disabled</source>
-        <translation>Web configurator disabled</translation>
+        <translation>Web Configurator disabled</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/Profile.qml" line="554"/>
@@ -2821,7 +2821,7 @@ the Web Configurator</translation>
     <message>
         <location filename="../../src/qml/components/RemoteOpen.qml" line="41"/>
         <source>Do not operate the device disassembled.</source>
-        <translation>Do not operate the device disassembled.</translation>
+        <translation>Do not operate the device while it is disassembled.</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/RemoteOpen.qml" line="53"/>
@@ -2994,7 +2994,7 @@ no return</translation>
     <message>
         <location filename="../../src/qml/settings/Settings.qml" line="98"/>
         <source>Wifi &amp; Bluetooth</source>
-        <translation>Wifi &amp; Bluetooth</translation>
+        <translation>WiFi &amp; Bluetooth</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/Settings.qml" line="103"/>
@@ -3120,7 +3120,7 @@ the Web Configurator</translation>
     <message>
         <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="235"/>
         <source>Release Notes</source>
-        <translation>Release Notes</translation>
+        <translation>Release notes</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="268"/>
@@ -3629,7 +3629,7 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/qml/settings/settings/Voice.qml" line="79"/>
         <source>Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.</source>
-        <translation>Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.</translation>
+        <translation>Disabling the microphone will completely turn it off. You won’t be able to use voice assistants.</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Voice.qml" line="107"/>
@@ -3731,7 +3731,7 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/qml/components/VoiceOverlay.qml" line="255"/>
         <source>There were too many requests. Please try again later.</source>
-        <translation>There were too many requests. Please try again later.</translation>
+        <translation>Too many requests. Please try again later.</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/VoiceOverlay.qml" line="258"/>
@@ -3774,12 +3774,12 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/qml/components/WebConfig.qml" line="142"/>
         <source>Web configurator enabled</source>
-        <translation>Web configurator enabled</translation>
+        <translation>Web Configurator enabled</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/WebConfig.qml" line="142"/>
         <source>Web configurator disabled</source>
-        <translation>Web configurator disabled</translation>
+        <translation>Web Configurator disabled</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/WebConfig.qml" line="329"/>
@@ -3798,7 +3798,7 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/qml/onboarding/Wifi.qml" line="89"/>
         <source>Wi-Fi address</source>
-        <translation>Wi-Fi address</translation>
+        <translation>WiFi address</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Wifi.qml" line="125"/>
@@ -3844,7 +3844,7 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/qml/settings/settings/Wifi.qml" line="198"/>
         <source>Actively scan for nearby WiFi networks in the configured interval: %1 seconds</source>
-        <translation>Actively scan for nearby WiFi networks in the configured interval: %1 seconds</translation>
+        <translation>Actively scan for nearby WiFi networks at the configured interval: %1 seconds</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Wifi.qml" line="209"/>
@@ -4347,7 +4347,7 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/integration/integrationController.cpp" line="398"/>
         <source>Error while disconnecting to the integration</source>
-        <translation>Error while disconnecting to the integration</translation>
+        <translation>Error while disconnecting from the integration</translation>
     </message>
     <message>
         <location filename="../../src/integration/integrationController.cpp" line="426"/>
@@ -4398,7 +4398,7 @@ Tap the QR code to show it on the screen.</translation>
         <location filename="../../src/integration/integrationController.cpp" line="623"/>
         <location filename="../../src/integration/integrationController.cpp" line="680"/>
         <source>The integration is already configured or doesn&apos;t allow to be set up again.</source>
-        <translation>The integration is already configured or doesn&apos;t allow to be set up again.</translation>
+        <translation>The integration is already configured or cannot be set up again.</translation>
     </message>
     <message>
         <location filename="../../src/integration/integrationController.cpp" line="495"/>
