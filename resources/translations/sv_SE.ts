@@ -1084,11 +1084,11 @@ om %1 sekunder.</translation>
         </message>
         <message>
             <source>Web configurator enabled</source>
-            <translation>Webkonfiguratorn aktiverad</translation>
+            <translation>Webbkonfiguratorn aktiverad</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
-            <translation>Webkonfiguratorn inaktiverad</translation>
+            <translation>Webbkonfiguratorn inaktiverad</translation>
         </message>
         <message>
             <source>Restricted</source>
@@ -1157,7 +1157,7 @@ om %1 sekunder.</translation>
         </message>
         <message>
             <source>Web configurator enabled</source>
-            <translation>Webkonfiguratorn aktiverad</translation>
+            <translation>Webbkonfiguratorn aktiverad</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
@@ -3021,7 +3021,7 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         </message>
         <message>
             <source>Web configurator enabled</source>
-            <translation>Webkonfiguratorn aktiverad</translation>
+            <translation>Webbkonfiguratorn aktiverad</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
