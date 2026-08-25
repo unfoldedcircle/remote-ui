@@ -18,6 +18,14 @@
             <source>Unknown</source>
             <translation>Inconnu</translation>
         </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
     </context>
     <context>
         <name>Binary sensor state opening</name>
@@ -60,20 +68,36 @@
     <context>
         <name>Activity</name>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Certains appareils ne sont pas prêts</translation>
+        </message>
+        <message>
             <source>Tap to close</source>
-            <translation>Tapez pour fermer</translation>
+            <translation>Appuyez pour fermer</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 n'est pas encore connecté. Appuyez sur « Continuer » pour poursuivre malgré tout.</translation>
         </message>
         <message>
             <source>Tap for more</source>
-            <translation>Tapez pour plus d'infos</translation>
+            <translation>Appuyez pour en savoir plus</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ne sont pas encore connectés. Appuyez sur « Continuer » pour poursuivre malgré tout.</translation>
         </message>
         <message>
             <source>Fix states</source>
             <translation>Corriger les états</translation>
         </message>
         <message>
+            <source>Proceed</source>
+            <translation>Continuer</translation>
+        </message>
+        <message>
             <source>Quickly access entities included in this activity:</source>
-            <translation>Accédez rapidement aux entités incluses dans cette activité :</translation>
+            <translation>Accès rapide aux entités incluses dans cette activité :</translation>
         </message>
         <message>
             <source>Back</source>
@@ -85,7 +109,7 @@
         </message>
         <message>
             <source>You can add UI elements via the Web Configurator</source>
-            <translation>Vous pouvez ajouter des éléments d'interface via le configurateur Web</translation>
+            <translation>Vous pouvez ajouter des éléments d'interface via le Configurateur Web</translation>
         </message>
         <message>
             <source>State: %1</source>
@@ -103,7 +127,7 @@
         <name>uc::hw::Wifi</name>
         <message>
             <source>Failed to delete network. Wifi network does not exist.</source>
-            <translation>Échec lors de la suppression du réseau. Le réseau WiFi n'existe pas.</translation>
+            <translation>Échec de la suppression du réseau. Le réseau Wi-Fi n'existe pas.</translation>
         </message>
         <message>
             <source>Wrong network key</source>
@@ -114,22 +138,22 @@
         <name>Binary sensor state occupancy</name>
         <message>
             <source>Detected</source>
-            <translation>Détectée</translation>
+            <translation>Occupé</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Non détectée</translation>
+            <translation>Libre</translation>
         </message>
     </context>
     <context>
         <name>WifiSetup</name>
         <message>
             <source>Enter SSID</source>
-            <translation>Entrer le SSID</translation>
+            <translation>Saisissez le SSID</translation>
         </message>
         <message>
             <source>Wifi network</source>
-            <translation>Réseau WiFi</translation>
+            <translation>Réseau Wi-Fi</translation>
         </message>
         <message>
             <source>Hidden network</source>
@@ -146,30 +170,30 @@
         <message>
             <source>Choose WiFi security for
 %1</source>
-            <translation>Choisir la sécurité WiFi pour
+            <translation>Choisissez la sécurité Wi-Fi de
 %1</translation>
         </message>
         <message>
             <source>Join</source>
-            <translation>Rejoindre</translation>
+            <translation>Se connecter</translation>
         </message>
         <message>
             <source>Select a security option</source>
-            <translation>Sélectionnez une option de sécurité</translation>
+            <translation>Sélectionner une option de sécurité</translation>
         </message>
         <message>
             <source>Please select a security option</source>
-            <translation>Veuillez sélectionner une option de sécurité</translation>
+            <translation>Sélectionnez une option de sécurité</translation>
         </message>
         <message>
             <source>Enter WiFi password for
 %1</source>
-            <translation>Entrez le mot de passe WiFi pour
+            <translation>Saisissez le mot de passe Wi-Fi de
 %1</translation>
         </message>
         <message>
             <source>Super secret</source>
-            <translation>Grand secret</translation>
+            <translation>Top secret</translation>
         </message>
     </context>
     <context>
@@ -207,22 +231,22 @@
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+            <translation>Sélectionnez les entités à ajouter en appuyant dans la liste.</translation>
         </message>
         <message>
             <source>Add entity</source>
-            <translation>Ajouter l'entité</translation>
+            <translation>Ajouter une entité</translation>
         </message>
     </context>
     <context>
         <name>WifiJoin</name>
         <message>
             <source>Join WiFi network?</source>
-            <translation>Rejoindre le réseau WiFi ?</translation>
+            <translation>Se connecter au réseau Wi-Fi ?</translation>
         </message>
         <message>
             <source>Join</source>
-            <translation>Rejoindre</translation>
+            <translation>Se connecter</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -276,15 +300,15 @@
         </message>
         <message>
             <source>24-hour time</source>
-            <translation>Heure en 24h</translation>
+            <translation>Format 24 heures</translation>
         </message>
         <message>
             <source>Unit System</source>
-            <translation>Système d'unité</translation>
+            <translation>Système d'unités</translation>
         </message>
         <message>
             <source>Select unit system</source>
-            <translation>Sélectionner le système d'unité</translation>
+            <translation>Sélectionner le système d'unités</translation>
         </message>
     </context>
     <context>
@@ -295,11 +319,11 @@
         </message>
         <message>
             <source>Available: %1</source>
-            <translation>Disponible : %1</translation>
+            <translation>Disponibles : %1</translation>
         </message>
         <message>
             <source>Configured: %1</source>
-            <translation>Configuré : %1</translation>
+            <translation>Configurées : %1</translation>
         </message>
         <message>
             <source>Select entities</source>
@@ -307,11 +331,11 @@
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+            <translation>Sélectionnez les entités à ajouter en appuyant dans la liste.</translation>
         </message>
         <message>
             <source>Please select entities to remove by tapping in the list.</source>
-            <translation>Veuillez sélectionner les entités à supprimer en tapant dans la liste.</translation>
+            <translation>Sélectionnez les entités à retirer en appuyant dans la liste.</translation>
         </message>
         <message>
             <source>Remove</source>
@@ -323,16 +347,16 @@
         <message>
             <source>Enter WiFi password for
 %1</source>
-            <translation>Entrez le mot de passe WiFi pour
+            <translation>Saisissez le mot de passe Wi-Fi de
 %1</translation>
         </message>
         <message>
             <source>Super secret</source>
-            <translation>Grand secret</translation>
+            <translation>Top secret</translation>
         </message>
         <message>
             <source>Join</source>
-            <translation>Rejoindre</translation>
+            <translation>Se connecter</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -350,7 +374,7 @@
         <name>Wifi</name>
         <message>
             <source>Select your WiFi network</source>
-            <translation>Sélectionnez votre réseau WiFi</translation>
+            <translation>Sélectionnez votre réseau Wi-Fi</translation>
         </message>
         <message>
             <source>Wi-Fi address</source>
@@ -366,7 +390,7 @@
         </message>
         <message>
             <source>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won't be possible now.</source>
-            <translation>Échec de la connexion au réseau WiFi. Vous pouvez réessayer ou continuer sans configurer de réseau WiFi. Vous pourrez configurer votre réseau WiFi plus tard dans les Paramètres. Si vous passez cette étape, l'installation du dock et de l'intégration ne sera pas possible pour le moment.</translation>
+            <translation>Impossible de se connecter au réseau Wi-Fi. Vous pouvez réessayer ou continuer sans configurer de réseau Wi-Fi. Vous pourrez le configurer plus tard dans les Paramètres. Si vous passez cette étape, vous ne pourrez pas configurer le dock ni les intégrations maintenant.</translation>
         </message>
         <message>
             <source>Set up later</source>
@@ -382,15 +406,15 @@
         </message>
         <message>
             <source>WiFi</source>
-            <translation>WiFi</translation>
+            <translation>Wi-Fi</translation>
         </message>
         <message>
             <source>Active WiFi scanning</source>
-            <translation>Analyse WiFi active</translation>
+            <translation>Recherche Wi-Fi active</translation>
         </message>
         <message>
             <source>Actively scan for nearby WiFi networks in the configured interval: %1 seconds</source>
-            <translation>Analyser activement les réseaux WiFi à proximité à l'intervalle configuré : %1 secondes</translation>
+            <translation>Rechercher activement les réseaux Wi-Fi à proximité selon l'intervalle configuré : %1 secondes</translation>
         </message>
         <message>
             <source>%1 seconds</source>
@@ -398,11 +422,11 @@
         </message>
         <message>
             <source>WiFi band</source>
-            <translation>Bande WiFi</translation>
+            <translation>Bande Wi-Fi</translation>
         </message>
         <message>
             <source>Select WiFi band</source>
-            <translation>Sélection de la bande WiFi</translation>
+            <translation>Sélectionner la bande Wi-Fi</translation>
         </message>
         <message>
             <source>Known Networks</source>
@@ -414,7 +438,7 @@
         </message>
         <message>
             <source>Are you sure you want to delete all WiFi networks?</source>
-            <translation>Es-tu sûr de vouloir supprimer tous les réseaux WiFi ?</translation>
+            <translation>Voulez-vous vraiment supprimer tous les réseaux Wi-Fi ?</translation>
         </message>
         <message>
             <source>Delete all</source>
@@ -425,7 +449,7 @@
         <name>ConnectionStatus</name>
         <message>
             <source>Connection status</source>
-            <translation>Statut de la connexion</translation>
+            <translation>État de la connexion</translation>
         </message>
         <message>
             <source>No connection errors</source>
@@ -436,19 +460,23 @@
         <name>Settings</name>
         <message>
             <source>Display &amp; Brightness</source>
-            <translation>Affichage &amp; Luminosité</translation>
+            <translation>Affichage et luminosité</translation>
         </message>
         <message>
             <source>User interface</source>
             <translation>Interface utilisateur</translation>
         </message>
         <message>
+            <source>Touch Slider</source>
+            <translation>Curseur tactile</translation>
+        </message>
+        <message>
             <source>Sound &amp; Haptic</source>
-            <translation>Son &amp; Haptique</translation>
+            <translation>Son et vibrations</translation>
         </message>
         <message>
             <source>Voice Control</source>
-            <translation>Contrôle à la voix</translation>
+            <translation>Commande vocale</translation>
         </message>
         <message>
             <source>Power Saving</source>
@@ -456,26 +484,37 @@
         </message>
         <message>
             <source>Wifi &amp; Bluetooth</source>
-            <translation>Wifi &amp; Bluetooth</translation>
+            <translation>Wi-Fi et Bluetooth</translation>
         </message>
         <message>
             <source>Localisation</source>
-            <translation>Localisation</translation>
+            <translation>Langue et région</translation>
         </message>
         <message>
             <source>Administrator PIN</source>
-            <translation>PIN administrateur</translation>
+            <translation>Code PIN administrateur</translation>
         </message>
         <message>
             <source>Factory reset</source>
-            <translation>Rétablir la configuration d'usine</translation>
+            <translation>Réinitialisation d'usine</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSliderSeek</name>
+        <message>
+            <source>Touch slider is not available.</source>
+            <translation>Le curseur tactile n'est pas disponible.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 n'est pas disponible. Vérifiez votre configuration.</translation>
         </message>
     </context>
     <context>
         <name>PageAdd</name>
         <message>
             <source>There was an error. Try again</source>
-            <translation>Il y a eu une erreur. Réessaie</translation>
+            <translation>Une erreur s'est produite. Réessayez</translation>
         </message>
         <message>
             <source>Name your page</source>
@@ -514,6 +553,13 @@
         </message>
     </context>
     <context>
+        <name>SelectWidget</name>
+        <message>
+            <source>Select an option</source>
+            <translation>Sélectionnez une option</translation>
+        </message>
+    </context>
+    <context>
         <name>WifiNetworkList</name>
         <message>
             <source>Other Networks</source>
@@ -525,11 +571,11 @@
         </message>
         <message>
             <source>Join other</source>
-            <translation>Rejoindre un autre</translation>
+            <translation>Se connecter à un autre</translation>
         </message>
         <message>
             <source>Join and disable others</source>
-            <translation>Rejoindre et désactiver les autres</translation>
+            <translation>Se connecter et désactiver les autres</translation>
         </message>
         <message>
             <source>Disable</source>
@@ -545,11 +591,11 @@
         </message>
         <message>
             <source>Remove WiFi network</source>
-            <translation>Supprimer le réseau WiFi</translation>
+            <translation>Retirer le réseau Wi-Fi</translation>
         </message>
         <message>
             <source>Are you sure you want to remove the network %1?</source>
-            <translation>Es-tu sûr de vouloir supprimer le réseau %1 ?</translation>
+            <translation>Voulez-vous vraiment retirer le réseau %1 ?</translation>
         </message>
         <message>
             <source>Remove</source>
@@ -560,7 +606,7 @@
         <name>Binary sensor state battery</name>
         <message>
             <source>Normal</source>
-            <translation>Normale</translation>
+            <translation>Normal</translation>
         </message>
         <message>
             <source>Low</source>
@@ -614,11 +660,11 @@
         </message>
         <message>
             <source>Climate</source>
-            <translation>Climat</translation>
+            <translation>Climatisation</translation>
         </message>
         <message>
             <source>Cover</source>
-            <translation>Couverture</translation>
+            <translation>Volet</translation>
         </message>
         <message>
             <source>Light</source>
@@ -664,7 +710,7 @@
         <name>RemoteOpen</name>
         <message>
             <source>Do not operate the device disassembled.</source>
-            <translation>Ne pas utiliser l'appareil démonté.</translation>
+            <translation>N'utilisez pas l'appareil lorsqu'il est démonté.</translation>
         </message>
         <message>
             <source>The remote will turn off
@@ -676,12 +722,36 @@ dans %1 secondes.</translation>
     <context>
         <name>MediaBrowser</name>
         <message>
+            <source>An error occurred while loading media content.</source>
+            <translation>Une erreur s'est produite lors du chargement du contenu multimédia.</translation>
+        </message>
+        <message>
+            <source>Retry</source>
+            <translation>Réessayer</translation>
+        </message>
+        <message>
+            <source>Browse</source>
+            <translation>Parcourir</translation>
+        </message>
+        <message>
+            <source>Search…</source>
+            <translation>Rechercher…</translation>
+        </message>
+        <message>
             <source>Track</source>
-            <translation>Track</translation>
+            <translation>Piste</translation>
+        </message>
+        <message>
+            <source>Album</source>
+            <translation>Album</translation>
+        </message>
+        <message>
+            <source>Artist</source>
+            <translation>Artiste</translation>
         </message>
         <message>
             <source>Playlist</source>
-            <translation>Playlist</translation>
+            <translation>Liste de lecture</translation>
         </message>
         <message>
             <source>Genre</source>
@@ -692,12 +762,60 @@ dans %1 secondes.</translation>
             <translation>Podcast</translation>
         </message>
         <message>
+            <source>Episode</source>
+            <translation>Épisode</translation>
+        </message>
+        <message>
             <source>Radio</source>
             <translation>Radio</translation>
         </message>
         <message>
+            <source>Channel</source>
+            <translation>Chaîne</translation>
+        </message>
+        <message>
+            <source>App</source>
+            <translation>Application</translation>
+        </message>
+        <message>
             <source>Apps</source>
-            <translation>Apps</translation>
+            <translation>Applications</translation>
+        </message>
+        <message>
+            <source>Channels</source>
+            <translation>Chaînes</translation>
+        </message>
+        <message>
+            <source>Composer</source>
+            <translation>Compositeur</translation>
+        </message>
+        <message>
+            <source>Directory</source>
+            <translation>Dossier</translation>
+        </message>
+        <message>
+            <source>Game</source>
+            <translation>Jeu</translation>
+        </message>
+        <message>
+            <source>Image</source>
+            <translation>Image</translation>
+        </message>
+        <message>
+            <source>Movie</source>
+            <translation>Film</translation>
+        </message>
+        <message>
+            <source>Music</source>
+            <translation>Musique</translation>
+        </message>
+        <message>
+            <source>Season</source>
+            <translation>Saison</translation>
+        </message>
+        <message>
+            <source>TV Show</source>
+            <translation>Série TV</translation>
         </message>
         <message>
             <source>URL</source>
@@ -705,14 +823,50 @@ dans %1 secondes.</translation>
         </message>
         <message>
             <source>Video</source>
-            <translation>Video</translation>
+            <translation>Vidéo</translation>
+        </message>
+        <message>
+            <source>Could not search media</source>
+            <translation>Impossible de rechercher du contenu multimédia</translation>
+        </message>
+        <message>
+            <source>An error occurred while searching media content.</source>
+            <translation>Une erreur s'est produite lors de la recherche de contenu multimédia.</translation>
+        </message>
+        <message>
+            <source>Search</source>
+            <translation>Rechercher</translation>
+        </message>
+        <message>
+            <source>No results</source>
+            <translation>Aucun résultat</translation>
+        </message>
+        <message>
+            <source>Try something else.</source>
+            <translation>Essayez autre chose.</translation>
+        </message>
+        <message>
+            <source>Play now</source>
+            <translation>Lire maintenant</translation>
+        </message>
+        <message>
+            <source>Play next</source>
+            <translation>Lire ensuite</translation>
+        </message>
+        <message>
+            <source>Add to queue</source>
+            <translation>Ajouter à la file d'attente</translation>
+        </message>
+        <message>
+            <source>Could not load media</source>
+            <translation>Impossible de charger le contenu multimédia</translation>
         </message>
     </context>
     <context>
         <name>PageRename</name>
         <message>
             <source>There was an error. Try again</source>
-            <translation>Il y a eu une erreur. Réessaie</translation>
+            <translation>Une erreur s'est produite. Réessayez</translation>
         </message>
         <message>
             <source>Rename page</source>
@@ -753,18 +907,18 @@ dans %1 secondes.</translation>
         <name>Binary sensor state motion</name>
         <message>
             <source>Detected</source>
-            <translation>Détecté</translation>
+            <translation>Mouvement détecté</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Non détecté</translation>
+            <translation>Aucun mouvement</translation>
         </message>
     </context>
     <context>
         <name>ProfileRename</name>
         <message>
             <source>There was an error. Try again</source>
-            <translation>Il y a eu une erreur. Réessaie</translation>
+            <translation>Une erreur s'est produite. Réessayez</translation>
         </message>
         <message>
             <source>Rename profile</source>
@@ -794,7 +948,7 @@ dans %1 secondes.</translation>
         <name>Current</name>
         <message>
             <source>Current</source>
-            <translation>Électrique</translation>
+            <translation>Courant</translation>
         </message>
     </context>
     <context>
@@ -805,7 +959,7 @@ dans %1 secondes.</translation>
         </message>
         <message>
             <source>Normal</source>
-            <translation>Normale</translation>
+            <translation>Normal</translation>
         </message>
     </context>
     <context>
@@ -823,7 +977,7 @@ dans %1 secondes.</translation>
         <name>ProfileAdd</name>
         <message>
             <source>There was an error. Try again</source>
-            <translation>Il y a eu une erreur. Réessaie</translation>
+            <translation>Une erreur s'est produite. Réessayez</translation>
         </message>
         <message>
             <source>Profile already exists</source>
@@ -835,7 +989,7 @@ dans %1 secondes.</translation>
         </message>
         <message>
             <source>Choose existing</source>
-            <translation>Choisir existant</translation>
+            <translation>Choisir un profil existant</translation>
         </message>
         <message>
             <source>Profile name</source>
@@ -874,6 +1028,41 @@ dans %1 secondes.</translation>
         </message>
     </context>
     <context>
+        <name>Media player state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+        <message>
+            <source>Playing</source>
+            <translation>En lecture</translation>
+        </message>
+        <message>
+            <source>Paused</source>
+            <translation>En pause</translation>
+        </message>
+        <message>
+            <source>Standby</source>
+            <translation>Veille</translation>
+        </message>
+        <message>
+            <source>Buffering</source>
+            <translation>Mise en mémoire tampon</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Controller</name>
         <message>
             <source>Error</source>
@@ -881,7 +1070,7 @@ dans %1 secondes.</translation>
         </message>
         <message>
             <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
-            <translation>La suppression d'un profil actuel n'est pas autorisée. Veuillez passer à un autre profil et réessayer.</translation>
+            <translation>Le profil actuellement utilisé ne peut pas être supprimé. Passez à un autre profil, puis réessayez.</translation>
         </message>
         <message>
             <source>Profile update error</source>
@@ -897,10 +1086,17 @@ dans %1 secondes.</translation>
         </message>
     </context>
     <context>
+        <name>Abbreviation for nothing is selected</name>
+        <message>
+            <source>None</source>
+            <translation>Aucun</translation>
+        </message>
+    </context>
+    <context>
         <name>WebConfig</name>
         <message>
             <source>Web Configurator</source>
-            <translation>Configuration Web</translation>
+            <translation>Configurateur Web</translation>
         </message>
         <message>
             <source>Web configurator enabled</source>
@@ -908,7 +1104,7 @@ dans %1 secondes.</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
-            <translation>Le configurateur web est désactivé</translation>
+            <translation>Configurateur Web désactivé</translation>
         </message>
         <message>
             <source>Restricted</source>
@@ -923,7 +1119,7 @@ dans %1 secondes.</translation>
         </message>
         <message>
             <source>Unknown</source>
-            <translation>Inconnu</translation>
+            <translation>Inconnue</translation>
         </message>
         <message>
             <source>Running</source>
@@ -935,18 +1131,18 @@ dans %1 secondes.</translation>
         </message>
         <message>
             <source>Completed</source>
-            <translation>Terminé</translation>
+            <translation>Terminée</translation>
         </message>
     </context>
     <context>
         <name>NoPage</name>
         <message>
             <source>Tap here to add your first page</source>
-            <translation>Tapez ici pour ajouter votre première page</translation>
+            <translation>Appuyez ici pour ajouter votre première page</translation>
         </message>
         <message>
             <source>No page found. Ask your administrator to setup pages.</source>
-            <translation>Aucune page trouvée. Demandez à votre administrateur de configurer les pages.</translation>
+            <translation>Aucune page trouvée. Demandez à votre administrateur de configurer des pages.</translation>
         </message>
     </context>
     <context>
@@ -981,7 +1177,7 @@ dans %1 secondes.</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
-            <translation>Le configurateur web est désactivé</translation>
+            <translation>Configurateur Web désactivé</translation>
         </message>
         <message>
             <source>Restricted</source>
@@ -991,11 +1187,11 @@ dans %1 secondes.</translation>
             <source>Scan to open
 the Web Configurator</source>
             <translation>Scannez pour ouvrir
-le configurateur web</translation>
+le Configurateur Web</translation>
         </message>
         <message>
             <source>Tap to close</source>
-            <translation>Tapez pour fermer</translation>
+            <translation>Appuyez pour fermer</translation>
         </message>
     </context>
     <context>
@@ -1006,11 +1202,11 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Installing step %1/%2 %3%</source>
-            <translation>Installation étape %1/%2 %3%</translation>
+            <translation>Installation de l'étape %1/%2 %3%</translation>
         </message>
         <message>
             <source>Do not turn off the remote during the installation process!</source>
-            <translation>Ne pas éteindre la télécommande pendant le processus d'installation !</translation>
+            <translation>N'éteignez pas la télécommande pendant l'installation !</translation>
         </message>
         <message>
             <source>Update success</source>
@@ -1018,7 +1214,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Software update was successful.%1The remote will reboot now.</source>
-            <translation>La mise à jour du logiciel a été réussie.%1La télécommande va redémarrer maintenant.</translation>
+            <translation>La mise à jour logicielle a réussi.%1La télécommande va redémarrer.</translation>
         </message>
         <message>
             <source>Update failed</source>
@@ -1052,15 +1248,15 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Unknown</source>
-            <translation>Inconnu</translation>
+            <translation>Inconnue</translation>
         </message>
         <message>
             <source>On</source>
-            <translation>Activé</translation>
+            <translation>Activée</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Désactivé</translation>
+            <translation>Désactivée</translation>
         </message>
         <message>
             <source>Running</source>
@@ -1072,7 +1268,11 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Completed</source>
-            <translation>Terminé</translation>
+            <translation>Terminée</translation>
+        </message>
+        <message>
+            <source>Timeout</source>
+            <translation>Délai dépassé</translation>
         </message>
     </context>
     <context>
@@ -1093,25 +1293,49 @@ le configurateur web</translation>
         <name>Outlet</name>
         <message>
             <source>On</source>
-            <translation>Activé</translation>
+            <translation>Activée</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Désactivé</translation>
+            <translation>Désactivée</translation>
         </message>
     </context>
     <context>
         <name>uc::ui::EntityController</name>
         <message>
+            <source>The device</source>
+            <translation>L'appareil</translation>
+        </message>
+        <message>
             <source>%1 is not responding</source>
             <translation>%1 ne répond pas</translation>
+        </message>
+        <message>
+            <source>The command did not reach the device. Would you like to try again?</source>
+            <translation>La commande n'a pas atteint l'appareil. Voulez-vous réessayer ?</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Réessayer</translation>
+        </message>
+        <message>
+            <source>%1 is not responding. Error code: %2</source>
+            <translation>%1 ne répond pas. Code d'erreur : %2</translation>
+        </message>
+        <message>
+            <source>Error sending the command</source>
+            <translation>Erreur lors de l'envoi de la commande</translation>
         </message>
     </context>
     <context>
         <name>TouchSliderBrightness</name>
         <message>
             <source>Touch slider is not available.</source>
-            <translation>Touch slider is not available.</translation>
+            <translation>Le curseur tactile n'est pas disponible.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 n'est pas disponible. Vérifiez votre configuration.</translation>
         </message>
     </context>
     <context>
@@ -1159,7 +1383,7 @@ le configurateur web</translation>
         <name>InputField</name>
         <message>
             <source>Input field is empty</source>
-            <translation>Le champ est vide</translation>
+            <translation>Le champ de saisie est vide</translation>
         </message>
     </context>
     <context>
@@ -1170,33 +1394,33 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Unknown</source>
-            <translation>Inconnu</translation>
+            <translation>Inconnue</translation>
         </message>
         <message>
             <source>On</source>
-            <translation>Activé</translation>
+            <translation>Activée</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Désactivé</translation>
+            <translation>Désactivée</translation>
         </message>
     </context>
     <context>
         <name>Binary sensor state smoke</name>
         <message>
             <source>Detected</source>
-            <translation>Détectée</translation>
+            <translation>Fumée détectée</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Non détectée</translation>
+            <translation>Aucune fumée</translation>
         </message>
     </context>
     <context>
         <name>AddEntities</name>
         <message>
             <source>Select entities to control with the remote</source>
-            <translation>Sélectionner les entités à contrôler avec la télécommande</translation>
+            <translation>Sélectionnez les entités à contrôler avec la télécommande</translation>
         </message>
         <message>
             <source>Select entities</source>
@@ -1204,7 +1428,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+            <translation>Sélectionnez les entités à ajouter en appuyant dans la liste.</translation>
         </message>
     </context>
     <context>
@@ -1225,8 +1449,36 @@ le configurateur web</translation>
             <translation>Volume</translation>
         </message>
         <message>
+            <source>Touch slider</source>
+            <translation>Curseur tactile</translation>
+        </message>
+        <message>
+            <source>When off, the touch slider is disabled everywhere and swiping it does nothing.</source>
+            <translation>Lorsque cette option est désactivée, le curseur tactile est désactivé partout et le glissement n'a aucun effet.</translation>
+        </message>
+        <message>
+            <source>Adjust how far the touch slider moves a value for a full-length swipe. Higher is more sensitive; 1.0 means one full swipe covers the whole range.</source>
+            <translation>Réglez la distance parcourue par une valeur lorsque vous faites glisser le curseur tactile sur toute sa longueur. Plus la valeur est élevée, plus la sensibilité est grande ; 1.0 signifie qu'un glissement complet couvre toute la plage.</translation>
+        </message>
+        <message>
+            <source>Slide the hardware slider to test the highlighted setting.</source>
+            <translation>Faites glisser le curseur physique pour tester le paramètre en surbrillance.</translation>
+        </message>
+        <message>
             <source>Brightness</source>
             <translation>Luminosité</translation>
+        </message>
+        <message>
+            <source>Cover position</source>
+            <translation>Position du volet</translation>
+        </message>
+        <message>
+            <source>Seek</source>
+            <translation>Avance et retour</translation>
+        </message>
+        <message>
+            <source>Test</source>
+            <translation>Tester</translation>
         </message>
     </context>
     <context>
@@ -1237,7 +1489,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Press and hold</source>
-            <translation>Appuyer et maintenir</translation>
+            <translation>Appuyez de manière prolongée</translation>
         </message>
         <message>
             <source>Reboot</source>
@@ -1264,11 +1516,11 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Disconnect</source>
-            <translation>Déconnecter</translation>
+            <translation>Se déconnecter</translation>
         </message>
         <message>
             <source>Connect</source>
-            <translation>Connecter</translation>
+            <translation>Se connecter</translation>
         </message>
         <message>
             <source>Delete</source>
@@ -1283,18 +1535,18 @@ le configurateur web</translation>
         <name>Binary sensor state vibration</name>
         <message>
             <source>Detected</source>
-            <translation>Détectée</translation>
+            <translation>Vibration détectée</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Non détectée</translation>
+            <translation>Aucune vibration</translation>
         </message>
     </context>
     <context>
         <name>Docks</name>
         <message>
             <source>Add a new dock</source>
-            <translation>Ajouter une nouvelle station</translation>
+            <translation>Ajouter un nouveau dock</translation>
         </message>
         <message>
             <source>Active</source>
@@ -1302,7 +1554,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Connecting</source>
-            <translation>En cours de connexion</translation>
+            <translation>Connexion en cours</translation>
         </message>
         <message>
             <source>Error</source>
@@ -1326,7 +1578,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Connect</source>
-            <translation>Connecter</translation>
+            <translation>Se connecter</translation>
         </message>
     </context>
     <context>
@@ -1359,25 +1611,25 @@ le configurateur web</translation>
             <source>Scan to open
 the Web Configurator</source>
             <translation>Scannez pour ouvrir
-le configurateur web</translation>
+le Configurateur Web</translation>
         </message>
         <message>
             <source>Tap to close</source>
-            <translation>Tapez pour fermer</translation>
+            <translation>Appuyez pour fermer</translation>
         </message>
     </context>
     <context>
         <name>Dock</name>
         <message>
             <source>Dock setup</source>
-            <translation>Configuration de la station</translation>
+            <translation>Configuration du dock</translation>
         </message>
     </context>
     <context>
         <name>Pin</name>
         <message>
             <source>Administrator PIN</source>
-            <translation>PIN administrateur</translation>
+            <translation>Code PIN administrateur</translation>
         </message>
         <message>
             <source>This PIN is the administrator PIN.</source>
@@ -1388,7 +1640,7 @@ le configurateur web</translation>
         <name>Binary sensor state presence</name>
         <message>
             <source>Home</source>
-            <translation>Maison</translation>
+            <translation>Présent</translation>
         </message>
         <message>
             <source>Not home</source>
@@ -1403,11 +1655,11 @@ le configurateur web</translation>
         </message>
         <message>
             <source>%1% battery remaining. Please charge the remote soon.</source>
-            <translation>%1% de batterie restante. Veuillez recharger la télécommande bientôt.</translation>
+            <translation>Il reste %1 % de batterie. Rechargez la télécommande bientôt.</translation>
         </message>
         <message>
             <source>Low battery voltage detected. Charge the battery to 100% before using the remote again.</source>
-            <translation>Faible tension de batterie détectée. Chargez la batterie à 100% avant d'utiliser de nouveau la télécommande.</translation>
+            <translation>Tension de batterie faible détectée. Chargez la batterie à 100 % avant d'utiliser à nouveau la télécommande.</translation>
         </message>
     </context>
     <context>
@@ -1447,15 +1699,19 @@ le configurateur web</translation>
         <name>Power</name>
         <message>
             <source>Power</source>
-            <translation>Puissance</translation>
+            <translation>Énergie</translation>
         </message>
         <message>
             <source>Keep WiFi connected in standby</source>
-            <translation>Maintenir le WiFi connecté en veille</translation>
+            <translation>Maintenir le Wi-Fi connecté en veille</translation>
         </message>
         <message>
             <source>Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.</source>
-            <translation>Le WiFi reste toujours connecté, même lorsque l'appareil est en veille. Permet une reconnexion plus rapide après le réveil. Veuillez noter que l'activation de cette fonction réduit légèrement la durée de vie de la batterie.</translation>
+            <translation>Maintient le Wi-Fi connecté en permanence, même lorsque l'appareil est en veille. Permet une reconnexion plus rapide après le réveil. Notez que l'activation de cette fonction réduit légèrement l'autonomie de la batterie.</translation>
+        </message>
+        <message>
+            <source>Retry commands after wakeup</source>
+            <translation>Réessayer les commandes après le réveil</translation>
         </message>
         <message>
             <source>Wakeup sensitivity</source>
@@ -1475,11 +1731,15 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Display off timeout</source>
-            <translation>Délai d'extinction de l'écran</translation>
+            <translation>Délai avant extinction de l'écran</translation>
         </message>
         <message>
             <source>%1 seconds</source>
             <translation>%1 secondes</translation>
+        </message>
+        <message>
+            <source>Retry commands within %1 second(s) after wakeup.</source>
+            <translation>Réessayer les commandes jusqu'à %1 seconde(s) après le réveil.</translation>
         </message>
         <message>
             <source>Disabled</source>
@@ -1487,7 +1747,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Sleep timeout</source>
-            <translation>Délai de veille</translation>
+            <translation>Délai avant mise en veille</translation>
         </message>
         <message>
             <source>%1 minutes</source>
@@ -1502,7 +1762,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Automatically adjust the display brightness based on ambient lighting conditions.</source>
-            <translation>Ajuster automatiquement la luminosité de l'écran en fonction des conditions de lumière ambiante.</translation>
+            <translation>Ajuster automatiquement la luminosité de l'écran en fonction de la lumière ambiante.</translation>
         </message>
         <message>
             <source>Display brightness</source>
@@ -1514,11 +1774,18 @@ le configurateur web</translation>
         </message>
         <message>
             <source>When on, button backlight will automatically turn on in a dark room.</source>
-            <translation>Lorsqu'allumé, le rétroéclairage des boutons s'allumera automatiquement dans une pièce sombre.</translation>
+            <translation>Lorsque cette option est activée, le rétroéclairage des boutons s'allume automatiquement dans une pièce sombre.</translation>
         </message>
         <message>
             <source>Button backlight brightness</source>
             <translation>Luminosité du rétroéclairage des boutons</translation>
+        </message>
+    </context>
+    <context>
+        <name>No option is selected in the select entity</name>
+        <message>
+            <source>None</source>
+            <translation>Aucune</translation>
         </message>
     </context>
     <context>
@@ -1549,7 +1816,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Current %1</source>
-            <translation>Actuel %1</translation>
+            <translation>Actuel : %1</translation>
         </message>
         <message>
             <source>Heat/Cool</source>
@@ -1564,18 +1831,45 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Safe</source>
-            <translation>Sécurisé</translation>
+            <translation>Sûr</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSliderVolume</name>
+        <message>
+            <source>Touch slider is not available.</source>
+            <translation>Le curseur tactile n'est pas disponible.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 n'est pas disponible. Vérifiez votre configuration.</translation>
         </message>
     </context>
     <context>
         <name>Start</name>
         <message>
             <source>Tap the screen to begin</source>
-            <translation>Touchez l'écran pour commencer</translation>
+            <translation>Appuyez sur l'écran pour commencer</translation>
         </message>
     </context>
     <context>
         <name>main</name>
+        <message>
+            <source>Some devices are not ready</source>
+            <translation>Certains appareils ne sont pas prêts</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 n'est pas encore connecté. Appuyez sur « Continuer » pour poursuivre malgré tout.</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ne sont pas encore connectés. Appuyez sur « Continuer » pour poursuivre malgré tout.</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Continuer</translation>
+        </message>
         <message>
             <source>Done</source>
             <translation>Terminé</translation>
@@ -1597,7 +1891,23 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
-            <translation>Maintenez appuyé le bouton d'accueil ou utilisez le configurateur Web pour configurer la page</translation>
+            <translation>Maintenez le bouton Accueil enfoncé ou utilisez le Configurateur Web pour configurer la page</translation>
+        </message>
+        <message>
+            <source>Some devices are not ready</source>
+            <translation>Certains appareils ne sont pas prêts</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 n'est pas encore connecté. Appuyez sur « Continuer » pour poursuivre malgré tout.</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ne sont pas encore connectés. Appuyez sur « Continuer » pour poursuivre malgré tout.</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Continuer</translation>
         </message>
     </context>
     <context>
@@ -1615,7 +1925,7 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Ok</source>
-            <translation>Ok</translation>
+            <translation>OK</translation>
         </message>
     </context>
     <context>
@@ -1644,14 +1954,14 @@ le configurateur web</translation>
         </message>
         <message>
             <source>Dock setup</source>
-            <translation>Configuration de la station</translation>
+            <translation>Configuration du dock</translation>
         </message>
     </context>
     <context>
         <name>Reset</name>
         <message>
             <source>Resetting will delete all settings, configuration and any information saved on the remote. Data cannot be recovered. Continue?</source>
-            <translation>La réinitialisation effacera tous les paramètres, la configuration et toute information enregistrée sur la télécommande. Les données ne peuvent pas être récupérées. Continuer?</translation>
+            <translation>La réinitialisation supprimera tous les paramètres, la configuration et toutes les informations enregistrées sur la télécommande. Les données ne pourront pas être récupérées. Continuer ?</translation>
         </message>
         <message>
             <source>Erase everything</source>
@@ -1665,7 +1975,7 @@ non-retour</translation>
         </message>
         <message>
             <source>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</source>
-            <translation>La confirmation de la réinitialisation d'usine effacera toute la configuration et les données. Les données ne peuvent pas être récupérées.</translation>
+            <translation>En confirmant la réinitialisation d'usine, toute la configuration et toutes les données seront effacées. Les données ne pourront pas être récupérées.</translation>
         </message>
         <message>
             <source>Confirm</source>
@@ -1680,11 +1990,11 @@ non-retour</translation>
         <name>Binary sensor state gas</name>
         <message>
             <source>Detected</source>
-            <translation>Détecté</translation>
+            <translation>Gaz détecté</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Non détecté</translation>
+            <translation>Aucun gaz</translation>
         </message>
     </context>
     <context>
@@ -1706,7 +2016,7 @@ non-retour</translation>
         </message>
         <message>
             <source>Open</source>
-            <translation>Ouvert</translation>
+            <translation>Ouvrir</translation>
         </message>
         <message>
             <source>Closed</source>
@@ -1725,7 +2035,7 @@ non-retour</translation>
         </message>
         <message>
             <source>Unfolded Icons</source>
-            <translation>Icônes Dépliées</translation>
+            <translation>Icônes Unfolded</translation>
         </message>
         <message>
             <source>Custom Icons</source>
@@ -1740,7 +2050,7 @@ non-retour</translation>
         <name>Tv</name>
         <message>
             <source>Nothing is playing</source>
-            <translation>Rien ne joue</translation>
+            <translation>Aucune lecture en cours</translation>
         </message>
         <message>
             <source>Open an app or use the directional keys to navigate.</source>
@@ -1771,11 +2081,11 @@ non-retour</translation>
         </message>
         <message>
             <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
-            <translation>Une erreur s'est produite lors de la connexion au cœur du système. Si le problème persiste, redémarrez la télécommande.</translation>
+            <translation>Une erreur s'est produite lors de la connexion au Core. Si le problème persiste, redémarrez la télécommande.</translation>
         </message>
         <message>
             <source>Authentication to core failed</source>
-            <translation>Échec de l'authentification du cœur</translation>
+            <translation>Échec de l'authentification auprès du Core</translation>
         </message>
     </context>
     <context>
@@ -1797,11 +2107,11 @@ non-retour</translation>
         <name>Color</name>
         <message>
             <source>Adjust the color tone of the user interface. Using the sliders, choose a color. The user interface colors will be generated based on that color.</source>
-            <translation>Ajustez la teinte de couleur de l'interface utilisateur. Avec les curseurs, choisissez une couleur. Les couleurs de l'interface utilisateur seront générées en fonction de cette couleur.</translation>
+            <translation>Ajustez la teinte de l'interface. Choisissez une couleur à l'aide des curseurs. Les couleurs de l'interface seront générées à partir de cette couleur.</translation>
         </message>
         <message>
             <source>This is a darker text, in a darker container</source>
-            <translation>Ceci est un texte plus sombre, dans un contenant plus sombre</translation>
+            <translation>Ceci est un texte plus sombre, dans un conteneur plus sombre</translation>
         </message>
         <message>
             <source>Button</source>
@@ -1825,9 +2135,9 @@ You can read them on
 unfoldedcircle.com/legal
 or by scanning this QR code.
 Tap the QR code to show it on the screen.</source>
-            <translation>En utilisant les produits d'Unfolded Circle, vous acceptez les conditions générales.
+            <translation>En utilisant les produits Unfolded Circle, vous acceptez les Conditions générales.
 
- Vous pouvez les lire sur
+Vous pouvez les lire sur
 unfoldedcircle.com/legal
 ou en scannant ce code QR.
 Appuyez sur le code QR pour l'afficher à l'écran.</translation>
@@ -1845,7 +2155,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>Discovery</name>
         <message>
             <source>Bluetooth is disabled. Discovery limited to network only.</source>
-            <translation>Le Bluetooth est désactivé. La découverte est limitée au réseau uniquement.</translation>
+            <translation>Le Bluetooth est désactivé. La recherche est limitée au réseau.</translation>
         </message>
         <message>
             <source>Bluetooth</source>
@@ -1853,11 +2163,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</source>
-            <translation>Appuyez sur découvrir pour rechercher des docks sur votre réseau ou par Bluetooth. Si vous souhaitez configurer un nouveau dock sans fil, assurez-vous qu'il est à proximité de la télécommande.</translation>
+            <translation>Appuyez sur Rechercher pour chercher des docks sur votre réseau ou via Bluetooth. Si vous souhaitez configurer un nouveau dock sans fil, assurez-vous qu'il se trouve à proximité de la télécommande.</translation>
         </message>
         <message>
             <source>Discover</source>
-            <translation>Découvrir</translation>
+            <translation>Rechercher</translation>
         </message>
         <message>
             <source>Skip</source>
@@ -1865,19 +2175,19 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Discovering</source>
-            <translation>Découverte</translation>
+            <translation>Recherche en cours</translation>
         </message>
         <message>
             <source>%1 dock(s) found</source>
-            <translation>%1 dock(s) trouvée</translation>
+            <translation>%1 dock(s) trouvé(s)</translation>
         </message>
         <message>
             <source>%1 integration(s) found</source>
-            <translation>%1 intégration(s) trouvée</translation>
+            <translation>%1 intégration(s) trouvée(s)</translation>
         </message>
         <message>
             <source>Integrations may require the Web Configurator for setup.</source>
-            <translation>Les intégrations peuvent nécessiter le configurateur Web pour l'installation.</translation>
+            <translation>Les intégrations peuvent nécessiter le Configurateur Web pour leur configuration.</translation>
         </message>
         <message>
             <source>By %1</source>
@@ -1888,7 +2198,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>Binary sensor state running</name>
         <message>
             <source>Running</source>
-            <translation>En cours d'exécution</translation>
+            <translation>En fonctionnement</translation>
         </message>
         <message>
             <source>Not running</source>
@@ -1917,8 +2227,28 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
     <context>
         <name>LoadingScreen</name>
         <message>
+            <source>Sequence didn't finish within %1 seconds. Check configuration.</source>
+            <translation>La séquence ne s'est pas terminée en %1 secondes. Vérifiez la configuration.</translation>
+        </message>
+        <message>
+            <source>There was an error during the sequence.</source>
+            <translation>Une erreur s'est produite pendant la séquence.</translation>
+        </message>
+        <message>
+            <source>The sequence timed out.</source>
+            <translation>Le délai de la séquence a été dépassé.</translation>
+        </message>
+        <message>
+            <source>%1 (error %2)</source>
+            <translation>%1 (erreur %2)</translation>
+        </message>
+        <message>
+            <source>There was an error during the sequence. Error code: %1</source>
+            <translation>Une erreur s'est produite pendant la séquence. Code d'erreur : %1</translation>
+        </message>
+        <message>
             <source>Tap to close</source>
-            <translation>Tapez pour fermer</translation>
+            <translation>Appuyez pour fermer</translation>
         </message>
         <message>
             <source>Step %1/%2</source>
@@ -1944,18 +2274,54 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Processing ...</source>
-            <translation>Traitement en cours...</translation>
+            <translation>Traitement en cours…</translation>
+        </message>
+        <message>
+            <source>There was an error.</source>
+            <translation>Une erreur s'est produite.</translation>
+        </message>
+        <message>
+            <source>Missing rights to use voice assistant.</source>
+            <translation>Autorisations manquantes pour utiliser l'assistant vocal.</translation>
+        </message>
+        <message>
+            <source>Request failed.</source>
+            <translation>La requête a échoué.</translation>
+        </message>
+        <message>
+            <source>Not authenticated.</source>
+            <translation>Non authentifié.</translation>
+        </message>
+        <message>
+            <source>Voice assistant not found. Please check configuration.</source>
+            <translation>Assistant vocal introuvable. Vérifiez la configuration.</translation>
+        </message>
+        <message>
+            <source>There were too many requests. Please try again later.</source>
+            <translation>Trop de requêtes. Réessayez plus tard.</translation>
+        </message>
+        <message>
+            <source>Internal server error.</source>
+            <translation>Erreur interne du serveur.</translation>
+        </message>
+        <message>
+            <source>Voice assistant is unavailable.</source>
+            <translation>L'assistant vocal n'est pas disponible.</translation>
+        </message>
+        <message>
+            <source>It’s taking longer than expected. Please try your request again.</source>
+            <translation>Cela prend plus de temps que prévu. Renvoyez votre demande.</translation>
         </message>
         <message>
             <source>Listening ...</source>
-            <translation>Écoute ...</translation>
+            <translation>Écoute…</translation>
         </message>
     </context>
     <context>
         <name>MainContainer</name>
         <message>
             <source>Add entity</source>
-            <translation>Ajouter l'entité</translation>
+            <translation>Ajouter une entité</translation>
         </message>
         <message>
             <source>Add group</source>
@@ -1971,7 +2337,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
-            <translation>Rien à réorganiser. Essayez d'ajouter des entités ou des groupes d'abord.</translation>
+            <translation>Il n'y a rien à réorganiser. Ajoutez d'abord des entités ou des groupes.</translation>
         </message>
         <message>
             <source>Show tips</source>
@@ -1999,7 +2365,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Profile is restricted</source>
-            <translation>Profil restreint</translation>
+            <translation>Le profil est restreint</translation>
         </message>
     </context>
     <context>
@@ -2026,11 +2392,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>UI version</source>
-            <translation>Version de l'interface utilisateur</translation>
+            <translation>Version de l'interface</translation>
         </message>
         <message>
             <source>Core version</source>
-            <translation>Version principale</translation>
+            <translation>Version du Core</translation>
         </message>
         <message>
             <source>System version</source>
@@ -2038,7 +2404,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Regulatory</source>
-            <translation>Réglementaire</translation>
+            <translation>Informations réglementaires</translation>
         </message>
         <message>
             <source>Terms &amp; conditions</source>
@@ -2046,7 +2412,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Warranty information</source>
-            <translation>Informations sur la garantie</translation>
+            <translation>Informations de garantie</translation>
         </message>
         <message>
             <source>Licenses</source>
@@ -2054,10 +2420,21 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
     </context>
     <context>
+        <name>TouchSliderPosition</name>
+        <message>
+            <source>Touch slider is not available.</source>
+            <translation>Le curseur tactile n'est pas disponible.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 n'est pas disponible. Vérifiez votre configuration.</translation>
+        </message>
+    </context>
+    <context>
         <name>Ui</name>
         <message>
             <source>Inverted button behaviour</source>
-            <translation>Comportement du bouton inversé</translation>
+            <translation>Comportement inversé des boutons</translation>
         </message>
         <message>
             <source>Inverts button functions on the main screen: short press to open the control screen, long press to quick toggle.</source>
@@ -2065,11 +2442,19 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Show battery percentage</source>
-            <translation>Afficher le pourcentage de la batterie</translation>
+            <translation>Afficher le pourcentage de batterie</translation>
         </message>
         <message>
             <source>Always show the battery percentage next to the icon.</source>
-            <translation>Toujours afficher le pourcentage de la batterie à côté de l'icône.</translation>
+            <translation>Toujours afficher le pourcentage de batterie à côté de l'icône.</translation>
+        </message>
+        <message>
+            <source>Show battery indicator everywhere</source>
+            <translation>Afficher l'indicateur de batterie partout</translation>
+        </message>
+        <message>
+            <source>Shows the battery level indicator on all pages and activities.</source>
+            <translation>Affiche l'indicateur de niveau de batterie sur toutes les pages et activités.</translation>
         </message>
         <message>
             <source>Activities on pages</source>
@@ -2077,37 +2462,53 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Show the running activities and playing media players in the page header.</source>
-            <translation>Afficher les activités en cours et les lecteurs multimédia en lecture dans l'en-tête de la page.</translation>
+            <translation>Afficher les activités en cours et les lecteurs multimédias en lecture dans l'en-tête de la page.</translation>
+        </message>
+        <message>
+            <source>Open activities started with the API</source>
+            <translation>Ouvrir les activités lancées via l'API</translation>
+        </message>
+        <message>
+            <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
+            <translation>Ouvrir l'écran d'activité lorsqu'une activité est lancée en dehors de la télécommande, en remplaçant le contenu affiché.</translation>
         </message>
         <message>
             <source>Zoom media image</source>
-            <translation>Zoomer l'image multimédia</translation>
+            <translation>Agrandir l'image multimédia</translation>
         </message>
         <message>
             <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
-            <translation>Zoomer et recadrer les illustrations dans les widgets du lecteur multimédia au lieu de les mettre à l'échelle.</translation>
+            <translation>Agrandir et rogner les illustrations dans les widgets du lecteur multimédia au lieu de les redimensionner.</translation>
+        </message>
+        <message>
+            <source>Coverflow in media browser</source>
+            <translation>Coverflow dans le navigateur multimédia</translation>
+        </message>
+        <message>
+            <source>Use coverflow as the default view when opening the media browser.</source>
+            <translation>Utiliser Coverflow comme vue par défaut à l'ouverture du navigateur multimédia.</translation>
         </message>
     </context>
     <context>
         <name>Binary sensor state window</name>
         <message>
             <source>Open</source>
-            <translation>Ouvert</translation>
+            <translation>Ouverte</translation>
         </message>
         <message>
             <source>Closed</source>
-            <translation>Fermé</translation>
+            <translation>Fermée</translation>
         </message>
     </context>
     <context>
         <name>Binary sensor state tamper</name>
         <message>
             <source>Tampering detected</source>
-            <translation>Manipulation détectée</translation>
+            <translation>Altération détectée</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Non détectée</translation>
+            <translation>Aucune altération</translation>
         </message>
     </context>
     <context>
@@ -2122,11 +2523,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Required</source>
-            <translation>Requis</translation>
+            <translation>Obligatoire</translation>
         </message>
         <message>
             <source>Optional</source>
-            <translation>Optionnel</translation>
+            <translation>Facultatif</translation>
         </message>
         <message>
             <source>Password</source>
@@ -2134,11 +2535,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Add WiFi network</source>
-            <translation>Ajouter un réseau WiFi</translation>
+            <translation>Ajouter un réseau Wi-Fi</translation>
         </message>
         <message>
             <source>Selected WiFi network</source>
-            <translation>Réseau WiFi sélectionné</translation>
+            <translation>Réseau Wi-Fi sélectionné</translation>
         </message>
         <message>
             <source>Next</source>
@@ -2146,7 +2547,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Select WiFi network</source>
-            <translation>Sélectionner un réseau WiFi</translation>
+            <translation>Sélectionner le réseau Wi-Fi</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2189,7 +2590,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>SoftwareUpdate</name>
         <message>
             <source>New software version is available</source>
-            <translation>Nouvelle version du logiciel disponible</translation>
+            <translation>Une nouvelle version du logiciel est disponible</translation>
         </message>
         <message>
             <source>Your software is up to date</source>
@@ -2209,11 +2610,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Downloading</source>
-            <translation>Téléchargement</translation>
+            <translation>Téléchargement en cours</translation>
         </message>
         <message>
             <source>Downloaded</source>
-            <translation>Téléchargé</translation>
+            <translation>Téléchargée</translation>
         </message>
         <message>
             <source>Error</source>
@@ -2241,15 +2642,15 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Minimum 50% battery charge is required to install software updates</source>
-            <translation>Une charge de batterie minimum de 50 % est requise pour installer les mises à jour logicielles</translation>
+            <translation>Une charge d'au moins 50 % est nécessaire pour installer les mises à jour logicielles</translation>
         </message>
         <message>
             <source>Check for update</source>
-            <translation>Vérifier les mises à jour</translation>
+            <translation>Rechercher une mise à jour</translation>
         </message>
         <message>
             <source>Beta updates</source>
-            <translation>Mises à jour beta</translation>
+            <translation>Mises à jour bêta</translation>
         </message>
         <message>
             <source>Enabled</source>
@@ -2257,11 +2658,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Check for updates</source>
-            <translation>Vérifier les mises à jour</translation>
+            <translation>Rechercher des mises à jour</translation>
         </message>
         <message>
             <source>Automatically check for updates.</source>
-            <translation>Vérification automatique des mises à jour.</translation>
+            <translation>Rechercher automatiquement les mises à jour.</translation>
         </message>
         <message>
             <source>Auto update</source>
@@ -2269,18 +2670,18 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Automatically update the remote when new software is available. Updates are installed between %1 and %2</source>
-            <translation>Mettre à jour automatiquement la télécommande lorsque de nouveaux logiciels sont disponibles. Les mises à jour sont installées entre %1 et %2</translation>
+            <translation>Mettre à jour automatiquement la télécommande lorsqu'un nouveau logiciel est disponible. Les mises à jour sont installées entre %1 et %2</translation>
         </message>
     </context>
     <context>
         <name>Binary sensor state sound</name>
         <message>
             <source>Detected</source>
-            <translation>Détecté</translation>
+            <translation>Son détecté</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Non détecté</translation>
+            <translation>Aucun son</translation>
         </message>
     </context>
     <context>
@@ -2291,14 +2692,14 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>You can add UI elements via the Web Configurator</source>
-            <translation>Vous pouvez ajouter des éléments d'interface via le configurateur Web</translation>
+            <translation>Vous pouvez ajouter des éléments d'interface via le Configurateur Web</translation>
         </message>
     </context>
     <context>
         <name>GroupAdd</name>
         <message>
             <source>There was an error. Try again</source>
-            <translation>Il y a eu une erreur. Réessaie</translation>
+            <translation>Une erreur s'est produite. Réessayez</translation>
         </message>
         <message>
             <source>Group already exists</source>
@@ -2322,7 +2723,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Select entities to add</source>
-            <translation>Sélectionnez les entités à ajouter</translation>
+            <translation>Sélectionner les entités à ajouter</translation>
         </message>
         <message>
             <source>Search</source>
@@ -2338,53 +2739,18 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+            <translation>Sélectionnez les entités à ajouter en appuyant dans la liste.</translation>
         </message>
     </context>
     <context>
         <name>NoProfile</name>
         <message>
             <source>There was an error loading the profile.</source>
-            <translation>Il y a eu une erreur lors du chargement du profil.</translation>
+            <translation>Une erreur s'est produite lors du chargement du profil.</translation>
         </message>
         <message>
             <source>Select or add profile</source>
-            <translation>Sélectionner ou ajouter un profil</translation>
-        </message>
-    </context>
-    <context>
-        <name>Media platyer state</name>
-        <message>
-            <source>Unavailable</source>
-            <translation>Indisponible</translation>
-        </message>
-        <message>
-            <source>Unknown</source>
-            <translation>Inconnu</translation>
-        </message>
-        <message>
-            <source>On</source>
-            <translation>Activé</translation>
-        </message>
-        <message>
-            <source>Off</source>
-            <translation>Désactivé</translation>
-        </message>
-        <message>
-            <source>Playing</source>
-            <translation>En lecture</translation>
-        </message>
-        <message>
-            <source>Paused</source>
-            <translation>En pause</translation>
-        </message>
-        <message>
-            <source>Standby</source>
-            <translation>Veille</translation>
-        </message>
-        <message>
-            <source>Buffering</source>
-            <translation>Mise en mémoire tampon</translation>
+            <translation>Sélectionnez ou ajoutez un profil</translation>
         </message>
     </context>
     <context>
@@ -2395,7 +2761,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>No light</source>
-            <translation>Pas de lumière</translation>
+            <translation>Aucune lumière</translation>
         </message>
     </context>
     <context>
@@ -2406,7 +2772,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Normal</source>
-            <translation>Normale</translation>
+            <translation>Normal</translation>
         </message>
     </context>
     <context>
@@ -2421,7 +2787,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>No notifications</source>
-            <translation>Pas de notifications</translation>
+            <translation>Aucune notification</translation>
         </message>
     </context>
     <context>
@@ -2436,7 +2802,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+            <translation>Sélectionnez les entités à ajouter en appuyant dans la liste.</translation>
         </message>
     </context>
     <context>
@@ -2444,6 +2810,21 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <message>
             <source>Select language</source>
             <translation>Sélectionner la langue</translation>
+        </message>
+    </context>
+    <context>
+        <name>Select state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
         </message>
     </context>
     <context>
@@ -2458,11 +2839,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Integration discovery failed to start</source>
-            <translation>Échec du démarrage de la découverte d'intégration</translation>
+            <translation>Échec du démarrage de la recherche d'intégrations</translation>
         </message>
         <message>
             <source>Integration discovery failed to stop</source>
-            <translation>Échec de l'arrêt de la découverte d'intégration</translation>
+            <translation>Échec de l'arrêt de la recherche d'intégrations</translation>
         </message>
         <message>
             <source>Error getting integration driver metadata</source>
@@ -2486,7 +2867,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Integration setup error. Aborting setup</source>
-            <translation>Erreur de configuration d'intégration. Abandon de la configuration</translation>
+            <translation>Erreur de configuration de l'intégration. Configuration abandonnée</translation>
         </message>
         <message>
             <source>Invalid data</source>
@@ -2494,7 +2875,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>The integration driver id does not exist.</source>
-            <translation>L'ID du pilote d'intégration n'existe pas.</translation>
+            <translation>L'id du pilote d'intégration n'existe pas.</translation>
         </message>
         <message>
             <source>Failed to start setup</source>
@@ -2502,7 +2883,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>There is already a running setup for this integration. Would you like to stop that?</source>
-            <translation>Il y a déjà une configuration en cours pour cette intégration. Souhaitez-vous l'arrêter ?</translation>
+            <translation>Une configuration est déjà en cours pour cette intégration. Voulez-vous l'arrêter ?</translation>
         </message>
         <message>
             <source>Stop</source>
@@ -2510,7 +2891,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>The integration is already configured or doesn't allow to be set up again.</source>
-            <translation>L'intégration est déjà configurée ou ne permet pas d'être configurée à nouveau.</translation>
+            <translation>L'intégration est déjà configurée ou ne peut pas être configurée à nouveau.</translation>
         </message>
         <message>
             <source>Cannot start integration setup</source>
@@ -2518,7 +2899,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Cannot stop the integration setup</source>
-            <translation>Impossible de stopper la configuration de l'intégration</translation>
+            <translation>Impossible d'arrêter la configuration de l'intégration</translation>
         </message>
         <message>
             <source>Authorization error</source>
@@ -2534,7 +2915,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Not found</source>
-            <translation>Non trouvé</translation>
+            <translation>Introuvable</translation>
         </message>
         <message>
             <source>Timeout</source>
@@ -2545,7 +2926,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>Voltage</name>
         <message>
             <source>Voltage</source>
-            <translation>Tension électrique</translation>
+            <translation>Tension</translation>
         </message>
     </context>
     <context>
@@ -2582,7 +2963,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Please enter the administrator PIN.</source>
-            <translation>Veuillez entrer le code PIN de l'administrateur.</translation>
+            <translation>Saisissez le code PIN administrateur.</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2606,7 +2987,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Normal</source>
-            <translation>Normale</translation>
+            <translation>Normal</translation>
         </message>
         <message>
             <source>Restricted</source>
@@ -2621,7 +3002,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>The integration has been added successfully.</source>
-            <translation>L'intégration a été ajoutée avec succès.</translation>
+            <translation>L'intégration a été ajoutée.</translation>
         </message>
         <message>
             <source>Version</source>
@@ -2641,7 +3022,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Something went wrong while setting up the integration.</source>
-            <translation>Une erreur s'est produite lors de la configuration de l'intégration.</translation>
+            <translation>Un problème est survenu lors de la configuration de l'intégration.</translation>
         </message>
         <message>
             <source>ERROR:</source>
@@ -2653,7 +3034,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>The dock has been added successfully.</source>
-            <translation>La station d'accueil a été ajoutée avec succès.</translation>
+            <translation>Le dock a été ajouté.</translation>
         </message>
         <message>
             <source>%1 is ready to blast IR codes.</source>
@@ -2661,7 +3042,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Something went wrong while setting up the dock.</source>
-            <translation>Une erreur s'est produite lors de la configuration du dock.</translation>
+            <translation>Un problème est survenu lors de la configuration du dock.</translation>
         </message>
         <message>
             <source>Try again</source>
@@ -2669,7 +3050,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>You can add integrations or change configuration via the Web configurator.</source>
-            <translation>Vous pouvez ajouter des intégrations ou modifier la configuration via le configurateur Web.</translation>
+            <translation>Vous pouvez ajouter des intégrations ou modifier la configuration via le Configurateur Web.</translation>
         </message>
         <message>
             <source>Web configurator enabled</source>
@@ -2677,18 +3058,18 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
-            <translation>Le configurateur web est désactivé</translation>
+            <translation>Configurateur Web désactivé</translation>
         </message>
     </context>
     <context>
         <name>uc::dock::DockController</name>
         <message>
             <source>Failed to start dock discovery</source>
-            <translation>Échec du démarrage de la découverte de dock</translation>
+            <translation>Échec du démarrage de la recherche de docks</translation>
         </message>
         <message>
             <source>There was an error starting dock discovery: %1</source>
-            <translation>Il y a eu une erreur de démarrage de la découverte de la station d'accueil : %1</translation>
+            <translation>Une erreur s'est produite lors du démarrage de la recherche de docks : %1</translation>
         </message>
         <message>
             <source>Try again</source>
@@ -2696,23 +3077,23 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Failed to stop dock discovery</source>
-            <translation>Échec de l'arrêt de la découverte de dock</translation>
+            <translation>Échec de l'arrêt de la recherche de docks</translation>
         </message>
         <message>
             <source>There was an error stopping dock discovery: %1</source>
-            <translation>Il y a eu une erreur lors de l'arrêt de la découverte de la station d'accueil : %1</translation>
+            <translation>Une erreur s'est produite lors de l'arrêt de la recherche de docks : %1</translation>
         </message>
         <message>
             <source>Configuring</source>
-            <translation>Configuration</translation>
+            <translation>Configuration en cours</translation>
         </message>
         <message>
             <source>Restarting</source>
-            <translation>Redémarrage</translation>
+            <translation>Redémarrage en cours</translation>
         </message>
         <message>
             <source>Uploading</source>
-            <translation>Téléversement en cours</translation>
+            <translation>Envoi en cours</translation>
         </message>
     </context>
     <context>
@@ -2738,6 +3119,13 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
     </context>
     <context>
+        <name>ChargingScreen</name>
+        <message>
+            <source>- Charging</source>
+            <translation> - En charge</translation>
+        </message>
+    </context>
+    <context>
         <name>ActionableNotification</name>
         <message>
             <source>Cancel</source>
@@ -2759,33 +3147,49 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>uc::Voice</name>
         <message>
             <source>The service is temporarily unavailable.</source>
-            <translation>Ce service est temporairement indisponible.</translation>
+            <translation>Le service est temporairement indisponible.</translation>
         </message>
         <message>
             <source>Incorrect audio format.</source>
             <translation>Format audio incorrect.</translation>
         </message>
         <message>
+            <source>I didn’t catch any text from your input. Could you repeat that?</source>
+            <translation>Je n'ai rien compris à ce que vous avez dit. Pouvez-vous répéter ?</translation>
+        </message>
+        <message>
+            <source>Please try rephrasing your request.</source>
+            <translation>Essayez de reformuler votre demande.</translation>
+        </message>
+        <message>
+            <source>I couldn’t generate the audio response.</source>
+            <translation>Je n'ai pas pu générer la réponse audio.</translation>
+        </message>
+        <message>
+            <source>It’s taking longer than expected. Please try your request again.</source>
+            <translation>Cela prend plus de temps que prévu. Renvoyez votre demande.</translation>
+        </message>
+        <message>
             <source>Something went wrong on our side. Please try again.</source>
-            <translation>Something went wrong on our side. Please try again.</translation>
+            <translation>Un problème est survenu de notre côté. Réessayez.</translation>
         </message>
     </context>
     <context>
         <name>uc::Config</name>
         <message>
             <source>Error while loading configuration. Trying again.</source>
-            <translation>Erreur lors du chargement de la configuration. Réessayez.</translation>
+            <translation>Erreur lors du chargement de la configuration. Nouvelle tentative.</translation>
         </message>
     </context>
     <context>
         <name>uc::SoftwareUpdate</name>
         <message>
             <source>Update check failed</source>
-            <translation>Échec de la vérification de mise à jour</translation>
+            <translation>Échec de la recherche de mises à jour</translation>
         </message>
         <message>
             <source>There was an error while checking for new updates. Please try again later.</source>
-            <translation>Une erreur s'est produite lors de la vérification des nouvelles mises à jour. Veuillez réessayer plus tard.</translation>
+            <translation>Une erreur s'est produite lors de la recherche de mises à jour. Réessayez plus tard.</translation>
         </message>
         <message>
             <source>Update error</source>
@@ -2793,11 +3197,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Couldn't start the software update. Please try again later.</source>
-            <translation>Impossible de lancer la mise à jour du logiciel. Veuillez réessayer plus tard.</translation>
+            <translation>Impossible de démarrer la mise à jour logicielle. Réessayez plus tard.</translation>
         </message>
         <message>
             <source>Software update has failed.</source>
-            <translation>La mise à jour du logiciel a échoué.</translation>
+            <translation>La mise à jour logicielle a échoué.</translation>
         </message>
     </context>
     <context>
@@ -2856,11 +3260,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Are you sure you want to delete the %1 integration?</source>
-            <translation>Es-tu sûr de vouloir supprimer l'intégration %1 ?</translation>
+            <translation>Voulez-vous vraiment supprimer l'intégration %1 ?</translation>
         </message>
         <message>
             <source>Tap to edit name</source>
-            <translation>Tapez pour éditer le nom</translation>
+            <translation>Appuyez pour modifier le nom</translation>
         </message>
         <message>
             <source>Something is wrong</source>
@@ -2872,7 +3276,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Connect</source>
-            <translation>Connecter</translation>
+            <translation>Se connecter</translation>
         </message>
         <message>
             <source>Active</source>
@@ -2880,7 +3284,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Connecting</source>
-            <translation>En cours de connexion</translation>
+            <translation>Connexion en cours</translation>
         </message>
         <message>
             <source>Error</source>
@@ -2912,27 +3316,27 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Firmware version</source>
-            <translation>Version du firmware</translation>
+            <translation>Version du micrologiciel</translation>
         </message>
         <message>
             <source>Led brightness</source>
-            <translation>Luminosité LED</translation>
+            <translation>Luminosité de la LED</translation>
         </message>
         <message>
             <source>Change password</source>
-            <translation>Changer le mot de passe</translation>
+            <translation>Modifier le mot de passe</translation>
         </message>
         <message>
             <source>Change WiFi settings</source>
-            <translation>Changer les paramètres WiFi</translation>
+            <translation>Modifier les paramètres Wi-Fi</translation>
         </message>
         <message>
             <source>Factory reset</source>
-            <translation>Rétablir la configuration d'usine</translation>
+            <translation>Réinitialisation d'usine</translation>
         </message>
         <message>
             <source>Are you sure you want to factory reset %1?</source>
-            <translation>Es-tu sûr de vouloir effectuer une réinitialisation d'usine sur %1 ?</translation>
+            <translation>Voulez-vous vraiment réinitialiser %1 aux réglages d'usine ?</translation>
         </message>
         <message>
             <source>Reset</source>
@@ -2944,7 +3348,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Are you sure you want to delete %1?</source>
-            <translation>Es-tu sûr de vouloir supprimer %1 ?</translation>
+            <translation>Voulez-vous vraiment supprimer %1 ?</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2959,11 +3363,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>Rename</name>
         <message>
             <source>There was an error. Try again</source>
-            <translation>Il y a eu une erreur. Réessaie</translation>
+            <translation>Une erreur s'est produite. Réessayez</translation>
         </message>
         <message>
             <source>Rename dock</source>
-            <translation>Renommer la base</translation>
+            <translation>Renommer le dock</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2978,7 +3382,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>Base</name>
         <message>
             <source>Activity error. Select option below.</source>
-            <translation>Erreur d'activité. Sélectionnez l'option ci-dessous.</translation>
+            <translation>Erreur d'activité. Sélectionnez une option ci-dessous.</translation>
         </message>
         <message>
             <source>Turn activity on</source>
@@ -2989,12 +3393,28 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
             <translation>Désactiver l'activité</translation>
         </message>
         <message>
+            <source>Open activity</source>
+            <translation>Ouvrir l'activité</translation>
+        </message>
+        <message>
             <source>is unavailable</source>
             <translation>est indisponible</translation>
         </message>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Certains appareils ne sont pas prêts</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 n'est pas encore connecté. Appuyez sur « Continuer » pour poursuivre malgré tout.</translation>
+        </message>
+        <message>
             <source>Profile is restricted</source>
-            <translation>Profil restreint</translation>
+            <translation>Le profil est restreint</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ne sont pas encore connectés. Appuyez sur « Continuer » pour poursuivre malgré tout.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3007,6 +3427,10 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <message>
             <source>Close</source>
             <translation>Fermer</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Continuer</translation>
         </message>
     </context>
     <context>
@@ -3024,11 +3448,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>Binary sensor state door</name>
         <message>
             <source>Opened</source>
-            <translation>Ouvert</translation>
+            <translation>Ouverte</translation>
         </message>
         <message>
             <source>Closed</source>
-            <translation>Fermé</translation>
+            <translation>Fermée</translation>
         </message>
     </context>
     <context>
@@ -3042,11 +3466,11 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <name>PasswordChange</name>
         <message>
             <source>There was an error. Try again</source>
-            <translation>Il y a eu une erreur. Réessaie</translation>
+            <translation>Une erreur s'est produite. Réessayez</translation>
         </message>
         <message>
             <source>Change password</source>
-            <translation>Changer le mot de passe</translation>
+            <translation>Modifier le mot de passe</translation>
         </message>
         <message>
             <source>Change</source>
@@ -3093,6 +3517,21 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
     </context>
     <context>
+        <name>MediaComponent</name>
+        <message>
+            <source>All</source>
+            <translation>Tout</translation>
+        </message>
+        <message>
+            <source>One</source>
+            <translation>Un</translation>
+        </message>
+        <message>
+            <source>Sources</source>
+            <translation>Sources</translation>
+        </message>
+    </context>
+    <context>
         <name>Binary sensor state battery_charging</name>
         <message>
             <source>Charging</source>
@@ -3100,7 +3539,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Not charging</source>
-            <translation>Pas en chargement</translation>
+            <translation>Pas en charge</translation>
         </message>
     </context>
     <context>
@@ -3111,7 +3550,7 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.</source>
-            <translation>Désactivé le microphone le rend complètement éteint. Vous ne serez pas en mesure d'utiliser l'assistant vocal.</translation>
+            <translation>Désactiver le microphone l'éteint complètement. Vous ne pourrez plus utiliser d'assistants vocaux.</translation>
         </message>
         <message>
             <source>Voice Assistant</source>
@@ -3119,15 +3558,27 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         </message>
         <message>
             <source>None selected</source>
-            <translation>Aucun sélectionné</translation>
+            <translation>Aucune sélection</translation>
         </message>
         <message>
             <source>Profile: %1</source>
-            <translation>Profil: %1</translation>
+            <translation>Profil : %1</translation>
         </message>
         <message>
             <source>No profile selected</source>
             <translation>Aucun profil sélectionné</translation>
+        </message>
+        <message>
+            <source>Use the Web Configurator to edit voice assistants.</source>
+            <translation>Utilisez le Configurateur Web pour modifier les assistants vocaux.</translation>
+        </message>
+        <message>
+            <source>Speech response</source>
+            <translation>Réponse vocale</translation>
+        </message>
+        <message>
+            <source>Play speech response from Voice Assistant when supported.</source>
+            <translation>Lire la réponse vocale de l'assistant vocal lorsque cela est pris en charge.</translation>
         </message>
     </context>
     <context>

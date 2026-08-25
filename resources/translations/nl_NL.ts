@@ -5,7 +5,37 @@
         <name>Timezone</name>
         <message>
             <source>Select timezone</source>
-            <translation>Selecteer tijdzone</translation>
+            <translation>Tijdzone selecteren</translation>
+        </message>
+    </context>
+    <context>
+        <name>Voice assistant state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Niet beschikbaar</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Onbekend</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Aan</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Uit</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state opening</name>
+        <message>
+            <source>Open</source>
+            <translation>Open</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Gesloten</translation>
         </message>
     </context>
     <context>
@@ -20,7 +50,7 @@
         </message>
         <message>
             <source>Opening</source>
-            <translation>Opening</translation>
+            <translation>Wordt geopend</translation>
         </message>
         <message>
             <source>Open</source>
@@ -28,7 +58,7 @@
         </message>
         <message>
             <source>Closing</source>
-            <translation>Sluiten</translation>
+            <translation>Wordt gesloten</translation>
         </message>
         <message>
             <source>Closed</source>
@@ -38,20 +68,36 @@
     <context>
         <name>Activity</name>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Sommige apparaten zijn nog niet klaar</translation>
+        </message>
+        <message>
             <source>Tap to close</source>
             <translation>Tik om te sluiten</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 is nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tik voor meer</translation>
         </message>
         <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 zijn nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
+        </message>
+        <message>
             <source>Fix states</source>
-            <translation>Staten corrigeren</translation>
+            <translation>Statussen herstellen</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Doorgaan</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
-            <translation>Snel toegang krijgen tot entiteiten in deze activiteit:</translation>
+            <translation>Snel naar de entiteiten in deze activiteit:</translation>
         </message>
         <message>
             <source>Back</source>
@@ -81,22 +127,33 @@
         <name>uc::hw::Wifi</name>
         <message>
             <source>Failed to delete network. Wifi network does not exist.</source>
-            <translation>Netwerk verwijderen mislukt. WiFi-netwerk bestaat niet.</translation>
+            <translation>Verwijderen van het netwerk is mislukt. Het wifi-netwerk bestaat niet.</translation>
         </message>
         <message>
             <source>Wrong network key</source>
-            <translation>Verkeerde netwerksleutel</translation>
+            <translation>Onjuiste netwerksleutel</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state occupancy</name>
+        <message>
+            <source>Detected</source>
+            <translation>Bezet</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Vrij</translation>
         </message>
     </context>
     <context>
         <name>WifiSetup</name>
         <message>
             <source>Enter SSID</source>
-            <translation>Voer SSID in</translation>
+            <translation>Voer de SSID in</translation>
         </message>
         <message>
             <source>Wifi network</source>
-            <translation>WiFi-netwerk</translation>
+            <translation>Wifi-netwerk</translation>
         </message>
         <message>
             <source>Hidden network</source>
@@ -113,25 +170,25 @@
         <message>
             <source>Choose WiFi security for
 %1</source>
-            <translation>Kies WiFi-beveiliging voor
+            <translation>Kies de wifi-beveiliging voor
 %1</translation>
         </message>
         <message>
             <source>Join</source>
-            <translation>Meedoen</translation>
+            <translation>Verbinden</translation>
         </message>
         <message>
             <source>Select a security option</source>
-            <translation>Selecteer een beveiligingsoptie</translation>
+            <translation>Beveiligingsoptie selecteren</translation>
         </message>
         <message>
             <source>Please select a security option</source>
-            <translation>Selecteer alstublieft een beveiligingsoptie</translation>
+            <translation>Selecteer een beveiligingsoptie</translation>
         </message>
         <message>
             <source>Enter WiFi password for
 %1</source>
-            <translation>Vul WiFi-wachtwoord in voor
+            <translation>Voer het wifi-wachtwoord in voor
 %1</translation>
         </message>
         <message>
@@ -162,7 +219,7 @@
         <name>GroupEdit</name>
         <message>
             <source>Done</source>
-            <translation>Gedaan</translation>
+            <translation>Klaar</translation>
         </message>
         <message>
             <source>Add entities</source>
@@ -170,11 +227,11 @@
         </message>
         <message>
             <source>Select entities</source>
-            <translation>Selecteer entiteiten</translation>
+            <translation>Entiteiten selecteren</translation>
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Selecteer entiteiten om toe te voegen door in de lijst te tikken.</translation>
+            <translation>Selecteer de entiteiten die je wilt toevoegen door in de lijst te tikken.</translation>
         </message>
         <message>
             <source>Add entity</source>
@@ -185,11 +242,11 @@
         <name>WifiJoin</name>
         <message>
             <source>Join WiFi network?</source>
-            <translation>Verbind met WiFi-netwerk?</translation>
+            <translation>Verbinden met wifi-netwerk?</translation>
         </message>
         <message>
             <source>Join</source>
-            <translation>Meedoen</translation>
+            <translation>Verbinden</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -223,7 +280,7 @@
         </message>
         <message>
             <source>Select language</source>
-            <translation>Selecteer taal</translation>
+            <translation>Taal selecteren</translation>
         </message>
         <message>
             <source>Country</source>
@@ -231,7 +288,7 @@
         </message>
         <message>
             <source>Select country</source>
-            <translation>Selecteer land</translation>
+            <translation>Land selecteren</translation>
         </message>
         <message>
             <source>Timezone</source>
@@ -239,26 +296,26 @@
         </message>
         <message>
             <source>Select timezone</source>
-            <translation>Selecteer tijdzone</translation>
+            <translation>Tijdzone selecteren</translation>
         </message>
         <message>
             <source>24-hour time</source>
-            <translation>24-uurs tijd</translation>
+            <translation>24-uursnotatie</translation>
         </message>
         <message>
             <source>Unit System</source>
-            <translation>Eenhedensysteem</translation>
+            <translation>Eenhedenstelsel</translation>
         </message>
         <message>
             <source>Select unit system</source>
-            <translation>Selecteer eenhedensysteem</translation>
+            <translation>Eenhedenstelsel selecteren</translation>
         </message>
     </context>
     <context>
         <name>ManageEntities</name>
         <message>
             <source>Manage entities</source>
-            <translation>Beheer entiteiten</translation>
+            <translation>Entiteiten beheren</translation>
         </message>
         <message>
             <source>Available: %1</source>
@@ -270,15 +327,15 @@
         </message>
         <message>
             <source>Select entities</source>
-            <translation>Selecteer entiteiten</translation>
+            <translation>Entiteiten selecteren</translation>
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Selecteer entiteiten om toe te voegen door in de lijst te tikken.</translation>
+            <translation>Selecteer de entiteiten die je wilt toevoegen door in de lijst te tikken.</translation>
         </message>
         <message>
             <source>Please select entities to remove by tapping in the list.</source>
-            <translation>Selecteer entiteiten om te verwijderen door in de lijst te tikken.</translation>
+            <translation>Selecteer de entiteiten die je wilt verwijderen door in de lijst te tikken.</translation>
         </message>
         <message>
             <source>Remove</source>
@@ -290,7 +347,7 @@
         <message>
             <source>Enter WiFi password for
 %1</source>
-            <translation>Vul WiFi-wachtwoord in voor
+            <translation>Voer het wifi-wachtwoord in voor
 %1</translation>
         </message>
         <message>
@@ -299,7 +356,7 @@
         </message>
         <message>
             <source>Join</source>
-            <translation>Meedoen</translation>
+            <translation>Verbinden</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -310,14 +367,14 @@
         <name>Curtain</name>
         <message>
             <source>Stop</source>
-            <translation>Stop</translation>
+            <translation>Stoppen</translation>
         </message>
     </context>
     <context>
         <name>Wifi</name>
         <message>
             <source>Select your WiFi network</source>
-            <translation>Selecteer je WiFi-netwerk</translation>
+            <translation>Selecteer je wifi-netwerk</translation>
         </message>
         <message>
             <source>Wi-Fi address</source>
@@ -329,11 +386,11 @@
         </message>
         <message>
             <source>Failed to connect</source>
-            <translation>Verbinding mislukt</translation>
+            <translation>Verbinden mislukt</translation>
         </message>
         <message>
             <source>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won't be possible now.</source>
-            <translation>Kan geen verbinding maken met het WiFi-netwerk. Je kunt het opnieuw proberen of doorgaan zonder een WiFi-netwerk in te stellen. Je kunt je WiFi-netwerk later instellen bij Instellingen. Als je deze stap overslaat, is de installatie van het dock en de integratie nu niet mogelijk.</translation>
+            <translation>Verbinden met het wifi-netwerk is mislukt. Je kunt het opnieuw proberen of doorgaan zonder een wifi-netwerk in te stellen. Je kunt je wifi-netwerk later instellen bij Instellingen. Als je deze stap overslaat, kun je het dock en de integraties nu niet instellen.</translation>
         </message>
         <message>
             <source>Set up later</source>
@@ -341,7 +398,7 @@
         </message>
         <message>
             <source>Try again</source>
-            <translation>Probeer opnieuw</translation>
+            <translation>Opnieuw proberen</translation>
         </message>
         <message>
             <source>Bluetooth</source>
@@ -349,15 +406,27 @@
         </message>
         <message>
             <source>WiFi</source>
-            <translation>WiFi</translation>
+            <translation>Wifi</translation>
+        </message>
+        <message>
+            <source>Active WiFi scanning</source>
+            <translation>Actief scannen naar wifi</translation>
+        </message>
+        <message>
+            <source>Actively scan for nearby WiFi networks in the configured interval: %1 seconds</source>
+            <translation>Actief naar wifi-netwerken in de buurt zoeken met het ingestelde interval: %1 seconden</translation>
         </message>
         <message>
             <source>%1 seconds</source>
-            <translation>%1 seconds</translation>
+            <translation>%1 seconden</translation>
         </message>
         <message>
             <source>WiFi band</source>
-            <translation>WiFi band</translation>
+            <translation>Wifi-band</translation>
+        </message>
+        <message>
+            <source>Select WiFi band</source>
+            <translation>Wifi-band selecteren</translation>
         </message>
         <message>
             <source>Known Networks</source>
@@ -365,15 +434,15 @@
         </message>
         <message>
             <source>Delete all networks</source>
-            <translation>Verwijder alle netwerken</translation>
+            <translation>Alle netwerken verwijderen</translation>
         </message>
         <message>
             <source>Are you sure you want to delete all WiFi networks?</source>
-            <translation>Weet je zeker dat je alle WiFi-netwerken wilt verwijderen?</translation>
+            <translation>Weet je zeker dat je alle wifi-netwerken wilt verwijderen?</translation>
         </message>
         <message>
             <source>Delete all</source>
-            <translation>Verwijder alles</translation>
+            <translation>Alles verwijderen</translation>
         </message>
     </context>
     <context>
@@ -391,15 +460,23 @@
         <name>Settings</name>
         <message>
             <source>Display &amp; Brightness</source>
-            <translation>Scherm &amp; Helderheid</translation>
+            <translation>Scherm en helderheid</translation>
         </message>
         <message>
             <source>User interface</source>
             <translation>Gebruikersinterface</translation>
         </message>
         <message>
+            <source>Touch Slider</source>
+            <translation>Aanraakschuifregelaar</translation>
+        </message>
+        <message>
             <source>Sound &amp; Haptic</source>
-            <translation>Geluid &amp; Voelbaar</translation>
+            <translation>Geluid en trillingen</translation>
+        </message>
+        <message>
+            <source>Voice Control</source>
+            <translation>Spraakbesturing</translation>
         </message>
         <message>
             <source>Power Saving</source>
@@ -407,15 +484,30 @@
         </message>
         <message>
             <source>Wifi &amp; Bluetooth</source>
-            <translation>Wifi &amp; Bluetooth</translation>
+            <translation>Wifi en Bluetooth</translation>
         </message>
         <message>
             <source>Localisation</source>
-            <translation>Lokalisatie</translation>
+            <translation>Taal en regio</translation>
+        </message>
+        <message>
+            <source>Administrator PIN</source>
+            <translation>Beheerderspincode</translation>
         </message>
         <message>
             <source>Factory reset</source>
-            <translation>Fabrieksreset</translation>
+            <translation>Fabrieksinstellingen herstellen</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSliderSeek</name>
+        <message>
+            <source>Touch slider is not available.</source>
+            <translation>De aanraakschuifregelaar is niet beschikbaar.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 is niet beschikbaar. Controleer je configuratie.</translation>
         </message>
     </context>
     <context>
@@ -449,11 +541,11 @@
         </message>
         <message>
             <source>All</source>
-            <translation>Alles</translation>
+            <translation>Alle</translation>
         </message>
         <message>
             <source>One</source>
-            <translation>Een</translation>
+            <translation>Eén</translation>
         </message>
         <message>
             <source>Sources</source>
@@ -461,22 +553,49 @@
         </message>
     </context>
     <context>
+        <name>SelectWidget</name>
+        <message>
+            <source>Select an option</source>
+            <translation>Kies een optie</translation>
+        </message>
+    </context>
+    <context>
         <name>WifiNetworkList</name>
+        <message>
+            <source>Other Networks</source>
+            <translation>Andere netwerken</translation>
+        </message>
         <message>
             <source>No networks found</source>
             <translation>Geen netwerken gevonden</translation>
         </message>
         <message>
             <source>Join other</source>
-            <translation>Verbind met een andere</translation>
+            <translation>Met een ander verbinden</translation>
+        </message>
+        <message>
+            <source>Join and disable others</source>
+            <translation>Verbinden en de andere uitschakelen</translation>
+        </message>
+        <message>
+            <source>Disable</source>
+            <translation>Uitschakelen</translation>
+        </message>
+        <message>
+            <source>Enable</source>
+            <translation>Inschakelen</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Verwijderen</translation>
         </message>
         <message>
             <source>Remove WiFi network</source>
-            <translation>Verwijder WiFi-netwerk</translation>
+            <translation>Wifi-netwerk verwijderen</translation>
         </message>
         <message>
             <source>Are you sure you want to remove the network %1?</source>
-            <translation>Weet je zeker dat je netwerk %1 wilt verwijderen?</translation>
+            <translation>Weet je zeker dat je het netwerk %1 wilt verwijderen?</translation>
         </message>
         <message>
             <source>Remove</source>
@@ -484,10 +603,21 @@
         </message>
     </context>
     <context>
+        <name>Binary sensor state battery</name>
+        <message>
+            <source>Normal</source>
+            <translation>Normaal</translation>
+        </message>
+        <message>
+            <source>Low</source>
+            <translation>Laag</translation>
+        </message>
+    </context>
+    <context>
         <name>EntityRename</name>
         <message>
             <source>Rename entity</source>
-            <translation>Entiteit hernoemen</translation>
+            <translation>Naam van entiteit wijzigen</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -495,7 +625,7 @@
         </message>
         <message>
             <source>Rename</source>
-            <translation>Hernoemen</translation>
+            <translation>Naam wijzigen</translation>
         </message>
     </context>
     <context>
@@ -522,7 +652,7 @@
         </message>
         <message>
             <source>Done</source>
-            <translation>Gedaan</translation>
+            <translation>Klaar</translation>
         </message>
         <message>
             <source>Button</source>
@@ -534,7 +664,7 @@
         </message>
         <message>
             <source>Cover</source>
-            <translation>Deksel</translation>
+            <translation>Zonwering</translation>
         </message>
         <message>
             <source>Light</source>
@@ -542,7 +672,7 @@
         </message>
         <message>
             <source>Media player</source>
-            <translation>Mediaplayer</translation>
+            <translation>Mediaspeler</translation>
         </message>
         <message>
             <source>Sensor</source>
@@ -565,11 +695,11 @@
         <name>Sound</name>
         <message>
             <source>Sound effects</source>
-            <translation>Geluids effecten</translation>
+            <translation>Geluidseffecten</translation>
         </message>
         <message>
             <source>Sound effects volume</source>
-            <translation>Volume geluidseffecten</translation>
+            <translation>Volume van geluidseffecten</translation>
         </message>
         <message>
             <source>Haptic feedback</source>
@@ -580,36 +710,112 @@
         <name>RemoteOpen</name>
         <message>
             <source>Do not operate the device disassembled.</source>
-            <translation>Gebruik het apparaat niet gedemonteerd.</translation>
+            <translation>Gebruik het apparaat niet in gedemonteerde toestand.</translation>
         </message>
         <message>
             <source>The remote will turn off
 in %1 seconds.</source>
-            <translation>De afstandsbediening schakelt uit
+            <translation>De afstandsbediening gaat uit
 over %1 seconden.</translation>
         </message>
     </context>
     <context>
         <name>MediaBrowser</name>
         <message>
+            <source>An error occurred while loading media content.</source>
+            <translation>Er is een fout opgetreden bij het laden van de media-inhoud.</translation>
+        </message>
+        <message>
+            <source>Retry</source>
+            <translation>Opnieuw proberen</translation>
+        </message>
+        <message>
+            <source>Browse</source>
+            <translation>Bladeren</translation>
+        </message>
+        <message>
+            <source>Search…</source>
+            <translation>Zoeken…</translation>
+        </message>
+        <message>
             <source>Track</source>
-            <translation>Track</translation>
+            <translation>Nummer</translation>
+        </message>
+        <message>
+            <source>Album</source>
+            <translation>Album</translation>
+        </message>
+        <message>
+            <source>Artist</source>
+            <translation>Artiest</translation>
         </message>
         <message>
             <source>Playlist</source>
-            <translation>Playlist</translation>
+            <translation>Afspeellijst</translation>
+        </message>
+        <message>
+            <source>Genre</source>
+            <translation>Genre</translation>
         </message>
         <message>
             <source>Podcast</source>
             <translation>Podcast</translation>
         </message>
         <message>
+            <source>Episode</source>
+            <translation>Aflevering</translation>
+        </message>
+        <message>
             <source>Radio</source>
             <translation>Radio</translation>
         </message>
         <message>
+            <source>Channel</source>
+            <translation>Kanaal</translation>
+        </message>
+        <message>
+            <source>App</source>
+            <translation>App</translation>
+        </message>
+        <message>
             <source>Apps</source>
             <translation>Apps</translation>
+        </message>
+        <message>
+            <source>Channels</source>
+            <translation>Kanalen</translation>
+        </message>
+        <message>
+            <source>Composer</source>
+            <translation>Componist</translation>
+        </message>
+        <message>
+            <source>Directory</source>
+            <translation>Map</translation>
+        </message>
+        <message>
+            <source>Game</source>
+            <translation>Spel</translation>
+        </message>
+        <message>
+            <source>Image</source>
+            <translation>Afbeelding</translation>
+        </message>
+        <message>
+            <source>Movie</source>
+            <translation>Film</translation>
+        </message>
+        <message>
+            <source>Music</source>
+            <translation>Muziek</translation>
+        </message>
+        <message>
+            <source>Season</source>
+            <translation>Seizoen</translation>
+        </message>
+        <message>
+            <source>TV Show</source>
+            <translation>Tv-programma</translation>
         </message>
         <message>
             <source>URL</source>
@@ -618,6 +824,42 @@ over %1 seconden.</translation>
         <message>
             <source>Video</source>
             <translation>Video</translation>
+        </message>
+        <message>
+            <source>Could not search media</source>
+            <translation>Er kon niet naar media worden gezocht</translation>
+        </message>
+        <message>
+            <source>An error occurred while searching media content.</source>
+            <translation>Er is een fout opgetreden bij het zoeken naar media-inhoud.</translation>
+        </message>
+        <message>
+            <source>Search</source>
+            <translation>Zoeken</translation>
+        </message>
+        <message>
+            <source>No results</source>
+            <translation>Geen resultaten</translation>
+        </message>
+        <message>
+            <source>Try something else.</source>
+            <translation>Probeer iets anders.</translation>
+        </message>
+        <message>
+            <source>Play now</source>
+            <translation>Nu afspelen</translation>
+        </message>
+        <message>
+            <source>Play next</source>
+            <translation>Volgende afspelen</translation>
+        </message>
+        <message>
+            <source>Add to queue</source>
+            <translation>Aan wachtrij toevoegen</translation>
+        </message>
+        <message>
+            <source>Could not load media</source>
+            <translation>Media konden niet worden geladen</translation>
         </message>
     </context>
     <context>
@@ -628,11 +870,11 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Rename page</source>
-            <translation>Pagina hernoemen</translation>
+            <translation>Naam van pagina wijzigen</translation>
         </message>
         <message>
             <source>Rename</source>
-            <translation>Hernoemen</translation>
+            <translation>Naam wijzigen</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -658,7 +900,18 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Select page</source>
-            <translation>Selecteer pagina</translation>
+            <translation>Pagina selecteren</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state motion</name>
+        <message>
+            <source>Detected</source>
+            <translation>Beweging gedetecteerd</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Geen beweging</translation>
         </message>
     </context>
     <context>
@@ -669,15 +922,15 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Rename profile</source>
-            <translation>Hernoem profiel</translation>
+            <translation>Naam van profiel wijzigen</translation>
         </message>
         <message>
             <source>John</source>
-            <translation>John</translation>
+            <translation>Jan</translation>
         </message>
         <message>
             <source>Rename</source>
-            <translation>Hernoemen</translation>
+            <translation>Naam wijzigen</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -688,7 +941,7 @@ over %1 seconden.</translation>
         <name>Country</name>
         <message>
             <source>Select country</source>
-            <translation>Selecteer land</translation>
+            <translation>Land selecteren</translation>
         </message>
     </context>
     <context>
@@ -696,6 +949,28 @@ over %1 seconden.</translation>
         <message>
             <source>Current</source>
             <translation>Stroom</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state heat</name>
+        <message>
+            <source>Hot</source>
+            <translation>Heet</translation>
+        </message>
+        <message>
+            <source>Normal</source>
+            <translation>Normaal</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state moisture</name>
+        <message>
+            <source>Wet</source>
+            <translation>Nat</translation>
+        </message>
+        <message>
+            <source>Dry</source>
+            <translation>Droog</translation>
         </message>
     </context>
     <context>
@@ -710,11 +985,11 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>The profile name you've entered already exists. Would you like to continue with an existing profile?</source>
-            <translation>De ingevoerde profielnaam bestaat al. Wil je doorgaan met een bestaand profiel?</translation>
+            <translation>De profielnaam die je hebt ingevoerd bestaat al. Wil je doorgaan met een bestaand profiel?</translation>
         </message>
         <message>
             <source>Choose existing</source>
-            <translation>Kies bestaand</translation>
+            <translation>Bestaand profiel kiezen</translation>
         </message>
         <message>
             <source>Profile name</source>
@@ -722,7 +997,7 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>John</source>
-            <translation>John</translation>
+            <translation>Jan</translation>
         </message>
         <message>
             <source>Add</source>
@@ -753,22 +1028,57 @@ over %1 seconden.</translation>
         </message>
     </context>
     <context>
+        <name>Media player state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Niet beschikbaar</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Onbekend</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Aan</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Uit</translation>
+        </message>
+        <message>
+            <source>Playing</source>
+            <translation>Speelt af</translation>
+        </message>
+        <message>
+            <source>Paused</source>
+            <translation>Gepauzeerd</translation>
+        </message>
+        <message>
+            <source>Standby</source>
+            <translation>Stand-by</translation>
+        </message>
+        <message>
+            <source>Buffering</source>
+            <translation>Bufferen</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Controller</name>
         <message>
             <source>Error</source>
-            <translation>Foutmelding</translation>
+            <translation>Fout</translation>
         </message>
         <message>
             <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
-            <translation>Huidig profiel verwijderen is niet toegestaan. Schakel over naar een ander profiel en probeer het opnieuw.</translation>
+            <translation>Het profiel dat je nu gebruikt kan niet worden verwijderd. Schakel over naar een ander profiel en probeer het opnieuw.</translation>
         </message>
         <message>
             <source>Profile update error</source>
-            <translation>Profiel update fout</translation>
+            <translation>Fout bij bijwerken van profiel</translation>
         </message>
         <message>
             <source>%1 error</source>
-            <translation>%1 fout</translation>
+            <translation>%1-fout</translation>
         </message>
         <message>
             <source>Error while connecting to %1, with id %2</source>
@@ -776,18 +1086,25 @@ over %1 seconden.</translation>
         </message>
     </context>
     <context>
+        <name>Abbreviation for nothing is selected</name>
+        <message>
+            <source>None</source>
+            <translation>Geen</translation>
+        </message>
+    </context>
+    <context>
         <name>WebConfig</name>
         <message>
             <source>Web Configurator</source>
-            <translation>Web Configurator</translation>
+            <translation>Webconfigurator</translation>
         </message>
         <message>
             <source>Web configurator enabled</source>
-            <translation>Web configurator ingeschakeld</translation>
+            <translation>Webconfigurator ingeschakeld</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
-            <translation>Web configurator uitgeschakeld</translation>
+            <translation>Webconfigurator uitgeschakeld</translation>
         </message>
         <message>
             <source>Restricted</source>
@@ -810,7 +1127,7 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Error</source>
-            <translation>Foutmelding</translation>
+            <translation>Fout</translation>
         </message>
         <message>
             <source>Completed</source>
@@ -832,7 +1149,7 @@ over %1 seconden.</translation>
         <name>Profile</name>
         <message>
             <source>Software update</source>
-            <translation>Software update</translation>
+            <translation>Software-update</translation>
         </message>
         <message>
             <source>Settings</source>
@@ -856,15 +1173,21 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Web configurator enabled</source>
-            <translation>Web configurator ingeschakeld</translation>
+            <translation>Webconfigurator ingeschakeld</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
-            <translation>Web configurator uitgeschakeld</translation>
+            <translation>Webconfigurator uitgeschakeld</translation>
         </message>
         <message>
             <source>Restricted</source>
             <translation>Beperkt</translation>
+        </message>
+        <message>
+            <source>Scan to open
+the Web Configurator</source>
+            <translation>Scan om de Webconfigurator
+te openen</translation>
         </message>
         <message>
             <source>Tap to close</source>
@@ -879,11 +1202,11 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Installing step %1/%2 %3%</source>
-            <translation>Installeren stap %1/%2 %3%</translation>
+            <translation>Stap %1/%2 installeren %3%</translation>
         </message>
         <message>
             <source>Do not turn off the remote during the installation process!</source>
-            <translation>Schakel de afstandsbediening niet uit tijdens het installatieproces!</translation>
+            <translation>Schakel de afstandsbediening niet uit tijdens het installeren!</translation>
         </message>
         <message>
             <source>Update success</source>
@@ -891,7 +1214,7 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Software update was successful.%1The remote will reboot now.</source>
-            <translation>Software-update was succesvol.%1De afstandsbediening wordt nu opnieuw opgestart.</translation>
+            <translation>De software-update is geslaagd.%1De afstandsbediening wordt nu opnieuw opgestart.</translation>
         </message>
         <message>
             <source>Update failed</source>
@@ -899,7 +1222,7 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>There was an error during installing the update.</source>
-            <translation>Er was een fout tijdens het installeren van de update.</translation>
+            <translation>Er is een fout opgetreden tijdens het installeren van de update.</translation>
         </message>
         <message>
             <source>Back</source>
@@ -910,7 +1233,7 @@ over %1 seconden.</translation>
         <name>Integrations</name>
         <message>
             <source>Add an integration</source>
-            <translation>Voeg een integratie toe</translation>
+            <translation>Een integratie toevoegen</translation>
         </message>
         <message>
             <source>Version:</source>
@@ -941,11 +1264,15 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Error</source>
-            <translation>Foutmelding</translation>
+            <translation>Fout</translation>
         </message>
         <message>
             <source>Completed</source>
             <translation>Voltooid</translation>
+        </message>
+        <message>
+            <source>Timeout</source>
+            <translation>Time-out</translation>
         </message>
     </context>
     <context>
@@ -976,22 +1303,46 @@ over %1 seconden.</translation>
     <context>
         <name>uc::ui::EntityController</name>
         <message>
+            <source>The device</source>
+            <translation>Het apparaat</translation>
+        </message>
+        <message>
             <source>%1 is not responding</source>
-            <translation>%1 is not responding</translation>
+            <translation>%1 reageert niet</translation>
+        </message>
+        <message>
+            <source>The command did not reach the device. Would you like to try again?</source>
+            <translation>De opdracht heeft het apparaat niet bereikt. Wil je het opnieuw proberen?</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Opnieuw proberen</translation>
+        </message>
+        <message>
+            <source>%1 is not responding. Error code: %2</source>
+            <translation>%1 reageert niet. Foutcode: %2</translation>
+        </message>
+        <message>
+            <source>Error sending the command</source>
+            <translation>Fout bij het verzenden van de opdracht</translation>
         </message>
     </context>
     <context>
         <name>TouchSliderBrightness</name>
         <message>
             <source>Touch slider is not available.</source>
-            <translation>Touch slider is not available.</translation>
+            <translation>De aanraakschuifregelaar is niet beschikbaar.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 is niet beschikbaar. Controleer je configuratie.</translation>
         </message>
     </context>
     <context>
         <name>GroupRename</name>
         <message>
             <source>Rename group</source>
-            <translation>Groep hernoemen</translation>
+            <translation>Naam van groep wijzigen</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -999,7 +1350,7 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Rename</source>
-            <translation>Hernoemen</translation>
+            <translation>Naam wijzigen</translation>
         </message>
     </context>
     <context>
@@ -1010,11 +1361,11 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>All</source>
-            <translation>Alles</translation>
+            <translation>Alle</translation>
         </message>
         <message>
             <source>One</source>
-            <translation>Een</translation>
+            <translation>Eén</translation>
         </message>
         <message>
             <source>Sources</source>
@@ -1025,14 +1376,14 @@ over %1 seconden.</translation>
         <name>Window</name>
         <message>
             <source>Stop</source>
-            <translation>Stop</translation>
+            <translation>Stoppen</translation>
         </message>
     </context>
     <context>
         <name>InputField</name>
         <message>
             <source>Input field is empty</source>
-            <translation>Invoerveld is leeg</translation>
+            <translation>Het invoerveld is leeg</translation>
         </message>
     </context>
     <context>
@@ -1055,18 +1406,40 @@ over %1 seconden.</translation>
         </message>
     </context>
     <context>
+        <name>Binary sensor state smoke</name>
+        <message>
+            <source>Detected</source>
+            <translation>Rook gedetecteerd</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Geen rook</translation>
+        </message>
+    </context>
+    <context>
         <name>AddEntities</name>
         <message>
             <source>Select entities to control with the remote</source>
-            <translation>Selecteer entiteiten om te bedienen met de afstandsbediening</translation>
+            <translation>Selecteer de entiteiten die je met de afstandsbediening wilt bedienen</translation>
         </message>
         <message>
             <source>Select entities</source>
-            <translation>Selecteer entiteiten</translation>
+            <translation>Entiteiten selecteren</translation>
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Selecteer entiteiten om toe te voegen door in de lijst te tikken.</translation>
+            <translation>Selecteer de entiteiten die je wilt toevoegen door in de lijst te tikken.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state without device class</name>
+        <message>
+            <source>On</source>
+            <translation>Aan</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Uit</translation>
         </message>
     </context>
     <context>
@@ -1076,15 +1449,43 @@ over %1 seconden.</translation>
             <translation>Volume</translation>
         </message>
         <message>
+            <source>Touch slider</source>
+            <translation>Aanraakschuifregelaar</translation>
+        </message>
+        <message>
+            <source>When off, the touch slider is disabled everywhere and swiping it does nothing.</source>
+            <translation>Wanneer dit uitstaat, is de aanraakschuifregelaar overal uitgeschakeld en heeft vegen geen effect.</translation>
+        </message>
+        <message>
+            <source>Adjust how far the touch slider moves a value for a full-length swipe. Higher is more sensitive; 1.0 means one full swipe covers the whole range.</source>
+            <translation>Stel in hoeveel de aanraakschuifregelaar een waarde verplaatst bij een volledige veegbeweging. Hoger is gevoeliger; 1.0 betekent dat één volledige veeg het hele bereik bestrijkt.</translation>
+        </message>
+        <message>
+            <source>Slide the hardware slider to test the highlighted setting.</source>
+            <translation>Veeg over de fysieke schuifregelaar om de gemarkeerde instelling te testen.</translation>
+        </message>
+        <message>
             <source>Brightness</source>
             <translation>Helderheid</translation>
+        </message>
+        <message>
+            <source>Cover position</source>
+            <translation>Positie van de zonwering</translation>
+        </message>
+        <message>
+            <source>Seek</source>
+            <translation>Spoelen</translation>
+        </message>
+        <message>
+            <source>Test</source>
+            <translation>Testen</translation>
         </message>
     </context>
     <context>
         <name>Poweroff</name>
         <message>
             <source>Power off</source>
-            <translation>Uitzetten</translation>
+            <translation>Uitschakelen</translation>
         </message>
         <message>
             <source>Press and hold</source>
@@ -1092,7 +1493,7 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Reboot</source>
-            <translation>Herstarten</translation>
+            <translation>Opnieuw opstarten</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -1110,12 +1511,35 @@ over %1 seconden.</translation>
             <translation>IP-adres</translation>
         </message>
         <message>
+            <source>Key management</source>
+            <translation>Sleutelbeheer</translation>
+        </message>
+        <message>
+            <source>Disconnect</source>
+            <translation>Verbinding verbreken</translation>
+        </message>
+        <message>
+            <source>Connect</source>
+            <translation>Verbinden</translation>
+        </message>
+        <message>
             <source>Delete</source>
             <translation>Verwijderen</translation>
         </message>
         <message>
             <source>Close</source>
             <translation>Sluiten</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state vibration</name>
+        <message>
+            <source>Detected</source>
+            <translation>Trilling gedetecteerd</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Geen trilling</translation>
         </message>
     </context>
     <context>
@@ -1130,11 +1554,11 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Connecting</source>
-            <translation>Verbinden</translation>
+            <translation>Verbinden…</translation>
         </message>
         <message>
             <source>Error</source>
-            <translation>Foutmelding</translation>
+            <translation>Fout</translation>
         </message>
         <message>
             <source>Idle</source>
@@ -1142,7 +1566,7 @@ over %1 seconden.</translation>
         </message>
         <message>
             <source>Reconnecting</source>
-            <translation>Opnieuw verbinden</translation>
+            <translation>Opnieuw verbinden…</translation>
         </message>
         <message>
             <source>Something is wrong</source>
@@ -1161,7 +1585,7 @@ over %1 seconden.</translation>
         <name>SettingsNew</name>
         <message>
             <source>Software update</source>
-            <translation>Software update</translation>
+            <translation>Software-update</translation>
         </message>
         <message>
             <source>Settings</source>
@@ -1186,7 +1610,8 @@ over %1 seconden.</translation>
         <message>
             <source>Scan to open
 the Web Configurator</source>
-            <translation>Scan om de Web Configurator te openen</translation>
+            <translation>Scan om de Webconfigurator
+te openen</translation>
         </message>
         <message>
             <source>Tap to close</source>
@@ -1197,29 +1622,66 @@ the Web Configurator</source>
         <name>Dock</name>
         <message>
             <source>Dock setup</source>
-            <translation>Dock-setup</translation>
+            <translation>Dock instellen</translation>
         </message>
     </context>
     <context>
         <name>Pin</name>
         <message>
+            <source>Administrator PIN</source>
+            <translation>Beheerderspincode</translation>
+        </message>
+        <message>
             <source>This PIN is the administrator PIN.</source>
-            <translation>Deze PIN is de administrator PIN.</translation>
+            <translation>Deze pincode is de beheerderspincode.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state presence</name>
+        <message>
+            <source>Home</source>
+            <translation>Thuis</translation>
+        </message>
+        <message>
+            <source>Not home</source>
+            <translation>Niet thuis</translation>
         </message>
     </context>
     <context>
         <name>uc::hw::Battery</name>
         <message>
             <source>Low battery</source>
-            <translation>Lage batterij</translation>
+            <translation>Batterij bijna leeg</translation>
         </message>
         <message>
             <source>%1% battery remaining. Please charge the remote soon.</source>
-            <translation>%1% batterij over. Laad de afstandsbediening binnenkort op.</translation>
+            <translation>Nog %1% batterij. Laad de afstandsbediening binnenkort op.</translation>
         </message>
         <message>
             <source>Low battery voltage detected. Charge the battery to 100% before using the remote again.</source>
-            <translation>Lage batterijspanning gedetecteerd. Laad de batterij tot 100% op voordat u de afstandsbediening opnieuw gebruikt.</translation>
+            <translation>Lage batterijspanning gedetecteerd. Laad de batterij tot 100% op voordat je de afstandsbediening weer gebruikt.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state update</name>
+        <message>
+            <source>Update detected</source>
+            <translation>Update gevonden</translation>
+        </message>
+        <message>
+            <source>Up-to-date</source>
+            <translation>Actueel</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state lock</name>
+        <message>
+            <source>Unlocked</source>
+            <translation>Ontgrendeld</translation>
+        </message>
+        <message>
+            <source>Locked</source>
+            <translation>Vergrendeld</translation>
         </message>
     </context>
     <context>
@@ -1237,15 +1699,19 @@ the Web Configurator</source>
         <name>Power</name>
         <message>
             <source>Power</source>
-            <translation>Vermogen</translation>
+            <translation>Energie</translation>
         </message>
         <message>
             <source>Keep WiFi connected in standby</source>
-            <translation>Houd WiFi verbonden in standby</translation>
+            <translation>Wifi verbonden houden in stand-by</translation>
         </message>
         <message>
             <source>Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.</source>
-            <translation>Houd WiFi altijd verbonden, zelfs wanneer het apparaat slaapt. Hiermee kan het apparaat sneller opnieuw verbinden na het ontwaken. Houd er rekening mee dat activering van deze functie de batterijduur iets vermindert.</translation>
+            <translation>Houdt wifi altijd verbonden, ook als het apparaat slaapt. Zorgt voor sneller opnieuw verbinden na het wekken. Houd er rekening mee dat deze functie de batterijduur iets verkort.</translation>
+        </message>
+        <message>
+            <source>Retry commands after wakeup</source>
+            <translation>Opdrachten opnieuw uitvoeren na het wekken</translation>
         </message>
         <message>
             <source>Wakeup sensitivity</source>
@@ -1253,7 +1719,7 @@ the Web Configurator</source>
         </message>
         <message>
             <source>Amount of movement needed to wake up the remote.</source>
-            <translation>Bewegingshoeveelheid nodig om de afstandsbediening wakker te maken.</translation>
+            <translation>Hoeveel beweging er nodig is om de afstandsbediening te wekken.</translation>
         </message>
         <message>
             <source>Off</source>
@@ -1265,15 +1731,23 @@ the Web Configurator</source>
         </message>
         <message>
             <source>Display off timeout</source>
-            <translation>Scherm uit-tijd</translation>
+            <translation>Scherm uit na</translation>
         </message>
         <message>
             <source>%1 seconds</source>
             <translation>%1 seconden</translation>
         </message>
         <message>
+            <source>Retry commands within %1 second(s) after wakeup.</source>
+            <translation>Opdrachten tot %1 seconde(n) na het wekken opnieuw proberen.</translation>
+        </message>
+        <message>
+            <source>Disabled</source>
+            <translation>Uitgeschakeld</translation>
+        </message>
+        <message>
             <source>Sleep timeout</source>
-            <translation>Slaaptijd</translation>
+            <translation>Slaapstand na</translation>
         </message>
         <message>
             <source>%1 minutes</source>
@@ -1288,23 +1762,30 @@ the Web Configurator</source>
         </message>
         <message>
             <source>Automatically adjust the display brightness based on ambient lighting conditions.</source>
-            <translation>Pas de beeldschermhelderheid automatisch aan op basis van omgevingslichtomstandigheden.</translation>
+            <translation>De schermhelderheid automatisch aanpassen aan het omgevingslicht.</translation>
         </message>
         <message>
             <source>Display brightness</source>
-            <translation>Helderheid van het scherm</translation>
+            <translation>Schermhelderheid</translation>
         </message>
         <message>
             <source>Button backlight</source>
-            <translation>Knoppenachtergrondverlichting</translation>
+            <translation>Verlichting van de knoppen</translation>
         </message>
         <message>
             <source>When on, button backlight will automatically turn on in a dark room.</source>
-            <translation>Indien aan, gaat de knopverlichting automatisch aan in een donkere kamer.</translation>
+            <translation>Wanneer dit aanstaat, gaat de knopverlichting automatisch aan in een donkere kamer.</translation>
         </message>
         <message>
             <source>Button backlight brightness</source>
-            <translation>Helderheid van de knoppenachtergrondverlichting</translation>
+            <translation>Helderheid van de knopverlichting</translation>
+        </message>
+    </context>
+    <context>
+        <name>No option is selected in the select entity</name>
+        <message>
+            <source>None</source>
+            <translation>Geen</translation>
         </message>
     </context>
     <context>
@@ -1327,7 +1808,7 @@ the Web Configurator</source>
         </message>
         <message>
             <source>Auto</source>
-            <translation>Auto</translation>
+            <translation>Automatisch</translation>
         </message>
         <message>
             <source>Fan</source>
@@ -1335,11 +1816,33 @@ the Web Configurator</source>
         </message>
         <message>
             <source>Current %1</source>
-            <translation>Huidige %1</translation>
+            <translation>Nu: %1</translation>
         </message>
         <message>
             <source>Heat/Cool</source>
             <translation>Verwarmen/Koelen</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state safety</name>
+        <message>
+            <source>Unsafe</source>
+            <translation>Onveilig</translation>
+        </message>
+        <message>
+            <source>Safe</source>
+            <translation>Veilig</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSliderVolume</name>
+        <message>
+            <source>Touch slider is not available.</source>
+            <translation>De aanraakschuifregelaar is niet beschikbaar.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 is niet beschikbaar. Controleer je configuratie.</translation>
         </message>
     </context>
     <context>
@@ -1352,8 +1855,24 @@ the Web Configurator</source>
     <context>
         <name>main</name>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Sommige apparaten zijn nog niet klaar</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 is nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 zijn nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Doorgaan</translation>
+        </message>
+        <message>
             <source>Done</source>
-            <translation>Gedaan</translation>
+            <translation>Klaar</translation>
         </message>
     </context>
     <context>
@@ -1372,7 +1891,23 @@ the Web Configurator</source>
         </message>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
-            <translation>Houd de Home-knop ingedrukt of gebruik de Web Configurator om de pagina te configureren</translation>
+            <translation>Houd de Home-knop ingedrukt of gebruik de Webconfigurator om de pagina in te stellen</translation>
+        </message>
+        <message>
+            <source>Some devices are not ready</source>
+            <translation>Sommige apparaten zijn nog niet klaar</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 is nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 zijn nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Doorgaan</translation>
         </message>
     </context>
     <context>
@@ -1385,8 +1920,12 @@ the Web Configurator</source>
     <context>
         <name>Binary sensor state problem</name>
         <message>
+            <source>Problem</source>
+            <translation>Probleem</translation>
+        </message>
+        <message>
             <source>Ok</source>
-            <translation>Ok</translation>
+            <translation>OK</translation>
         </message>
     </context>
     <context>
@@ -1397,21 +1936,32 @@ the Web Configurator</source>
         </message>
     </context>
     <context>
+        <name>Binary sensor state plug</name>
+        <message>
+            <source>Plugged in</source>
+            <translation>Aangesloten</translation>
+        </message>
+        <message>
+            <source>Unplugged</source>
+            <translation>Losgekoppeld</translation>
+        </message>
+    </context>
+    <context>
         <name>Setup</name>
         <message>
             <source>Integration setup</source>
-            <translation>Integratie setup</translation>
+            <translation>Integratie instellen</translation>
         </message>
         <message>
             <source>Dock setup</source>
-            <translation>Dock-setup</translation>
+            <translation>Dock instellen</translation>
         </message>
     </context>
     <context>
         <name>Reset</name>
         <message>
             <source>Resetting will delete all settings, configuration and any information saved on the remote. Data cannot be recovered. Continue?</source>
-            <translation>Het resetten verwijdert alle instellingen, configuraties en opgeslagen informatie op de afstandsbediening. Gegevens kunnen niet worden hersteld. Doorgaan?</translation>
+            <translation>Bij het herstellen worden alle instellingen, de configuratie en alle op de afstandsbediening opgeslagen informatie verwijderd. Gegevens kunnen niet worden hersteld. Doorgaan?</translation>
         </message>
         <message>
             <source>Erase everything</source>
@@ -1420,12 +1970,12 @@ the Web Configurator</source>
         <message>
             <source>Point of
 no return</source>
-            <translation>Punt van geen
-terugkeer</translation>
+            <translation>Punt van
+geen terugkeer</translation>
         </message>
         <message>
             <source>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</source>
-            <translation>Het bevestigen van de fabrieksreset zal alle configuraties en gegevens wissen. Gegevens kunnen niet worden hersteld.</translation>
+            <translation>Als je de fabrieksinstellingen herstelt, worden alle configuratie en gegevens gewist. Gegevens kunnen niet worden hersteld.</translation>
         </message>
         <message>
             <source>Confirm</source>
@@ -1437,6 +1987,28 @@ terugkeer</translation>
         </message>
     </context>
     <context>
+        <name>Binary sensor state gas</name>
+        <message>
+            <source>Detected</source>
+            <translation>Gas gedetecteerd</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Geen gas</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state moving</name>
+        <message>
+            <source>Moving</source>
+            <translation>Beweegt</translation>
+        </message>
+        <message>
+            <source>Not moving</source>
+            <translation>Beweegt niet</translation>
+        </message>
+    </context>
+    <context>
         <name>OpenClose</name>
         <message>
             <source>Unknown</source>
@@ -1444,7 +2016,7 @@ terugkeer</translation>
         </message>
         <message>
             <source>Open</source>
-            <translation>Open</translation>
+            <translation>Openen</translation>
         </message>
         <message>
             <source>Closed</source>
@@ -1459,15 +2031,15 @@ terugkeer</translation>
         <name>IconSelector</name>
         <message>
             <source>Select icon</source>
-            <translation>Selecteer icoon</translation>
+            <translation>Pictogram selecteren</translation>
         </message>
         <message>
             <source>Unfolded Icons</source>
-            <translation>Uitgevouwen iconen</translation>
+            <translation>Unfolded-pictogrammen</translation>
         </message>
         <message>
             <source>Custom Icons</source>
-            <translation>Aangepaste iconen</translation>
+            <translation>Eigen pictogrammen</translation>
         </message>
         <message>
             <source>Close</source>
@@ -1490,11 +2062,11 @@ terugkeer</translation>
         </message>
         <message>
             <source>All</source>
-            <translation>Alles</translation>
+            <translation>Alle</translation>
         </message>
         <message>
             <source>One</source>
-            <translation>Een</translation>
+            <translation>Eén</translation>
         </message>
         <message>
             <source>Apps</source>
@@ -1509,11 +2081,11 @@ terugkeer</translation>
         </message>
         <message>
             <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
-            <translation>Er was een fout bij het verbinden met de kern. Als het probleem aanhoudt, herstart de afstandsbediening.</translation>
+            <translation>Er is een fout opgetreden bij het verbinden met de Core. Als het probleem aanhoudt, start je de afstandsbediening opnieuw op.</translation>
         </message>
         <message>
             <source>Authentication to core failed</source>
-            <translation>Authenticatie met kern mislukt</translation>
+            <translation>Verificatie bij de Core is mislukt</translation>
         </message>
     </context>
     <context>
@@ -1535,7 +2107,7 @@ terugkeer</translation>
         <name>Color</name>
         <message>
             <source>Adjust the color tone of the user interface. Using the sliders, choose a color. The user interface colors will be generated based on that color.</source>
-            <translation>Pas de kleurtoon van de gebruikersinterface aan. Gebruik de schuifregelaars om een kleur te kiezen. De kleuren van de gebruikersinterface worden op basis van die kleur gegenereerd.</translation>
+            <translation>Pas de kleurtoon van de gebruikersinterface aan. Kies een kleur met de schuifregelaars. De kleuren van de interface worden op basis van die kleur gegenereerd.</translation>
         </message>
         <message>
             <source>This is a darker text, in a darker container</source>
@@ -1563,12 +2135,12 @@ You can read them on
 unfoldedcircle.com/legal
 or by scanning this QR code.
 Tap the QR code to show it on the screen.</source>
-            <translation>Door Unfolded Circle-producten te gebruiken, ga je akkoord met de Algemene Voorwaarden.
+            <translation>Door Unfolded Circle-producten te gebruiken ga je akkoord met de Algemene voorwaarden.
 
 Je kunt ze lezen op
 unfoldedcircle.com/legal
 of door deze QR-code te scannen.
-Tik op de QR-code om deze op het scherm weer te geven.</translation>
+Tik op de QR-code om deze op het scherm te tonen.</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -1583,7 +2155,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         <name>Discovery</name>
         <message>
             <source>Bluetooth is disabled. Discovery limited to network only.</source>
-            <translation>Bluetooth is uitgeschakeld. Ontdekking beperkt tot het netwerk.</translation>
+            <translation>Bluetooth is uitgeschakeld. Zoeken blijft beperkt tot het netwerk.</translation>
         </message>
         <message>
             <source>Bluetooth</source>
@@ -1591,11 +2163,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</source>
-            <translation>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</translation>
+            <translation>Tik op Zoeken om docks in je netwerk of via Bluetooth te zoeken. Als je een nieuw dock draadloos wilt instellen, zorg er dan voor dat het dicht bij de afstandsbediening ligt.</translation>
         </message>
         <message>
             <source>Discover</source>
-            <translation>Ontdekken</translation>
+            <translation>Zoeken</translation>
         </message>
         <message>
             <source>Skip</source>
@@ -1603,7 +2175,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Discovering</source>
-            <translation>Ontdekken</translation>
+            <translation>Bezig met zoeken</translation>
         </message>
         <message>
             <source>%1 dock(s) found</source>
@@ -1615,11 +2187,22 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Integrations may require the Web Configurator for setup.</source>
-            <translation>Integraties vereisen mogelijk de Webconfigurator voor installatie.</translation>
+            <translation>Voor het instellen van integraties kan de Webconfigurator nodig zijn.</translation>
         </message>
         <message>
             <source>By %1</source>
-            <translation>Door %1</translation>
+            <translation>Van %1</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state running</name>
+        <message>
+            <source>Running</source>
+            <translation>In bedrijf</translation>
+        </message>
+        <message>
+            <source>Not running</source>
+            <translation>Werkt niet</translation>
         </message>
     </context>
     <context>
@@ -1630,11 +2213,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>All</source>
-            <translation>Alles</translation>
+            <translation>Alle</translation>
         </message>
         <message>
             <source>One</source>
-            <translation>Een</translation>
+            <translation>Eén</translation>
         </message>
         <message>
             <source>Sources</source>
@@ -1643,6 +2226,26 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
     </context>
     <context>
         <name>LoadingScreen</name>
+        <message>
+            <source>Sequence didn't finish within %1 seconds. Check configuration.</source>
+            <translation>De reeks is niet binnen %1 seconden voltooid. Controleer de configuratie.</translation>
+        </message>
+        <message>
+            <source>There was an error during the sequence.</source>
+            <translation>Er is een fout opgetreden tijdens de reeks.</translation>
+        </message>
+        <message>
+            <source>The sequence timed out.</source>
+            <translation>De reeks heeft een time-out gekregen.</translation>
+        </message>
+        <message>
+            <source>%1 (error %2)</source>
+            <translation>%1 (fout %2)</translation>
+        </message>
+        <message>
+            <source>There was an error during the sequence. Error code: %1</source>
+            <translation>Er is een fout opgetreden tijdens de reeks. Foutcode: %1</translation>
+        </message>
         <message>
             <source>Tap to close</source>
             <translation>Tik om te sluiten</translation>
@@ -1666,8 +2269,52 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
     <context>
         <name>VoiceOverlay</name>
         <message>
+            <source>Voice Assistant is not available.</source>
+            <translation>De spraakassistent is niet beschikbaar.</translation>
+        </message>
+        <message>
+            <source>Processing ...</source>
+            <translation>Bezig met verwerken…</translation>
+        </message>
+        <message>
+            <source>There was an error.</source>
+            <translation>Er is een fout opgetreden.</translation>
+        </message>
+        <message>
+            <source>Missing rights to use voice assistant.</source>
+            <translation>Er ontbreken rechten om de spraakassistent te gebruiken.</translation>
+        </message>
+        <message>
+            <source>Request failed.</source>
+            <translation>Het verzoek is mislukt.</translation>
+        </message>
+        <message>
+            <source>Not authenticated.</source>
+            <translation>Niet geverifieerd.</translation>
+        </message>
+        <message>
+            <source>Voice assistant not found. Please check configuration.</source>
+            <translation>Spraakassistent niet gevonden. Controleer de configuratie.</translation>
+        </message>
+        <message>
+            <source>There were too many requests. Please try again later.</source>
+            <translation>Te veel verzoeken. Probeer het later opnieuw.</translation>
+        </message>
+        <message>
+            <source>Internal server error.</source>
+            <translation>Interne serverfout.</translation>
+        </message>
+        <message>
+            <source>Voice assistant is unavailable.</source>
+            <translation>De spraakassistent is niet beschikbaar.</translation>
+        </message>
+        <message>
+            <source>It’s taking longer than expected. Please try your request again.</source>
+            <translation>Het duurt langer dan verwacht. Probeer je verzoek opnieuw.</translation>
+        </message>
+        <message>
             <source>Listening ...</source>
-            <translation>Luisteren ...</translation>
+            <translation>Luisteren…</translation>
         </message>
     </context>
     <context>
@@ -1686,23 +2333,23 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Page is empty</source>
-            <translation>Pagina is leeg</translation>
+            <translation>De pagina is leeg</translation>
         </message>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
-            <translation>Er is niets om te herschikken. Probeer eerst entiteiten of groepen toe te voegen.</translation>
+            <translation>Er is niets om te herschikken. Voeg eerst entiteiten of groepen toe.</translation>
         </message>
         <message>
             <source>Show tips</source>
-            <translation>Toon tips</translation>
+            <translation>Tips tonen</translation>
         </message>
         <message>
             <source>Rename</source>
-            <translation>Hernoemen</translation>
+            <translation>Naam wijzigen</translation>
         </message>
         <message>
             <source>Change icon</source>
-            <translation>Icoon wijzigen</translation>
+            <translation>Pictogram wijzigen</translation>
         </message>
         <message>
             <source>Remove</source>
@@ -1710,7 +2357,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Edit entities</source>
-            <translation>Bewerk entiteiten</translation>
+            <translation>Entiteiten bewerken</translation>
         </message>
         <message>
             <source>Delete</source>
@@ -1718,7 +2365,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Profile is restricted</source>
-            <translation>Profiel is beperkt</translation>
+            <translation>Het profiel is beperkt</translation>
         </message>
     </context>
     <context>
@@ -1773,6 +2420,17 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
     </context>
     <context>
+        <name>TouchSliderPosition</name>
+        <message>
+            <source>Touch slider is not available.</source>
+            <translation>De aanraakschuifregelaar is niet beschikbaar.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 is niet beschikbaar. Controleer je configuratie.</translation>
+        </message>
+    </context>
+    <context>
         <name>Ui</name>
         <message>
             <source>Inverted button behaviour</source>
@@ -1780,15 +2438,23 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Inverts button functions on the main screen: short press to open the control screen, long press to quick toggle.</source>
-            <translation>Keert de functies van knoppen op het hoofdscherm om: kort indrukken om het bedieningsscherm te openen, lang indrukken voor snelle schakeling.</translation>
+            <translation>Keert de knopfuncties op het hoofdscherm om: kort indrukken opent het bedieningsscherm, lang indrukken schakelt snel.</translation>
         </message>
         <message>
             <source>Show battery percentage</source>
-            <translation>Toon batterijpercentage</translation>
+            <translation>Batterijpercentage tonen</translation>
         </message>
         <message>
             <source>Always show the battery percentage next to the icon.</source>
-            <translation>Toon altijd het batterijpercentage naast het pictogram.</translation>
+            <translation>Altijd het batterijpercentage naast het pictogram tonen.</translation>
+        </message>
+        <message>
+            <source>Show battery indicator everywhere</source>
+            <translation>Batterij-indicator overal tonen</translation>
+        </message>
+        <message>
+            <source>Shows the battery level indicator on all pages and activities.</source>
+            <translation>Toont de batterijniveau-indicator op alle pagina's en activiteiten.</translation>
         </message>
         <message>
             <source>Activities on pages</source>
@@ -1796,14 +2462,60 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Show the running activities and playing media players in the page header.</source>
-            <translation>Toon de lopende activiteiten en afspelende mediaspelers in de paginakop.</translation>
+            <translation>De lopende activiteiten en spelende mediaspelers in de paginakop tonen.</translation>
+        </message>
+        <message>
+            <source>Open activities started with the API</source>
+            <translation>Activiteiten openen die via de API zijn gestart</translation>
+        </message>
+        <message>
+            <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
+            <translation>Het activiteitenscherm openen wanneer een activiteit buiten de afstandsbediening wordt gestart, en vervangt wat er op het scherm staat.</translation>
+        </message>
+        <message>
+            <source>Zoom media image</source>
+            <translation>Media-afbeelding inzoomen</translation>
+        </message>
+        <message>
+            <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
+            <translation>Afbeeldingen in mediaspeler-widgets inzoomen en bijsnijden in plaats van ze passend te schalen.</translation>
+        </message>
+        <message>
+            <source>Coverflow in media browser</source>
+            <translation>Coverflow in de mediabrowser</translation>
+        </message>
+        <message>
+            <source>Use coverflow as the default view when opening the media browser.</source>
+            <translation>Coverflow als standaardweergave gebruiken bij het openen van de mediabrowser.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state window</name>
+        <message>
+            <source>Open</source>
+            <translation>Open</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Gesloten</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state tamper</name>
+        <message>
+            <source>Tampering detected</source>
+            <translation>Sabotage gedetecteerd</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Geen sabotage</translation>
         </message>
     </context>
     <context>
         <name>Configure</name>
         <message>
             <source>By %1</source>
-            <translation>Door %1</translation>
+            <translation>Van %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -1823,11 +2535,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Add WiFi network</source>
-            <translation>WiFi-netwerk toevoegen</translation>
+            <translation>Wifi-netwerk toevoegen</translation>
         </message>
         <message>
             <source>Selected WiFi network</source>
-            <translation>Geselecteerd WiFi-netwerk</translation>
+            <translation>Geselecteerd wifi-netwerk</translation>
         </message>
         <message>
             <source>Next</source>
@@ -1835,7 +2547,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Select WiFi network</source>
-            <translation>Selecteer WiFi-netwerk</translation>
+            <translation>Wifi-netwerk selecteren</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -1857,6 +2569,17 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
     </context>
     <context>
+        <name>Binary sensor state connectivity</name>
+        <message>
+            <source>Connected</source>
+            <translation>Verbonden</translation>
+        </message>
+        <message>
+            <source>Disconnected</source>
+            <translation>Niet verbonden</translation>
+        </message>
+    </context>
+    <context>
         <name>Temperature</name>
         <message>
             <source>Temperature</source>
@@ -1867,7 +2590,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         <name>SoftwareUpdate</name>
         <message>
             <source>New software version is available</source>
-            <translation>Nieuwe softwareversie beschikbaar</translation>
+            <translation>Er is een nieuwe softwareversie beschikbaar</translation>
         </message>
         <message>
             <source>Your software is up to date</source>
@@ -1887,7 +2610,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Downloading</source>
-            <translation>Downloaden</translation>
+            <translation>Bezig met downloaden</translation>
         </message>
         <message>
             <source>Downloaded</source>
@@ -1895,15 +2618,15 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Error</source>
-            <translation>Foutmelding</translation>
+            <translation>Fout</translation>
         </message>
         <message>
             <source>Release Notes</source>
-            <translation>Versie Opmerkingen</translation>
+            <translation>Versienotities</translation>
         </message>
         <message>
             <source>Release notes</source>
-            <translation>Versie opmerkingen</translation>
+            <translation>Versienotities</translation>
         </message>
         <message>
             <source>Install</source>
@@ -1915,19 +2638,19 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Low battery</source>
-            <translation>Lage batterij</translation>
+            <translation>Batterij bijna leeg</translation>
         </message>
         <message>
             <source>Minimum 50% battery charge is required to install software updates</source>
-            <translation>Minimaal 50% batterijvermogen is vereist om software-updates te installeren</translation>
+            <translation>Er is minimaal 50% batterijlading nodig om software-updates te installeren</translation>
         </message>
         <message>
             <source>Check for update</source>
-            <translation>Controleer op updates</translation>
+            <translation>Op updates controleren</translation>
         </message>
         <message>
             <source>Beta updates</source>
-            <translation>Bètaupdates</translation>
+            <translation>Bèta-updates</translation>
         </message>
         <message>
             <source>Enabled</source>
@@ -1935,11 +2658,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Check for updates</source>
-            <translation>Controleer op updates</translation>
+            <translation>Op updates controleren</translation>
         </message>
         <message>
             <source>Automatically check for updates.</source>
-            <translation>Automatisch controleren op updates.</translation>
+            <translation>Automatisch op updates controleren.</translation>
         </message>
         <message>
             <source>Auto update</source>
@@ -1947,7 +2670,18 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Automatically update the remote when new software is available. Updates are installed between %1 and %2</source>
-            <translation>Update de afstandsbediening automatisch wanneer er nieuwe software beschikbaar is. Updates worden geïnstalleerd tussen %1 en %2</translation>
+            <translation>De afstandsbediening automatisch bijwerken wanneer er nieuwe software beschikbaar is. Updates worden geïnstalleerd tussen %1 en %2</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state sound</name>
+        <message>
+            <source>Detected</source>
+            <translation>Geluid gedetecteerd</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Geen geluid</translation>
         </message>
     </context>
     <context>
@@ -1977,7 +2711,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>All lights</source>
-            <translation>Alle lichten</translation>
+            <translation>Alle lampen</translation>
         </message>
         <message>
             <source>Next</source>
@@ -1989,7 +2723,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Select entities to add</source>
-            <translation>Selecteer entiteiten om toe te voegen</translation>
+            <translation>Selecteer de toe te voegen entiteiten</translation>
         </message>
         <message>
             <source>Search</source>
@@ -2001,18 +2735,18 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Select entities</source>
-            <translation>Selecteer entiteiten</translation>
+            <translation>Entiteiten selecteren</translation>
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Selecteer entiteiten om toe te voegen door in de lijst te tikken.</translation>
+            <translation>Selecteer de entiteiten die je wilt toevoegen door in de lijst te tikken.</translation>
         </message>
     </context>
     <context>
         <name>NoProfile</name>
         <message>
             <source>There was an error loading the profile.</source>
-            <translation>Er was een fout bij het laden van het profiel.</translation>
+            <translation>Er is een fout opgetreden bij het laden van het profiel.</translation>
         </message>
         <message>
             <source>Select or add profile</source>
@@ -2020,45 +2754,32 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
     </context>
     <context>
-        <name>Media platyer state</name>
+        <name>Binary sensor state light</name>
         <message>
-            <source>Unavailable</source>
-            <translation>Niet beschikbaar</translation>
+            <source>Light detected</source>
+            <translation>Licht gedetecteerd</translation>
         </message>
         <message>
-            <source>Unknown</source>
-            <translation>Onbekend</translation>
+            <source>No light</source>
+            <translation>Geen licht</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state cold</name>
+        <message>
+            <source>Cold</source>
+            <translation>Koud</translation>
         </message>
         <message>
-            <source>On</source>
-            <translation>Aan</translation>
-        </message>
-        <message>
-            <source>Off</source>
-            <translation>Uit</translation>
-        </message>
-        <message>
-            <source>Playing</source>
-            <translation>Afspelen</translation>
-        </message>
-        <message>
-            <source>Paused</source>
-            <translation>Gepauzeerd</translation>
-        </message>
-        <message>
-            <source>Standby</source>
-            <translation>Standby</translation>
-        </message>
-        <message>
-            <source>Buffering</source>
-            <translation>Bufferen</translation>
+            <source>Normal</source>
+            <translation>Normaal</translation>
         </message>
     </context>
     <context>
         <name>NotificationDrawer</name>
         <message>
             <source>Display brightness</source>
-            <translation>Helderheid van het scherm</translation>
+            <translation>Schermhelderheid</translation>
         </message>
         <message>
             <source>Clear all</source>
@@ -2077,45 +2798,60 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Select entities</source>
-            <translation>Selecteer entiteiten</translation>
+            <translation>Entiteiten selecteren</translation>
         </message>
         <message>
             <source>Please select entities to add by tapping in the list.</source>
-            <translation>Selecteer entiteiten om toe te voegen door in de lijst te tikken.</translation>
+            <translation>Selecteer de entiteiten die je wilt toevoegen door in de lijst te tikken.</translation>
         </message>
     </context>
     <context>
         <name>Language</name>
         <message>
             <source>Select language</source>
-            <translation>Selecteer taal</translation>
+            <translation>Taal selecteren</translation>
+        </message>
+    </context>
+    <context>
+        <name>Select state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Niet beschikbaar</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Onbekend</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Aan</translation>
         </message>
     </context>
     <context>
         <name>uc::integration::IntegrationController</name>
         <message>
             <source>Error while deleting integration</source>
-            <translation>Fout bij het verwijderen van integratie</translation>
+            <translation>Fout bij het verwijderen van de integratie</translation>
         </message>
         <message>
             <source>Error while deleting integration driver</source>
-            <translation>Fout bij het verwijderen van integratiestuurprogramma</translation>
+            <translation>Fout bij het verwijderen van het integratiestuurprogramma</translation>
         </message>
         <message>
             <source>Integration discovery failed to start</source>
-            <translation>Integratie-ontdekking kon niet worden gestart</translation>
+            <translation>Het zoeken naar integraties kon niet worden gestart</translation>
         </message>
         <message>
             <source>Integration discovery failed to stop</source>
-            <translation>Integratie-ontdekking kon niet worden gestopt</translation>
+            <translation>Het zoeken naar integraties kon niet worden gestopt</translation>
         </message>
         <message>
             <source>Error getting integration driver metadata</source>
-            <translation>Fout bij het ophalen van integratiestuurprogramma metadata</translation>
+            <translation>Fout bij het ophalen van de metadata van het integratiestuurprogramma</translation>
         </message>
         <message>
             <source>Error getting integration driver</source>
-            <translation>Fout bij het ophalen van integratiestuurprogramma</translation>
+            <translation>Fout bij het ophalen van het integratiestuurprogramma</translation>
         </message>
         <message>
             <source>Error while starting integration driver</source>
@@ -2131,7 +2867,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Integration setup error. Aborting setup</source>
-            <translation>Fout bij instellen van de integratie. Instelling geannuleerd</translation>
+            <translation>Fout bij het instellen van de integratie. Instellen wordt afgebroken</translation>
         </message>
         <message>
             <source>Invalid data</source>
@@ -2139,31 +2875,31 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>The integration driver id does not exist.</source>
-            <translation>Het integratie driver-id bestaat niet.</translation>
+            <translation>Het id van het integratiestuurprogramma bestaat niet.</translation>
         </message>
         <message>
             <source>Failed to start setup</source>
-            <translation>Starten van de installatie is mislukt</translation>
+            <translation>Het starten van de installatie is mislukt</translation>
         </message>
         <message>
             <source>There is already a running setup for this integration. Would you like to stop that?</source>
-            <translation>Er draait al een installatie voor deze integratie. Wil je die stoppen?</translation>
+            <translation>Er loopt al een installatie voor deze integratie. Wil je die stoppen?</translation>
         </message>
         <message>
             <source>Stop</source>
-            <translation>Stop</translation>
+            <translation>Stoppen</translation>
         </message>
         <message>
             <source>The integration is already configured or doesn't allow to be set up again.</source>
-            <translation>De integratie is al geconfigureerd of laat zich niet opnieuw instellen.</translation>
+            <translation>De integratie is al geconfigureerd of kan niet opnieuw worden ingesteld.</translation>
         </message>
         <message>
             <source>Cannot start integration setup</source>
-            <translation>Kan integratie-instelling niet starten</translation>
+            <translation>Het instellen van de integratie kan niet worden gestart</translation>
         </message>
         <message>
             <source>Cannot stop the integration setup</source>
-            <translation>Kan de integratie-instelling niet stoppen</translation>
+            <translation>Het instellen van de integratie kan niet worden gestopt</translation>
         </message>
         <message>
             <source>Authorization error</source>
@@ -2190,7 +2926,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         <name>Voltage</name>
         <message>
             <source>Voltage</source>
-            <translation>Voltage</translation>
+            <translation>Spanning</translation>
         </message>
     </context>
     <context>
@@ -2201,15 +2937,22 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>All</source>
-            <translation>Alles</translation>
+            <translation>Alle</translation>
         </message>
         <message>
             <source>One</source>
-            <translation>Een</translation>
+            <translation>Eén</translation>
         </message>
         <message>
             <source>Sources</source>
             <translation>Bronnen</translation>
+        </message>
+    </context>
+    <context>
+        <name>Abbreviation for not available</name>
+        <message>
+            <source>N/A</source>
+            <translation>N.v.t.</translation>
         </message>
     </context>
     <context>
@@ -2220,7 +2963,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Please enter the administrator PIN.</source>
-            <translation>Voer de beheerder-PIN in.</translation>
+            <translation>Voer de beheerderspincode in.</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2228,11 +2971,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Rename</source>
-            <translation>Hernoemen</translation>
+            <translation>Naam wijzigen</translation>
         </message>
         <message>
             <source>Edit icon</source>
-            <translation>Bewerk icoon</translation>
+            <translation>Pictogram bewerken</translation>
         </message>
         <message>
             <source>Delete</source>
@@ -2240,7 +2983,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Add a new profile</source>
-            <translation>Voeg een nieuw profiel toe</translation>
+            <translation>Een nieuw profiel toevoegen</translation>
         </message>
         <message>
             <source>Normal</source>
@@ -2255,11 +2998,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         <name>Finish</name>
         <message>
             <source>You're all set</source>
-            <translation>Alles is klaar</translation>
+            <translation>Je bent klaar</translation>
         </message>
         <message>
             <source>The integration has been added successfully.</source>
-            <translation>De integratie is succesvol toegevoegd.</translation>
+            <translation>De integratie is toegevoegd.</translation>
         </message>
         <message>
             <source>Version</source>
@@ -2279,7 +3022,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Something went wrong while setting up the integration.</source>
-            <translation>Er is iets fout gegaan bij het instellen van de integratie.</translation>
+            <translation>Er is iets misgegaan bij het instellen van de integratie.</translation>
         </message>
         <message>
             <source>ERROR:</source>
@@ -2287,11 +3030,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Done</source>
-            <translation>Gedaan</translation>
+            <translation>Klaar</translation>
         </message>
         <message>
             <source>The dock has been added successfully.</source>
-            <translation>De dock is succesvol toegevoegd.</translation>
+            <translation>Het dock is toegevoegd.</translation>
         </message>
         <message>
             <source>%1 is ready to blast IR codes.</source>
@@ -2299,46 +3042,46 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Something went wrong while setting up the dock.</source>
-            <translation>Er is iets misgegaan met het instellen van het dock.</translation>
+            <translation>Er is iets misgegaan bij het instellen van het dock.</translation>
         </message>
         <message>
             <source>Try again</source>
-            <translation>Probeer opnieuw</translation>
+            <translation>Opnieuw proberen</translation>
         </message>
         <message>
             <source>You can add integrations or change configuration via the Web configurator.</source>
-            <translation>Je kunt integraties toevoegen of configuraties wijzigen via de Web configurator.</translation>
+            <translation>Je kunt integraties toevoegen of de configuratie wijzigen via de Webconfigurator.</translation>
         </message>
         <message>
             <source>Web configurator enabled</source>
-            <translation>Web configurator ingeschakeld</translation>
+            <translation>Webconfigurator ingeschakeld</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
-            <translation>Web configurator uitgeschakeld</translation>
+            <translation>Webconfigurator uitgeschakeld</translation>
         </message>
     </context>
     <context>
         <name>uc::dock::DockController</name>
         <message>
             <source>Failed to start dock discovery</source>
-            <translation>Kon dock discovery niet starten</translation>
+            <translation>Het zoeken naar docks kon niet worden gestart</translation>
         </message>
         <message>
             <source>There was an error starting dock discovery: %1</source>
-            <translation>Er was een fout bij het starten van dock discovery: %1</translation>
+            <translation>Er is een fout opgetreden bij het starten van het zoeken naar docks: %1</translation>
         </message>
         <message>
             <source>Try again</source>
-            <translation>Probeer opnieuw</translation>
+            <translation>Opnieuw proberen</translation>
         </message>
         <message>
             <source>Failed to stop dock discovery</source>
-            <translation>Kon dock discovery niet stoppen</translation>
+            <translation>Het zoeken naar docks kon niet worden gestopt</translation>
         </message>
         <message>
             <source>There was an error stopping dock discovery: %1</source>
-            <translation>Er was een fout bij het stoppen van dock discovery: %1</translation>
+            <translation>Er is een fout opgetreden bij het stoppen van het zoeken naar docks: %1</translation>
         </message>
         <message>
             <source>Configuring</source>
@@ -2346,7 +3089,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Restarting</source>
-            <translation>Opnieuw starten</translation>
+            <translation>Opnieuw opstarten</translation>
         </message>
         <message>
             <source>Uploading</source>
@@ -2357,14 +3100,14 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         <name>Blind</name>
         <message>
             <source>Stop</source>
-            <translation>Stop</translation>
+            <translation>Stoppen</translation>
         </message>
     </context>
     <context>
         <name>Integration</name>
         <message>
             <source>Integration setup</source>
-            <translation>Integratie setup</translation>
+            <translation>Integratie instellen</translation>
         </message>
         <message>
             <source>Next</source>
@@ -2376,6 +3119,13 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
     </context>
     <context>
+        <name>ChargingScreen</name>
+        <message>
+            <source>- Charging</source>
+            <translation> - Opladen</translation>
+        </message>
+    </context>
+    <context>
         <name>ActionableNotification</name>
         <message>
             <source>Cancel</source>
@@ -2383,28 +3133,63 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
     </context>
     <context>
+        <name>Binary sensor state power</name>
+        <message>
+            <source>On</source>
+            <translation>Aan</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Uit</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::Voice</name>
         <message>
+            <source>The service is temporarily unavailable.</source>
+            <translation>De dienst is tijdelijk niet beschikbaar.</translation>
+        </message>
+        <message>
+            <source>Incorrect audio format.</source>
+            <translation>Verkeerd audioformaat.</translation>
+        </message>
+        <message>
+            <source>I didn’t catch any text from your input. Could you repeat that?</source>
+            <translation>Ik heb niets verstaan van wat je zei. Kun je dat herhalen?</translation>
+        </message>
+        <message>
+            <source>Please try rephrasing your request.</source>
+            <translation>Probeer je verzoek anders te formuleren.</translation>
+        </message>
+        <message>
+            <source>I couldn’t generate the audio response.</source>
+            <translation>Ik kon het audioantwoord niet genereren.</translation>
+        </message>
+        <message>
+            <source>It’s taking longer than expected. Please try your request again.</source>
+            <translation>Het duurt langer dan verwacht. Probeer je verzoek opnieuw.</translation>
+        </message>
+        <message>
             <source>Something went wrong on our side. Please try again.</source>
-            <translation>Something went wrong on our side. Please try again.</translation>
+            <translation>Er is iets misgegaan aan onze kant. Probeer het opnieuw.</translation>
         </message>
     </context>
     <context>
         <name>uc::Config</name>
         <message>
             <source>Error while loading configuration. Trying again.</source>
-            <translation>Fout bij het laden van configuratie. Nogmaals proberen.</translation>
+            <translation>Fout bij het laden van de configuratie. Bezig met opnieuw proberen.</translation>
         </message>
     </context>
     <context>
         <name>uc::SoftwareUpdate</name>
         <message>
             <source>Update check failed</source>
-            <translation>Updatecontrole mislukt</translation>
+            <translation>Controle op updates mislukt</translation>
         </message>
         <message>
             <source>There was an error while checking for new updates. Please try again later.</source>
-            <translation>Er was een fout bij het controleren op nieuwe updates. Probeer het later opnieuw.</translation>
+            <translation>Er is een fout opgetreden bij het controleren op nieuwe updates. Probeer het later opnieuw.</translation>
         </message>
         <message>
             <source>Update error</source>
@@ -2412,11 +3197,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Couldn't start the software update. Please try again later.</source>
-            <translation>Kon de software-update niet starten. Probeer het later opnieuw.</translation>
+            <translation>De software-update kon niet worden gestart. Probeer het later opnieuw.</translation>
         </message>
         <message>
             <source>Software update has failed.</source>
-            <translation>Software-update is mislukt.</translation>
+            <translation>De software-update is mislukt.</translation>
         </message>
     </context>
     <context>
@@ -2431,7 +3216,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Manage entities</source>
-            <translation>Beheer entiteiten</translation>
+            <translation>Entiteiten beheren</translation>
         </message>
         <message>
             <source>configured entities</source>
@@ -2443,7 +3228,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Disconnected</source>
-            <translation>Verbinding verbroken</translation>
+            <translation>Niet verbonden</translation>
         </message>
         <message>
             <source>State</source>
@@ -2455,7 +3240,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Id</source>
-            <translation>ID</translation>
+            <translation>Id</translation>
         </message>
         <message>
             <source>Version</source>
@@ -2475,7 +3260,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Are you sure you want to delete the %1 integration?</source>
-            <translation>Weet je zeker dat je de %1 integratie wilt verwijderen?</translation>
+            <translation>Weet je zeker dat je de integratie %1 wilt verwijderen?</translation>
         </message>
         <message>
             <source>Tap to edit name</source>
@@ -2499,11 +3284,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Connecting</source>
-            <translation>Verbinden</translation>
+            <translation>Verbinden…</translation>
         </message>
         <message>
             <source>Error</source>
-            <translation>Foutmelding</translation>
+            <translation>Fout</translation>
         </message>
         <message>
             <source>Idle</source>
@@ -2511,7 +3296,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Reconnecting</source>
-            <translation>Opnieuw verbinden</translation>
+            <translation>Opnieuw verbinden…</translation>
         </message>
         <message>
             <source>Connection type</source>
@@ -2531,11 +3316,11 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Firmware version</source>
-            <translation>Firmware versie</translation>
+            <translation>Firmwareversie</translation>
         </message>
         <message>
             <source>Led brightness</source>
-            <translation>Led helderheid</translation>
+            <translation>Led-helderheid</translation>
         </message>
         <message>
             <source>Change password</source>
@@ -2543,19 +3328,19 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Change WiFi settings</source>
-            <translation>WiFi-instellingen wijzigen</translation>
+            <translation>Wifi-instellingen wijzigen</translation>
         </message>
         <message>
             <source>Factory reset</source>
-            <translation>Fabrieksreset</translation>
+            <translation>Fabrieksinstellingen herstellen</translation>
         </message>
         <message>
             <source>Are you sure you want to factory reset %1?</source>
-            <translation>Weet je zeker dat je %1 terug wilt zetten naar de fabrieksinstellingen?</translation>
+            <translation>Weet je zeker dat je %1 wilt terugzetten naar de fabrieksinstellingen?</translation>
         </message>
         <message>
             <source>Reset</source>
-            <translation>Opnieuw instellen</translation>
+            <translation>Herstellen</translation>
         </message>
         <message>
             <source>Delete dock</source>
@@ -2582,7 +3367,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Rename dock</source>
-            <translation>Hernoem dock</translation>
+            <translation>Naam van dock wijzigen</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2590,30 +3375,46 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Rename</source>
-            <translation>Hernoemen</translation>
+            <translation>Naam wijzigen</translation>
         </message>
     </context>
     <context>
         <name>Base</name>
         <message>
             <source>Activity error. Select option below.</source>
-            <translation>Activiteitsfout. Selecteer de onderstaande optie.</translation>
+            <translation>Fout in de activiteit. Kies hieronder een optie.</translation>
         </message>
         <message>
             <source>Turn activity on</source>
-            <translation>Activeer activiteit</translation>
+            <translation>Activiteit inschakelen</translation>
         </message>
         <message>
             <source>Turn activity off</source>
-            <translation>Deactiveer activiteit</translation>
+            <translation>Activiteit uitschakelen</translation>
+        </message>
+        <message>
+            <source>Open activity</source>
+            <translation>Activiteit openen</translation>
         </message>
         <message>
             <source>is unavailable</source>
             <translation>is niet beschikbaar</translation>
         </message>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Sommige apparaten zijn nog niet klaar</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 is nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
+        </message>
+        <message>
             <source>Profile is restricted</source>
-            <translation>Profiel is beperkt</translation>
+            <translation>Het profiel is beperkt</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 zijn nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -2627,12 +3428,16 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
             <source>Close</source>
             <translation>Sluiten</translation>
         </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Doorgaan</translation>
+        </message>
     </context>
     <context>
         <name>RemoteName</name>
         <message>
             <source>Name your remote</source>
-            <translation>Noem je afstandsbediening</translation>
+            <translation>Geef je afstandsbediening een naam</translation>
         </message>
         <message>
             <source>Next</source>
@@ -2640,10 +3445,21 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
     </context>
     <context>
+        <name>Binary sensor state door</name>
+        <message>
+            <source>Opened</source>
+            <translation>Geopend</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Gesloten</translation>
+        </message>
+    </context>
+    <context>
         <name>Garage</name>
         <message>
             <source>Stop</source>
-            <translation>Stop</translation>
+            <translation>Stoppen</translation>
         </message>
     </context>
     <context>
@@ -2658,7 +3474,7 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Change</source>
-            <translation>Wijzig</translation>
+            <translation>Wijzigen</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2697,7 +3513,33 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         </message>
         <message>
             <source>Auto</source>
-            <translation>Auto</translation>
+            <translation>Automatisch</translation>
+        </message>
+    </context>
+    <context>
+        <name>MediaComponent</name>
+        <message>
+            <source>All</source>
+            <translation>Alle</translation>
+        </message>
+        <message>
+            <source>One</source>
+            <translation>Eén</translation>
+        </message>
+        <message>
+            <source>Sources</source>
+            <translation>Bronnen</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state battery_charging</name>
+        <message>
+            <source>Charging</source>
+            <translation>Laadt op</translation>
+        </message>
+        <message>
+            <source>Not charging</source>
+            <translation>Laadt niet op</translation>
         </message>
     </context>
     <context>
@@ -2705,6 +3547,38 @@ Tik op de QR-code om deze op het scherm weer te geven.</translation>
         <message>
             <source>Microphone</source>
             <translation>Microfoon</translation>
+        </message>
+        <message>
+            <source>Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.</source>
+            <translation>Als je de microfoon uitschakelt, wordt deze volledig uitgezet. Je kunt dan geen spraakassistenten meer gebruiken.</translation>
+        </message>
+        <message>
+            <source>Voice Assistant</source>
+            <translation>Spraakassistent</translation>
+        </message>
+        <message>
+            <source>None selected</source>
+            <translation>Niets geselecteerd</translation>
+        </message>
+        <message>
+            <source>Profile: %1</source>
+            <translation>Profiel: %1</translation>
+        </message>
+        <message>
+            <source>No profile selected</source>
+            <translation>Geen profiel geselecteerd</translation>
+        </message>
+        <message>
+            <source>Use the Web Configurator to edit voice assistants.</source>
+            <translation>Gebruik de Webconfigurator om spraakassistenten te bewerken.</translation>
+        </message>
+        <message>
+            <source>Speech response</source>
+            <translation>Gesproken antwoord</translation>
+        </message>
+        <message>
+            <source>Play speech response from Voice Assistant when supported.</source>
+            <translation>Het gesproken antwoord van de spraakassistent afspelen wanneer dit wordt ondersteund.</translation>
         </message>
     </context>
     <context>

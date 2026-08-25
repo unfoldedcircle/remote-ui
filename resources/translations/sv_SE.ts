@@ -15,8 +15,16 @@
             <translation>Otillgänglig</translation>
         </message>
         <message>
+            <source>Unknown</source>
+            <translation>Okänt</translation>
+        </message>
+        <message>
             <source>On</source>
             <translation>På</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Av</translation>
         </message>
     </context>
     <context>
@@ -24,6 +32,10 @@
         <message>
             <source>Open</source>
             <translation>Öppen</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Stängt</translation>
         </message>
     </context>
     <context>
@@ -56,16 +68,32 @@
     <context>
         <name>Activity</name>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Vissa enheter är inte redo</translation>
+        </message>
+        <message>
             <source>Tap to close</source>
             <translation>Tryck för att stänga</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 är inte anslutet ännu. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tryck för mer</translation>
         </message>
         <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 är ännu inte anslutna. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Åtgärda statusar</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Fortsätt</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -111,6 +139,10 @@
         <message>
             <source>Detected</source>
             <translation>Detekterad</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Rensa</translation>
         </message>
     </context>
     <context>
@@ -303,7 +335,7 @@
         </message>
         <message>
             <source>Please select entities to remove by tapping in the list.</source>
-            <translation>Välj enheter att lägga ta bort genom att trycka i listan.</translation>
+            <translation>Välj enheter att ta bort genom att trycka i listan.</translation>
         </message>
         <message>
             <source>Remove</source>
@@ -443,6 +475,10 @@
             <translation>Ljud &amp; haptik</translation>
         </message>
         <message>
+            <source>Voice Control</source>
+            <translation>Röststyrning</translation>
+        </message>
+        <message>
             <source>Power Saving</source>
             <translation>Energisparning</translation>
         </message>
@@ -468,6 +504,10 @@
         <message>
             <source>Touch slider is not available.</source>
             <translation>Pekreglaget är inte tillgängligt.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 är inte tillgängligt. Kontrollera din konfiguration.</translation>
         </message>
     </context>
     <context>
@@ -513,7 +553,18 @@
         </message>
     </context>
     <context>
+        <name>SelectWidget</name>
+        <message>
+            <source>Select an option</source>
+            <translation>Välj ett alternativ</translation>
+        </message>
+    </context>
+    <context>
         <name>WifiNetworkList</name>
+        <message>
+            <source>Other Networks</source>
+            <translation>Andra nätverk</translation>
+        </message>
         <message>
             <source>No networks found</source>
             <translation>Inga nätverk hittades</translation>
@@ -521,6 +572,18 @@
         <message>
             <source>Join other</source>
             <translation>Anslut till andra</translation>
+        </message>
+        <message>
+            <source>Join and disable others</source>
+            <translation>Anslut till och inaktivera andra</translation>
+        </message>
+        <message>
+            <source>Disable</source>
+            <translation>Inaktivera</translation>
+        </message>
+        <message>
+            <source>Enable</source>
+            <translation>Aktivera</translation>
         </message>
         <message>
             <source>Delete</source>
@@ -537,6 +600,17 @@
         <message>
             <source>Remove</source>
             <translation>Ta bort</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state battery</name>
+        <message>
+            <source>Normal</source>
+            <translation>Normal</translation>
+        </message>
+        <message>
+            <source>Low</source>
+            <translation>Låg</translation>
         </message>
     </context>
     <context>
@@ -648,8 +722,28 @@ om %1 sekunder.</translation>
     <context>
         <name>MediaBrowser</name>
         <message>
+            <source>An error occurred while loading media content.</source>
+            <translation>Ett fel uppstod vid inläsningen av medieinnehållet.</translation>
+        </message>
+        <message>
+            <source>Retry</source>
+            <translation>Försök igen</translation>
+        </message>
+        <message>
+            <source>Browse</source>
+            <translation>Bläddra</translation>
+        </message>
+        <message>
+            <source>Search…</source>
+            <translation>Sök…</translation>
+        </message>
+        <message>
             <source>Track</source>
             <translation>Spår</translation>
+        </message>
+        <message>
+            <source>Album</source>
+            <translation>Album</translation>
         </message>
         <message>
             <source>Artist</source>
@@ -660,16 +754,68 @@ om %1 sekunder.</translation>
             <translation>Spellista</translation>
         </message>
         <message>
+            <source>Genre</source>
+            <translation>Genre</translation>
+        </message>
+        <message>
             <source>Podcast</source>
             <translation>Podcast</translation>
+        </message>
+        <message>
+            <source>Episode</source>
+            <translation>Avsnitt</translation>
         </message>
         <message>
             <source>Radio</source>
             <translation>Radio</translation>
         </message>
         <message>
+            <source>Channel</source>
+            <translation>Kanal</translation>
+        </message>
+        <message>
+            <source>App</source>
+            <translation>App</translation>
+        </message>
+        <message>
             <source>Apps</source>
             <translation>Appar</translation>
+        </message>
+        <message>
+            <source>Channels</source>
+            <translation>Kanaler</translation>
+        </message>
+        <message>
+            <source>Composer</source>
+            <translation>Kompositör</translation>
+        </message>
+        <message>
+            <source>Directory</source>
+            <translation>Katalog</translation>
+        </message>
+        <message>
+            <source>Game</source>
+            <translation>Spel</translation>
+        </message>
+        <message>
+            <source>Image</source>
+            <translation>Bild</translation>
+        </message>
+        <message>
+            <source>Movie</source>
+            <translation>Film</translation>
+        </message>
+        <message>
+            <source>Music</source>
+            <translation>Musik</translation>
+        </message>
+        <message>
+            <source>Season</source>
+            <translation>Säsong</translation>
+        </message>
+        <message>
+            <source>TV Show</source>
+            <translation>TV-program</translation>
         </message>
         <message>
             <source>URL</source>
@@ -678,6 +824,38 @@ om %1 sekunder.</translation>
         <message>
             <source>Video</source>
             <translation>Video</translation>
+        </message>
+        <message>
+            <source>Could not search media</source>
+            <translation>Kunde inte söka efter media</translation>
+        </message>
+        <message>
+            <source>An error occurred while searching media content.</source>
+            <translation>Ett fel uppstod vid sökning av medieinnehåll.</translation>
+        </message>
+        <message>
+            <source>Search</source>
+            <translation>Sök</translation>
+        </message>
+        <message>
+            <source>No results</source>
+            <translation>Inga resultat</translation>
+        </message>
+        <message>
+            <source>Try something else.</source>
+            <translation>Prova något annat.</translation>
+        </message>
+        <message>
+            <source>Play now</source>
+            <translation>Spela nu</translation>
+        </message>
+        <message>
+            <source>Play next</source>
+            <translation>Spela nästa</translation>
+        </message>
+        <message>
+            <source>Add to queue</source>
+            <translation>Lägg till i kö</translation>
         </message>
         <message>
             <source>Could not load media</source>
@@ -731,6 +909,10 @@ om %1 sekunder.</translation>
             <source>Detected</source>
             <translation>Detekterad</translation>
         </message>
+        <message>
+            <source>Clear</source>
+            <translation>Rensa</translation>
+        </message>
     </context>
     <context>
         <name>ProfileRename</name>
@@ -774,6 +956,21 @@ om %1 sekunder.</translation>
         <message>
             <source>Hot</source>
             <translation>Hett</translation>
+        </message>
+        <message>
+            <source>Normal</source>
+            <translation>Normal</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state moisture</name>
+        <message>
+            <source>Wet</source>
+            <translation>Våt</translation>
+        </message>
+        <message>
+            <source>Dry</source>
+            <translation>Torr</translation>
         </message>
     </context>
     <context>
@@ -831,6 +1028,41 @@ om %1 sekunder.</translation>
         </message>
     </context>
     <context>
+        <name>Media player state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Otillgänglig</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Okänd</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>På</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Av</translation>
+        </message>
+        <message>
+            <source>Playing</source>
+            <translation>Spelar</translation>
+        </message>
+        <message>
+            <source>Paused</source>
+            <translation>Pausad</translation>
+        </message>
+        <message>
+            <source>Standby</source>
+            <translation>Vänteläge</translation>
+        </message>
+        <message>
+            <source>Buffering</source>
+            <translation>Buffrar</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Controller</name>
         <message>
             <source>Error</source>
@@ -851,6 +1083,13 @@ om %1 sekunder.</translation>
         <message>
             <source>Error while connecting to %1, with id %2</source>
             <translation>Fel vid anslutning till %1, med id %2</translation>
+        </message>
+    </context>
+    <context>
+        <name>Abbreviation for nothing is selected</name>
+        <message>
+            <source>None</source>
+            <translation>Inget</translation>
         </message>
     </context>
     <context>
@@ -1031,6 +1270,10 @@ webbkonfiguratorn</translation>
             <source>Completed</source>
             <translation>Avslutad</translation>
         </message>
+        <message>
+            <source>Timeout</source>
+            <translation>Timeout</translation>
+        </message>
     </context>
     <context>
         <name>Energy</name>
@@ -1060,8 +1303,28 @@ webbkonfiguratorn</translation>
     <context>
         <name>uc::ui::EntityController</name>
         <message>
+            <source>The device</source>
+            <translation>Enheten</translation>
+        </message>
+        <message>
             <source>%1 is not responding</source>
             <translation>%1 svarar inte.</translation>
+        </message>
+        <message>
+            <source>The command did not reach the device. Would you like to try again?</source>
+            <translation>Kommandot nådde inte enheten. Vill du försöka igen?</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Försök igen</translation>
+        </message>
+        <message>
+            <source>%1 is not responding. Error code: %2</source>
+            <translation>%1 svarar inte. Felkod: %2</translation>
+        </message>
+        <message>
+            <source>Error sending the command</source>
+            <translation>Fel vid sändning av kommandot</translation>
         </message>
     </context>
     <context>
@@ -1069,6 +1332,10 @@ webbkonfiguratorn</translation>
         <message>
             <source>Touch slider is not available.</source>
             <translation>Pekreglaget är inte tillgängligt</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 är inte tillgängligt. Kontrollera din konfiguration.</translation>
         </message>
     </context>
     <context>
@@ -1144,6 +1411,10 @@ webbkonfiguratorn</translation>
             <source>Detected</source>
             <translation>Detekterad</translation>
         </message>
+        <message>
+            <source>Clear</source>
+            <translation>Rensa</translation>
+        </message>
     </context>
     <context>
         <name>AddEntities</name>
@@ -1165,6 +1436,10 @@ webbkonfiguratorn</translation>
         <message>
             <source>On</source>
             <translation>På</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Av</translation>
         </message>
     </context>
     <context>
@@ -1195,7 +1470,7 @@ webbkonfiguratorn</translation>
         </message>
         <message>
             <source>Cover position</source>
-            <translation>Omslagsposition</translation>
+            <translation>Persiennposition</translation>
         </message>
         <message>
             <source>Seek</source>
@@ -1236,6 +1511,18 @@ webbkonfiguratorn</translation>
             <translation>IP-adress</translation>
         </message>
         <message>
+            <source>Key management</source>
+            <translation>Nyckelhantering</translation>
+        </message>
+        <message>
+            <source>Disconnect</source>
+            <translation>Koppla från</translation>
+        </message>
+        <message>
+            <source>Connect</source>
+            <translation>Anslut</translation>
+        </message>
+        <message>
             <source>Delete</source>
             <translation>Radera</translation>
         </message>
@@ -1249,6 +1536,10 @@ webbkonfiguratorn</translation>
         <message>
             <source>Detected</source>
             <translation>Detekterad</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Rensa</translation>
         </message>
     </context>
     <context>
@@ -1346,6 +1637,17 @@ webbkonfiguratorn</translation>
         </message>
     </context>
     <context>
+        <name>Binary sensor state presence</name>
+        <message>
+            <source>Home</source>
+            <translation>Hem</translation>
+        </message>
+        <message>
+            <source>Not home</source>
+            <translation>Inte hemma</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::hw::Battery</name>
         <message>
             <source>Low battery</source>
@@ -1365,6 +1667,21 @@ webbkonfiguratorn</translation>
         <message>
             <source>Update detected</source>
             <translation>Uppdatering hittad</translation>
+        </message>
+        <message>
+            <source>Up-to-date</source>
+            <translation>Aktuell</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state lock</name>
+        <message>
+            <source>Unlocked</source>
+            <translation>Upplåst</translation>
+        </message>
+        <message>
+            <source>Locked</source>
+            <translation>Låst</translation>
         </message>
     </context>
     <context>
@@ -1421,6 +1738,10 @@ webbkonfiguratorn</translation>
             <translation>%1 sekunder</translation>
         </message>
         <message>
+            <source>Retry commands within %1 second(s) after wakeup.</source>
+            <translation>Försök igen inom %1 sekund(er) efter att systemet har aktiverats.</translation>
+        </message>
+        <message>
             <source>Disabled</source>
             <translation>Inaktiverad</translation>
         </message>
@@ -1458,6 +1779,13 @@ webbkonfiguratorn</translation>
         <message>
             <source>Button backlight brightness</source>
             <translation>Knappbakgrundsbelysnings ljusstyrka</translation>
+        </message>
+    </context>
+    <context>
+        <name>No option is selected in the select entity</name>
+        <message>
+            <source>None</source>
+            <translation>Inget</translation>
         </message>
     </context>
     <context>
@@ -1501,12 +1829,20 @@ webbkonfiguratorn</translation>
             <source>Unsafe</source>
             <translation>Osäker</translation>
         </message>
+        <message>
+            <source>Safe</source>
+            <translation>Säker</translation>
+        </message>
     </context>
     <context>
         <name>TouchSliderVolume</name>
         <message>
             <source>Touch slider is not available.</source>
             <translation>Pekreglaget är inte tillgängligt.</translation>
+        </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 är inte tillgängligt. Kontrollera din konfiguration.</translation>
         </message>
     </context>
     <context>
@@ -1518,6 +1854,22 @@ webbkonfiguratorn</translation>
     </context>
     <context>
         <name>main</name>
+        <message>
+            <source>Some devices are not ready</source>
+            <translation>Vissa enheter är inte redo</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 är inte anslutet ännu. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 är ännu inte anslutna. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Fortsätt</translation>
+        </message>
         <message>
             <source>Done</source>
             <translation>Klar</translation>
@@ -1541,6 +1893,22 @@ webbkonfiguratorn</translation>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Håll ner hemknappen eller använd webbkonfiguratorn för att konfigurera sidan</translation>
         </message>
+        <message>
+            <source>Some devices are not ready</source>
+            <translation>Vissa enheter är inte redo</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 är inte anslutet ännu. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 är ännu inte anslutna. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Fortsätt</translation>
+        </message>
     </context>
     <context>
         <name>uc::ui::Group</name>
@@ -1551,6 +1919,10 @@ webbkonfiguratorn</translation>
     </context>
     <context>
         <name>Binary sensor state problem</name>
+        <message>
+            <source>Problem</source>
+            <translation>Problem</translation>
+        </message>
         <message>
             <source>Ok</source>
             <translation>Ok</translation>
@@ -1565,6 +1937,10 @@ webbkonfiguratorn</translation>
     </context>
     <context>
         <name>Binary sensor state plug</name>
+        <message>
+            <source>Plugged in</source>
+            <translation>Ansluten</translation>
+        </message>
         <message>
             <source>Unplugged</source>
             <translation>Urkopplad</translation>
@@ -1615,12 +1991,20 @@ no return</source>
             <source>Detected</source>
             <translation>Detekterad</translation>
         </message>
+        <message>
+            <source>Clear</source>
+            <translation>Rensa</translation>
+        </message>
     </context>
     <context>
         <name>Binary sensor state moving</name>
         <message>
             <source>Moving</source>
             <translation>Flyttar</translation>
+        </message>
+        <message>
+            <source>Not moving</source>
+            <translation>Står stilla</translation>
         </message>
     </context>
     <context>
@@ -1722,7 +2106,7 @@ no return</source>
         <name>Color</name>
         <message>
             <source>Adjust the color tone of the user interface. Using the sliders, choose a color. The user interface colors will be generated based on that color.</source>
-            <translation>Justera färgtonen i användargränssnittet. Använda reglagen, och välj en färg. Användargränssnittets färger kommer att genereras baserat på den färgen.</translation>
+            <translation>Justera färgtonen i användargränssnittet. Använd reglagen och välj en färg. Användargränssnittets färger kommer att genereras baserat på den färgen.</translation>
         </message>
         <message>
             <source>This is a darker text, in a darker container</source>
@@ -1842,6 +2226,26 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
     <context>
         <name>LoadingScreen</name>
         <message>
+            <source>Sequence didn't finish within %1 seconds. Check configuration.</source>
+            <translation>Sekvensen slutfördes inte inom %1 sekunder. Kontrollera inställningarna.</translation>
+        </message>
+        <message>
+            <source>There was an error during the sequence.</source>
+            <translation>Ett fel uppstod under sekvensen.</translation>
+        </message>
+        <message>
+            <source>The sequence timed out.</source>
+            <translation>Tidsgränsen för sekvensen har löpt ut.</translation>
+        </message>
+        <message>
+            <source>%1 (error %2)</source>
+            <translation>%1 (fel %2)</translation>
+        </message>
+        <message>
+            <source>There was an error during the sequence. Error code: %1</source>
+            <translation>Ett fel uppstod under sekvensen. Felkod: %1</translation>
+        </message>
+        <message>
             <source>Tap to close</source>
             <translation>Tryck för att stänga</translation>
         </message>
@@ -1864,6 +2268,18 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
     <context>
         <name>VoiceOverlay</name>
         <message>
+            <source>Voice Assistant is not available.</source>
+            <translation>Röstassistenten är inte tillgänglig.</translation>
+        </message>
+        <message>
+            <source>Processing ...</source>
+            <translation>Bearbetar ...</translation>
+        </message>
+        <message>
+            <source>There was an error.</source>
+            <translation>Ett fel uppstod.</translation>
+        </message>
+        <message>
             <source>Missing rights to use voice assistant.</source>
             <translation>Rättigheter saknas för att använda röstassistenten.</translation>
         </message>
@@ -1872,8 +2288,24 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <translation>Arnop misslyckades.</translation>
         </message>
         <message>
+            <source>Not authenticated.</source>
+            <translation>Inte autentiserad.</translation>
+        </message>
+        <message>
+            <source>Voice assistant not found. Please check configuration.</source>
+            <translation>Röstassistenten hittades inte. Kontrollera inställningarna.</translation>
+        </message>
+        <message>
             <source>There were too many requests. Please try again later.</source>
             <translation>Det gjordes för många anrop. Vänligen försök igen senare.</translation>
+        </message>
+        <message>
+            <source>Internal server error.</source>
+            <translation>Internt serverfel.</translation>
+        </message>
+        <message>
+            <source>Voice assistant is unavailable.</source>
+            <translation>Röstassistenten är inte tillgänglig.</translation>
         </message>
         <message>
             <source>It’s taking longer than expected. Please try your request again.</source>
@@ -1939,11 +2371,11 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <name>About</name>
         <message>
             <source>Model number</source>
-            <translation>Modelnummer</translation>
+            <translation>Modellnummer</translation>
         </message>
         <message>
             <source>Serial number</source>
-            <translation>Seriennummer</translation>
+            <translation>Serienummer</translation>
         </message>
         <message>
             <source>Revision</source>
@@ -1992,6 +2424,10 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <source>Touch slider is not available.</source>
             <translation>Pekreglaget är inte tillgängligt.</translation>
         </message>
+        <message>
+            <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 är inte tillgängligt. Kontrollera din konfiguration.</translation>
+        </message>
     </context>
     <context>
         <name>Ui</name>
@@ -2012,12 +2448,36 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <translation>Visa alltid batteriprocent bredvid ikonen.</translation>
         </message>
         <message>
+            <source>Show battery indicator everywhere</source>
+            <translation>Visa batteriindikatorn överallt</translation>
+        </message>
+        <message>
+            <source>Shows the battery level indicator on all pages and activities.</source>
+            <translation>Visar batterinivåindikatorn på alla sidor och i alla aktiviteter.</translation>
+        </message>
+        <message>
             <source>Activities on pages</source>
             <translation>Aktiviteter på sidor</translation>
         </message>
         <message>
             <source>Show the running activities and playing media players in the page header.</source>
             <translation>Visa pågående aktiviteter och aktiva mediaspelare i sidhuvudet.</translation>
+        </message>
+        <message>
+            <source>Open activities started with the API</source>
+            <translation>Öppna aktiviteter startade via API:et</translation>
+        </message>
+        <message>
+            <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
+            <translation>Öppna aktivitetsskärmen när en aktivitet startas utanför fjärrkontrollen och ersätta det som visas på skärmen.</translation>
+        </message>
+        <message>
+            <source>Zoom media image</source>
+            <translation>Förstora mediebilden</translation>
+        </message>
+        <message>
+            <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
+            <translation>Zooma och beskär bilder i mediaspelarens widgetar istället för att skala dem så att de passar.</translation>
         </message>
         <message>
             <source>Coverflow in media browser</source>
@@ -2034,12 +2494,20 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <source>Open</source>
             <translation>Öppen</translation>
         </message>
+        <message>
+            <source>Closed</source>
+            <translation>Stängt</translation>
+        </message>
     </context>
     <context>
         <name>Binary sensor state tamper</name>
         <message>
             <source>Tampering detected</source>
-            <translation>Mannipulering upptäckt</translation>
+            <translation>Manipulering upptäckt</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Rensa</translation>
         </message>
     </context>
     <context>
@@ -2097,6 +2565,17 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>Close</source>
             <translation>Stäng</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state connectivity</name>
+        <message>
+            <source>Connected</source>
+            <translation>Ansluten</translation>
+        </message>
+        <message>
+            <source>Disconnected</source>
+            <translation>Frånkopplad</translation>
         </message>
     </context>
     <context>
@@ -2199,6 +2678,10 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <source>Detected</source>
             <translation>Detekterad</translation>
         </message>
+        <message>
+            <source>Clear</source>
+            <translation>Rensa</translation>
+        </message>
     </context>
     <context>
         <name>Remote</name>
@@ -2208,7 +2691,7 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         </message>
         <message>
             <source>You can add UI elements via the Web Configurator</source>
-            <translation>Du kan lägga till UI-element via Web webbkonfiguratorn</translation>
+            <translation>Du kan lägga till UI-element via webbkonfiguratorn</translation>
         </message>
     </context>
     <context>
@@ -2270,38 +2753,25 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         </message>
     </context>
     <context>
-        <name>Media platyer state</name>
+        <name>Binary sensor state light</name>
         <message>
-            <source>Unavailable</source>
-            <translation>Otillgänglig</translation>
+            <source>Light detected</source>
+            <translation>Ljus har upptäckts</translation>
         </message>
         <message>
-            <source>Unknown</source>
-            <translation>Okänd</translation>
+            <source>No light</source>
+            <translation>Inget ljus</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state cold</name>
+        <message>
+            <source>Cold</source>
+            <translation>Kallt</translation>
         </message>
         <message>
-            <source>On</source>
-            <translation>På</translation>
-        </message>
-        <message>
-            <source>Off</source>
-            <translation>Av</translation>
-        </message>
-        <message>
-            <source>Playing</source>
-            <translation>Spelar</translation>
-        </message>
-        <message>
-            <source>Paused</source>
-            <translation>Pausad</translation>
-        </message>
-        <message>
-            <source>Standby</source>
-            <translation>Vänteläge</translation>
-        </message>
-        <message>
-            <source>Buffering</source>
-            <translation>Buffrar</translation>
+            <source>Normal</source>
+            <translation>Normal</translation>
         </message>
     </context>
     <context>
@@ -2343,6 +2813,14 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
     </context>
     <context>
         <name>Select state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Ej tillgängligt</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Okänt</translation>
+        </message>
         <message>
             <source>On</source>
             <translation>På</translation>
@@ -2470,6 +2948,13 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         </message>
     </context>
     <context>
+        <name>Abbreviation for not available</name>
+        <message>
+            <source>N/A</source>
+            <translation>Ej tillämpligt</translation>
+        </message>
+    </context>
+    <context>
         <name>ProfileSwitch</name>
         <message>
             <source>Profiles</source>
@@ -2498,6 +2983,10 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>Add a new profile</source>
             <translation>Lägg till en ny profil</translation>
+        </message>
+        <message>
+            <source>Normal</source>
+            <translation>Normal</translation>
         </message>
         <message>
             <source>Restricted</source>
@@ -2532,7 +3021,7 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         </message>
         <message>
             <source>Something went wrong while setting up the integration.</source>
-            <translation>Något gick fel vid setupen av integrationen.</translation>
+            <translation>Något gick fel vid konfigureringen av integrationen.</translation>
         </message>
         <message>
             <source>ERROR:</source>
@@ -2552,7 +3041,7 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         </message>
         <message>
             <source>Something went wrong while setting up the dock.</source>
-            <translation>Något gick fel vid setupen av dockan.</translation>
+            <translation>Något gick fel vid konfigureringen av dockan.</translation>
         </message>
         <message>
             <source>Try again</source>
@@ -2648,9 +3137,21 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <source>On</source>
             <translation>På</translation>
         </message>
+        <message>
+            <source>Off</source>
+            <translation>Av</translation>
+        </message>
     </context>
     <context>
         <name>uc::Voice</name>
+        <message>
+            <source>The service is temporarily unavailable.</source>
+            <translation>Tjänsten är tillfälligt otillgänglig.</translation>
+        </message>
+        <message>
+            <source>Incorrect audio format.</source>
+            <translation>Felaktigt ljudformat.</translation>
+        </message>
         <message>
             <source>I didn’t catch any text from your input. Could you repeat that?</source>
             <translation>Jag uppfattade ingen text i din input. Kan du upprepa?</translation>
@@ -2899,8 +3400,20 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <translation>är otillgänglig</translation>
         </message>
         <message>
+            <source>Some devices are not ready</source>
+            <translation>Vissa enheter är inte redo</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 är inte anslutet ännu. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
+        </message>
+        <message>
             <source>Profile is restricted</source>
             <translation>Profilen är begränsad</translation>
+        </message>
+        <message>
+            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 är ännu inte anslutna. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -2913,6 +3426,10 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>Close</source>
             <translation>Stäng</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Fortsätt</translation>
         </message>
     </context>
     <context>
@@ -2931,6 +3448,10 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>Opened</source>
             <translation>Öppnad</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Stängt</translation>
         </message>
     </context>
     <context>
@@ -2997,8 +3518,16 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
     <context>
         <name>MediaComponent</name>
         <message>
+            <source>All</source>
+            <translation>Alla</translation>
+        </message>
+        <message>
             <source>One</source>
             <translation>En</translation>
+        </message>
+        <message>
+            <source>Sources</source>
+            <translation>Källor</translation>
         </message>
     </context>
     <context>
@@ -3007,12 +3536,48 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <source>Charging</source>
             <translation>Laddar</translation>
         </message>
+        <message>
+            <source>Not charging</source>
+            <translation>Laddar inte</translation>
+        </message>
     </context>
     <context>
         <name>Voice</name>
         <message>
             <source>Microphone</source>
             <translation>Mikrofon</translation>
+        </message>
+        <message>
+            <source>Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.</source>
+            <translation>Om du inaktiverar mikrofonen stängs den av helt.  Du kommer då inte att kunna använda röstassistenter.</translation>
+        </message>
+        <message>
+            <source>Voice Assistant</source>
+            <translation>Röstassistent</translation>
+        </message>
+        <message>
+            <source>None selected</source>
+            <translation>Inget valt</translation>
+        </message>
+        <message>
+            <source>Profile: %1</source>
+            <translation>Profil: %1</translation>
+        </message>
+        <message>
+            <source>No profile selected</source>
+            <translation>Ingen profil vald</translation>
+        </message>
+        <message>
+            <source>Use the Web Configurator to edit voice assistants.</source>
+            <translation>Använd webbkonfiguratorn för att redigera röstassistenter.</translation>
+        </message>
+        <message>
+            <source>Speech response</source>
+            <translation>Talrespons</translation>
+        </message>
+        <message>
+            <source>Play speech response from Voice Assistant when supported.</source>
+            <translation>Spela upp röstsvar från röstassistenten om funktionen stöds.</translation>
         </message>
     </context>
     <context>

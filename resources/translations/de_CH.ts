@@ -20,11 +20,11 @@
         </message>
         <message>
             <source>On</source>
-            <translation>Ein</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
     </context>
     <context>
@@ -69,7 +69,7 @@
         <name>Activity</name>
         <message>
             <source>Some devices are not ready</source>
-            <translation>Einige Geräte sind nicht bereit</translation>
+            <translation>Einigi Grät si no nid parat</translation>
         </message>
         <message>
             <source>Tap to close</source>
@@ -77,7 +77,7 @@
         </message>
         <message>
             <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+            <translation>%1 isch no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>Tap for more</source>
@@ -85,7 +85,7 @@
         </message>
         <message>
             <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+            <translation>%1 si no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>Fix states</source>
@@ -170,7 +170,7 @@
         <message>
             <source>Choose WiFi security for
 %1</source>
-            <translation>Wähle WiFi Sicherheit für
+            <translation>Wähl d WiFi-Sicherheit für
 %1</translation>
         </message>
         <message>
@@ -188,7 +188,7 @@
         <message>
             <source>Enter WiFi password for
 %1</source>
-            <translation>WiFi Passwort igä für
+            <translation>WiFi-Passwort igä für
 %1</translation>
         </message>
         <message>
@@ -208,11 +208,11 @@
         </message>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
     </context>
     <context>
@@ -269,7 +269,7 @@
         </message>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
     </context>
     <context>
@@ -347,7 +347,7 @@
         <message>
             <source>Enter WiFi password for
 %1</source>
-            <translation>WiFi Passwort für
+            <translation>WiFi-Passwort für
 %1 iigä</translation>
         </message>
         <message>
@@ -390,7 +390,7 @@
         </message>
         <message>
             <source>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won't be possible now.</source>
-            <translation>D Verbindig zum WiFi-Netzwärk isch fählgschlage. Du chaschs nomal probiere oder fortfahre ohni es WiFi-Netzwärk izrichte. Es WiFi-Netzwärk cha spöter unger Istelligge iigrichtet wärde. We dä Schritt überschprunge wird, isch ds Dock- u Integrations-Setup itz nümme möglech.</translation>
+            <translation>D Verbindig zum WiFi-Netzwärk isch fählgschlage. Du chasch nomau probiere oder wytermache ohni es WiFi-Netzwärk izrichte. Ds WiFi-Netzwärk chasch spöter i de Ystellige iirichte. We du dä Schritt überspringsch, chöi Dock u Integratione itz nid iigrichtet wärde.</translation>
         </message>
         <message>
             <source>Set up later</source>
@@ -460,11 +460,15 @@
         <name>Settings</name>
         <message>
             <source>Display &amp; Brightness</source>
-            <translation>Anzeige &amp; Helligkeit</translation>
+            <translation>Aazeig &amp; Helligkeit</translation>
         </message>
         <message>
             <source>User interface</source>
             <translation>Benutzeroberflächi</translation>
+        </message>
+        <message>
+            <source>Touch Slider</source>
+            <translation>Touch-Slider</translation>
         </message>
         <message>
             <source>Sound &amp; Haptic</source>
@@ -503,7 +507,7 @@
         </message>
         <message>
             <source>%1 is not available. Please check your configuration.</source>
-            <translation>%1 ist nicht verfügbar. Bitte überprüfe deine Konfiguration.</translation>
+            <translation>%1 isch nid verfüegbar. Bitte prüef dyni Konfiguration.</translation>
         </message>
     </context>
     <context>
@@ -552,7 +556,7 @@
         <name>SelectWidget</name>
         <message>
             <source>Select an option</source>
-            <translation>Wähle eine Option</translation>
+            <translation>Wähl e Option</translation>
         </message>
     </context>
     <context>
@@ -606,7 +610,7 @@
         </message>
         <message>
             <source>Low</source>
-            <translation>Niedrig</translation>
+            <translation>Nidrig</translation>
         </message>
     </context>
     <context>
@@ -664,7 +668,7 @@
         </message>
         <message>
             <source>Light</source>
-            <translation>Licht</translation>
+            <translation>Liecht</translation>
         </message>
         <message>
             <source>Media player</source>
@@ -676,7 +680,7 @@
         </message>
         <message>
             <source>Switch</source>
-            <translation>Schalter</translation>
+            <translation>Schauter</translation>
         </message>
         <message>
             <source>No entities</source>
@@ -699,7 +703,7 @@
         </message>
         <message>
             <source>Haptic feedback</source>
-            <translation>Haptisches Feedback</translation>
+            <translation>Haptischs Feedback</translation>
         </message>
     </context>
     <context>
@@ -719,23 +723,23 @@ i %1 Sekunde uus.</translation>
         <name>MediaBrowser</name>
         <message>
             <source>An error occurred while loading media content.</source>
-            <translation>Beim Laden von Medieninhalten ist ein Fehler aufgetreten.</translation>
+            <translation>Bim Lade vo de Medieinhäut isch e Fähler ufträtte.</translation>
         </message>
         <message>
             <source>Retry</source>
-            <translation>Wiederholen</translation>
+            <translation>Nomau probiere</translation>
         </message>
         <message>
             <source>Browse</source>
-            <translation>Durchsuchen</translation>
+            <translation>Dursueche</translation>
         </message>
         <message>
             <source>Search…</source>
-            <translation>Suchen…</translation>
+            <translation>Sueche…</translation>
         </message>
         <message>
             <source>Track</source>
-            <translation>Titel</translation>
+            <translation>Titu</translation>
         </message>
         <message>
             <source>Album</source>
@@ -779,7 +783,7 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>Channels</source>
-            <translation>Kanäle</translation>
+            <translation>Kanäl</translation>
         </message>
         <message>
             <source>Composer</source>
@@ -791,7 +795,7 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>Game</source>
-            <translation>Spiel</translation>
+            <translation>Spiu</translation>
         </message>
         <message>
             <source>Image</source>
@@ -803,7 +807,7 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>Music</source>
-            <translation>Musik</translation>
+            <translation>Musig</translation>
         </message>
         <message>
             <source>Season</source>
@@ -811,7 +815,7 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>TV Show</source>
-            <translation>TV-Sendung</translation>
+            <translation>TV-Sändig</translation>
         </message>
         <message>
             <source>URL</source>
@@ -835,27 +839,27 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>No results</source>
-            <translation>Keine Treffer</translation>
+            <translation>Kei Träffer</translation>
         </message>
         <message>
             <source>Try something else.</source>
-            <translation>Versuch etwas anderes.</translation>
+            <translation>Versuech etwas anderes.</translation>
         </message>
         <message>
             <source>Play now</source>
-            <translation>Jetzt spielen</translation>
+            <translation>Jetzt abspile</translation>
         </message>
         <message>
             <source>Play next</source>
-            <translation>Spiele als nächstes</translation>
+            <translation>Als Nächschts abspiele</translation>
         </message>
         <message>
             <source>Add to queue</source>
-            <translation>Zur Warteschlange hinzufügen</translation>
+            <translation>Zur Warteschlange hinzuefüege</translation>
         </message>
         <message>
             <source>Could not load media</source>
-            <translation>Konnte Medien nicht laden</translation>
+            <translation>Ha d Medie nid chönne lade</translation>
         </message>
     </context>
     <context>
@@ -881,11 +885,11 @@ i %1 Sekunde uus.</translation>
         <name>Switch</name>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
     </context>
     <context>
@@ -907,7 +911,7 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Ke Bewegig</translation>
         </message>
     </context>
     <context>
@@ -1016,11 +1020,46 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
+        </message>
+    </context>
+    <context>
+        <name>Media player state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Nid verfüegbar</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Unbekannt</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Aa</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Us</translation>
+        </message>
+        <message>
+            <source>Playing</source>
+            <translation>Spiut</translation>
+        </message>
+        <message>
+            <source>Paused</source>
+            <translation>Pausiert</translation>
+        </message>
+        <message>
+            <source>Standby</source>
+            <translation>Am rueä</translation>
+        </message>
+        <message>
+            <source>Buffering</source>
+            <translation>Am puffere</translation>
         </message>
     </context>
     <context>
@@ -1043,14 +1082,14 @@ i %1 Sekunde uus.</translation>
         </message>
         <message>
             <source>Error while connecting to %1, with id %2</source>
-            <translation>Fähler bim Verbinde mit %1, id %2</translation>
+            <translation>Fähler bim Verbinde mit %1, ID %2</translation>
         </message>
     </context>
     <context>
         <name>Abbreviation for nothing is selected</name>
         <message>
             <source>None</source>
-            <translation>Keine</translation>
+            <translation>Keni</translation>
         </message>
     </context>
     <context>
@@ -1175,7 +1214,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Software update was successful.%1The remote will reboot now.</source>
-            <translation>D Software Aktualisierig isch erfolgrich gsi.%1D Fernbedienig wird neu gstartet.</translation>
+            <translation>D Software-Aktualisierig isch erfolgrich gsi.%1D Fernbedienig start itz nöi.</translation>
         </message>
         <message>
             <source>Update failed</source>
@@ -1213,11 +1252,11 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
         <message>
             <source>Running</source>
@@ -1254,11 +1293,11 @@ vom Web-Konfigurator</translation>
         <name>Outlet</name>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
     </context>
     <context>
@@ -1273,7 +1312,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>The command did not reach the device. Would you like to try again?</source>
-            <translation>Der Befehl hat das Gerät nicht erreicht. Möchtest du es erneut versuchen?</translation>
+            <translation>Dr Befäu het ds Grät nid erreicht. Wotsch es nomau probiere?</translation>
         </message>
         <message>
             <source>Try again</source>
@@ -1285,7 +1324,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Error sending the command</source>
-            <translation>Fehler beim Senden des Befehls</translation>
+            <translation>Fähler bim Sände vom Befäu</translation>
         </message>
     </context>
     <context>
@@ -1296,7 +1335,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>%1 is not available. Please check your configuration.</source>
-            <translation>%1 ist nicht verfügbar. Bitte überprüfe deine Konfiguration.</translation>
+            <translation>%1 isch nid verfüegbar. Bitte prüef dyni Konfiguration.</translation>
         </message>
     </context>
     <context>
@@ -1359,11 +1398,11 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
     </context>
     <context>
@@ -1374,7 +1413,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Ke Rauch</translation>
         </message>
     </context>
     <context>
@@ -1396,11 +1435,11 @@ vom Web-Konfigurator</translation>
         <name>Binary sensor state without device class</name>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
     </context>
     <context>
@@ -1408,6 +1447,10 @@ vom Web-Konfigurator</translation>
         <message>
             <source>Volume</source>
             <translation>Lutstärchi</translation>
+        </message>
+        <message>
+            <source>Touch slider</source>
+            <translation>Touch-Slider</translation>
         </message>
         <message>
             <source>When off, the touch slider is disabled everywhere and swiping it does nothing.</source>
@@ -1424,6 +1467,10 @@ vom Web-Konfigurator</translation>
         <message>
             <source>Brightness</source>
             <translation>Helligkeit</translation>
+        </message>
+        <message>
+            <source>Cover position</source>
+            <translation>Position vor Abdeckig</translation>
         </message>
         <message>
             <source>Seek</source>
@@ -1465,7 +1512,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Key management</source>
-            <translation>Schlüssel-Management</translation>
+            <translation>Schlüsselverwaltig</translation>
         </message>
         <message>
             <source>Disconnect</source>
@@ -1492,7 +1539,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Ke Vibration</translation>
         </message>
     </context>
     <context>
@@ -1641,18 +1688,18 @@ vom Web-Konfigurator</translation>
         <name>OnOff</name>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
     </context>
     <context>
         <name>Power</name>
         <message>
             <source>Power</source>
-            <translation>Leistung</translation>
+            <translation>Energie</translation>
         </message>
         <message>
             <source>Keep WiFi connected in standby</source>
@@ -1664,7 +1711,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Retry commands after wakeup</source>
-            <translation>Befehle nach dem Aufwachen wiederholen</translation>
+            <translation>Befähl nachem Ufwache widerhole</translation>
         </message>
         <message>
             <source>Wakeup sensitivity</source>
@@ -1672,19 +1719,19 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Amount of movement needed to wake up the remote.</source>
-            <translation>Bewegig, wo brucht wird, um d Fernbedienig ufzwecke.</translation>
+            <translation>Bewegig, wo's brucht, zum d Fernbedienig ufzwecke.</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
         <message>
             <source>Sensitivity</source>
-            <translation>Empfindlichkeit</translation>
+            <translation>Empfindlechkeit</translation>
         </message>
         <message>
             <source>Display off timeout</source>
-            <translation>Timeout Bildschirm abschalte</translation>
+            <translation>Bildschirm-Timeout</translation>
         </message>
         <message>
             <source>%1 seconds</source>
@@ -1692,7 +1739,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Retry commands within %1 second(s) after wakeup.</source>
-            <translation>Befehle %1 Sekunde(n) nach dem Aufwachen erneut versuchen.</translation>
+            <translation>Befähl %1 Sekunde(n) nachem Ufwache nomau probiere.</translation>
         </message>
         <message>
             <source>Disabled</source>
@@ -1711,7 +1758,7 @@ vom Web-Konfigurator</translation>
         <name>Display</name>
         <message>
             <source>Auto brightness</source>
-            <translation>Automatische Helligkeit</translation>
+            <translation>Automatischi Helligkeit</translation>
         </message>
         <message>
             <source>Automatically adjust the display brightness based on ambient lighting conditions.</source>
@@ -1738,7 +1785,7 @@ vom Web-Konfigurator</translation>
         <name>No option is selected in the select entity</name>
         <message>
             <source>None</source>
-            <translation>Keine</translation>
+            <translation>Keni</translation>
         </message>
     </context>
     <context>
@@ -1749,7 +1796,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
         <message>
             <source>Heat</source>
@@ -1795,29 +1842,33 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>%1 is not available. Please check your configuration.</source>
-            <translation>%1 ist nicht verfügbar. Bitte überprüfe deine Konfiguration.</translation>
+            <translation>%1 isch nid verfüegbar. Bitte prüef dyni Konfiguration.</translation>
         </message>
     </context>
     <context>
         <name>Start</name>
         <message>
             <source>Tap the screen to begin</source>
-            <translation>Zum Starten auf den Bildschirm tippen</translation>
+            <translation>Tippe uf e Bildschirm zum Aafah</translation>
         </message>
     </context>
     <context>
         <name>main</name>
         <message>
             <source>Some devices are not ready</source>
-            <translation>Einige Geräte sind nicht bereit</translation>
+            <translation>Einigi Grät si no nid parat</translation>
+        </message>
+        <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 isch no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+            <translation>%1 si no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>Proceed</source>
-            <translation>Witer</translation>
+            <translation>Wyterfahre</translation>
         </message>
         <message>
             <source>Done</source>
@@ -1836,7 +1887,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>%1 is %2</source>
-            <translation>%1 ist %2</translation>
+            <translation>%1 isch %2</translation>
         </message>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
@@ -1844,15 +1895,15 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Some devices are not ready</source>
-            <translation>Einige Geräte sind nicht bereit</translation>
+            <translation>Einigi Grät si no nid parat</translation>
         </message>
         <message>
             <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+            <translation>%1 isch no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+            <translation>%1 si no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>Proceed</source>
@@ -1874,7 +1925,7 @@ vom Web-Konfigurator</translation>
         </message>
         <message>
             <source>Ok</source>
-            <translation>Ok</translation>
+            <translation>OK</translation>
         </message>
     </context>
     <context>
@@ -1924,7 +1975,7 @@ kes zrügg me</translation>
         </message>
         <message>
             <source>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</source>
-            <translation>D Bestätigung vor Werksrückstellig löscht aui Konfiguratione und persönlichi Date. Es cha nüt wieder hergstellt wärde.</translation>
+            <translation>We du ds Zrücksetze uf Werksystellige bestätigsch, wärde aui Konfiguratione u Date glöscht. D Date chöi nid widerhergsteut wärde.</translation>
         </message>
         <message>
             <source>Confirm</source>
@@ -1943,7 +1994,7 @@ kes zrügg me</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Kes Gas</translation>
         </message>
     </context>
     <context>
@@ -2049,18 +2100,18 @@ kes zrügg me</translation>
         </message>
         <message>
             <source>On</source>
-            <translation>An</translation>
+            <translation>Aa</translation>
         </message>
     </context>
     <context>
         <name>Color</name>
         <message>
             <source>Adjust the color tone of the user interface. Using the sliders, choose a color. The user interface colors will be generated based on that color.</source>
-            <translation>Passen Sie den Farbton der Benutzeroberfläche an. Mit den Schiebereglern wählen Sie eine Farbe. Die Farben der Benutzeroberfläche werden basierend auf dieser Farbe generiert.</translation>
+            <translation>Passe dr Farbton vo dr Benutzeroberflächi aa. Wähl e Farb mit de Schiebereglere. D Farbe vo dr Benutzeroberflächi wärde uf Grund vo dere Farb generiert.</translation>
         </message>
         <message>
             <source>This is a darker text, in a darker container</source>
-            <translation>Dies ist ein dunkler Text, in einem dunkleren Container</translation>
+            <translation>Das isch e dunklere Täxt, i mene dunklere Container</translation>
         </message>
         <message>
             <source>Button</source>
@@ -2075,7 +2126,7 @@ kes zrügg me</translation>
         <name>Terms</name>
         <message>
             <source>Terms &amp; conditions</source>
-            <translation>Nutzungsbedingungen</translation>
+            <translation>Nutzigsbedingige</translation>
         </message>
         <message>
             <source>By using Unfolded Circle products you agree to the Terms &amp; conditions.
@@ -2084,11 +2135,13 @@ You can read them on
 unfoldedcircle.com/legal
 or by scanning this QR code.
 Tap the QR code to show it on the screen.</source>
-            <translation>Durch die Verwendung von Unfolded Circle Produkten stimmst du den Nutzungsbedingungen zu.
+            <translation>Dür ds Bruuche vo Unfolded Circle Produkt stimmsch du
+de Nutzigsbedingige zue.
 
-Du kannst diese unter unfoldedcircle.com/legal
-lesen, oder durch Scannen des QR-Codes.
-Tippe auf den QR-Code, um zu vergrössern.</translation>
+Läse chasch die unger
+unfoldedcircle.com/legal
+oder scanne dä QR-Code.
+Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2103,7 +2156,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         <name>Discovery</name>
         <message>
             <source>Bluetooth is disabled. Discovery limited to network only.</source>
-            <translation>Bluetooth isch deaktiviert. Erkennig beschränkt uf Netzwärk.</translation>
+            <translation>Bluetooth isch deaktiviert. Suechi beschränkt uf Netzwärk.</translation>
         </message>
         <message>
             <source>Bluetooth</source>
@@ -2111,7 +2164,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</source>
-            <translation>Tippe uf Entdecke zum Docks i dim Netzwärk oder über Bluetooth zsueche. Wenn du es nöis Dock kabelos wotsch iirichte, steu sicher, dass es sech i unmittelbarer Nöchi zur Fernbedienig befindet.</translation>
+            <translation>Tippe uf Sueche zum Docks i dim Netzwärk oder über Bluetooth zsueche. Wenn du es nöis Dock kabelos wotsch iirichte, steu sicher, dass es sech i unmittelbarer Nöchi zur Fernbedienig befindet.</translation>
         </message>
         <message>
             <source>Discover</source>
@@ -2123,7 +2176,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Discovering</source>
-            <translation>Entdecke</translation>
+            <translation>Suechi lauft</translation>
         </message>
         <message>
             <source>%1 dock(s) found</source>
@@ -2176,15 +2229,19 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         <name>LoadingScreen</name>
         <message>
             <source>Sequence didn't finish within %1 seconds. Check configuration.</source>
-            <translation>Sequenz wurde nicht innerhalb von %1 Sekunden beendet. Prüfe die Konfiguration.</translation>
+            <translation>D Sequänz isch nid innerhalb vo %1 Sekunde fertig worde. Prüef d Konfiguration.</translation>
         </message>
         <message>
             <source>There was an error during the sequence.</source>
-            <translation>Es gab einen Fehler während der Sequenz.</translation>
+            <translation>Es het e Fähler ggä während dr Sequänz.</translation>
         </message>
         <message>
             <source>The sequence timed out.</source>
-            <translation>Zeitüberschreitung der Sequenz.</translation>
+            <translation>Zytüberschritig vo dr Sequänz.</translation>
+        </message>
+        <message>
+            <source>%1 (error %2)</source>
+            <translation>%1 (Fähler %2)</translation>
         </message>
         <message>
             <source>There was an error during the sequence. Error code: %1</source>
@@ -2218,19 +2275,19 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Processing ...</source>
-            <translation>Verarbeitung ...</translation>
+            <translation>Verarbeitig ...</translation>
         </message>
         <message>
             <source>There was an error.</source>
-            <translation>Es gab einen Fehler.</translation>
+            <translation>Es het e Fähler ggä.</translation>
         </message>
         <message>
             <source>Missing rights to use voice assistant.</source>
-            <translation>Fehlende Rechte zur Nutzung des Sprachassistenten.</translation>
+            <translation>Fählendi Rächt, zum e Sprachassischtänt z bruuche.</translation>
         </message>
         <message>
             <source>Request failed.</source>
-            <translation>Anfrage fehlgeschlagen.</translation>
+            <translation>Aafrag fählgschlage.</translation>
         </message>
         <message>
             <source>Not authenticated.</source>
@@ -2238,11 +2295,11 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Voice assistant not found. Please check configuration.</source>
-            <translation>Sprachassistent nicht gefunden. Bitte überprüfe die Konfiguration.</translation>
+            <translation>Sprachassischtänt nid gfunde. Bitte prüef d Konfiguration.</translation>
         </message>
         <message>
             <source>There were too many requests. Please try again later.</source>
-            <translation>Zu viele Anfragen, bitte versuche es später.</translation>
+            <translation>Z vöu Aafrage. Bitte probiers spöter nomau.</translation>
         </message>
         <message>
             <source>Internal server error.</source>
@@ -2254,7 +2311,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>It’s taking longer than expected. Please try your request again.</source>
-            <translation>Es dauert länger als erwartet. Bitte versuche es erneut.</translation>
+            <translation>Es duuret länger aus erwartet. Bitte probiers nomau.</translation>
         </message>
         <message>
             <source>Listening ...</source>
@@ -2371,7 +2428,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>%1 is not available. Please check your configuration.</source>
-            <translation>%1 ist nicht verfügbar. Bitte überprüfe deine Konfiguration.</translation>
+            <translation>%1 isch nid verfüegbar. Bitte prüef dyni Konfiguration.</translation>
         </message>
     </context>
     <context>
@@ -2394,11 +2451,11 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Show battery indicator everywhere</source>
-            <translation>Batterieanzeige überall anzeigen</translation>
+            <translation>Akkuaazeig überau zeige</translation>
         </message>
         <message>
             <source>Shows the battery level indicator on all pages and activities.</source>
-            <translation>Zeigt die Batteriestandsanzeige auf allen Seiten und Aktivitäten an.</translation>
+            <translation>Zeigt d Akkustandsaazeig uf aune Siite u Aktivitäte.</translation>
         </message>
         <message>
             <source>Activities on pages</source>
@@ -2414,7 +2471,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
-            <translation>Dr Aktivitätsbildschirm öffne, wenn e Aktivität usserhalb vo dr Färnbedienig gstartet wird, und ersetze was grad uf em Bildschirm isch.</translation>
+            <translation>Dr Aktivitätsbildschirm öffne, we n e Aktivität usserhalb vo dr Fernbedienig gstartet wird, u dr aktuell Bildschirminhaut ersetze.</translation>
         </message>
         <message>
             <source>Zoom media image</source>
@@ -2430,7 +2487,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Use coverflow as the default view when opening the media browser.</source>
-            <translation>Coverflow als Standardansicht beim Öffnen des Medienbrowsers verwenden.</translation>
+            <translation>Coverflow aus Standardaasicht bim Öffne vom Medienbrowser bruuche.</translation>
         </message>
     </context>
     <context>
@@ -2452,14 +2509,14 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Ke Manipulation</translation>
         </message>
     </context>
     <context>
         <name>Configure</name>
         <message>
             <source>By %1</source>
-            <translation>Von %1</translation>
+            <translation>Vo %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -2586,7 +2643,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Minimum 50% battery charge is required to install software updates</source>
-            <translation>Mindestens 50% Batterieladig wird brucht um Software-Updates z installiere</translation>
+            <translation>Für Software-Updates z installiere brucht's mindestens 50% Akkuladig</translation>
         </message>
         <message>
             <source>Check for update</source>
@@ -2625,7 +2682,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Ke Ton</translation>
         </message>
     </context>
     <context>
@@ -2698,41 +2755,6 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
     </context>
     <context>
-        <name>Media platyer state</name>
-        <message>
-            <source>Unavailable</source>
-            <translation>Nid verfüegbar</translation>
-        </message>
-        <message>
-            <source>Unknown</source>
-            <translation>Unbekannt</translation>
-        </message>
-        <message>
-            <source>On</source>
-            <translation>An</translation>
-        </message>
-        <message>
-            <source>Off</source>
-            <translation>Aus</translation>
-        </message>
-        <message>
-            <source>Playing</source>
-            <translation>Spielt</translation>
-        </message>
-        <message>
-            <source>Paused</source>
-            <translation>Pausiert</translation>
-        </message>
-        <message>
-            <source>Standby</source>
-            <translation>Am rueä</translation>
-        </message>
-        <message>
-            <source>Buffering</source>
-            <translation>Puffert</translation>
-        </message>
-    </context>
-    <context>
         <name>Binary sensor state light</name>
         <message>
             <source>Light detected</source>
@@ -2795,7 +2817,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         <name>Select state</name>
         <message>
             <source>Unavailable</source>
-            <translation>Nicht verfügbar</translation>
+            <translation>Nid verfüegbar</translation>
         </message>
         <message>
             <source>Unknown</source>
@@ -2803,7 +2825,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>On</source>
-            <translation>Ein</translation>
+            <translation>Aa</translation>
         </message>
     </context>
     <context>
@@ -2818,11 +2840,11 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Integration discovery failed to start</source>
-            <translation>Integrationsentdeckig het nid chönne gstartet wärde</translation>
+            <translation>Integrationssuechi het nid chönne gstartet wärde</translation>
         </message>
         <message>
             <source>Integration discovery failed to stop</source>
-            <translation>Integrationsentdeckig het nid chönne gstoppt wärde</translation>
+            <translation>Integrationssuechi het nid chönne gstoppt wärde</translation>
         </message>
         <message>
             <source>Error getting integration driver metadata</source>
@@ -3044,11 +3066,11 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         <name>uc::dock::DockController</name>
         <message>
             <source>Failed to start dock discovery</source>
-            <translation>Fähler bim Starte vor Dock-Erkennig</translation>
+            <translation>Fähler bim Starte vor Dock-Suechi</translation>
         </message>
         <message>
             <source>There was an error starting dock discovery: %1</source>
-            <translation>Fähler bim Starte vor Dock-Erkennig: %1</translation>
+            <translation>Fähler bim Starte vor Dock-Suechi: %1</translation>
         </message>
         <message>
             <source>Try again</source>
@@ -3056,15 +3078,15 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Failed to stop dock discovery</source>
-            <translation>Fähler bim Beände vor Dock-Erkennig</translation>
+            <translation>Fähler bim Beände vor Dock-Suechi</translation>
         </message>
         <message>
             <source>There was an error stopping dock discovery: %1</source>
-            <translation>Fähler bim Stoppe vor Dock-Erkennig: %1</translation>
+            <translation>Fähler bim Stoppe vor Dock-Suechi: %1</translation>
         </message>
         <message>
             <source>Configuring</source>
-            <translation>Konfiguriere</translation>
+            <translation>Wird konfiguriert</translation>
         </message>
         <message>
             <source>Restarting</source>
@@ -3115,42 +3137,42 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         <name>Binary sensor state power</name>
         <message>
             <source>On</source>
-            <translation>Ein</translation>
+            <translation>Aa</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
     </context>
     <context>
         <name>uc::Voice</name>
         <message>
             <source>The service is temporarily unavailable.</source>
-            <translation>Der Dienst ist vorübergehend nicht verfügbar.</translation>
+            <translation>Dr Dienst isch vorüberghend nid verfüegbar.</translation>
         </message>
         <message>
             <source>Incorrect audio format.</source>
-            <translation>Falsches Audioformat.</translation>
+            <translation>Fautschs Audioformat.</translation>
         </message>
         <message>
             <source>I didn’t catch any text from your input. Could you repeat that?</source>
-            <translation>Ich habe deinen Text nicht verstanden. Kannst du das bitte wiederholen?</translation>
+            <translation>I ha di nid verstande. Chasch das bitte widerhole?</translation>
         </message>
         <message>
             <source>Please try rephrasing your request.</source>
-            <translation>Bitte versuche, deine Anfrage umzuformulieren.</translation>
+            <translation>Bitte probier dyni Aafrag angers z formuliere.</translation>
         </message>
         <message>
             <source>I couldn’t generate the audio response.</source>
-            <translation>Ich konnte die Audioantwort nicht erzeugen.</translation>
+            <translation>I ha d Audioantwort nid chönne mache.</translation>
         </message>
         <message>
             <source>It’s taking longer than expected. Please try your request again.</source>
-            <translation>Es dauert länger als erwartet. Bitte versuche es erneut.</translation>
+            <translation>Es duuret länger aus erwartet. Bitte probiers nomau.</translation>
         </message>
         <message>
             <source>Something went wrong on our side. Please try again.</source>
-            <translation>Etwas ist bei uns schiefgelaufen. Bitte versuche es erneut.</translation>
+            <translation>Bi üs isch öppis schief gloffe. Bitte probiers nomau.</translation>
         </message>
     </context>
     <context>
@@ -3283,7 +3305,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Service name</source>
-            <translation>Dienst-Name</translation>
+            <translation>Dienstname</translation>
         </message>
         <message>
             <source>Custom IP or URL</source>
@@ -3385,7 +3407,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+            <translation>%1 isch no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>Profile is restricted</source>
@@ -3393,7 +3415,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+            <translation>%1 si no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3472,7 +3494,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Off</source>
-            <translation>Aus</translation>
+            <translation>Us</translation>
         </message>
         <message>
             <source>Heat</source>
@@ -3499,15 +3521,15 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         <name>MediaComponent</name>
         <message>
             <source>All</source>
-            <translation>Alle</translation>
+            <translation>Aui</translation>
         </message>
         <message>
             <source>One</source>
-            <translation>Eins</translation>
+            <translation>Eis</translation>
         </message>
         <message>
             <source>Sources</source>
-            <translation>Quellen</translation>
+            <translation>Quelle</translation>
         </message>
     </context>
     <context>
@@ -3529,7 +3551,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.</source>
-            <translation>Das Deaktivieren des Mikrofons schaltet es vollständig aus. Du wirst Sprachassistenten nicht mehr nutzen können.</translation>
+            <translation>Ds Deaktiviere vom Mikrofon schautet's ganz us. Du chasch de kei Sprachassischtänte meh bruuche.</translation>
         </message>
         <message>
             <source>Voice Assistant</source>
@@ -3549,7 +3571,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Use the Web Configurator to edit voice assistants.</source>
-            <translation>Verwende den Web-Konfigurator, um Sprachassistenten zu bearbeiten.</translation>
+            <translation>Bruuch dr Web-Konfigurator, zum d Sprachassischtänte z bearbeite.</translation>
         </message>
         <message>
             <source>Speech response</source>
@@ -3557,7 +3579,7 @@ Tippe auf den QR-Code, um zu vergrössern.</translation>
         </message>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
-            <translation>Spiele Sprachantwort vom Sprachassistenten ab, wenn unterstützt.</translation>
+            <translation>Spiu d Sprachantwort vom Sprachassischtänt ab, we's ungerstützt wird.</translation>
         </message>
     </context>
     <context>

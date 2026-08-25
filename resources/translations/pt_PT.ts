@@ -1028,6 +1028,41 @@ dentro de %1 segundos.</translation>
         </message>
     </context>
     <context>
+        <name>Media player state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponível</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Desconhecido</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Ligado</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Desligado</translation>
+        </message>
+        <message>
+            <source>Playing</source>
+            <translation>Em reprodução</translation>
+        </message>
+        <message>
+            <source>Paused</source>
+            <translation>Em pausa</translation>
+        </message>
+        <message>
+            <source>Standby</source>
+            <translation>Em espera</translation>
+        </message>
+        <message>
+            <source>Buffering</source>
+            <translation>Em buffer</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Controller</name>
         <message>
             <source>Error</source>
@@ -2716,41 +2751,6 @@ Toca no código QR para o mostrar no ecrã.</translation>
         <message>
             <source>Select or add profile</source>
             <translation>Seleciona ou adiciona um perfil</translation>
-        </message>
-    </context>
-    <context>
-        <name>Media platyer state</name>
-        <message>
-            <source>Unavailable</source>
-            <translation>Indisponível</translation>
-        </message>
-        <message>
-            <source>Unknown</source>
-            <translation>Desconhecido</translation>
-        </message>
-        <message>
-            <source>On</source>
-            <translation>Ligado</translation>
-        </message>
-        <message>
-            <source>Off</source>
-            <translation>Desligado</translation>
-        </message>
-        <message>
-            <source>Playing</source>
-            <translation>Em reprodução</translation>
-        </message>
-        <message>
-            <source>Paused</source>
-            <translation>Em pausa</translation>
-        </message>
-        <message>
-            <source>Standby</source>
-            <translation>Em espera</translation>
-        </message>
-        <message>
-            <source>Buffering</source>
-            <translation>Em buffer</translation>
         </message>
     </context>
     <context>

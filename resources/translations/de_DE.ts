@@ -170,7 +170,7 @@
         <message>
             <source>Choose WiFi security for
 %1</source>
-            <translation>Wähle WiFi Sicherheit für
+            <translation>Wähle WiFi-Sicherheit für
 %1</translation>
         </message>
         <message>
@@ -188,7 +188,7 @@
         <message>
             <source>Enter WiFi password for
 %1</source>
-            <translation>WiFi Passwort für
+            <translation>WiFi-Passwort für
 %1 eingeben</translation>
         </message>
         <message>
@@ -347,7 +347,7 @@
         <message>
             <source>Enter WiFi password for
 %1</source>
-            <translation>WiFi Passwort für
+            <translation>WiFi-Passwort für
 %1 eingeben</translation>
         </message>
         <message>
@@ -390,7 +390,7 @@
         </message>
         <message>
             <source>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won't be possible now.</source>
-            <translation>Verbindung zum WiFi-Netzwerk fehlgeschlagen. Versuche es erneut oder fortfahren, ohne ein WiFi-Netzwerk einzurichten. Du kannst das WiFi-Netzwerk später in den Einstellungen einrichten. Wenn du diesen Schritt überspringst, können Dock und Integrationseinstellungen jetzt nicht vorgenommen werden.</translation>
+            <translation>Verbindung zum WiFi-Netzwerk fehlgeschlagen. Versuche es erneut oder fahre fort, ohne ein WiFi-Netzwerk einzurichten. Du kannst das WiFi-Netzwerk später in den Einstellungen einrichten. Wenn du diesen Schritt überspringst, können Dock und Integrationen jetzt nicht eingerichtet werden.</translation>
         </message>
         <message>
             <source>Set up later</source>
@@ -467,6 +467,10 @@
             <translation>Benutzeroberfläche</translation>
         </message>
         <message>
+            <source>Touch Slider</source>
+            <translation>Touch-Slider</translation>
+        </message>
+        <message>
             <source>Sound &amp; Haptic</source>
             <translation>Ton &amp; Haptik</translation>
         </message>
@@ -499,7 +503,7 @@
         <name>TouchSliderSeek</name>
         <message>
             <source>Touch slider is not available.</source>
-            <translation>Touch-Schieber ist nicht verfügbar.</translation>
+            <translation>Touch-Slider ist nicht verfügbar.</translation>
         </message>
         <message>
             <source>%1 is not available. Please check your configuration.</source>
@@ -706,7 +710,7 @@
         <name>RemoteOpen</name>
         <message>
             <source>Do not operate the device disassembled.</source>
-            <translation>Betreibe das Gerät nicht zerlegt.</translation>
+            <translation>Das Gerät nicht im zerlegten Zustand betreiben.</translation>
         </message>
         <message>
             <source>The remote will turn off
@@ -839,15 +843,15 @@ in %1 Sekunden aus.</translation>
         </message>
         <message>
             <source>Try something else.</source>
-            <translation>Versuch etwas anderes.</translation>
+            <translation>Versuche etwas anderes.</translation>
         </message>
         <message>
             <source>Play now</source>
-            <translation>Jetzt spielen</translation>
+            <translation>Jetzt abspielen</translation>
         </message>
         <message>
             <source>Play next</source>
-            <translation>Spiele als nächstes</translation>
+            <translation>Als Nächstes abspielen</translation>
         </message>
         <message>
             <source>Add to queue</source>
@@ -907,7 +911,7 @@ in %1 Sekunden aus.</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Keine</translation>
+            <translation>Keine Bewegung</translation>
         </message>
     </context>
     <context>
@@ -1024,6 +1028,41 @@ in %1 Sekunden aus.</translation>
         </message>
     </context>
     <context>
+        <name>Media player state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Nicht verfügbar</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Unbekannt</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>An</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Aus</translation>
+        </message>
+        <message>
+            <source>Playing</source>
+            <translation>Wiedergabe</translation>
+        </message>
+        <message>
+            <source>Paused</source>
+            <translation>Pausiert</translation>
+        </message>
+        <message>
+            <source>Standby</source>
+            <translation>Im Ruhezustand</translation>
+        </message>
+        <message>
+            <source>Buffering</source>
+            <translation>Wird gepuffert</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Controller</name>
         <message>
             <source>Error</source>
@@ -1043,7 +1082,7 @@ in %1 Sekunden aus.</translation>
         </message>
         <message>
             <source>Error while connecting to %1, with id %2</source>
-            <translation>Fehler beim Verbinden zu %1 mit ID %2</translation>
+            <translation>Fehler beim Verbinden mit %1, ID %2</translation>
         </message>
     </context>
     <context>
@@ -1103,7 +1142,7 @@ in %1 Sekunden aus.</translation>
         </message>
         <message>
             <source>No page found. Ask your administrator to setup pages.</source>
-            <translation>Keine Seite gefunden. Frage deinen Administrator für die Einrichtung von Seiten.</translation>
+            <translation>Keine Seite gefunden. Bitte deinen Administrator, Seiten einzurichten.</translation>
         </message>
     </context>
     <context>
@@ -1344,7 +1383,7 @@ den Web-Konfigurator zu öffnen</translation>
         <name>InputField</name>
         <message>
             <source>Input field is empty</source>
-            <translation>Eingabe-Feld ist leer</translation>
+            <translation>Eingabefeld ist leer</translation>
         </message>
     </context>
     <context>
@@ -1374,7 +1413,7 @@ den Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Kein Rauch</translation>
         </message>
     </context>
     <context>
@@ -1410,6 +1449,10 @@ den Web-Konfigurator zu öffnen</translation>
             <translation>Lautstärke</translation>
         </message>
         <message>
+            <source>Touch slider</source>
+            <translation>Touch-Slider</translation>
+        </message>
+        <message>
             <source>When off, the touch slider is disabled everywhere and swiping it does nothing.</source>
             <translation>Wenn deaktiviert, ist der Touch-Slider überall deaktiviert und Wischen hat keine Wirkung.</translation>
         </message>
@@ -1424,6 +1467,10 @@ den Web-Konfigurator zu öffnen</translation>
         <message>
             <source>Brightness</source>
             <translation>Helligkeit</translation>
+        </message>
+        <message>
+            <source>Cover position</source>
+            <translation>Position der Abdeckung</translation>
         </message>
         <message>
             <source>Seek</source>
@@ -1465,7 +1512,7 @@ den Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Key management</source>
-            <translation>Schlüssel-Management</translation>
+            <translation>Schlüsselverwaltung</translation>
         </message>
         <message>
             <source>Disconnect</source>
@@ -1492,7 +1539,7 @@ den Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Keine Vibration</translation>
         </message>
     </context>
     <context>
@@ -1507,7 +1554,7 @@ den Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Connecting</source>
-            <translation>Verbinden</translation>
+            <translation>Verbindet</translation>
         </message>
         <message>
             <source>Error</source>
@@ -1519,7 +1566,7 @@ den Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Reconnecting</source>
-            <translation>Erneut verbinden</translation>
+            <translation>Verbindet erneut</translation>
         </message>
         <message>
             <source>Something is wrong</source>
@@ -1652,7 +1699,7 @@ Web-Konfigurator zu öffnen</translation>
         <name>Power</name>
         <message>
             <source>Power</source>
-            <translation>Leistung</translation>
+            <translation>Energie</translation>
         </message>
         <message>
             <source>Keep WiFi connected in standby</source>
@@ -1684,7 +1731,7 @@ Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Display off timeout</source>
-            <translation>Bildschirm Timeout</translation>
+            <translation>Bildschirm-Timeout</translation>
         </message>
         <message>
             <source>%1 seconds</source>
@@ -1812,12 +1859,16 @@ Web-Konfigurator zu öffnen</translation>
             <translation>Einige Geräte sind nicht bereit</translation>
         </message>
         <message>
+            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
+            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
+        </message>
+        <message>
             <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
             <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>Proceed</source>
-            <translation>Weiter</translation>
+            <translation>Fortfahren</translation>
         </message>
         <message>
             <source>Done</source>
@@ -1840,7 +1891,7 @@ Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
-            <translation>Um die Seite zu anzupassen, Home-Taste gedrückt halten oder Web-Konfigurator verwenden</translation>
+            <translation>Um die Seite anzupassen, Home-Taste gedrückt halten oder Web-Konfigurator verwenden</translation>
         </message>
         <message>
             <source>Some devices are not ready</source>
@@ -1874,7 +1925,7 @@ Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Ok</source>
-            <translation>Ok</translation>
+            <translation>OK</translation>
         </message>
     </context>
     <context>
@@ -1917,6 +1968,12 @@ Web-Konfigurator zu öffnen</translation>
             <translation>Alles löschen</translation>
         </message>
         <message>
+            <source>Point of
+no return</source>
+            <translation>Von hier gibt
+es kein Zurück</translation>
+        </message>
+        <message>
             <source>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</source>
             <translation>Beim Bestätigen des Zurücksetzens auf Werkseinstellungen werden alle Konfigurationen und Daten gelöscht. Die Daten können nicht wiederhergestellt werden.</translation>
         </message>
@@ -1937,7 +1994,7 @@ Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Kein Gas</translation>
         </message>
     </context>
     <context>
@@ -2024,7 +2081,7 @@ Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
             <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
-            <translation>Beim Verbinden auf den Core Service ist ein Fehler aufgetreten. Wenn das Problem weiterhin besteht, starte die Fernbedienung neu.</translation>
+            <translation>Beim Verbinden mit dem Core Service ist ein Fehler aufgetreten. Wenn das Problem weiterhin besteht, starte die Fernbedienung neu.</translation>
         </message>
         <message>
             <source>Authentication to core failed</source>
@@ -2084,7 +2141,7 @@ den Nutzungsbedingungen zu.
 Lesen kannst du diese unter
 unfoldedcircle.com/legal
 oder scanne diesen QR-Code.
-Tippe auf den QR-Code, um zu Vergrößern.</translation>
+Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -2099,7 +2156,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         <name>Discovery</name>
         <message>
             <source>Bluetooth is disabled. Discovery limited to network only.</source>
-            <translation>Bluetooth ist deaktiviert. Erkennung ist auf Netzwerk beschränkt.</translation>
+            <translation>Bluetooth ist deaktiviert. Die Suche ist auf das Netzwerk beschränkt.</translation>
         </message>
         <message>
             <source>Bluetooth</source>
@@ -2107,11 +2164,11 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</source>
-            <translation>Tippe auf Entdecken, um nach Docks in deinem Netzwerk oder über Bluetooth zu suchen. Wenn du ein neues Dock drahtlos einrichten möchtest, stelle sicher, dass es sich in der Nähe der Fernbedienung befindet.</translation>
+            <translation>Tippe auf Suchen, um nach Docks in deinem Netzwerk oder über Bluetooth zu suchen. Wenn du ein neues Dock drahtlos einrichten möchtest, stelle sicher, dass es sich in der Nähe der Fernbedienung befindet.</translation>
         </message>
         <message>
             <source>Discover</source>
-            <translation>Entdecken</translation>
+            <translation>Suchen</translation>
         </message>
         <message>
             <source>Skip</source>
@@ -2119,7 +2176,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Discovering</source>
-            <translation>Entdecken</translation>
+            <translation>Suche läuft</translation>
         </message>
         <message>
             <source>%1 dock(s) found</source>
@@ -2181,6 +2238,10 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         <message>
             <source>The sequence timed out.</source>
             <translation>Zeitüberschreitung der Sequenz.</translation>
+        </message>
+        <message>
+            <source>%1 (error %2)</source>
+            <translation>%1 (Fehler %2)</translation>
         </message>
         <message>
             <source>There was an error during the sequence. Error code: %1</source>
@@ -2297,7 +2358,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Edit entities</source>
-            <translation>Entität bearbeiten</translation>
+            <translation>Entitäten bearbeiten</translation>
         </message>
         <message>
             <source>Delete</source>
@@ -2390,11 +2451,11 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Show battery indicator everywhere</source>
-            <translation>Batterieanzeige überall anzeigen</translation>
+            <translation>Akkuanzeige überall anzeigen</translation>
         </message>
         <message>
             <source>Shows the battery level indicator on all pages and activities.</source>
-            <translation>Zeigt die Batteriestandsanzeige auf allen Seiten und Aktivitäten an.</translation>
+            <translation>Zeigt die Akkustandsanzeige auf allen Seiten und Aktivitäten an.</translation>
         </message>
         <message>
             <source>Activities on pages</source>
@@ -2410,11 +2471,11 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
-            <translation>Den Aktivitätsbildschirm öffnen, wenn eine Aktivität ausserhalb der Fernbedienung gestartet wird, und den aktuellen Bildschirminhalt ersetzen.</translation>
+            <translation>Den Aktivitätsbildschirm öffnen, wenn eine Aktivität außerhalb der Fernbedienung gestartet wird, und den aktuellen Bildschirminhalt ersetzen.</translation>
         </message>
         <message>
             <source>Zoom media image</source>
-            <translation>Titelbild vergrössern</translation>
+            <translation>Titelbild vergrößern</translation>
         </message>
         <message>
             <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
@@ -2448,7 +2509,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Keine Manipulation</translation>
         </message>
     </context>
     <context>
@@ -2479,7 +2540,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Selected WiFi network</source>
-            <translation>Ausgewähltes WiFi Netzwerk</translation>
+            <translation>Ausgewähltes WiFi-Netzwerk</translation>
         </message>
         <message>
             <source>Next</source>
@@ -2621,7 +2682,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Clear</source>
-            <translation>Frei</translation>
+            <translation>Kein Ton</translation>
         </message>
     </context>
     <context>
@@ -2694,41 +2755,6 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
     </context>
     <context>
-        <name>Media platyer state</name>
-        <message>
-            <source>Unavailable</source>
-            <translation>Nicht verfügbar</translation>
-        </message>
-        <message>
-            <source>Unknown</source>
-            <translation>Unbekannt</translation>
-        </message>
-        <message>
-            <source>On</source>
-            <translation>An</translation>
-        </message>
-        <message>
-            <source>Off</source>
-            <translation>Aus</translation>
-        </message>
-        <message>
-            <source>Playing</source>
-            <translation>Spielt</translation>
-        </message>
-        <message>
-            <source>Paused</source>
-            <translation>Pausiert</translation>
-        </message>
-        <message>
-            <source>Standby</source>
-            <translation>Im Ruhezustand</translation>
-        </message>
-        <message>
-            <source>Buffering</source>
-            <translation>Puffern</translation>
-        </message>
-    </context>
-    <context>
         <name>Binary sensor state light</name>
         <message>
             <source>Light detected</source>
@@ -2758,7 +2784,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Clear all</source>
-            <translation>Alle zurücksetzen</translation>
+            <translation>Alle löschen</translation>
         </message>
         <message>
             <source>No notifications</source>
@@ -2810,15 +2836,15 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Error while deleting integration driver</source>
-            <translation>Fehler beim Löschen des Integrationstreiber</translation>
+            <translation>Fehler beim Löschen des Integrationstreibers</translation>
         </message>
         <message>
             <source>Integration discovery failed to start</source>
-            <translation>Integrationsentdeckung konnte nicht gestartet werden</translation>
+            <translation>Integrationssuche konnte nicht gestartet werden</translation>
         </message>
         <message>
             <source>Integration discovery failed to stop</source>
-            <translation>Integrationsentdeckung konnte nicht gestoppt werden</translation>
+            <translation>Integrationssuche konnte nicht gestoppt werden</translation>
         </message>
         <message>
             <source>Error getting integration driver metadata</source>
@@ -3040,11 +3066,11 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         <name>uc::dock::DockController</name>
         <message>
             <source>Failed to start dock discovery</source>
-            <translation>Fehler beim Starten der Dock-Erkennung</translation>
+            <translation>Fehler beim Starten der Dock-Suche</translation>
         </message>
         <message>
             <source>There was an error starting dock discovery: %1</source>
-            <translation>Es gab einen Fehler beim Starten der Dock-Entdeckung: %1</translation>
+            <translation>Fehler beim Starten der Dock-Suche: %1</translation>
         </message>
         <message>
             <source>Try again</source>
@@ -3052,15 +3078,15 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Failed to stop dock discovery</source>
-            <translation>Fehler beim Beenden der Dock-Erkennung</translation>
+            <translation>Fehler beim Beenden der Dock-Suche</translation>
         </message>
         <message>
             <source>There was an error stopping dock discovery: %1</source>
-            <translation>Es gab einen Fehler beim Stoppen der Dock-Entdeckung: %1</translation>
+            <translation>Fehler beim Stoppen der Dock-Suche: %1</translation>
         </message>
         <message>
             <source>Configuring</source>
-            <translation>Konfigurieren</translation>
+            <translation>Wird konfiguriert</translation>
         </message>
         <message>
             <source>Restarting</source>
@@ -3259,7 +3285,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Connecting</source>
-            <translation>Verbinden</translation>
+            <translation>Verbindet</translation>
         </message>
         <message>
             <source>Error</source>
@@ -3271,7 +3297,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Reconnecting</source>
-            <translation>Erneut verbinden</translation>
+            <translation>Verbindet erneut</translation>
         </message>
         <message>
             <source>Connection type</source>
@@ -3279,7 +3305,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Service name</source>
-            <translation>Dienst-Name</translation>
+            <translation>Dienstname</translation>
         </message>
         <message>
             <source>Custom IP or URL</source>
@@ -3315,7 +3341,7 @@ Tippe auf den QR-Code, um zu Vergrößern.</translation>
         </message>
         <message>
             <source>Reset</source>
-            <translation>Zurücksetzten</translation>
+            <translation>Zurücksetzen</translation>
         </message>
         <message>
             <source>Delete dock</source>
