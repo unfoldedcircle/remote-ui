@@ -6,7 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
+
 ## Unreleased
+
+---
+
+## v0.78.0 - 2026-08-25
+### Added
+- Full translation texts for every language, and Finnish as a new language.
 ### Fixed
 - The on-screen keyboard closed after every single letter typed into the search field of a media player's browse
   screen, so a search term had to be entered one letter at a time, tapping the search field again in between. The
@@ -36,10 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   screen
 - The Microphone and Speech response switches in the voice control settings were missing the check mark that every
   other switch shows when it is turned on
-### Added
-- Finnish translations
 
----
 ## v0.77.0 - 2026-08-17
 ### Added
 - New user interface setting "Open activities started with the API": when an activity is turned on from outside the
