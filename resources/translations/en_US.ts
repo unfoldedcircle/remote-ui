@@ -715,8 +715,8 @@
     <name>ChargingScreen</name>
     <message>
         <location filename="../../src/qml/components/ChargingScreen.qml" line="275"/>
-        <source> - Charging</source>
-        <translation> - Charging</translation>
+        <source>- Charging</source>
+        <translation>- Charging</translation>
     </message>
 </context>
 <context>
@@ -1732,15 +1732,15 @@ Climate fan</extracomment>
 <context>
     <name>Integrations</name>
     <message>
-        <location filename="../../src/qml/settings/Integrations.qml" line="330"/>
-        <source>Version: </source>
-        <translation>Version: </translation>
-    </message>
-    <message>
         <location filename="../../src/qml/settings/Integrations.qml" line="97"/>
         <location filename="../../src/qml/settings/Integrations.qml" line="98"/>
         <source>Add an integration</source>
         <translation>Add an integration</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/Integrations.qml" line="330"/>
+        <source>Version: %1</source>
+        <translation>Version: %1</translation>
     </message>
 </context>
 <context>

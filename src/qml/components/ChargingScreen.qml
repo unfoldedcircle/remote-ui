@@ -272,7 +272,7 @@ Popup {
 
         Text {
             color: colors.offwhite
-            text: Battery.level + "%" + (Battery.isCharging ? qsTr(" - Charging") : "")
+            text: Battery.level + "% " + (Battery.isCharging ? qsTr("- Charging") : "")
             anchors { left: icon.right; leftMargin: 10; verticalCenter: icon.verticalCenter }
             font: fonts.primaryFont(24)
         }

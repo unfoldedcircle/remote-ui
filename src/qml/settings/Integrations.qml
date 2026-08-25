@@ -327,7 +327,7 @@ Settings.Page {
                         Layout.fillWidth: true
                         Layout.alignment: Qt.AlignLeft
 
-                        text: qsTr("Version: ") + IntegrationController.getDriversModelItem(driverId).version
+                        text: qsTr("Version: %1").arg(IntegrationController.getDriversModelItem(driverId).version)
                         wrapMode: Text.WordWrap
                         elide: Text.ElideRight
                         maximumLineCount: 1
