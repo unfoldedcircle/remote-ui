@@ -44,6 +44,7 @@ EntityComponents.BaseDetail {
             Layout.leftMargin: 10
             Layout.rightMargin: 20
             Layout.fillWidth: true
+            //: Settings page for power saving — sleep and display timeouts. Not electrical power.
             text: qsTr("Power")
             wrapMode: Text.WordWrap
             maximumLineCount: 1

@@ -33,6 +33,7 @@ class SelectStates : public QObject {
             case Enum::Unknown:
                 return QCoreApplication::translate("Select state", "Unknown");
             case Enum::On:
+                //: Device state: switched on. Not the preposition "on".
                 return QCoreApplication::translate("Select state", "On");
             default:
                 return Util::convertEnumToString<Enum>(state);

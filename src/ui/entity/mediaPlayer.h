@@ -118,21 +118,27 @@ class MediaPlayerStates : public QObject {
     static QString getTranslatedString(Enum state) {
         switch (state) {
             case Enum::Unavailable:
-                return QCoreApplication::translate("Media platyer state", "Unavailable");
+                return QCoreApplication::translate("Media player state", "Unavailable");
             case Enum::Unknown:
-                return QCoreApplication::translate("Media platyer state", "Unknown");
+                return QCoreApplication::translate("Media player state", "Unknown");
             case Enum::On:
-                return QCoreApplication::translate("Media platyer state", "On");
+                //: Device state: switched on. Not the preposition "on".
+                return QCoreApplication::translate("Media player state", "On");
             case Enum::Off:
-                return QCoreApplication::translate("Media platyer state", "Off");
+                //: Device state: switched off.
+                return QCoreApplication::translate("Media player state", "Off");
             case Enum::Playing:
-                return QCoreApplication::translate("Media platyer state", "Playing");
+                //: Media player state: playback is running.
+                return QCoreApplication::translate("Media player state", "Playing");
             case Enum::Paused:
-                return QCoreApplication::translate("Media platyer state", "Paused");
+                //: Media player state: playback is paused.
+                return QCoreApplication::translate("Media player state", "Paused");
             case Enum::Standby:
-                return QCoreApplication::translate("Media platyer state", "Standby");
+                //: Media player state: the device is in standby.
+                return QCoreApplication::translate("Media player state", "Standby");
             case Enum::Buffering:
-                return QCoreApplication::translate("Media platyer state", "Buffering");
+                //: Media player state: buffering before playback continues.
+                return QCoreApplication::translate("Media player state", "Buffering");
             default:
                 return Util::convertEnumToString<Enum>(state);
         }

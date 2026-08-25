@@ -40,8 +40,10 @@ class VoiceAssistantStates : public QObject {
             case Enum::Unknown:
                 return QCoreApplication::translate("Voice assistant state", "Unknown");
             case Enum::On:
+                //: Device state: switched on. Not the preposition "on".
                 return QCoreApplication::translate("Voice assistant state", "On");
             case Enum::Off:
+                //: Device state: switched off.
                 return QCoreApplication::translate("Voice assistant state", "Off");
             default:
                 return Util::convertEnumToString<Enum>(state);

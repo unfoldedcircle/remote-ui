@@ -20,6 +20,7 @@ Settings.Page {
 
     // the use case reflected by the test popup — the focused / last-adjusted sensitivity
     property real testGain: Config.touchSliderGainVolume
+    //: Touch-slider function: change the volume.
     property string testLabel: qsTr("Volume")
     property string testIcon: "uc:volume"
 
@@ -68,6 +69,7 @@ Settings.Page {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
                     color: colors.offwhite
+                    //: Name of the touch-sensitive strip on the side of the remote.
                     text: qsTr("Touch slider")
                     font: fonts.primaryFont(30)
                 }
@@ -179,6 +181,7 @@ Settings.Page {
                     width: parent.width - 100
                     wrapMode: Text.WordWrap
                     color: colors.offwhite
+                    //: Touch-slider function: change a light's brightness.
                     text: qsTr("Brightness")
                     anchors { left: parent.left; top: parent.top }
                     font: fonts.primaryFont(30)
@@ -228,6 +231,7 @@ Settings.Page {
                     width: parent.width - 100
                     wrapMode: Text.WordWrap
                     color: colors.offwhite
+                    //: Touch-slider function: change how far a blind or shade is open.
                     text: qsTr("Cover position")
                     anchors { left: parent.left; top: parent.top }
                     font: fonts.primaryFont(30)
@@ -278,6 +282,7 @@ Settings.Page {
                     width: parent.width - 100
                     wrapMode: Text.WordWrap
                     color: colors.offwhite
+                    //: Touch-slider function: scrub forward and back through the playing media.
                     text: qsTr("Seek")
                     anchors { left: parent.left; top: parent.top }
                     font: fonts.primaryFont(30)
@@ -412,6 +417,7 @@ Settings.Page {
         }
 
         Text {
+            //: Button that starts a test of the touch slider.
             text: qsTr("Test") + " – " + touchSliderPageContent.testLabel
             width: parent.width - 20
             horizontalAlignment: Text.AlignHCenter

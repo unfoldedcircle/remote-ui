@@ -43,6 +43,7 @@ class SensorStates : public QObject {
             case Enum::Unknown:
                 return QCoreApplication::translate("Sensor state", "Unknown");
             case Enum::On:
+                //: Device state: switched on. Not the preposition "on".
                 return QCoreApplication::translate("Sensor state", "On");
             default:
                 return Util::convertEnumToString<Enum>(state);
@@ -138,119 +139,160 @@ class BinarySensorDeviceClass : public QObject {
         if (value.toLower() == "on") {
             switch (deviceClass) {
                 case Enum::Battery:
+                    //: Battery sensor state: battery is normal.
                     return QCoreApplication::translate("Binary sensor state battery", "Normal");
                 case Enum::Battery_charging:
                     return QCoreApplication::translate("Binary sensor state battery_charging", "Charging");
                 case Enum::Cold:
+                    //: Temperature sensor state: too cold.
                     return QCoreApplication::translate("Binary sensor state cold", "Cold");
                 case Enum::Connectivity:
                     return QCoreApplication::translate("Binary sensor state connectivity", "Connected");
                 case Enum::Door:
                 case Enum::Garage_coor:
+                    //: Door sensor state: the door is open. An adjective, not the action.
                     return QCoreApplication::translate("Binary sensor state door", "Opened");
                 case Enum::Carbon_monoxide:
                 case Enum::Gas:
+                    //: Sensor state: the sensor has detected something. Pairs with "Clear".
                     return QCoreApplication::translate("Binary sensor state gas", "Detected");
                 case Enum::Heat:
+                    //: Temperature sensor state: too hot. Not "popular" or "trending".
                     return QCoreApplication::translate("Binary sensor state heat", "Hot");
                 case Enum::Light:
                     return QCoreApplication::translate("Binary sensor state light", "Light detected");
                 case Enum::Lock:
+                    //: Lock sensor state: the lock is unlocked.
                     return QCoreApplication::translate("Binary sensor state lock", "Unlocked");
                 case Enum::Moisture:
                     return QCoreApplication::translate("Binary sensor state moisture", "Wet");
                 case Enum::Motion:
+                    //: Sensor state: the sensor has detected something. Pairs with "Clear".
                     return QCoreApplication::translate("Binary sensor state motion", "Detected");
                 case Enum::Moving:
+                    //: Sensor state: the object is in motion. Not "relocating" or "moving house".
                     return QCoreApplication::translate("Binary sensor state moving", "Moving");
                 case Enum::Occupancy:
+                    //: Sensor state: the sensor has detected something. Pairs with "Clear".
                     return QCoreApplication::translate("Binary sensor state occupancy", "Detected");
                 case Enum::Opening:
+                    //: State: the cover, window or door is open. An adjective, not the action "to open".
                     return QCoreApplication::translate("Binary sensor state opening", "Open");
                 case Enum::Plug:
+                    //: Plug sensor state: connected to mains power.
                     return QCoreApplication::translate("Binary sensor state plug", "Plugged in");
                 case Enum::Power:
+                    //: Device state: switched on. Not the preposition "on".
                     return QCoreApplication::translate("Binary sensor state power", "On");
                 case Enum::Presence:
+                    //: Presence sensor state: the person is at home. Not the Home screen or a home page.
                     return QCoreApplication::translate("Binary sensor state presence", "Home");
                 case Enum::Problem:
                     return QCoreApplication::translate("Binary sensor state problem", "Problem");
                 case Enum::Running:
+                    //: Sensor state: the machine is in operation. Not the sport.
                     return QCoreApplication::translate("Binary sensor state running", "Running");
                 case Enum::Safety:
+                    //: Safety sensor state: a hazard is present.
                     return QCoreApplication::translate("Binary sensor state safety", "Unsafe");
                 case Enum::Smoke:
+                    //: Sensor state: the sensor has detected something. Pairs with "Clear".
                     return QCoreApplication::translate("Binary sensor state smoke", "Detected");
                 case Enum::Sound:
+                    //: Sensor state: the sensor has detected something. Pairs with "Clear".
                     return QCoreApplication::translate("Binary sensor state sound", "Detected");
                 case Enum::Tamper:
                     return QCoreApplication::translate("Binary sensor state tamper", "Tampering detected");
                 case Enum::Update:
                     return QCoreApplication::translate("Binary sensor state update", "Update detected");
                 case Enum::Vibration:
+                    //: Sensor state: the sensor has detected something. Pairs with "Clear".
                     return QCoreApplication::translate("Binary sensor state vibration", "Detected");
                 case Enum::Window:
+                    //: State: the cover, window or door is open. An adjective, not the action "to open".
                     return QCoreApplication::translate("Binary sensor state window", "Open");
                 default:
+                    //: Device state: switched on. Not the preposition "on".
                     return QCoreApplication::translate("Binary sensor state without device class", "On");
             }
         } else {
             switch (deviceClass) {
                 case Enum::Battery:
+                    //: Battery sensor state: battery is low.
                     return QCoreApplication::translate("Binary sensor state battery", "Low");
                 case Enum::Battery_charging:
                     return QCoreApplication::translate("Binary sensor state battery_charging", "Not charging");
                 case Enum::Cold:
+                    //: Temperature sensor state: normal temperature.
                     return QCoreApplication::translate("Binary sensor state cold", "Normal");
                 case Enum::Connectivity:
                     return QCoreApplication::translate("Binary sensor state connectivity", "Disconnected");
                 case Enum::Door:
                 case Enum::Garage_coor:
+                    //: Door sensor state: the door is closed.
                     return QCoreApplication::translate("Binary sensor state door", "Closed");
                 case Enum::Carbon_monoxide:
                 case Enum::Gas:
+                    //: Gas sensor state: no gas detected. Not the verb "to clear".
                     return QCoreApplication::translate("Binary sensor state gas", "Clear");
                 case Enum::Heat:
+                    //: Temperature sensor state: normal temperature.
                     return QCoreApplication::translate("Binary sensor state heat", "Normal");
                 case Enum::Light:
                     return QCoreApplication::translate("Binary sensor state light", "No light");
                 case Enum::Lock:
+                    //: Lock sensor state: the lock is locked.
                     return QCoreApplication::translate("Binary sensor state lock", "Locked");
                 case Enum::Moisture:
                     return QCoreApplication::translate("Binary sensor state moisture", "Dry");
                 case Enum::Motion:
+                    //: Motion sensor state: no motion detected. Not the verb "to clear".
                     return QCoreApplication::translate("Binary sensor state motion", "Clear");
                 case Enum::Moving:
+                    //: Sensor state: the object is stationary.
                     return QCoreApplication::translate("Binary sensor state moving", "Not moving");
                 case Enum::Occupancy:
+                    //: Occupancy sensor state: the room is unoccupied. Not the verb "to clear".
                     return QCoreApplication::translate("Binary sensor state occupancy", "Clear");
                 case Enum::Opening:
+                    //: State: the cover, window or door is closed.
                     return QCoreApplication::translate("Binary sensor state opening", "Closed");
                 case Enum::Plug:
+                    //: Plug sensor state: disconnected from mains power.
                     return QCoreApplication::translate("Binary sensor state plug", "Unplugged");
                 case Enum::Power:
+                    //: Device state: switched off.
                     return QCoreApplication::translate("Binary sensor state power", "Off");
                 case Enum::Presence:
+                    //: Presence sensor state: the person is away.
                     return QCoreApplication::translate("Binary sensor state presence", "Not home");
                 case Enum::Problem:
                     return QCoreApplication::translate("Binary sensor state problem", "Ok");
                 case Enum::Running:
+                    //: Sensor state: the machine is not in operation.
                     return QCoreApplication::translate("Binary sensor state running", "Not running");
                 case Enum::Safety:
+                    //: Safety sensor state: no hazard.
                     return QCoreApplication::translate("Binary sensor state safety", "Safe");
                 case Enum::Smoke:
+                    //: Smoke sensor state: no smoke detected. Not the verb "to clear".
                     return QCoreApplication::translate("Binary sensor state smoke", "Clear");
                 case Enum::Sound:
+                    //: Sound sensor state: no sound detected. Not the verb "to clear".
                     return QCoreApplication::translate("Binary sensor state sound", "Clear");
                 case Enum::Tamper:
+                    //: Tamper sensor state: no tampering detected. Not the verb "to clear".
                     return QCoreApplication::translate("Binary sensor state tamper", "Clear");
                 case Enum::Update:
                     return QCoreApplication::translate("Binary sensor state update", "Up-to-date");
                 case Enum::Vibration:
+                    //: Vibration sensor state: no vibration detected. Not the verb "to clear".
                     return QCoreApplication::translate("Binary sensor state vibration", "Clear");
                 case Enum::Window:
+                    //: State: the cover, window or door is closed.
                     return QCoreApplication::translate("Binary sensor state window", "Closed");
                 default:
+                    //: Device state: switched off.
                     return QCoreApplication::translate("Binary sensor state without device class", "Off");
             }
         }

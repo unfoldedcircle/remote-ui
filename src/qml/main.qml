@@ -254,6 +254,7 @@ ApplicationWindow {
                                                     proceed(current);
                                                 }
                                             },
+                                            //: Button label, quoted by name in the "not connected yet" messages.
                                             qsTr("Proceed"));
         }
 

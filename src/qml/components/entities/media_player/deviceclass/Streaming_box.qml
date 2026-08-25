@@ -430,6 +430,7 @@ EntityComponents.BaseDetail {
 
                     Text {
                         id: mediaPositionText
+                        //: Source type: live TV.
                         text: entityObj.mediaDuration === 0 ? qsTr("Live") : mediaPlayerBase.formatTime(entityObj.mediaPosition)
                         color: colors.offwhite
                         horizontalAlignment: Text.AlignLeft
@@ -559,8 +560,10 @@ EntityComponents.BaseDetail {
                                     case MediaPlayerRepeatMode.OFF:
                                         return "";
                                     case MediaPlayerRepeatMode.ALL:
+                                        //: Media repeat mode: repeat all tracks.
                                         return qsTr("All");
                                     case MediaPlayerRepeatMode.ONE:
+                                        //: Media repeat mode: repeat the current track only.
                                         return qsTr("One");
                                     }
                                 }
@@ -608,6 +611,7 @@ EntityComponents.BaseDetail {
                         Components.HapticMouseArea {
                             anchors.fill: parent
                             onClicked: {
+                                //: Input sources of an AV device, e.g. HDMI 1.
                                 sourceList.title = qsTr("Sources")
                                 let items = [];
 

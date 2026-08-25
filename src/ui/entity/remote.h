@@ -36,8 +36,10 @@ class RemoteStates : public QObject {
             case Enum::Unknown:
                 return QCoreApplication::translate("Remote state", "Unknown");
             case Enum::On:
+                //: Device state: switched on. Not the preposition "on".
                 return QCoreApplication::translate("Remote state", "On");
             case Enum::Off:
+                //: Device state: switched off.
                 return QCoreApplication::translate("Remote state", "Off");
             default:
                 return Util::convertEnumToString<Enum>(state);

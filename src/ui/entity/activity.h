@@ -37,10 +37,13 @@ class ActivityStates : public QObject {
             case Enum::Unknown:
                 return QCoreApplication::translate("Activity state", "Unknown");
             case Enum::On:
+                //: Device state: switched on. Not the preposition "on".
                 return QCoreApplication::translate("Activity state", "On");
             case Enum::Off:
+                //: Device state: switched off.
                 return QCoreApplication::translate("Activity state", "Off");
             case Enum::Running:
+                //: Activity state: the activity is executing.
                 return QCoreApplication::translate("Activity state", "Running");
             case Enum::Error:
                 return QCoreApplication::translate("Activity state", "Error");

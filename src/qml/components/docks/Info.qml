@@ -331,6 +331,7 @@ Item {
                     case DockStates.ERROR:
                         return qsTr("Error");
                     case DockStates.IDLE:
+                        //: Dock state: connected but doing nothing.
                         return qsTr("Idle");
                     case DockStates.RECONNECTING:
                         return qsTr("Reconnecting");

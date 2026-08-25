@@ -71,9 +71,11 @@ Popup {
         var all = !actions || actions.length === 0;
         var items = [];
         if (all || actions.indexOf("PLAY_NOW") >= 0)
+            //: Action: start playing this item now. Not playing a game.
             items.push({ title: qsTr("Play now"),     icon: "uc:play",
                          callback: (function(id, t) { return function() { mediaBrowser.requestPlayMedia(id, t); }; })(mediaId, mediaType) });
         if (all || actions.indexOf("PLAY_NEXT") >= 0)
+            //: Action: queue this item to play after the current one.
             items.push({ title: qsTr("Play next"),    icon: "uc:forward-step",
                          callback: (function(id, t) { return function() { mediaBrowser.requestPlayMedia(id, t, "PLAY_NEXT"); }; })(mediaId, mediaType) });
         if (all || actions.indexOf("ADD_TO_QUEUE") >= 0)

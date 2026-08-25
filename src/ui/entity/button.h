@@ -42,6 +42,7 @@ class ButtonStates : public QObject {
             case Enum::Available:
                 return QCoreApplication::translate("Button state", "Available");
             case Enum::On:
+                //: Device state: switched on. Not the preposition "on".
                 return QCoreApplication::translate("Button state", "On");
             default:
                 return Util::convertEnumToString<Enum>(state);

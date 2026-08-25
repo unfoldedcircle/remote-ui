@@ -135,6 +135,7 @@ Settings.Page {
                     to: 10
                     stepSize: 1
                     value: Config.resumeTimeoutWindowSec
+                    //: The feature is switched off. Not a person with a disability.
                     lowValueText: qsTr("Disabled")
                     highValueText: qsTr("%1 seconds").arg(to)
                     live: true

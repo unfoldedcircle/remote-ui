@@ -265,6 +265,7 @@ Rectangle {
 
                                 Text {
                                     anchors.fill: parent
+                                    //: Button that clears the active filters in the entity list.
                                     text: qsTr("Clear")
                                     verticalAlignment: Text.AlignVCenter
                                     maximumLineCount: 1
@@ -340,6 +341,7 @@ Rectangle {
                                     typeChecked: false
                                 }
                                 ListElement {
+                                    //: Entity type: blinds, shades, curtains. Not a lid or a book cover.
                                     typeName: qsTr("Cover")
                                     typeIcon: "uc:blinds"
                                     typeValue: EntityTypes.Cover

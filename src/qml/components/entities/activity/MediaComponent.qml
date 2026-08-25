@@ -410,8 +410,10 @@ Rectangle {
                         case MediaPlayerRepeatMode.OFF:
                             return "";
                         case MediaPlayerRepeatMode.ALL:
+                            //: Media repeat mode: repeat all tracks.
                             return qsTr("All");
                         case MediaPlayerRepeatMode.ONE:
+                            //: Media repeat mode: repeat the current track only.
                             return qsTr("One");
                         }
                     }
@@ -453,6 +455,7 @@ Rectangle {
             Components.HapticMouseArea {
                 anchors.fill: parent
                 onClicked: {
+                    //: Input sources of an AV device, e.g. HDMI 1.
                     sourceList.title = qsTr("Sources")
                     let items = [];
                     for (const source of entityObj.sourceList) {

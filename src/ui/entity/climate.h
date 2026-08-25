@@ -48,6 +48,7 @@ class ClimateStates : public QObject {
             case Enum::Unknown:
                 return QCoreApplication::translate("Climate state", "Unknown");
             case Enum::Off:
+                //: Thermostat mode: heating and cooling are off.
                 return QCoreApplication::translate("Climate state", "Off");
             case Enum::Heat:
                 return QCoreApplication::translate("Climate state", "Heat");

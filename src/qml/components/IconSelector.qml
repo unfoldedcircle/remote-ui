@@ -102,6 +102,7 @@ Popup {
 
                 TabButton {
                     id: unfoldedTabButton
+                    //: "Unfolded" is the brand name (Unfolded Circle) — do not translate it.
                     text: qsTr("Unfolded Icons")
                     implicitHeight: 60
 
@@ -122,6 +123,7 @@ Popup {
 
                 TabButton {
                     id: customTabButton
+                    //: Icons the user has uploaded themselves.
                     text: qsTr("Custom Icons")
                     implicitHeight: 60
 

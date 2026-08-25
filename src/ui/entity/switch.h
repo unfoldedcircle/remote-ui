@@ -40,8 +40,10 @@ class SwitchStates : public QObject {
             case Enum::Unknown:
                 return QCoreApplication::translate("Switch state", "Unknown");
             case Enum::On:
+                //: Device state: switched on. Not the preposition "on".
                 return QCoreApplication::translate("Switch state", "On");
             case Enum::Off:
+                //: Device state: switched off.
                 return QCoreApplication::translate("Switch state", "Off");
             default:
                 return Util::convertEnumToString<Enum>(state);

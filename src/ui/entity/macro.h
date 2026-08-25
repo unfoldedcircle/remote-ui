@@ -37,6 +37,7 @@ class MacroStates : public QObject {
             case Enum::Unknown:
                 return QCoreApplication::translate("Macro state", "Unknown");
             case Enum::Running:
+                //: Macro state: the macro is executing.
                 return QCoreApplication::translate("Macro state", "Running");
             case Enum::Error:
                 return QCoreApplication::translate("Macro state", "Error");

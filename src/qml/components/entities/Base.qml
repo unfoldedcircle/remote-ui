@@ -103,6 +103,7 @@ Rectangle {
             popupMenu.title = qsTr("Activity error. Select option below.");
             let menuItems = [];
             menuItems.push({
+                               //: Button. Imperative: start the activity.
                                title: qsTr("Turn activity on"),
                                icon: "uc:arrow-right",
                                callback: function() {
@@ -112,6 +113,7 @@ Rectangle {
                                }
                            });
             menuItems.push({
+                               //: Button. Imperative: stop the activity.
                                title: qsTr("Turn activity off"),
                                icon: "uc:arrow-left",
                                callback: function() {
@@ -121,6 +123,7 @@ Rectangle {
                                }
                            });
             menuItems.push({
+                               //: Button. Imperative: open the activity screen.
                                title: qsTr("Open activity"),
                                icon: "uc:arrow-up-right-and-arrow-down-left-from-center",
                                callback: function() {

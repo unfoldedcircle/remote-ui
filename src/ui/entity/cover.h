@@ -42,10 +42,12 @@ class CoverStates : public QObject {
             case Enum::Opening:
                 return QCoreApplication::translate("Cover state", "Opening");
             case Enum::Open:
+                //: State: the cover, window or door is open. An adjective, not the action "to open".
                 return QCoreApplication::translate("Cover state", "Open");
             case Enum::Closing:
                 return QCoreApplication::translate("Cover state", "Closing");
             case Enum::Closed:
+                //: State: the cover, window or door is closed.
                 return QCoreApplication::translate("Cover state", "Closed");
             default:
                 return Util::convertEnumToString<Enum>(state);
