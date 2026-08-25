@@ -68,32 +68,16 @@
     <context>
         <name>Activity</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Nogle enheder er ikke klar</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Tryk for at lukke</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 er endnu ikke tilsluttet. Tryk på »Fortsæt« for at fortsætte alligevel.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tryk for mere</translation>
         </message>
         <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 er endnu ikke tilsluttet. Tryk på »Fortsæt« for at fortsætte alligevel.</translation>
-        </message>
-        <message>
             <source>Fix states</source>
             <translation>Ret tilstande</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortsæt</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1236,8 +1220,8 @@ Webkonfiguratoren</translation>
             <translation>Tilføj en integration</translation>
         </message>
         <message>
-            <source>Version:</source>
-            <translation>Version: </translation>
+            <source>Version: %1</source>
+            <translation>Version: %1</translation>
         </message>
     </context>
     <context>
@@ -1892,22 +1876,6 @@ Webkonfiguratoren</translation>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Tryk på Hjem-knappen, og hold den nede, eller brug Webkonfiguratoren til at opsætte siden</translation>
-        </message>
-        <message>
-            <source>Some devices are not ready</source>
-            <translation>Nogle enheder er ikke klar</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 er endnu ikke tilsluttet. Tryk på »Fortsæt« for at fortsætte alligevel.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 er endnu ikke tilsluttet. Tryk på »Fortsæt« for at fortsætte alligevel.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortsæt</translation>
         </message>
     </context>
     <context>
@@ -3122,7 +3090,7 @@ Tryk på QR-koden for at vise den på skærmen.</translation>
         <name>ChargingScreen</name>
         <message>
             <source>- Charging</source>
-            <translation> - Oplader</translation>
+            <translation>- Oplader</translation>
         </message>
     </context>
     <context>
@@ -3401,20 +3369,8 @@ Tryk på QR-koden for at vise den på skærmen.</translation>
             <translation>er ikke tilgængelig</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Nogle enheder er ikke klar</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 er endnu ikke tilsluttet. Tryk på »Fortsæt« for at fortsætte alligevel.</translation>
-        </message>
-        <message>
             <source>Profile is restricted</source>
             <translation>Profilen er begrænset</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 er endnu ikke tilsluttet. Tryk på »Fortsæt« for at fortsætte alligevel.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3427,10 +3383,6 @@ Tryk på QR-koden for at vise den på skærmen.</translation>
         <message>
             <source>Close</source>
             <translation>Luk</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortsæt</translation>
         </message>
     </context>
     <context>

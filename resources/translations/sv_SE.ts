@@ -68,32 +68,16 @@
     <context>
         <name>Activity</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Vissa enheter är inte redo</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Tryck för att stänga</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 är inte anslutet ännu. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tryck för mer</translation>
         </message>
         <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 är ännu inte anslutna. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
-        </message>
-        <message>
             <source>Fix states</source>
             <translation>Åtgärda statusar</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortsätt</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1177,7 +1161,7 @@ om %1 sekunder.</translation>
         </message>
         <message>
             <source>Web configurator disabled</source>
-            <translation>Webkonfigurator ninaktiverad</translation>
+            <translation>Webbkonfiguratorn inaktiverad</translation>
         </message>
         <message>
             <source>Restricted</source>
@@ -1236,8 +1220,8 @@ webbkonfiguratorn</translation>
             <translation>Lägg till en integration</translation>
         </message>
         <message>
-            <source>Version:</source>
-            <translation>Version: </translation>
+            <source>Version: %1</source>
+            <translation>Version: %1</translation>
         </message>
     </context>
     <context>
@@ -1893,22 +1877,6 @@ webbkonfiguratorn</translation>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Håll ner hemknappen eller använd webbkonfiguratorn för att konfigurera sidan</translation>
         </message>
-        <message>
-            <source>Some devices are not ready</source>
-            <translation>Vissa enheter är inte redo</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 är inte anslutet ännu. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 är ännu inte anslutna. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortsätt</translation>
-        </message>
     </context>
     <context>
         <name>uc::ui::Group</name>
@@ -2285,7 +2253,7 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         </message>
         <message>
             <source>Request failed.</source>
-            <translation>Arnop misslyckades.</translation>
+            <translation>Anropet misslyckades.</translation>
         </message>
         <message>
             <source>Not authenticated.</source>
@@ -3121,7 +3089,7 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <name>ChargingScreen</name>
         <message>
             <source>- Charging</source>
-            <translation> - Laddar</translation>
+            <translation>- Laddar</translation>
         </message>
     </context>
     <context>
@@ -3400,20 +3368,8 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <translation>är otillgänglig</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Vissa enheter är inte redo</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 är inte anslutet ännu. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
-        </message>
-        <message>
             <source>Profile is restricted</source>
             <translation>Profilen är begränsad</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 är ännu inte anslutna. Tryck på ”Fortsätt” för att fortsätta ändå.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3426,10 +3382,6 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>Close</source>
             <translation>Stäng</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortsätt</translation>
         </message>
     </context>
     <context>

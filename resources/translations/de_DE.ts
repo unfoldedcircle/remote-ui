@@ -68,32 +68,16 @@
     <context>
         <name>Activity</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Einige Geräte sind nicht bereit</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Zum Schließen tippen</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tippen für mehr</translation>
         </message>
         <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
             <source>Fix states</source>
             <translation>Status korrigieren</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortfahren</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1236,8 +1220,8 @@ den Web-Konfigurator zu öffnen</translation>
             <translation>Integration hinzufügen</translation>
         </message>
         <message>
-            <source>Version:</source>
-            <translation>Version: </translation>
+            <source>Version: %1</source>
+            <translation>Version: %1</translation>
         </message>
     </context>
     <context>
@@ -1892,22 +1876,6 @@ Web-Konfigurator zu öffnen</translation>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Um die Seite anzupassen, Home-Taste gedrückt halten oder Web-Konfigurator verwenden</translation>
-        </message>
-        <message>
-            <source>Some devices are not ready</source>
-            <translation>Einige Geräte sind nicht bereit</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortfahren</translation>
         </message>
     </context>
     <context>
@@ -3123,7 +3091,7 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
         <name>ChargingScreen</name>
         <message>
             <source>- Charging</source>
-            <translation> - Wird geladen</translation>
+            <translation>- Wird geladen</translation>
         </message>
     </context>
     <context>
@@ -3402,20 +3370,8 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
             <translation>ist nicht verfügbar</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Einige Geräte sind nicht bereit</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
             <source>Profile is restricted</source>
             <translation>Profil ist eingeschränkt</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3428,10 +3384,6 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
         <message>
             <source>Close</source>
             <translation>Schließen</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Fortfahren</translation>
         </message>
     </context>
     <context>

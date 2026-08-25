@@ -68,32 +68,16 @@
     <context>
         <name>Activity</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Kaikki laitteet eivät ole valmiina</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Kosketa sulkeaksesi</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ei ole vielä yhdistetty. Kosketa Jatka jatkaaksesi silti.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Kosketa nähdäksesi lisää</translation>
         </message>
         <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 eivät ole vielä yhdistettyjä. Kosketa Jatka jatkaaksesi silti.</translation>
-        </message>
-        <message>
             <source>Fix states</source>
             <translation>Korjaa tilat</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Jatka</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1236,8 +1220,8 @@ Web-konfiguraattorin</translation>
             <translation>Lisää integraatio</translation>
         </message>
         <message>
-            <source>Version:</source>
-            <translation>Versio: </translation>
+            <source>Version: %1</source>
+            <translation>Versio: %1</translation>
         </message>
     </context>
     <context>
@@ -1892,22 +1876,6 @@ Web-konfiguraattorin</translation>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Pidä Koti-painiketta painettuna tai käytä Web-konfiguraattoria sivun määrittämiseen</translation>
-        </message>
-        <message>
-            <source>Some devices are not ready</source>
-            <translation>Kaikki laitteet eivät ole valmiina</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ei ole vielä yhdistetty. Kosketa Jatka jatkaaksesi silti.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 eivät ole vielä yhdistettyjä. Kosketa Jatka jatkaaksesi silti.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Jatka</translation>
         </message>
     </context>
     <context>
@@ -3122,7 +3090,7 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
         <name>ChargingScreen</name>
         <message>
             <source>- Charging</source>
-            <translation> - Ladataan</translation>
+            <translation>- Ladataan</translation>
         </message>
     </context>
     <context>
@@ -3401,20 +3369,8 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
             <translation>ei ole saatavilla</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Kaikki laitteet eivät ole valmiina</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 ei ole vielä yhdistetty. Kosketa Jatka jatkaaksesi silti.</translation>
-        </message>
-        <message>
             <source>Profile is restricted</source>
             <translation>Profiili on rajoitettu</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 eivät ole vielä yhdistettyjä. Kosketa Jatka jatkaaksesi silti.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3427,10 +3383,6 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
         <message>
             <source>Close</source>
             <translation>Sulje</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Jatka</translation>
         </message>
     </context>
     <context>

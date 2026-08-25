@@ -68,32 +68,16 @@
     <context>
         <name>Activity</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Alcuni dispositivi non sono pronti</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Tocca per chiudere</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 non è ancora connesso. Tocca «Procedi» per continuare comunque.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tocca per saperne di più</translation>
         </message>
         <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 non sono ancora connessi. Tocca «Procedi» per continuare comunque.</translation>
-        </message>
-        <message>
             <source>Fix states</source>
             <translation>Correggi stati</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Procedi</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1236,8 +1220,8 @@ il Configuratore Web</translation>
             <translation>Aggiungi un'integrazione</translation>
         </message>
         <message>
-            <source>Version:</source>
-            <translation>Versione: </translation>
+            <source>Version: %1</source>
+            <translation>Versione: %1</translation>
         </message>
     </context>
     <context>
@@ -1892,22 +1876,6 @@ il Configuratore Web</translation>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Tieni premuto il pulsante Home o usa il Configuratore Web per configurare la pagina</translation>
-        </message>
-        <message>
-            <source>Some devices are not ready</source>
-            <translation>Alcuni dispositivi non sono pronti</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 non è ancora connesso. Tocca «Procedi» per continuare comunque.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 non sono ancora connessi. Tocca «Procedi» per continuare comunque.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Procedi</translation>
         </message>
     </context>
     <context>
@@ -3122,7 +3090,7 @@ Tocca il codice QR per mostrarlo sullo schermo.</translation>
         <name>ChargingScreen</name>
         <message>
             <source>- Charging</source>
-            <translation> - In carica</translation>
+            <translation>- In carica</translation>
         </message>
     </context>
     <context>
@@ -3401,20 +3369,8 @@ Tocca il codice QR per mostrarlo sullo schermo.</translation>
             <translation>non è disponibile</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Alcuni dispositivi non sono pronti</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 non è ancora connesso. Tocca «Procedi» per continuare comunque.</translation>
-        </message>
-        <message>
             <source>Profile is restricted</source>
             <translation>Il profilo è limitato</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 non sono ancora connessi. Tocca «Procedi» per continuare comunque.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3427,10 +3383,6 @@ Tocca il codice QR per mostrarlo sullo schermo.</translation>
         <message>
             <source>Close</source>
             <translation>Chiudi</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Procedi</translation>
         </message>
     </context>
     <context>

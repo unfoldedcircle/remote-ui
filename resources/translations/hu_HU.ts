@@ -68,32 +68,16 @@
     <context>
         <name>Activity</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Néhány eszköz még nem áll készen</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Koppints a bezáráshoz</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>A(z) %1 még nincs csatlakoztatva. Koppints a „Tovább” gombra, ha mégis folytatod.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Koppints a részletekért</translation>
         </message>
         <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>A(z) %1 még nincs csatlakoztatva. Koppints a „Tovább” gombra, ha mégis folytatod.</translation>
-        </message>
-        <message>
             <source>Fix states</source>
             <translation>Állapotok javítása</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Tovább</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1236,8 +1220,8 @@ megnyitásához</translation>
             <translation>Integráció hozzáadása</translation>
         </message>
         <message>
-            <source>Version:</source>
-            <translation>Verzió: </translation>
+            <source>Version: %1</source>
+            <translation>Verzió: %1</translation>
         </message>
     </context>
     <context>
@@ -1892,22 +1876,6 @@ megnyitásához</translation>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Tartsd lenyomva a Home gombot, vagy használd a Webkonfigurátort az oldal beállításához</translation>
-        </message>
-        <message>
-            <source>Some devices are not ready</source>
-            <translation>Néhány eszköz még nem áll készen</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>A(z) %1 még nincs csatlakoztatva. Koppints a „Tovább” gombra, ha mégis folytatod.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>A(z) %1 még nincs csatlakoztatva. Koppints a „Tovább” gombra, ha mégis folytatod.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Tovább</translation>
         </message>
     </context>
     <context>
@@ -3122,7 +3090,7 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
         <name>ChargingScreen</name>
         <message>
             <source>- Charging</source>
-            <translation> - Töltés</translation>
+            <translation>- Töltés</translation>
         </message>
     </context>
     <context>
@@ -3401,20 +3369,8 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
             <translation>nem érhető el</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Néhány eszköz még nem áll készen</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>A(z) %1 még nincs csatlakoztatva. Koppints a „Tovább” gombra, ha mégis folytatod.</translation>
-        </message>
-        <message>
             <source>Profile is restricted</source>
             <translation>A profil korlátozott</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>A(z) %1 még nincs csatlakoztatva. Koppints a „Tovább” gombra, ha mégis folytatod.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3427,10 +3383,6 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
         <message>
             <source>Close</source>
             <translation>Bezárás</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Tovább</translation>
         </message>
     </context>
     <context>

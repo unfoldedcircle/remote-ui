@@ -68,32 +68,16 @@
     <context>
         <name>Activity</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Sommige apparaten zijn nog niet klaar</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Tik om te sluiten</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 is nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tik voor meer</translation>
         </message>
         <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 zijn nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
-        </message>
-        <message>
             <source>Fix states</source>
             <translation>Statussen herstellen</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Doorgaan</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1236,8 +1220,8 @@ te openen</translation>
             <translation>Een integratie toevoegen</translation>
         </message>
         <message>
-            <source>Version:</source>
-            <translation>Versie: </translation>
+            <source>Version: %1</source>
+            <translation>Versie: %1</translation>
         </message>
     </context>
     <context>
@@ -1892,22 +1876,6 @@ te openen</translation>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Houd de Home-knop ingedrukt of gebruik de Webconfigurator om de pagina in te stellen</translation>
-        </message>
-        <message>
-            <source>Some devices are not ready</source>
-            <translation>Sommige apparaten zijn nog niet klaar</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 is nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 zijn nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Doorgaan</translation>
         </message>
     </context>
     <context>
@@ -3122,7 +3090,7 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
         <name>ChargingScreen</name>
         <message>
             <source>- Charging</source>
-            <translation> - Opladen</translation>
+            <translation>- Opladen</translation>
         </message>
     </context>
     <context>
@@ -3401,20 +3369,8 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
             <translation>is niet beschikbaar</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Sommige apparaten zijn nog niet klaar</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 is nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
-        </message>
-        <message>
             <source>Profile is restricted</source>
             <translation>Het profiel is beperkt</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 zijn nog niet verbonden. Tik op ‘Doorgaan’ om toch verder te gaan.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3427,10 +3383,6 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
         <message>
             <source>Close</source>
             <translation>Sluiten</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Doorgaan</translation>
         </message>
     </context>
     <context>

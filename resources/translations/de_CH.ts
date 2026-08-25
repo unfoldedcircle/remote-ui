@@ -68,32 +68,16 @@
     <context>
         <name>Activity</name>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Einigi Grät si no nid parat</translation>
-        </message>
-        <message>
             <source>Tap to close</source>
             <translation>Tippe zum Schliesse</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 isch no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>Tap for more</source>
             <translation>Tippe für meh</translation>
         </message>
         <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 si no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
-        </message>
-        <message>
             <source>Fix states</source>
             <translation>Status korrigiere</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Wyterfahre</translation>
         </message>
         <message>
             <source>Quickly access entities included in this activity:</source>
@@ -1236,8 +1220,8 @@ vom Web-Konfigurator</translation>
             <translation>Integration hinzuefüegä</translation>
         </message>
         <message>
-            <source>Version:</source>
-            <translation>Version: </translation>
+            <source>Version: %1</source>
+            <translation>Version: %1</translation>
         </message>
     </context>
     <context>
@@ -1892,22 +1876,6 @@ vom Web-Konfigurator</translation>
         <message>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <translation>Heb d Home-Taschte drückt oder bruch dr Web-Konfigurator für d Siite ds konfiguriere</translation>
-        </message>
-        <message>
-            <source>Some devices are not ready</source>
-            <translation>Einigi Grät si no nid parat</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 isch no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 si no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Wyterfahre</translation>
         </message>
     </context>
     <context>
@@ -3123,7 +3091,7 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
         <name>ChargingScreen</name>
         <message>
             <source>- Charging</source>
-            <translation> - Wird glade</translation>
+            <translation>- Wird glade</translation>
         </message>
     </context>
     <context>
@@ -3402,20 +3370,8 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
             <translation>isch nid verfüegbar</translation>
         </message>
         <message>
-            <source>Some devices are not ready</source>
-            <translation>Einigi Grät si nid parat</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 isch no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
-        </message>
-        <message>
             <source>Profile is restricted</source>
             <translation>Profil isch igschränkt</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation>%1 si no nid verbunde. Tippe uf Wyterfahre, zum trotzdem wytermache.</translation>
         </message>
         <message>
             <source>%1 entity</source>
@@ -3428,10 +3384,6 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
         <message>
             <source>Close</source>
             <translation>Schliesse</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <translation>Wyterfahre</translation>
         </message>
     </context>
     <context>
