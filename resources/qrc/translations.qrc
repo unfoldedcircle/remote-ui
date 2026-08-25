@@ -6,6 +6,7 @@
         <file alias="en_US.qm">../translations/en_US.qm</file>
         <file alias="hu_HU.qm">../translations/hu_HU.qm</file>
         <file alias="nl_NL.qm">../translations/nl_NL.qm</file>
+        <file alias="fi_FI.qm">../translations/fi_FI.qm</file>
         <file alias="fr_FR.qm">../translations/fr_FR.qm</file>
         <file alias="it_IT.qm">../translations/it_IT.qm</file>
         <file alias="es_ES.qm">../translations/es_ES.qm</file>

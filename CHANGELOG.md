@@ -36,6 +36,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   screen
 - The Microphone and Speech response switches in the voice control settings were missing the check mark that every
   other switch shows when it is turned on
+### Added
+- Finnish translations
 
 ---
 ## v0.77.0 - 2026-08-17

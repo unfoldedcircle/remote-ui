@@ -236,6 +236,7 @@ TRANSLATIONS += resources/translations/da_DK.ts \
                resources/translations/en_US.ts \
                resources/translations/hu_HU.ts \
                resources/translations/nl_NL.ts \
+               resources/translations/fi_FI.ts \
                resources/translations/fr_FR.ts \
                resources/translations/it_IT.ts \
                resources/translations/es_ES.ts \
