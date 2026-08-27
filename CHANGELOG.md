@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+
+## v0.79.0 - 2026-08-27
 ### Added
 - "Fix states" in the activity menu is now working: tapping an entity lets you record that the device is on or off,
   without sending any command to it. Use it when the remote's idea of a device's state drifted from reality, e.g. an
@@ -46,8 +51,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   before and can now also be cancelled with the BACK button
 - The BACK button returns to the previous step from the administrator PIN step of the onboarding, like on the other
   steps
-
----
 
 ## v0.78.0 - 2026-08-25
 ### Added
