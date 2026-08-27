@@ -227,7 +227,7 @@ Settings.Page {
         Rectangle {
             width: ui.width
             height: 80
-            color: ListView.isCurrentItem && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+            color: ListView.isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
 
             Text {

@@ -100,7 +100,7 @@
 <context>
     <name>ActionableNotification</name>
     <message>
-        <location filename="../../src/qml/components/ActionableNotification.qml" line="185"/>
+        <location filename="../../src/qml/components/ActionableNotification.qml" line="189"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
@@ -265,7 +265,7 @@
         <translation>%1 entities</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/help-overlay/Base.qml" line="54"/>
+        <location filename="../../src/qml/components/help-overlay/Base.qml" line="71"/>
         <source>Close</source>
         <translation>Close</translation>
     </message>
@@ -984,57 +984,56 @@ Climate fan</extracomment>
 <context>
     <name>Discovery</name>
     <message>
-        <location filename="../../src/qml/components/docks/Discovery.qml" line="104"/>
+        <location filename="../../src/qml/components/docks/Discovery.qml" line="181"/>
         <source>Bluetooth is disabled. Discovery limited to network only.</source>
         <translation>Bluetooth is disabled. Discovery limited to network only.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Discovery.qml" line="116"/>
+        <location filename="../../src/qml/components/docks/Discovery.qml" line="193"/>
         <source>Bluetooth</source>
         <translation>Bluetooth</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Discovery.qml" line="135"/>
+        <location filename="../../src/qml/components/docks/Discovery.qml" line="215"/>
         <source>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</source>
         <translation>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Discovery.qml" line="151"/>
+        <location filename="../../src/qml/components/docks/Discovery.qml" line="232"/>
         <source>Discover</source>
         <translation>Discover</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Discovery.qml" line="164"/>
         <location filename="../../src/qml/components/docks/Discovery.qml" line="248"/>
         <source>Skip</source>
         <translation>Skip</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Discovery.qml" line="197"/>
-        <location filename="../../src/qml/components/docks/Discovery.qml" line="227"/>
-        <location filename="../../src/qml/components/integrations/Discovery.qml" line="85"/>
-        <location filename="../../src/qml/components/integrations/Discovery.qml" line="115"/>
+        <location filename="../../src/qml/components/docks/Discovery.qml" line="283"/>
+        <location filename="../../src/qml/components/docks/Discovery.qml" line="313"/>
+        <location filename="../../src/qml/components/integrations/Discovery.qml" line="118"/>
+        <location filename="../../src/qml/components/integrations/Discovery.qml" line="148"/>
         <source>Discovering</source>
         <extracomment>Title for searching for integrations to setup</extracomment>
         <translation>Discovering</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Discovery.qml" line="232"/>
+        <location filename="../../src/qml/components/docks/Discovery.qml" line="318"/>
         <source>%1 dock(s) found</source>
         <translation>%1 dock(s) found</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/integrations/Discovery.qml" line="120"/>
+        <location filename="../../src/qml/components/integrations/Discovery.qml" line="153"/>
         <source>%1 integration(s) found</source>
         <translation>%1 integration(s) found</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/integrations/Discovery.qml" line="139"/>
+        <location filename="../../src/qml/components/integrations/Discovery.qml" line="172"/>
         <source>Integrations may require the Web Configurator for setup.</source>
         <translation>Integrations may require the Web Configurator for setup.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/integrations/Discovery.qml" line="214"/>
+        <location filename="../../src/qml/components/integrations/Discovery.qml" line="251"/>
         <source>By %1</source>
         <extracomment>Integration driver developer name</extracomment>
         <translation>By %1</translation>
@@ -1078,10 +1077,15 @@ Climate fan</extracomment>
 <context>
     <name>Dock</name>
     <message>
-        <location filename="../../src/qml/onboarding/Dock.qml" line="29"/>
+        <location filename="../../src/qml/onboarding/Dock.qml" line="73"/>
         <source>Dock setup</source>
         <extracomment>Smart charging dock</extracomment>
         <translation>Dock setup</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/onboarding/Dock.qml" line="101"/>
+        <source>Skip</source>
+        <translation>Skip</translation>
     </message>
 </context>
 <context>
@@ -1267,7 +1271,7 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/components/docks/Finish.qml" line="34"/>
         <location filename="../../src/qml/components/integrations/Finish.qml" line="33"/>
-        <location filename="../../src/qml/onboarding/Finish.qml" line="19"/>
+        <location filename="../../src/qml/onboarding/Finish.qml" line="35"/>
         <source>You&apos;re all set</source>
         <translation>You&apos;re all set</translation>
     </message>
@@ -1311,7 +1315,7 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/components/docks/Finish.qml" line="75"/>
         <location filename="../../src/qml/components/integrations/Finish.qml" line="130"/>
-        <location filename="../../src/qml/onboarding/Finish.qml" line="261"/>
+        <location filename="../../src/qml/onboarding/Finish.qml" line="258"/>
         <source>Done</source>
         <translation>Done</translation>
     </message>
@@ -1337,17 +1341,17 @@ Climate fan</extracomment>
         <translation>Try again</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Finish.qml" line="35"/>
+        <location filename="../../src/qml/onboarding/Finish.qml" line="80"/>
         <source>You can add integrations or change configuration via the Web configurator.</source>
         <translation>You can add integrations or change configuration via the Web Configurator.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Finish.qml" line="77"/>
+        <location filename="../../src/qml/onboarding/Finish.qml" line="113"/>
         <source>Web configurator enabled</source>
         <translation>Web Configurator enabled</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Finish.qml" line="77"/>
+        <location filename="../../src/qml/onboarding/Finish.qml" line="113"/>
         <source>Web configurator disabled</source>
         <translation>Web Configurator disabled</translation>
     </message>
@@ -1714,17 +1718,17 @@ Climate fan</extracomment>
 <context>
     <name>Integration</name>
     <message>
-        <location filename="../../src/qml/onboarding/Integration.qml" line="26"/>
+        <location filename="../../src/qml/onboarding/Integration.qml" line="74"/>
         <source>Integration setup</source>
         <translation>Integration setup</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Integration.qml" line="44"/>
+        <location filename="../../src/qml/onboarding/Integration.qml" line="94"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Integration.qml" line="44"/>
+        <location filename="../../src/qml/onboarding/Integration.qml" line="94"/>
         <source>Skip</source>
         <translation>Skip</translation>
     </message>
@@ -1900,6 +1904,46 @@ Climate fan</extracomment>
         <location filename="../../src/ui/entity/macro.h" line="45"/>
         <source>Completed</source>
         <translation>Completed</translation>
+    </message>
+</context>
+<context>
+    <name>Main</name>
+    <message>
+        <location filename="../../src/qml/components/help-overlay/Main.qml" line="19"/>
+        <source>Useful tips</source>
+        <translation>Useful tips</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/help-overlay/Main.qml" line="20"/>
+        <source>Check out a few useful tips on where to find important elements of the UI.</source>
+        <translation>Check out a few useful tips on where to find important elements of the UI.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/help-overlay/Main.qml" line="23"/>
+        <source>For more tips visit unfoldedcircle.com/support</source>
+        <extracomment>Second paragraph of the first tip; the URL is not translated</extracomment>
+        <translation>For more tips visit unfoldedcircle.com/support</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/help-overlay/Main.qml" line="28"/>
+        <source>Tap here to open settings</source>
+        <extracomment>Tip pointing at the round button in the top right corner of the main screen</extracomment>
+        <translation>Tap here to open settings</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/help-overlay/Main.qml" line="42"/>
+        <source>Status bar</source>
+        <translation>Status bar</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/help-overlay/Main.qml" line="43"/>
+        <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+        <translation>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/help-overlay/Main.qml" line="45"/>
+        <source>You can also tap the status bar to scroll to the top of a page.</source>
+        <translation>You can also tap the status bar to scroll to the top of a page.</translation>
     </message>
 </context>
 <context>
@@ -2490,12 +2534,12 @@ Climate fan</extracomment>
 <context>
     <name>Pin</name>
     <message>
-        <location filename="../../src/qml/onboarding/Pin.qml" line="20"/>
+        <location filename="../../src/qml/onboarding/Pin.qml" line="57"/>
         <source>Administrator PIN</source>
         <translation>Administrator PIN</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Pin.qml" line="36"/>
+        <location filename="../../src/qml/onboarding/Pin.qml" line="73"/>
         <source>This PIN is the administrator PIN.</source>
         <translation>This PIN is the administrator PIN.</translation>
     </message>
@@ -2503,7 +2547,7 @@ Climate fan</extracomment>
 <context>
     <name>PopupList</name>
     <message>
-        <location filename="../../src/qml/components/PopupList.qml" line="170"/>
+        <location filename="../../src/qml/components/PopupList.qml" line="171"/>
         <source>Search</source>
         <translation>Search</translation>
     </message>
@@ -2849,12 +2893,12 @@ the Web Configurator</translation>
 <context>
     <name>Remote</name>
     <message>
-        <location filename="../../src/qml/components/entities/remote/deviceclass/Remote.qml" line="227"/>
+        <location filename="../../src/qml/components/entities/remote/deviceclass/Remote.qml" line="225"/>
         <source>Empty page</source>
         <translation>Empty page</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/remote/deviceclass/Remote.qml" line="239"/>
+        <location filename="../../src/qml/components/entities/remote/deviceclass/Remote.qml" line="237"/>
         <source>You can add UI elements via the Web Configurator</source>
         <translation>You can add UI elements via the Web Configurator</translation>
     </message>
@@ -2887,12 +2931,12 @@ the Web Configurator</translation>
 <context>
     <name>RemoteName</name>
     <message>
-        <location filename="../../src/qml/onboarding/RemoteName.qml" line="71"/>
+        <location filename="../../src/qml/onboarding/RemoteName.qml" line="52"/>
         <source>Name your remote</source>
         <translation>Name your remote</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/RemoteName.qml" line="99"/>
+        <location filename="../../src/qml/onboarding/RemoteName.qml" line="80"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>
@@ -3321,7 +3365,7 @@ the Web Configurator</translation>
 <context>
     <name>Start</name>
     <message>
-        <location filename="../../src/qml/onboarding/Start.qml" line="54"/>
+        <location filename="../../src/qml/onboarding/Start.qml" line="69"/>
         <source>Tap the screen to begin</source>
         <translation>Tap the screen to begin</translation>
     </message>
@@ -3411,13 +3455,13 @@ the Web Configurator</translation>
 <context>
     <name>Terms</name>
     <message>
-        <location filename="../../src/qml/onboarding/Terms.qml" line="37"/>
-        <location filename="../../src/qml/onboarding/Terms.qml" line="130"/>
+        <location filename="../../src/qml/onboarding/Terms.qml" line="27"/>
+        <location filename="../../src/qml/onboarding/Terms.qml" line="154"/>
         <source>Terms &amp; conditions</source>
         <translation>Terms &amp; conditions</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Terms.qml" line="53"/>
+        <location filename="../../src/qml/onboarding/Terms.qml" line="43"/>
         <source>By using Unfolded Circle products you agree to the Terms &amp; conditions.
 
 You can read them on
@@ -3432,12 +3476,12 @@ or by scanning this QR code.
 Tap the QR code to show it on the screen.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Terms.qml" line="86"/>
+        <location filename="../../src/qml/onboarding/Terms.qml" line="100"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Terms.qml" line="97"/>
+        <location filename="../../src/qml/onboarding/Terms.qml" line="114"/>
         <source>Agree</source>
         <extracomment>Agree to terms and conditions</extracomment>
         <translation>Agree</translation>
@@ -3900,38 +3944,38 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>Wifi</name>
     <message>
-        <location filename="../../src/qml/onboarding/Wifi.qml" line="65"/>
+        <location filename="../../src/qml/onboarding/Wifi.qml" line="149"/>
         <source>Select your WiFi network</source>
         <translation>Select your WiFi network</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Wifi.qml" line="89"/>
+        <location filename="../../src/qml/onboarding/Wifi.qml" line="173"/>
         <source>Wi-Fi address</source>
         <translation>WiFi address</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Wifi.qml" line="125"/>
+        <location filename="../../src/qml/onboarding/Wifi.qml" line="210"/>
         <source>Skip</source>
         <translation>Skip</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Wifi.qml" line="150"/>
+        <location filename="../../src/qml/onboarding/Wifi.qml" line="240"/>
         <source>Failed to connect</source>
         <extracomment>Failed to connect to a wifi network</extracomment>
         <translation>Failed to connect</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Wifi.qml" line="166"/>
+        <location filename="../../src/qml/onboarding/Wifi.qml" line="256"/>
         <source>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won&apos;t be possible now.</source>
         <translation>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won&apos;t be possible now.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Wifi.qml" line="173"/>
+        <location filename="../../src/qml/onboarding/Wifi.qml" line="263"/>
         <source>Set up later</source>
         <translation>Set up later</translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Wifi.qml" line="184"/>
+        <location filename="../../src/qml/onboarding/Wifi.qml" line="276"/>
         <source>Try again</source>
         <translation>Try again</translation>
     </message>
@@ -4059,51 +4103,51 @@ Tap the QR code to show it on the screen.</translation>
         <translation>Other Networks</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="235"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="243"/>
         <source>No networks found</source>
         <translation>No networks found</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="246"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="254"/>
         <source>Join other</source>
         <extracomment>Join other wifi network</extracomment>
         <translation>Join other</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="86"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="94"/>
         <source>Join and disable others</source>
         <extracomment>Wifi network join</extracomment>
         <translation>Join and disable others</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="96"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="104"/>
         <source>Disable</source>
         <extracomment>Wifi network enable or disable</extracomment>
         <translation>Disable</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="96"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="104"/>
         <source>Enable</source>
         <translation>Enable</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="105"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="113"/>
         <source>Delete</source>
         <extracomment>Wifi network delete</extracomment>
         <translation>Delete</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="108"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="116"/>
         <source>Remove WiFi network</source>
         <translation>Remove WiFi network</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="108"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="116"/>
         <source>Are you sure you want to remove the network %1?</source>
         <translation>Are you sure you want to remove the network %1?</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="112"/>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="120"/>
         <source>Remove</source>
         <translation>Remove</translation>
     </message>
@@ -4552,27 +4596,27 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>uc::ui::Controller</name>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="297"/>
+        <location filename="../../src/ui/uiController.cpp" line="299"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="298"/>
+        <location filename="../../src/ui/uiController.cpp" line="300"/>
         <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
         <translation>Deleting a current profile is not permitted. Please switch to another profile and try again.</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="598"/>
+        <location filename="../../src/ui/uiController.cpp" line="600"/>
         <source>Profile update error</source>
         <translation>Profile update error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="717"/>
+        <location filename="../../src/ui/uiController.cpp" line="719"/>
         <source>%1 error</source>
         <translation>%1 error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="717"/>
+        <location filename="../../src/ui/uiController.cpp" line="719"/>
         <source>Error while connecting to %1, with id %2</source>
         <translation>Error while connecting to %1, with id %2</translation>
     </message>

@@ -67,7 +67,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.down: speechResponseSwitch
                     }
                 }
@@ -200,7 +200,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.up: microphoneSwitch
                     }
                 }

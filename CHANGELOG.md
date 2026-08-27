@@ -9,6 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- The initial setup screens could not be operated with the d-pad: the terms & conditions, WiFi network, dock discovery
+  and results, integration and final screens only reacted to touch. Every setup step now navigates with the d-pad and
+  selects with the OK button, the same way the settings pages do, and BACK returns to the previous step.
+- The final "You're all set" setup screen could not be scrolled, so in languages with a longer description than English
+  the "Done" button was pushed off the display and could not be reached. The screen now scrolls.
+- The keypad selection outline is only shown once the d-pad is used and disappears again as soon as the screen is
+  touched, so a screen opened by touch no longer starts with a highlighted control or PIN digit.
+- The buttons of the "Profile already exists" prompt during the initial setup overlapped each other in languages
+  with longer labels.
+- The "Useful tips" shown after the initial setup were English-only images; they are now regular, translatable
+  screens that cover the whole display instead of leaving a strip of the main screen visible below them.
+- The d-pad LEFT/RIGHT keys switched the pages behind the tips when the tips were shown right after the initial
+  setup; they now only move between the tips.
 - Joining a WiFi network during the initial setup always ended with "Failed to connect", even with the correct
   password, while the very same network could be joined from Settings afterwards. The setup screen gave up after three
   seconds and deleted the network it was in the middle of connecting to. It now waits for the remote to report the

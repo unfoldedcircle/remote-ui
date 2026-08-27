@@ -41,6 +41,39 @@ Item {
     // control the user was last on inside this scope, restored when the scope comes back to front
     property Item lastFocusItem: null
 
+    // Set this to the scope's Flickable to keep the focused control on screen. Flickable does not
+    // follow the keyboard focus by itself, so without this the focus chain walks off the bottom of
+    // the display on any page taller than the viewport.
+    property Flickable scrollTarget: null
+
+    function isChildOf(item, ancestor) {
+        for (let p = item; p; p = p.parent) {
+            if (p === ancestor) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    function ensureVisible(item) {
+        if (!scrollTarget || !item || !isChildOf(item, scrollTarget.contentItem)) {
+            return;
+        }
+
+        const margin = 40;
+        const pos = item.mapToItem(scrollTarget.contentItem, 0, 0);
+        const top = pos.y - margin;
+        const bottom = pos.y + item.height + margin;
+        const maxContentY = Math.max(0, scrollTarget.contentHeight - scrollTarget.height);
+
+        if (top < scrollTarget.contentY) {
+            scrollTarget.contentY = Math.min(Math.max(0, top), maxContentY);
+        } else if (bottom > scrollTarget.contentY + scrollTarget.height) {
+            scrollTarget.contentY = Math.min(Math.max(0, bottom - scrollTarget.height), maxContentY);
+        }
+    }
+
     // the null guard keeps the binding quiet while the ui context is torn down on shutdown
     readonly property bool hasInputControl: ui && ui.inputController
                                             ? ui.inputController.activeItem === scope : false
@@ -74,8 +107,10 @@ Item {
         }
 
         // the focus is already on a control of this scope: leave the user's selection alone.
-        // buttonNavigation itself is the parking spot, not a control, so it does not count.
-        if (windowFocusItem !== buttonNavigation && isInScope(windowFocusItem)) {
+        // buttonNavigation itself is the parking spot, not a control, so it does not count, and
+        // neither does the scope itself: a swipe view hands the focus to its page wrapper on a
+        // level change, and that must not pass as a selection.
+        if (windowFocusItem !== buttonNavigation && windowFocusItem !== scope && isInScope(windowFocusItem)) {
             return;
         }
 
@@ -88,9 +123,18 @@ Item {
     // Park the focus on this item while another layer owns the input. It carries no key handlers,
     // so the keys that still reach it do nothing, and the controls of the scope go quiet.
     function parkFocus() {
-        if (manageFocus && isInScope(windowFocusItem) && windowFocusItem !== buttonNavigation) {
-            buttonNavigation.forceActiveFocus();
+        if (!manageFocus || !isInScope(windowFocusItem) || windowFocusItem === buttonNavigation) {
+            return;
         }
+
+        // the layer that took the input can live inside this scope (a popup or form declared in
+        // the page) and may have focused its own control already - that focus is its, not ours
+        const owner = ui.inputController.activeItem;
+        if (owner && owner !== scope && isChildOf(windowFocusItem, owner)) {
+            return;
+        }
+
+        buttonNavigation.forceActiveFocus();
     }
 
     onManageFocusChanged: claimFocus()
@@ -105,11 +149,13 @@ Item {
     }
 
     onWindowFocusItemChanged: {
+        ensureVisible(windowFocusItem);
+
         if (!manageFocus || !hasInputControl) {
             return;
         }
 
-        if (windowFocusItem !== buttonNavigation && isInScope(windowFocusItem)) {
+        if (windowFocusItem !== buttonNavigation && windowFocusItem !== scope && isInScope(windowFocusItem)) {
             // remember where the user is, so the scope comes back to the same control
             buttonNavigation.lastFocusItem = windowFocusItem;
             return;
@@ -117,8 +163,10 @@ Item {
 
         // We own the input but the focus is not on one of our controls: it was parked, the focused
         // control was hidden or destroyed, or the swipe view handed the focus to its page wrapper
-        // after a level change - which happens after we claimed it. Take it back.
-        claimFocus();
+        // after a level change - which happens after we claimed it. Take it back - deferred, as
+        // moving the focus from inside the focus change handler is a binding loop on
+        // windowFocusItem, which QML aborts, and the claim then never happens.
+        Qt.callLater(claimFocus);
     }
 
     // a scope that gains the input while it is still hidden (popup opening, swipe view animating)

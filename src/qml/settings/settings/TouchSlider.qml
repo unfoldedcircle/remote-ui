@@ -83,7 +83,7 @@ Settings.Page {
                     }
 
                     KeyNavigation.down: volumeSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -166,7 +166,7 @@ Settings.Page {
 
                     KeyNavigation.up: enabledSwitch
                     KeyNavigation.down: brightnessSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -216,7 +216,7 @@ Settings.Page {
 
                     KeyNavigation.up: volumeSlider
                     KeyNavigation.down: positionSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -266,7 +266,7 @@ Settings.Page {
 
                     KeyNavigation.up: brightnessSlider
                     KeyNavigation.down: seekSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -316,7 +316,7 @@ Settings.Page {
                     }
 
                     KeyNavigation.up: positionSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
         }

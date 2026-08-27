@@ -11,11 +11,59 @@ import Haptic 1.0
 
 import "qrc:/components" as Components
 import "qrc:/components/integrations" as Integrations
+import "qrc:/onboarding" as OnboardingComponents
 
-Item {
+OnboardingComponents.Page {
     id: integrationSetup
 
     property bool integrationHasBeenSetup: false
+
+    // The keypad selection walks the found integrations and ends on the Skip/Next button below
+    // the list. It is driven through the button navigation only - no keyboard focus is involved,
+    // so one key press can not act on two controls.
+    property bool skipSelected: false
+
+    onStepEntered: {
+        integrationSetup.skipSelected = false;
+        IntegrationController.startDriverDiscovery();
+    }
+
+    Component.onCompleted: {
+        buttonNavigation.extendDefaultConfig({
+                                                 "DPAD_DOWN": {
+                                                     "pressed": function() {
+                                                         if (!integrationSetup.skipSelected && !integrationDiscovery.moveSelection(1)) {
+                                                             integrationSetup.skipSelected = true;
+                                                         }
+                                                     }
+                                                 },
+                                                 "DPAD_UP": {
+                                                     "pressed": function() {
+                                                         if (integrationSetup.skipSelected) {
+                                                             integrationSetup.skipSelected = false;
+                                                             integrationDiscovery.selectLast();
+                                                         } else {
+                                                             integrationDiscovery.moveSelection(-1);
+                                                         }
+                                                     }
+                                                 },
+                                                 "DPAD_MIDDLE": {
+                                                     "pressed": function() {
+                                                         if (integrationSetup.skipSelected) {
+                                                             skipButton.activate();
+                                                         } else {
+                                                             integrationDiscovery.activateSelection();
+                                                         }
+                                                     }
+                                                 },
+                                                 "BACK": {
+                                                     "pressed": function() {
+                                                         IntegrationController.stopDriverDiscovery();
+                                                         OnboardingController.previousStep();
+                                                     }
+                                                 }
+                                             });
+    }
 
     Item {
         id: integrationSetupTitle
@@ -34,8 +82,10 @@ Item {
     }
 
     Integrations.Discovery {
+        id: integrationDiscovery
         anchors { top: integrationSetupTitle.bottom; bottom: skipButton.top; bottomMargin: 20; left: parent.left; right: parent.right }
         anchors.fill: undefined
+        keypadSelected: !integrationSetup.skipSelected
     }
 
     Components.Button {
@@ -43,6 +93,7 @@ Item {
         width: parent.width - 40
         text: integrationSetup.integrationHasBeenSetup ? qsTr("Next") : qsTr("Skip")
         anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+        highlight: integrationSetup.skipSelected && ui.keyNavigationActive
         trigger: function() {
             OnboardingController.nextStep();
         }
@@ -120,13 +171,13 @@ Item {
             }
         }
 
+        // the setup form is touch only; the keypad can only leave it
         Components.ButtonNavigation {
             id: integrationSetupPopupButtonNavigation
             defaultConfig: {
                 "HOME": {
                     "pressed": function() {
                         integrationSetupPopup.close();
-                        goHome();
                     }
                 },
                 "BACK": {
@@ -135,18 +186,6 @@ Item {
                     }
                 }
             }
-        }
-    }
-
-    Connections {
-        target: OnboardingController
-        ignoreUnknownSignals: true
-
-        function onCurrentStepChanged() {
-            if (OnboardingController.currentStep == OnboardingController.Integration) {
-                IntegrationController.startDriverDiscovery();
-            }
-            IntegrationController.startDriverDiscovery();  // remove
         }
     }
 }

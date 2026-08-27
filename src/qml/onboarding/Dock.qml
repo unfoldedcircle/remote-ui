@@ -13,10 +13,54 @@ import Config 1.0
 
 import "qrc:/components" as Components
 import "qrc:/components/docks" as Docks
+import "qrc:/onboarding" as OnboardingComponents
 
-Item {
-    property bool currentItem: SwipeView.isCurrentItem
-    property bool dockSelected: false
+OnboardingComponents.Page {
+    id: dockStep
+
+    // The keypad selection walks the discovery component (start screen controls, then the found
+    // docks) and ends on the Skip button below it. It is driven through the button navigation
+    // only - no keyboard focus is involved, so one key press can not act on two controls.
+    property bool skipSelected: false
+
+    onStepEntered: dockStep.skipSelected = false
+
+    Component.onCompleted: {
+        buttonNavigation.extendDefaultConfig({
+                                                 "DPAD_DOWN": {
+                                                     "pressed": function() {
+                                                         if (!dockStep.skipSelected && !dockDiscovery.moveSelection(1)) {
+                                                             dockStep.skipSelected = true;
+                                                         }
+                                                     }
+                                                 },
+                                                 "DPAD_UP": {
+                                                     "pressed": function() {
+                                                         if (dockStep.skipSelected) {
+                                                             dockStep.skipSelected = false;
+                                                             dockDiscovery.selectLast();
+                                                         } else {
+                                                             dockDiscovery.moveSelection(-1);
+                                                         }
+                                                     }
+                                                 },
+                                                 "DPAD_MIDDLE": {
+                                                     "pressed": function() {
+                                                         if (dockStep.skipSelected) {
+                                                             skipButton.activate();
+                                                         } else {
+                                                             dockDiscovery.activateSelection();
+                                                         }
+                                                     }
+                                                 },
+                                                 "BACK": {
+                                                     "pressed": function() {
+                                                         DockController.stopDiscovery();
+                                                         OnboardingController.previousStep();
+                                                     }
+                                                 }
+                                             });
+    }
 
     Item {
         id: title
@@ -41,12 +85,26 @@ Item {
         anchors {
             top: title.bottom
             topMargin: 20
-            bottom: parent.bottom
+            bottom: skipButton.top
+            bottomMargin: 20
             left: parent.left
             right: parent.right
         }
         anchors.fill: undefined
+        keypadSelected: !dockStep.skipSelected
         onSkip: OnboardingController.nextStep()
+    }
+
+    Components.Button {
+        id: skipButton
+        width: parent.width - 20
+        text: qsTr("Skip")
+        color: colors.secondaryButton
+        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+        highlight: dockStep.skipSelected && ui.keyNavigationActive
+        trigger: function() {
+            OnboardingController.nextStep();
+        }
     }
 
     Popup {
@@ -56,6 +114,14 @@ Item {
         closePolicy: Popup.NoAutoClose
         padding: 0
         parent: Overlay.overlay
+
+        onOpened: {
+            dockSetupPopupButtonNavigation.takeControl();
+        }
+
+        onClosed: {
+            dockSetupPopupButtonNavigation.releaseControl();
+        }
 
         enter: Transition {
             NumberAnimation { property: "scale"; from: 0.7; to: 1.0; easing.type: Easing.OutExpo; duration: 300 }
@@ -109,6 +175,24 @@ Item {
                 if (dockId) {
                     dockSetupLoader.active = true;
                     dockSetupPopup.open();
+                }
+            }
+        }
+
+        // the setup form is touch only; the keypad can only leave it, and the step keeps its
+        // own keys to itself while the popup is open
+        Components.ButtonNavigation {
+            id: dockSetupPopupButtonNavigation
+            defaultConfig: {
+                "HOME": {
+                    "pressed": function() {
+                        dockSetupPopup.close();
+                    }
+                },
+                "BACK": {
+                    "pressed": function() {
+                        dockSetupPopup.close();
+                    }
                 }
             }
         }

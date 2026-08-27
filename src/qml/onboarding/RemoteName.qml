@@ -9,9 +9,14 @@ import Haptic 1.0
 import HwInfo 1.0
 
 import "qrc:/components" as Components
+import "qrc:/onboarding" as OnboardingComponents
 
-Item {
+OnboardingComponents.Page {
     id: remoteNameStep
+
+    // the name is typed on the on-screen keyboard, so the input field keeps the focus; DPAD_MIDDLE
+    // is the field's Return key and submits the form through inputField.onAccepted
+    initialFocusItem: inputFieldContainer.inputField
 
     function next() {
         if (inputFieldContainer.isEmpty()) {
@@ -21,17 +26,9 @@ Item {
         }
     }
 
-    Connections {
-        target: OnboardingController
-        ignoreUnknownSignals: true
-
-        function onCurrentStepChanged() {
-            if (OnboardingController.currentStep == OnboardingController.RemoteName) {
-                ui.inputController.activeController = remoteNameStep;
-                inputFieldContainer.inputField.forceActiveFocus();
-                keyboard.show();
-            }
-        }
+    onStepEntered: {
+        inputFieldContainer.inputField.forceActiveFocus();
+        keyboard.show();
     }
 
     Connections {
@@ -43,22 +40,6 @@ Item {
             if (success) {
                 OnboardingController.nextStep();
             }
-        }
-    }
-
-    Components.ButtonNavigation {
-        overrideActive: OnboardingController.currentStep === OnboardingController.RemoteName
-        defaultConfig: {
-            "DPAD_MIDDLE": {
-                "pressed": function() {
-                    remoteNameStep.next();
-                }
-            },
-            "BACK": {
-                "pressed": function() {
-                    OnboardingController.previousStep();
-                }
-            },
         }
     }
 

@@ -58,12 +58,18 @@ Rectangle {
         name = "";
     }
 
+    // focus the name field, bring the keyboard up and take the input: what showing the form does,
+    // for a form that is already visible when its step is entered again
+    function focusForm() {
+        inputFieldContainer.inputField.focus = true;
+        inputFieldContainer.inputField.forceActiveFocus();
+        keyboard.show();
+        buttonNavigation.takeControl();
+    }
+
     onStateChanged: {
         if (state == "visible") {
-            inputFieldContainer.inputField.focus = true;
-            inputFieldContainer.inputField.forceActiveFocus();
-            keyboard.show();
-            buttonNavigation.takeControl();
+            focusForm();
         } else {
             keyboard.hide();
             buttonNavigation.releaseControl();

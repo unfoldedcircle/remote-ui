@@ -7,16 +7,18 @@ import Onboarding 1.0
 import Config 1.0
 
 import "qrc:/components" as Components
+import "qrc:/onboarding" as OnboardingComponents
 
-Item {
-    Components.ButtonNavigation {
-        overrideActive: OnboardingController.currentStep === OnboardingController.Profile
-        defaultConfig: {
-            "BACK": {
-                "pressed": function() {
-                    OnboardingController.previousStep();
-                }
-            },
+OnboardingComponents.Page {
+    // The profile form and the profile list take the input themselves while they are visible.
+    // The form can already be visible on entry (the list hands over to it while both are still
+    // hidden during creation), and then setting the state again would neither focus the name
+    // field nor take the input.
+    onStepEntered: {
+        if (profileAdd.state === "visible") {
+            profileAdd.focusForm();
+        } else {
+            profileAdd.state = "visible";
         }
     }
 
@@ -38,17 +40,6 @@ Item {
                 } else {
                     profileAdd.state = "visible";
                 }
-            }
-        }
-    }
-
-    Connections {
-        target: OnboardingController
-        ignoreUnknownSignals: true
-
-        function onCurrentStepChanged() {
-            if (OnboardingController.currentStep == OnboardingController.Profile) {
-                profileAdd.state = "visible";
             }
         }
     }

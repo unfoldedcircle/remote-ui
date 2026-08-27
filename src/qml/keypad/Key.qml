@@ -19,7 +19,7 @@ Rectangle {
 
     border {
         width: 2
-        color: keypadKey.highlight && ui.keyNavigationEnabled ? colors.highlight : colors.transparent
+        color: keypadKey.highlight && ui.keyNavigationActive ? colors.highlight : colors.transparent
     }
 
     states: State {

@@ -390,7 +390,7 @@ Rectangle {
 
                 Rectangle {
                     anchors.fill: parent
-                    color: index === containerMain.item.pages.currentIndex && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+                    color: index === containerMain.item.pages.currentIndex && ui.keyNavigationActive ? colors.dark : colors.transparent
                     radius: ui.cornerRadiusSmall
                 }
 

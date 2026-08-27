@@ -10,23 +10,13 @@ import ResourceTypes 1.0
 
 import "qrc:/components" as Components
 import "qrc:/settings/about" as AboutComponent
+import "qrc:/onboarding" as OnboardingComponents
 
-Item {
-    Components.ButtonNavigation {
-        overrideActive: OnboardingController.currentStep === OnboardingController.Terms
-        defaultConfig: {
-            "DPAD_MIDDLE": {
-                "pressed": function() {
-                    OnboardingController.nextStep();
-                }
-            },
-            "BACK": {
-                "pressed": function() {
-                    OnboardingController.previousStep();
-                }
-            },
-        }
-    }
+OnboardingComponents.Page {
+    id: termsStep
+
+    // the terms must be agreed to deliberately: the selection starts on Cancel
+    initialFocusItem: buttonCancel
 
     Item {
         id: title
@@ -55,21 +45,45 @@ Item {
         font: fonts.secondaryFont(24)
     }
 
-    Image {
-        width: 300
-        height: width
-        fillMode: Image.PreserveAspectFit
-        antialiasing: false
-        source: "data:image/png;base64," + ui.createQrCode("https://unfoldedcircle.com/legal")
+    Item {
+        id: qrCode
         anchors { top: description.bottom; horizontalCenter: parent.horizontalCenter; bottom: buttons.top }
+        width: 300
+
+        KeyNavigation.down: buttonCancel
+
+        function showTerms() {
+            if (termsPopup.closed) {
+                termsPopup.open();
+            }
+        }
+
+        Keys.onReturnPressed: {
+            qrCode.showTerms();
+            event.accepted = true;
+        }
+
+        Image {
+            width: 300
+            height: width
+            fillMode: Image.PreserveAspectFit
+            antialiasing: false
+            source: "data:image/png;base64," + ui.createQrCode("https://unfoldedcircle.com/legal")
+            anchors.centerIn: parent
+        }
+
+        Rectangle {
+            anchors { fill: parent; margins: -4 }
+            radius: ui.cornerRadiusSmall
+            color: colors.transparent
+            border { width: 2; color: qrCode.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent }
+        }
 
         MouseArea {
             anchors.fill: parent
 
             onClicked: {
-                if (termsPopup.closed) {
-                    termsPopup.open();
-                }
+                qrCode.showTerms();
             }
         }
     }
@@ -87,16 +101,21 @@ Item {
             color: colors.secondaryButton
             width: (parent.width - 30 ) / 2
             anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+            KeyNavigation.up: qrCode
+            KeyNavigation.right: buttonAgree
             trigger: function() {
                 OnboardingController.previousStep();
             }
         }
 
         Components.Button {
+            id: buttonAgree
             //: Agree to terms and conditions
             text: qsTr("Agree")
             width: (parent.width - 30 ) / 2
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+            KeyNavigation.up: qrCode
+            KeyNavigation.left: buttonCancel
             trigger: function() {
                 OnboardingController.nextStep();
             }
@@ -109,6 +128,11 @@ Item {
         modal: false
         closePolicy: Popup.NoAutoClose
         padding: 0
+
+        // the about page scrolls with DPAD_UP/DOWN through its own button navigation, so it owns
+        // the input while the popup is open; BACK closes the popup again
+        onOpened: terms.buttonNavigation.takeControl()
+        onClosed: terms.buttonNavigation.releaseControl()
 
         enter: Transition {
             NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; easing.type: Easing.OutExpo; duration: 300 }
@@ -156,6 +180,21 @@ Item {
             id: terms
             topNavigation.visible: false
             type: ResourceTypes.Terms
+
+            Component.onCompleted: {
+                buttonNavigation.extendDefaultConfig({
+                                                         "BACK": {
+                                                             "pressed": function() {
+                                                                 termsPopup.close();
+                                                             }
+                                                         },
+                                                         "HOME": {
+                                                             "pressed": function() {
+                                                                 termsPopup.close();
+                                                             }
+                                                         }
+                                                     });
+            }
         }
     }
 }

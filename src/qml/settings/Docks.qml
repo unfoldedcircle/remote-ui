@@ -251,7 +251,7 @@ Settings.Page {
             id: dockListItem
             width: ListView.view.width
             height: 300
-            color: isCurrentItem && !docksPage.addSheetSelected && ui.keyNavigationEnabled ? Qt.darker(colors.dark, 1.5) : colors.transparent
+            color: isCurrentItem && !docksPage.addSheetSelected && ui.keyNavigationActive ? Qt.darker(colors.dark, 1.5) : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
                 color: colors.medium

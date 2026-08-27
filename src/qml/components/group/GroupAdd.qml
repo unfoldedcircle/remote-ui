@@ -290,7 +290,7 @@ Rectangle {
 
         Rectangle {
             width: ui.width; height: 100
-            color: isCurrentItem && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
 
             property bool isCurrentItem: ListView.isCurrentItem
             property string key: itemKey

@@ -9,47 +9,43 @@ import Onboarding 1.0
 import Config 1.0
 
 import "qrc:/keypad" as Keypad
-import "qrc:/components" as Components
+import "qrc:/onboarding" as OnboardingComponents
 
-Item {
+OnboardingComponents.Page {
+    id: pinStep
+
     function currentKeypad() {
         return keyPadSwipeView.currentIndex === 0 ? keypadOne : keypadTwo;
     }
 
-    Components.ButtonNavigation {
-        overrideActive: OnboardingController.currentStep === OnboardingController.Pin
-        defaultConfig: {
-            "BACK": {
-                "pressed": function() {
-                    OnboardingController.previousStep();
-                }
-            },
-            "DPAD_UP": {
-                "pressed": function() {
-                    currentKeypad().moveSelection(0, -1);
-                }
-            },
-            "DPAD_DOWN": {
-                "pressed": function() {
-                    currentKeypad().moveSelection(0, 1);
-                }
-            },
-            "DPAD_LEFT": {
-                "pressed": function() {
-                    currentKeypad().moveSelection(-1, 0);
-                }
-            },
-            "DPAD_RIGHT": {
-                "pressed": function() {
-                    currentKeypad().moveSelection(1, 0);
-                }
-            },
-            "DPAD_MIDDLE": {
-                "pressed": function() {
-                    currentKeypad().activateSelection();
-                }
-            }
-        }
+    Component.onCompleted: {
+        buttonNavigation.extendDefaultConfig({
+                                                 "DPAD_UP": {
+                                                     "pressed": function() {
+                                                         pinStep.currentKeypad().moveSelection(0, -1);
+                                                     }
+                                                 },
+                                                 "DPAD_DOWN": {
+                                                     "pressed": function() {
+                                                         pinStep.currentKeypad().moveSelection(0, 1);
+                                                     }
+                                                 },
+                                                 "DPAD_LEFT": {
+                                                     "pressed": function() {
+                                                         pinStep.currentKeypad().moveSelection(-1, 0);
+                                                     }
+                                                 },
+                                                 "DPAD_RIGHT": {
+                                                     "pressed": function() {
+                                                         pinStep.currentKeypad().moveSelection(1, 0);
+                                                     }
+                                                 },
+                                                 "DPAD_MIDDLE": {
+                                                     "pressed": function() {
+                                                         pinStep.currentKeypad().activateSelection();
+                                                     }
+                                                 }
+                                             });
     }
 
     Item {
@@ -82,8 +78,9 @@ Item {
     SwipeView {
         id: keyPadSwipeView
         interactive: false
+        clip: true
         width: parent.width
-        anchors { top: description.bottom; topMargin: 40 }
+        anchors { top: description.bottom; topMargin: 40; bottom: parent.bottom }
 
         Keypad.KeyPad {
             id: keypadOne

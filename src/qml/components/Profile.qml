@@ -688,9 +688,9 @@ Item {
         Rectangle {
             width: ListView.view.width
             height: visible ? 80 : 0
-            color: isCurrentItem && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
             border {
-                color: isCurrentItem && ui.keyNavigationEnabled ? colors.medium : colors.transparent
+                color: isCurrentItem && ui.keyNavigationActive ? colors.medium : colors.transparent
                 width: 1
             }
             radius: ui.cornerRadiusSmall

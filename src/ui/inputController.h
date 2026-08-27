@@ -4,11 +4,11 @@
 #pragma once
 
 #include <QKeyEvent>
+#include <QMutex>
+#include <QPointer>
 #include <QQmlApplicationEngine>
 #include <QQuickItem>
 #include <QTimer>
-#include <QMutex>
-#include <QPointer>
 #include <QVector>
 
 #include "../core/enums.h"
@@ -22,6 +22,10 @@ class InputController : public QQuickItem {
 
     Q_PROPERTY(QObject* activeItem READ activeItem NOTIFY activeItemChanged)
     Q_PROPERTY(int repeatCount READ getRepeatCount CONSTANT)
+    // True from the first physical key press until the screen is touched again. Pages use it to
+    // show their keypad selection only while the keypad is actually in use: a screen opened by
+    // touch shows no selection, and touching resets it.
+    Q_PROPERTY(bool keypadActive READ keypadActive NOTIFY keypadActiveChanged)
 
  public:
     explicit InputController(hw::HardwareModel::Enum model);
@@ -56,9 +60,10 @@ class InputController : public QQuickItem {
     Q_ENUM(Buttons)
 
     QObject* activeItem() const { return m_activeItem.data(); }
-    int     getRepeatCount() { return m_repeatCount; }
+    bool     keypadActive() const { return m_keypadActive; }
+    int      getRepeatCount() { return m_repeatCount; }
 
-    Q_INVOKABLE void setSource(QObject *source);
+    Q_INVOKABLE void setSource(QObject* source);
     Q_INVOKABLE void emitKey(Qt::Key key, bool release = false);
     Q_INVOKABLE void blockInput(bool value);
 
@@ -67,7 +72,7 @@ class InputController : public QQuickItem {
     Q_INVOKABLE void takeControl(QObject* item);
     Q_INVOKABLE void releaseControl(QObject* item = nullptr);
 
-    static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine);
+    static QObject* qmlInstance(QQmlEngine* engine, QJSEngine* scriptEngine);
 
  signals:
     void globalPowerLongPressed();
@@ -76,37 +81,41 @@ class InputController : public QQuickItem {
     void keyReleased(QString key);
     void keyReleasedFor(QObject* owner, QString key);
     void activeItemChanged();
+    void keypadActiveChanged();
 
  public slots:
     void onPowerModeChanged(core::PowerEnums::PowerMode powerMode);
 
  protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    bool eventFilter(QObject* obj, QEvent* event) override;
 
  private slots:
-    void onOwnerDestroyed(QObject *owner);
+    void onOwnerDestroyed(QObject* owner);
 
  private:
-    static InputController *s_instance;
+    static InputController* s_instance;
 
     void cleanupStack();
-    void updateActive();
-    void emitKeyRelease(int key, const QString &mappedKey);
+    bool updateActive();
+    void notifyActiveChanged(bool changed);
+    void emitKeyRelease(int key, const QString& mappedKey);
     void cancelDeferredRelease(int key);
+    void setKeypadActive(bool active);
 
     QMutex m_mutex;
 
     hw::HardwareModel::Enum m_model;
 
-    QObject *m_source;
+    QObject* m_source;
 
-    QPointer<QObject> m_activeItem;
-    QPointer<QObject> m_baseOwner;
-    QVector<QPointer<QObject>> m_stack;
+    QPointer<QObject>             m_activeItem;
+    QPointer<QObject>             m_baseOwner;
+    QVector<QPointer<QObject>>    m_stack;
     QHash<int, QPointer<QObject>> m_keyOwner;
-    QHash<int, QTimer*> m_deferredRelease;
+    QHash<int, QTimer*>           m_deferredRelease;
 
     bool m_blockInput = false;
+    bool m_keypadActive = false;
     bool m_blockTouchInput = false;
 
     QHash<int, QString> m_keyCodeMapping{
@@ -137,8 +146,8 @@ class InputController : public QQuickItem {
     };
 
     QTimer m_globalPowerHoldTimer;
-    bool m_globalPowerPressed = false;
-    bool m_globalPowerLongPressTriggered = false;
+    bool   m_globalPowerPressed = false;
+    bool   m_globalPowerLongPressTriggered = false;
 
     int m_repeatCount = 4;
 };

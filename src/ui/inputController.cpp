@@ -21,7 +21,7 @@ static bool isActuallyVisible(QQuickItem* it) {
     return true;
 }
 
-InputController *InputController::s_instance = nullptr;
+InputController* InputController::s_instance = nullptr;
 
 InputController::InputController(hw::HardwareModel::Enum model) : m_model(model) {
     Q_ASSERT(s_instance == nullptr);
@@ -48,7 +48,7 @@ InputController::~InputController() {
     }
 }
 
-void InputController::setSource(QObject *source) {
+void InputController::setSource(QObject* source) {
     if (m_source == source) {
         return;
     }
@@ -82,80 +82,95 @@ void InputController::blockInput(bool value) {
     }
 }
 
-void InputController::setBaseOwner(QObject *obj) {
-    QMutexLocker lock(&m_mutex);
+void InputController::setBaseOwner(QObject* obj) {
+    bool changed = false;
+    {
+        QMutexLocker lock(&m_mutex);
 
-    auto* item = qobject_cast<QQuickItem*>(obj);
-    if (!item) return;
+        auto* item = qobject_cast<QQuickItem*>(obj);
+        if (!item) return;
 
-    m_baseOwner = obj;
-    updateActive();
+        m_baseOwner = obj;
+        changed = updateActive();
+    }
+    notifyActiveChanged(changed);
 }
 
 void InputController::takeControl(QObject* obj) {
-    QMutexLocker lock(&m_mutex);
+    bool changed = false;
+    {
+        QMutexLocker lock(&m_mutex);
 
-    if (!obj) return;
+        if (!obj) return;
 
-            // ensure it's a QQuickItem (or at least something that can be used as a scope)
-    auto* item = qobject_cast<QQuickItem*>(obj);
-    if (!item) return;
+        // ensure it's a QQuickItem (or at least something that can be used as a scope)
+        auto* item = qobject_cast<QQuickItem*>(obj);
+        if (!item) return;
 
-            // remove if already in stack, then push to top
-    for (int i = m_stack.size() - 1; i >= 0; --i) {
-        if (m_stack[i] == obj) {
-            m_stack.removeAt(i);
-            break;
-            // Invariant: each object appears at most once in the stack
-        }
-    }
-    m_stack.push_back(obj);
-
-            // auto-clean when destroyed.
-            // Qt::UniqueConnection only works when connecting to a member function: with a lambda every
-            // takeControl() call for the same object would add yet another connection, and scopes like the
-            // main container are never destroyed, so those connections piled up for the whole runtime.
-    connect(obj, &QObject::destroyed, this, &InputController::onOwnerDestroyed, Qt::UniqueConnection);
-
-    updateActive();
-}
-
-void InputController::onOwnerDestroyed(QObject *owner) {
-    QMutexLocker lock(&m_mutex);
-
-    for (int i = m_stack.size() - 1; i >= 0; --i) {
-        if (m_stack[i].data() == owner) {
-            m_stack.removeAt(i);
-        }
-    }
-
-    updateActive();
-}
-
-void InputController::releaseControl(QObject* obj) {
-    QMutexLocker lock(&m_mutex);
-
-    if (obj) {
-        // remove that specific scope (e.g. notification closing)
+        // remove if already in stack, then push to top
         for (int i = m_stack.size() - 1; i >= 0; --i) {
             if (m_stack[i] == obj) {
                 m_stack.removeAt(i);
                 break;
+                // Invariant: each object appears at most once in the stack
             }
         }
-    } else {
-        // "release myself": pop top
-        if (!m_stack.isEmpty())
-            m_stack.removeLast();
-    }
+        m_stack.push_back(obj);
 
-    updateActive();
+        // auto-clean when destroyed.
+        // Qt::UniqueConnection only works when connecting to a member function: with a lambda every
+        // takeControl() call for the same object would add yet another connection, and scopes like the
+        // main container are never destroyed, so those connections piled up for the whole runtime.
+        connect(obj, &QObject::destroyed, this, &InputController::onOwnerDestroyed, Qt::UniqueConnection);
+
+        changed = updateActive();
+    }
+    notifyActiveChanged(changed);
 }
 
-QObject *InputController::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {
+void InputController::onOwnerDestroyed(QObject* owner) {
+    bool changed = false;
+    {
+        QMutexLocker lock(&m_mutex);
+
+        for (int i = m_stack.size() - 1; i >= 0; --i) {
+            if (m_stack[i].data() == owner) {
+                m_stack.removeAt(i);
+            }
+        }
+
+        changed = updateActive();
+    }
+    notifyActiveChanged(changed);
+}
+
+void InputController::releaseControl(QObject* obj) {
+    bool changed = false;
+    {
+        QMutexLocker lock(&m_mutex);
+
+        if (obj) {
+            // remove that specific scope (e.g. notification closing)
+            for (int i = m_stack.size() - 1; i >= 0; --i) {
+                if (m_stack[i] == obj) {
+                    m_stack.removeAt(i);
+                    break;
+                }
+            }
+        } else {
+            // "release myself": pop top
+            if (!m_stack.isEmpty()) m_stack.removeLast();
+        }
+
+        changed = updateActive();
+    }
+    notifyActiveChanged(changed);
+}
+
+QObject* InputController::qmlInstance(QQmlEngine* engine, QJSEngine* scriptEngine) {
     Q_UNUSED(scriptEngine);
 
-    QObject *obj = s_instance;
+    QObject* obj = s_instance;
     engine->setObjectOwnership(obj, QQmlEngine::CppOwnership);
     return obj;
 }
@@ -177,8 +192,8 @@ void InputController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode) 
     }
 }
 
-bool InputController::eventFilter(QObject *obj, QEvent *event) {
-    QKeyEvent *keyEvent;
+bool InputController::eventFilter(QObject* obj, QEvent* event) {
+    QKeyEvent* keyEvent;
 
     if (m_blockInput) {
         switch (event->type()) {
@@ -199,8 +214,8 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
 
     switch (event->type()) {
         case QEvent::KeyPress: {
-            keyEvent = static_cast<QKeyEvent *>(event);
-            int key = keyEvent->key();
+            keyEvent = static_cast<QKeyEvent*>(event);
+            int           key = keyEvent->key();
             const QString mappedKey = m_keyCodeMapping.value(key);
 
             if (mappedKey.isEmpty()) {
@@ -208,6 +223,7 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
             }
 
             cancelDeferredRelease(key);
+            setKeypadActive(true);
 
             if (key == Qt::Key_PowerOff && !keyEvent->isAutoRepeat() && !m_globalPowerPressed) {
                 m_globalPowerPressed = true;
@@ -233,8 +249,8 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
             break;
         }
         case QEvent::KeyRelease: {
-            keyEvent = static_cast<QKeyEvent *>(event);
-            int key = keyEvent->key();
+            keyEvent = static_cast<QKeyEvent*>(event);
+            int           key = keyEvent->key();
             const QString mappedKey = m_keyCodeMapping.value(key);
 
             if (mappedKey.isEmpty()) {
@@ -246,14 +262,13 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
                 // (followed by another press within the repeat period) or the terminal
                 // release of a held key. Defer it: a follow-up press cancels the timer,
                 // otherwise the release is delivered so stop handlers still fire.
-                QTimer *timer = m_deferredRelease.value(key, nullptr);
+                QTimer* timer = m_deferredRelease.value(key, nullptr);
                 if (!timer) {
                     timer = new QTimer(this);
                     timer->setSingleShot(true);
                     timer->setInterval(150);
-                    connect(timer, &QTimer::timeout, this, [this, key] {
-                        emitKeyRelease(key, m_keyCodeMapping.value(key));
-                    });
+                    connect(timer, &QTimer::timeout, this,
+                            [this, key] { emitKeyRelease(key, m_keyCodeMapping.value(key)); });
                     m_deferredRelease.insert(key, timer);
                 }
                 timer->start();
@@ -274,6 +289,10 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
                 event->ignore();
                 return true;
             }
+
+            if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::TouchBegin) {
+                setKeypadActive(false);
+            }
             break;
         }
         default:  // do nothing
@@ -283,7 +302,7 @@ bool InputController::eventFilter(QObject *obj, QEvent *event) {
     return QQuickItem::eventFilter(obj, event);
 }
 
-void InputController::emitKeyRelease(int key, const QString &mappedKey) {
+void InputController::emitKeyRelease(int key, const QString& mappedKey) {
     if (key == Qt::Key_PowerOff) {
         m_globalPowerHoldTimer.stop();
         m_globalPowerPressed = false;
@@ -300,8 +319,17 @@ void InputController::emitKeyRelease(int key, const QString &mappedKey) {
     qCDebug(lcInput()) << "Key released:" << mappedKey << owner.data();
 }
 
+void InputController::setKeypadActive(bool active) {
+    if (m_keypadActive == active) {
+        return;
+    }
+
+    m_keypadActive = active;
+    emit keypadActiveChanged();
+}
+
 void InputController::cancelDeferredRelease(int key) {
-    QTimer *timer = m_deferredRelease.value(key, nullptr);
+    QTimer* timer = m_deferredRelease.value(key, nullptr);
     if (timer) {
         timer->stop();
     }
@@ -312,25 +340,32 @@ void InputController::cleanupStack() {
     // (or clean all invalid entries)
     for (int i = m_stack.size() - 1; i >= 0; --i) {
         auto* item = qobject_cast<QQuickItem*>(m_stack[i].data());
-        if (!item || !isActuallyVisible(item))
-            m_stack.removeAt(i);
+        if (!item || !isActuallyVisible(item)) m_stack.removeAt(i);
     }
 }
 
-void InputController::updateActive() {
+// Called with m_mutex held. Only records the new owner; the change is announced by
+// notifyActiveChanged() once the lock is released, because a QML handler of activeItemChanged may
+// well call takeControl() / releaseControl() again - with the lock still held that deadlocked the
+// ui thread (help overlay taking the input back after the main container).
+bool InputController::updateActive() {
     cleanupStack();
 
     QObject* newActive = m_stack.isEmpty() ? nullptr : m_stack.last().data();
 
-    if (!newActive)
-        newActive = m_baseOwner.data();
+    if (!newActive) newActive = m_baseOwner.data();
 
-    if (newActive == m_activeItem.data())
-        return;
+    if (newActive == m_activeItem.data()) return false;
 
     m_activeItem = newActive;
-    emit activeItemChanged();
+    return true;
+}
+
+void InputController::notifyActiveChanged(bool changed) {
+    if (!changed) return;
+
     qCInfo(lcInput()) << "ACTIVE CONTROL ->" << m_activeItem.data();
+    emit activeItemChanged();
 }
 
 }  // namespace ui

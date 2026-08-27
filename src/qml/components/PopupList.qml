@@ -28,6 +28,7 @@ Rectangle {
     property bool countryList: false
 
     property alias popupListmodel: popupListmodel
+    property alias buttonNavigation: buttonNavigation
 
     state: "hidden"
 
@@ -163,6 +164,7 @@ Rectangle {
         }
 
         Components.SearchField {
+            id: searchField
             width: parent.width
             anchors { horizontalCenter: parent.horizontalCenter; top: titleText.bottom; topMargin: 20 }
             visible: showSearch
@@ -224,7 +226,14 @@ Rectangle {
     ListModel {
         id: popupListmodel
 
+        // a search term that is still in the field stays applied: the list is reloaded when it is
+        // shown again and whenever its model arrives, and must not silently drop the filter
         function reload() {
+            if (showSearch && searchField.inputField.text.length > 0) {
+                popupListmodel.applyFilter(searchField.inputField.text);
+                return;
+            }
+
             popupListmodel.clear();
 
             for (var i = 0; i < listModel.count; i++) {
@@ -260,7 +269,7 @@ Rectangle {
             id: listItemBg
             width: ui.width
             height: 80
-            color: isCurrentItem && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
                 color: Qt.lighter(listItemBg.color, 1.3)

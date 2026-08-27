@@ -155,12 +155,14 @@
         <file alias="components/docks/PasswordChange.qml">../../src/qml/components/docks/PasswordChange.qml</file>
         <file alias="components/help-overlay/Base.qml">../../src/qml/components/help-overlay/Base.qml</file>
         <file alias="components/help-overlay/Main.qml">../../src/qml/components/help-overlay/Main.qml</file>
+        <file alias="components/help-overlay/Tip.qml">../../src/qml/components/help-overlay/Tip.qml</file>
         <file alias="OnboardingContainer.qml">../../src/qml/OnboardingContainer.qml</file>
         <file alias="onboarding/Country.qml">../../src/qml/onboarding/Country.qml</file>
         <file alias="onboarding/Dock.qml">../../src/qml/onboarding/Dock.qml</file>
         <file alias="onboarding/Finish.qml">../../src/qml/onboarding/Finish.qml</file>
         <file alias="onboarding/Integration.qml">../../src/qml/onboarding/Integration.qml</file>
         <file alias="onboarding/Language.qml">../../src/qml/onboarding/Language.qml</file>
+        <file alias="onboarding/Page.qml">../../src/qml/onboarding/Page.qml</file>
         <file alias="onboarding/Pin.qml">../../src/qml/onboarding/Pin.qml</file>
         <file alias="onboarding/Profile.qml">../../src/qml/onboarding/Profile.qml</file>
         <file alias="onboarding/RemoteName.qml">../../src/qml/onboarding/RemoteName.qml</file>

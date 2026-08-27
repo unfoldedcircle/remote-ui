@@ -307,7 +307,7 @@ Settings.Page {
                         Config.clock24h = !Config.clock24h;
                     }
                     // the row itself carries the focus, like every other row on this page
-                    highlight: clock24hSelector.activeFocus && ui.keyNavigationEnabled
+                    highlight: clock24hSelector.activeFocus && ui.keyNavigationActive
                 }
 
                 onFocusChanged: {
@@ -407,7 +407,7 @@ Settings.Page {
             id: selectorBg
             width: parent.width
             height: 120
-            color: highlight && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+            color: highlight && ui.keyNavigationActive ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
                 color: Qt.lighter(selectorBg.color, 1.3)

@@ -34,7 +34,7 @@ Rectangle {
     property alias text: title.text
     property alias textColor: title.color
     property int fontSize: 26
-    property bool highlight: activeFocus && ui.keyNavigationEnabled
+    property bool highlight: activeFocus && ui.keyNavigationActive
     property var trigger
 
     function activate() {

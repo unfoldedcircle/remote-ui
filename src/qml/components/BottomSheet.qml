@@ -124,7 +124,7 @@ Item {
         border {
             width: 2
             color: bottomSheetContainer.highlight && bottomSheetContainer.state == "closed"
-                   && ui.keyNavigationEnabled ? colors.highlight : colors.transparent
+                   && ui.keyNavigationActive ? colors.highlight : colors.transparent
         }
 
         Item {

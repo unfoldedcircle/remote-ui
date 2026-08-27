@@ -41,6 +41,9 @@ class Controller : public QObject {
 
     Q_PROPERTY(bool editMode READ getEditMode WRITE setEditMode NOTIFY editModeChanged)
     Q_PROPERTY(bool keyNavigationEnabled READ getKeyNavigationEnabled CONSTANT)
+    // keyNavigationEnabled while the keypad is in use (see InputController::keypadActive): the
+    // condition for rendering a keypad selection
+    Q_PROPERTY(bool keyNavigationActive READ getKeyNavigationActive NOTIFY keyNavigationActiveChanged)
     Q_PROPERTY(bool showRegulatoryInfo READ getShowRegulatoryInfo CONSTANT)
     Q_PROPERTY(bool coreConnected READ getCoreConnected NOTIFY coreConnectedChanged)
     Q_PROPERTY(bool rotateScreen READ getRotateScreen CONSTANT)
@@ -80,6 +83,7 @@ class Controller : public QObject {
     bool   getEditMode() { return m_editMode; }
     void   setEditMode(bool editMode);
     bool   getKeyNavigationEnabled();
+    bool   getKeyNavigationActive() { return getKeyNavigationEnabled() && m_inputController.keypadActive(); }
     bool   getShowRegulatoryInfo();
     bool   getCoreConnected() { return m_coreConnected; }
     bool   getRotateScreen() { return m_rotateScreen; }
@@ -160,6 +164,7 @@ class Controller : public QObject {
                     const QVariantList& items = QVariantList());
 
  signals:
+    void keyNavigationActiveChanged();
     void editModeChanged();
     void configLoaded();
     void coreConnectedChanged();

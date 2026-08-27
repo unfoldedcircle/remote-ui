@@ -99,7 +99,7 @@ Settings.Page {
 
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.down: wifiSwitch
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -137,7 +137,7 @@ Settings.Page {
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: bluetoothSwitch
                     KeyNavigation.down: wifiScanIntervalSwitch
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -179,7 +179,7 @@ Settings.Page {
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: wifiSwitch
                     KeyNavigation.down: wifiScanIntervalValueSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -222,7 +222,7 @@ Settings.Page {
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: wifiScanIntervalSwitch
                     KeyNavigation.down: bandSelector
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -261,7 +261,7 @@ Settings.Page {
 
                     item.title = qsTr("WiFi band");
                     item.value = Qt.binding( function() { return Config.wifiBand == 'auto' ? 'Auto' : Config.wifiBand == 'a' ? '5 GHz' : '2.4 GHz'; });
-                    item.highlight = Qt.binding( function() { return bandSelector.activeFocus && ui.keyNavigationEnabled; });
+                    item.highlight = Qt.binding( function() { return bandSelector.activeFocus && ui.keyNavigationActive; });
                     item.trigger = function() {
                         listModel.clear();
 
@@ -412,7 +412,7 @@ Settings.Page {
             id: selectorBg
             width: parent.width
             height: 60
-            color: highlight && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+            color: highlight && ui.keyNavigationActive ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
                 color: Qt.lighter(selectorBg.color, 1.3)

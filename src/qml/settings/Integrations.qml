@@ -244,10 +244,10 @@ Settings.Page {
         Rectangle {
             width: ListView.view.width
             height: mainColumnLayout.height
-            color: isCurrentItem && !integrationsPage.addSheetSelected && ui.keyNavigationEnabled ? Qt.darker(colors.dark, 1.5) : colors.transparent
+            color: isCurrentItem && !integrationsPage.addSheetSelected && ui.keyNavigationActive ? Qt.darker(colors.dark, 1.5) : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
-                color: isCurrentItem && !integrationsPage.addSheetSelected && ui.keyNavigationEnabled ? colors.medium : colors.transparent
+                color: isCurrentItem && !integrationsPage.addSheetSelected && ui.keyNavigationActive ? colors.medium : colors.transparent
                 width: 1
             }
 

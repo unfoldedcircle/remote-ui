@@ -19,16 +19,43 @@ MouseArea {
         buttonNavigation.releaseControl();
     }
 
+    // Shown right after the initial setup, the overlay is loaded together with its container (main
+    // container or the "no page" screen) and completes before it, so the container's own
+    // takeControl() lands on top of ours and the d-pad keeps switching the pages behind the tips.
+    // Take the input back whenever the container ends up in front while the tips are open. The
+    // container is the parent of the loader that holds this overlay.
+    readonly property Item hostContainer: showHelpBase.parent && showHelpBase.parent.parent
+                                          ? showHelpBase.parent.parent : null
+
+    function reclaimInput() {
+        if (ui.showHelp && hostContainer && ui.inputController.activeItem === hostContainer) {
+            buttonNavigation.takeControl();
+        }
+    }
+
+    Connections {
+        target: ui.inputController
+
+        // deferred: taking the input from inside the change notification would re-enter the
+        // input controller
+        function onActiveItemChanged() {
+            Qt.callLater(showHelpBase.reclaimInput);
+        }
+    }
+
+    // the tip pages cover the whole screen; the page behind only shimmers through
     Rectangle {
         anchors.fill: parent
         color: colors.black
-        opacity: 0.3
+        opacity: 0.95
     }
 
     RowLayout {
         id: navigation
         width: parent.width
         anchors { bottom: parent.bottom; bottomMargin: 10 }
+        // the tip pages are added after this row and would otherwise paint over it
+        z: 1
 
         Components.Icon {
             Layout.leftMargin: 20

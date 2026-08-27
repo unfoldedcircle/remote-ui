@@ -108,7 +108,13 @@ Rectangle {
         function onProfileSwitch(success) {
             if (success) {
                 profileSelector.profileSelected = true;
-                loading.success(true, function() { profileSelector.state = "hidden"; parent.closeAnimation.start(); });
+                loading.success(true, function() {
+                    profileSelector.state = "hidden";
+                    // the onboarding step that embeds the switch has no close animation
+                    if (parent.closeAnimation) {
+                        parent.closeAnimation.start();
+                    }
+                });
                 pinKeyPopup.close();
             } else {
                 loading.stop();
@@ -368,10 +374,10 @@ Rectangle {
 
         Rectangle {
             width: ui.width; height: 120
-            color: isCurrentItem && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
-                color: isCurrentItem && ui.keyNavigationEnabled ? colors.medium : colors.transparent
+                color: isCurrentItem && ui.keyNavigationActive ? colors.medium : colors.transparent
                 width: 1
             }
 

@@ -8,10 +8,25 @@ import Haptic 1.0
 import Wifi 1.0
 
 import "qrc:/components" as Components
+import "qrc:/onboarding" as OnboardingComponents
 
-Item {
+OnboardingComponents.Page {
     property var greetings: ["Hallo", "Hoi", "Szia", "Hej", "Hei", "Hello"]
     property int count: 0
+
+    Component.onCompleted: {
+        buttonNavigation.extendDefaultConfig({
+                                                 "DPAD_MIDDLE": {
+                                                     "pressed": function() {
+                                                         OnboardingController.nextStep();
+                                                     }
+                                                 },
+                                                 // there is no step before the first one
+                                                 "BACK": {
+                                                     "pressed": function() {}
+                                                 }
+                                             });
+    }
 
     Timer {
         repeat: true

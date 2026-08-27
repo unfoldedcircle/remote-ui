@@ -116,6 +116,8 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     QObject::connect(m_core, &core::Api::warning, this, &Controller::onWarning);
 
     QObject::connect(m_core, &core::Api::powerModeChanged, &m_inputController, &InputController::onPowerModeChanged);
+    QObject::connect(&m_inputController, &InputController::keypadActiveChanged, this,
+                     &Controller::keyNavigationActiveChanged);
 
     QObject::connect(m_core, &core::Api::profileAdded, this, &Controller::onProfileAdded);
     QObject::connect(m_core, &core::Api::profileChanged, this, &Controller::onProfileChanged);

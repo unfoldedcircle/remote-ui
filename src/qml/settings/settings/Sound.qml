@@ -66,7 +66,7 @@ Settings.Page {
 
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.down: soundEffectsVolumeSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -110,7 +110,7 @@ Settings.Page {
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: soundEffectsSwitch
                     KeyNavigation.down: buttonBacklightSwitch
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -146,7 +146,7 @@ Settings.Page {
 
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: soundEffectsVolumeSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
         }

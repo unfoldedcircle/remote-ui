@@ -70,6 +70,8 @@ Item {
     Loader {
         anchors.fill: parent
         active: ui.showHelp
+        // above the status bar
+        z: 10
         asynchronous: true
         source: "qrc:/components/help-overlay/Main.qml"
     }

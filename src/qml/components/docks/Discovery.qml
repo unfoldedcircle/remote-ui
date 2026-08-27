@@ -20,7 +20,6 @@ ListView {
     model: DockController.discoveredDocks
     delegate: dockItem
     header: headerItem
-    footer: ui.isOnboarding ? footerItem : null
 
     add: Transition {
         NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 300; easing.type: Easing.OutExpo }
@@ -43,8 +42,82 @@ ListView {
     property alias startMessageContainer: startMessageContainer
     property alias buttonNavigation: buttonNavigation
 
+    /** KEYPAD SELECTION **/
+    // Driven by the page's button navigation (not the keyboard focus): the page moves the selection
+    // with moveSelection(), activates it with activateSelection() and sets keypadSelected while the
+    // selection is on this component. On the start screen the selection walks its controls, once
+    // discovery runs it walks the found docks.
+    property bool keypadSelected: false
+    property int startSelection: 0
+
+    function startControls() {
+        let controls = [];
+
+        if (bluetoothContainer.visible) {
+            controls.push(bluetoothSwitch);
+        }
+        controls.push(discoverButton);
+
+        return controls;
+    }
+
+    readonly property Item selectedStartControl: startMessageContainer.visible
+                                                 ? startControls()[startSelection] : null
+
+    // the start screen can be taller than the view: keep the selected control on screen
+    onSelectedStartControlChanged: buttonNavigation.ensureVisible(selectedStartControl)
+
+    // returns false when the selection would leave the component, so the page can move on
+    function moveSelection(delta) {
+        if (startMessageContainer.visible) {
+            const next = dockList.startSelection + delta;
+            if (next < 0 || next >= startControls().length) {
+                return false;
+            }
+
+            dockList.startSelection = next;
+            return true;
+        }
+
+        const nextIndex = dockList.currentIndex + delta;
+        if (dockList.count === 0 || nextIndex < 0 || nextIndex >= dockList.count) {
+            return false;
+        }
+
+        dockList.currentIndex = nextIndex;
+        return true;
+    }
+
+    function selectLast() {
+        if (startMessageContainer.visible) {
+            dockList.startSelection = startControls().length - 1;
+        } else if (dockList.count > 0) {
+            dockList.currentIndex = dockList.count - 1;
+        }
+    }
+
+    function activateSelection() {
+        if (startMessageContainer.visible) {
+            const control = selectedStartControl;
+            if (control) {
+                control.activate();
+            }
+            return;
+        }
+
+        if (dockList.currentItem && dockList.currentItem.dockId) {
+            dockList.selectDock(dockList.currentItem.dockId);
+        }
+    }
+
+    function selectDock(dockId) {
+        DockController.stopDiscovery();
+        DockController.selectDockToSetup(dockId);
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
+        scrollTarget: startFlickable
         defaultConfig: {
             "BACK": {
                 "pressed": function() {
@@ -67,13 +140,18 @@ ListView {
         id: startMessageContainer
         anchors.fill: parent
         color: ui.isOnboarding ? colors.black : Qt.darker(colors.dark, 1.5)
+        visible: opacity > 0
         enabled: opacity === 1
+
+        // the start screen always opens on its first control
+        onVisibleChanged: dockList.startSelection = 0
 
         MouseArea {
             anchors.fill: parent
         }
 
         Flickable {
+            id: startFlickable
             anchors.fill: parent
             contentHeight: startMessageContainerContent.height
             clip: true
@@ -93,6 +171,7 @@ ListView {
                 spacing: 40
 
                 ColumnLayout {
+                    id: bluetoothContainer
                     Layout.fillWidth: true
                     spacing: 20
                     visible: !Config.bluetoothEnabled
@@ -119,8 +198,11 @@ ListView {
                         }
 
                         Components.Switch {
+                            id: bluetoothSwitch
                             icon: "uc:check"
                             checked: Config.bluetoothEnabled
+                            highlight: dockList.keypadSelected && dockList.selectedStartControl === bluetoothSwitch
+                                       && ui.keyNavigationActive
                             trigger: function() {
                                 Config.bluetoothEnabled = !Config.bluetoothEnabled;
                             }
@@ -144,29 +226,18 @@ ListView {
                 }
 
                 Components.Button {
+                    id: discoverButton
                     Layout.fillWidth: true
                     Layout.preferredWidth: parent.width
                     Layout.bottomMargin: 20
 
                     text: qsTr("Discover")
+                    highlight: dockList.keypadSelected && dockList.selectedStartControl === discoverButton
+                               && ui.keyNavigationActive
                     trigger: function() {
                         startMessageContainer.opacity = 0;
                         DockController.startDiscovery();
                     }
-                }
-
-                Components.Button {
-                    Layout.fillWidth: true
-                    Layout.preferredWidth: parent.width
-                    Layout.topMargin: -40
-                    Layout.bottomMargin: 20
-
-                    text: qsTr("Skip")
-                    color: colors.secondaryButton
-                    trigger: function() {
-                        dockList.skip();
-                    }
-                    visible: ui.isOnboarding
                 }
             }
         }
@@ -236,29 +307,14 @@ ListView {
     }
 
     Component {
-        id: footerItem
-
-        Item {
-            width: ListView.view.width
-            height: childrenRect.height + 20
-
-            Components.Button {
-                width: parent.width
-                anchors.bottom: parent.bottom
-                text: qsTr("Skip")
-                color: colors.secondaryButton
-                trigger: function() {
-                    dockList.skip();
-                }
-            }
-        }
-    }
-
-    Component {
         id: dockItem
 
         Rectangle {
             id: dockItemContainer
+
+            property string dockId: itemId
+            readonly property bool selected: ListView.isCurrentItem && dockList.keypadSelected
+                                             && !startMessageContainer.visible && ui.keyNavigationActive
 
             x: 10
             width: ListView.view.width - 20
@@ -266,8 +322,8 @@ ListView {
             color: ListView.isCurrentItem ? colors.black : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
-                width: 1
-                color: colors.medium
+                width: dockItemContainer.selected ? 2 : 1
+                color: dockItemContainer.selected ? colors.highlight : colors.medium
             }
 
             RowLayout {
@@ -323,8 +379,8 @@ ListView {
                 anchors.fill: parent
 
                 onClicked: {
-                    DockController.stopDiscovery();
-                    DockController.selectDockToSetup(itemId);
+                    dockList.currentIndex = index;
+                    dockList.selectDock(itemId);
                 }
             }
         }

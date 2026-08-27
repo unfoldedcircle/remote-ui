@@ -255,7 +255,7 @@ Settings.Page {
                     radius: ui.cornerRadiusSmall
                     border {
                         width: 2
-                        color: releaseNotesRow.activeFocus && ui.keyNavigationEnabled ? colors.highlight
+                        color: releaseNotesRow.activeFocus && ui.keyNavigationActive ? colors.highlight
                                                                                       : colors.transparent
                     }
                 }
@@ -394,7 +394,7 @@ Settings.Page {
                         /** KEYBOARD NAVIGATION **/
                         KeyNavigation.up: checkForUpdateButton
                         KeyNavigation.down: autoUpdateSwitch
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                     }
                 }
 
@@ -449,7 +449,7 @@ Settings.Page {
 
                         /** KEYBOARD NAVIGATION **/
                         KeyNavigation.up: checkForUpdatesSwitch
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                     }
                 }
 

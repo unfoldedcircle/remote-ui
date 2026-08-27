@@ -39,6 +39,40 @@ ListView {
 
     property alias buttonNavigation: buttonNavigation
 
+    /** KEYPAD SELECTION **/
+    // Driven by the page's button navigation (not the keyboard focus): the page moves the selection
+    // with moveSelection(), activates it with activateSelection() and sets keypadSelected while the
+    // selection is on this list.
+    property bool keypadSelected: false
+
+    // returns false when the selection would leave the list, so the page can move on
+    function moveSelection(delta) {
+        const nextIndex = integrationList.currentIndex + delta;
+        if (integrationList.count === 0 || nextIndex < 0 || nextIndex >= integrationList.count) {
+            return false;
+        }
+
+        integrationList.currentIndex = nextIndex;
+        return true;
+    }
+
+    function selectLast() {
+        if (integrationList.count > 0) {
+            integrationList.currentIndex = integrationList.count - 1;
+        }
+    }
+
+    function activateSelection() {
+        if (integrationList.currentItem && integrationList.currentItem.integrationDriverId) {
+            integrationList.selectIntegration(integrationList.currentItem.integrationDriverId);
+        }
+    }
+
+    function selectIntegration(driverId) {
+        IntegrationController.stopDriverDiscovery();
+        IntegrationController.selectIntegrationToSetup(driverId);
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
@@ -73,7 +107,6 @@ ListView {
 
                 onClicked: {
                     IntegrationController.startDriverDiscovery();
-                    console.debug("CLick");
                 }
 
                 Text {
@@ -152,14 +185,18 @@ ListView {
         Rectangle {
             id: integrationItemContainer
 
+            property string integrationDriverId: driverId
+            readonly property bool selected: ListView.isCurrentItem && integrationList.keypadSelected
+                                             && ui.keyNavigationActive
+
             x: 10
             width: ListView.view.width - 20
             height: childrenRect.height
             color: ListView.isCurrentItem ? colors.black : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
-                width: 1
-                color: colors.medium
+                width: integrationItemContainer.selected ? 2 : 1
+                color: integrationItemContainer.selected ? colors.highlight : colors.medium
             }
 
             Components.Icon {
@@ -223,8 +260,8 @@ ListView {
                 anchors.fill: parent
 
                 onClicked: {
-                    IntegrationController.stopDriverDiscovery();                    
-                    IntegrationController.selectIntegrationToSetup(driverId);
+                    integrationList.currentIndex = index;
+                    integrationList.selectIntegration(driverId);
                 }
             }
         }

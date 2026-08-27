@@ -52,12 +52,27 @@ ListView {
     }
 
     Keys.onReturnPressed: {
+        wifiNetworkList.selectCurrent();
+        event.accepted = true;
+    }
+
+    // Alternative to the focus chain for pages that drive the list through their button
+    // navigation (DPAD_UP/DOWN on currentIndex, DPAD_MIDDLE on selectCurrent()): set while the
+    // keypad selection is on this list to render the highlight without the keyboard focus.
+    property bool keypadSelected: false
+    // the "Join other" button in the footer, selected after the last network
+    property bool otherSelected: false
+    readonly property bool hasOther: !wifiNetworkList.knownNetworks
+
+    function activateOther() {
+        wifiSetup.open();
+    }
+
+    function selectCurrent() {
         if (wifiNetworkList.currentItem && wifiNetworkList.currentItem.network) {
             wifiNetworkList.selectNetwork(wifiNetworkList.currentItem.network,
                                           wifiNetworkList.currentItem.loadingAnimation);
         }
-
-        event.accepted = true;
     }
 
     function selectNetwork(network, loadingAnimation) {
@@ -244,6 +259,7 @@ ListView {
                 width: parent.width
                 //: Join other wifi network
                 text: qsTr("Join other")
+                highlight: wifiNetworkList.otherSelected && ui.keyNavigationActive
                 trigger: function() { wifiSetup.open(); }
                 anchors.bottom: parent.bottom
                 visible: !wifiNetworkList.knownNetworks
@@ -274,8 +290,9 @@ ListView {
                 color: colors.transparent
                 border {
                     width: 2
-                    color: networkDelegate.ListView.isCurrentItem && wifiNetworkList.activeFocus
-                           && ui.keyNavigationEnabled ? colors.highlight : colors.transparent
+                    color: networkDelegate.ListView.isCurrentItem
+                           && (wifiNetworkList.activeFocus || wifiNetworkList.keypadSelected)
+                           && ui.keyNavigationActive ? colors.highlight : colors.transparent
                 }
             }
 

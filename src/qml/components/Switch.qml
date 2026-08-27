@@ -26,7 +26,7 @@ Item {
 
     property alias checked: button.checked
     property alias _opacity: button.opacity
-    property bool highlight: activeFocus && ui.keyNavigationEnabled
+    property bool highlight: activeFocus && ui.keyNavigationActive
     property var trigger
     // Shown inside the knob while checked. Defaults to the check mark used throughout the settings;
     // set to "" for a switch where a check mark would be misleading.

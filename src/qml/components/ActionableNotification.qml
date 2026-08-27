@@ -33,7 +33,11 @@ Popup {
     closePolicy: Popup.CloseOnPressOutside
     padding: 0
 
+    // keypad selection: the action is preselected, LEFT moves to Cancel
+    property bool cancelSelected: false
+
     onOpened: {
+        actionableNotification.cancelSelected = false;
         buttonNavigation.takeControl();
     }
 
@@ -86,10 +90,27 @@ Popup {
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
+                    if (actionableNotification.cancelSelected) {
+                        notificationList.currentItem.close();
+                        return;
+                    }
+
                     notificationList.currentItem.notificationObj.action();
                     // close() the item, not just the popup: an item left on the stack keeps matching the
                     // duplicate check above and silently swallows every later notification with that title
                     notificationList.currentItem.close();
+                }
+            },
+            "DPAD_LEFT": {
+                "pressed": function() {
+                    if (notificationList.currentItem && notificationList.currentItem.hasCancel) {
+                        actionableNotification.cancelSelected = true;
+                    }
+                }
+            },
+            "DPAD_RIGHT": {
+                "pressed": function() {
+                    actionableNotification.cancelSelected = false;
                 }
             },
         }
@@ -145,6 +166,7 @@ Popup {
             id: notificationComponentContent
 
             property QtObject notificationObj
+            readonly property bool hasCancel: actionableNotificationAction.text !== ""
 
             Component.onDestruction: notificationComponentContent.notificationObj.destroy()
 
@@ -161,14 +183,26 @@ Popup {
             
             onClicked: notificationComponentContent.close()
 
+            // the two labels share the width so long translations wrap instead of running into
+            // each other
             Text {
                 id: actionableNotificationAction
                 text: notificationObj.itemActionLabel()
+                width: parent.width / 2 - 30
                 height: text === "" ? 0 : implicitHeight
+                wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignRight
                 color: colors.offwhite
                 font: fonts.secondaryFont(26, "Bold")
                 anchors { right: parent.right; rightMargin: 20; bottom: parent.bottom; bottomMargin: 30}
+
+                Rectangle {
+                    anchors { fill: parent; margins: -8 }
+                    radius: ui.cornerRadiusSmall
+                    color: colors.transparent
+                    border { width: 2; color: !actionableNotification.cancelSelected && ui.keyNavigationActive
+                                              ? colors.highlight : colors.transparent }
+                }
 
                 Components.HapticMouseArea {
                     width: parent.width + 40
@@ -183,12 +217,22 @@ Popup {
 
             Text {
                 text: qsTr("Cancel")
+                width: parent.width / 2 - 30
                 height: actionableNotificationAction.text === "" ? 0 : implicitHeight
                 visible: height !== 0
+                wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignLeft
                 color: colors.offwhite
                 font: fonts.secondaryFont(26, "Bold")
                 anchors { left: parent.left; leftMargin: 20; bottom: parent.bottom; bottomMargin: 30}
+
+                Rectangle {
+                    anchors { fill: parent; margins: -8 }
+                    radius: ui.cornerRadiusSmall
+                    color: colors.transparent
+                    border { width: 2; color: actionableNotification.cancelSelected && ui.keyNavigationActive
+                                              ? colors.highlight : colors.transparent }
+                }
 
                 Components.HapticMouseArea {
                     width: parent.width + 40

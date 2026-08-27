@@ -698,10 +698,10 @@ Rectangle {
 
         Rectangle {
             width: ListView.view.width; height: entityInfoContainer.height + 40
-            color: isCurrentItem && ui.keyNavigationEnabled ? colors.dark : colors.transparent
+            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
-                color: isCurrentItem && ui.keyNavigationEnabled ? colors.medium : colors.transparent
+                color: isCurrentItem && ui.keyNavigationActive ? colors.medium : colors.transparent
                 width: 1
             }
 

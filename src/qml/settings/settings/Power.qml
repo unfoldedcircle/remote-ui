@@ -83,7 +83,7 @@ Settings.Page {
 
                         /** KEYBOARD NAVIGATION **/
                         KeyNavigation.down: resumeTimeoutValueSlider
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                     }
                 }
 
@@ -152,7 +152,7 @@ Settings.Page {
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: (HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled) ? wowlanSwitch : undefined
                     KeyNavigation.down: wakeupSensitivitySlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -212,7 +212,7 @@ Settings.Page {
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: resumeTimeoutValueSlider
                     KeyNavigation.down: displayoffTimeoutSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
 
                 }
             }
@@ -270,7 +270,7 @@ Settings.Page {
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: wakeupSensitivitySlider
                     KeyNavigation.down: sleepTimeoutSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -326,7 +326,7 @@ Settings.Page {
 
                     /** KEYBOARD NAVIGATION **/
                     KeyNavigation.up: displayoffTimeoutSlider
-                    highlight: activeFocus && ui.keyNavigationEnabled
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
         }

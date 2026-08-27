@@ -67,7 +67,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.down: batteryPercentSwitch
                     }
                 }
@@ -115,7 +115,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.up: buttonFuncSwitch
                         KeyNavigation.down: batteryEveryWhereSwitch
                     }
@@ -164,7 +164,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.up: batteryPercentSwitch
                         KeyNavigation.down: activityBarSwitch
                     }
@@ -213,7 +213,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.up: batteryEveryWhereSwitch
                         KeyNavigation.down: apiActivitySwitch
                     }
@@ -262,7 +262,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.up: activityBarSwitch
                         KeyNavigation.down: mediaComponentSwitch
                     }
@@ -311,7 +311,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.up: apiActivitySwitch
                         KeyNavigation.down: mediaCoverflowSwitch
                     }
@@ -360,7 +360,7 @@ Settings.Page {
                         }
 
                         /** KEYBOARD NAVIGATION **/
-                        highlight: activeFocus && ui.keyNavigationEnabled
+                        highlight: activeFocus && ui.keyNavigationActive
                         KeyNavigation.up: mediaComponentSwitch
                     }
                 }
