@@ -119,6 +119,14 @@ class EntityController : public QObject {
     Q_INVOKABLE void setEntityIcon(const QString& entityId, const QString& icon);
 
     /**
+     * @brief Correct the power state of an entity ("fix state"). Only the recorded state is changed, no command is
+     * sent to the device. The core answers with the corrected entity and an entity_change event.
+     * @param entityId
+     * @param on: true for ON, false for OFF
+     */
+    Q_INVOKABLE void setEntityState(const QString& entityId, bool on);
+
+    /**
      * @brief Get a list of entity ids from the same integration
      * @param integrationId: id of the integration
      * @return list of entity ids

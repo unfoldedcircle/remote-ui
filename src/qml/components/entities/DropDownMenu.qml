@@ -16,6 +16,10 @@ Rectangle {
 
     property bool opened: y != ui.height
 
+    // the host extends this with its own keys (extendDefaultConfig), BACK / HOME close the menu by default.
+    // The menu owns the input while it is open, so the host's own handlers stay quiet underneath.
+    property alias buttonNavigation: buttonNavigation
+
     function open() {
         dropDownMenu.y = title.height;
         buttonNavigation.takeControl();

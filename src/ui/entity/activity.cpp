@@ -87,6 +87,22 @@ QStringList Activity::getIncludedEntities() {
     return list;
 }
 
+QStringList Activity::getFixableEntities() {
+    QStringList list;
+
+    for (QVariantList::iterator i = m_includedEntities.begin(); i != m_includedEntities.end(); ++i) {
+        QVariantMap entity = i->toMap();
+
+        Base::Type type = entity::Base::typeFromString(Util::FirstToUpper(entity.value("entity_type").toString()));
+
+        if (Base::supportsPowerStateFix(type)) {
+            list.append(entity.value("entity_id").toString());
+        }
+    }
+
+    return list;
+}
+
 void Activity::turnOn() {
     if (m_state == ActivityStates::On) {
         return;

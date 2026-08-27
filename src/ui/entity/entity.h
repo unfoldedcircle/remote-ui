@@ -128,6 +128,25 @@ class Base : public QObject {
     virtual void onLanguageChangedTypeSpecific() {}
 
  public:
+    /**
+     * @return true if the entity type has a power state that can be corrected with the core's set_entity_state
+     * operation ("fix state"). Mirrors the core's supported type list: sensors, buttons, selects, covers, voice
+     * assistants and macros have no on/off state.
+     */
+    static bool supportsPowerStateFix(Type type) {
+        switch (type) {
+            case Switch:
+            case Light:
+            case Climate:
+            case Media_player:
+            case Remote:
+            case Activity:
+                return true;
+            default:
+                return false;
+        }
+    }
+
     static Type typeFromString(const QString &key, bool *ok = nullptr) {
         return Util::convertStringToEnum<Type>(key, ok);
     }

@@ -112,6 +112,8 @@ class Activity : public Base {
     Q_PROPERTY(QVariantList buttonMapping READ getButtonMapping NOTIFY buttonMappingChanged)
     Q_PROPERTY(QVariantMap ui READ getUiConfig NOTIFY uiConfigChanged)
     Q_PROPERTY(QStringList includedEntities READ getIncludedEntities NOTIFY includedEntitiesChanged)
+    // included entities whose power state can be corrected ("fix states"), see Base::supportsPowerStateFix()
+    Q_PROPERTY(QStringList fixableEntities READ getFixableEntities NOTIFY includedEntitiesChanged)
     Q_PROPERTY(QStringList onSequenceEntities READ getOnSequenceEntities NOTIFY onSequenceEntitiesChanged)
     Q_PROPERTY(QStringList offSequenceEntities READ getOffSequenceEntities NOTIFY offSequenceEntitiesChanged)
 
@@ -140,6 +142,7 @@ class Activity : public Base {
     QString getVoiceAssistantProfileId() { return m_voiceAssistantProfileId; }
 
     QStringList  getIncludedEntities();
+    QStringList  getFixableEntities();
     QStringList  getOnSequenceEntities() { return m_onSequenceEntities; }
     QStringList  getOffSequenceEntities() { return m_offSequenceEntities; }
 

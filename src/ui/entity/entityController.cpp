@@ -299,6 +299,44 @@ void EntityController::setEntityName(const QString& entityId, const QString& nam
         });
 }
 
+void EntityController::setEntityState(const QString& entityId, bool on) {
+    const QString state = on ? "ON" : "OFF";
+    int           id = m_core->setEntityState(entityId, state);
+
+    if (id < 0) {
+        Notification::createNotification(tr("Could not change the entity state: not connected"), true);
+        return;
+    }
+
+    m_core->onResponseWithErrorResult(
+        id, &core::Api::respEntity,
+        [=](core::Entity entity) { qCDebug(lcEntityController()) << "Entity state corrected:" << entity.id << state; },
+        [=](int code, QString message) {
+            qCWarning(lcEntityController()) << "Error while setting entity state:" << code << message;
+
+            QString errorMsg;
+            switch (code) {
+                case 409:
+                    //: Error while fixing an entity state
+                    errorMsg =
+                        tr("The state cannot be changed while the entity is unavailable or the activity is running");
+                    break;
+                case 422:
+                    //: Error while fixing an entity state
+                    errorMsg = tr("The state of this entity type cannot be changed");
+                    break;
+                case 403:
+                    //: Error while fixing an entity state
+                    errorMsg = tr("Not allowed to change the entity state");
+                    break;
+                default:
+                    //: Error while fixing an entity state. %1 is an error message from the remote
+                    errorMsg = tr("Could not change the entity state: %1").arg(message);
+            }
+            Notification::createNotification(errorMsg, true);
+        });
+}
+
 void EntityController::setEntityIcon(const QString& entityId, const QString& icon) {
     int id = m_core->updateEntity(entityId, QVariantMap(), icon);
 

@@ -8,6 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- "Fix states" in the activity menu is now working: tapping an entity lets you record that the device is on or off,
+  without sending any command to it. Use it when the remote's idea of a device's state drifted from reality, e.g. an
+  IR-controlled device that was switched with its original remote, so that the next activity powers it on or off
+  correctly. Only entities with an on/off state are listed (switches, lights, climates, media players, remotes and
+  activities); sensors, buttons, macros and the like are left out. Requires a remote-core version with the
+  `set_entity_state` API
+- The activity menu ("Tap for more") can be used with the d-pad: up / down move over "Fix states" and the included
+  entities, the middle button opens the selected entry, BACK returns from the "Fix states" list to the menu and
+  closes the menu from there
+
 ### Fixed
 - The initial setup screens could not be operated with the d-pad: the terms & conditions, WiFi network, dock discovery
   and results, integration and final screens only reacted to touch. Every setup step now navigates with the d-pad and

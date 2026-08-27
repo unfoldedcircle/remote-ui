@@ -106,6 +106,7 @@ class RequestTypes {
         update_entity,
         delete_entity,
         delete_entities,
+        set_entity_state,
 
         // profile handling
         get_profiles,

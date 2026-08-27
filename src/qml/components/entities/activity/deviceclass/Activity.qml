@@ -26,6 +26,83 @@ EntityComponents.BaseDetail {
     property bool resumeWindow: false
     property bool powerOffPressed: false
 
+    // Keypad selection in the activity menu (button navigation driven, see docs/key-navigation.md idiom b):
+    // 0 is the button at the top of the current menu page ("Fix states" / "Back"), 1..n the list items below it.
+    // The menu's ButtonNavigation owns the input while the menu is open, the popup on top of it takes over
+    // while it is shown, so exactly one layer reacts to a key.
+    property int menuSelected: 0
+    // true from the first d-pad press in the menu until the next touch: the selection outline is only shown then,
+    // so a menu opened by touch does not start with a preselected button
+    property bool menuKeypadActive: false
+
+    function menuList() {
+        return extraContent.currentIndex === 0 ? includedEntitiesList : fixedEntitiesList;
+    }
+
+    function showMenuPage(index) {
+        extraContent.currentIndex = index;
+        activityBase.menuSelected = 0;
+    }
+
+    function openMenu() {
+        showMenuPage(0);
+        activityBase.menuKeypadActive = false;
+        activityMenu.open();
+    }
+
+    function closeMenu() {
+        activityMenu.close();
+        // reset the page once the menu has slid out of view
+        ui.setTimeOut(400, () => { showMenuPage(0); });
+    }
+
+    function menuMoveSelection(delta) {
+        activityBase.menuKeypadActive = true;
+        const list = menuList();
+        const next = Math.max(0, Math.min(list.count, activityBase.menuSelected + delta));
+        activityBase.menuSelected = next;
+        if (next > 0) {
+            list.currentIndex = next - 1;
+        }
+    }
+
+    function menuActivateSelection() {
+        activityBase.menuKeypadActive = true;
+        if (activityBase.menuSelected === 0) {
+            showMenuPage(extraContent.currentIndex === 0 ? 1 : 0);
+            return;
+        }
+
+        const item = menuList().currentItem;
+        if (item) {
+            item.activate();
+        }
+    }
+
+    function setupMenuNavigation() {
+        activityMenu.buttonNavigation.extendDefaultConfig({
+            "DPAD_UP": {
+                "pressed": function() { menuMoveSelection(-1); }
+            },
+            "DPAD_DOWN": {
+                "pressed": function() { menuMoveSelection(1); }
+            },
+            "DPAD_MIDDLE": {
+                "pressed": function() { menuActivateSelection(); }
+            },
+            "BACK": {
+                "pressed": function() {
+                    // the fix states page goes back to the menu, the menu closes
+                    if (extraContent.currentIndex > 0) {
+                        showMenuPage(0);
+                    } else {
+                        closeMenu();
+                    }
+                }
+            }
+        });
+    }
+
     function triggerCommand(entityId, cmdId, params) {
         let e = EntityController.get(entityId);
 
@@ -271,6 +348,7 @@ EntityComponents.BaseDetail {
         updateButtonMapping();
         updateSliderConfig();
         updateVoiceAssistantConfig();
+        setupMenuNavigation();
         root.isActivityOpen = true;
     }
 
@@ -400,11 +478,9 @@ EntityComponents.BaseDetail {
             anchors.fill: parent
             onClicked: {
                 if (activityMenu.opened) {
-                    activityMenu.close();
-                    extraContent.decrementCurrentIndex();
+                    closeMenu();
                 } else {
-
-                    activityMenu.open();
+                    openMenu();
                 }
             }
         }
@@ -556,7 +632,16 @@ EntityComponents.BaseDetail {
                     height: 100
 
                     onClicked: {
-                        extraContent.incrementCurrentIndex();
+                        activityBase.menuKeypadActive = false;
+                        showMenuPage(1);
+                    }
+
+                    Rectangle {
+                        anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
+                        color: colors.transparent
+                        radius: ui.cornerRadiusSmall
+                        border { width: 2; color: colors.highlight }
+                        visible: activityBase.menuSelected === 0 && activityBase.menuKeypadActive
                     }
 
                     Components.Icon {
@@ -618,7 +703,16 @@ EntityComponents.BaseDetail {
                     anchors.top: parent.top
 
                     onClicked: {
-                        extraContent.decrementCurrentIndex();
+                        activityBase.menuKeypadActive = false;
+                        showMenuPage(0);
+                    }
+
+                    Rectangle {
+                        anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
+                        color: colors.transparent
+                        radius: ui.cornerRadiusSmall
+                        border { width: 2; color: colors.highlight }
+                        visible: activityBase.menuSelected === 0 && activityBase.menuKeypadActive
                     }
 
                     Components.Icon {
@@ -650,8 +744,21 @@ EntityComponents.BaseDetail {
                     flickDeceleration: 1000
                     clip: true
 
-                    model: entityObj.includedEntities
+                    // only entities with an on/off state: sensors, buttons, macros etc. are left out
+                    model: entityObj.fixableEntities
                     delegate: fixedEntityItem
+
+                    Text {
+                        //: Shown in the "Fix states" list if none of the activity's entities has an on/off state
+                        text: qsTr("None of the entities in this activity has an On/Off state that could be fixed")
+                        color: colors.light
+                        font: fonts.secondaryFont(24)
+                        width: parent.width - 40
+                        wrapMode: Text.WordWrap
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors.centerIn: parent
+                        visible: fixedEntitiesList.count === 0
+                    }
                 }
             }
         }
@@ -699,6 +806,7 @@ EntityComponents.BaseDetail {
         id: includedEntityItem
 
         Components.HapticMouseArea {
+            id: includedEntityRoot
             width: includedEntitiesList.width
             height: 100
 
@@ -708,8 +816,21 @@ EntityComponents.BaseDetail {
 
             property QtObject entity
 
-            onClicked: {
+            function activate() {
                 loadThirdContainer("qrc:/components/entities/" + entity.getTypeAsString() + "/deviceclass/" + entity.getDeviceClass() + ".qml", { "entityId": entity.id, "entityObj": entity });
+            }
+
+            onClicked: {
+                activityBase.menuKeypadActive = false;
+                activate();
+            }
+
+            Rectangle {
+                anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
+                color: colors.transparent
+                radius: ui.cornerRadiusSmall
+                border { width: 2; color: colors.highlight }
+                visible: includedEntityRoot.ListView.isCurrentItem && activityBase.menuSelected > 0 && activityBase.menuKeypadActive
             }
 
             Components.Icon {
@@ -736,6 +857,7 @@ EntityComponents.BaseDetail {
         id: fixedEntityItem
 
         Components.HapticMouseArea {
+            id: fixedEntityRoot
             width: fixedEntitiesList.width
             height: fixedEntityItemIcon.size / 2 + fixedEntityItemData.height
 
@@ -745,8 +867,26 @@ EntityComponents.BaseDetail {
 
             property QtObject entity
 
+            function activate() {
+                // state 0 is Unavailable for every entity type with an on/off state; the core refuses it
+                if (entity.state === 0) {
+                    ui.createNotification(qsTr("%1 is unavailable, its state cannot be changed").arg(entity.name), true);
+                    return;
+                }
+                fixStatePopup.openFor(entity);
+            }
+
             onClicked: {
-                ui.createNotification("Not yet implemented");
+                activityBase.menuKeypadActive = false;
+                activate();
+            }
+
+            Rectangle {
+                anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
+                color: colors.transparent
+                radius: ui.cornerRadiusSmall
+                border { width: 2; color: colors.highlight }
+                visible: fixedEntityRoot.ListView.isCurrentItem && activityBase.menuSelected > 0 && activityBase.menuKeypadActive
             }
 
             Components.Icon {
@@ -792,5 +932,31 @@ EntityComponents.BaseDetail {
     Components.TouchSlider {
         id: touchSlider
         parent: Overlay.overlay
+    }
+
+    Components.PopupMenu {
+        id: fixStatePopup
+        parent: Overlay.overlay
+
+        function openFor(entity) {
+            //: Popup title when fixing the state of an entity. %1 is the entity name
+            fixStatePopup.title = qsTr("Set the state of %1. No command is sent to the device.").arg(entity.name);
+            const entityId = entity.id;
+            fixStatePopup.menuItems = [
+                {
+                    //: Button. Mark the device as switched on without sending a command
+                    title: qsTr("Device is on"),
+                    icon: "uc:power-on",
+                    callback: function() { EntityController.setEntityState(entityId, true); }
+                },
+                {
+                    //: Button. Mark the device as switched off without sending a command
+                    title: qsTr("Device is off"),
+                    icon: "uc:power-off",
+                    callback: function() { EntityController.setEntityState(entityId, false); }
+                }
+            ];
+            fixStatePopup.open();
+        }
     }
 }

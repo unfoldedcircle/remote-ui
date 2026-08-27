@@ -413,6 +413,17 @@ int Api::deleteEntity(const QString& entityId) {
     return sendRequest(RequestTypes::delete_entity, msgData);
 }
 
+int Api::setEntityState(const QString& entityId, const QString& state) {
+    if (entityId.isEmpty() || state.isEmpty()) {
+        return -1;
+    }
+
+    QVariantMap msgData;
+    msgData.insert("entity_id", entityId);
+    msgData.insert("state", state);
+    return sendRequest(RequestTypes::set_entity_state, msgData);
+}
+
 int Api::deleteEntities(const QStringList& entityIds, const QString& integrationId) {
     QVariantMap msgData;
 

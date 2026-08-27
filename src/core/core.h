@@ -48,6 +48,13 @@ class Api : public QObject {
     int updateEntity(const QString &entityId, QVariantMap name, const QString &icon);
     int deleteEntity(const QString &entityId);
     int deleteEntities(const QStringList &entityIds, const QString &integrationId = QString());
+    /**
+     * @brief Correct the runtime power state of an entity without sending a command to the device.
+     * @param entityId: id of the entity
+     * @param state: "ON" or "OFF"
+     * @return request id, or -1 if the request could not be sent
+     */
+    int setEntityState(const QString &entityId, const QString &state);
 
     int entityCommand(const QString &entityId, const QString &cmd, QVariantMap params);
     int browseMedia(const QString &entityId, QVariantMap params);
