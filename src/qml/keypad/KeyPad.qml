@@ -39,9 +39,22 @@ Item {
     // and is skipped while navigating.
     readonly property int columns: 3
     readonly property int emptyIndex: 9
-    property int selectedIndex: 0
+    readonly property int noSelection: -1
+    // No key is outlined until the d-pad is used: a touch user never sees the selection, and a
+    // d-pad user gets it on the first key press.
+    property int selectedIndex: noSelection
+
+    function clearSelection() {
+        keyPadContiner.selectedIndex = keyPadContiner.noSelection;
+    }
 
     function moveSelection(deltaColumn, deltaRow) {
+        // first d-pad press: show the selection on the first key instead of moving it
+        if (keyPadContiner.selectedIndex === keyPadContiner.noSelection) {
+            keyPadContiner.selectedIndex = 0;
+            return;
+        }
+
         const columnCount = keyPadContiner.columns;
         const rowCount = Math.ceil(keyModel.length / columnCount);
 
@@ -81,6 +94,13 @@ Item {
     }
 
     function activateSelection() {
+        // nothing is outlined yet: the first middle press only shows the selection, so the user
+        // sees which key is about to be entered
+        if (keyPadContiner.selectedIndex === keyPadContiner.noSelection) {
+            keyPadContiner.selectedIndex = 0;
+            return;
+        }
+
         // the touch path gets its haptic from the key's own MouseArea
         Haptic.play(Haptic.Click);
         keyPadContiner.applyKey(keyPadContiner.selectedIndex);
@@ -175,7 +195,8 @@ Item {
                     visible: modelData.value !== "" || modelData.backspace
 
                     mouseArea.onClicked: {
-                        keyPadContiner.selectedIndex = index;
+                        // touch input works without the outline
+                        keyPadContiner.clearSelection();
                         keyPadContiner.applyKey(index);
                     }
 

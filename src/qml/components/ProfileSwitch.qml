@@ -282,6 +282,12 @@ Rectangle {
         onOpened: pinKeyPopupButtonNavigation.takeControl()
         onClosed: pinKeyPopupButtonNavigation.releaseControl()
 
+        // a fresh keypad on every open: no digits and no outline left over from the last attempt
+        onAboutToShow: {
+            pinKeyPad.reset();
+            pinKeyPad.clearSelection();
+        }
+
         background: Rectangle { color: colors.black }
 
         contentItem: Item {
@@ -320,6 +326,38 @@ Rectangle {
 
         Components.ButtonNavigation {
             id: pinKeyPopupButtonNavigation
+            defaultConfig: {
+                "BACK": {
+                    "pressed": function() {
+                        pinKeyPopup.close();
+                    }
+                },
+                "DPAD_UP": {
+                    "pressed": function() {
+                        pinKeyPad.moveSelection(0, -1);
+                    }
+                },
+                "DPAD_DOWN": {
+                    "pressed": function() {
+                        pinKeyPad.moveSelection(0, 1);
+                    }
+                },
+                "DPAD_LEFT": {
+                    "pressed": function() {
+                        pinKeyPad.moveSelection(-1, 0);
+                    }
+                },
+                "DPAD_RIGHT": {
+                    "pressed": function() {
+                        pinKeyPad.moveSelection(1, 0);
+                    }
+                },
+                "DPAD_MIDDLE": {
+                    "pressed": function() {
+                        pinKeyPad.activateSelection();
+                    }
+                }
+            }
         }
     }
 

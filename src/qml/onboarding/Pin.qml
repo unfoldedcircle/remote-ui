@@ -9,8 +9,49 @@ import Onboarding 1.0
 import Config 1.0
 
 import "qrc:/keypad" as Keypad
+import "qrc:/components" as Components
 
 Item {
+    function currentKeypad() {
+        return keyPadSwipeView.currentIndex === 0 ? keypadOne : keypadTwo;
+    }
+
+    Components.ButtonNavigation {
+        overrideActive: OnboardingController.currentStep === OnboardingController.Pin
+        defaultConfig: {
+            "BACK": {
+                "pressed": function() {
+                    OnboardingController.previousStep();
+                }
+            },
+            "DPAD_UP": {
+                "pressed": function() {
+                    currentKeypad().moveSelection(0, -1);
+                }
+            },
+            "DPAD_DOWN": {
+                "pressed": function() {
+                    currentKeypad().moveSelection(0, 1);
+                }
+            },
+            "DPAD_LEFT": {
+                "pressed": function() {
+                    currentKeypad().moveSelection(-1, 0);
+                }
+            },
+            "DPAD_RIGHT": {
+                "pressed": function() {
+                    currentKeypad().moveSelection(1, 0);
+                }
+            },
+            "DPAD_MIDDLE": {
+                "pressed": function() {
+                    currentKeypad().activateSelection();
+                }
+            }
+        }
+    }
+
     Item {
         id: title
         width: parent.width
@@ -58,6 +99,8 @@ Item {
         enabled: OnboardingController.currentStep === OnboardingController.Pin
 
         function onPinEntered(pin) {
+            // a d-pad user keeps the outline on the confirmation keypad, a touch user has none
+            keypadTwo.selectedIndex = keypadOne.selectedIndex;
             keyPadSwipeView.incrementCurrentIndex();
         }
     }
@@ -70,6 +113,7 @@ Item {
             if (keypadOne.pinToCheck == keypadTwo.pinToCheck) {
                 Config.setAdminPin(keypadTwo.pinToCheck);
             } else {
+                keypadOne.selectedIndex = keypadTwo.selectedIndex;
                 keyPadSwipeView.decrementCurrentIndex();
                 keypadOne.pinToCheck = "";
                 keypadTwo.pinToCheck = "";

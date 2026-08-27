@@ -66,6 +66,8 @@ Settings.Page {
         target: keypadOne
 
         function onPinEntered(pin) {
+            // a d-pad user keeps the outline on the confirmation keypad, a touch user has none
+            keypadTwo.selectedIndex = keypadOne.selectedIndex;
             keyPadSwipeView.incrementCurrentIndex();
         }
     }
@@ -77,6 +79,7 @@ Settings.Page {
             if (keypadOne.pinToCheck == keypadTwo.pinToCheck) {
                 Config.setAdminPin(keypadTwo.pinToCheck);
             } else {
+                keypadOne.selectedIndex = keypadTwo.selectedIndex;
                 keyPadSwipeView.decrementCurrentIndex();
                 keypadOne.pinToCheck = "";
                 keypadTwo.pinToCheck = "";

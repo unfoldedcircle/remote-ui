@@ -14,6 +14,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   seconds and deleted the network it was in the middle of connecting to. It now waits for the remote to report the
   result and only treats the join as failed on a wrong password, a network that cannot be found, or after a realistic
   timeout
+- The administrator PIN keypad in the onboarding drew a permanent outline around the "1" key that could not be moved
+  or dismissed, and did not react to the d-pad at all. The outline is now only shown once the d-pad is used, moves
+  with up / down / left / right, and the middle button enters the outlined digit. Entering the PIN by touch shows no
+  outline. This applies to every PIN keypad: the onboarding, the "Administrator PIN" settings screen, and the
+  administrator PIN prompt when switching to a profile from a restricted one, which did not react to the d-pad
+  before and can now also be cancelled with the BACK button
+- The BACK button returns to the previous step from the administrator PIN step of the onboarding, like on the other
+  steps
 
 ---
 
