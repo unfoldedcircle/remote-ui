@@ -1608,6 +1608,10 @@ Webkonfiguratoren</translation>
             <source>Dock setup</source>
             <translation>Oppsett av dokk</translation>
         </message>
+        <message>
+            <source>Skip</source>
+            <translation>Hopp over</translation>
+        </message>
     </context>
     <context>
         <name>Pin</name>
@@ -3531,6 +3535,37 @@ Trykk på QR-koden for å vise den på skjermen.</translation>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
             <translation>Spill av talesvaret fra stemmeassistenten når det støttes.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Main</name>
+        <message>
+            <source>Useful tips</source>
+            <translation>Nyttige tips</translation>
+        </message>
+        <message>
+            <source>Check out a few useful tips on where to find important elements of the UI.</source>
+            <translation>Sjekk ut noen nyttige tips om hvor du finner viktige elementer i brukergrensesnittet.</translation>
+        </message>
+        <message>
+            <source>For more tips visit unfoldedcircle.com/support</source>
+            <translation>For flere tips, besøk unfoldedcircle.com/support</translation>
+        </message>
+        <message>
+            <source>Tap here to open settings</source>
+            <translation>Trykk her for å åpne innstillinger</translation>
+        </message>
+        <message>
+            <source>Status bar</source>
+            <translation>Statuslinje</translation>
+        </message>
+        <message>
+            <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+            <translation>Batterinivå, WiFi-tilkoblingsproblem, programvareoppdateringsindikator og sidetittelen kan vises her.</translation>
+        </message>
+        <message>
+            <source>You can also tap the status bar to scroll to the top of a page.</source>
+            <translation>Du kan også trykke på statuslinjen for å rulle til toppen av siden.</translation>
         </message>
     </context>
     <context>

@@ -1608,6 +1608,10 @@ megnyitásához</translation>
             <source>Dock setup</source>
             <translation>Dock beállítása</translation>
         </message>
+        <message>
+            <source>Skip</source>
+            <translation>Kihagyás</translation>
+        </message>
     </context>
     <context>
         <name>Pin</name>
@@ -3531,6 +3535,37 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
             <translation>A hangasszisztens hangválaszának lejátszása, ha támogatott.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Main</name>
+        <message>
+            <source>Useful tips</source>
+            <translation>Hasznos tippek</translation>
+        </message>
+        <message>
+            <source>Check out a few useful tips on where to find important elements of the UI.</source>
+            <translation>Nézz meg néhány hasznos tippet, hogy hol találod a felhasználói felület fontos elemeit.</translation>
+        </message>
+        <message>
+            <source>For more tips visit unfoldedcircle.com/support</source>
+            <translation>További tippekért látogass el az unfoldedcircle.com/support oldalra</translation>
+        </message>
+        <message>
+            <source>Tap here to open settings</source>
+            <translation>Koppints ide a beállítások megnyitásához</translation>
+        </message>
+        <message>
+            <source>Status bar</source>
+            <translation>Állapotsor</translation>
+        </message>
+        <message>
+            <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+            <translation>Az akkumulátor töltöttségi szintje, WiFi-kapcsolati probléma, szoftverfrissítés-jelző és az oldal címe jelenhet meg itt.</translation>
+        </message>
+        <message>
+            <source>You can also tap the status bar to scroll to the top of a page.</source>
+            <translation>Az állapotsor megérintésével is felgörgethetsz az oldal tetejére.</translation>
         </message>
     </context>
     <context>

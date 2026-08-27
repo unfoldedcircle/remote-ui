@@ -1608,6 +1608,10 @@ te openen</translation>
             <source>Dock setup</source>
             <translation>Dock instellen</translation>
         </message>
+        <message>
+            <source>Skip</source>
+            <translation>Overslaan</translation>
+        </message>
     </context>
     <context>
         <name>Pin</name>
@@ -3531,6 +3535,37 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
             <translation>Het gesproken antwoord van de spraakassistent afspelen wanneer dit wordt ondersteund.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Main</name>
+        <message>
+            <source>Useful tips</source>
+            <translation>Handige tips</translation>
+        </message>
+        <message>
+            <source>Check out a few useful tips on where to find important elements of the UI.</source>
+            <translation>Bekijk een paar handige tips over waar je belangrijke elementen van de interface kunt vinden.</translation>
+        </message>
+        <message>
+            <source>For more tips visit unfoldedcircle.com/support</source>
+            <translation>Ga voor meer tips naar unfoldedcircle.com/support</translation>
+        </message>
+        <message>
+            <source>Tap here to open settings</source>
+            <translation>Tik hier om de instellingen te openen</translation>
+        </message>
+        <message>
+            <source>Status bar</source>
+            <translation>Statusbalk</translation>
+        </message>
+        <message>
+            <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+            <translation>Batterijniveau, WiFi-verbindingsprobleem, software-update-indicator en de paginatitel kunnen hier verschijnen.</translation>
+        </message>
+        <message>
+            <source>You can also tap the status bar to scroll to the top of a page.</source>
+            <translation>Je kunt ook op de statusbalk tikken om naar de bovenkant van de pagina te scrollen.</translation>
         </message>
     </context>
     <context>

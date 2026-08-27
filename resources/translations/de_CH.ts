@@ -1608,6 +1608,10 @@ vom Web-Konfigurator</translation>
             <source>Dock setup</source>
             <translation>Dock-Yrichtig</translation>
         </message>
+        <message>
+            <source>Skip</source>
+            <translation>Überspringe</translation>
+        </message>
     </context>
     <context>
         <name>Pin</name>
@@ -3532,6 +3536,37 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
             <translation>Spiu d Sprachantwort vom Sprachassischtänt ab, we's ungerstützt wird.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Main</name>
+        <message>
+            <source>Useful tips</source>
+            <translation>Nützlechi Tipps</translation>
+        </message>
+        <message>
+            <source>Check out a few useful tips on where to find important elements of the UI.</source>
+            <translation>Lueg dir es paar nützlechi Tipps aa, wo du wichtigi Elemänt vo dr Benutzeroberflächi findsch.</translation>
+        </message>
+        <message>
+            <source>For more tips visit unfoldedcircle.com/support</source>
+            <translation>Meh Tipps findsch uf unfoldedcircle.com/support</translation>
+        </message>
+        <message>
+            <source>Tap here to open settings</source>
+            <translation>Da tippe, zum d’Ystelilge z’öffne</translation>
+        </message>
+        <message>
+            <source>Status bar</source>
+            <translation>Statusleischte</translation>
+        </message>
+        <message>
+            <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+            <translation>Akkustand, WLAN-Verbindigsproblem, Software-Update-Aazeig und dr Sytetitel chöi do aazeigt wärde.</translation>
+        </message>
+        <message>
+            <source>You can also tap the status bar to scroll to the top of a page.</source>
+            <translation>Du chasch ou uf d’Statusleischte tippe, zum zum Aafang vo dr Syte z’scrolle.</translation>
         </message>
     </context>
     <context>

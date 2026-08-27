@@ -1608,6 +1608,10 @@ il Configuratore Web</translation>
             <source>Dock setup</source>
             <translation>Configurazione del dock</translation>
         </message>
+        <message>
+            <source>Skip</source>
+            <translation>Salta</translation>
+        </message>
     </context>
     <context>
         <name>Pin</name>
@@ -3531,6 +3535,37 @@ Tocca il codice QR per mostrarlo sullo schermo.</translation>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
             <translation>Riproduci la risposta vocale dell'assistente vocale, quando supportata.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Main</name>
+        <message>
+            <source>Useful tips</source>
+            <translation>Suggerimenti utili</translation>
+        </message>
+        <message>
+            <source>Check out a few useful tips on where to find important elements of the UI.</source>
+            <translation>Scopri alcuni suggerimenti utili su dove trovare gli elementi importanti dell’interfaccia.</translation>
+        </message>
+        <message>
+            <source>For more tips visit unfoldedcircle.com/support</source>
+            <translation>Per altri suggerimenti, visita unfoldedcircle.com/support</translation>
+        </message>
+        <message>
+            <source>Tap here to open settings</source>
+            <translation>Tocca qui per aprire le impostazioni</translation>
+        </message>
+        <message>
+            <source>Status bar</source>
+            <translation>Barra di stato</translation>
+        </message>
+        <message>
+            <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+            <translation>Il livello della batteria, problemi di connessione WiFi, indicatore di aggiornamento software e il titolo della pagina possono apparire qui.</translation>
+        </message>
+        <message>
+            <source>You can also tap the status bar to scroll to the top of a page.</source>
+            <translation>Puoi anche toccare la barra di stato per scorrere fino all’inizio della pagina.</translation>
         </message>
     </context>
     <context>

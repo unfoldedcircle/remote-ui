@@ -1608,6 +1608,10 @@ Konfigurator Web</translation>
             <source>Dock setup</source>
             <translation>Konfiguracja stacji dokującej</translation>
         </message>
+        <message>
+            <source>Skip</source>
+            <translation>Pomiń</translation>
+        </message>
     </context>
     <context>
         <name>Pin</name>
@@ -3531,6 +3535,37 @@ Dotknij kodu QR, aby pokazać go na ekranie.</translation>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
             <translation>Odtwarzaj odpowiedź głosową asystenta, jeśli jest obsługiwana.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Main</name>
+        <message>
+            <source>Useful tips</source>
+            <translation>Przydatne wskazówki</translation>
+        </message>
+        <message>
+            <source>Check out a few useful tips on where to find important elements of the UI.</source>
+            <translation>Sprawdź kilka przydatnych wskazówek, gdzie znaleźć ważne elementy interfejsu.</translation>
+        </message>
+        <message>
+            <source>For more tips visit unfoldedcircle.com/support</source>
+            <translation>Więcej wskazówek znajdziesz na unfoldedcircle.com/support</translation>
+        </message>
+        <message>
+            <source>Tap here to open settings</source>
+            <translation>Dotknij tutaj, aby otworzyć ustawienia</translation>
+        </message>
+        <message>
+            <source>Status bar</source>
+            <translation>Pasek stanu</translation>
+        </message>
+        <message>
+            <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+            <translation>Poziom baterii, problem z połączeniem WiFi, wskaźnik aktualizacji oprogramowania i tytuł strony mogą się tutaj pojawić.</translation>
+        </message>
+        <message>
+            <source>You can also tap the status bar to scroll to the top of a page.</source>
+            <translation>Możesz też dotknąć paska stanu, aby przewinąć na górę strony.</translation>
         </message>
     </context>
     <context>

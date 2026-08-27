@@ -1608,6 +1608,10 @@ Webkonfiguratoren</translation>
             <source>Dock setup</source>
             <translation>Opsætning af dock</translation>
         </message>
+        <message>
+            <source>Skip</source>
+            <translation>Spring over</translation>
+        </message>
     </context>
     <context>
         <name>Pin</name>
@@ -3531,6 +3535,37 @@ Tryk på QR-koden for at vise den på skærmen.</translation>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
             <translation>Afspil stemmeassistentens talesvar, når det understøttes.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Main</name>
+        <message>
+            <source>Useful tips</source>
+            <translation>Nyttige tips</translation>
+        </message>
+        <message>
+            <source>Check out a few useful tips on where to find important elements of the UI.</source>
+            <translation>Se et par nyttige tips om, hvor du finder vigtige elementer i brugergrænsefladen.</translation>
+        </message>
+        <message>
+            <source>For more tips visit unfoldedcircle.com/support</source>
+            <translation>For flere tips, besøg unfoldedcircle.com/support</translation>
+        </message>
+        <message>
+            <source>Tap here to open settings</source>
+            <translation>Tryk her for at åbne indstillinger</translation>
+        </message>
+        <message>
+            <source>Status bar</source>
+            <translation>Statuslinje</translation>
+        </message>
+        <message>
+            <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+            <translation>Batteriniveau, WiFi-forbindelsesproblem, softwareopdateringsindikator og sidetitlen kan vises her.</translation>
+        </message>
+        <message>
+            <source>You can also tap the status bar to scroll to the top of a page.</source>
+            <translation>Du kan også trykke på statuslinjen for at rulle til toppen af siden.</translation>
         </message>
     </context>
     <context>

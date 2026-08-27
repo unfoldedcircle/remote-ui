@@ -1608,6 +1608,10 @@ webbkonfiguratorn</translation>
             <source>Dock setup</source>
             <translation>Dockinställningar</translation>
         </message>
+        <message>
+            <source>Skip</source>
+            <translation>Hoppa över</translation>
+        </message>
     </context>
     <context>
         <name>Pin</name>
@@ -3530,6 +3534,37 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>Play speech response from Voice Assistant when supported.</source>
             <translation>Spela upp röstsvar från röstassistenten om funktionen stöds.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Main</name>
+        <message>
+            <source>Useful tips</source>
+            <translation>Användbara tips</translation>
+        </message>
+        <message>
+            <source>Check out a few useful tips on where to find important elements of the UI.</source>
+            <translation>Kolla in några användbara tips om var du hittar viktiga element i gränssnittet.</translation>
+        </message>
+        <message>
+            <source>For more tips visit unfoldedcircle.com/support</source>
+            <translation>För fler tips, besök unfoldedcircle.com/support</translation>
+        </message>
+        <message>
+            <source>Tap here to open settings</source>
+            <translation>Tryck här för att öppna inställningar</translation>
+        </message>
+        <message>
+            <source>Status bar</source>
+            <translation>Statusfält</translation>
+        </message>
+        <message>
+            <source>Battery level, WiFi connection problem, software update indicator and the page title may appear here.</source>
+            <translation>Batterinivå, WiFi-anslutningsproblem, programuppdateringsindikator och sidtiteln kan visas här.</translation>
+        </message>
+        <message>
+            <source>You can also tap the status bar to scroll to the top of a page.</source>
+            <translation>Du kan också trycka på statusfältet för att scrolla till toppen av sidan.</translation>
         </message>
     </context>
     <context>
