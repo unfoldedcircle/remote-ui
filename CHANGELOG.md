@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Fixed
+- Joining a WiFi network during the initial setup always ended with "Failed to connect", even with the correct
+  password, while the very same network could be joined from Settings afterwards. The setup screen gave up after three
+  seconds and deleted the network it was in the middle of connecting to. It now waits for the remote to report the
+  result and only treats the join as failed on a wrong password, a network that cannot be found, or after a realistic
+  timeout
 
 ---
 

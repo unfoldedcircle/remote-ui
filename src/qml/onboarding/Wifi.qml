@@ -28,30 +28,52 @@ Item {
         }
     }
 
+    // Giving up on a join deletes every saved network, so it must only happen once the join
+    // really is lost: on a definitive error from the remote, or after the attempt ran out of
+    // time. wpa_supplicant reports DISCONNECTED while it associates with the new network, so a
+    // connected(false) during an attempt is not a failure on its own - acting on it deleted the
+    // very network that was still being connected.
+    function connectionFailed() {
+        connectionTimeoutTimer.stop();
+        Wifi.deleteAllNetworks();
+        loading.failure(true, function() { wifiFailed.opacity = 1; });
+        Wifi.getWifiStatus();
+        Wifi.startNetworkScan();
+        scanTimer.start();
+    }
+
     Connections {
         target: Wifi
         ignoreUnknownSignals: true
 
         function onConnecting() {
-            connectionTimeoutTimer.start();
+            connectionTimeoutTimer.restart();
         }
 
         function onConnected(success) {
+            if (!success) {
+                return;
+            }
+
             connectionTimeoutTimer.stop();
 
-            if (success) {
-                loading.success(true, function() {
-                    OnboardingController.nextStep();
-                    Wifi.stopNetworkScan();
-                    scanStartTimer.stop();
-                    scanTimer.stop();
-                });
-            } else {
-                Wifi.deleteAllNetworks();
-                loading.failure(true, function() { wifiFailed.opacity = 1; });
-                Wifi.getWifiStatus();
-                Wifi.startNetworkScan();
-                scanTimer.start();
+            loading.success(true, function() {
+                OnboardingController.nextStep();
+                Wifi.stopNetworkScan();
+                scanStartTimer.stop();
+                scanTimer.stop();
+            });
+        }
+
+        function onWrongKey() {
+            if (connectionTimeoutTimer.running) {
+                onboardingWifiPage.connectionFailed();
+            }
+        }
+
+        function onNetworkNotFound() {
+            if (connectionTimeoutTimer.running) {
+                onboardingWifiPage.connectionFailed();
             }
         }
     }
@@ -223,13 +245,9 @@ Item {
         id: connectionTimeoutTimer
         repeat: false
         running: false
-        interval: 3000
-        onTriggered: {
-            Wifi.deleteAllNetworks();
-            loading.failure(true, function() { wifiFailed.opacity = 1; });
-            Wifi.getWifiStatus();
-            Wifi.startNetworkScan();
-            scanTimer.start();
-        }
+        // adding the network, enabling it, the WPA handshake and DHCP together regularly need
+        // more than a handful of seconds - the previous 3s budget expired during every join
+        interval: 30000
+        onTriggered: onboardingWifiPage.connectionFailed()
     }
 }
