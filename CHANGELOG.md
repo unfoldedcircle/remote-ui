@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Fixed
+- Activities containing infrared remotes, IR emitters or macros in their start or stop sequence always stopped with
+  "Some devices are not ready" since v0.76.0. Those entities belong to the remote itself and have no integration
+  that could be connected; they are left out of the readiness check again, as before v0.76.0.
 
 ---
 

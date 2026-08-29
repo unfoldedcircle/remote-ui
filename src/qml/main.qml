@@ -140,21 +140,24 @@ ApplicationWindow {
         }
 
         for (let i = 0; i < entityListToCheck.length; i++) {
-            const includedEntityId = entityListToCheck[i];
-            const includedEntityObj = EntityController.get(includedEntityId);
-            const includedEntityIntegrationObj = includedEntityObj ? IntegrationController.getModelItem(includedEntityObj.integrationId) : null;
+            const includedEntityObj = EntityController.get(entityListToCheck[i]);
 
-            // An entity or an integration the ui does not know is not ready either. Skipping those reported
-            // an activity as ready while nothing of it was loaded yet, which is exactly the situation right
-            // after a wakeup: reconnecting to the core reloads the integrations, and until they are back the
-            // check passed on an activity whose devices were all still disconnected.
-            const ready = includedEntityObj && includedEntityIntegrationObj
-                    && includedEntityIntegrationObj.state === "connected"
-                    && includedEntityObj.enabled;
+            if (!includedEntityObj) {
+                continue;
+            }
 
-            if (!ready) {
+            // Only entities of an integration driver can be checked. IR remotes, IR emitters and macros in a
+            // sequence belong to the core itself and have no integration in the integration model: they are
+            // skipped, not reported as "not ready".
+            const includedEntityIntegrationObj = IntegrationController.getModelItem(includedEntityObj.integrationId);
+
+            if (!includedEntityIntegrationObj) {
+                continue;
+            }
+
+            if (includedEntityIntegrationObj.state !== "connected" || !includedEntityObj.enabled) {
                 allIncludedEntitiesConnected = false;
-                notReadyEntities += (includedEntityObj ? includedEntityObj.name : includedEntityId) + ",  ";
+                notReadyEntities += includedEntityObj.name + ",  ";
                 notReadyEntityQty++;
             }
         }
