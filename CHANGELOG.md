@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## Unreleased
+## v0.80.0 - 2026-08-30
 ### Fixed
 - Remote entities did not pick up the `send_cmd` and `toggle` features reported by an integration, and remote and
   activity entities did not pick up `on_off`. The features were discarded as unsupported.
