@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- Remote entities did not pick up the `send_cmd` and `toggle` features reported by an integration, and remote and
+  activity entities did not pick up `on_off`. The features were discarded as unsupported.
+- Voice assistant entities did not pick up the `transcription` feature, so the spoken command was never shown as text.
+- Binary sensors with the `garage_door` device class fell back to a generic on/off sensor instead of showing
+  "Opened" / "Closed".
 - Activities containing infrared remotes, IR emitters or macros in their start or stop sequence always stopped with
   "Some devices are not ready" since v0.76.0. Those entities belong to the remote itself and have no integration
   that could be connected; they are left out of the readiness check again, as before v0.76.0.

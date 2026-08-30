@@ -12,7 +12,7 @@ namespace entity {
 class RemoteFeatures : public QObject {
     Q_GADGET
  public:
-    enum Enum { Send, On_Off };
+    enum Enum { Send_cmd, On_off, Toggle };
     Q_ENUM(Enum)
 };
 

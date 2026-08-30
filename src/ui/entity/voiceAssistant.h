@@ -16,7 +16,7 @@ namespace entity {
 class VoiceAssistantFeatures : public QObject {
     Q_GADGET
  public:
-    enum Enum { Transscription, Response_text, Response_speech };
+    enum Enum { Transcription, Response_text, Response_speech };
     Q_ENUM(Enum)
 };
 

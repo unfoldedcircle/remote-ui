@@ -13,7 +13,7 @@ namespace entity {
 class ActivityFeatures : public QObject {
     Q_GADGET
  public:
-    enum Enum { Send, On_Off };
+    enum Enum { Send, On_off };
     Q_ENUM(Enum)
 };
 

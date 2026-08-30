@@ -94,7 +94,7 @@ class BinarySensorDeviceClass : public QObject {
         Cold,
         Connectivity,
         Door,
-        Garage_coor,
+        Garage_door,
         Gas,
         Heat,
         Light,
@@ -149,7 +149,7 @@ class BinarySensorDeviceClass : public QObject {
                 case Enum::Connectivity:
                     return QCoreApplication::translate("Binary sensor state connectivity", "Connected");
                 case Enum::Door:
-                case Enum::Garage_coor:
+                case Enum::Garage_door:
                     //: Door sensor state: the door is open. An adjective, not the action.
                     return QCoreApplication::translate("Binary sensor state door", "Opened");
                 case Enum::Carbon_monoxide:
@@ -228,7 +228,7 @@ class BinarySensorDeviceClass : public QObject {
                 case Enum::Connectivity:
                     return QCoreApplication::translate("Binary sensor state connectivity", "Disconnected");
                 case Enum::Door:
-                case Enum::Garage_coor:
+                case Enum::Garage_door:
                     //: Door sensor state: the door is closed.
                     return QCoreApplication::translate("Binary sensor state door", "Closed");
                 case Enum::Carbon_monoxide:
