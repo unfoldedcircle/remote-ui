@@ -9,13 +9,19 @@
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QRegularExpression>
+#include <QTimer>
 #include <QUuid>
 
 #include "../../logging.h"
 #include "./../notification.h"
+#include "sequenceReadinessReport.h"
 
 namespace uc {
 namespace ui {
+
+/// A readiness check the user is waiting on gives up well before the core's own request timeout does.
+static constexpr int readinessCheckTimeout = 4000;
 
 static bool isRepeatingCommand(const QString& command, const QVariantMap& params)
 {
@@ -347,6 +353,54 @@ void EntityController::setEntityIcon(const QString& entityId, const QString& ico
             qCWarning(lcEntityController()) << code << errorMsg;
             Notification::createNotification(errorMsg, true);
         });
+}
+
+int EntityController::checkSequenceReadiness(const QString& entityId, const QString& cmdId) {
+    // the core answers 400 for anything its culture code pattern doesn't match and falls back to the system
+    // language - the same language - when the field is left out
+    static const QRegularExpression langRe(QStringLiteral("^[a-z]{2}(_[A-Z]{2})?$"));
+    const QString                   lang = langRe.match(m_language).hasMatch() ? m_language : QString();
+
+    int id = m_core->getSequenceReadiness(entityId, cmdId, lang);
+
+    if (id < 0) {
+        return -1;
+    }
+
+    // the first of the ceiling and the response answers, the other one stays quiet
+    auto settled = QSharedPointer<bool>::create(false);
+
+    // The user is waiting on a button press: a check that cannot answer promptly is a failed check, well before
+    // the core's own request timeout would give up on it.
+    QTimer::singleShot(readinessCheckTimeout, this, [this, id, settled]() {
+        if (*settled) {
+            return;
+        }
+        *settled = true;
+        qCDebug(lcEntityController()) << "Sequence readiness check timed out:" << id;
+        emit sequenceReadinessResult(id, QVariantMap({{"supported", false}}));
+    });
+
+    m_core->onResponseWithErrorResult(
+        id, &core::Api::respSequenceReadiness,
+        [this, id, settled](core::SequenceReadiness report) {
+            if (*settled) {
+                return;
+            }
+            *settled = true;
+            emit sequenceReadinessResult(id, entity::SequenceReadinessReport::toSummary(report));
+        },
+        [this, id, settled](int code, QString message) {
+            if (*settled) {
+                return;
+            }
+            *settled = true;
+            // an unknown request, an unknown entity or a timeout: no report, and the caller runs the sequence
+            qCDebug(lcEntityController()) << "Sequence readiness check failed:" << code << message;
+            emit sequenceReadinessResult(id, QVariantMap({{"supported", false}}));
+        });
+
+    return id;
 }
 
 QStringList EntityController::getIdsByIntegration(const QString& integrationId) {

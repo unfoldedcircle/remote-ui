@@ -127,6 +127,19 @@ class EntityController : public QObject {
     Q_INVOKABLE void setEntityState(const QString& entityId, bool on);
 
     /**
+     * @brief Ask the core whether a sequence command can run right now.
+     *
+     * The report arrives with the sequenceReadinessResult signal, carrying the returned check id. A check that
+     * could not be made - no connection, a core without the request, an error or a slow answer - reports a result
+     * with "supported" set to false instead: the check informs the user, it never gates the command.
+     *
+     * @param entityId: activity or macro entity id
+     * @param cmdId: command to check, e.g. "activity.on", "activity.off", "macro.run"
+     * @return check id to correlate the result with, or -1 if the request could not be sent
+     */
+    Q_INVOKABLE int checkSequenceReadiness(const QString& entityId, const QString& cmdId);
+
+    /**
      * @brief Get a list of entity ids from the same integration
      * @param integrationId: id of the integration
      * @return list of entity ids
@@ -163,6 +176,7 @@ class EntityController : public QObject {
     void voiceAssistantCommandError(QString entityId, int code);
     void allEntitiesLoaded();
     void commandInProgressChanged();
+    void sequenceReadinessResult(int checkId, QVariantMap result);
 
  public slots:
     /**

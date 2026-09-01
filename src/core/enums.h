@@ -238,6 +238,9 @@ class RequestTypes {
         // media browsing
         browse_media,
         search_media,
+
+        // sequence readiness
+        get_sequence_readiness,
     };
     Q_ENUM(Enum)
 
@@ -334,6 +337,9 @@ class MsgResponse {
         // media browsing
         media_browse,
         media_search,
+
+        // sequence readiness
+        sequence_readiness,
     };
     Q_ENUM(Enum)
 

@@ -16,7 +16,6 @@ import Power.Modes 1.0
 import SoundEffects 1.0
 import SoftwareUpdate 1.0
 import Entity.Controller 1.0
-import Integration.Controller 1.0
 
 import "qrc:/components" as Components
 import "qrc:/settings/softwareupdate" as Softwareupdate
@@ -124,52 +123,107 @@ ApplicationWindow {
         sig.connect(slotConn)
     }
 
-    function checkActivityIncludedEntities(activityObj, onSequence = true) {
-        // check if all entities in the activity has a connected integraiton
-        let entityListToCheck = onSequence ? activityObj.onSequenceEntities : activityObj.offSequenceEntities;
-        let allIncludedEntitiesConnected = true;
-        let notReadyEntities = "";
-        let notReadyEntityQty = 0;
+    // Runs the readiness check of a sequence command in the core and calls callback(summary).
+    //
+    // summary is null when the check could not be made at all - no connection to the core, a core that does not
+    // know the request, an error or an answer that takes too long: the check tells the user what is wrong, it
+    // never decides whether the command may run.
+    function requestSequenceReadiness(entityId, cmdId, callback) {
+        const checkId = EntityController.checkSequenceReadiness(entityId, cmdId);
 
-        if (entityListToCheck.length === 0) {
-            return {
-                allIncludedEntitiesConnected: true,
-                notReadyEntities: notReadyEntities,
-                notReadyEntityQty: notReadyEntityQty
-            }
+        if (checkId < 0) {
+            callback(null);
+            return;
         }
 
-        for (let i = 0; i < entityListToCheck.length; i++) {
-            const includedEntityObj = EntityController.get(entityListToCheck[i]);
-
-            if (!includedEntityObj) {
-                continue;
+        function handler(id, result) {
+            // several checks can be in flight at once, e.g. when turning off every activity at once
+            if (id !== checkId) {
+                return;
             }
 
-            // Only entities of an integration driver can be checked. IR remotes, IR emitters and macros in a
-            // sequence belong to the core itself and have no integration in the integration model: they are
-            // skipped, not reported as "not ready".
-            const includedEntityIntegrationObj = IntegrationController.getModelItem(includedEntityObj.integrationId);
-
-            if (!includedEntityIntegrationObj) {
-                continue;
-            }
-
-            if (includedEntityIntegrationObj.state !== "connected" || !includedEntityObj.enabled) {
-                allIncludedEntitiesConnected = false;
-                notReadyEntities += includedEntityObj.name + ",  ";
-                notReadyEntityQty++;
-            }
+            EntityController.sequenceReadinessResult.disconnect(handler);
+            callback(result.supported ? result : null);
         }
 
-        // chop the last comma
-        notReadyEntities = notReadyEntities.slice(0, -3);
+        EntityController.sequenceReadinessResult.connect(handler);
+    }
 
-        return {
-            allIncludedEntitiesConnected: allIncludedEntitiesConnected,
-            notReadyEntities: notReadyEntities,
-            notReadyEntityQty: notReadyEntityQty
+    function readinessTitle(summary) {
+        return summary.verdict === "not_ready"
+            //: Title of the popup shown when an activity cannot start because a device blocks it. %1 is the
+            //: name of the activity.
+            ? qsTr("%1 is not ready").arg(summary.name)
+            //: Title of the popup shown when an activity starts, but some of its devices will not react.
+            : qsTr("Some devices are not ready");
+    }
+
+    // One sentence per reported cause. The report's own message is an English diagnostic and is never shown: the
+    // sentence is composed from the reason code and the names in it, which the core already translated.
+    function readinessCauseText(cause) {
+        switch (cause.code) {
+        case "INTEGRATION_NOT_CONNECTED":
+            //: %1 is the name of an integration, e.g. "Denon AVR".
+            return qsTr("%1 is not connected").arg(cause.integrationName);
+        case "INTEGRATION_DISABLED":
+            //: %1 is the name of an integration, e.g. "Denon AVR".
+            return qsTr("The %1 integration is disabled").arg(cause.integrationName);
+        case "INTEGRATION_NOT_FOUND":
+            //: %1 is the name of a device.
+            return qsTr("%1 has no integration").arg(cause.entityName);
+        case "IR_EMITTER_NOT_AVAILABLE":
+            //: %1 is the name of a dock.
+            return cause.dockName !== "" ? qsTr("The IR emitter of %1 is not available").arg(cause.dockName)
+                //: %1 is the name of an IR emitter.
+                : (cause.emitterName !== "" ? qsTr("IR emitter %1 is not available").arg(cause.emitterName)
+                                            : qsTr("An IR emitter is not available"));
+        case "REMOTE_IR_OUTPUT_MISSING":
+            //: %1 is the name of an IR remote.
+            return qsTr("%1 has no IR output configured").arg(cause.entityName);
+        case "REMOTE_IR_OUTPUT_INVALID":
+            //: %1 is the name of an IR remote.
+            return qsTr("The IR output of %1 is not available").arg(cause.entityName);
+        case "BT_NOT_CONNECTED":
+            return qsTr("Bluetooth is not connected");
+        case "ENTITY_UNAVAILABLE":
+            //: %1 is the name of a device.
+            return qsTr("%1 is not available").arg(cause.entityName);
+        case "ENTITY_NOT_FOUND":
+            //: %1 is the name of a device that was deleted after the activity was set up.
+            return qsTr("%1 no longer exists").arg(cause.entityName);
+        case "SEQUENCE_ALREADY_RUNNING":
+            //: %1 is the name of an activity or macro that is already running.
+            return cause.entityName !== "" ? qsTr("%1 is already running").arg(cause.entityName)
+                                           : qsTr("The sequence is already running");
+        default:
+            // NESTING_LIMIT, INVALID_COMMAND and codes a newer core may add
+            //: Fallback for a problem this version has no wording for. %1 is the name of a device.
+            return cause.entityName !== "" ? qsTr("%1 cannot run right now").arg(cause.entityName)
+                                           : qsTr("A step cannot run right now");
         }
+    }
+
+    // The worst causes first, then the hint naming the button that runs the sequence anyway.
+    function readinessMessage(summary) {
+        const maxCauses = 3;
+        let lines = [];
+
+        for (let i = 0; i < summary.causes.length && i < maxCauses; i++) {
+            lines.push(readinessCauseText(summary.causes[i]));
+        }
+
+        if (summary.causes.length > maxCauses) {
+            //: Stands for the problems that did not fit in the popup, e.g. "+2 more issues".
+            lines.push(qsTr("+%n more issue(s)", "", summary.causes.length - maxCauses));
+        }
+
+        lines.push(summary.verdict === "not_ready"
+            //: Last line of the popup. "Proceed" is the button label.
+            ? qsTr("The activity would stop at a blocked step. Tap Proceed to try anyway.")
+            //: Last line of the popup. "Proceed" is the button label.
+            : qsTr("Tap Proceed to continue anyway."));
+
+        return lines.join("\n");
     }
 
     // keyed by activity id and direction: the readiness check of a sequence that is already waiting
@@ -190,6 +244,7 @@ ApplicationWindow {
         }
 
         const activityId = activityObj.id;
+        const cmdId = onSequence ? "activity.on" : "activity.off";
         const key = activityId + (onSequence ? ".on" : ".off");
 
         // a second press while the first one is still waiting would wait on its own and run the sequence
@@ -214,51 +269,67 @@ ApplicationWindow {
                 return;
             }
 
-            const res = checkActivityIncludedEntities(obj, onSequence);
-
-            if (res.allIncludedEntitiesConnected) {
+            // nothing is waking up and the user turned the check off for this activity: don't spend a request
+            // on a report that would not be shown
+            if (!obj.readyCheck && !waitForDevices) {
                 delete applicationWindow.activityReadinessWaits[key];
                 proceed(obj);
                 return;
             }
 
-            // the wakeup is reported after the fact, so the window opens while we are already waiting: give
-            // the sequence the full window from that point, the way EntityController extends its commands
-            if (!windowSeen && EntityController.resumeWindow) {
-                windowSeen = true;
-                deadline = Math.max(deadline, Date.now() + EntityController.resumeTimeout);
-            }
+            requestSequenceReadiness(activityId, cmdId, function(summary) {
+                const current = EntityController.get(activityId);
 
-            // waiting past a lost connection to the core is pointless: nothing can be sent over it, and the
-            // devices cannot come back before it does
-            if (waitForDevices && EntityController.resumePending && ui.coreConnected && Date.now() < deadline) {
-                applicationWindow.activityReadinessWaits[key] = true;
-                ui.setTimeOut(500, step);
-                return;
-            }
+                if (!current) {
+                    delete applicationWindow.activityReadinessWaits[key];
+                    return;
+                }
 
-            delete applicationWindow.activityReadinessWaits[key];
+                if (summary && summary.verdict === "ready") {
+                    delete applicationWindow.activityReadinessWaits[key];
+                    proceed(current);
+                    return;
+                }
 
-            if (!obj.readyCheck) {
-                proceed(obj);
-                return;
-            }
+                // the wakeup is reported after the fact, so the window opens while we are already waiting: give
+                // the sequence the full window from that point, the way EntityController extends its commands
+                if (!windowSeen && EntityController.resumeWindow) {
+                    windowSeen = true;
+                    deadline = Math.max(deadline, Date.now() + EntityController.resumeTimeout);
+                }
 
-            ui.createActionableNotification(title !== "" ? title : qsTr("Some devices are not ready"),
-                                            res.notReadyEntityQty == 1
-                                                ? qsTr("%1 is not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities)
-                                                : qsTr("%1 are not connected yet. Tap Proceed to continue anyway.").arg(res.notReadyEntities),
-                                            "uc:link-slash",
-                                            () => {
-                                                // the activity may be gone by the time the user answers
-                                                const current = EntityController.get(activityId);
+                // Not ready, or the check itself failed - right after a wakeup that usually means the connection
+                // to the core is still coming back. Both are worth waiting out, for as long as the resume budget
+                // lasts: waiting past a lost connection is pointless, nothing can be sent over it and the devices
+                // cannot come back before it does.
+                if (waitForDevices && EntityController.resumePending && ui.coreConnected && Date.now() < deadline) {
+                    applicationWindow.activityReadinessWaits[key] = true;
+                    ui.setTimeOut(1000, step);
+                    return;
+                }
 
-                                                if (current) {
-                                                    proceed(current);
-                                                }
-                                            },
-                                            //: Button label, quoted by name in the "not connected yet" messages.
-                                            qsTr("Proceed"));
+                delete applicationWindow.activityReadinessWaits[key];
+
+                // no report to show, or the user turned the check off: the check never holds the sequence back
+                if (!summary || !current.readyCheck) {
+                    proceed(current);
+                    return;
+                }
+
+                ui.createActionableNotification(title !== "" ? title : readinessTitle(summary),
+                                                readinessMessage(summary),
+                                                "uc:link-slash",
+                                                () => {
+                                                    // the activity may be gone by the time the user answers
+                                                    const target = EntityController.get(activityId);
+
+                                                    if (target) {
+                                                        proceed(target);
+                                                    }
+                                                },
+                                                //: Button label, quoted by name in the "not ready" messages.
+                                                qsTr("Proceed"));
+            });
         }
 
         step();

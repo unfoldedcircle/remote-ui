@@ -120,6 +120,7 @@ HEADERS += \
     src/ui/entity/remote.h \
     src/ui/entity/select.h \
     src/ui/entity/sensor.h \
+    src/ui/entity/sequenceReadinessReport.h \
     src/ui/entity/sequenceStep.h \
     src/ui/entity/switch.h \
     src/ui/entity/entityController.h \
@@ -183,6 +184,7 @@ SOURCES += \
         src/ui/entity/remote.cpp \
         src/ui/entity/select.cpp \
         src/ui/entity/sensor.cpp \
+        src/ui/entity/sequenceReadinessReport.cpp \
         src/ui/entity/switch.cpp \
         src/ui/entity/entityController.cpp \
         src/ui/entity/voiceAssistant.cpp \

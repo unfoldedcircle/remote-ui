@@ -1442,6 +1442,26 @@ int Api::browseMedia(const QString& entityId, QVariantMap params) {
     return sendRequest(RequestTypes::browse_media, msgData);
 }
 
+int Api::getSequenceReadiness(const QString& entityId, const QString& cmdId, const QString& lang,
+                              const QString& errorPolicy) {
+    if (entityId.isEmpty() || cmdId.isEmpty()) {
+        return -1;
+    }
+
+    QVariantMap msgData;
+    msgData.insert("entity_id", entityId);
+    msgData.insert("cmd_id", cmdId);
+
+    if (!lang.isEmpty()) {
+        msgData.insert("lang", lang);
+    }
+    if (!errorPolicy.isEmpty()) {
+        msgData.insert("error_policy", errorPolicy);
+    }
+
+    return sendRequest(RequestTypes::get_sequence_readiness, msgData);
+}
+
 int Api::searchMedia(const QString& entityId, QVariantMap params) {
     if (entityId.isEmpty()) {
         return -1;
@@ -1787,6 +1807,10 @@ void Api::processResponseMessage(QVariantMap map) {
         }
         case MsgResponse::media_search: {
             processResponseMediaSearch(reqId, code, msgData);
+            break;
+        }
+        case MsgResponse::sequence_readiness: {
+            processResponseSequenceReadiness(reqId, code, msgData);
             break;
         }
         default:
@@ -3618,6 +3642,138 @@ void Api::processResponseMediaSearch(int reqId, int code, QVariant msgData) {
     pagination.page  = paginationMap.value("page", 1).toInt();
 
     emit respMediaSearch(reqId, code, items, pagination);
+}
+
+ReadinessReason Api::parseReadinessReason(const QVariantMap &map) {
+    ReadinessReason reason;
+    reason.code = map.value("code").toString();
+    reason.message = map.value("message").toString();
+    reason.groupId = map.value("group_id").toString();
+    reason.integrationId = map.value("integration_id").toString();
+    reason.integrationName = map.value("integration_name").toString();
+    reason.state = map.value("state").toString();
+    reason.emitterId = map.value("emitter_id").toString();
+    reason.portId = map.value("port_id").toString();
+    reason.emitterName = map.value("emitter_name").toString();
+    reason.deviceType = map.value("device_type").toString();
+    reason.dockId = map.value("dock_id").toString();
+    reason.dockName = map.value("dock_name").toString();
+    return reason;
+}
+
+ReadinessStep Api::parseReadinessStep(const QVariantMap &map) {
+    ReadinessStep step;
+    step.index = map.value("index", 0).toInt();
+    step.authoredIndex = map.value("authored_index", -1).toInt();
+    step.switchFromIndex = map.value("switch_from_index", -1).toInt();
+    step.nestedIndex = map.value("nested_index", -1).toInt();
+    step.part = map.value("part").toString();
+    step.type = map.value("type").toString();
+    step.entityId = map.value("entity_id").toString();
+    step.entityType = map.value("entity_type").toString();
+    step.name = map.value("name").toString();
+    step.cmdId = map.value("cmd_id").toString();
+    step.params = map.value("params").toMap();
+    step.delay = map.value("delay", 0).toInt();
+    step.ready = map.value("ready", false).toBool();
+    step.skipped = map.value("skipped", false).toBool();
+    step.abortsRun = map.value("aborts_run", false).toBool();
+
+    const QVariantList parents = map.value("parents").toList();
+    for (const QVariant& parent : parents) {
+        QVariantMap        parentMap = parent.toMap();
+        ReadinessEntityRef ref;
+        ref.entityId = parentMap.value("entity_id").toString();
+        ref.name = parentMap.value("name").toString();
+        step.parents.append(ref);
+    }
+
+    step.hasReason = map.contains("reason");
+    if (step.hasReason) {
+        step.reason = parseReadinessReason(map.value("reason").toMap());
+    }
+
+    return step;
+}
+
+ReadinessOmittedStep Api::parseReadinessOmittedStep(const QVariantMap &map) {
+    ReadinessOmittedStep step;
+    step.authoredIndex = map.value("authored_index", 0).toInt();
+    step.type = map.value("type").toString();
+    step.entityId = map.value("entity_id").toString();
+    step.entityType = map.value("entity_type").toString();
+    step.name = map.value("name").toString();
+    step.cmdId = map.value("cmd_id").toString();
+    step.params = map.value("params").toMap();
+    step.delay = map.value("delay", 0).toInt();
+    step.reason = parseReadinessReason(map.value("reason").toMap());
+    return step;
+}
+
+SequenceReadiness Api::parseSequenceReadiness(const QVariantMap &map) {
+    SequenceReadiness report;
+    report.entityId = map.value("entity_id").toString();
+    report.entityType = map.value("entity_type").toString();
+    report.name = map.value("name").toString();
+    report.cmdId = map.value("cmd_id").toString();
+    report.lang = map.value("lang").toString();
+    report.errorPolicy = map.value("error_policy").toString();
+    report.timestamp = QDateTime::fromString(map.value("timestamp").toString(), Qt::ISODateWithMs);
+    report.ready = map.value("ready", false).toBool();
+    report.totalSteps = map.value("total_steps", 0).toInt();
+    report.transitionSteps = map.value("transition_steps", 0).toInt();
+    report.blockedSteps = map.value("blocked_steps", 0).toInt();
+    report.skippedSteps = map.value("skipped_steps", 0).toInt();
+    report.abortingSteps = map.value("aborting_steps", 0).toInt();
+    report.omittedSteps = map.value("omitted_steps", 0).toInt();
+
+    QVariantMap dependsOnMap = map.value("depends_on").toMap();
+    report.dependsOn.integrationIds = dependsOnMap.value("integration_ids").toStringList();
+    report.dependsOn.emitterIds = dependsOnMap.value("emitter_ids").toStringList();
+    report.dependsOn.dockIds = dependsOnMap.value("dock_ids").toStringList();
+    report.dependsOn.bt = dependsOnMap.value("bt", false).toBool();
+
+    report.hasActivityGroup = map.contains("activity_group");
+    if (report.hasActivityGroup) {
+        QVariantMap groupMap = map.value("activity_group").toMap();
+        report.activityGroup.groupId = groupMap.value("group_id").toString();
+        report.activityGroup.name = groupMap.value("name").toString();
+        report.activityGroup.turnOffUnusedEntities = groupMap.value("turn_off_unused_entities").toString();
+
+        const QVariantList members = groupMap.value("members").toList();
+        for (const QVariant& entry : members) {
+            QVariantMap          memberMap = entry.toMap();
+            ReadinessGroupMember member;
+            member.entityId = memberMap.value("entity_id").toString();
+            member.name = memberMap.value("name").toString();
+            member.state = memberMap.value("state").toString();
+            report.activityGroup.members.append(member);
+        }
+    }
+
+    report.hasSwitchFrom = map.contains("switch_from");
+    if (report.hasSwitchFrom) {
+        QVariantMap switchFromMap = map.value("switch_from").toMap();
+        report.switchFrom.entityId = switchFromMap.value("entity_id").toString();
+        report.switchFrom.name = switchFromMap.value("name").toString();
+        report.switchFrom.state = switchFromMap.value("state").toString();
+    }
+
+    const QVariantList steps = map.value("steps").toList();
+    for (const QVariant& entry : steps) {
+        report.steps.append(parseReadinessStep(entry.toMap()));
+    }
+
+    const QVariantList omitted = map.value("omitted").toList();
+    for (const QVariant& entry : omitted) {
+        report.omitted.append(parseReadinessOmittedStep(entry.toMap()));
+    }
+
+    return report;
+}
+
+void Api::processResponseSequenceReadiness(int reqId, int code, QVariant msgData) {
+    emit respSequenceReadiness(reqId, code, parseSequenceReadiness(msgData.toMap()));
 }
 
 }  // namespace core

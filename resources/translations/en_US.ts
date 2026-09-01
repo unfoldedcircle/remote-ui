@@ -952,17 +952,17 @@ Climate fan</extracomment>
 <context>
     <name>Country</name>
     <message>
-        <location filename="../../src/qml/onboarding/Country.qml" line="57"/>
+        <location filename="../../src/qml/onboarding/Country.qml" line="64"/>
         <source>Suggested</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Country.qml" line="58"/>
+        <location filename="../../src/qml/onboarding/Country.qml" line="65"/>
         <source>All countries</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/onboarding/Country.qml" line="119"/>
+        <location filename="../../src/qml/onboarding/Country.qml" line="131"/>
         <source>Select country</source>
         <translation>Select country</translation>
     </message>
@@ -1873,49 +1873,59 @@ Climate fan</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="85"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="89"/>
         <source>Language</source>
         <translation>Language</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="106"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="110"/>
         <source>Select language</source>
         <translation>Select language</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="149"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="153"/>
         <source>Country</source>
         <translation>Country</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="181"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="177"/>
+        <source>Suggested</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="178"/>
+        <source>All countries</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="221"/>
         <source>Select country</source>
         <translation>Select country</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="224"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="264"/>
         <source>Timezone</source>
         <translation>Timezone</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="236"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="276"/>
         <source>Select timezone</source>
         <translation>Select timezone</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="286"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="326"/>
         <source>24-hour time</source>
         <extracomment>Title for indicating if 24h time visualisation is enabled</extracomment>
         <translation>24-hour time</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="328"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="368"/>
         <source>Unit System</source>
         <extracomment>Like metric, imperial</extracomment>
         <translation>Unit System</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Localisation.qml" line="340"/>
+        <location filename="../../src/qml/settings/settings/Localisation.qml" line="380"/>
         <source>Select unit system</source>
         <translation>Select unit system</translation>
     </message>
@@ -4323,28 +4333,140 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../../src/qml/main.qml" line="247"/>
+        <location filename="../../src/qml/main.qml" line="158"/>
         <source>Some devices are not ready</source>
+        <extracomment>Title of the popup shown when an activity starts, but some of its devices will not react.</extracomment>
         <translation>Some devices are not ready</translation>
     </message>
     <message>
-        <location filename="../../src/qml/main.qml" line="249"/>
         <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-        <translation>%1 is not connected yet. Tap Proceed to continue anyway.</translation>
+        <translation type="vanished">%1 is not connected yet. Tap Proceed to continue anyway.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/main.qml" line="250"/>
         <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-        <translation>%1 are not connected yet. Tap Proceed to continue anyway.</translation>
+        <translation type="vanished">%1 are not connected yet. Tap Proceed to continue anyway.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/main.qml" line="261"/>
+        <location filename="../../src/qml/main.qml" line="156"/>
+        <source>%1 is not ready</source>
+        <extracomment>Title of the popup shown when an activity cannot start because a device blocks it. %1 is the name of the activity.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="167"/>
+        <source>%1 is not connected</source>
+        <extracomment>%1 is the name of an integration, e.g. &quot;Denon AVR&quot;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="170"/>
+        <source>The %1 integration is disabled</source>
+        <extracomment>%1 is the name of an integration, e.g. &quot;Denon AVR&quot;.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="173"/>
+        <source>%1 has no integration</source>
+        <extracomment>%1 is the name of a device.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="176"/>
+        <source>The IR emitter of %1 is not available</source>
+        <extracomment>%1 is the name of a dock.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="178"/>
+        <source>IR emitter %1 is not available</source>
+        <extracomment>%1 is the name of an IR emitter.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="179"/>
+        <source>An IR emitter is not available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="182"/>
+        <source>%1 has no IR output configured</source>
+        <extracomment>%1 is the name of an IR remote.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="185"/>
+        <source>The IR output of %1 is not available</source>
+        <extracomment>%1 is the name of an IR remote.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="187"/>
+        <source>Bluetooth is not connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="190"/>
+        <source>%1 is not available</source>
+        <extracomment>%1 is the name of a device.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="193"/>
+        <source>%1 no longer exists</source>
+        <extracomment>%1 is the name of a device that was deleted after the activity was set up.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="196"/>
+        <source>%1 is already running</source>
+        <extracomment>%1 is the name of an activity or macro that is already running.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="197"/>
+        <source>The sequence is already running</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="201"/>
+        <source>%1 cannot run right now</source>
+        <extracomment>Fallback for a problem this version has no wording for. %1 is the name of a device.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="202"/>
+        <source>A step cannot run right now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../../src/qml/main.qml" line="217"/>
+        <source>+%n more issue(s)</source>
+        <extracomment>Stands for the problems that did not fit in the popup, e.g. &quot;+2 more issues&quot;.</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="222"/>
+        <source>The activity would stop at a blocked step. Tap Proceed to try anyway.</source>
+        <extracomment>Last line of the popup. &quot;Proceed&quot; is the button label.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="224"/>
+        <source>Tap Proceed to continue anyway.</source>
+        <extracomment>Last line of the popup. &quot;Proceed&quot; is the button label.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/main.qml" line="331"/>
         <source>Proceed</source>
-        <extracomment>Button label, quoted by name in the &quot;not connected yet&quot; messages.</extracomment>
+        <extracomment>Button label, quoted by name in the &quot;not ready&quot; messages.</extracomment>
         <translation>Proceed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/main.qml" line="834"/>
+        <location filename="../../src/qml/main.qml" line="905"/>
         <source>Done</source>
         <translation>Done</translation>
     </message>
@@ -4437,7 +4559,7 @@ Tap the QR code to show it on the screen.</translation>
         <translation>There was an error connecting to the core. If the issue persists, restart the remote.</translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1856"/>
+        <location filename="../../src/core/core.cpp" line="1879"/>
         <source>Authentication to core failed</source>
         <translation>Authentication to core failed</translation>
     </message>
@@ -4687,61 +4809,61 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>uc::ui::EntityController</name>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="307"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="316"/>
         <source>Could not change the entity state: not connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="322"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="331"/>
         <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="326"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="335"/>
         <source>The state of this entity type cannot be changed</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="330"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="339"/>
         <source>Not allowed to change the entity state</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="334"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="343"/>
         <source>Could not change the entity state: %1</source>
         <extracomment>Error while fixing an entity state. %1 is an error message from the remote</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="944"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="997"/>
         <source>The device</source>
         <translation>The device</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="964"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1017"/>
         <source>%1 is not responding</source>
         <translation>%1 is not responding</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="965"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1018"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation>The command did not reach the device. Would you like to try again?</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="996"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1049"/>
         <source>Try again</source>
         <translation>Try again</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1003"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1055"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation>%1 is not responding. Error code: %2</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1002"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1055"/>
         <source>Error sending the command</source>
         <translation>Error sending the command</translation>
     </message>

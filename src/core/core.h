@@ -60,6 +60,24 @@ class Api : public QObject {
     int browseMedia(const QString &entityId, QVariantMap params);
     int searchMedia(const QString &entityId, QVariantMap params);
 
+    /**
+     * @brief Request the readiness report of an activity or macro sequence.
+     * @param entityId: activity or macro entity id
+     * @param cmdId: command to check, e.g. "activity.on", "activity.off", "macro.run"
+     * @param lang: optional culture code (e.g. "de_CH"), the system language is used if empty
+     * @param errorPolicy: optional "abort", "continue_transition" or "ignore_all", server default if empty
+     * @return request id, or -1 if the request could not be sent
+     */
+    int getSequenceReadiness(const QString &entityId, const QString &cmdId, const QString &lang = QString(),
+                             const QString &errorPolicy = QString());
+
+    /**
+     * @brief Parse a sequence readiness report message payload.
+     * Public for the unit tests: the report is a deep structure and is verified against captured payloads
+     * without going through a websocket connection.
+     */
+    static SequenceReadiness parseSequenceReadiness(const QVariantMap &map);
+
     // profile handling
     int switchProfile(const QString &profileId, const QString &pin);
     int getProfiles();
@@ -417,6 +435,8 @@ class Api : public QObject {
     void respMediaBrowse(int reqId, int code, core::BrowseMediaItem media, core::Pagination pagination);
     void respMediaSearch(int reqId, int code, QList<core::BrowseMediaItem> items, core::Pagination pagination);
 
+    void respSequenceReadiness(int reqId, int code, core::SequenceReadiness report);
+
     // event signals
  signals:
     void connected();
@@ -602,6 +622,11 @@ class Api : public QObject {
     void processResponseMediaBrowse(int reqId, int code, QVariant msgData);
     void processResponseMediaSearch(int reqId, int code, QVariant msgData);
     BrowseMediaItem parseBrowseMediaItem(const QVariantMap &map);
+
+    void processResponseSequenceReadiness(int reqId, int code, QVariant msgData);
+    static ReadinessReason      parseReadinessReason(const QVariantMap &map);
+    static ReadinessStep        parseReadinessStep(const QVariantMap &map);
+    static ReadinessOmittedStep parseReadinessOmittedStep(const QVariantMap &map);
 
     // processing events
  private:

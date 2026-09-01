@@ -382,5 +382,110 @@ struct MediaSearchFilter {
     QString     album;
 };
 
+// --- sequence readiness (get_sequence_readiness / sequence_readiness) ---
+
+struct ReadinessReason {
+    QString code;             // ReadinessReasonCode as string; unknown values must be tolerated
+    QString message;          // English diagnostic — never shown to the user
+    QString groupId;          // opaque cause key: equal for steps blocked by the same cause
+    QString integrationId;    // optional
+    QString integrationName;  // optional, localized
+    QString state;            // optional
+    QString emitterId;        // optional
+    QString portId;           // optional (REMOTE_IR_OUTPUT_INVALID)
+    QString emitterName;      // optional
+    QString deviceType;       // optional: DOCK, EXTERNAL, INTERNAL
+    QString dockId;           // optional
+    QString dockName;         // optional
+};
+
+struct ReadinessEntityRef {
+    QString entityId;
+    QString name;
+};
+
+struct ReadinessStep {
+    int                       index = 0;
+    int                       authoredIndex = -1;    // optional: -1 = absent
+    int                       switchFromIndex = -1;  // optional
+    int                       nestedIndex = -1;      // optional
+    QString                   part;                  // "transition" | "sequence"
+    QString                   type;                  // "command" | "delay"
+    QString                   entityId;              // optional (delay steps)
+    QString                   entityType;            // optional
+    QString                   name;                  // optional, localized
+    QString                   cmdId;                 // optional
+    QVariantMap               params;                // optional
+    int                       delay = 0;             // optional
+    QList<ReadinessEntityRef> parents;               // optional
+    bool                      ready = false;
+    bool                      skipped = false;    // wire: only present when true
+    bool                      abortsRun = false;  // wire: absent for ready and skipped steps
+    bool                      hasReason = false;
+    ReadinessReason           reason;  // valid only when hasReason
+};
+
+struct ReadinessOmittedStep {
+    int             authoredIndex = 0;
+    QString         type;      // "command" | "delay"
+    QString         entityId;  // optional
+    QString         entityType;
+    QString         name;
+    QString         cmdId;
+    QVariantMap     params;
+    int             delay = 0;
+    ReadinessReason reason;  // required, always ALREADY_IN_STATE
+};
+
+struct ReadinessDependencies {
+    QStringList integrationIds;
+    QStringList emitterIds;
+    QStringList dockIds;
+    bool        bt = false;
+};
+
+struct ReadinessGroupMember {
+    QString entityId;
+    QString name;
+    QString state;  // ON, OFF, RUNNING, ERROR, TIMEOUT, STOPPED
+};
+
+struct ReadinessActivityGroup {
+    QString                     groupId;
+    QString                     name;
+    QString                     turnOffUnusedEntities;  // always | in_off_sequence | run_off_sequence | never
+    QList<ReadinessGroupMember> members;
+};
+
+struct ReadinessSwitchFrom {
+    QString entityId;
+    QString name;
+    QString state;  // ON, RUNNING, ERROR, TIMEOUT, STOPPED (never OFF)
+};
+
+struct SequenceReadiness {
+    QString                     entityId;
+    QString                     entityType;  // "activity" | "macro"
+    QString                     name;        // localized title of the checked entity
+    QString                     cmdId;
+    QString                     lang;
+    QString                     errorPolicy;
+    QDateTime                   timestamp;  // ISO 8601 with ms
+    bool                        ready = false;
+    int                         totalSteps = 0;
+    int                         transitionSteps = 0;
+    int                         blockedSteps = 0;
+    int                         skippedSteps = 0;
+    int                         abortingSteps = 0;
+    int                         omittedSteps = 0;
+    ReadinessDependencies       dependsOn;
+    bool                        hasActivityGroup = false;
+    ReadinessActivityGroup      activityGroup;  // valid only when hasActivityGroup
+    bool                        hasSwitchFrom = false;
+    ReadinessSwitchFrom         switchFrom;  // valid only when hasSwitchFrom
+    QList<ReadinessStep>        steps;
+    QList<ReadinessOmittedStep> omitted;
+};
+
 }  // namespace core
 }  // namespace uc
