@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.81.1 - 2026-09-01
 ### Changed
 - The check that runs before an activity is switched on or off now asks the remote for its full readiness report
   instead of guessing from the list of devices in the sequence. The message names what is actually wrong — a
@@ -15,8 +19,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   activity was set up — with the device names in the display language, and lists one line per problem instead of one
   per affected device. Activities that only look unready are no longer reported: a device that is already in the
   wanted state, and infrared or macro steps that have no integration to check, are now understood by the check.
-
----
 
 ## v0.81.0 - 2026-09-01
 ### Added
