@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.81.0 - 2026-09-01
 ### Added
 - The initial setup suggests countries where the chosen language is spoken: after picking e.g. "Deutsch", Germany,
   Austria, Switzerland and the other German-speaking countries appear at the top of the country list, with the most
@@ -27,8 +31,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Country names in the country list were often shown in the wrong language. They now follow the selected UI language,
   with English as the fallback.
 
----
-
 ## v0.80.0 - 2026-08-30
 ### Fixed
 - Remote entities did not pick up the `send_cmd` and `toggle` features reported by an integration, and remote and
@@ -39,8 +41,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Activities containing infrared remotes, IR emitters or macros in their start or stop sequence always stopped with
   "Some devices are not ready" since v0.76.0. Those entities belong to the remote itself and have no integration
   that could be connected; they are left out of the readiness check again, as before v0.76.0.
-
----
 
 
 ## v0.79.0 - 2026-08-27
