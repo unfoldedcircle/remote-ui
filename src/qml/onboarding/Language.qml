@@ -15,7 +15,26 @@ OnboardingComponents.Page {
     // step that is no longer on screen keeps its search field (and the keyboard) fighting for the
     // focus with the step that replaced it, and its input ownership would be stale on return.
     onStepEntered: {
+        buildModel();
         selectList.state = "visible";
+    }
+
+    // built on every entry so the current language is preselected, also on BACK from the next step
+    function buildModel() {
+        listModel.clear();
+
+        let list = Config.getTranslations();
+        let selected = 0;
+
+        for (let i = 0; i < list.length; i ++) {
+            listModel.append({'name': Config.getLanguageAsNative(list[i]), 'value': list[i]});
+            if (list[i] === Config.language) {
+                selected = i;
+            }
+        }
+
+        selectList.initialSelected = selected;
+        selectList.popupListmodel.reload();
     }
 
     onStepLeft: selectList.state = "hidden"
@@ -54,15 +73,5 @@ OnboardingComponents.Page {
 
     ListModel {
         id: listModel
-
-        Component.onCompleted: {
-            listModel.clear();
-
-            let list = Config.getTranslations();
-
-            for (let i = 0; i < list.length; i ++) {
-                listModel.append({'name': Config.getLanguageAsNative(list[i]), 'value': list[i]})
-            }
-        }
     }
 }

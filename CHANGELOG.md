@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## Unreleased
+### Added
+- The initial setup suggests countries where the chosen language is spoken: after picking e.g. "Deutsch", Germany,
+  Austria, Switzerland and the other German-speaking countries appear at the top of the country list, with the most
+  likely one preselected. All other countries follow alphabetically, and searching by name or two-letter country code
+  still finds any of them.
+- Countries with a single timezone — about two thirds of all countries — no longer show a timezone list at all during
+  setup. A confirmation card shows the derived timezone ("Switzerland — Zurich · GMT+01:00") and one press continues.
+  Countries with several timezones show only their own zones, labelled with the city and GMT offset instead of raw
+  identifiers like "America/New_York", sorted east to west. An "All timezones…" entry keeps every zone reachable for
+  special cases, during setup and in the localisation settings.
+- The language list opens with the current language preselected, in the setup and when returning to it.
+
+### Fixed
+- The timezone list offered during setup and in the localisation settings contained more than a hundred unrelated
+  entries: every timezone in the world that happened to share the UTC offset of the selected country was listed, and
+  the list even changed with daylight saving time. Only the timezones of the selected country are listed now.
+- Country names in the country list were often shown in the wrong language. They now follow the selected UI language,
+  with English as the fallback.
+
+---
+
 ## v0.80.0 - 2026-08-30
 ### Fixed
 - Remote entities did not pick up the `send_cmd` and `toggle` features reported by an integration, and remote and

@@ -3,19 +3,21 @@
 
 #include "config.h"
 
+#include <algorithm>
+
 #include "../logging.h"
 
 namespace uc {
 
-Config *Config::s_instance = nullptr;
+Config* Config::s_instance = nullptr;
 
-Config::Config(core::Api *core, QObject *parent) : QObject(parent), m_core(core) {
+Config::Config(core::Api* core, QObject* parent) : QObject(parent), m_core(core) {
     Q_ASSERT(s_instance == nullptr);
     s_instance = this;
 
     qmlRegisterSingletonType<Config>("Config", 1, 0, "Config", &Config::qmlInstance);
 
-            // after connected to the api, get the config
+    // after connected to the api, get the config
     QObject::connect(m_core, &uc::core::Api::connected, this, &uc::Config::onCoreConnected);
     QObject::connect(m_core, &uc::core::Api::configChanged, this, &uc::Config::onConfigChanged);
     QObject::connect(m_core, &uc::core::Api::cfgButtonChanged, this, &uc::Config::onButtonCfgChanged);
@@ -38,7 +40,7 @@ Config::~Config() {
     m_settings->deleteLater();
 }
 
-void Config::setCurrentProfileId(const QString &profileId) {
+void Config::setCurrentProfileId(const QString& profileId) {
     if (m_currentProfile != profileId) {
         m_currentProfile = profileId;
         // send to core
@@ -46,7 +48,7 @@ void Config::setCurrentProfileId(const QString &profileId) {
     }
 }
 
-void Config::setLanguage(const QString &language) {
+void Config::setLanguage(const QString& language) {
     if (m_language != language) {
         int id =
             m_core->setLocalizationCfg(language, getCountry(), getTimezone(), getClock24h(), getUnitSystem().toUpper());
@@ -69,9 +71,7 @@ void Config::setLanguage(const QString &language) {
     }
 }
 
-void Config::setCountry(const QString &country) {
-    ui::Translation::getTimeZones(country);
-
+void Config::setCountry(const QString& country) {
     int id =
         m_core->setLocalizationCfg(getLanguage(), country, getTimezone(), getClock24h(), getUnitSystem().toUpper());
 
@@ -93,7 +93,7 @@ void Config::setCountry(const QString &country) {
         });
 }
 
-void Config::setTimezone(const QString &timezone) {
+void Config::setTimezone(const QString& timezone) {
     int id =
         m_core->setLocalizationCfg(getLanguage(), getCountry(), timezone, getClock24h(), getUnitSystem().toUpper());
 
@@ -157,7 +157,7 @@ void Config::setClock24h(bool value) {
     }
 }
 
-void Config::setDeviceName(const QString &name) {
+void Config::setDeviceName(const QString& name) {
     int id = m_core->setDeviceCfg(name);
 
     m_core->onResult(
@@ -198,7 +198,8 @@ void Config::setHapticEnabled(bool enabled) {
 
 void Config::setMicEnabled(bool enabled) {
     if (m_micEnabled != enabled) {
-        int id = m_core->setVoiceControlCfg(enabled, m_voiceAssistantId, m_voiceAssistantProfileId, m_voiceAssistantSpeechResponse);
+        int id = m_core->setVoiceControlCfg(enabled, m_voiceAssistantId, m_voiceAssistantProfileId,
+                                            m_voiceAssistantSpeechResponse);
 
         m_core->onResult(
             id,
@@ -216,9 +217,9 @@ void Config::setMicEnabled(bool enabled) {
     }
 }
 
-void Config::setVoiceAssistantId(const QString &entityId)
-{
-    int id = m_core->setVoiceControlCfg(m_micEnabled, entityId, m_voiceAssistantProfileId, m_voiceAssistantSpeechResponse);
+void Config::setVoiceAssistantId(const QString& entityId) {
+    int id =
+        m_core->setVoiceControlCfg(m_micEnabled, entityId, m_voiceAssistantProfileId, m_voiceAssistantSpeechResponse);
 
     m_core->onResult(
         id,
@@ -233,8 +234,7 @@ void Config::setVoiceAssistantId(const QString &entityId)
         });
 }
 
-void Config::setVoiceAssistantProfileId(const QString &profileId)
-{
+void Config::setVoiceAssistantProfileId(const QString& profileId) {
     int id = m_core->setVoiceControlCfg(m_micEnabled, m_voiceAssistantId, profileId, m_voiceAssistantSpeechResponse);
 
     m_core->onResult(
@@ -250,8 +250,7 @@ void Config::setVoiceAssistantProfileId(const QString &profileId)
         });
 }
 
-void Config::setVoiceAssistantSpeechResponse(bool value)
-{
+void Config::setVoiceAssistantSpeechResponse(bool value) {
     if (m_voiceAssistantSpeechResponse != value) {
         int id = m_core->setVoiceControlCfg(m_micEnabled, m_voiceAssistantId, m_voiceAssistantProfileId, value);
 
@@ -398,134 +397,110 @@ void Config::setEntityButtonFuncInverted(bool value) {
     emit entityButtonFuncInvertedChanged();
 }
 
-bool Config::getShowBatteryPercentage()
-{
+bool Config::getShowBatteryPercentage() {
     return m_settings->value("ui/batteryPercent", false).toBool();
 }
 
-void Config::setShowBatteryPercentage(bool value)
-{
+void Config::setShowBatteryPercentage(bool value) {
     m_settings->setValue("ui/batteryPercent", value);
     emit showBatteryPercentageChanged();
 }
 
-bool Config::getShowBatteryEveryWhere()
-{
+bool Config::getShowBatteryEveryWhere() {
     return m_settings->value("ui/batteryEveryWhere", false).toBool();
 }
 
-void Config::setShowBatteryEveryWhere(bool value)
-{
+void Config::setShowBatteryEveryWhere(bool value) {
     m_settings->setValue("ui/batteryEveryWhere", value);
     emit showBatteryEveryWhereChanged();
 }
 
-bool Config::getEnableActivityBar()
-{
+bool Config::getEnableActivityBar() {
     return m_settings->value("ui/activityBar", true).toBool();
 }
 
-void Config::setEnableActivityBar(bool value)
-{
+void Config::setEnableActivityBar(bool value) {
     m_settings->setValue("ui/activityBar", value);
     emit enableActivityBarChanged();
 }
 
-bool Config::getOpenActivityOnApiStart()
-{
+bool Config::getOpenActivityOnApiStart() {
     return m_settings->value("ui/openActivityOnApiStart", false).toBool();
 }
 
-void Config::setOpenActivityOnApiStart(bool value)
-{
+void Config::setOpenActivityOnApiStart(bool value) {
     m_settings->setValue("ui/openActivityOnApiStart", value);
     emit openActivityOnApiStartChanged();
 }
 
-bool Config::getFillMediaArtwork()
-{
+bool Config::getFillMediaArtwork() {
     return m_settings->value("ui/fillMediaArtwork", false).toBool();
 }
 
-void Config::setFillMediaArtwork(bool value)
-{
+void Config::setFillMediaArtwork(bool value) {
     m_settings->setValue("ui/fillMediaArtwork", value);
     emit fillMediaArtworkChanged();
 }
 
-bool Config::getMediaCoverflowDefault()
-{
+bool Config::getMediaCoverflowDefault() {
     return m_settings->value("ui/mediaCoverflowDefault", false).toBool();
 }
 
-void Config::setMediaCoverflowDefault(bool value)
-{
+void Config::setMediaCoverflowDefault(bool value) {
     m_settings->setValue("ui/mediaCoverflowDefault", value);
     emit mediaCoverflowDefaultChanged();
 }
 
-int Config::getResumeTimeoutWindowSec()
-{
+int Config::getResumeTimeoutWindowSec() {
     return m_settings->value("ui/resumeTimeoutWindow", 2).toInt();
 }
 
-void Config::setResumeTimeoutWindowSec(int value)
-{
+void Config::setResumeTimeoutWindowSec(int value) {
     m_settings->setValue("ui/resumeTimeoutWindow", value);
     emit resumeTimeoutWindowSecChanged(value);
 }
 
-bool Config::getTouchSliderEnabled()
-{
+bool Config::getTouchSliderEnabled() {
     return m_settings->value("touchslider/enabled", true).toBool();
 }
 
-void Config::setTouchSliderEnabled(bool value)
-{
+void Config::setTouchSliderEnabled(bool value) {
     m_settings->setValue("touchslider/enabled", value);
     emit touchSliderEnabledChanged();
 }
 
-double Config::getTouchSliderGainVolume()
-{
+double Config::getTouchSliderGainVolume() {
     return m_settings->value("touchslider/gainVolume", 0.4).toDouble();
 }
 
-void Config::setTouchSliderGainVolume(double value)
-{
+void Config::setTouchSliderGainVolume(double value) {
     m_settings->setValue("touchslider/gainVolume", value);
     emit touchSliderGainVolumeChanged();
 }
 
-double Config::getTouchSliderGainBrightness()
-{
+double Config::getTouchSliderGainBrightness() {
     return m_settings->value("touchslider/gainBrightness", 1.2).toDouble();
 }
 
-void Config::setTouchSliderGainBrightness(double value)
-{
+void Config::setTouchSliderGainBrightness(double value) {
     m_settings->setValue("touchslider/gainBrightness", value);
     emit touchSliderGainBrightnessChanged();
 }
 
-double Config::getTouchSliderGainPosition()
-{
+double Config::getTouchSliderGainPosition() {
     return m_settings->value("touchslider/gainPosition", 1.2).toDouble();
 }
 
-void Config::setTouchSliderGainPosition(double value)
-{
+void Config::setTouchSliderGainPosition(double value) {
     m_settings->setValue("touchslider/gainPosition", value);
     emit touchSliderGainPositionChanged();
 }
 
-double Config::getTouchSliderGainSeek()
-{
+double Config::getTouchSliderGainSeek() {
     return m_settings->value("touchslider/gainSeek", 1.0).toDouble();
 }
 
-void Config::setTouchSliderGainSeek(double value)
-{
+void Config::setTouchSliderGainSeek(double value) {
     m_settings->setValue("touchslider/gainSeek", value);
     emit touchSliderGainSeekChanged();
 }
@@ -670,8 +645,7 @@ void Config::setWifiEnabled(bool enabled) {
     }
 }
 
-void Config::setWowlanEnabled(bool enabled)
-{
+void Config::setWowlanEnabled(bool enabled) {
     if (m_wowlanEnabled != enabled) {
         int id = m_core->setNetworkCfg(m_bluetoothEnabled, m_wifiEnabled, enabled, m_band, m_scanIntervalSec);
 
@@ -691,8 +665,7 @@ void Config::setWowlanEnabled(bool enabled)
     }
 }
 
-void Config::setWifiBand(QString value)
-{
+void Config::setWifiBand(QString value) {
     int id = m_core->setNetworkCfg(m_bluetoothEnabled, m_wifiEnabled, m_wowlanEnabled, value, m_scanIntervalSec);
 
     m_core->onResult(
@@ -710,8 +683,7 @@ void Config::setWifiBand(QString value)
         });
 }
 
-void Config::setScanIntervalSec(int value)
-{
+void Config::setScanIntervalSec(int value) {
     if (m_scanIntervalSec != value) {
         int id = m_core->setNetworkCfg(m_bluetoothEnabled, m_wifiEnabled, m_wowlanEnabled, m_band, value);
 
@@ -809,7 +781,7 @@ void Config::generateNewWebConfigPin() {
         });
 }
 
-void Config::setAdminPin(const QString &pin) {
+void Config::setAdminPin(const QString& pin) {
     int id = m_core->setProfileCfg(pin);
 
     m_core->onResult(
@@ -900,18 +872,56 @@ QStringList Config::getTranslations() {
     return ui::Translation::getTranslations();
 }
 
-QString Config::getLanguageCodeFromCountry(const QString &country) {
-    return ui::Translation::getLanguageCode(country);
+QVariantList Config::getLocalizedCountryList() {
+    QVariantList list;
+
+    QString language = m_language.split("_").value(0);
+
+    for (const auto& item : qAsConst(m_countryList)) {
+        QVariantMap country = item.toMap();
+
+        QString name = country.value("name_" + language).toString();
+        if (name.isEmpty()) {
+            name = country.value("name_en").toString();
+        }
+
+        QVariantMap map;
+        map.insert("code", country.value("code").toString());
+        map.insert("name", name);
+        list.append(map);
+    }
+
+    std::sort(list.begin(), list.end(), [](const QVariant& a, const QVariant& b) {
+        return QString::localeAwareCompare(a.toMap().value("name").toString(), b.toMap().value("name").toString()) < 0;
+    });
+
+    return list;
+}
+
+QStringList Config::getSuggestedCountries() {
+    return ui::Translation::getCountriesForLanguage(m_language);
+}
+
+QString Config::getLikelyCountry() {
+    return ui::Translation::getLikelyCountry(m_language);
+}
+
+QVariantList Config::getTimeZoneInfos(const QString& country) {
+    return ui::Translation::getTimeZoneInfos(country);
+}
+
+QVariantList Config::getAllTimeZoneInfos() {
+    return ui::Translation::getAllTimeZoneInfos();
 }
 
 QString Config::getCountry(const QString country) {
     return ui::Translation::getCountryName(country);
 }
 
-QObject *Config::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {
+QObject* Config::qmlInstance(QQmlEngine* engine, QJSEngine* scriptEngine) {
     Q_UNUSED(scriptEngine);
 
-    QObject *obj = s_instance;
+    QObject* obj = s_instance;
     engine->setObjectOwnership(obj, QQmlEngine::CppOwnership);
 
     return obj;
@@ -1102,7 +1112,7 @@ void Config::setCountryNameAsSelectedLanguage() {
         language = tmp[0];
     }
 
-    for (const auto &item : qAsConst(m_countryList)) {
+    for (const auto& item : qAsConst(m_countryList)) {
         QVariantMap country = item.toMap();
 
         if (country.value("code").toString() == m_country) {

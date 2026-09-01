@@ -14,9 +14,9 @@
 
 #include "../core/core.h"
 #include "../translation/translation.h"
+#include "../ui/entity/voiceAssistant.h"
 #include "../ui/notification.h"
 #include "../util.h"
-#include "../ui/entity/voiceAssistant.h"
 
 namespace uc {
 
@@ -41,9 +41,12 @@ class Config : public QObject {
 
     Q_PROPERTY(bool micEnabled READ getMicEnabled WRITE setMicEnabled NOTIFY micEnabledChanged)
 
-    Q_PROPERTY(QString voiceAssistantId READ getVoiceAssistantId WRITE setVoiceAssistantId NOTIFY voiceAssistantIdChanged)
-    Q_PROPERTY(QString voiceAssistantProfileId READ getVoiceAssistantProfileId WRITE setVoiceAssistantProfileId NOTIFY voiceAssistantProfileIdChanged)
-    Q_PROPERTY(bool voiceAssistantSpeechResponse READ getVoiceAssistantSpeechResponse WRITE setVoiceAssistantSpeechResponse NOTIFY voiceAssistantSpeechResponseChanged)
+    Q_PROPERTY(
+        QString voiceAssistantId READ getVoiceAssistantId WRITE setVoiceAssistantId NOTIFY voiceAssistantIdChanged)
+    Q_PROPERTY(QString voiceAssistantProfileId READ getVoiceAssistantProfileId WRITE setVoiceAssistantProfileId NOTIFY
+                   voiceAssistantProfileIdChanged)
+    Q_PROPERTY(bool voiceAssistantSpeechResponse READ getVoiceAssistantSpeechResponse WRITE
+                   setVoiceAssistantSpeechResponse NOTIFY voiceAssistantSpeechResponseChanged)
 
     Q_PROPERTY(bool soundEnabled READ getSoundEnabled WRITE setSoundEnabled NOTIFY soundEnabledChanged)
     Q_PROPERTY(int soundVolume READ getSoundVolume WRITE setSoundVolume NOTIFY soundVolumeChanged)
@@ -88,22 +91,32 @@ class Config : public QObject {
     Q_PROPERTY(bool entityButtonFuncInverted READ getEntityButtonFuncInverted WRITE setEntityButtonFuncInverted NOTIFY
                    entityButtonFuncInvertedChanged)
 
-    Q_PROPERTY(bool showBatteryPercentage READ getShowBatteryPercentage WRITE setShowBatteryPercentage NOTIFY showBatteryPercentageChanged)
-    Q_PROPERTY(bool showBatteryEveryWhere READ getShowBatteryEveryWhere WRITE setShowBatteryEveryWhere NOTIFY showBatteryEveryWhereChanged)
+    Q_PROPERTY(bool showBatteryPercentage READ getShowBatteryPercentage WRITE setShowBatteryPercentage NOTIFY
+                   showBatteryPercentageChanged)
+    Q_PROPERTY(bool showBatteryEveryWhere READ getShowBatteryEveryWhere WRITE setShowBatteryEveryWhere NOTIFY
+                   showBatteryEveryWhereChanged)
 
-    Q_PROPERTY(bool enableActivityBar READ getEnableActivityBar WRITE setEnableActivityBar NOTIFY enableActivityBarChanged)
-    Q_PROPERTY(bool openActivityOnApiStart READ getOpenActivityOnApiStart WRITE setOpenActivityOnApiStart NOTIFY openActivityOnApiStartChanged)
+    Q_PROPERTY(
+        bool enableActivityBar READ getEnableActivityBar WRITE setEnableActivityBar NOTIFY enableActivityBarChanged)
+    Q_PROPERTY(bool openActivityOnApiStart READ getOpenActivityOnApiStart WRITE setOpenActivityOnApiStart NOTIFY
+                   openActivityOnApiStartChanged)
     Q_PROPERTY(bool fillMediaArtwork READ getFillMediaArtwork WRITE setFillMediaArtwork NOTIFY fillMediaArtworkChanged)
-    Q_PROPERTY(bool mediaCoverflowDefault READ getMediaCoverflowDefault WRITE setMediaCoverflowDefault NOTIFY mediaCoverflowDefaultChanged)
+    Q_PROPERTY(bool mediaCoverflowDefault READ getMediaCoverflowDefault WRITE setMediaCoverflowDefault NOTIFY
+                   mediaCoverflowDefaultChanged)
 
-    Q_PROPERTY(int resumeTimeoutWindowSec READ getResumeTimeoutWindowSec WRITE setResumeTimeoutWindowSec NOTIFY resumeTimeoutWindowSecChanged)
+    Q_PROPERTY(int resumeTimeoutWindowSec READ getResumeTimeoutWindowSec WRITE setResumeTimeoutWindowSec NOTIFY
+                   resumeTimeoutWindowSecChanged)
 
-    Q_PROPERTY(bool touchSliderEnabled READ getTouchSliderEnabled WRITE setTouchSliderEnabled NOTIFY touchSliderEnabledChanged)
-    Q_PROPERTY(double touchSliderGainVolume READ getTouchSliderGainVolume WRITE setTouchSliderGainVolume NOTIFY touchSliderGainVolumeChanged)
-    Q_PROPERTY(double touchSliderGainBrightness READ getTouchSliderGainBrightness WRITE setTouchSliderGainBrightness NOTIFY touchSliderGainBrightnessChanged)
-    Q_PROPERTY(double touchSliderGainPosition READ getTouchSliderGainPosition WRITE setTouchSliderGainPosition NOTIFY touchSliderGainPositionChanged)
-    Q_PROPERTY(double touchSliderGainSeek READ getTouchSliderGainSeek WRITE setTouchSliderGainSeek NOTIFY touchSliderGainSeekChanged)
-
+    Q_PROPERTY(
+        bool touchSliderEnabled READ getTouchSliderEnabled WRITE setTouchSliderEnabled NOTIFY touchSliderEnabledChanged)
+    Q_PROPERTY(double touchSliderGainVolume READ getTouchSliderGainVolume WRITE setTouchSliderGainVolume NOTIFY
+                   touchSliderGainVolumeChanged)
+    Q_PROPERTY(double touchSliderGainBrightness READ getTouchSliderGainBrightness WRITE setTouchSliderGainBrightness
+                   NOTIFY touchSliderGainBrightnessChanged)
+    Q_PROPERTY(double touchSliderGainPosition READ getTouchSliderGainPosition WRITE setTouchSliderGainPosition NOTIFY
+                   touchSliderGainPositionChanged)
+    Q_PROPERTY(double touchSliderGainSeek READ getTouchSliderGainSeek WRITE setTouchSliderGainSeek NOTIFY
+                   touchSliderGainSeekChanged)
 
  public:
     explicit Config(core::Api* core, QObject* parent = nullptr);
@@ -141,10 +154,10 @@ class Config : public QObject {
     void setMicEnabled(bool enabled);
 
     QString getVoiceAssistantId() { return m_voiceAssistantId; }
-    void setVoiceAssistantId(const QString& entityId);
+    void    setVoiceAssistantId(const QString& entityId);
 
     QString getVoiceAssistantProfileId() { return m_voiceAssistantProfileId; }
-    void setVoiceAssistantProfileId(const QString& profileId);
+    void    setVoiceAssistantProfileId(const QString& profileId);
 
     bool getVoiceAssistantSpeechResponse() { return m_voiceAssistantSpeechResponse; }
     void setVoiceAssistantSpeechResponse(bool value);
@@ -185,7 +198,7 @@ class Config : public QObject {
     bool getMediaCoverflowDefault();
     void setMediaCoverflowDefault(bool value);
 
-    int getResumeTimeoutWindowSec();
+    int  getResumeTimeoutWindowSec();
     void setResumeTimeoutWindowSec(int value);
 
     bool   getTouchSliderEnabled();
@@ -218,15 +231,15 @@ class Config : public QObject {
     QString getOtaWindowEnd() { return m_otaWindowEnd; }
     QString getUpdateChannel() { return m_updateChannel; }
 
-    bool    getBluetoothEnabled() { return m_bluetoothEnabled; }
-    void    setBluetoothEnabled(bool enabled);
-    bool    getWifiEnabled() { return m_wifiEnabled; }
-    void    setWifiEnabled(bool enabled);
-    bool    getWowlanEnabled() { return m_wowlanEnabled; }
-    void    setWowlanEnabled(bool enabled);
+    bool getBluetoothEnabled() { return m_bluetoothEnabled; }
+    void setBluetoothEnabled(bool enabled);
+    bool getWifiEnabled() { return m_wifiEnabled; }
+    void setWifiEnabled(bool enabled);
+    bool getWowlanEnabled() { return m_wowlanEnabled; }
+    void setWowlanEnabled(bool enabled);
 
-    void    setWifiBand(QString value);
-    void    setScanIntervalSec(int value);
+    void setWifiBand(QString value);
+    void setScanIntervalSec(int value);
 
     QStringList getWifiBands() { return m_bands; }
     QString     getWifiBand() { return m_band; }
@@ -237,7 +250,6 @@ class Config : public QObject {
     Q_INVOKABLE QString     getLanguageAsNative(const QString language);
     Q_INVOKABLE QString     getLanguageAsNative();
     Q_INVOKABLE QStringList getTranslations();
-    Q_INVOKABLE QString     getLanguageCodeFromCountry(const QString& country);
 
     Q_INVOKABLE QString getCountry(const QString country);
     Q_INVOKABLE QString getCountryAsNative();
@@ -247,13 +259,41 @@ class Config : public QObject {
     Q_INVOKABLE void getTimeZones();
     Q_INVOKABLE void getTimeZones(const QString country);
 
+    /**
+     * @brief country list received from core with the names resolved to the current UI language
+     * @return sorted list of maps { code, name }; empty until the core country list has arrived
+     */
+    Q_INVOKABLE QVariantList getLocalizedCountryList();
+
+    /**
+     * @brief countries where the current UI language is spoken, most likely country first
+     * @return ISO 3166-1 alpha-2 country codes
+     */
+    Q_INVOKABLE QStringList getSuggestedCountries();
+
+    /**
+     * @brief the most likely country for the current UI language (CLDR likely subtags)
+     */
+    Q_INVOKABLE QString getLikelyCountry();
+
+    /**
+     * @brief display information for the timezones of a country, sorted east to west
+     * @return list of maps { id, city, offset, offsetLabel, zoneName }
+     */
+    Q_INVOKABLE QVariantList getTimeZoneInfos(const QString& country);
+
+    /**
+     * @brief display information for all available timezones, sorted by id
+     */
+    Q_INVOKABLE QVariantList getAllTimeZoneInfos();
+
     Q_INVOKABLE void generateNewWebConfigPin();
 
     Q_INVOKABLE void setAdminPin(const QString& pin);
 
     QString getLegalPath() { return QCoreApplication::applicationDirPath() + "/legal"; }
 
-    Q_INVOKABLE void    getConfig();
+    Q_INVOKABLE void getConfig();
 
     void    getApiAccess();
     void    getActiveProfile();
@@ -391,9 +431,9 @@ class Config : public QObject {
     QString m_otaWindowEnd;
     QString m_updateChannel = "DEFAULT";
 
-    bool    m_bluetoothEnabled;
-    bool    m_wifiEnabled;
-    bool    m_wowlanEnabled;
+    bool m_bluetoothEnabled;
+    bool m_wifiEnabled;
+    bool m_wowlanEnabled;
 
     QStringList m_bands;
     QString     m_band;

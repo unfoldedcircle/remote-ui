@@ -17,12 +17,45 @@ Settings.Page {
     scrollTarget: flickable
     initialFocusItem: languageSelector
 
-    function loadList(title, list, showSearch = true, selectedItem = 0) {
-        popupListLoader.setSource("qrc:/components/PopupList.qml", { title: title, listModel: list, showSearch: showSearch, initialSelected: selectedItem, countryList: title.includes("country") });
+    function loadList(title, list, showSearch = true, selectedItem = 0, closeOnSelected = true, sectionRole = "") {
+        popupListLoader.setSource("qrc:/components/PopupList.qml", { title: title, listModel: list, showSearch: showSearch, initialSelected: selectedItem, closeOnSelected: closeOnSelected, sectionRole: sectionRole });
+    }
+
+    // fills listModel with the timezones of the configured country, or all timezones when the
+    // country has none (or the user asked for the full list); returns the row to preselect
+    function buildTimeZoneModel(world) {
+        listModel.clear();
+
+        let zones = world ? [] : Config.getTimeZoneInfos(Config.country);
+        if (zones.length === 0) {
+            world = true;
+            zones = Config.getAllTimeZoneInfos();
+        }
+
+        let current = 0;
+        for (let i = 0; i < zones.length; i++) {
+            // every optional PopupList role on every row: ListModel roles are fixed on first append
+            listModel.append({'name': zones[i].city, 'value': zones[i].id, 'secondary': zones[i].zoneName,
+                              'rightText': zones[i].offsetLabel, 'searchKey': zones[i].id});
+            if (zones[i].id === Config.timezone) {
+                current = i;
+            }
+        }
+
+        if (!world) {
+            listModel.append({'name': qsTr("All timezones…"), 'value': "__all__", 'secondary': "",
+                              'rightText': "", 'searchKey': ""});
+        }
+
+        return current;
     }
 
     ListModel {
         id: listModel
+        // shared by all popups of this page with differing role sets; without this the roles
+        // would be fixed by whichever popup appends first (clear() does not reset them) and
+        // later popups would silently lose e.g. their section or offset columns
+        dynamicRoles: true
     }
 
     Flickable {
@@ -136,48 +169,56 @@ Settings.Page {
 
                             countryConnection.enabled = true;
 
-                            let countryList = list;
-                            let currentCountryIndex;
+                            // same structure as the onboarding country step: countries where the
+                            // configured language is spoken first, then the full list; names
+                            // resolved to the current UI language in C++, ISO code searchable
+                            let countries = Config.getLocalizedCountryList();
+                            let suggested = Config.getSuggestedCountries();
+                            let sectionSuggested = qsTr("Suggested");
+                            let sectionAll = qsTr("All countries");
 
-                            for (let i = 0; i < countryList.length; i ++) {
-                                let country = countryList[i];
-                                let defaultKey = "name_" + Config.getLanguageCodeFromCountry(country.code.toLowerCase());
-                                let name = country[defaultKey];
-
-                                if (!name) {
-                                    for (const key in country) {
-                                        if (key !== "code") {
-                                            name = country[key];
-                                            break;
-                                        }
+                            let matchedRows = [];
+                            for (let i = 0; i < suggested.length; i++) {
+                                for (let j = 0; j < countries.length; j++) {
+                                    if (countries[j].code === suggested[i]) {
+                                        matchedRows.push(countries[j]);
+                                        break;
                                     }
                                 }
+                            }
+                            // most likely country on top, the rest sorted by name. Copied into a
+                            // fresh array on purpose: sorting an array modified with shift()
+                            // corrupts it in the Qt 5.15 JS engine
+                            let rest = [];
+                            for (let i = 1; i < matchedRows.length; i++) {
+                                rest.push(matchedRows[i]);
+                            }
+                            rest.sort(function(a, b) { return a.name.localeCompare(b.name); });
+                            let suggestedRows = matchedRows.length > 0 ? [matchedRows[0]].concat(rest) : [];
 
-                                if (!name) {
-                                    name = country.name_en;
-                                }
+                            for (let i = 0; i < suggestedRows.length; i++) {
+                                listModel.append({'name': suggestedRows[i].name, 'value': suggestedRows[i].code,
+                                                  'secondary': "", 'rightText': "", 'searchKey': suggestedRows[i].code,
+                                                  'section': sectionSuggested});
+                            }
+                            for (let j = 0; j < countries.length; j++) {
+                                listModel.append({'name': countries[j].name, 'value': countries[j].code,
+                                                  'secondary': "", 'rightText': "", 'searchKey': countries[j].code,
+                                                  'section': sectionAll});
+                            }
 
-                                if (!name || name !== "") {
-                                    let isUtf8 = true;
-                                    for (let j = 0; j < name.length; j++) {
-                                        if (name.charCodeAt(j) > 255) {
-                                            isUtf8 = false;
-                                        }
-                                    }
-
-                                    if (!isUtf8) {
-                                        name = country.name_en;
-                                    }
-
-                                    listModel.append({'name': countryList[i].code + String.fromCodePoint(0x0009) + name, 'value': countryList[i].code})
-                                }
-
-                                if (countryList[i].code === Config.country) {
+                            // preselect the configured country, preferring its entry in the
+                            // suggestions (earliest index): changing the country usually means
+                            // switching between common countries, e.g. GB -> US or AU -> NZ
+                            let currentCountryIndex = 0;
+                            for (let i = 0; i < listModel.count; i++) {
+                                if (listModel.get(i).value === Config.country) {
                                     currentCountryIndex = i;
+                                    break;
                                 }
                             }
 
-                            loadList(qsTr("Select country"), listModel, true, currentCountryIndex);
+                            loadList(qsTr("Select country"), listModel, true, currentCountryIndex, true, "section");
                         }
                     }
                 }
@@ -221,36 +262,18 @@ Settings.Page {
                 sourceComponent: selector
                 onLoaded: {
                     item.title = qsTr("Timezone");
-                    item.value = Qt.binding( function() { return Config.timezone; })
+                    // the raw IANA id names the zone after its most populous city: show that city
+                    item.value = Qt.binding( function() {
+                        return Config.timezone.split("/").pop().replace(/_/g, " ");
+                    })
+                    item.trigger = function() {
+                        loading.start();
 
-                    getTimeZonesFromConfig.enabled = true;
-                    Config.getTimeZones(Config.country);
-                }
+                        timeZoneConnection.enabled = true;
 
-                Connections {
-                    id: getTimeZonesFromConfig
-                    target: Config
-                    enabled: false
-
-                    function onTimeZoneListChanged (list) {
-                        timeZoneSelector.item.trigger = function() {
-                            loading.start();
-                            listModel.clear();
-
-                            timeZoneConnection.enabled = true;
-
-                            let timeZoneList = list;
-                            let currentTimeZoneItem;
-                            for (let i = 0; i < timeZoneList.length; i ++) {
-                                listModel.append({'name': timeZoneList[i], 'value': timeZoneList[i]})
-
-                                if (timeZoneList[i] === Config.timezone) {
-                                    currentTimeZoneItem = i;
-                                }
-                            }
-
-                            loadList(qsTr("Select timezone"), listModel, true, currentTimeZoneItem);
-                        }
+                        // the list stays open when "All timezones…" swaps the model, so the popup
+                        // is closed manually on a real selection
+                        loadList(qsTr("Select timezone"), listModel, true, buildTimeZoneModel(false), false);
                     }
                 }
 
@@ -260,9 +283,15 @@ Settings.Page {
                     enabled: false
 
                     function onItemSelected(value) {
+                        if (value === "__all__") {
+                            popupListLoader.item.initialSelected = buildTimeZoneModel(true);
+                            popupListLoader.item.popupListmodel.reload();
+                            return;
+                        }
+
                         Config.timezone = value;
                         timeZoneConnection.enabled = false;
-                        getTimeZonesFromConfig.enabled = false;
+                        popupListLoader.item.state = "hidden";
                     }
                 }
 

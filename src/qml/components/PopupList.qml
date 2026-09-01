@@ -26,6 +26,12 @@ Rectangle {
     property bool closeOnSelected: true
     property int initialSelected: 0
     property bool countryList: false
+    // optional: name of a string role that groups adjacent rows under a section header (e.g. "section").
+    // Model rows may also carry the optional roles "secondary" (second text line), "rightText"
+    // (right-aligned text, e.g. a GMT offset) and "searchKey" (matched by the filter in addition
+    // to "name"). ListModel roles are fixed on first append: a model using any of these roles must
+    // set them on every row (empty string when unused).
+    property string sectionRole: ""
 
     property alias popupListmodel: popupListmodel
     property alias buttonNavigation: buttonNavigation
@@ -100,6 +106,9 @@ Rectangle {
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
+                    if (itemList.currentIndex < 0 || itemList.currentIndex >= itemList.model.count) {
+                        return;
+                    }
                     itemSelected(itemList.model.get(itemList.currentIndex).value);
                     if (closeOnSelected) {
                         popupList.state = "hidden";
@@ -205,6 +214,9 @@ Rectangle {
 
         delegate: listItem
 
+        section.property: popupList.sectionRole
+        section.delegate: sectionHeader
+
         ScrollBar.vertical: ScrollBar {
             opacity: 0.5
         }
@@ -234,30 +246,53 @@ Rectangle {
                 return;
             }
 
+            // detach the current item before resetting the model: a delegate pinned by
+            // currentIndex can survive the clear/append cycle of a visible list and linger as a
+            // stale copy painted over the row below it (showed up as a doubled country row)
+            itemList.currentIndex = -1;
             popupListmodel.clear();
 
             for (var i = 0; i < listModel.count; i++) {
                 popupListmodel.append(listModel.get(i));
             }
 
+            itemList.forceLayout();
             itemList.currentIndex = popupList.initialSelected;
+            if (popupList.initialSelected > 0) {
+                itemList.positionViewAtIndex(popupList.initialSelected, ListView.Center);
+            } else {
+                // positionViewAtIndex(0, Center) can end up past the top and scroll the first
+                // section header out of the view
+                itemList.positionViewAtBeginning();
+            }
         }
 
         function applyFilter(searchCriteria) {
+            itemList.currentIndex = -1;
             popupListmodel.clear();
 
             console.debug("Search length: " + searchCriteria.length);
 
             for (var i = 0; i < listModel.count; i++) {
+                let item = listModel.get(i);
                 let str;
                 if (searchCriteria.length === 2 && popupList.countryList) {
-                    str = listModel.get(i).name.slice(0, 2);
+                    str = item.name.slice(0, 2);
                 } else {
-                    str = listModel.get(i).name;
+                    str = item.name;
                 }
-                if (str.toLowerCase().indexOf(searchCriteria.toLowerCase()) > -1) {
-                    popupListmodel.append(listModel.get(i));
+                let searchKey = item.searchKey === undefined ? "" : item.searchKey;
+                if (str.toLowerCase().indexOf(searchCriteria.toLowerCase()) > -1 ||
+                        (searchKey !== "" && searchKey.toLowerCase().indexOf(searchCriteria.toLowerCase()) > -1)) {
+                    popupListmodel.append(item);
                 }
+            }
+
+            // start the d-pad selection on the first match
+            itemList.forceLayout();
+            if (popupListmodel.count > 0) {
+                itemList.currentIndex = 0;
+                itemList.positionViewAtBeginning();
             }
         }
     }
@@ -268,7 +303,7 @@ Rectangle {
         Rectangle {
             id: listItemBg
             width: ui.width
-            height: 80
+            height: hasSecondary ? 110 : 80
             color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
@@ -277,15 +312,42 @@ Rectangle {
             }
 
             property bool isCurrentItem: ListView.isCurrentItem
+            // optional roles: access via model.<role> so models without them keep working
+            property bool hasSecondary: model.secondary !== undefined && model.secondary !== ""
+            property bool hasRightText: model.rightText !== undefined && model.rightText !== ""
 
             Text {
                 id: listItemText
                 color: colors.offwhite
                 text: name
-                width: parent.width - 20
+                width: parent.width - 40 - (rightTextItem.visible ? rightTextItem.width + 20 : 0)
                 elide: Text.ElideRight
-                anchors { left: parent.left; leftMargin: 20; verticalCenter: parent.verticalCenter; }
+                anchors {
+                    left: parent.left; leftMargin: 20
+                    verticalCenter: parent.verticalCenter
+                    verticalCenterOffset: listItemBg.hasSecondary ? -18 : 0
+                }
                 font: fonts.primaryFont(30)
+            }
+
+            Text {
+                id: secondaryText
+                visible: listItemBg.hasSecondary
+                color: colors.light
+                text: listItemBg.hasSecondary ? model.secondary : ""
+                width: listItemText.width
+                elide: Text.ElideRight
+                anchors { left: listItemText.left; top: listItemText.bottom }
+                font: fonts.secondaryFont(24)
+            }
+
+            Text {
+                id: rightTextItem
+                visible: listItemBg.hasRightText
+                color: colors.light
+                text: listItemBg.hasRightText ? model.rightText : ""
+                anchors { right: parent.right; rightMargin: 20; verticalCenter: parent.verticalCenter }
+                font: fonts.secondaryFont(26)
             }
 
             Components.HapticMouseArea {
@@ -298,6 +360,24 @@ Rectangle {
                         popupList.state = "hidden";
                     }
                 }
+            }
+        }
+    }
+
+    Component {
+        id: sectionHeader
+
+        Item {
+            width: ui.width
+            height: 70
+
+            Text {
+                text: section.toUpperCase()
+                color: colors.light
+                width: parent.width - 40
+                elide: Text.ElideRight
+                anchors { left: parent.left; leftMargin: 20; bottom: parent.bottom; bottomMargin: 10 }
+                font: fonts.secondaryFont(24, "Bold")
             }
         }
     }

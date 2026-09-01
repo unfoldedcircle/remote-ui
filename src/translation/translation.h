@@ -10,6 +10,7 @@
 #include <QQmlEngine>
 #include <QTimeZone>
 #include <QTranslator>
+#include <QVariant>
 
 #include "../core/core.h"
 
@@ -76,13 +77,50 @@ class Translation : public QObject {
      */
     static QString getNativeCountryName(const QString& countryCode);
 
+    /**
+     * @brief gets the IANA timezone ids of a country
+     * @param countryCode: ISO 3166-1 alpha-2 country code, e.g. CH
+     * @return IANA timezone ids of the country, e.g. Europe/Zurich
+     */
     static QStringList getTimeZones(const QString& countryCode);
+
+    /**
+     * @brief gets the countries where a given language is spoken, from the CLDR data bundled with Qt
+     * @param languageCode: language code with optional country suffix, e.g. de or de_DE
+     * @return ISO 3166-1 alpha-2 country codes, most likely country first
+     */
+    static QStringList getCountriesForLanguage(const QString& languageCode);
+
+    /**
+     * @brief gets the most likely country for a language (CLDR likely subtags)
+     * @param languageCode: language code with optional country suffix, e.g. de or de_DE
+     * @return ISO 3166-1 alpha-2 country code, e.g. DE, or an empty string
+     */
+    static QString getLikelyCountry(const QString& languageCode);
+
+    /**
+     * @brief gets display information for the timezones of a country, sorted east to west
+     * @param countryCode: ISO 3166-1 alpha-2 country code, e.g. US
+     * @return list of maps { id, city, offset, offsetLabel, zoneName }, offsetLabel is the
+     *         standard-time offset (a factory-new device has no synchronized clock, so
+     *         DST-dependent values would be unreliable)
+     */
+    static QVariantList getTimeZoneInfos(const QString& countryCode);
+
+    /**
+     * @brief gets display information for all available timezones, sorted by id
+     * @return list of maps { id, city, offset, offsetLabel, zoneName }
+     */
+    static QVariantList getAllTimeZoneInfos();
 
  public slots:
     void onLanguageChanged(QString language);
     void onReqGetLocalizationLanguages(int reqId);
 
  private:
+    static QLocale::Country countryFromCode(const QString& countryCode);
+    static QVariantList     toTimeZoneInfos(const QList<QByteArray>& ids);
+
     QQmlEngine* m_engine;
     core::Api*  m_core;
 
