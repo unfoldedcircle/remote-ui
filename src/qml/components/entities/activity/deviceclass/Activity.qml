@@ -433,7 +433,7 @@ EntityComponents.BaseDetail {
         id: title
         width: parent.width
         height: 80
-        color: (entityObj.state === ActivityStates.Error && entityObj.state === ActivityStates.Timeout) ? colors.red : colors.transparent
+        color: (entityObj.state === ActivityStates.Error || entityObj.state === ActivityStates.Timeout) ? colors.red : colors.transparent
 
         Components.Icon {
             id: iconOpen

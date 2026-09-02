@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Fixed
+- An activity that failed or timed out while its screen was open never showed it. The screen header was meant to turn
+  red in that case, but the condition behind it asked for the activity to be in two states at once and could never be
+  true, so the colour had never appeared since it was written.
 
 ---
 
