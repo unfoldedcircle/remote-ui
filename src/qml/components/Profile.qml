@@ -83,21 +83,103 @@ Item {
         closeAnimation.start();
     }
 
+    /** KEYPAD SELECTION **/
+    // The header rows (profile, web configurator switch, its address, the PIN and the QR code)
+    // are walked like the menu below them: UP from the first menu entry enters the header at its
+    // last row, DOWN past the last row returns to the menu. Driven through the button navigation,
+    // no control has the focus.
+    property int headerSelection: -1
+
+    function headerRows() {
+        let rows = [profileRow];
+
+        if (!ui.profile.restricted) {
+            rows.push(configuratorSwitch);
+            if (Config.webConfiguratorEnabled && Config.webConfiguratorAddress != "") {
+                rows.push(addressRow);
+            }
+            if (Config.webConfiguratorEnabled) {
+                rows.push(pinRegenerateRow);
+                if (Config.webConfiguratorAddress != "") {
+                    rows.push(qrRow);
+                }
+            }
+        }
+
+        return rows;
+    }
+
+    readonly property Item selectedHeaderRow: {
+        const rows = headerRows();
+        return headerSelection >= 0 && rows.length > 0 ? rows[Math.min(headerSelection, rows.length - 1)] : null;
+    }
+
+    function activateHeaderRow() {
+        const row = profileRoot.selectedHeaderRow;
+        if (!row) {
+            return;
+        }
+
+        Haptic.play(Haptic.Click);
+        if (row === profileRow) {
+            profileSwitch.state = "visible";
+        } else if (row === configuratorSwitch) {
+            configuratorSwitch.activate();
+        } else if (row === addressRow) {
+            if (Wifi.ipAddress) {
+                webConfiguratorAddress.showIp = !webConfiguratorAddress.showIp;
+            }
+        } else if (row === pinRegenerateRow) {
+            Config.generateNewWebConfigPin();
+        } else if (row === qrRow) {
+            profileRoot.state = profileRoot.state != "showLargeQr" ? "showLargeQr" : "";
+        }
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
+        // the settings pages below this root navigate through the focus chain: hand the focus
+        // over whenever another layer owns the input
+        manageFocus: true
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {
+                    if (profileRoot.headerSelection >= 0) {
+                        if (profileRoot.headerSelection < profileRoot.headerRows().length - 1) {
+                            profileRoot.headerSelection++;
+                        } else {
+                            profileRoot.headerSelection = -1;
+                        }
+                        return;
+                    }
+
                     menu.incrementCurrentIndex();
                 }
             },
             "DPAD_UP": {
                 "pressed": function() {
-                    menu.decrementCurrentIndex();
+                    if (profileRoot.headerSelection > 0) {
+                        profileRoot.headerSelection--;
+                        return;
+                    }
+
+                    if (profileRoot.headerSelection < 0 && menu.currentIndex === 0) {
+                        profileRoot.headerSelection = profileRoot.headerRows().length - 1;
+                        return;
+                    }
+
+                    if (profileRoot.headerSelection < 0) {
+                        menu.decrementCurrentIndex();
+                    }
                 }
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
+                    if (profileRoot.headerSelection >= 0) {
+                        profileRoot.activateHeaderRow();
+                        return;
+                    }
+
                     loadPage(menu.currentIndex);
                 }
             },
@@ -236,14 +318,18 @@ Item {
             }
 
             Components.HapticMouseArea {
+                id: profileRow
                 Layout.fillWidth: true
                 Layout.topMargin: 10
                 Layout.leftMargin: 20
                 Layout.rightMargin: 10
                 Layout.preferredHeight: childrenRect.height
-
                 onClicked: {
                     profileSwitch.state = "visible";
+                }
+
+                Components.RowHighlight {
+                    border.color: profileRoot.selectedHeaderRow === profileRow && ui.keyNavigationActive ? colors.highlight : colors.transparent
                 }
 
                 RowLayout {
@@ -333,13 +419,14 @@ Item {
                                 }
 
                                 Components.Switch {
+                                    id: configuratorSwitch
                                     Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
-
                                     icon: "uc:check"
                                     checked: Config.webConfiguratorEnabled
                                     trigger: function() {
                                         Config.webConfiguratorEnabled = !Config.webConfiguratorEnabled
                                     }
+                                    highlight: profileRoot.selectedHeaderRow === configuratorSwitch && ui.keyNavigationActive
                                 }
                             }
 
@@ -361,11 +448,16 @@ Item {
                                     font: fonts.secondaryFont(22)
 
                                     Components.HapticMouseArea {
+                                        id: addressRow
                                         anchors.fill: parent
                                         onClicked: {
                                             if (Wifi.ipAddress) {
                                                 webConfiguratorAddress.showIp = !webConfiguratorAddress.showIp;
                                             }
+                                        }
+
+                                        Components.RowHighlight {
+                                            border.color: profileRoot.selectedHeaderRow === addressRow && ui.keyNavigationActive ? colors.highlight : colors.transparent
                                         }
                                     }
                                 }
@@ -469,12 +561,22 @@ Item {
                             }
 
                             Components.HapticMouseArea {
+                                id: pinRegenerateRow
                                 Layout.preferredWidth: pinContainer.height
                                 Layout.preferredHeight: pinContainer.height
                                 Layout.alignment: Qt.AlignVCenter
-
                                 onClicked: {
                                     Config.generateNewWebConfigPin();
+                                }
+
+                                Rectangle {
+                                    anchors.fill: parent
+                                    radius: ui.cornerRadiusSmall
+                                    color: colors.transparent
+                                    border {
+                                        width: 2
+                                        color: profileRoot.selectedHeaderRow === pinRegenerateRow && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                                    }
                                 }
 
                                 onPressed: generateQrCodeIcon.color = colors.highlight
@@ -517,12 +619,23 @@ Item {
                                     visible: Config.webConfiguratorAddress != ""
 
                                     Components.HapticMouseArea {
+                                        id: qrRow
                                         anchors.fill: parent
                                         onClicked: {
                                             if (profileRoot.state != "showLargeQr") {
                                                 profileRoot.state = "showLargeQr";
                                             } else {
                                                 profileRoot.state = "";
+                                            }
+                                        }
+
+                                        Rectangle {
+                                            anchors { fill: parent; margins: -12 }
+                                            radius: ui.cornerRadiusSmall
+                                            color: colors.transparent
+                                            border {
+                                                width: 2
+                                                color: profileRoot.selectedHeaderRow === qrRow && ui.keyNavigationActive ? colors.highlight : colors.transparent
                                             }
                                         }
                                     }
@@ -688,9 +801,9 @@ Item {
         Rectangle {
             width: ListView.view.width
             height: visible ? 80 : 0
-            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
+            color: isCurrentItem && profileRoot.headerSelection < 0 && ui.keyNavigationActive ? colors.dark : colors.transparent
             border {
-                color: isCurrentItem && ui.keyNavigationActive ? colors.medium : colors.transparent
+                color: isCurrentItem && profileRoot.headerSelection < 0 && ui.keyNavigationActive ? colors.medium : colors.transparent
                 width: 1
             }
             radius: ui.cornerRadiusSmall

@@ -176,10 +176,10 @@ Popup {
         Rectangle {
             width: parent.width - 20
             height: title.lineCount == 1 ? 80 : 120
-            color: ListView.isCurrentItem && !footerSelected ? colors.dark : colors.black
+            color: ListView.isCurrentItem && !footerSelected && ui.keyNavigationActive ? colors.dark : colors.black
             radius: ui.cornerRadiusSmall
             border {
-                color: ListView.isCurrentItem && !footerSelected ? colors.medium : colors.transparent
+                color: ListView.isCurrentItem && !footerSelected && ui.keyNavigationActive ? colors.medium : colors.transparent
                 width: 1
             }
             anchors.horizontalCenter: parent.horizontalCenter
@@ -224,10 +224,10 @@ Popup {
         Rectangle {
             width: parent.width - 20
             height: 80
-            color: footerSelected ? colors.dark : colors.black
+            color: footerSelected && ui.keyNavigationActive ? colors.dark : colors.black
             radius: ui.cornerRadiusSmall
             border {
-                color: footerSelected ? colors.medium : colors.transparent
+                color: footerSelected && ui.keyNavigationActive ? colors.medium : colors.transparent
                 width: 1
             }
             anchors.horizontalCenter: parent.horizontalCenter

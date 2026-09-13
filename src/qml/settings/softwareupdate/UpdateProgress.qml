@@ -31,6 +31,9 @@ Popup {
             console.debug("UpdateProgress: onUpdateFailed received, error:", error);
             failMessage.text = error;
             failedScreen.opacity = 1;
+            // the input was blocked for the whole update: the failure screen must be usable again
+            ui.inputController.blockInput(false);
+            Qt.callLater(buttonNavigation.takeControl);
         }
     }
 
@@ -45,6 +48,26 @@ Popup {
                        "successScreen.opacity:", successScreen.opacity);
         failedScreen.opacity = 0;
         ui.inputController.blockInput(false);
+        buttonNavigation.releaseControl();
+    }
+
+    // the failure screen: Back holds the focus (Return activates it), BACK / HOME close as well
+    Components.ButtonNavigation {
+        id: buttonNavigation
+        manageFocus: true
+        initialFocusItem: backButton
+        defaultConfig: {
+            "BACK": {
+                "pressed": function() {
+                    updateProgress.close();
+                }
+            },
+            "HOME": {
+                "pressed": function() {
+                    updateProgress.close();
+                }
+            }
+        }
     }
 
     enter: Transition {
@@ -184,6 +207,7 @@ Popup {
         }
 
         Components.Button {
+            id: backButton
             width: parent.width - 40
             text: qsTr("Back")
             trigger: function() { updateProgress.close(); }

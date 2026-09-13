@@ -203,6 +203,14 @@ reorder rewrites the item list and a removed tile shrinks it, and both left the 
 with every main-container key handler throwing on the missing current tile. A touch user taps a
 tile and recovers; a keypad user had no way back until a page change.
 
+`PageSelector.qml` and the page's reorder mode (`Page.qml` + `MainContainer.qml`) follow the same
+held-row pattern: a long press on `DPAD_MIDDLE` picks a page up in the selector (and enters its edit
+mode first), `DPAD_MIDDLE` picks a tile up in the reorder mode; `BACK` peels one layer at a time
+(drop, hide the delete, leave the edit mode, close). `ProfileSwitch.qml` walks the profiles into the
+"+" footer, its long press opens the profile menu. `Profile.qml` walks its header rows above the
+menu with `headerSelection`. `IconSelector.qml` walks its grids by cell through the button navigation
+(`keyNavigationEnabled: false`, no focus) with the tabs above and Close below.
+
 A drawer or confirmation with a destructive action (`docks/Info.qml`, `integrations/Info.qml`)
 starts its selection on *Cancel*; `DPAD_LEFT/RIGHT` move it. Bind its handlers to `pressed`, not
 `released`: the drawer opens on the press of `DPAD_MIDDLE` on the row above it, and a `released`

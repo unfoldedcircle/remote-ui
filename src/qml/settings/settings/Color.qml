@@ -1,6 +1,9 @@
 // Copyright (c) 2022-2023 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+// Not reachable: the "Colors" entry of the settings menu is commented out (settings/Settings.qml).
+// The page has no keypad navigation; add a focus chain over the three sliders if it is re-enabled.
+
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15

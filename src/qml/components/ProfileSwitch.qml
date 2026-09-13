@@ -69,6 +69,7 @@ Rectangle {
 
     onStateChanged: {
         if (state == "visible") {
+            profileSelector.footerSelected = false;
             ui.getProfilesFromCore();
 
             for (let i = 0; i < profileList.count; i++) {
@@ -123,24 +124,135 @@ Rectangle {
         }
     }
 
+    /** KEYPAD SELECTION **/
+    // The selection walks the profiles and ends on the "+" footer (DOWN past the last profile).
+    // A long press on DPAD_MIDDLE opens the profile's menu (rename, icon, delete), like the long
+    // press on the row with a finger.
+    property bool footerSelected: false
+    readonly property bool hasFooter: !ui.isOnboarding && !ui.profile.restricted
+
+    function currentProfileId() {
+        const item = visualModel.items.get(profileList.currentIndex);
+        return item ? item.model.profileId : "";
+    }
+
+    function currentProfileName() {
+        const item = visualModel.items.get(profileList.currentIndex);
+        return item ? item.model.profileName : "";
+    }
+
+    function openProfileMenu(profileId, profileName) {
+        if (ui.profile.restricted) {
+            Haptic.play(Haptic.Error);
+            return;
+        }
+
+        Haptic.play(Haptic.Buzz);
+        popupMenu.title = profileName;
+        popupMenu.menuItems =
+                [
+                    {
+                        //: Menu item for profile rename
+                        title: qsTr("Rename"),
+                        icon: "uc:pen-to-square",
+                        callback: function() {
+                            profileRename.profileId = profileId;
+                            profileRename.inputFieldContainer.inputField.text = profileName;
+                            profileRename.state = "visible";
+                        }
+                    },
+                    {
+                        //: Menu item for changing icon
+                        title: qsTr("Edit icon"),
+                        icon: "uc:user",
+                        callback: function() {
+                            iconSelector.profileId = profileId;
+                            iconSelector.open();
+                        }
+                    },
+                    {
+                        //: Menu item for profile delete
+                        title: qsTr("Delete"),
+                        icon: "uc:trash",
+                        callback: function() { ui.deleteProfile(profileId, -1); }
+                    }
+                ];
+        popupMenu.open();
+    }
+
+    function openAddMenu() {
+        popupMenu.title = qsTr("Add a new profile");
+        popupMenu.menuItems =
+                [
+                    {
+                        //: Menu item for adding a normal profile
+                        title: qsTr("Normal"),
+                        icon: "uc:user",
+                        callback: function() {
+                            profileAdd.state = "visible";
+                            profileAdd.limited = false;
+                        }
+                    },
+                    {
+                        //: Menu item for adding a limited guest profile
+                        title: qsTr("Restricted"),
+                        icon: "uc:ghost",
+                        callback: function() {
+                            profileAdd.state = "visible";
+                            profileAdd.limited = true;
+                        }
+                    }
+                ];
+        popupMenu.open();
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {
+                    if (profileSelector.footerSelected) {
+                        return;
+                    }
+
+                    if (profileSelector.hasFooter && profileList.currentIndex >= profileList.count - 1) {
+                        profileSelector.footerSelected = true;
+                        profileList.positionViewAtEnd();
+                        return;
+                    }
+
                     profileList.incrementCurrentIndex();
                 }
             },
             "DPAD_UP": {
                 "pressed": function() {
+                    if (profileSelector.footerSelected) {
+                        profileSelector.footerSelected = false;
+                        return;
+                    }
+
                     profileList.decrementCurrentIndex();
                 }
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
-                    if (keyboard.state === "") {
-                        switchProfile(visualModel.items.get(profileList.currentIndex).model.profileId);
+                    if (keyboard.state !== "") {
+                        return;
                     }
+
+                    if (profileSelector.footerSelected) {
+                        profileSelector.openAddMenu();
+                        return;
+                    }
+
+                    switchProfile(profileSelector.currentProfileId());
+                },
+                "long_press": function() {
+                    if (profileSelector.footerSelected || keyboard.state !== "") {
+                        return;
+                    }
+
+                    profileSelector.openProfileMenu(profileSelector.currentProfileId(), profileSelector.currentProfileName());
                 }
             },
             "BACK": {
@@ -379,14 +491,15 @@ Rectangle {
 
         Rectangle {
             width: ui.width; height: 120
-            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
+            color: keypadCurrent ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
-                color: isCurrentItem && ui.keyNavigationActive ? colors.medium : colors.transparent
+                color: keypadCurrent ? colors.medium : colors.transparent
                 width: 1
             }
 
             property bool isCurrentItem: ListView.isCurrentItem
+            readonly property bool keypadCurrent: isCurrentItem && !profileSelector.footerSelected && ui.keyNavigationActive
 
             RowLayout {
                 spacing: 10
@@ -449,44 +562,7 @@ Rectangle {
                 }
 
                 onPressAndHold: {
-                    if (!ui.profile.restricted) {
-                        Haptic.play(Haptic.Buzz);
-
-                        popupMenu.title = profileName;
-                        popupMenu.menuItems =
-                                [
-                                    {
-                                        //: Menu item for profile rename
-                                        title: qsTr("Rename"),
-                                        icon: "uc:pen-to-square",
-                                        callback: function() {
-                                            profileRename.profileId = profileId;
-                                            profileRename.inputFieldContainer.inputField.text = profileName;
-                                            profileRename.state = "visible";
-                                        }
-                                    },
-                                    {
-                                        //: Menu item for changing icon
-                                        title: qsTr("Edit icon"),
-                                        icon: "uc:user",
-                                        callback: function() {
-                                            iconSelector.profileId = profileId;
-                                            iconSelector.open();
-                                        }
-                                    },
-                                    {
-                                        //: Menu item for profile delete
-                                        title: qsTr("Delete"),
-                                        icon: "uc:trash",
-                                        callback: function() { ui.deleteProfile(profileId, -1); }
-                                    }
-
-                                ];
-
-                        popupMenu.open();
-                    } else {
-                        Haptic.play(Haptic.Error);
-                    }
+                    profileSelector.openProfileMenu(profileId, profileName);
                 }
             }
         }
@@ -500,17 +576,25 @@ Rectangle {
             width: ui.width; height: visible ? 150 : 0
             visible: !ui.profile.restricted
 
+            Rectangle {
+                anchors { fill: parent; margins: 20 }
+                radius: ui.cornerRadiusSmall
+                color: colors.transparent
+                border {
+                    width: 2
+                    color: profileSelector.footerSelected && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                }
+            }
+
             Item {
                 id: plusIcon
                 anchors.centerIn: parent
-
                 Rectangle {
                     width: 60
                     height: 2
                     color: colors.offwhite
                     anchors.centerIn: parent
                 }
-
                 Rectangle {
                     width: 2
                     height: 60
@@ -518,36 +602,10 @@ Rectangle {
                     anchors.centerIn: parent
                 }
             }
-
             Components.HapticMouseArea {
                 anchors.fill: parent
-
                 onClicked: {
-                    popupMenu.title = qsTr("Add a new profile");
-                    popupMenu.menuItems =
-                            [
-                                {
-                                    //: Menu item for adding a normal profile
-                                    title: qsTr("Normal"),
-                                    icon: "uc:user",
-                                    callback: function() {
-                                        profileAdd.state = "visible";
-                                        profileAdd.limited = false;
-                                    }
-                                },
-                                {
-                                    //: Menu item for adding a limited guest profile
-                                    title: qsTr("Restricted"),
-                                    icon: "uc:ghost",
-                                    callback: function() {
-                                        profileAdd.state = "visible";
-                                        profileAdd.limited = true;
-                                    }
-                                }
-
-                            ];
-
-                    popupMenu.open();
+                    profileSelector.openAddMenu();
                 }
             }
         }

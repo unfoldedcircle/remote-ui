@@ -58,7 +58,6 @@ Rectangle {
     function open() {
         state = "visible";
         loading.stop();
-
     }
 
     function close() {
@@ -66,36 +65,197 @@ Rectangle {
         state = "hidden";
     }
 
+    /** KEYPAD SELECTION (edit mode) **/
+    // The selection is the main screen's page index, as for the normal mode. In edit mode a long
+    // press on DPAD_MIDDLE picks the page up (UP / DOWN move it, DPAD_MIDDLE drops it), RIGHT
+    // reveals the delete of the row and DPAD_MIDDLE then deletes it, LEFT hides it again, DOWN past
+    // the last page selects the "+" footer. The edit mode itself is entered with a long press on
+    // DPAD_MIDDLE, like the pencil at the top with a tap.
+    property bool footerSelected: false
+    property int heldIndex: -1
+
+    readonly property var pages: containerMain.item.pages
+
+    function currentRow() {
+        return roomList.currentItem;
+    }
+
+    function leaveEditMode() {
+        roomSelector.heldIndex = -1;
+        roomSelector.footerSelected = false;
+        editMode = false;
+        editModeOff();
+    }
+
+    function dropHeld() {
+        const index = roomSelector.heldIndex;
+        roomSelector.heldIndex = -1;
+        Haptic.play(Haptic.Click);
+        roomSelector.pages.currentIndex = index;
+        roomSelector.pages.positionViewAtIndex(index, ListView.Visible);
+        ui.updatePagePos();
+    }
+
+    function moveSelection(delta) {
+        if (roomSelector.heldIndex >= 0) {
+            const to = roomSelector.heldIndex + delta;
+            if (to < 0 || to >= roomList.count) {
+                return;
+            }
+
+            ui.pages.swapData(roomSelector.heldIndex, to);
+            roomSelector.heldIndex = to;
+            roomSelector.pages.currentIndex = to;
+            return;
+        }
+
+        if (roomSelector.footerSelected) {
+            if (delta < 0) {
+                roomSelector.footerSelected = false;
+            }
+            return;
+        }
+
+        if (delta > 0 && editMode && roomSelector.pages.currentIndex >= roomList.count - 1) {
+            const row = roomSelector.currentRow();
+            if (row) {
+                row.closeDelete();
+            }
+            roomSelector.footerSelected = true;
+            roomList.positionViewAtEnd();
+            return;
+        }
+
+        if (delta > 0) {
+            roomSelector.pages.incrementCurrentIndex();
+        } else {
+            roomSelector.pages.decrementCurrentIndex();
+        }
+    }
+
+    function activateSelection() {
+        if (!editMode) {
+            if (keyboard.state === "") {
+                roomSelector.close();
+            }
+            return;
+        }
+
+        if (roomSelector.footerSelected) {
+            pageAdd.state = "visible";
+            return;
+        }
+
+        if (roomSelector.heldIndex >= 0) {
+            roomSelector.dropHeld();
+            return;
+        }
+
+        const row = roomSelector.currentRow();
+        if (!row) {
+            return;
+        }
+
+        if (row.deleteOpen) {
+            ui.deletePage(row.rowPageId);
+            return;
+        }
+
+        pageRename.currentPage = row.rowPageName;
+        pageRename.pageId = row.rowPageId;
+        pageRename.state = "visible";
+    }
+
+    function holdSelection() {
+        if (ui.profile.restricted) {
+            return;
+        }
+
+        if (!editMode) {
+            editMode = true;
+            return;
+        }
+
+        const row = roomSelector.currentRow();
+        if (roomSelector.footerSelected || roomSelector.heldIndex >= 0 || !row) {
+            return;
+        }
+
+        row.closeDelete();
+        Haptic.play(Haptic.Click);
+        roomSelector.heldIndex = roomSelector.pages.currentIndex;
+    }
+
+    onEditModeChanged: {
+        if (!editMode) {
+            roomSelector.heldIndex = -1;
+            roomSelector.footerSelected = false;
+        }
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {
-                    containerMain.item.pages.incrementCurrentIndex();
+                    roomSelector.moveSelection(1);
                 }
             },
             "DPAD_UP": {
                 "pressed": function() {
-                    containerMain.item.pages.decrementCurrentIndex();
+                    roomSelector.moveSelection(-1);
+                }
+            },
+            "DPAD_RIGHT": {
+                "pressed": function() {
+                    const row = roomSelector.currentRow();
+                    if (editMode && !roomSelector.footerSelected && roomSelector.heldIndex < 0 && row) {
+                        row.openDelete();
+                    }
+                }
+            },
+            "DPAD_LEFT": {
+                "pressed": function() {
+                    const row = roomSelector.currentRow();
+                    if (editMode && row) {
+                        row.closeDelete();
+                    }
                 }
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
-                    if (keyboard.state === "") {
-                        editMode = false;
-                        roomSelector.close();
-                    }
+                    roomSelector.activateSelection();
+                },
+                "long_press": function() {
+                    roomSelector.holdSelection();
                 }
             },
             "BACK": {
                 "pressed": function() {
-                    editMode = false;
+                    // one layer at a time: drop the held page, hide the delete, leave the edit
+                    // mode, close the selector
+                    if (roomSelector.heldIndex >= 0) {
+                        roomSelector.dropHeld();
+                        return;
+                    }
+
+                    const row = roomSelector.currentRow();
+                    if (editMode && row && row.deleteOpen) {
+                        row.closeDelete();
+                        return;
+                    }
+
+                    if (editMode) {
+                        roomSelector.leaveEditMode();
+                        return;
+                    }
+
                     roomSelector.close();
                 }
             },
             "HOME": {
                 "pressed": function() {
-                    editMode = false;
+                    roomSelector.leaveEditMode();
                     roomSelector.close();
                 }
             }
@@ -205,8 +365,20 @@ Rectangle {
             property alias dragArea: dragArea
             property bool held: false
             property bool deleteOpen: false
-
             property int toVal: 0
+            readonly property string rowPageId: pageId
+            readonly property string rowPageName: pageName
+            readonly property bool keypadHeld: roomSelector.heldIndex === index
+
+            function openDelete() {
+                content.x = 150;
+                deleteOpen = true;
+            }
+
+            function closeDelete() {
+                content.x = 0;
+                deleteOpen = false;
+            }
 
             drag.target: held ? content : undefined
             drag.axis: Drag.YAxis
@@ -390,8 +562,13 @@ Rectangle {
 
                 Rectangle {
                     anchors.fill: parent
-                    color: index === containerMain.item.pages.currentIndex && ui.keyNavigationActive ? colors.dark : colors.transparent
+                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected
+                           && ui.keyNavigationActive ? colors.dark : colors.transparent
                     radius: ui.cornerRadiusSmall
+                    border {
+                        width: 2
+                        color: dragArea.keypadHeld && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                    }
                 }
 
                 Text {
@@ -471,6 +648,16 @@ Rectangle {
         Item {
             width: ui.width; height: editMode ? 150 : 0
             visible: editMode
+
+            Rectangle {
+                anchors { fill: parent; margins: 20 }
+                radius: ui.cornerRadiusSmall
+                color: colors.transparent
+                border {
+                    width: 2
+                    color: roomSelector.footerSelected && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                }
+            }
 
             Item {
                 id: plusIcon

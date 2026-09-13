@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- Pages can be managed with the d-pad: the page menu (long press on HOME) opens the page selector, a long press on
+  OK there enters the edit mode, where OK renames a page, a long press picks it up to move it with UP / DOWN, RIGHT
+  reveals its delete and DOWN past the last page reaches the "+" for a new page. In the page's own reorder mode OK
+  picks the selected tile up, UP / DOWN move it and BACK saves the order.
+- The profile list reaches the "+" for a new profile with DOWN, and a long press on OK opens a profile's menu
+  (rename, icon, delete). The rows above the settings menu on the profile page (profile, web configurator switch,
+  address, PIN, QR code) are reached with UP from the first menu entry. The icon selection walks its grid with the
+  d-pad, reaches the tabs with UP and Close with DOWN. The Back button of a failed software update is reachable.
 - The integration and dock setup forms can be filled with the d-pad: text fields, checkboxes and dropdowns are walked
   in order, Return on a field moves to the next one, the on-screen keyboard follows the field and gets out of the way
   of the buttons, a dropdown opens the same selection list as the other settings, and the finish screen, the

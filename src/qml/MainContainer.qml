@@ -61,6 +61,15 @@ Item {
                            }
                        });
 
+        // the page selector (tapping the page title) has no key of its own
+        menuItems.push({
+                           //: Menu entry that opens the page selector
+                           title: qsTr("Pages"),
+                           icon: "uc:list",
+                           callback: function() {
+                               loadSecondContainer("qrc:/components/PageSelector.qml", { currentPage: pages.currentItem.title });
+                           }
+                       });
         menuItems.push({
                            title: qsTr("Reorder"),
                            icon: "uc:bars",
@@ -235,6 +244,11 @@ Item {
 //        }
 //    }
     
+    // Edit mode (reorder, entered from the page menu): DPAD_MIDDLE picks the selected tile up
+    // and drops it, UP / DOWN move a picked-up tile, LEFT / RIGHT are ignored (a page change ends
+    // the edit mode), BACK leaves the edit mode and saves the order.
+    readonly property bool reordering: ui.editMode && pages.currentItem && pages.currentItem.heldIndex >= 0
+
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
@@ -242,6 +256,10 @@ Item {
                 "pressed": function() {
                     if (mainContainerBlockingMouseArea.enabled) {
                         mainContainerRoot.closeMenu();
+                        return;
+                    }
+
+                    if (ui.editMode) {
                         return;
                     }
 
@@ -255,7 +273,18 @@ Item {
                         return;
                     }
 
+                    if (ui.editMode) {
+                        return;
+                    }
+
                     pages.decrementCurrentIndex();
+                }
+            },
+            "BACK": {
+                "pressed": function() {
+                    if (ui.editMode) {
+                        ui.editMode = false;
+                    }
                 }
             },
             // page navigation
@@ -263,6 +292,11 @@ Item {
                 "pressed": function() {
                     if (mainContainerBlockingMouseArea.enabled) {
                         mainContainerRoot.closeMenu();
+                        return;
+                    }
+
+                    if (mainContainerRoot.reordering) {
+                        pages.currentItem.moveHeld(1);
                         return;
                     }
 
@@ -282,6 +316,11 @@ Item {
                         return;
                     }
 
+                    if (mainContainerRoot.reordering) {
+                        pages.currentItem.moveHeld(-1);
+                        return;
+                    }
+
                     if (!currentEntity.delegateItem.groupObj) {
                         pages.currentItem.decrementCurrentIndex();
                     }  else if (currentEntity.delegateItem.groups.currentIndex === 0 || currentEntity.delegateItem.state === "closed") {
@@ -295,6 +334,11 @@ Item {
                 "pressed": function() {
                     if (mainContainerBlockingMouseArea.enabled) {
                         mainContainerRoot.closeMenu();
+                        return;
+                    }
+
+                    if (ui.editMode) {
+                        pages.currentItem.toggleHeld();
                         return;
                     }
 
@@ -330,6 +374,10 @@ Item {
                         return;
                     }
 
+                    if (ui.editMode) {
+                        return;
+                    }
+
                     if (!currentEntity.delegateItem.groupObj) {
                         if (Config.entityButtonFuncInverted) {
                             currentEntity.delegateItem.controlTrigger();
@@ -359,6 +407,10 @@ Item {
             },
             "CHANNEL_UP": {
                 "pressed": function() {
+                    if (ui.editMode) {
+                        return;
+                    }
+
                     if (mainContainerBlockingMouseArea.enabled) {
                         mainContainerRoot.closeMenu();
                         return;
@@ -373,6 +425,10 @@ Item {
             },
             "CHANNEL_DOWN": {
                 "pressed": function() {
+                    if (ui.editMode) {
+                        return;
+                    }
+
                     if (mainContainerBlockingMouseArea.enabled) {
                         mainContainerRoot.closeMenu();
                         return;

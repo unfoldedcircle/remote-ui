@@ -70,11 +70,38 @@ ListView {
         NumberAnimation { easing.type: Easing.OutExpo; duration: 500 }
     }
 
+    /** KEYPAD REORDERING (edit mode) **/
+    // DPAD_MIDDLE picks the selected tile up, UP / DOWN then move it, DPAD_MIDDLE drops it. Driven
+    // by the main container's button navigation.
+    property int heldIndex: -1
+
+    function toggleHeld() {
+        if (page.count === 0) {
+            return;
+        }
+
+        Haptic.play(Haptic.Click);
+        page.heldIndex = page.heldIndex < 0 ? page.currentIndex : -1;
+    }
+
+    function moveHeld(delta) {
+        const to = page.heldIndex + delta;
+        if (page.heldIndex < 0 || to < 0 || to >= page.count) {
+            return;
+        }
+
+        pageItems.swapData(page.heldIndex, to);
+        page.heldIndex = to;
+        page.currentIndex = to;
+    }
+
     Connections {
         target: ui
         ignoreUnknownSignals: true
 
         function onEditModeChanged() {
+            page.heldIndex = -1;
+
             if (!page._isCurrentItem) {
                 return;
             }
@@ -709,12 +736,24 @@ ListView {
             property alias dragArea: dragArea
             property alias delegate: delegate
             property alias delegateItem: delegate.item
-
             property bool isCurrentItem: ListView.isCurrentItem
             property bool held: false
             property int toVal: 0
-
             property string itemId: pageItemId
+
+            // the tile's own selection colour is off in the edit mode: outline the selected tile,
+            // stronger while it is picked up
+            Rectangle {
+                anchors.fill: parent
+                z: 3000
+                radius: ui.cornerRadiusSmall
+                color: colors.transparent
+                border {
+                    width: 2
+                    color: dragArea.isCurrentItem && ui.editMode && ui.keyNavigationActive
+                           ? (page.heldIndex === index ? colors.highlight : colors.medium) : colors.transparent
+                }
+            }
 
             drag.target: held ? delegate : undefined
             drag.axis: Drag.YAxis
