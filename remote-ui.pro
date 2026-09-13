@@ -325,9 +325,17 @@ BUILD_DEBUG {
 } else {
     build_path = release
 }
-
 DESTINATION_PATH = $${platform_path}-$${processor_path}/$$build_path
 message(Dest path: $${DESTINATION_PATH})
+
+# Intermediate files (objects, moc, rcc, ui) of static and dynamic builds must not be shared: switching between a
+# static and a dynamic Qt would otherwise reuse stale objects. Only the intermediate path gets the suffix, the
+# binary output path (DESTDIR) must stay as is: the Remote Two cross-compile toolchain and the GitHub workflow
+# rely on the default `binaries/linux-arm64/release` for the static device build.
+INTERMEDIATE_PATH = $$DESTINATION_PATH
+static {
+    INTERMEDIATE_PATH = $${DESTINATION_PATH}-static
+}
 
 # Configure destination path
 DESTDIR = $$(UC_BIN)
@@ -347,7 +355,7 @@ isEmpty(DESTDIR) {
     message(UC_BIN defined '$$DESTDIR' as binary output directory.)
 }
 
-OBJECTS_DIR = $$PWD/build/$$DESTINATION_PATH/obj
-MOC_DIR = $$PWD/build/$$DESTINATION_PATH/moc
-RCC_DIR = $$PWD/build/$$DESTINATION_PATH/qrc
-UI_DIR = $$PWD/build/$$DESTINATION_PATH/ui
+OBJECTS_DIR = $$PWD/build/$$INTERMEDIATE_PATH/obj
+MOC_DIR = $$PWD/build/$$INTERMEDIATE_PATH/moc
+RCC_DIR = $$PWD/build/$$INTERMEDIATE_PATH/qrc
+UI_DIR = $$PWD/build/$$INTERMEDIATE_PATH/ui

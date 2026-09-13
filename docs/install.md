@@ -1,65 +1,30 @@
-# Linux Runtime Installation
+# Installation instructions
 
-The following installation guide uses a minimal Ubuntu 22.04 desktop installation, but it should also work for other
-Linux distributions. With some adaptation this also works on macOS and Windows, but we leave this exercise to the reader.
+How to set up a development environment for the remote-ui desktop simulator: Qt 5.15.2, the fonts, a container
+runtime for the [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator) and optional integrations.
 
 We highly recommend using a dedicated virtual machine, especially if you are not yet familiar with setting up a Qt
 runtime environment.
 
-## Install Qt with dynamic Qt libraries
+## Qt
 
-This is only required for non-static builds of the remote-ui app!
+The remote-ui app is a Qt 5.15.2 application. Installing Qt with the system's package manager usually doesn't work (wrong
+version); the guides below install the official 5.15.2 binaries with [aqtinstall](https://github.com/miurahr/aqtinstall)
+or build Qt from source. Pick the guide for your system:
 
-The remote-ui simulator is a Qt application and requires the Qt framework library. Installing Qt with the system's
-package manager usually doesn't work. We suggest using [Another Qt installer(aqt)](https://github.com/miurahr/aqtinstall)
-to install the required Qt runtime.
+| Target                    | Guide                                                    | Notes                                                        |
+|---------------------------|----------------------------------------------------------|--------------------------------------------------------------|
+| Debian 13 "trixie"        | [install-debian-13.md](install-debian-13.md)             | aqtinstall, GCC 14 header patch, optional OpenSSL 1.1; verified on a fresh VM |
+| Ubuntu 22.04              | [install-ubuntu-22.04.md](install-ubuntu-22.04.md)       | the original guide, aqtinstall                               |
+| macOS                     | [static-compile-macos.md](static-compile-macos.md)       | Qt online installer and Qt Creator, static kit               |
+| Static desktop build      | [static-compile.md](static-compile.md)                   | self-contained binary without Qt libraries, macOS and Debian 13 |
+| Remote Two/3 device       | [cross-compile.md](cross-compile.md)                     | Docker toolchain, `make ucr2`                                |
 
-### Install aqt installer
+Adding a target: copy the closest guide, name it `install-<distribution>-<version>.md`, and link it in this table.
 
-```bash
-sudo apt install python3-pip
-pip install aqtinstall
-```
-
-Add the local binary directory `~/.local/bin` to the search path (if not yet included):
-
-1. Edit `~/.bashrc`
-2. At the end of the file, add: `PATH="$HOME/.local/bin:$PATH"`
-
-### Install Qt Runtime
-
-Requirements:
-- Qt version: 5.15.2
-- Qt features: multimedia, qml, quick, quickcontrols2, virtualkeyboard, websockets, 
-
-```bash
-mkdir ~/Qt
-aqt install-qt --outputdir ~/Qt linux desktop 5.15.2 gcc_64 -m qtvirtualkeyboard
-```
-
-Notes:
-- Most Qt modules are already included in the default installation and therefore not included in the module parameter.
-- See [aqtinstall docs](https://aqtinstall.readthedocs.io/en/latest/getting_started.html) for further information.
-
-### Configure Environment
-
-Some environment variables need to be set for the installed Qt runtime. `aqtinstall` will not set them automatically, to
-not interfere with an existing installation.
-
-```
-export QT_VERSION=5.15.2
-export QTDIR="$HOME/Qt/$QT_VERSION/gcc_64"
-export PATH="$QTDIR/bin:$PATH"
-export LD_LIBRARY_PATH="$QTDIR/lib:$LD_LIBRARY_PATH"
-export QT_PLUGIN_PATH="$QTDIR/plugins"
-export QT_QPA_PLATFORM=wayland
-```
-
-Attention if not using Ubuntu 22.04: `QT_QPA_PLATFORM` must be set to the correct graphical environment.  
-E.g. for Lubuntu it's already set to `lxqt`. See Qt docs for more information.
-
-If you are using a dedicated VM, you can add the required environment variables to the end of `~/.profile`. Otherwise,
-it's better to create a start script for launching the simulator.
+After Qt is installed, build with `make linux` (or `make linux-static`) and start the UI app with `make run-linux`;
+`make` without a target lists everything. Qt Creator users open `remote-ui.pro` with a kit for the installed Qt.
+See the [README](../README.md) for the environment variables the app reads.
 
 ## Fonts
 
@@ -80,8 +45,8 @@ These fonts are licensed under the [Open Font License](https://scripts.sil.org/c
 
 The `remote-core` simulator is available as Docker image. One can either use Docker or Podman as container runtime.  
 Let's use Docker for easier Home Assistant setup.  
-Head over to <https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-22-04> for
-detailed instructions. In short:
+Follow the official instructions for your distribution: [Ubuntu](https://docs.docker.com/engine/install/ubuntu/),
+[Debian](https://docs.docker.com/engine/install/debian/). In short, for Ubuntu:
 ```bash
 sudo apt install apt-transport-https ca-certificates curl software-properties-common
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
@@ -105,6 +70,10 @@ sudo apt install podman-docker
 
 ## Integrations
 
+The [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator) includes a ready to run Docker compose configuration with the Home Assistant integration and server.
+
+The following instructions are for a manual setup.
+
 ### Home Assistant
 
 Run the container:
@@ -116,19 +85,10 @@ docker run -d \
   docker.io/unfoldedcircle/intg-hass:latest
 ```
 
-#### Container
-
-#### Host
-
-The remote-core simulator is a statically compiled binary with very little external dependencies:
-```bash
-sudo apt install libavahi-compat-libdnssd1
-```
-
 ### Home Assistant Server
 
 If you don't already have a [Home Assistant](https://www.home-assistant.io/) installation you can easily install one in
-a container to get started with the UC home-assistant integration for Remote Two.
+a container to get started with the UC home-assistant integration for Remote Two/3.
 
 Create configuration directory on the host: 
 ```bash

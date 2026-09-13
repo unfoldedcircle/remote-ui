@@ -23,6 +23,8 @@ tags
 .directory
 *.debug
 Makefile*
+# ... except the hand-written task runner in the repository root
+!/Makefile
 *.prl
 *.app
 moc_*.cpp
@@ -76,7 +78,6 @@ qt-creator-license-template
 
 # Fonts
 /resources/fonts/*
-build/osx-x86_64/release/moc/moc_predefs.h
 
 # Legal info
 /resources/about_html/*
@@ -86,4 +87,7 @@ build/osx-x86_64/release/moc/moc_predefs.h
 !/resources/translations/en_US.ts
 
 # build directories
+/binaries
 /build
+/build-static
+/test/build

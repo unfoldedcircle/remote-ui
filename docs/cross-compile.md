@@ -1,8 +1,19 @@
-# Remote Two Cross-Compile & Installation 
+# Remote Two/3 Cross-Compile & Installation 
 
 ## Cross-Compile
 
-The easiest way to cross-compile for the Remote Two device is with our prepared toolchain Docker image:
+The easiest way to cross-compile for the Remote Two/3 devices is with our prepared toolchain Docker image:
+
+```bash
+make ucr2
+```
+
+The target pulls the image if it is missing, runs it exactly like the GitHub workflow does, writes `version.txt`
+next to the binary and reverts the `resources/translations/*.ts` churn of the toolchain's `lupdate` (only for files
+that were unmodified before). Run `docker pull` yourself to update the image, `make clean-ucr2` to start from
+scratch; `make` without a target lists all targets.
+
+Doing it by hand:
 
 ```bash
 docker pull unfoldedcircle/r2-toolchain-qt-5.15.8-static:latest
@@ -12,17 +23,20 @@ docker run --rm  \
     unfoldedcircle/r2-toolchain-qt-5.15.8-static:latest
 ```
 
+The container runs `qmake CONFIG+=static CONFIG+=release` and `make`; the binary lands in the default output path of
+`remote-ui.pro`, `binaries/linux-arm64/release/` (the workflow and the Makefile rely on that path, do not change it).
+
 ℹ️ The included GitHub build action can be used to create a cross-compiled binary.  
 Enable the GitHub actions in your cloned repository and it will be built automatically for all pull requests and SemVer version tags.
 
-_TODO_ output binary
+The output binary is stored in `binaries/linux-arm64/release/` on the host.
 
-## Install custom version on Remote Two
+## Install custom version on Remote Two/3
 
 ☢️ VOIDS WARRANTY ☢️
 
 ⚠️ **Warning:**
-- **Installing a custom remote-ui version on the Remote Two device will void your warranty!**
+- **Installing a custom remote-ui version on the Remote Two/3 devices will void your warranty!**
 - Only intended for developers and power users
 - Do not install custom binaries from untrusted sources!    
 
