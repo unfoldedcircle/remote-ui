@@ -43,6 +43,12 @@ Rectangle {
     property string label: ""
     property bool moveInput: true
 
+    // Neighbours in a keypad focus chain. An attached property (KeyNavigation) can only be set on
+    // the item that declares it, so a form sets these instead of inputField.KeyNavigation.*.
+    // DPAD_MIDDLE on the field is its Return key and submits through inputField.onAccepted.
+    property Item navUp: null
+    property Item navDown: null
+
     Component.onCompleted: {
         if (inputField.echoMode === TextInput.Password) {
             inputFieldContainer.password = true;
@@ -110,6 +116,9 @@ Rectangle {
         }
 
         passwordCharacter: "•"
+
+        KeyNavigation.up: inputFieldContainer.navUp
+        KeyNavigation.down: inputFieldContainer.navDown
 
         onFocusChanged: {
             inputFieldContainer.border.width = focus ? 1 : 0;

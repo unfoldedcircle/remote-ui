@@ -82,6 +82,13 @@ Settings.Page {
 
         delegate: listItem
         currentIndex: 0
+
+        // a dock was removed below the selection: keep the selection on the list
+        onCountChanged: {
+            if (itemList.currentIndex >= itemList.count) {
+                itemList.currentIndex = Math.max(0, itemList.count - 1);
+            }
+        }
     }
 
     Components.ScrollIndicator {
@@ -96,12 +103,9 @@ Settings.Page {
         openItemSource: "qrc:/components/docks/Discovery.qml"
         highlight: docksPage.addSheetSelected
 
-        onOpened: {
-            addDockSheet.openItem.buttonNavigation.overrideActive = true;
-        }
-
         onClosed: {
             DockController.stopDiscovery();
+            docksPage.addSheetSelected = false;
             docksPage.buttonNavigation.takeControl();
         }
 
@@ -226,18 +230,28 @@ Settings.Page {
             }
         }
 
+        // leaving the popup cancels the setup that is running in it; the popup closes on the
+        // setup's done / failed signal
+        function cancelSetup() {
+            if (dockSetupLoader.item) {
+                dockSetupLoader.item.cancel();
+            } else {
+                dockSetupPopup.close();
+            }
+        }
+
         Components.ButtonNavigation {
             id: dockSetupPopupButtonNavigation
             defaultConfig: {
                 "HOME": {
                     "pressed": function() {
-                        dockSetupPopup.close();
+                        dockSetupPopup.cancelSetup();
                         goHome();
                     }
                 },
                 "BACK": {
                     "pressed": function() {
-                        dockSetupPopup.close();
+                        dockSetupPopup.cancelSetup();
                     }
                 }
             }
@@ -427,6 +441,8 @@ Settings.Page {
                     Layout.fillHeight: true
                 }
 
+                // The Identify / Connect buttons of a list entry stay touch-only: DPAD_MIDDLE opens
+                // the dock details, where both actions are reachable with the keypad.
                 Components.Button {
                     text: qsTr("Identify")
                     fontSize: 20

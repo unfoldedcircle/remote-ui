@@ -60,18 +60,18 @@ class Security {
 class WifiNetwork : public QObject {
     Q_OBJECT
 
-    Q_PROPERTY(int id READ getId CONSTANT)
+    Q_PROPERTY(int id READ getId NOTIFY idChanged)
     Q_PROPERTY(QString ssid READ getSsid CONSTANT)
     Q_PROPERTY(QString ssidHex READ getSsidHex CONSTANT)
     Q_PROPERTY(QString identifier READ getIdentifier CONSTANT)
-    Q_PROPERTY(uc::hw::SignalStrength::Enum signalStrength READ getSignalStrength CONSTANT)
-    Q_PROPERTY(bool encrypted READ isEncrypted CONSTANT)
-    Q_PROPERTY(uc::hw::Security::Enum security READ getSecurity CONSTANT)
-    Q_PROPERTY(QString keyManagement READ getKeyManagement CONSTANT)
-    Q_PROPERTY(QString pairwiseCipher READ getPairwiseCipher CONSTANT)
-    Q_PROPERTY(QString groupCipher READ getGroupCipher CONSTANT)
-    Q_PROPERTY(int frequency READ getFrequency CONSTANT)
-    Q_PROPERTY(bool enabled READ getEnabled CONSTANT)
+    Q_PROPERTY(uc::hw::SignalStrength::Enum signalStrength READ getSignalStrength NOTIFY signalStrengthChanged)
+    Q_PROPERTY(bool encrypted READ isEncrypted NOTIFY securityChanged)
+    Q_PROPERTY(uc::hw::Security::Enum security READ getSecurity NOTIFY securityChanged)
+    Q_PROPERTY(QString keyManagement READ getKeyManagement NOTIFY ciphersChanged)
+    Q_PROPERTY(QString pairwiseCipher READ getPairwiseCipher NOTIFY ciphersChanged)
+    Q_PROPERTY(QString groupCipher READ getGroupCipher NOTIFY ciphersChanged)
+    Q_PROPERTY(int frequency READ getFrequency NOTIFY frequencyChanged)
+    Q_PROPERTY(bool enabled READ getEnabled NOTIFY enabledChanged)
 
  public:
     explicit WifiNetwork(int id, const QString &ssid, const QString &ssidHex, Security::Enum security, int rssi, const QString keyManagement, const QString pairwiseCipher, const QString groupCipher, int frequency, bool enabled, QObject *parent = nullptr);
@@ -105,6 +105,27 @@ class WifiNetwork : public QObject {
     QString              getGroupCipher() const { return m_groupCipher; }
     int                  getFrequency() const { return m_frequency; }
     bool                 getEnabled() const { return m_enabled; }
+
+    /**
+     * Update the network in place from a new scan result or saved-network list, emitting only the change
+     * signals of the properties that differ. Keeping the object lets the QML list keep its delegates - and the
+     * keypad selection - instead of rebuilding them on every scan.
+     */
+    void update(int id, Security::Enum security, int rssi, const QString &keyManagement, const QString &pairwiseCipher, const QString &groupCipher, int frequency, bool enabled);
+
+    /**
+     * Ordering for the network lists shown in the UI: strongest signal first, then by name. A stable order keeps
+     * the list from being reshuffled by the QHash iteration order every time it is handed to QML.
+     */
+    static bool lessThan(const WifiNetwork *a, const WifiNetwork *b);
+
+ signals:
+    void idChanged();
+    void signalStrengthChanged();
+    void securityChanged();
+    void ciphersChanged();
+    void frequencyChanged();
+    void enabledChanged();
 
  private:
     int                  m_id;

@@ -24,6 +24,15 @@ neither path can stop the other:
    arrow handling, `Slider` left/right, `TextInput` accepting `Return`. `event.accepted = true`
    stops *this* path only.
 
+   Order inside path 2, per item (Qt 5.15.2, `qquickitem.cpp`): `Keys.on*Pressed` handlers first,
+   then the item's own C++ key handling (`ListView` arrows, `Slider`, `TextInput`), then
+   `KeyNavigation` — it is an *AfterItem* filter in 5.15, whatever the documentation says. So a
+   `Keys.onDownPressed` that accepts the event wins over `KeyNavigation.down`, and an item that
+   ignores a key hands it to its `KeyNavigation` link *immediately*: a `ListView` with
+   `interactive: false` (its built-in arrow handling is gated on `interactive` unless
+   `keyNavigationEnabled` is set explicitly) is simply stepped over by the chain. A key nobody
+   accepted bubbles up to the page root.
+
 Consequences:
 
 - A page must commit to **one idiom** for a given key. If a `ButtonNavigation` handler for
@@ -99,6 +108,19 @@ its focus and keeps reacting through path 2 while a popup owns the input on top 
 - The claim from the focus-change handler is deferred (`Qt.callLater`): moving the focus from
   inside `onWindowFocusItemChanged` is a binding loop on `windowFocusItem`, which QML aborts, and
   the claim then silently never happens.
+- The claim when the scope *regains* the input is deferred as well: the input usually comes back
+  on the key press that closed the layer above (OK on Cancel in a drawer, BACK on a dialog), and
+  that key is still travelling on path 2 — a control focused synchronously would act on it too (the
+  dock delete drawer reopened itself through its opener row this way). A control that is still
+  fading in when the claim runs is claimed again once it is visible (`reclaimFocus`).
+- A dialog declared inside the page (`docks/Rename`, `PageAdd`, …) takes the input **deferred**
+  and focuses its field **after** that, in the same deferred step. Its root is `enabled` by state,
+  not by the finished fade-in: the input controller drops a disabled owner right away, and a
+  disabled item refuses the focus. Focusing the field before the input is taken makes the page
+  record the field as its `lastFocusItem` and it can not return to its own control afterwards.
+- A drawer whose opener row lives inside it (the delete drawers of the detail popups) parks the
+  page's focus itself when it opens: the "layer inside the scope keeps its own control" exception
+  would otherwise leave the focus on the opener row.
 
 `Settings.Page` and `Onboarding.Page` set `manageFocus: true`. A popup only needs it when it
 navigates by focus itself (`WifiInfo`, `WifiJoin`).
@@ -107,19 +129,48 @@ navigates by focus itself (`WifiInfo`, `WifiJoin`).
 `Flickable` and the focused control is scrolled into view. A `Flickable` does not follow the
 keyboard focus by itself; a `ListView` scrolls to its `currentIndex` on its own.
 
+- `ensureVisible(item)` reveals the control's *section* — the direct child of the top-level layout
+  inside the Flickable, i.e. a settings row with its title and description, a slider with its
+  title — as long as that section fits into the viewport, and only the control itself otherwise (a
+  `ListView` delegate, a drawer). Keep that structure (`Flickable > ColumnLayout > section`) for a
+  page whose rows carry a description, or the description stays cut off (#582).
+- `scrollBy(delta)` scrolls the target by `delta` pixels, clamped, and reports whether it moved.
+  `Settings.Page` (and the dock/integration detail popups) use it from `Keys.onDownPressed` /
+  `Keys.onUpPressed` on the page root: a key that reaches the root was accepted by no control and
+  no `KeyNavigation` link, so the focus is at an end of the chain and the page scrolls on to the
+  content after the last control. That handler is path 2 only, and it skips when the focus is on
+  the page itself (an idiom-b page with a `scrollTarget`, `About.qml`, scrolls on path 1).
+- `lastFocusItem` is an `Item` property and is nulled when the focused item is destroyed — a
+  `ListView` delegate rebuilt by a model reset while a popup owns the input. A container that
+  declares `property bool keypadFocusAnchor: true` (`WifiNetworkList`) is remembered as
+  `lastFocusAnchor` and the scope comes back to it instead of its first control.
+
 ## 4. The three idioms for a screen
 
 ### a) Focus chain (settings pages, onboarding Terms/Finish/PIN-less forms)
 
 Controls carry `KeyNavigation.up/down/left/right`, `Components.Button`/`Switch` react to `Return`
 themselves, `highlight: activeFocus && ui.keyNavigationActive`. Set `initialFocusItem` on the page
-and `scrollTarget` for a scrolling page. `ListView`s in the chain (`WifiNetworkList`) handle
-up/down themselves and let the key through at either end so `KeyNavigation` continues.
+and `scrollTarget` for a scrolling page. A tappable row (`Components.HapticMouseArea`) joins the
+chain with `keypadActivatable: true` (Return runs its `clicked` handler) plus a
+`Components.RowHighlight` outline.
 
-Known weakness: `ListView` focus handling depends on `interactive`/`keyNavigationEnabled`, on the
-current item receiving focus inside the list's focus scope, and on models that may be replaced
-while the list is focused. It works on the settings pages but proved unreliable for lists whose
-model is rebuilt during discovery. For those use idiom b.
+A `ListView` in the chain (`WifiNetworkList`) must move its own selection: `keyNavigationEnabled:
+false` (the built-in handling is gated on `interactive`, and it would move a second time where it
+is on), `Keys.onDownPressed` / `Keys.onUpPressed` moving `currentIndex` and accepting the event,
+`event.accepted = false` at either end so `KeyNavigation` continues, `Keys.onReturnPressed`
+activating the current entry. The list calls `selectFirst()` / `selectLast()` on the neighbour it
+hands the focus to, so entering a list from below lands on its last entry. The ListView gives the
+keyboard focus to its current delegate; that delegate is destroyed when the model is replaced, so
+the list remembers the selected entry by identifier (`restoreSelection()`) and is a
+`keypadFocusAnchor` (section 3). The C++ side must not replace the model on every update
+(`Wifi::updateNetworkList()` updates the network objects in place and emits `networkListChanged`
+once, only when a network appeared or disappeared) — a list whose model is rebuilt on every
+refresh cannot hold a focus and belongs to idiom b.
+
+Forms with a focused `TextField` (rename dialogs, `ProfileAdd`, `WifiPassword`): `DPAD_MIDDLE` is
+the field's Return and submits through `onAccepted` — never add a `DPAD_MIDDLE` handler to the
+form's `ButtonNavigation` (double submit). Reach Cancel / OK with `inputField.KeyNavigation.down`.
 
 ### b) Button navigation driven selection (settings Docks/Integrations, onboarding WiFi/Dock/Integration)
 
@@ -127,9 +178,17 @@ The page's `ButtonNavigation` handles `DPAD_UP/DOWN/MIDDLE` and keeps the select
 `currentIndex` of the list plus a flag for the button below it. Highlights are explicit
 (`highlight: page.skipSelected && ui.keyNavigationActive`, delegate border bound to
 `ListView.isCurrentItem && list.keypadSelected && ui.keyNavigationActive`). No control has the
-keyboard focus, so path 2 is inert. `docks/Discovery.qml`, `integrations/Discovery.qml` and
-`WifiNetworkList.qml` expose `moveSelection()` / `selectLast()` / `activateSelection()` /
-`keypadSelected` for this.
+keyboard focus, so path 2 is inert. `docks/Discovery.qml` and `integrations/Discovery.qml` expose
+`moveSelection()` / `selectLast()` / `activateSelection()` / `keypadSelected` for this;
+`WifiNetworkList.qml` offers `keypadSelected` / `otherSelected` / `selectCurrent()` /
+`activateOther()` and is walked by the onboarding wifi step through `currentIndex`.
+`Components.BottomSheet` forwards `DPAD_UP/DOWN/MIDDLE` to an open item with that API, which is how
+the settings Docks / Integrations pages drive the discovery inside their "Add" sheets.
+
+A drawer or confirmation with a destructive action (`docks/Info.qml`, `integrations/Info.qml`)
+starts its selection on *Cancel*; `DPAD_LEFT/RIGHT` move it. Bind its handlers to `pressed`, not
+`released`: the drawer opens on the press of `DPAD_MIDDLE` on the row above it, and a `released`
+handler would fire on the release of that same key.
 
 ### c) Grid selection (PIN keypad)
 
@@ -212,5 +271,7 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
 5. Set `scrollTarget` for a page taller than the display; make sure long translations
    (German, French, Dutch) do not push the last control off screen.
 6. If a key press changes the screen and moves the focus, defer the hand-over.
-7. Check `BACK`/`HOME` on every popup the screen can open.
-8. Run it, read the QML log, and walk it with the keypad — both after opening by touch and by key.
+7. Every layer that takes the input declares `BACK` **and** `HOME`; check both on every popup the
+   screen can open — including a drawer or sheet that opens inside the page.
+8. A form whose text field has the focus gets no `DPAD_MIDDLE` handler.
+9. Run it, read the QML log, and walk it with the keypad — both after opening by touch and by key.

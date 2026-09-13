@@ -45,6 +45,7 @@
         <file alias="components/AboutInfo.qml">../../src/qml/components/AboutInfo.qml</file>
         <file alias="components/BottomSheet.qml">../../src/qml/components/BottomSheet.qml</file>
         <file alias="components/HapticMouseArea.qml">../../src/qml/components/HapticMouseArea.qml</file>
+        <file alias="components/RowHighlight.qml">../../src/qml/components/RowHighlight.qml</file>
         <file alias="components/ScrollIndicator.qml">../../src/qml/components/ScrollIndicator.qml</file>
         <file alias="settings/Page.qml">../../src/qml/settings/Page.qml</file>
         <file alias="settings/TopNavigation.qml">../../src/qml/settings/TopNavigation.qml</file>

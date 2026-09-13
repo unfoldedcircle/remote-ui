@@ -85,6 +85,13 @@ Settings.Page {
 
         delegate: listItem
         currentIndex: 0
+
+        // an integration was removed below the selection: keep the selection on the list
+        onCountChanged: {
+            if (itemList.currentIndex >= itemList.count) {
+                itemList.currentIndex = Math.max(0, itemList.count - 1);
+            }
+        }
     }
 
     Components.ScrollIndicator {
@@ -101,11 +108,11 @@ Settings.Page {
 
         onOpened: {
             IntegrationController.startDriverDiscovery();
-            addIntegrationSheet.openItem.buttonNavigation.overrideActive = true;
         }
 
         onClosed: {
             IntegrationController.stopDriverDiscovery();
+            integrationsPage.addSheetSelected = false;
             integrationsPage.buttonNavigation.takeControl();
         }
 
@@ -220,18 +227,28 @@ Settings.Page {
             }
         }
 
+        // leaving the popup cancels the setup that is running in it; the popup closes on the
+        // setup's done signal
+        function cancelSetup() {
+            if (integrationSetupLoader.item) {
+                integrationSetupLoader.item.cancel();
+            } else {
+                integrationSetupPopup.close();
+            }
+        }
+
         Components.ButtonNavigation {
             id: integrationSetupPopupButtonNavigation
             defaultConfig: {
                 "HOME": {
                     "pressed": function() {
-                        integrationSetupPopup.close();
+                        integrationSetupPopup.cancelSetup();
                         goHome();
                     }
                 },
                 "BACK": {
                     "pressed": function() {
-                        integrationSetupPopup.close();
+                        integrationSetupPopup.cancelSetup();
                     }
                 }
             }
@@ -342,6 +359,8 @@ Settings.Page {
                         visible: IntegrationController.getDriversModelItem(driverId).external
                     }
 
+                    // The switch of a list entry stays touch-only: DPAD_MIDDLE opens the integration
+                    // details, where the same switch is reachable with the keypad.
                     Components.Switch {
                         Layout.alignment: Qt.AlignRight
 

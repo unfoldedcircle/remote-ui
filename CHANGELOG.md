@@ -8,7 +8,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- The docks and integrations settings can be worked with the d-pad throughout: the "Add a new dock" and
+  "Add an integration" sheets, the discovery inside them, the dock and integration details with every action
+  in them (rename, identify, connect, LED brightness, password, factory reset, delete), the entity filter of
+  the entity lists, and the add-entities step of an integration setup. The delete drawer of a dock or
+  integration starts on Cancel so that deleting takes a deliberate second step.
+
 ### Fixed
+- The WiFi settings could not be walked with the d-pad past the WiFi band row: the known and other network
+  lists were stepped over, and the "Join other" button had no way to be selected. The lists now move their
+  own selection, and a scan result no longer rebuilds them every few seconds — a rebuild threw the selection
+  and the focus back to the top of the page. Saved and scanned networks are updated in place and listed
+  strongest signal first.
+- Selecting a settings row with the d-pad now brings the whole row on screen, title and description included,
+  instead of only the switch. At the end of a page DOWN scrolls on to the remaining content, and UP at the
+  top scrolls back. The value labels below the last slider of the power settings were cut off even by touch.
+- OK on the dock rename and password dialogs, the profile name, entity rename and group rename dialogs sent
+  the request twice: once for the d-pad handler and once for the input field's Return.
+- BACK in the profile rename, page add and page rename dialogs closed the list behind the dialog instead of
+  the dialog; the dialogs now own the input, and their Cancel / OK buttons are reachable with the d-pad.
+- The entity filter sheet and the add-entities step of an integration setup could not be left with the
+  keypad. HOME closes the profile PIN prompt.
+- BACK on a running dock or integration setup now cancels the setup instead of only closing the popup.
 - An activity that failed or timed out while its screen was open never showed it. The screen header was meant to turn
   red in that case, but the condition behind it asked for the activity to be in two states at once and could never be
   true, so the colour had never appeared since it was written.

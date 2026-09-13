@@ -284,7 +284,7 @@ Settings.Page {
             Item {
                 Layout.alignment: Qt.AlignCenter
                 width: parent.width - 20
-                height: childrenRect.height
+                height: childrenRect.height + 40
 
                 Text {
                     id: sleepTimeoutText

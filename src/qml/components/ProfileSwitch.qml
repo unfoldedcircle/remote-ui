@@ -338,6 +338,11 @@ Rectangle {
                         pinKeyPopup.close();
                     }
                 },
+                "HOME": {
+                    "pressed": function() {
+                        pinKeyPopup.close();
+                    }
+                },
                 "DPAD_UP": {
                     "pressed": function() {
                         pinKeyPad.moveSelection(0, -1);

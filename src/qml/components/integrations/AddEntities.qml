@@ -54,9 +54,24 @@ Item {
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
-                    entitySelectionList.itemSelected(
-                                entitySelectionList.itemList.currentItem.key,
-                                !entitySelectionList.itemList.currentItem.selected);
+                    const item = entitySelectionList.itemList.currentItem;
+                    if (!item) {
+                        return;
+                    }
+
+                    entitySelectionList.itemSelected(item.key, !item.selected);
+                }
+            },
+            // this step owns the input while it is shown: without these the keypad had no way
+            // out of it. Leaving it skips adding entities, like its X icon.
+            "BACK": {
+                "pressed": function() {
+                    integrationAddEntitiesContainer.done();
+                }
+            },
+            "HOME": {
+                "pressed": function() {
+                    integrationAddEntitiesContainer.done();
                 }
             }
         }

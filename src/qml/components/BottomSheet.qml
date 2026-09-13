@@ -47,6 +47,19 @@ Item {
         }
     }
 
+    // The sheet owns the input while it is open. An open item that exposes the selection API of the
+    // discovery components (moveSelection / selectLast / activateSelection / keypadSelected) is
+    // driven by the d-pad through it - the same wiring the onboarding steps do for those components.
+    function forwardsKeys() {
+        return openItemLoader.item && typeof openItemLoader.item.moveSelection === "function";
+    }
+
+    onOpened: {
+        if (openItemLoader.item && openItemLoader.item.hasOwnProperty("keypadSelected")) {
+            openItemLoader.item.keypadSelected = true;
+        }
+    }
+
     states: [
         State {
             name: "closed"
@@ -96,6 +109,27 @@ Item {
             "BACK": {
                 "pressed": function() {
                     bottomSheetContainer.state = "closed";
+                }
+            },
+            "DPAD_DOWN": {
+                "pressed": function() {
+                    if (bottomSheetContainer.forwardsKeys()) {
+                        openItemLoader.item.moveSelection(1);
+                    }
+                }
+            },
+            "DPAD_UP": {
+                "pressed": function() {
+                    if (bottomSheetContainer.forwardsKeys()) {
+                        openItemLoader.item.moveSelection(-1);
+                    }
+                }
+            },
+            "DPAD_MIDDLE": {
+                "pressed": function() {
+                    if (bottomSheetContainer.forwardsKeys()) {
+                        openItemLoader.item.activateSelection();
+                    }
                 }
             }
         }

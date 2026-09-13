@@ -24,6 +24,29 @@ Item {
         buttonNavigation.ensureVisible(item);
     }
 
+    // A key that no control and no KeyNavigation link accepted bubbles up to this root: the focus sits
+    // at the top or bottom of the page's focus chain. Scroll the page on, so the content after the last
+    // control (a description, a trailing note) can be reached with the d-pad. This is the QML focus
+    // path only - the button navigation of an idiom-a page has no DPAD handlers, so nothing fires twice.
+    // Pages that drive a selection through their button navigation keep the focus on the page itself
+    // and are skipped here: they scroll on that path already.
+    function scrollChainEnd(event, direction) {
+        if (!scrollTarget || !buttonNavigation.hasInputControl) {
+            return;
+        }
+
+        const focused = buttonNavigation.windowFocusItem;
+        if (!focused || focused === settingsPageBase || focused === buttonNavigation
+                || !buttonNavigation.isInScope(focused)) {
+            return;
+        }
+
+        event.accepted = buttonNavigation.scrollBy(direction * Math.round(scrollTarget.height / 2));
+    }
+
+    Keys.onDownPressed: scrollChainEnd(event, 1)
+    Keys.onUpPressed: scrollChainEnd(event, -1)
+
     property var parentSwipeView
     property alias topNavigation: topNavigation
     property alias topNavigationText: topNavigation.text

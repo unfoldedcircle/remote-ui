@@ -18,6 +18,17 @@ ColumnLayout {
 
     spacing: 0
 
+    // BACK on the hosting popup: cancel the running setup instead of only closing the popup
+    function cancel() {
+        if (dockSetupSwipeView.currentIndex === 0) {
+            configureStep.cancelSetup();
+        } else if (finishStep.success) {
+            finishStep.done();
+        } else {
+            finishStep.failed();
+        }
+    }
+
     Item {
         id: setupTitle
 

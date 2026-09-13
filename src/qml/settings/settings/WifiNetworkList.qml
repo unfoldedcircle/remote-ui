@@ -39,10 +39,18 @@ ListView {
         joinLoadingAnimation.visible = true;
     }
 
-    /** KEYBOARD NAVIGATION **/
-    // ListView handles DPAD_UP/DOWN itself while focused, and ignores the key at either end of the
-    // list, which lets the KeyNavigation of the page carry the focus on to the next control.
+    /** KEYBOARD NAVIGATION (focus chain) **/
+    // The list is a link in the page's KeyNavigation chain. It moves its own selection on DPAD_UP/DOWN
+    // and lets the key through at either end, so the page's KeyNavigation carries the focus on to
+    // the neighbouring control. The ListView's built-in arrow handling stays off: it is gated on
+    // `interactive` (false on the settings page, true for the onboarding and dock callers), and it
+    // would move the selection a second time where it is on.
+    keyNavigationEnabled: false
     keyNavigationWraps: false
+
+    // lets the page's button navigation fall back to this list when the focused delegate was
+    // rebuilt while a popup owned the input (see ButtonNavigation.lastFocusAnchor)
+    property bool keypadFocusAnchor: true
 
     onActiveFocusChanged: {
         // a collapsed section can not be expanded with the keypad, so open it on arrival
@@ -51,8 +59,123 @@ ListView {
         }
     }
 
+    // The scan result replaces the model now and then (a network appeared or disappeared): the
+    // delegates are rebuilt and the ListView resets its current index. Remember the selected network
+    // and put the selection back on it.
+    property string selectedIdentifier: ""
+
+    onCurrentItemChanged: {
+        if (wifiNetworkList.currentItem && wifiNetworkList.currentItem.network) {
+            wifiNetworkList.selectedIdentifier = wifiNetworkList.currentItem.network.identifier;
+        }
+    }
+
+    function restoreSelection() {
+        if (wifiNetworkList.count === 0) {
+            return;
+        }
+
+        const networks = wifiNetworkList.model;
+        for (let i = 0; i < wifiNetworkList.count; i++) {
+            if (networks[i] && networks[i].identifier === wifiNetworkList.selectedIdentifier) {
+                wifiNetworkList.currentIndex = i;
+                return;
+            }
+        }
+
+        if (wifiNetworkList.currentIndex >= wifiNetworkList.count) {
+            wifiNetworkList.currentIndex = wifiNetworkList.count - 1;
+        }
+    }
+
+    onModelChanged: restoreSelection()
+    onCountChanged: restoreSelection()
+
+    function selectFirst() {
+        wifiNetworkList.otherSelected = false;
+        if (wifiNetworkList.count > 0) {
+            wifiNetworkList.currentIndex = 0;
+        }
+    }
+
+    function selectLast() {
+        if (wifiNetworkList.hasOther) {
+            wifiNetworkList.otherSelected = true;
+        } else if (wifiNetworkList.count > 0) {
+            wifiNetworkList.currentIndex = wifiNetworkList.count - 1;
+        }
+    }
+
+    function scrollFooterIntoView() {
+        if (wifiNetworkList.parentObj && typeof wifiNetworkList.parentObj.ensureVisible === "function"
+                && wifiNetworkList.footerItem) {
+            wifiNetworkList.parentObj.ensureVisible(wifiNetworkList.footerItem);
+        }
+    }
+
+    Keys.onDownPressed: {
+        if (wifiNetworkList.state === "closed") {
+            wifiNetworkList.state = "open";
+        }
+
+        if (wifiNetworkList.otherSelected) {
+            // leaving the list at its end: the next control in the chain starts at its beginning
+            const next = wifiNetworkList.KeyNavigation.down;
+            if (next && typeof next.selectFirst === "function") {
+                next.selectFirst();
+            }
+
+            event.accepted = false;
+            return;
+        }
+
+        if (wifiNetworkList.currentIndex < wifiNetworkList.count - 1) {
+            wifiNetworkList.currentIndex++;
+            event.accepted = true;
+        } else if (wifiNetworkList.hasOther) {
+            wifiNetworkList.otherSelected = true;
+            wifiNetworkList.scrollFooterIntoView();
+            event.accepted = true;
+        } else {
+            const next = wifiNetworkList.KeyNavigation.down;
+            if (next && typeof next.selectFirst === "function") {
+                next.selectFirst();
+            }
+
+            event.accepted = false;
+        }
+    }
+
+    Keys.onUpPressed: {
+        if (wifiNetworkList.otherSelected) {
+            wifiNetworkList.otherSelected = false;
+            if (wifiNetworkList.count > 0) {
+                wifiNetworkList.currentIndex = wifiNetworkList.count - 1;
+                event.accepted = true;
+                return;
+            }
+        } else if (wifiNetworkList.currentIndex > 0) {
+            wifiNetworkList.currentIndex--;
+            event.accepted = true;
+            return;
+        }
+
+        // leaving the list at its top: the previous control in the chain starts at its end
+        const previous = wifiNetworkList.KeyNavigation.up;
+        if (previous && typeof previous.selectLast === "function") {
+            previous.selectLast();
+        }
+
+        event.accepted = false;
+    }
+
     Keys.onReturnPressed: {
-        wifiNetworkList.selectCurrent();
+        if (wifiNetworkList.otherSelected) {
+            wifiNetworkList.activateOther();
+        } else {
+            wifiNetworkList.selectCurrent();
+        }
+
         event.accepted = true;
     }
 
@@ -72,8 +195,19 @@ ListView {
         if (wifiNetworkList.currentItem && wifiNetworkList.currentItem.network) {
             wifiNetworkList.selectNetwork(wifiNetworkList.currentItem.network,
                                           wifiNetworkList.currentItem.loadingAnimation);
+        } else if (wifiNetworkList.count > 0 && wifiNetworkList.currentIndex >= 0 && !wifiNetworkList.retrySelect) {
+            // the delegate is not created yet (the section is still animating open): make the view
+            // create it and try once more
+            wifiNetworkList.retrySelect = true;
+            wifiNetworkList.positionViewAtIndex(wifiNetworkList.currentIndex, ListView.Contain);
+            Qt.callLater(function() {
+                wifiNetworkList.retrySelect = false;
+                wifiNetworkList.selectCurrent();
+            });
         }
     }
+
+    property bool retrySelect: false
 
     function selectNetwork(network, loadingAnimation) {
         if (!wifiNetworkList.knownNetworks) {
@@ -292,6 +426,7 @@ ListView {
                     width: 2
                     color: networkDelegate.ListView.isCurrentItem
                            && (wifiNetworkList.activeFocus || wifiNetworkList.keypadSelected)
+                           && !wifiNetworkList.otherSelected
                            && ui.keyNavigationActive ? colors.highlight : colors.transparent
                 }
             }

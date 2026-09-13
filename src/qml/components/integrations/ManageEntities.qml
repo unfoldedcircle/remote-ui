@@ -52,9 +52,13 @@ Item {
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
-                    entityListSwipeView.currentItem.itemSelected(
-                                entityListSwipeView.currentItem.itemList.currentItem.key,
-                                !entityListSwipeView.currentItem.itemList.currentItem.selected);
+                    const list = entityListSwipeView.currentItem;
+                    const item = list ? list.itemList.currentItem : null;
+                    if (!item) {
+                        return;
+                    }
+
+                    list.itemSelected(item.key, !item.selected);
                 }
             },
             "DPAD_LEFT": {

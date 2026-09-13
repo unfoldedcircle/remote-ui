@@ -17,6 +17,25 @@ ColumnLayout {
 
     spacing: 0
 
+    // BACK on the hosting popup: cancel the running setup instead of only closing the popup. Once
+    // the integration exists (the add-entities step) BACK skips to the finish step like the X icon.
+    function cancel() {
+        switch (integrationSetupSwipeView.currentIndex) {
+        case 0:
+            configureStep.cancelSetup();
+            break;
+        case 1:
+            integrationSetupSwipeView.currentIndex = 2;
+            break;
+        default:
+            if (finishStep.success) {
+                finishStep.done();
+            } else {
+                finishStep.failed();
+            }
+        }
+    }
+
     Component.onCompleted: {
         if (IntegrationController.integrationDriverTosetup.discovered) {
             let setupData = {};

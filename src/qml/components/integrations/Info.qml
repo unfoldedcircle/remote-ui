@@ -66,20 +66,21 @@ Flickable {
         integrationInfoFlickable.contentY = 0;
         deleteContainer.state = "closed";
         integrationId = "";
+        // a reopened popup starts on its first control again
+        buttonNavigation.lastFocusItem = null;
+        buttonNavigation.lastFocusAnchor = null;
     }
 
-    function scrollDown() {
-        integrationInfoFlickable.contentY = Math.min(integrationInfoFlickable.contentY + 100,
-                                                     Math.max(0, integrationInfoFlickable.contentHeight - integrationInfoFlickable.height));
-    }
-
-    function scrollUp() {
-        integrationInfoFlickable.contentY = Math.max(0, integrationInfoFlickable.contentY - 100);
-    }
-
+    /** KEYBOARD NAVIGATION **/
+    // The popup navigates through the QML focus chain: Manage entities -> connected switch ->
+    // Delete. The button navigation only binds BACK / HOME; a DPAD handler here would act on the
+    // same key press as the focused control.
     Components.ButtonNavigation {
         id: buttonNavigation
         overrideActive: ui.inputController.activeItem === popup
+        manageFocus: true
+        scrollTarget: integrationInfoFlickable
+        initialFocusItem: manageEntitiesRow
         defaultConfig: {
             "BACK": {
                 "pressed": function() {
@@ -90,19 +91,28 @@ Flickable {
                 "pressed": function() {
                     integrationInfoFlickable.popup.close()
                 }
-            },
-            "DPAD_DOWN": {
-                "pressed": function() {
-                    integrationInfoFlickable.scrollDown();
-                }
-            },
-            "DPAD_UP": {
-                "pressed": function() {
-                    integrationInfoFlickable.scrollUp();
-                }
             }
         }
     }
+
+    // a key nobody in the chain accepted: the focus is at the end of the chain, scroll on so the
+    // rest of the content can be reached (see Settings.Page)
+    function scrollChainEnd(event, direction) {
+        if (!buttonNavigation.hasInputControl) {
+            return;
+        }
+
+        const focused = buttonNavigation.windowFocusItem;
+        if (!focused || focused === integrationInfoFlickable || focused === buttonNavigation
+                || !buttonNavigation.isInScope(focused)) {
+            return;
+        }
+
+        event.accepted = buttonNavigation.scrollBy(direction * Math.round(integrationInfoFlickable.height / 2));
+    }
+
+    Keys.onDownPressed: scrollChainEnd(event, 1)
+    Keys.onUpPressed: scrollChainEnd(event, -1)
 
     ColumnLayout {
         id: content
@@ -309,8 +319,21 @@ Flickable {
                         anchors { left: parent.left; leftMargin: 20; top: entityCountText.bottom; topMargin: -20 }
                     }
 
+                    Rectangle {
+                        anchors { fill: parent; margins: -4 }
+                        radius: ui.cornerRadiusSmall
+                        color: colors.transparent
+                        border {
+                            width: 2
+                            color: manageEntitiesRow.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                        }
+                    }
+
                     Components.HapticMouseArea {
+                        id: manageEntitiesRow
                         anchors.fill: parent
+                        keypadActivatable: true
+                        KeyNavigation.down: connectedSwitch
                         onClicked: {
                             manageEntitiesPopup.open();
                         }
@@ -366,6 +389,11 @@ Flickable {
                     }
                     enabled: integrationObj.state === "connected" || integrationObj.state === "disconnected" || integrationObj.state === "error"
                     opacity: enabled ? 1 : 0.3
+
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.up: manageEntitiesRow
+                    KeyNavigation.down: deleteRow
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
@@ -447,9 +475,21 @@ Flickable {
         anchors.top: content.bottom
         state: "closed"
 
+        // the selection starts on Cancel: deleting an integration must take a deliberate second step
+        property bool cancelSelected: true
+
         onStateChanged: {
             if (state == "opened") {
+                deleteContainer.cancelSelected = true;
                 deleteContainerButtonNavigation.takeControl();
+                // The opener row lives inside this drawer, so the page's focus management leaves
+                // the focus on it (a layer inside the scope keeps its own control). Park it on the
+                // page's button navigation ourselves: otherwise DPAD_MIDDLE on Cancel would close
+                // the drawer on the input path and reopen it through the row's Return on the focus
+                // path. The page claims the row back when the drawer releases the input.
+                if (deleteRow.activeFocus) {
+                    buttonNavigation.forceActiveFocus();
+                }
             } else {
                 deleteContainerButtonNavigation.releaseControl();
             }
@@ -468,9 +508,23 @@ Flickable {
                         deleteContainer.state = "closed";
                     }
                 },
+                "DPAD_LEFT": {
+                    "pressed": function() {
+                        deleteContainer.cancelSelected = true;
+                    }
+                },
+                "DPAD_RIGHT": {
+                    "pressed": function() {
+                        deleteContainer.cancelSelected = false;
+                    }
+                },
                 "DPAD_MIDDLE": {
                     "pressed": function() {
-                        deleteContainer.deleteIntegration();
+                        if (deleteContainer.cancelSelected) {
+                            deleteContainer.state = "closed";
+                        } else {
+                            deleteContainer.deleteIntegration();
+                        }
                     }
                 }
             }
@@ -590,8 +644,21 @@ Flickable {
                         size: 100
                         color: colors.offwhite
 
+                        Rectangle {
+                            anchors { fill: parent; margins: 10 }
+                            radius: ui.cornerRadiusSmall
+                            color: colors.transparent
+                            border {
+                                width: 2
+                                color: deleteRow.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                            }
+                        }
+
                         Components.HapticMouseArea {
+                            id: deleteRow
                             anchors.fill: parent
+                            keypadActivatable: true
+                            KeyNavigation.up: connectedSwitch
                             onClicked: {
                                 deleteContainer.state = "opened";
                             }
@@ -631,6 +698,16 @@ Flickable {
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignLeft
                         color: colors.offwhite
+
+                        Rectangle {
+                            anchors { fill: parent; margins: -10 }
+                            radius: ui.cornerRadiusSmall
+                            color: colors.transparent
+                            border {
+                                width: 2
+                                color: deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
+                            }
+                        }
                         font: fonts.secondaryFont(26, "Bold")
 
                         Components.HapticMouseArea {
@@ -651,6 +728,16 @@ Flickable {
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignRight
                         color: colors.offwhite
+
+                        Rectangle {
+                            anchors { fill: parent; margins: -10 }
+                            radius: ui.cornerRadiusSmall
+                            color: colors.transparent
+                            border {
+                                width: 2
+                                color: !deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
+                            }
+                        }
                         font: fonts.secondaryFont(26, "Bold")
 
                         Components.HapticMouseArea {

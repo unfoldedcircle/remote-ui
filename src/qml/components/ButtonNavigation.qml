@@ -41,6 +41,26 @@ Item {
     // control the user was last on inside this scope, restored when the scope comes back to front
     property Item lastFocusItem: null
 
+    // Fallback for lastFocusItem: a ListView delegate holding the focus is destroyed when its model
+    // is rebuilt (a wifi scan result) while a popup owns the input, and an Item property is nulled
+    // with it. A container that declares `property bool keypadFocusAnchor: true` (the ListView) is
+    // remembered alongside, so the scope comes back to the list instead of its first control.
+    property Item lastFocusAnchor: null
+
+    function focusAnchorOf(item) {
+        for (let p = item; p; p = p.parent) {
+            if (p === scope) {
+                return null;
+            }
+
+            if (p.keypadFocusAnchor === true) {
+                return p;
+            }
+        }
+
+        return null;
+    }
+
     // Set this to the scope's Flickable to keep the focused control on screen. Flickable does not
     // follow the keyboard focus by itself, so without this the focus chain walks off the bottom of
     // the display on any page taller than the viewport.
@@ -56,15 +76,43 @@ Item {
         return false;
     }
 
+    // The rectangle to reveal for a focused control: the control's section - the direct child of the
+    // top-level layout inside the Flickable (a settings row with its title and description, a slider
+    // with its title) - as long as that section fits into the viewport; otherwise the control itself
+    // (a ListView delegate whose section is the whole list, a drawer taller than the screen).
+    function scrollSectionOf(item) {
+        if (!scrollTarget) {
+            return item;
+        }
+
+        const contentItem = scrollTarget.contentItem;
+        for (let p = item; p && p.parent; p = p.parent) {
+            if (p.parent.parent === contentItem) {
+                return p;
+            }
+
+            if (p.parent === contentItem) {
+                return item;
+            }
+        }
+
+        return item;
+    }
+
     function ensureVisible(item) {
         if (!scrollTarget || !item || !isChildOf(item, scrollTarget.contentItem)) {
             return;
         }
 
         const margin = 40;
-        const pos = item.mapToItem(scrollTarget.contentItem, 0, 0);
+        let target = scrollSectionOf(item);
+        if (target !== item && target.height + 2 * margin > scrollTarget.height) {
+            target = item;
+        }
+
+        const pos = target.mapToItem(scrollTarget.contentItem, 0, 0);
         const top = pos.y - margin;
-        const bottom = pos.y + item.height + margin;
+        const bottom = pos.y + target.height + margin;
         const maxContentY = Math.max(0, scrollTarget.contentHeight - scrollTarget.height);
 
         if (top < scrollTarget.contentY) {
@@ -72,6 +120,24 @@ Item {
         } else if (bottom > scrollTarget.contentY + scrollTarget.height) {
             scrollTarget.contentY = Math.min(Math.max(0, bottom - scrollTarget.height), maxContentY);
         }
+    }
+
+    // Scroll the scrollTarget by delta pixels, clamped to its content. Returns whether it moved, so a
+    // key handler at the end of a focus chain can report the key as handled only when there was
+    // something left to scroll to.
+    function scrollBy(delta) {
+        if (!scrollTarget) {
+            return false;
+        }
+
+        const maxContentY = Math.max(0, scrollTarget.contentHeight - scrollTarget.height);
+        const next = Math.min(Math.max(0, scrollTarget.contentY + delta), maxContentY);
+        if (Math.abs(next - scrollTarget.contentY) < 1) {
+            return false;
+        }
+
+        scrollTarget.contentY = next;
+        return true;
     }
 
     // the null guard keeps the binding quiet while the ui context is torn down on shutdown
@@ -92,6 +158,10 @@ Item {
     function focusTarget() {
         if (lastFocusItem && lastFocusItem.visible && isInScope(lastFocusItem)) {
             return lastFocusItem;
+        }
+
+        if (lastFocusAnchor && lastFocusAnchor.visible && isInScope(lastFocusAnchor)) {
+            return lastFocusAnchor;
         }
 
         if (initialFocusItem && initialFocusItem.visible) {
@@ -142,7 +212,11 @@ Item {
 
     onHasInputControlChanged: {
         if (hasInputControl) {
-            claimFocus();
+            // Deferred: the input usually comes back on a key press that closed the layer above
+            // (Cancel in a drawer, BACK on a dialog). That key is still being delivered on the
+            // focus path, and a control focused right now would act on it as well - a drawer
+            // closed with OK on Cancel reopened itself through its opener row this way.
+            Qt.callLater(claimFocus);
         } else {
             parkFocus();
         }
@@ -158,6 +232,7 @@ Item {
         if (windowFocusItem !== buttonNavigation && windowFocusItem !== scope && isInScope(windowFocusItem)) {
             // remember where the user is, so the scope comes back to the same control
             buttonNavigation.lastFocusItem = windowFocusItem;
+            buttonNavigation.lastFocusAnchor = focusAnchorOf(windowFocusItem);
             return;
         }
 
@@ -173,6 +248,21 @@ Item {
     // can only take the focus once it is actually on screen
     readonly property bool scopeVisible: scope ? scope.visible : false
     onScopeVisibleChanged: claimFocus()
+
+    // The control to come back to can still be hidden when the scope regains the input (a tile that
+    // fades back in after the popup it opened has closed): the claim then lands on the scope itself.
+    // Claim again once the control is visible.
+    readonly property bool lastFocusVisible: lastFocusItem ? lastFocusItem.visible : false
+    readonly property bool initialFocusVisible: initialFocusItem ? initialFocusItem.visible : false
+
+    function reclaimFocus() {
+        if (manageFocus && hasInputControl) {
+            Qt.callLater(claimFocus);
+        }
+    }
+
+    onLastFocusVisibleChanged: reclaimFocus()
+    onInitialFocusVisibleChanged: reclaimFocus()
 
     property bool overrideActive: false
     property var defaultConfig: ({})

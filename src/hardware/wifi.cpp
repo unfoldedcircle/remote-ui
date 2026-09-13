@@ -3,6 +3,10 @@
 
 #include "wifi.h"
 
+#include <QSet>
+
+#include <algorithm>
+
 #include "../logging.h"
 #include "../ui/notification.h"
 #include "../util.h"
@@ -43,6 +47,8 @@ QList<WifiNetwork *> Wifi::getNetworkList() {
         }
     }
 
+    std::sort(list.begin(), list.end(), WifiNetwork::lessThan);
+
     return list;
 }
 
@@ -52,6 +58,8 @@ QList<WifiNetwork *> Wifi::getKnownNetworkList() {
     for (QHash<QString, WifiNetwork *>::iterator i = m_knownNetworkList.begin(); i != m_knownNetworkList.end(); i++) {
         list.append(i.value());
     }
+
+    std::sort(list.begin(), list.end(), WifiNetwork::lessThan);
 
     return list;
 }
@@ -191,8 +199,6 @@ void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan>
         return;
     }
 
-    clearNetworkList();
-
     if (m_scanActive != scanActive) {
         m_scanActive = scanActive;
         emit scanActiveChanged();
@@ -215,6 +221,21 @@ void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan>
         }
     }
 
+    // Networks are updated in place and the list is only announced as changed when a network appeared or
+    // disappeared: every announcement makes the QML list rebuild its delegates and drop the keypad selection,
+    // and a scan result arrives every few seconds while the WiFi settings are open.
+    bool changed = false;
+
+    for (QHash<QString, WifiNetwork *>::iterator i = m_networkList.begin(); i != m_networkList.end();) {
+        if (accessPoints.contains(i.key())) {
+            i++;
+        } else {
+            i.value()->deleteLater();
+            i = m_networkList.erase(i);
+            changed = true;
+        }
+    }
+
     for (QHash<QString, const core::AccessPointScan *>::const_iterator i = accessPoints.begin();
          i != accessPoints.end(); i++) {
         const core::AccessPointScan *accessPoint = i.value();
@@ -226,10 +247,19 @@ void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan>
             security = accessPoint->auth.isEmpty() ? Security::Enum::OPEN : Security::Enum::WPA2_PSK;
         }
 
-        m_networkList.insert(i.key(),
-                             new WifiNetwork(0, accessPoint->ssid, accessPoint->ssidHex, security,
-                                             accessPoint->signalLevel, accessPoint->auth, "", "",
-                                             accessPoint->frequency, true, this));
+        if (WifiNetwork *network = m_networkList.value(i.key(), nullptr)) {
+            network->update(0, security, accessPoint->signalLevel, accessPoint->auth, "", "", accessPoint->frequency,
+                            true);
+        } else {
+            m_networkList.insert(i.key(),
+                                 new WifiNetwork(0, accessPoint->ssid, accessPoint->ssidHex, security,
+                                                 accessPoint->signalLevel, accessPoint->auth, "", "",
+                                                 accessPoint->frequency, true, this));
+            changed = true;
+        }
+    }
+
+    if (changed) {
         emit networkListChanged();
     }
 }
@@ -251,31 +281,54 @@ void Wifi::clearKnownNetworkList() {
 }
 
 void Wifi::getAllWifiNetworks() {
-    clearKnownNetworkList();
-
     int id = m_core->wifiGetAllNetworks();
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::wifiNetworksChanged,
         [=](QList<core::SavedNetwork> networks) {
-            // success
-            if (networks.size() > 0) {
-                for (QList<core::SavedNetwork>::iterator i = networks.begin(); i != networks.end(); i++) {
-                    qCDebug(lcHwWifi()) << "Saved network:" << i->id << i->ssid << i->state;
+            // success: update the saved networks in place, see updateNetworkList()
+            QSet<QString> received;
+            bool          changed = false;
 
-                    Security::Enum security = fromApiSecurity(i->security);
+            for (QList<core::SavedNetwork>::iterator i = networks.begin(); i != networks.end(); i++) {
+                qCDebug(lcHwWifi()) << "Saved network:" << i->id << i->ssid << i->state;
 
-                    if (security == Security::Enum::AUTO) {
-                        // the core couldn't classify the network: fall back to secured or open
-                        security = i->secured ? Security::Enum::WPA2_PSK : Security::Enum::OPEN;
-                    }
+                Security::Enum security = fromApiSecurity(i->security);
 
-                    m_knownNetworkList.insert(
-                        WifiNetwork::identifier(i->ssid, i->ssidHex),
-                        new WifiNetwork(i->id, i->ssid, i->ssidHex, security,
-                                        i->signalLevel, "", "", "", 0, i->state == uc::core::WifiEnums::NetworkState::DISABLED ? false : true,  this));
-                    emit knownNetworkListChanged();
+                if (security == Security::Enum::AUTO) {
+                    // the core couldn't classify the network: fall back to secured or open
+                    security = i->secured ? Security::Enum::WPA2_PSK : Security::Enum::OPEN;
                 }
+
+                const QString identifier = WifiNetwork::identifier(i->ssid, i->ssidHex);
+                const bool    enabled = i->state != uc::core::WifiEnums::NetworkState::DISABLED;
+                received.insert(identifier);
+
+                if (WifiNetwork *network = m_knownNetworkList.value(identifier, nullptr)) {
+                    network->update(i->id, security, i->signalLevel, "", "", "", 0, enabled);
+                } else {
+                    m_knownNetworkList.insert(identifier, new WifiNetwork(i->id, i->ssid, i->ssidHex, security,
+                                                                          i->signalLevel, "", "", "", 0, enabled,
+                                                                          this));
+                    changed = true;
+                }
+            }
+
+            for (QHash<QString, WifiNetwork *>::iterator i = m_knownNetworkList.begin();
+                 i != m_knownNetworkList.end();) {
+                if (received.contains(i.key())) {
+                    i++;
+                } else {
+                    i.value()->deleteLater();
+                    i = m_knownNetworkList.erase(i);
+                    changed = true;
+                }
+            }
+
+            if (changed) {
+                emit knownNetworkListChanged();
+                // the scan list excludes the saved networks: it changed with them
+                emit networkListChanged();
             }
         },
         [=](int code, QString message) {
@@ -472,6 +525,49 @@ WifiNetwork::WifiNetwork(int id, const QString &ssid, const QString &ssidHex, Se
     : QObject(parent), m_id(id), m_ssid(ssid), m_ssidHex(ssidHex), m_security(security), m_signalStrenght(SignalStrength::fromRssi(rssi)), m_keyManagement(keyManagement), m_pairwiseCipher(pairwiseCipher), m_groupCipher(groupCipher), m_frequency(frequency), m_enabled(enabled) {}
 
 WifiNetwork::~WifiNetwork() {}
+
+void WifiNetwork::update(int id, Security::Enum security, int rssi, const QString &keyManagement, const QString &pairwiseCipher, const QString &groupCipher, int frequency, bool enabled) {
+    if (m_id != id) {
+        m_id = id;
+        emit idChanged();
+    }
+
+    if (m_security != security) {
+        m_security = security;
+        emit securityChanged();
+    }
+
+    const SignalStrength::Enum signalStrength = SignalStrength::fromRssi(rssi);
+    if (m_signalStrenght != signalStrength) {
+        m_signalStrenght = signalStrength;
+        emit signalStrengthChanged();
+    }
+
+    if (m_keyManagement != keyManagement || m_pairwiseCipher != pairwiseCipher || m_groupCipher != groupCipher) {
+        m_keyManagement = keyManagement;
+        m_pairwiseCipher = pairwiseCipher;
+        m_groupCipher = groupCipher;
+        emit ciphersChanged();
+    }
+
+    if (m_frequency != frequency) {
+        m_frequency = frequency;
+        emit frequencyChanged();
+    }
+
+    if (m_enabled != enabled) {
+        m_enabled = enabled;
+        emit enabledChanged();
+    }
+}
+
+bool WifiNetwork::lessThan(const WifiNetwork *a, const WifiNetwork *b) {
+    if (a->m_signalStrenght != b->m_signalStrenght) {
+        return a->m_signalStrenght > b->m_signalStrenght;
+    }
+
+    return QString::compare(a->m_ssid, b->m_ssid, Qt::CaseInsensitive) < 0;
+}
 
 }  // namespace hw
 }  // namespace uc

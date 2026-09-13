@@ -21,6 +21,14 @@ ListView {
     delegate: dockItem
     header: headerItem
 
+    // the list starts empty and the ListView does not select the first result on its own: without
+    // this the first OK after a discovery did nothing until DOWN was pressed, and nothing was outlined
+    onCountChanged: {
+        if (dockList.count > 0 && dockList.currentIndex < 0) {
+            dockList.currentIndex = 0;
+        }
+    }
+
     add: Transition {
         NumberAnimation { property: "opacity"; from: 0; to: 1.0; duration: 300; easing.type: Easing.OutExpo }
     }

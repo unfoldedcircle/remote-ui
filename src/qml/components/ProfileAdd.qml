@@ -12,7 +12,9 @@ Rectangle {
     color: colors.black
     width: parent.width
     height: parent.height
-    enabled: opacity == 1
+    // enabled by state, not by the finished fade-in: the dialog takes the input and focuses its
+    // field as soon as it is shown, and the input controller drops a disabled owner right away
+    enabled: state === "visible"
 
     property string parentController
     property bool noProfile: false
@@ -61,10 +63,14 @@ Rectangle {
     // focus the name field, bring the keyboard up and take the input: what showing the form does,
     // for a form that is already visible when its step is entered again
     function focusForm() {
-        inputFieldContainer.inputField.focus = true;
-        inputFieldContainer.inputField.forceActiveFocus();
         keyboard.show();
-        buttonNavigation.takeControl();
+        // Deferred: the form is shown by a key press that is still being delivered. The field is
+        // focused after the input was taken, so the layer below records the control it was on -
+        // not our field - as the one to come back to.
+        Qt.callLater(function() {
+            buttonNavigation.takeControl();
+            inputFieldContainer.inputField.forceActiveFocus();
+        });
     }
 
     onStateChanged: {
@@ -121,19 +127,21 @@ Rectangle {
         }
     }
 
+    // DPAD_MIDDLE is the Return key of the focused name field and submits through its onAccepted;
+    // a DPAD_MIDDLE handler here would submit the same key press a second time
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
-            "DPAD_MIDDLE": {
-                "pressed": function() {
-                    addProfileContainer.submitForm();
-                }
-            },
             "BACK": {
                 "pressed": function() {
                     addProfileContainer.cancelForm();
                 }
             },
+            "HOME": {
+                "pressed": function() {
+                    addProfileContainer.cancelForm();
+                }
+            }
         }
     }
 
@@ -191,6 +199,9 @@ Rectangle {
             inputField.placeholderText: qsTr("John")
             inputField.onAccepted: addProfileContainer.submitForm()
             moveInput: false
+
+            /** KEYBOARD NAVIGATION **/
+            navDown: cancelButton.visible ? cancelButton : addButton
         }
 
         Components.Button {
@@ -203,9 +214,13 @@ Rectangle {
                 addProfileContainer.cancelForm();
             }
             visible: !ui.isOnboarding || addProfileContainer.noProfile
+
+            KeyNavigation.up: inputFieldContainer.inputField
+            KeyNavigation.right: addButton
         }
 
         Components.Button {
+            id: addButton
             //: Label for button that add a profile
             text: qsTr("Add")
             width: ui.isOnboarding || addProfileContainer.noProfile ? parent.width : parent.width / 2 - 10
@@ -213,6 +228,9 @@ Rectangle {
             trigger: function() {
                 addProfileContainer.submitForm();
             }
+
+            KeyNavigation.up: inputFieldContainer.inputField
+            KeyNavigation.left: cancelButton
         }
     }
 }

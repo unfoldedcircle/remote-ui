@@ -11,7 +11,9 @@ Rectangle {
     id: dockPasswordContainer
     color: colors.black
     anchors.fill: parent
-    enabled: opacity == 1
+    // enabled by state, not by the finished fade-in: the dialog takes the input and focuses its
+    // field as soon as it is shown, and the input controller drops a disabled owner right away
+    enabled: state === "visible"
 
     property string dockId;
 
@@ -55,9 +57,14 @@ Rectangle {
 
     onStateChanged: {
         if (state == "visible") {
-            buttonNavigation.takeControl();
-            inputFieldContainer.inputField.focus = true;
-            inputFieldContainer.inputField.forceActiveFocus();
+            // Deferred: the dialog is shown by a key press (or a tap) that is still being delivered,
+            // and its root only becomes enabled with the state change that triggered this handler.
+            // The field is focused after the input was taken, so the page below records the
+            // control it was on - not our field - as the one to come back to.
+            Qt.callLater(function() {
+                buttonNavigation.takeControl();
+                inputFieldContainer.inputField.forceActiveFocus();
+            });
             keyboard.show();
         } else {
             buttonNavigation.releaseControl();
@@ -104,11 +111,6 @@ Rectangle {
                 "pressed": function() {
                     dockPasswordContainer.close();
                 }
-            },
-            "DPAD_MIDDLE": {
-                "pressed": function() {
-                    dockPasswordContainer.rename();
-                }
             }
         }
     }
@@ -143,6 +145,11 @@ Rectangle {
             rename();
         }
         moveInput: false
+
+        /** KEYBOARD NAVIGATION **/
+        // DPAD_MIDDLE on the field is its Return key and submits through onAccepted; the buttons
+        // below are reached with DPAD_DOWN
+        navDown: cancelButton
     }
 
     Components.Button {
@@ -156,14 +163,21 @@ Rectangle {
             dockPasswordContainer.state = "hidden";
             keyboard.hide();
         }
+
+        KeyNavigation.up: inputFieldContainer.inputField
+        KeyNavigation.right: actionButton
     }
 
     Components.Button {
+        id: actionButton
         text: qsTr("Change")
         width: parent.width / 2 - 10
         anchors { right: inputFieldContainer.right; top: inputFieldContainer.bottom; topMargin: 40 }
         trigger: function() {
             rename();
         }
+
+        KeyNavigation.up: inputFieldContainer.inputField
+        KeyNavigation.left: cancelButton
     }
 }

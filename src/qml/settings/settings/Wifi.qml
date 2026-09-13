@@ -63,9 +63,15 @@ Settings.Page {
         height: parent.height - topNavigation.height - 10
         anchors { top: topNavigation.bottom; topMargin: 10 }
         contentWidth: content.width; contentHeight: content.height
+        clip: true
 
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
+        boundsBehavior: Flickable.StopAtBounds
+
+        Behavior on contentY {
+            NumberAnimation { duration: 300 }
+        }
 
         ColumnLayout {
             id: content
@@ -330,7 +336,13 @@ Settings.Page {
                    color: colors.red
 
                    /** KEYBOARD NAVIGATION **/
-                   KeyNavigation.up: otherNetworkList
+                   // going up enters the list from its end (the "Join other" button or the last
+                   // network), not at whatever entry the list had selected before
+                   Keys.onUpPressed: {
+                       otherNetworkList.selectLast();
+                       otherNetworkList.forceActiveFocus();
+                       event.accepted = true;
+                   }
 
                    trigger: function() {
                        ui.createActionableWarningNotification(

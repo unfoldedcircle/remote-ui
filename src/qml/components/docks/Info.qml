@@ -20,6 +20,8 @@ Item {
     property QtObject dockObjDummy: QtObject {
         property string id
         property string name
+        property string model
+        property string serial
         property int state
         property string connectionType
         property int ledBrightness
@@ -49,20 +51,25 @@ Item {
         dockInfoFlickable.contentY = 0;
         deleteContainer.state = "closed";
         dockId = "";
+        // a reopened popup starts on its first control again
+        buttonNavigation.lastFocusItem = null;
+        buttonNavigation.lastFocusAnchor = null;
     }
 
-    function scrollDown() {
-        dockInfoFlickable.contentY = Math.min(dockInfoFlickable.contentY + 100,
-                                              Math.max(0, dockInfoFlickable.contentHeight - dockInfoFlickable.height));
-    }
-
-    function scrollUp() {
-        dockInfoFlickable.contentY = Math.max(0, dockInfoFlickable.contentY - 100);
-    }
+    /** KEYBOARD NAVIGATION **/
+    // The popup navigates through the QML focus chain: name row -> Identify / Connect -> LED
+    // brightness -> Change password -> Change WiFi settings -> Factory reset -> Delete. Invisible
+    // and disabled links are skipped by KeyNavigation on its own. The button navigation only
+    // binds BACK / HOME; a DPAD handler here would act on the same key press as the focused control.
+    readonly property Item firstFocusItem: nameRow.enabled ? nameRow
+                                                           : connectButton.visible ? connectButton : deleteRow
 
     Components.ButtonNavigation {
         id: buttonNavigation
         overrideActive: ui.inputController.activeItem === popup
+        manageFocus: true
+        scrollTarget: dockInfoFlickable
+        initialFocusItem: dockInfoContainer.firstFocusItem
         defaultConfig: {
             "BACK": {
                 "pressed": function() {
@@ -73,19 +80,28 @@ Item {
                 "pressed": function() {
                     dockInfoContainer.popup.close()
                 }
-            },
-            "DPAD_DOWN": {
-                "pressed": function() {
-                    dockInfoContainer.scrollDown();
-                }
-            },
-            "DPAD_UP": {
-                "pressed": function() {
-                    dockInfoContainer.scrollUp();
-                }
             }
         }
     }
+
+    // a key nobody in the chain accepted: the focus is at the end of the chain, scroll on so the
+    // rest of the content can be reached (see Settings.Page)
+    function scrollChainEnd(event, direction) {
+        if (!buttonNavigation.hasInputControl) {
+            return;
+        }
+
+        const focused = buttonNavigation.windowFocusItem;
+        if (!focused || focused === dockInfoContainer || focused === buttonNavigation
+                || !buttonNavigation.isInScope(focused)) {
+            return;
+        }
+
+        event.accepted = buttonNavigation.scrollBy(direction * Math.round(dockInfoFlickable.height / 2));
+    }
+
+    Keys.onDownPressed: scrollChainEnd(event, 1)
+    Keys.onUpPressed: scrollChainEnd(event, -1)
 
     Flickable {
         id: dockInfoFlickable
@@ -227,9 +243,22 @@ Item {
                                 color: colors.offwhite
                                 font: fonts.primaryFont(30)
 
+                                Rectangle {
+                                    anchors { fill: parent; margins: -6 }
+                                    radius: ui.cornerRadiusSmall
+                                    color: colors.transparent
+                                    border {
+                                        width: 2
+                                        color: nameRow.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                                    }
+                                }
+
                                 Components.HapticMouseArea {
+                                    id: nameRow
                                     anchors.fill: parent
                                     enabled: dockInfoContainer.dockEditable
+                                    keypadActivatable: true
+                                    KeyNavigation.down: identifyButton
                                     onClicked: {
                                         renameContainer.open(dockInfoContainer.dockObj.id, dockInfoContainer.dockObj.name);
                                     }
@@ -289,6 +318,7 @@ Item {
                     }
 
                     Components.Button {
+                        id: identifyButton
                         Layout.alignment: Qt.AlignRight
 
                         text: qsTr("Identify")
@@ -300,9 +330,13 @@ Item {
                             DockController.identify(dockInfoContainer.dockObj.id);
                             identifyAnimation.start();
                         }
+
+                        KeyNavigation.up: nameRow
+                        KeyNavigation.down: connectButton
                     }
 
                     Components.Button {
+                        id: connectButton
                         text: qsTr("Connect")
                         fontSize: 20
                         height: 50
@@ -311,6 +345,9 @@ Item {
                         trigger: function() {
                             DockController.connect(dockInfoContainer.dockObj.id);
                         }
+
+                        KeyNavigation.up: identifyButton
+                        KeyNavigation.down: ledSlider
                     }
                 }
 
@@ -401,6 +438,7 @@ Item {
                 }
 
                 Components.Slider {
+                    id: ledSlider
                     height: 60
                     from: 0
                     to: 100
@@ -411,18 +449,36 @@ Item {
                     onUserInteractionEnded: {
                         DockController.setDockLedBrightness(dockObj.id, value);
                     }
+
+                    // DPAD_LEFT / RIGHT step the slider without a press: send those steps right away
+                    onMoved: {
+                        if (!pressed) {
+                            DockController.setDockLedBrightness(dockObj.id, value);
+                        }
+                    }
+
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.up: connectButton
+                    KeyNavigation.down: passwordRow
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
             Components.HapticMouseArea {
+                id: passwordRow
                 Layout.fillWidth: true
                 Layout.preferredHeight: 100
 
                 opacity: dockInfoContainer.dockEditable ? 1 : 0.3
                 enabled: opacity === 1
+                keypadActivatable: true
+                KeyNavigation.up: ledSlider
+                KeyNavigation.down: wifiRow
                 onClicked: {
                     passwordChangeContainter.open(dockInfoContainer.dockObj.id);
                 }
+
+                Components.RowHighlight { }
 
                 Text {
                     width: parent.width
@@ -451,14 +507,20 @@ Item {
             }
 
             Components.HapticMouseArea {
+                id: wifiRow
                 Layout.fillWidth: true
                 Layout.preferredHeight: 100
 
                 opacity: dockInfoContainer.dockEditable ? 1 : 0.3
                 enabled: opacity === 1
+                keypadActivatable: true
+                KeyNavigation.up: passwordRow
+                KeyNavigation.down: resetRow
                 onClicked: {
                     ui.createNotification("Not implemented yet");
                 }
+
+                Components.RowHighlight { }
 
                 Text {
                     width: parent.width
@@ -480,11 +542,18 @@ Item {
             }
 
             Components.HapticMouseArea {
+                id: resetRow
                 Layout.fillWidth: true
                 Layout.preferredHeight: 100
 
                 opacity: dockInfoContainer.dockEditable ? 1 : 0.3
                 enabled: opacity === 1
+                keypadActivatable: true
+                KeyNavigation.up: wifiRow
+                KeyNavigation.down: deleteRow
+
+                Components.RowHighlight { }
+
                 onClicked: {
                     ui.createActionableWarningNotification(qsTr("Factory reset"),
                                                            qsTr("Are you sure you want to factory reset %1?").arg(dockObj.name),
@@ -521,9 +590,24 @@ Item {
             anchors.top: content.bottom
             state: "closed"
 
+            // The drawer opens on the press of DPAD_MIDDLE on the delete row (the row's Return
+            // handler), so its own handlers act on "pressed": a "released" handler would fire on
+            // the release of that very key press. The selection starts on Cancel: deleting a dock
+            // must take a deliberate second step.
+            property bool cancelSelected: true
+
             onStateChanged: {
                 if (state == "opened") {
+                    deleteContainer.cancelSelected = true;
                     deleteContainerButtonNavigation.takeControl();
+                    // The opener row lives inside this drawer, so the page's focus management leaves
+                    // the focus on it (a layer inside the scope keeps its own control). Park it on the
+                    // page's button navigation ourselves: otherwise DPAD_MIDDLE on Cancel would close
+                    // the drawer on the input path and reopen it through the row's Return on the focus
+                    // path. The page claims the row back when the drawer releases the input.
+                    if (deleteRow.activeFocus) {
+                        buttonNavigation.forceActiveFocus();
+                    }
                 } else {
                     deleteContainerButtonNavigation.releaseControl();
                 }
@@ -533,18 +617,32 @@ Item {
                 id: deleteContainerButtonNavigation
                 defaultConfig: {
                     "BACK": {
-                        "released": function() {
+                        "pressed": function() {
                             deleteContainer.state = "closed";
                         }
                     },
                     "HOME": {
-                        "released": function() {
+                        "pressed": function() {
                             deleteContainer.state = "closed";
                         }
                     },
+                    "DPAD_LEFT": {
+                        "pressed": function() {
+                            deleteContainer.cancelSelected = true;
+                        }
+                    },
+                    "DPAD_RIGHT": {
+                        "pressed": function() {
+                            deleteContainer.cancelSelected = false;
+                        }
+                    },
                     "DPAD_MIDDLE": {
-                        "released": function() {
-                            deleteContainer.deleteDock();
+                        "pressed": function() {
+                            if (deleteContainer.cancelSelected) {
+                                deleteContainer.state = "closed";
+                            } else {
+                                deleteContainer.deleteDock();
+                            }
                         }
                     }
                 }
@@ -660,8 +758,21 @@ Item {
                             size: 100
                             color: colors.offwhite
 
+                            Rectangle {
+                                anchors { fill: parent; margins: 10 }
+                                radius: ui.cornerRadiusSmall
+                                color: colors.transparent
+                                border {
+                                    width: 2
+                                    color: deleteRow.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                                }
+                            }
+
                             Components.HapticMouseArea {
+                                id: deleteRow
                                 anchors.fill: parent
+                                keypadActivatable: true
+                                KeyNavigation.up: resetRow
                                 onClicked: {
                                     deleteContainer.state = "opened";
                                 }
@@ -701,6 +812,16 @@ Item {
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignLeft
                             color: colors.offwhite
+
+                            Rectangle {
+                                anchors { fill: parent; margins: -10 }
+                                radius: ui.cornerRadiusSmall
+                                color: colors.transparent
+                                border {
+                                    width: 2
+                                    color: deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
+                                }
+                            }
                             font: fonts.secondaryFont(26, "Bold")
 
                             Components.HapticMouseArea {
@@ -721,6 +842,16 @@ Item {
                             verticalAlignment: Text.AlignVCenter
                             horizontalAlignment: Text.AlignRight
                             color: colors.offwhite
+
+                            Rectangle {
+                                anchors { fill: parent; margins: -10 }
+                                radius: ui.cornerRadiusSmall
+                                color: colors.transparent
+                                border {
+                                    width: 2
+                                    color: !deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
+                                }
+                            }
                             font: fonts.secondaryFont(26, "Bold")
 
                             Components.HapticMouseArea {

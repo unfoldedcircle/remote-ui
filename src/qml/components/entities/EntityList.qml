@@ -197,6 +197,7 @@ Rectangle {
             padding: 0
 
             onOpened: {
+                filterTypesListView.currentIndex = 0;
                 entityFilterPopupButtonNavigation.takeControl();
             }
 
@@ -214,8 +215,44 @@ Rectangle {
                 NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; easing.type: Easing.InExpo; duration: 300 }
             }
 
+            // the sheet owns the input while it is open: DPAD_UP / DOWN walk the filter rows,
+            // DPAD_MIDDLE toggles the row, DPAD_LEFT clears all filters, BACK / HOME close it
             Components.ButtonNavigation {
                 id: entityFilterPopupButtonNavigation
+                defaultConfig: {
+                    "DPAD_DOWN": {
+                        "pressed": function() {
+                            filterTypesListView.incrementCurrentIndex();
+                        }
+                    },
+                    "DPAD_UP": {
+                        "pressed": function() {
+                            filterTypesListView.decrementCurrentIndex();
+                        }
+                    },
+                    "DPAD_MIDDLE": {
+                        "pressed": function() {
+                            if (filterTypesListView.currentItem) {
+                                filterTypesListView.currentItem.toggle();
+                            }
+                        }
+                    },
+                    "DPAD_LEFT": {
+                        "pressed": function() {
+                            clearFiltersButton.clicked(null);
+                        }
+                    },
+                    "BACK": {
+                        "pressed": function() {
+                            entityFilterPopup.close();
+                        }
+                    },
+                    "HOME": {
+                        "pressed": function() {
+                            entityFilterPopup.close();
+                        }
+                    }
+                }
             }
 
             background: Rectangle {
@@ -252,6 +289,7 @@ Rectangle {
                             Layout.rightMargin: 20
 
                             Components.HapticMouseArea {
+                                id: clearFiltersButton
                                 Layout.preferredHeight: 80
                                 Layout.preferredWidth: parent.width / 3
 
@@ -382,6 +420,15 @@ Rectangle {
                                 property bool checked: entityList.model.containsEntityType(typeValue)
                                 Component.onCompleted: typeChecked = false// entityList.model.containsEntityType(typeValue)
 
+                                function toggle() {
+                                    if (typeChecked) {
+                                        entityList.model.removeEntityType(typeValue);
+                                    } else {
+                                        entityList.model.setEntityType(typeValue);
+                                    }
+                                    typeChecked = entityList.model.containsEntityType(typeValue);
+                                }
+
                                 Components.Icon {
                                     size: 60
                                     color: colors.offwhite
@@ -392,7 +439,8 @@ Rectangle {
                                     Layout.fillWidth: true
                                     Layout.preferredHeight: 60
                                     text: typeName
-                                    color: colors.offwhite
+                                    color: filterListViewDelegate.ListView.isCurrentItem && ui.keyNavigationActive
+                                           ? colors.highlight : colors.offwhite
                                     verticalAlignment: Text.AlignVCenter
                                     font: fonts.primaryFont(28)
                                 }
@@ -403,12 +451,7 @@ Rectangle {
                                     Layout.alignment: Qt.AlignRight
 
                                     onClicked: {
-                                        if (typeChecked) {
-                                            entityList.model.removeEntityType(typeValue);
-                                        } else {
-                                            entityList.model.setEntityType(typeValue);
-                                        }
-                                        typeChecked = entityList.model.containsEntityType(typeValue);
+                                        filterListViewDelegate.toggle();
                                     }
 
                                     Rectangle {

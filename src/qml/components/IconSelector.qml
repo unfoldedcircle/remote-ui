@@ -45,7 +45,12 @@ Popup {
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
-                    iconSelectorPopup.iconSelected(iconGridSwipeView.currentIndex === 0 ? iconGrid.currentItem.icon : iconGridCustom.currentItem.icon);
+                    const item = iconGridSwipeView.currentIndex === 0 ? iconGrid.currentItem : iconGridCustom.currentItem;
+                    if (!item) {
+                        return;
+                    }
+
+                    iconSelectorPopup.iconSelected(item.icon);
                     iconSelectorPopup.close();
                 }
             }
@@ -190,7 +195,7 @@ Popup {
                             radius: ui.cornerRadiusSmall
                             border {
                                 width: 2
-                                color: currentItem ? colors.offwhite : colors.transparent
+                                color: currentItem && ui.keyNavigationActive ? colors.offwhite : colors.transparent
                             }
 
                             Behavior on color {
@@ -245,7 +250,7 @@ Popup {
                             radius: ui.cornerRadiusSmall
                             border {
                                 width: 2
-                                color: currentItem ? colors.offwhite : colors.transparent
+                                color: currentItem && ui.keyNavigationActive ? colors.offwhite : colors.transparent
                             }
 
                             Behavior on color {
