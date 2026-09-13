@@ -169,8 +169,13 @@ Settings.Page {
         padding: 0
         parent: Overlay.overlay
 
+        // the popup's own navigation is the fallback owner (before the setup is loaded); the
+        // current setup step takes the input on top of it once the popup is visible
         onOpened: {
             integrationSetupPopupButtonNavigation.takeControl();
+            if (integrationSetupLoader.item) {
+                integrationSetupLoader.item.activateCurrentStep();
+            }
         }
 
         onClosed: {
@@ -200,12 +205,23 @@ Settings.Page {
             asynchronous: true
             source: "qrc:/components/integrations/Setup.qml"
 
+            onStatusChanged: {
+                if (status == Loader.Ready && integrationSetupPopup.opened) {
+                    integrationSetupLoader.item.activateCurrentStep();
+                }
+            }
+
             Connections {
                 target: integrationSetupLoader.item
                 ignoreUnknownSignals: true
 
                 function onDone() {
                     integrationSetupPopup.close();
+                }
+
+                function onHome() {
+                    integrationSetupPopup.close();
+                    goHome();
                 }
             }
 

@@ -28,6 +28,13 @@ CheckBox {
     property color backgroundColor: colors.medium
     property bool highlight: activeFocus && ui.keyNavigationActive
 
+    // a control reached with the d-pad while the on-screen keyboard is up would sit under it
+    onActiveFocusChanged: {
+        if (activeFocus && typeof keyboard !== "undefined" && keyboard.active) {
+            keyboard.hide();
+        }
+    }
+
     // QtQuick's AbstractButton only activates on Key_Space; DPAD_MIDDLE maps to Key_Return.
     Keys.onReturnPressed: {
         control.toggle();

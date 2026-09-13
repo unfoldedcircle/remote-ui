@@ -33,6 +33,22 @@ ListView {
     header: header
     currentIndex: 0
 
+    // The selection must always point at a tile: the main container's key handlers dereference the
+    // current item. The item list is rewritten when the page is saved after a reorder and shrinks
+    // when a tile is removed, and both can leave currentIndex past the end - with the keypad there
+    // is no tap to select a tile again, so the page went dead until a page change.
+    function clampCurrentIndex() {
+        if (page.count > 0 && page.currentIndex >= page.count) {
+            page.currentIndex = page.count - 1;
+        }
+    }
+
+    // Deferred: the index is pushed past the end from inside the model change, and the view has to
+    // finish that change before the index is moved again - moved right away, it ended on a valid
+    // index without a current item.
+    onCountChanged: Qt.callLater(clampCurrentIndex)
+    onCurrentIndexChanged: Qt.callLater(clampCurrentIndex)
+
     signal draggedDownYChanged(int contentY, int treshold)
 
     property string title: pageName

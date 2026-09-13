@@ -163,8 +163,13 @@ Settings.Page {
         closePolicy: Popup.NoAutoClose
         padding: 0
 
+        // the popup's own navigation is the fallback owner; the current setup step takes the input
+        // on top of it once the popup is visible
         onOpened: {
             dockSetupPopupButtonNavigation.takeControl();
+            if (dockSetupLoader.item) {
+                dockSetupLoader.item.activateCurrentStep();
+            }
         }
 
         onClosed: {
@@ -214,6 +219,11 @@ Settings.Page {
 
                 function onFailed() {
                     dockSetupPopup.close();
+                }
+
+                function onHome() {
+                    dockSetupPopup.close();
+                    goHome();
                 }
             }
         }

@@ -13,6 +13,14 @@ Item {
     property string image
     property alias message2: message2.text
 
+    /** KEYBOARD NAVIGATION **/
+    // the page has no control: the text takes the focus, DPAD_DOWN / UP scroll it, and DOWN at
+    // its end moves on to the control the hosting form passes as navExit (its Next button)
+    property alias flickable: contentFlickable
+    readonly property Item firstFocusItem: contentFlickable
+    readonly property Item lastFocusItem: contentFlickable
+    property Item navExit: null
+
     Text {
         id: title
 
@@ -34,6 +42,27 @@ Item {
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
         anchors { top: title.bottom; topMargin: 40; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+
+        KeyNavigation.down: root.navExit
+
+        Keys.onDownPressed: {
+            const maxContentY = Math.max(0, contentFlickable.contentHeight - contentFlickable.height);
+            if (contentFlickable.contentY < maxContentY) {
+                contentFlickable.contentY = Math.min(contentFlickable.contentY + 200, maxContentY);
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+        }
+
+        Keys.onUpPressed: {
+            if (contentFlickable.contentY > 0) {
+                contentFlickable.contentY = Math.max(0, contentFlickable.contentY - 200);
+                event.accepted = true;
+            } else {
+                event.accepted = false;
+            }
+        }
 
         ScrollBar.vertical: ScrollBar {
             opacity: 0.5

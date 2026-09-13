@@ -19,6 +19,45 @@ Item {
 
     signal done()
     signal failed()
+    signal home()
+
+    /** KEYBOARD NAVIGATION **/
+    // Done / Try again hold the focus; BACK is their key equivalent. The step owns the input while
+    // it is the current step of the setup (deferred, see Configure).
+    readonly property bool isCurrentStep: SwipeView.isCurrentItem
+    onIsCurrentStepChanged: Qt.callLater(activate)
+
+    function activate() {
+        if (dockSetupFinish.isCurrentStep) {
+            buttonNavigation.lastFocusItem = null;
+            buttonNavigation.takeControl();
+        } else {
+            buttonNavigation.releaseControl();
+        }
+    }
+
+    Components.ButtonNavigation {
+        id: buttonNavigation
+        manageFocus: true
+        initialFocusItem: dockSetupFinish.success ? doneButton : tryAgainButton
+        defaultConfig: {
+            "BACK": {
+                "pressed": function() {
+                    if (dockSetupFinish.success) {
+                        dockSetupFinish.done();
+                    } else {
+                        dockSetupFinish.failed();
+                    }
+                }
+            },
+            "HOME": {
+                "pressed": function() {
+                    dockSetupFinish.done();
+                    dockSetupFinish.home();
+                }
+            }
+        }
+    }
 
     ColumnLayout {
         visible: dockSetupFinish.success
@@ -66,6 +105,7 @@ Item {
         }
 
         Components.Button {
+            id: doneButton
             Layout.fillWidth: true
             Layout.leftMargin: 20
             Layout.rightMargin: 20
@@ -139,6 +179,7 @@ Item {
         }
 
         Components.Button {
+            id: tryAgainButton
             Layout.fillWidth: true
             Layout.leftMargin: 20
             Layout.rightMargin: 20

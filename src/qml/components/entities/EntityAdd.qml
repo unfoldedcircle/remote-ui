@@ -40,6 +40,10 @@ Entities.EntityList {
 
     onClosed: buttonNavigation.releaseControl()
 
+    // the list is walked and toggled through its own keypad API; DOWN past the last row reaches
+    // Select all / Add
+    keypadSelected: true
+    Component.onCompleted: buttonNavigation.extendDefaultConfig(entitySelectionList.keypadConfig())
 
     Components.ButtonNavigation {
         id: buttonNavigation
@@ -52,11 +56,6 @@ Entities.EntityList {
             "HOME": {
                 "pressed": function() {
                     entitySelectionList.close();
-                }
-            },
-            "DPAD_MIDDLE": {
-                "pressed": function() {
-                    entitySelectionList.okTrigger();
                 }
             }
         }

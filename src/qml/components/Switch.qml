@@ -43,6 +43,13 @@ Item {
     // DPAD_MIDDLE maps to Key_Return. The inner QtQuick Switch never sees it: focus is held by this
     // container, and an unhandled key bubbles up the parent chain, not down to the child. Handle it
     // here so a switch reached with the d-pad can actually be toggled.
+    // a control reached with the d-pad while the on-screen keyboard is up would sit under it
+    onActiveFocusChanged: {
+        if (activeFocus && typeof keyboard !== "undefined" && keyboard.active) {
+            keyboard.hide();
+        }
+    }
+
     Keys.onReturnPressed: {
         buttonContainer.activate();
         event.accepted = true;

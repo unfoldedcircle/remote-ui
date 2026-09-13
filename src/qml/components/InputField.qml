@@ -49,6 +49,10 @@ Rectangle {
     property Item navUp: null
     property Item navDown: null
 
+    // bring the on-screen keyboard up whenever the field gains the focus (a form walked with the
+    // d-pad); Button / Switch / Checkbox hide it again when they take the focus
+    property bool keyboardFollowsFocus: false
+
     Component.onCompleted: {
         if (inputField.echoMode === TextInput.Password) {
             inputFieldContainer.password = true;
@@ -124,6 +128,12 @@ Rectangle {
             inputFieldContainer.border.width = focus ? 1 : 0;
             if (focus && inputFieldContainer.moveInput){
                 keyboardInputField.show(inputFieldContainer, label);
+            }
+        }
+
+        onActiveFocusChanged: {
+            if (activeFocus && inputFieldContainer.keyboardFollowsFocus) {
+                keyboard.show();
             }
         }
     }

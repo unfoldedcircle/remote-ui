@@ -14,6 +14,7 @@ Item {
     id: integrationConfigureContainer
 
     signal cancelled
+    signal home
 
     function cancelSetup() {
         loading.stop();
@@ -22,14 +23,74 @@ Item {
             IntegrationController.stopIntegrationSetup(IntegrationController.integrationDriverTosetup.id)
         }
 
-        for (let i = configurationStepsSwipeView.children.length; i > 0; i--) {
-            configurationStepsSwipeView.takeItem(i);
-            console.debug("Destroyed child: " + i + configurationStepsSwipeView.children[i]);
+        for (let i = configurationStepsSwipeView.count - 1; i >= 0; i--) {
+            const page = configurationStepsSwipeView.takeItem(i);
+            if (page) {
+                page.destroy();
+            }
         }
 
         IntegrationController.clearConfigPages();
 
         integrationConfigureContainer.cancelled();
+    }
+
+    /** KEYBOARD NAVIGATION **/
+    // The form navigates through the QML focus chain: the fields of the current page (or its text,
+    // for a user action page), then Next, LEFT to Cancel. The step owns the input while it is the
+    // current step of the setup; taking it is deferred, as the step change is triggered by a key
+    // press that is still being delivered.
+    readonly property bool isCurrentStep: SwipeView.isCurrentItem
+    onIsCurrentStepChanged: Qt.callLater(activate)
+
+    function activate() {
+        if (integrationConfigureContainer.isCurrentStep) {
+            buttonNavigation.lastFocusItem = null;
+            buttonNavigation.lastFocusAnchor = null;
+            buttonNavigation.takeControl();
+        } else {
+            buttonNavigation.releaseControl();
+        }
+    }
+
+    readonly property Item currentPage: configurationStepsSwipeView.currentItem
+
+    // The focus stays on the previous page after a page change: it is still visible in the swipe
+    // view and counts as a control of this scope. Move it to the first control of the new page.
+    function focusPage() {
+        if (!buttonNavigation.hasInputControl) {
+            return;
+        }
+
+        buttonNavigation.lastFocusItem = null;
+        buttonNavigation.lastFocusAnchor = null;
+        const target = buttonNavigation.initialFocusItem;
+        if (target) {
+            target.forceActiveFocus();
+        }
+    }
+
+    onCurrentPageChanged: Qt.callLater(focusPage)
+
+    Components.ButtonNavigation {
+        id: buttonNavigation
+        manageFocus: true
+        scrollTarget: integrationConfigureContainer.currentPage ? integrationConfigureContainer.currentPage.flickable : null
+        initialFocusItem: integrationConfigureContainer.currentPage && integrationConfigureContainer.currentPage.firstFocusItem
+                          ? integrationConfigureContainer.currentPage.firstFocusItem : buttonNext
+        defaultConfig: {
+            "BACK": {
+                "pressed": function() {
+                    integrationConfigureContainer.cancelSetup();
+                }
+            },
+            "HOME": {
+                "pressed": function() {
+                    integrationConfigureContainer.cancelSetup();
+                    integrationConfigureContainer.home();
+                }
+            }
+        }
     }
 
     function processConfigPages() {
@@ -49,7 +110,8 @@ Item {
             let component = Qt.createComponent("qrc:/components/integrations/Settings.qml");
             let obj = component.createObject(configurationStepsSwipeView, {
                                                  title: page.title,
-                                                 settings: page.settings
+                                                 settings: page.settings,
+                                                 navExit: buttonNext
                                              });
         } else {
             let component = Qt.createComponent("qrc:/components/integrations/UserAction.qml");
@@ -57,7 +119,8 @@ Item {
                                                  title: page.title,
                                                  message1: page.message1,
                                                  image: page.image,
-                                                 message2:page.message2
+                                                 message2:page.message2,
+                                                 navExit: buttonNext
                                              });
         }
     }
@@ -169,14 +232,19 @@ Item {
             text: qsTr("Next")
             width: (parent.width - 20 ) / 2
             anchors { right: parent.right; bottom: parent.bottom }
+
+            KeyNavigation.up: integrationConfigureContainer.currentPage ? integrationConfigureContainer.currentPage.lastFocusItem : null
+            KeyNavigation.left: buttonCancel
             trigger: function() {
+                // a driver without a setup page has no current page
+                const page = configurationStepsSwipeView.currentItem;
+                const setupData = page && typeof page.getData === "function" ? page.getData() : {};
+
                 if (configurationStepsSwipeView.currentIndex === 0) {
                     loading.start();
-                    let setupData = configurationStepsSwipeView.currentItem.getData();
                     IntegrationController.setupIntegration(IntegrationController.integrationDriverTosetup.id, setupData);
                 } else {
-                    if (configurationStepsSwipeView.currentItem.settings) {
-                        let setupData = configurationStepsSwipeView.currentItem.getData();
+                    if (page && page.settings) {
                         IntegrationController.integrationSetUserDataSettings(IntegrationController.integrationDriverTosetup.id, setupData);
                     } else {
                         IntegrationController.integrationSetUserDataConfirm(IntegrationController.integrationDriverTosetup.id);
@@ -192,6 +260,9 @@ Item {
             width: (parent.width - 20 ) / 2
             color: colors.secondaryButton
             anchors { left: parent.left; bottom: parent.bottom }
+
+            KeyNavigation.up: integrationConfigureContainer.currentPage ? integrationConfigureContainer.currentPage.lastFocusItem : null
+            KeyNavigation.right: buttonNext
             trigger: function() {
                 integrationConfigureContainer.cancelSetup();
             }

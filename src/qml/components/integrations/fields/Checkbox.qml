@@ -12,6 +12,8 @@ FieldBase {
     label.visible:  false
     label.height: 0
 
+    focusItem: checkBox
+
     Components.Checkbox {
         id: checkBox
         width: parent.width
@@ -19,5 +21,8 @@ FieldBase {
         text: root.labelText
 
         onCheckedChanged: root.value = checkBox.checked
+
+        KeyNavigation.up: root.navUp
+        KeyNavigation.down: root.navDown
     }
 }

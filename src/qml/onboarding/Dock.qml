@@ -115,8 +115,13 @@ OnboardingComponents.Page {
         padding: 0
         parent: Overlay.overlay
 
+        // the popup's own navigation is the fallback owner; the current setup step takes the input
+        // on top of it once the popup is visible
         onOpened: {
             dockSetupPopupButtonNavigation.takeControl();
+            if (dockSetupLoader.item) {
+                dockSetupLoader.item.activateCurrentStep();
+            }
         }
 
         onClosed: {
@@ -150,9 +155,19 @@ OnboardingComponents.Page {
                 NumberAnimation { easing.type: Easing.OutExpo; duration: 300 }
             }
 
+            onStatusChanged: {
+                if (status == Loader.Ready && dockSetupPopup.opened) {
+                    dockSetupLoader.item.activateCurrentStep();
+                }
+            }
+
             Connections {
                 target: dockSetupLoader.item
                 ignoreUnknownSignals: true
+
+                function onHome() {
+                    dockSetupPopup.close();
+                }
 
                 function onDone() {
                     dockSetupPopup.close();
@@ -179,19 +194,27 @@ OnboardingComponents.Page {
             }
         }
 
-        // the setup form is touch only; the keypad can only leave it, and the step keeps its
-        // own keys to itself while the popup is open
+        // leaving the popup cancels the setup that is running in it; the popup closes on the
+        // setup's done / failed signal
+        function cancelSetup() {
+            if (dockSetupLoader.item) {
+                dockSetupLoader.item.cancel();
+            } else {
+                dockSetupPopup.close();
+            }
+        }
+
         Components.ButtonNavigation {
             id: dockSetupPopupButtonNavigation
             defaultConfig: {
                 "HOME": {
                     "pressed": function() {
-                        dockSetupPopup.close();
+                        dockSetupPopup.cancelSetup();
                     }
                 },
                 "BACK": {
                     "pressed": function() {
-                        dockSetupPopup.close();
+                        dockSetupPopup.cancelSetup();
                     }
                 }
             }

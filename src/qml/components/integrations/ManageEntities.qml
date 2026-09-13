@@ -30,9 +30,15 @@ Item {
     function close() {
         entitySelectionList.close();
         configfuredEntitySelectionList.close();
-        buttonNavigation.releaseControl();
+        // deferred: closing on DPAD_MIDDLE (Add / Remove) hands the input back to the details
+        // popup, which focuses its "Manage entities" opener - the same key press must not reach it
+        Qt.callLater(buttonNavigation.releaseControl);
         manageEntities.closed();
         ui.setTimeOut(300, ()=>{ tabBar.currentIndex = 0; });
+    }
+
+    function currentList() {
+        return entityListSwipeView.currentItem;
     }
 
     Components.ButtonNavigation {
@@ -40,35 +46,32 @@ Item {
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {
-                    entityListSwipeView.currentItem.itemList.incrementCurrentIndex();
-                    entityListSwipeView.currentItem.itemList.positionViewAtIndex(entityListSwipeView.currentItem.itemList.currentIndex, ListView.Contain);
+                    manageEntities.currentList().moveSelection(1);
                 }
             },
             "DPAD_UP": {
                 "pressed": function() {
-                    entityListSwipeView.currentItem.itemList.decrementCurrentIndex();
-                    entityListSwipeView.currentItem.itemList.positionViewAtIndex(entityListSwipeView.currentItem.itemList.currentIndex, ListView.Contain);
+                    manageEntities.currentList().moveSelection(-1);
                 }
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
-                    const list = entityListSwipeView.currentItem;
-                    const item = list ? list.itemList.currentItem : null;
-                    if (!item) {
-                        return;
-                    }
-
-                    list.itemSelected(item.key, !item.selected);
+                    manageEntities.currentList().activateSelection();
                 }
             },
+            // LEFT / RIGHT switch the footer buttons while the selection is on them, the tabs otherwise
             "DPAD_LEFT": {
                 "pressed": function() {
-                    tabBar.decrementCurrentIndex();
+                    if (!manageEntities.currentList().moveFooter(-1)) {
+                        tabBar.decrementCurrentIndex();
+                    }
                 }
             },
             "DPAD_RIGHT": {
                 "pressed": function() {
-                    tabBar.incrementCurrentIndex();
+                    if (!manageEntities.currentList().moveFooter(1)) {
+                        tabBar.incrementCurrentIndex();
+                    }
                 }
             },
             "BACK": {
@@ -194,6 +197,7 @@ Item {
             entityDescriptionIntegration: false
             closeListOnTrigger: false
             integrationId: manageEntities.integrationId
+            keypadSelected: entityListSwipeView.currentIndex === 0
 
             okTrigger: function() {
                 let selectedEntities = EntityController.availableEntities.getSelected();
@@ -215,6 +219,7 @@ Item {
             entityDescriptionIntegration: false
             closeListOnTrigger: false
             integrationId: manageEntities.integrationId
+            keypadSelected: entityListSwipeView.currentIndex === 1
 
             okTrigger: function() {
                 let selectedEntities = EntityController.configuredEntities.getSelected();

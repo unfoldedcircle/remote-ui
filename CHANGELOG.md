@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- The integration and dock setup forms can be filled with the d-pad: text fields, checkboxes and dropdowns are walked
+  in order, Return on a field moves to the next one, the on-screen keyboard follows the field and gets out of the way
+  of the buttons, a dropdown opens the same selection list as the other settings, and the finish screen, the
+  add-entities step, Cancel and Next are all reachable. BACK cancels the setup that is running instead of only
+  closing its popup.
+- Entity lists (adding entities to a page or a group, managing the entities of an integration) are walked with the
+  d-pad throughout: the rows, the filter button, Select all / Clear and Add / Remove. Groups can be created and
+  edited with the d-pad, including reordering their entities (OK picks a row up, UP / DOWN move it, OK drops it) and
+  removing one (long press on OK). The page menu (long press on HOME) offers the edit menu of the selected tile, so
+  rename, change icon, remove and the group editor are reachable without the touch screen.
 - The docks and integrations settings can be worked with the d-pad throughout: the "Add a new dock" and
   "Add an integration" sheets, the discovery inside them, the dock and integration details with every action
   in them (rename, identify, connect, LED brightness, password, factory reset, delete), the entity filter of

@@ -13,10 +13,19 @@ FieldBase {
         inputField.showError(error);
     }
 
+    focusItem: inputField.inputField
+
     Components.InputField {
         id: inputField
         inputField.placeholderText: root.value
         onInputValueChanged: root.value = inputField.inputValue
         label: root.labelText
+        inputField.echoMode: TextInput.Password
+        inputField.passwordMaskDelay: 1000
+        moveInput: false
+        keyboardFollowsFocus: true
+        navUp: root.navUp
+        navDown: root.navDown
+        inputField.onAccepted: root.advance()
     }
 }

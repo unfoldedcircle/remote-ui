@@ -16,7 +16,8 @@ Rectangle {
     id: editGroupContainer
     color: colors.black
     anchors.fill: parent
-    enabled: opacity == 1
+    // enabled by state, not by the finished fade-in: the input controller drops a disabled owner
+    enabled: state === "visible"
 
     signal closed()
 
@@ -36,13 +37,163 @@ Rectangle {
     }
 
 
+    function saveGroup() {
+        loading.start();
+        // create group
+        GroupController.updateGroup(groupId, ui.profile.id, groupName, groupData.getEntities())
+    }
+
+    function openEntitySelection() {
+        if (!editGroupContainer.entitiesListLoaded) {
+            editGroupContainer.entitiesListLoaded = true;
+        }
+        entitySelectionList.visible = true;
+        entitySelectionList.open();
+    }
+
+    /** KEYPAD SELECTION **/
+    // Driven through the button navigation, no control has the focus. The selection walks three
+    // zones: the "Add entity" button, the entity rows and the Done button. DPAD_MIDDLE on a row
+    // picks it up: UP / DOWN then move it, DPAD_MIDDLE drops it. A long press on a row removes it.
+    enum Zone { Header, List, Footer }
+    property int zone: GroupEdit.Zone.List
+    property int heldIndex: -1
+
+    function moveSelection(delta) {
+        if (editGroupContainer.heldIndex >= 0) {
+            const to = editGroupContainer.heldIndex + delta;
+            if (to < 0 || to >= entityList.count) {
+                return;
+            }
+
+            groupData.groupItems().swapData(editGroupContainer.heldIndex, to);
+            editGroupContainer.heldIndex = to;
+            entityList.currentIndex = to;
+            return;
+        }
+
+        switch (editGroupContainer.zone) {
+        case GroupEdit.Zone.Header:
+            if (delta > 0) {
+                if (entityList.count > 0) {
+                    editGroupContainer.zone = GroupEdit.Zone.List;
+                    entityList.currentIndex = 0;
+                } else {
+                    editGroupContainer.zone = GroupEdit.Zone.Footer;
+                }
+            }
+            break;
+        case GroupEdit.Zone.Footer:
+            if (delta < 0) {
+                if (entityList.count > 0) {
+                    editGroupContainer.zone = GroupEdit.Zone.List;
+                    entityList.currentIndex = entityList.count - 1;
+                } else {
+                    editGroupContainer.zone = GroupEdit.Zone.Header;
+                }
+            }
+            break;
+        default:
+            const next = entityList.currentIndex + delta;
+            if (next < 0) {
+                editGroupContainer.zone = GroupEdit.Zone.Header;
+                entityList.positionViewAtBeginning();
+            } else if (next >= entityList.count) {
+                editGroupContainer.zone = GroupEdit.Zone.Footer;
+            } else {
+                entityList.currentIndex = next;
+            }
+        }
+    }
+
+    function activateSelection() {
+        switch (editGroupContainer.zone) {
+        case GroupEdit.Zone.Header:
+            editGroupContainer.openEntitySelection();
+            break;
+        case GroupEdit.Zone.Footer:
+            editGroupContainer.saveGroup();
+            break;
+        default:
+            if (!entityList.currentItem) {
+                return;
+            }
+
+            Haptic.play(Haptic.Click);
+            editGroupContainer.heldIndex = editGroupContainer.heldIndex < 0 ? entityList.currentIndex : -1;
+        }
+    }
+
+    function removeSelection() {
+        const row = entityList.currentItem;
+        if (editGroupContainer.zone !== GroupEdit.Zone.List || !row || editGroupContainer.heldIndex >= 0) {
+            return;
+        }
+
+        ui.createActionableWarningNotification(qsTr("Remove entity"),
+                                               qsTr("Are you sure you want to remove %1 from the group?").arg(row.itemName),
+                                               "uc:trash",
+                                               function() {
+                                                   groupData.groupItems().removeItem(row.itemData);
+                                                   if (entityList.currentIndex >= entityList.count) {
+                                                       entityList.currentIndex = Math.max(0, entityList.count - 1);
+                                                   }
+                                               }, qsTr("Remove"));
+    }
+
     onStateChanged: {
         if (state == "hidden") {
             keyboard.hide();
             buttonNavigation.releaseControl();
         } else {
-            buttonNavigation.takeControl();
+            editGroupContainer.zone = GroupEdit.Zone.List;
+            editGroupContainer.heldIndex = -1;
+            entityList.currentIndex = 0;
+            // deferred: the editor is shown by a key press that is still being delivered
+            Qt.callLater(buttonNavigation.takeControl);
         }
+    }
+
+    // the embedded entity selection owns the input while it is open
+    Components.ButtonNavigation {
+        id: entityListButtonNavigation
+        scope: entitySelectionList
+        defaultConfig: {
+            "BACK": {
+                "pressed": function() {
+                    entitySelectionList.close();
+                }
+            },
+            "HOME": {
+                "pressed": function() {
+                    entitySelectionList.close();
+                }
+            }
+        }
+    }
+
+    Component.onCompleted: {
+        entityListButtonNavigation.extendDefaultConfig(entitySelectionList.keypadConfig());
+        buttonNavigation.extendDefaultConfig({
+                                                 "DPAD_DOWN": {
+                                                     "pressed": function() {
+                                                         editGroupContainer.moveSelection(1);
+                                                     }
+                                                 },
+                                                 "DPAD_UP": {
+                                                     "pressed": function() {
+                                                         editGroupContainer.moveSelection(-1);
+                                                     }
+                                                 },
+                                                 "DPAD_MIDDLE": {
+                                                     "pressed": function() {
+                                                         editGroupContainer.activateSelection();
+                                                     },
+                                                     "long_press": function() {
+                                                         editGroupContainer.removeSelection();
+                                                     }
+                                                 }
+                                             });
     }
 
     Connections {
@@ -96,15 +247,16 @@ Rectangle {
         defaultConfig: {
             "BACK": {
                 "pressed": function() {
+                    // a picked-up row is dropped first
+                    if (editGroupContainer.heldIndex >= 0) {
+                        editGroupContainer.heldIndex = -1;
+                        return;
+                    }
+
                     close();
                 }
             },
             "HOME": {
-                "pressed": function() {
-                    close();
-                }
-            },
-            "DPAD_MIDDLE": {
                 "pressed": function() {
                     close();
                 }
@@ -135,8 +287,9 @@ Rectangle {
         }
 
         header: header
-
         currentIndex: 0
+
+        onCurrentIndexChanged: positionViewAtIndex(currentIndex, ListView.Contain)
     }
 
     Item {
@@ -164,10 +317,9 @@ Rectangle {
             text: qsTr("Done")
             width: parent.width
             anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom }
+            highlight: editGroupContainer.zone === GroupEdit.Zone.Footer && ui.keyNavigationActive
             trigger: function() {
-                loading.start();
-                // create group
-                GroupController.updateGroup(groupId, ui.profile.id, groupName, groupData.getEntities())
+                editGroupContainer.saveGroup();
             }
         }
     }
@@ -181,7 +333,13 @@ Rectangle {
         entityDescriptionIntegration: true
         closeListOnTrigger: false
         showCloseIcon: true
-
+        keypadSelected: true
+        openTrigger: function() {
+            entityListButtonNavigation.takeControl();
+        }
+        closeTrigger: function() {
+            entityListButtonNavigation.releaseControl();
+        }
         okTrigger: function() {
             let selectedEntities = EntityController.configuredEntities.getSelected();
 
@@ -222,8 +380,24 @@ Rectangle {
             property bool held: false
             property bool deleteOpen: false
             property int toVal: 0
-
             property string itemId: groupItemId
+            property var itemData: modelData
+            readonly property string itemName: delegate.item && delegate.item.entityObj ? delegate.item.entityObj.name : groupItemId
+
+            // keypad selection outline; stronger while the row is picked up for reordering
+            Rectangle {
+                anchors { fill: parent; margins: 2 }
+                z: 2000
+                radius: ui.cornerRadiusSmall
+                color: colors.transparent
+                border {
+                    width: 2
+                    color: dragArea.isCurrentItem && editGroupContainer.zone === GroupEdit.Zone.List
+                           && ui.keyNavigationActive
+                           ? (dragArea.DelegateModel.itemsIndex === editGroupContainer.heldIndex ? colors.highlight : colors.medium)
+                           : colors.transparent
+                }
+            }
 
             drag.target: held ? delegate : undefined
             drag.axis: Drag.YAxis
@@ -458,12 +632,9 @@ Rectangle {
                 height: 150
                 radius: ui.cornerRadiusSmall
                 text: qsTr("Add entity")
+                highlight: editGroupContainer.zone === GroupEdit.Zone.Header && ui.keyNavigationActive
                 trigger: function() {
-                    if (!editGroupContainer.entitiesListLoaded) {
-                        editGroupContainer.entitiesListLoaded = true;
-                    }
-                    entitySelectionList.visible = true;
-                    entitySelectionList.open();
+                    editGroupContainer.openEntitySelection();
                 }
             }
         }

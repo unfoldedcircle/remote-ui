@@ -34,9 +34,143 @@ Rectangle {
     property alias count: itemList.count
     property QtObject model
 
+    /** KEYPAD SELECTION **/
+    // Driven by the hosting layer's button navigation, not the keyboard focus: the model is reset on
+    // every init / search / filter, which would destroy a focused delegate. The host extends its
+    // button navigation with keypadConfig() and sets keypadSelected while the selection is on this
+    // list. The selection walks three zones: the filter button, the rows, and the footer buttons.
+    property bool keypadSelected: false
+
+    enum Zone { Header, List, Footer }
+    property int zone: EntityList.Zone.List
+    // 0 = Select all / Clear, 1 = Add / Remove
+    property int footerIndex: 1
+
+    // returns false when the selection would leave the list, so the host can move on
+    function moveSelection(delta) {
+        if (entityList.zone === EntityList.Zone.Header) {
+            if (delta < 0) {
+                return false;
+            }
+
+            // an empty list has no row to land on: go straight to the footer buttons
+            if (itemList.count === 0) {
+                entityList.zone = EntityList.Zone.Footer;
+                return true;
+            }
+
+            entityList.zone = EntityList.Zone.List;
+            if (itemList.currentIndex < 0) {
+                itemList.currentIndex = 0;
+            }
+            return true;
+        }
+
+        if (entityList.zone === EntityList.Zone.Footer) {
+            if (delta > 0) {
+                return false;
+            }
+
+            entityList.zone = itemList.count > 0 ? EntityList.Zone.List : EntityList.Zone.Header;
+            return true;
+        }
+
+        // the selection can sit on the (empty) list after a reset: leave it in the direction pressed
+        // instead of bouncing between the filter button and an invisible row
+        if (itemList.count === 0) {
+            entityList.zone = delta > 0 ? EntityList.Zone.Footer : EntityList.Zone.Header;
+            return true;
+        }
+
+        const next = itemList.currentIndex + delta;
+        if (next < 0) {
+            entityList.zone = EntityList.Zone.Header;
+            return true;
+        }
+
+        if (next >= itemList.count) {
+            if (entityList.model.canLoadMore()) {
+                entityList.loadMoreItems();
+                return true;
+            }
+
+            entityList.zone = EntityList.Zone.Footer;
+            return true;
+        }
+
+        itemList.currentIndex = next;
+        return true;
+    }
+
+    // LEFT / RIGHT between the two footer buttons; false outside the footer so the host can use
+    // the keys for something else (tabs)
+    function moveFooter(delta) {
+        if (entityList.zone !== EntityList.Zone.Footer) {
+            return false;
+        }
+
+        entityList.footerIndex = Math.min(1, Math.max(0, entityList.footerIndex + delta));
+        return true;
+    }
+
+    function selectLast() {
+        entityList.zone = EntityList.Zone.Footer;
+        entityList.footerIndex = 1;
+    }
+
+    function activateSelection() {
+        switch (entityList.zone) {
+        case EntityList.Zone.Header:
+            entityFilterPopup.open();
+            break;
+        case EntityList.Zone.Footer:
+            if (entityList.footerIndex === 1) {
+                buttonOk.activate();
+            } else {
+                selectAllButton.activate();
+            }
+            break;
+        default:
+            const item = itemList.currentItem;
+            if (item) {
+                entityList.model.setSelected(item.key, !item.selected);
+            }
+        }
+    }
+
+    // the DPAD handlers for the host's ButtonNavigation.extendDefaultConfig()
+    function keypadConfig() {
+        return {
+            "DPAD_DOWN": { "pressed": function() { entityList.moveSelection(1); } },
+            "DPAD_UP": { "pressed": function() { entityList.moveSelection(-1); } },
+            "DPAD_LEFT": { "pressed": function() { entityList.moveFooter(-1); } },
+            "DPAD_RIGHT": { "pressed": function() { entityList.moveFooter(1); } },
+            "DPAD_MIDDLE": { "pressed": function() { entityList.activateSelection(); } }
+        };
+    }
+
+    function resetSelection() {
+        entityList.zone = EntityList.Zone.List;
+        entityList.footerIndex = 1;
+        itemList.currentIndex = 0;
+    }
+
+    // the first d-pad press after typing in the search field takes the keyboard down
+    Connections {
+        target: ui.inputController
+
+        function onKeypadActiveChanged() {
+            if (ui.inputController.keypadActive && entityList.inputHasFocus) {
+                keyboard.hide();
+                entityList.inputHasFocus = false;
+            }
+        }
+    }
+
     function open() {
         entityList.model.init(entityList.integrationId);
         stopLoading();
+        resetSelection();
         openTrigger();
     }
 
@@ -69,6 +203,15 @@ Rectangle {
 
         function onEntitiesLoaded(count) {
             entityList.stopLoading();
+            // a model reset leaves the view without a current row; with no rows at all the selection
+            // moves to the filter button, so something is outlined
+            if (entityList.zone === EntityList.Zone.List) {
+                if (itemList.count === 0) {
+                    entityList.zone = EntityList.Zone.Header;
+                } else if (itemList.currentIndex < 0) {
+                    itemList.currentIndex = 0;
+                }
+            }
         }
     }
 
@@ -157,11 +300,17 @@ Rectangle {
             }
 
             Rectangle {
+                id: filterButton
                 Layout.preferredHeight: entitySearch.height
                 Layout.preferredWidth: entitySearch.height
 
                 color: entityList.model.filtered ? colors.highlight : colors.transparent
                 radius: ui.cornerRadiusSmall
+                border {
+                    width: 2
+                    color: entityList.keypadSelected && entityList.zone === EntityList.Zone.Header
+                           && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                }
 
                 Behavior on color {
                     ColorAnimation { duration: 300 }
@@ -587,6 +736,8 @@ Rectangle {
             text: entityList.okText
             width: (parent.width - 20 ) / 2
             anchors { right: parent.right; bottom: parent.bottom }
+            highlight: entityList.keypadSelected && entityList.zone === EntityList.Zone.Footer
+                       && entityList.footerIndex === 1 && ui.keyNavigationActive
             trigger: function() {
                 entityList.okTrigger();
 
@@ -599,10 +750,13 @@ Rectangle {
         }
 
         Components.Button {
+            id: selectAllButton
             text: entityList.model.allSelected ? qsTr("Clear") : qsTr("Select all")
             width: (parent.width - 20 ) / 2
             color: colors.secondaryButton
             anchors { left: parent.left; bottom: parent.bottom }
+            highlight: entityList.keypadSelected && entityList.zone === EntityList.Zone.Footer
+                       && entityList.footerIndex === 0 && ui.keyNavigationActive
             trigger: function() {
                 if (entityList.model.allSelected) {
                     entityList.model.clearSelected();
@@ -741,14 +895,16 @@ Rectangle {
 
         Rectangle {
             width: ListView.view.width; height: entityInfoContainer.height + 40
-            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
+            color: keypadCurrent ? colors.dark : colors.transparent
             radius: ui.cornerRadiusSmall
             border {
-                color: isCurrentItem && ui.keyNavigationActive ? colors.medium : colors.transparent
+                color: keypadCurrent ? colors.medium : colors.transparent
                 width: 1
             }
 
             property bool isCurrentItem: ListView.isCurrentItem
+            readonly property bool keypadCurrent: isCurrentItem && entityList.keypadSelected
+                                                  && entityList.zone === EntityList.Zone.List && ui.keyNavigationActive
             property string key: itemKey
             property bool selected: itemSelected
 

@@ -49,6 +49,13 @@ Rectangle {
         button.triggered();
     }
 
+    // a control reached with the d-pad while the on-screen keyboard is up would sit under it
+    onActiveFocusChanged: {
+        if (activeFocus && typeof keyboard !== "undefined" && keyboard.active) {
+            keyboard.hide();
+        }
+    }
+
     // DPAD_MIDDLE maps to Key_Return: activate the button when it holds the keyboard focus.
     Keys.onReturnPressed: {
         button.activate();

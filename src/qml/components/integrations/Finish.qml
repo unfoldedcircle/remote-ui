@@ -18,6 +18,45 @@ Item {
 
     signal done()
     signal failed()
+    signal home()
+
+    /** KEYBOARD NAVIGATION **/
+    // Done / Try again hold the focus; BACK is their key equivalent. The step owns the input while
+    // it is the current step of the setup (deferred, see Configure).
+    readonly property bool isCurrentStep: SwipeView.isCurrentItem
+    onIsCurrentStepChanged: Qt.callLater(activate)
+
+    function activate() {
+        if (integrationSetupFinish.isCurrentStep) {
+            buttonNavigation.lastFocusItem = null;
+            buttonNavigation.takeControl();
+        } else {
+            buttonNavigation.releaseControl();
+        }
+    }
+
+    Components.ButtonNavigation {
+        id: buttonNavigation
+        manageFocus: true
+        initialFocusItem: integrationSetupFinish.success ? doneButton : tryAgainButton
+        defaultConfig: {
+            "BACK": {
+                "pressed": function() {
+                    if (integrationSetupFinish.success) {
+                        integrationSetupFinish.done();
+                    } else {
+                        integrationSetupFinish.failed();
+                    }
+                }
+            },
+            "HOME": {
+                "pressed": function() {
+                    integrationSetupFinish.done();
+                    integrationSetupFinish.home();
+                }
+            }
+        }
+    }
 
     ColumnLayout {
         visible: integrationSetupFinish.success
@@ -127,6 +166,7 @@ Item {
             Layout.bottomMargin: 20
             Layout.alignment: Qt.AlignBottom
 
+            id: doneButton
             text: qsTr("Done")
             trigger: function() {
                 integrationSetupFinish.done();
@@ -205,6 +245,7 @@ Item {
             Layout.bottomMargin: 20
             Layout.alignment: Qt.AlignBottom
 
+            id: tryAgainButton
             text: qsTr("Try again")
             trigger: function() {
                 integrationSetupFinish.failed()

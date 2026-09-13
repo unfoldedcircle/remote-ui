@@ -107,8 +107,13 @@ OnboardingComponents.Page {
         padding: 0
         parent: Overlay.overlay
 
+        // the popup's own navigation is the fallback owner (before the setup is loaded); the
+        // current setup step takes the input on top of it once the popup is visible
         onOpened: {
             integrationSetupPopupButtonNavigation.takeControl();
+            if (integrationSetupLoader.item) {
+                integrationSetupLoader.item.activateCurrentStep();
+            }
         }
 
         onClosed: {
@@ -142,9 +147,19 @@ OnboardingComponents.Page {
                 NumberAnimation { easing.type: Easing.OutExpo; duration: 300 }
             }
 
+            onStatusChanged: {
+                if (status == Loader.Ready && integrationSetupPopup.opened) {
+                    integrationSetupLoader.item.activateCurrentStep();
+                }
+            }
+
             Connections {
                 target: integrationSetupLoader.item
                 ignoreUnknownSignals: true
+
+                function onHome() {
+                    integrationSetupPopup.close();
+                }
 
                 function onDone() {
                     integrationSetupPopup.close();
@@ -171,18 +186,27 @@ OnboardingComponents.Page {
             }
         }
 
-        // the setup form is touch only; the keypad can only leave it
+        // leaving the popup cancels the setup that is running in it; the popup closes on the
+        // setup's done signal
+        function cancelSetup() {
+            if (integrationSetupLoader.item) {
+                integrationSetupLoader.item.cancel();
+            } else {
+                integrationSetupPopup.close();
+            }
+        }
+
         Components.ButtonNavigation {
             id: integrationSetupPopupButtonNavigation
             defaultConfig: {
                 "HOME": {
                     "pressed": function() {
-                        integrationSetupPopup.close();
+                        integrationSetupPopup.cancelSetup();
                     }
                 },
                 "BACK": {
                     "pressed": function() {
-                        integrationSetupPopup.close();
+                        integrationSetupPopup.cancelSetup();
                     }
                 }
             }

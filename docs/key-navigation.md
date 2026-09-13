@@ -121,6 +121,12 @@ its focus and keeps reacting through path 2 while a popup owns the input on top 
 - A drawer whose opener row lives inside it (the delete drawers of the detail popups) parks the
   page's focus itself when it opens: the "layer inside the scope keeps its own control" exception
   would otherwise leave the focus on the opener row.
+- A page hand-over that runs while another layer still owns the input must stay *pending*, not
+  bail: the dock setup's network popups report their result before they close, so the swipe view
+  has already changed page when the popup releases the input. `docks/Configure.focusPage()` keeps
+  the hand-over pending and applies it from `onHasInputControlChanged`; dropping it left
+  `lastFocusItem` on the hidden WiFi page, the claim on regaining the input went there, and the
+  next OK reopened the popup from behind.
 
 `Settings.Page` and `Onboarding.Page` set `manageFocus: true`. A popup only needs it when it
 navigates by focus itself (`WifiInfo`, `WifiJoin`).
@@ -185,10 +191,38 @@ keyboard focus, so path 2 is inert. `docks/Discovery.qml` and `integrations/Disc
 `Components.BottomSheet` forwards `DPAD_UP/DOWN/MIDDLE` to an open item with that API, which is how
 the settings Docks / Integrations pages drive the discovery inside their "Add" sheets.
 
+`entities/EntityList.qml` is an idiom-b component: the host extends its own `ButtonNavigation` with
+`keypadConfig()` and sets `keypadSelected`; the selection walks the filter button, the rows and the
+two footer buttons (`zone`), LEFT/RIGHT move between the footer buttons and are otherwise free for
+the host (tabs in `ManageEntities`). `group/GroupEdit.qml` walks header / rows / Done the same way and
+adds a held row for reordering (`heldIndex`); a `long_press` on `DPAD_MIDDLE` is the key equivalent
+of swipe-to-delete. The page menu (`HOME` long press, `MainContainer.openPageEditMenu()`) carries the
+edit menu of the selected tile — the tile's own long press is taken by open / toggle.
+`Page.qml` clamps its `currentIndex` on every count and index change: saving the page after a
+reorder rewrites the item list and a removed tile shrinks it, and both left the index past the end
+with every main-container key handler throwing on the missing current tile. A touch user taps a
+tile and recovers; a keypad user had no way back until a page change.
+
 A drawer or confirmation with a destructive action (`docks/Info.qml`, `integrations/Info.qml`)
 starts its selection on *Cancel*; `DPAD_LEFT/RIGHT` move it. Bind its handlers to `pressed`, not
 `released`: the drawer opens on the press of `DPAD_MIDDLE` on the row above it, and a `released`
 handler would fire on the release of that same key.
+
+Multi-step forms (`integrations/Configure.qml`, `docks/Configure.qml`, `group/GroupAdd.qml`): every
+`SwipeView` step owns the input while it is the current step (`SwipeView.isCurrentItem`, taken and
+released **deferred**), the hosting popup keeps a fallback `ButtonNavigation` and calls the setup's
+`activateCurrentStep()` from `onOpened` (a step taking the input while the popup is still invisible
+is dropped). A page change leaves the focus on the previous, still visible page — move it explicitly
+(`focusPage()`). Dynamically created fields (`integrations/Settings.qml`) declare `focusItem` /
+`navUp` / `navDown` (`fields/FieldBase.qml`) and bind their own `KeyNavigation` to them; the form
+chains them after creation and points the last one at its Next button. `Components.InputField` takes
+`navUp` / `navDown` / `keyboardFollowsFocus` for the same reason: an attached property can only be
+set on the item that declares it. `Button`, `Switch` and `Checkbox` hide the on-screen keyboard
+when they gain the focus.
+Never reset the swipe view to its first step while the hosting popup is closing (Done / Try
+again): the hosts unload the setup at the end of the popup's fade-out, and a step re-activated
+behind the fading popup claims its text field and leaves the on-screen keyboard open over the page
+below. A reset is only right where the popup stays open (`integrations/Setup.qml` on Try again).
 
 ### c) Grid selection (PIN keypad)
 

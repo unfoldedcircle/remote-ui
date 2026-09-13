@@ -73,6 +73,30 @@ Item {
                            }
                        });
 
+        // the selected tile's own menu (rename, icon, remove; edit entities, delete for a group)
+        // is reached from here with the keypad: the tile's long press is taken by open / toggle
+        const tile = currentEntity ? currentEntity.delegateItem : null;
+        if (tile && tile.groupObj) {
+            const groupObj = tile.groupObj;
+            menuItems.push({
+                               //: Menu entry that opens the edit menu of the selected group or entity, %1 is its name
+                               title: qsTr("Edit %1").arg(groupObj.groupName()),
+                               icon: "uc:pen-to-square",
+                               callback: function() {
+                                   openGroupEditMenu(groupObj);
+                               }
+                           });
+        } else if (tile && tile.entityObj) {
+            const entityObj = tile.entityObj;
+            menuItems.push({
+                               title: qsTr("Edit %1").arg(entityObj.name),
+                               icon: "uc:pen-to-square",
+                               callback: function() {
+                                   openEntityEditMenu(entityObj, "");
+                               }
+                           });
+        }
+
         menuItems.push({
                            title: qsTr("Show tips"),
                            icon: "uc:circle-info",

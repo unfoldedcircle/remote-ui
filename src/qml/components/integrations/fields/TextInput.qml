@@ -13,10 +13,17 @@ FieldBase {
         inputField.showError(error);
     }
 
+    focusItem: inputField.inputField
+
     Components.InputField {
         id: inputField
         inputField.placeholderText: root.value
         onInputValueChanged: root.value = inputField.inputValue
         label: root.labelText
+        moveInput: false
+        keyboardFollowsFocus: true
+        navUp: root.navUp
+        navDown: root.navDown
+        inputField.onAccepted: root.advance()
     }
 }
