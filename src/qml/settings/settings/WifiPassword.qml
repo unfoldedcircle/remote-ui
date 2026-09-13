@@ -77,9 +77,11 @@ Popup {
     }
 
     onOpened: {
+        // a reopened dialog starts on the password field again
+        buttonNavigation.lastFocusItem = null;
+        buttonNavigation.lastFocusAnchor = null;
         buttonNavigation.takeControl();
         keyboard.show();
-        passwordInputFieldContainer.focus();
     }
 
     onClosed: {
@@ -87,8 +89,12 @@ Popup {
         keyboard.hide();
     }
 
+    /** KEYBOARD NAVIGATION **/
+    // the password field -> Cancel / Join; Return on the field joins (no DPAD_MIDDLE handler here)
     Components.ButtonNavigation {
         id: buttonNavigation
+        manageFocus: true
+        initialFocusItem: passwordInputFieldContainer.inputField
         defaultConfig: {
             "BACK": {
                 "pressed": function() {
@@ -133,9 +139,12 @@ Popup {
         inputField.echoMode: TextInput.Password
         inputField.passwordMaskDelay: 1000
         moveInput: false
+        keyboardFollowsFocus: true
+        navDown: cancelButton
     }
 
     Components.Button {
+        id: joinButton
         //: Join wifi network
         text: qsTr("Join")
         width: parent.width / 2 - 10
@@ -143,9 +152,13 @@ Popup {
         trigger: function() {
             join();
         }
+
+        KeyNavigation.up: passwordInputFieldContainer.inputField
+        KeyNavigation.left: cancelButton
     }
 
     Components.Button {
+        id: cancelButton
         text: qsTr("Cancel")
         width: parent.width / 2 - 10
         color: colors.secondaryButton
@@ -155,5 +168,8 @@ Popup {
             wifiPassword.close();
             keyboard.hide();
         }
+
+        KeyNavigation.up: passwordInputFieldContainer.inputField
+        KeyNavigation.right: joinButton
     }
 }

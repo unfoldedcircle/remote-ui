@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- The "Join other network" dialog and the WiFi password dialog can be filled with the d-pad: the SSID field, the
+  hidden network option, the security options and Cancel / Next / Join are walked in order, Return on a field submits
+  it and the on-screen keyboard follows the fields. This covers the WiFi settings and the WiFi page of the dock setup.
 - Pages can be managed with the d-pad: the page menu (long press on HOME) opens the page selector, a long press on
   OK there enters the edit mode, where OK renames a page, a long press picks it up to move it with UP / DOWN, RIGHT
   reveals its delete and DOWN past the last page reaches the "+" for a new page. In the page's own reorder mode OK

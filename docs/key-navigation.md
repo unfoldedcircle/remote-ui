@@ -231,6 +231,12 @@ Never reset the swipe view to its first step while the hosting popup is closing 
 again): the hosts unload the setup at the end of the popup's fade-out, and a step re-activated
 behind the fading popup claims its text field and leaves the on-screen keyboard open over the page
 below. A reset is only right where the popup stays open (`integrations/Setup.qml` on Try again).
+`WifiSetup.qml` is a three-step popup of focus chains with the same deferred hand-over on a step change
+(`focusStep()`), owning the input itself. Its security options are `Repeater` delegates: a delegate's
+`KeyNavigation.down` can only point at the next option once that delegate exists, so the bindings read
+`optionsVersion`, a counter of created delegates, to re-evaluate. OK on an option sets it checked
+instead of toggling it, which would clear the exclusive group. `WifiPassword.qml` is the single-field
+variant (field -> Cancel / Join).
 
 ### c) Grid selection (PIN keypad)
 
