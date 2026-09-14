@@ -42,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   wrong" opens the predicted run step by step, with every device that will not react, the steps that are skipped
   or not needed, and a mark where the run stops. Cancel and Proceed work from both screens, and the whole flow
   can be operated with the keypad.
+- A failed activity or macro run now says what happened at a readable size: the name of the activity, the step it
+  stopped at, the device that did not react and the reason reported by the remote, followed by Close and Try again.
+  Try again repeats the same command in the same direction right away, without another readiness check. Tapping
+  anywhere still closes the screen, and both buttons work with the d-pad.
 
 ### Fixed
 - The WiFi settings could not be walked with the d-pad past the WiFi band row: the known and other network

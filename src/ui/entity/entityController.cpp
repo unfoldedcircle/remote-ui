@@ -1089,7 +1089,9 @@ void EntityController::onRemoveFromActivities(QString entityId) {
     }
 }
 
-void EntityController::onActivityStartedRunning(QString entityId) { emit activityStartedRunning(entityId); }
+void EntityController::onActivityStartedRunning(QString entityId, QString cmdId) {
+    emit activityStartedRunning(entityId, cmdId);
+}
 
 void EntityController::onActivityStartedExternally(QString entityId) { emit activityStartedExternally(entityId); }
 

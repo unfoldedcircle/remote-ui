@@ -110,7 +110,7 @@ void Activity::turnOn() {
 
     m_sequencePending = true;
     sendCommand(ActivityCommands::On);
-    emit startedRunning(m_id);
+    emit startedRunning(m_id, QStringLiteral("activity.on"));
 }
 
 void Activity::turnOff() {
@@ -120,7 +120,7 @@ void Activity::turnOff() {
 
     m_sequencePending = true;
     sendCommand(ActivityCommands::Off);
-    emit startedRunning(m_id);
+    emit startedRunning(m_id, QStringLiteral("activity.off"));
 }
 
 void Activity::playPause() { sendButtonMappingCommand("PLAY"); }

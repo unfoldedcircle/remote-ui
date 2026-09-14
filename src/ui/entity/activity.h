@@ -191,7 +191,9 @@ class Activity : public Base {
     void voiceAssistantProfileIdChanged();
     void addToActivities(QString entityId);
     void removeFromActivities(QString entityId);
-    void startedRunning(QString entityId);
+    // cmdId is the command the run was started with ("activity.on" or "activity.off"), so that a failed run can
+    // be repeated in the same direction
+    void startedRunning(QString entityId, QString cmdId);
     // the activity turned on without being started from this remote, e.g. through the API
     void startedExternally(QString entityId);
     void sendCommandToEntity(QString entityId, QString command, QVariantMap params = QVariantMap());

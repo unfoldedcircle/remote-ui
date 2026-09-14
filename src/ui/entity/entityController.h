@@ -171,7 +171,7 @@ class EntityController : public QObject {
     void activityRemoved(QString entityId);
     void languageChanged(QString language);
     void unitSystemChanged(Config::UnitSystems unitSystem);
-    void activityStartedRunning(QString entityId);
+    void activityStartedRunning(QString entityId, QString cmdId);
     void activityStartedExternally(QString entityId);
     void voiceAssistantCommandError(QString entityId, int code);
     void allEntitiesLoaded();
@@ -276,7 +276,7 @@ class EntityController : public QObject {
     void onCoreDisconnected();
     void onAddToActivities(QString entityId);
     void onRemoveFromActivities(QString entityId);
-    void onActivityStartedRunning(QString entityId);
+    void onActivityStartedRunning(QString entityId, QString cmdId);
     void onActivityStartedExternally(QString entityId);
     void onResumeTimerTimeout();
 };
