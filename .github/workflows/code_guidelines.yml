@@ -2,7 +2,10 @@
 
 name: Code Guidelines
 on:
+  # Only main is checked on push: a feature branch is checked by its pull request
   push:
+    branches:
+      - main
     paths:
       - .github/workflows/code_guidelines.yml
       - src/**.cpp
@@ -12,6 +15,18 @@ on:
       - .github/workflows/code_guidelines.yml
       - src/**.cpp
       - src/**.h
+  # Allow a manual run from the Actions tab. Path filters don't apply to a manual run.
+  workflow_dispatch:
+
+# Avoid duplicate and superseded runs: a feature branch is only checked through its pull
+# request, and a new push to it cancels the previous run.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' && !startsWith(github.ref, 'refs/tags/') }}
+
+# Least privilege default for the job token.
+permissions:
+  contents: read
 
 jobs:
   cpplint:
