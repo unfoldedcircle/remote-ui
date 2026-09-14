@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.82.0 - 2026-09-14
 ### Added
 - The state of an activity itself can now be fixed, not only the state of its devices. Tapping an activity whose
   start or stop sequence failed offers "Fix state without sending commands" next to "Turn activity on" / "Turn
@@ -84,8 +88,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   true, so the colour had never appeared since it was written.
 - The "Tap for more" hint under the activity name was nearly invisible on that red header: its dim grey is made for
   the black background. It is shown in the regular light text colour while the header is red.
-
----
 
 ## v0.81.1 - 2026-09-01
 ### Changed
