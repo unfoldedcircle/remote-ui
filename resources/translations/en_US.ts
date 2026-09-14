@@ -1821,58 +1821,64 @@ Climate fan</extracomment>
 <context>
     <name>LoadingScreen</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="104"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="106"/>
         <source>Sequence didn&apos;t finish within %1 seconds. Check configuration.</source>
         <translation>Sequence didn&apos;t finish within %1 seconds. Check configuration.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="131"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="134"/>
         <source>Unknown device</source>
         <extracomment>Shown for a step whose device cannot be resolved, e.g. because it was deleted.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Unknown device</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="223"/>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="240"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="238"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="255"/>
         <source>There was an error during the sequence.</source>
         <translation>There was an error during the sequence.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="504"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="539"/>
         <source>%1 stopped</source>
         <extracomment>%1 is the name of the activity or macro whose run failed.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 stopped</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="590"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="631"/>
+        <source>No response · carrying on</source>
+        <extracomment>Under the name of a device that did not react during an activity whose run continues regardless.</extracomment>
+        <translation>No response · carrying on</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="644"/>
         <source>at step %1 of %2</source>
         <extracomment>Position of the step an activity stopped at. %1 is the step, %2 the number of steps.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>at step %1 of %2</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="643"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="697"/>
         <source>Close</source>
         <extracomment>Button on the failed activity screen: dismiss it.</extracomment>
-        <translation type="unfinished">Close</translation>
+        <translation>Close</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="670"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="724"/>
         <source>Try again</source>
         <extracomment>Button on the failed activity screen: run the activity again.</extracomment>
-        <translation type="unfinished">Try again</translation>
+        <translation>Try again</translation>
     </message>
     <message>
         <source>The sequence timed out.</source>
         <translation type="vanished">The sequence timed out.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="229"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="244"/>
         <source>%1 (error %2)</source>
         <extracomment>%1 is an error message reported by the device, %2 the error code</extracomment>
         <translation>%1 (error %2)</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="237"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="252"/>
         <source>There was an error during the sequence. Error code: %1</source>
         <extracomment>%1 is an error code reported by the device</extracomment>
         <translation>There was an error during the sequence. Error code: %1</translation>
@@ -1882,13 +1888,13 @@ Climate fan</extracomment>
         <translation type="vanished">Tap to close</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="525"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="560"/>
         <source>Step %1/%2</source>
         <extracomment>Indicating the activity steps</extracomment>
         <translation>Step %1/%2</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="568"/>
+        <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="611"/>
         <source>Delay %1 ms</source>
         <extracomment>Current activity step is a delay of %1 miliseconds</extracomment>
         <translation>Delay %1 ms</translation>

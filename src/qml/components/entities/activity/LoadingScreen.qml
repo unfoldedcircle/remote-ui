@@ -45,6 +45,8 @@ Popup {
         activityLoading.cmdId = "";
         activityLoading.failed = false;
         activityLoading.retrySelected = false;
+        activityLoading.stepFailed = false;
+        activityLoading.failedSteps = [];
 
         dotOK.width = 0;
         dotOK.height = 0;
@@ -125,10 +127,23 @@ Popup {
         function onCurrentStepChanged() {
             console.info("Current step changed: " + entityObj.currentStep.commandId);
 
-            const stepEntityObj = EntityController.get(entityObj.currentStep.entityId);
+            const step = entityObj.currentStep;
+            const stepEntityObj = EntityController.get(step.entityId);
             activityLoading.stepIcon = stepEntityObj ? stepEntityObj.icon : "uc:triangle-exclamation";
             //: Shown for a step whose device cannot be resolved, e.g. because it was deleted.
             activityLoading.stepName = stepEntityObj ? stepEntityObj.name : qsTr("Unknown device");
+
+            // A step that fails while the run carries on (error policy "continue") would otherwise leave no
+            // trace: the screen only reacts to the state turning Error. Mark the step as it happens and keep
+            // a notch on the ring for the rest of the run.
+            const running = entityObj.state === (activityLoading.isMacro ? MacroStates.Running : ActivityStates.Running);
+            const hasError = step.errorCode > 0 || step.errorMessage !== "" || step.error !== "";
+            activityLoading.stepFailed = running && hasError;
+
+            if (activityLoading.stepFailed && activityLoading.failedSteps.indexOf(step.index) < 0) {
+                activityLoading.failedSteps = activityLoading.failedSteps.concat([step.index]);
+                canvas.requestPaint();
+            }
         }
     }
 
@@ -277,6 +292,10 @@ Popup {
     // keypad selection of the two buttons; Close is preselected
     property bool retrySelected: false
     property var pendingRetry: null
+    // the current step reported an error but the run carries on
+    property bool stepFailed: false
+    // indices of the steps that failed while the run carried on, for the notches on the ring
+    property var failedSteps: []
 
     enter: Transition {
         NumberAnimation { property: "opacity"; from: 0.0; to: 1.0; easing.type: Easing.InExpo; duration: 200 }
@@ -405,6 +424,22 @@ Popup {
                     ctx.arc(x, y, radius, startAngle, progressAngle);
                     ctx.strokeStyle = colors.primaryButton;
                     ctx.stroke();
+
+                    // the slices of the steps that stayed silent, so the ring keeps the record of the run
+                    if (entityObj && entityObj.totalSteps > 0) {
+                        const slice = 2 * Math.PI / entityObj.totalSteps;
+
+                        ctx.lineCap = 'butt';
+                        ctx.strokeStyle = colors.orange;
+
+                        for (let i = 0; i < activityLoading.failedSteps.length; i++) {
+                            const index = activityLoading.failedSteps[i];
+
+                            ctx.beginPath();
+                            ctx.arc(x, y, radius, startAngle + slice * (index - 1), startAngle + slice * index);
+                            ctx.stroke();
+                        }
+                    }
                 }
 
                 Behavior on angle {
@@ -548,8 +583,16 @@ Popup {
 
                 Components.Icon {
                     id: entityInfoIcon
-                    color: colors.offwhite
-                    icon: entityObj ? entityObj.currentStep.type === SequenceStep.Delay ? "uc:clock" : activityLoading.stepIcon : ""
+                    color: activityLoading.stepFailed ? colors.orange : colors.offwhite
+                    icon: {
+                        if (!entityObj) {
+                            return "";
+                        }
+                        if (activityLoading.stepFailed) {
+                            return "uc:link-slash";
+                        }
+                        return entityObj.currentStep.type === SequenceStep.Delay ? "uc:clock" : activityLoading.stepIcon;
+                    }
                     size: 40
                 }
 
@@ -576,10 +619,21 @@ Popup {
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     elide: Text.ElideRight
                     maximumLineCount: 2
-                    color: colors.offwhite
+                    color: activityLoading.stepFailed ? colors.orange : colors.offwhite
                     font: fonts.secondaryFont(26)
                 }
             }
+        }
+
+        Text {
+            visible: !activityLoading.failed && activityLoading.stepFailed
+            //: Under the name of a device that did not react during an activity whose run continues regardless.
+            text: qsTr("No response · carrying on")
+            color: colors.orange
+            opacity: 0.75
+            font: fonts.secondaryFont(24)
+
+            Layout.alignment: Qt.AlignHCenter
         }
 
         // ----- after a failed run: where it stopped, the device, the reason, and a way out -----

@@ -46,6 +46,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   stopped at, the device that did not react and the reason reported by the remote, followed by Close and Try again.
   Try again repeats the same command in the same direction right away, without another readiness check. Tapping
   anywhere still closes the screen, and both buttons work with the d-pad.
+- A device that does not react during an activity whose run carries on regardless is shown as it happens: the step
+  line turns orange with "No response · carrying on" under the device name, and the progress ring keeps an orange
+  notch at that step for the rest of the run. Before, such a step left no trace at all.
 
 ### Fixed
 - The WiFi settings could not be walked with the d-pad past the WiFi band row: the known and other network
