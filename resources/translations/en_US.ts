@@ -139,7 +139,7 @@
         <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="753"/>
         <source>None of the entities in this activity has an On/Off state that could be fixed</source>
         <extracomment>Shown in the &quot;Fix states&quot; list if none of the activity&apos;s entities has an on/off state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>None of the entities in this activity has an On/Off state that could be fixed</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="781"/>
@@ -154,7 +154,7 @@
     <message>
         <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="873"/>
         <source>%1 is unavailable, its state cannot be changed</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 is unavailable, its state cannot be changed</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="919"/>
@@ -166,19 +166,19 @@
         <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="943"/>
         <source>Set the state of %1. No command is sent to the device.</source>
         <extracomment>Popup title when fixing the state of an entity. %1 is the entity name</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Set the state of %1. No command is sent to the device.</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="948"/>
         <source>Device is on</source>
         <extracomment>Button. Mark the device as switched on without sending a command</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Device is on</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="954"/>
         <source>Device is off</source>
         <extracomment>Button. Mark the device as switched off without sending a command</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Device is off</translation>
     </message>
 </context>
 <context>
@@ -954,12 +954,12 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/onboarding/Country.qml" line="64"/>
         <source>Suggested</source>
-        <translation type="unfinished"></translation>
+        <translation>Suggested</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Country.qml" line="65"/>
         <source>All countries</source>
-        <translation type="unfinished"></translation>
+        <translation>All countries</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Country.qml" line="131"/>
@@ -1870,7 +1870,7 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/settings/settings/Localisation.qml" line="46"/>
         <source>All timezones…</source>
-        <translation type="unfinished"></translation>
+        <translation>All timezones…</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Localisation.qml" line="89"/>
@@ -1890,12 +1890,12 @@ Climate fan</extracomment>
     <message>
         <location filename="../../src/qml/settings/settings/Localisation.qml" line="177"/>
         <source>Suggested</source>
-        <translation type="unfinished"></translation>
+        <translation>Suggested</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Localisation.qml" line="178"/>
         <source>All countries</source>
-        <translation type="unfinished"></translation>
+        <translation>All countries</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Localisation.qml" line="221"/>
@@ -2922,91 +2922,91 @@ the Web Configurator</translation>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="142"/>
         <source>Not needed — already in this state</source>
         <extracomment>Status of a step the activity leaves out because its device is already in the wanted state.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Not needed — already in this state</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="145"/>
         <source>Skipped — deleted</source>
         <extracomment>Status of a step whose device was deleted after the activity was set up.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Skipped — deleted</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="152"/>
         <source>Not connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Not connected</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="154"/>
         <source>Integration disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>Integration disabled</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="156"/>
         <source>IR emitter unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>IR emitter unavailable</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="158"/>
         <source>No IR output configured</source>
-        <translation type="unfinished"></translation>
+        <translation>No IR output configured</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="160"/>
         <source>IR output unavailable</source>
-        <translation type="unfinished"></translation>
+        <translation>IR output unavailable</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="162"/>
         <source>Bluetooth not connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth not connected</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="164"/>
         <source>Not available</source>
-        <translation type="unfinished"></translation>
+        <translation>Not available</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="166"/>
         <source>Already running</source>
-        <translation type="unfinished"></translation>
+        <translation>Already running</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="169"/>
         <source>Cannot run right now</source>
-        <translation type="unfinished"></translation>
+        <translation>Cannot run right now</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="231"/>
         <source>Cancel</source>
         <extracomment>Button on the readiness check screens: do not run the activity.</extracomment>
-        <translation type="unfinished">Cancel</translation>
+        <translation>Cancel</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="258"/>
         <source>Proceed</source>
         <extracomment>Button on the readiness check screens: run the activity although devices are not ready.</extracomment>
-        <translation type="unfinished">Proceed</translation>
+        <translation>Proceed</translation>
     </message>
     <message numerus="yes">
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="422"/>
         <source>%n device(s) need attention</source>
         <extracomment>Headline of the readiness check screen. %n is the number of devices that will not react.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%n device needs attention</numerusform>
+            <numerusform>%n devices need attention</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="434"/>
         <source>The activity would stop at step %1 of %2.</source>
         <extracomment>%1 is the position of the step the activity would stop at, %2 the number of steps.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>The activity would stop at step %1 of %2.</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="437"/>
         <source>Some devices will not respond.</source>
         <extracomment>The activity runs to its end, but some devices will not react.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Some devices will not respond.</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="457"/>
@@ -3015,28 +3015,28 @@ the Web Configurator</translation>
         <extracomment>Row on the readiness check screen that opens the list of steps.
 ----------
 Title of the screen listing the steps of an activity that is not ready.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>What is wrong</translation>
     </message>
     <message numerus="yes">
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="520"/>
         <source>%1 · %n step(s)</source>
         <extracomment>%1 is the name of the activity, %n the number of steps of its sequence.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1 · %n step</numerusform>
+            <numerusform>%1 · %n steps</numerusform>
         </translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="588"/>
         <source>Wait %1 s</source>
         <extracomment>A delay step of an activity. %1 is the number of seconds.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Wait %1 s</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/ReadinessCheck.qml" line="635"/>
         <source>STOPS HERE</source>
         <extracomment>Marks the step an activity would stop at. Upper case.</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>STOPS HERE</translation>
     </message>
 </context>
 <context>
@@ -3668,22 +3668,22 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/qml/onboarding/Timezone.qml" line="69"/>
         <source>All timezones…</source>
-        <translation type="unfinished"></translation>
+        <translation>All timezones…</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Timezone.qml" line="150"/>
         <source>Confirm timezone</source>
-        <translation type="unfinished"></translation>
+        <translation>Confirm timezone</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Timezone.qml" line="193"/>
         <source>Confirm</source>
-        <translation type="unfinished">Confirm</translation>
+        <translation>Confirm</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Timezone.qml" line="218"/>
         <source>Choose another timezone</source>
-        <translation type="unfinished"></translation>
+        <translation>Choose another timezone</translation>
     </message>
     <message>
         <location filename="../../src/qml/onboarding/Timezone.qml" line="247"/>
@@ -4819,31 +4819,31 @@ Tap the QR code to show it on the screen.</translation>
     <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="313"/>
         <source>Could not change the entity state: not connected</source>
-        <translation type="unfinished"></translation>
+        <translation>Could not change the entity state: not connected</translation>
     </message>
     <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="328"/>
         <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
         <extracomment>Error while fixing an entity state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>The state cannot be changed while the entity is unavailable or the activity is running</translation>
     </message>
     <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="332"/>
         <source>The state of this entity type cannot be changed</source>
         <extracomment>Error while fixing an entity state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>The state of this entity type cannot be changed</translation>
     </message>
     <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="336"/>
         <source>Not allowed to change the entity state</source>
         <extracomment>Error while fixing an entity state</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Not allowed to change the entity state</translation>
     </message>
     <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="340"/>
         <source>Could not change the entity state: %1</source>
         <extracomment>Error while fixing an entity state. %1 is an error message from the remote</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Could not change the entity state: %1</translation>
     </message>
     <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="998"/>
