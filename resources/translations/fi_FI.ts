@@ -4,6 +4,22 @@
     <context>
         <name>Timezone</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Kaikki aikavyöhykkeet…</translation>
+        </message>
+        <message>
+            <source>Confirm timezone</source>
+            <translation>Vahvista aikavyöhyke</translation>
+        </message>
+        <message>
+            <source>Confirm</source>
+            <translation>Vahvista</translation>
+        </message>
+        <message>
+            <source>Choose another timezone</source>
+            <translation>Valitse toinen aikavyöhyke</translation>
+        </message>
+        <message>
             <source>Select timezone</source>
             <translation>Valitse aikavyöhyke</translation>
         </message>
@@ -88,6 +104,10 @@
             <translation>Takaisin</translation>
         </message>
         <message>
+            <source>None of the entities in this activity has an On/Off state that could be fixed</source>
+            <translation>Yhdelläkään tämän toiminnon entiteetillä ei ole päällä/pois-tilaa, jonka voisi korjata</translation>
+        </message>
+        <message>
             <source>Empty page</source>
             <translation>Tyhjä sivu</translation>
         </message>
@@ -96,8 +116,24 @@
             <translation>Voit lisätä käyttöliittymäelementtejä Web-konfiguraattorilla</translation>
         </message>
         <message>
+            <source>%1 is unavailable, its state cannot be changed</source>
+            <translation>%1 ei ole saatavilla, sen tilaa ei voi muuttaa</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Tila: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the device.</source>
+            <translation>Aseta kohteen %1 tila. Laitteelle ei lähetetä komentoa.</translation>
+        </message>
+        <message>
+            <source>Device is on</source>
+            <translation>Laite on päällä</translation>
+        </message>
+        <message>
+            <source>Device is off</source>
+            <translation>Laite on pois päältä</translation>
         </message>
     </context>
     <context>
@@ -202,6 +238,18 @@
     <context>
         <name>GroupEdit</name>
         <message>
+            <source>Remove entity</source>
+            <translation>Poista entiteetti</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to remove %1 from the group?</source>
+            <translation>Haluatko varmasti poistaa kohteen %1 ryhmästä?</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Poista</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Valmis</translation>
         </message>
@@ -259,6 +307,10 @@
     <context>
         <name>Localisation</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Kaikki aikavyöhykkeet…</translation>
+        </message>
+        <message>
             <source>Language</source>
             <translation>Kieli</translation>
         </message>
@@ -269,6 +321,14 @@
         <message>
             <source>Country</source>
             <translation>Maa</translation>
+        </message>
+        <message>
+            <source>Suggested</source>
+            <translation>Ehdotetut</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Kaikki maat</translation>
         </message>
         <message>
             <source>Select country</source>
@@ -924,6 +984,14 @@ in %1 seconds.</source>
     <context>
         <name>Country</name>
         <message>
+            <source>Suggested</source>
+            <translation>Ehdotetut</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Kaikki maat</translation>
+        </message>
+        <message>
             <source>Select country</source>
             <translation>Valitse maa</translation>
         </message>
@@ -1286,6 +1354,26 @@ Web-konfiguraattorin</translation>
     </context>
     <context>
         <name>uc::ui::EntityController</name>
+        <message>
+            <source>Could not change the entity state: not connected</source>
+            <translation>Entiteetin tilaa ei voitu muuttaa: ei yhteyttä</translation>
+        </message>
+        <message>
+            <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
+            <translation>Tilaa ei voi muuttaa, kun entiteetti ei ole saatavilla tai toiminto on käynnissä</translation>
+        </message>
+        <message>
+            <source>The state of this entity type cannot be changed</source>
+            <translation>Tämän entiteettityypin tilaa ei voi muuttaa</translation>
+        </message>
+        <message>
+            <source>Not allowed to change the entity state</source>
+            <translation>Entiteetin tilan muuttaminen ei ole sallittua</translation>
+        </message>
+        <message>
+            <source>Could not change the entity state: %1</source>
+            <translation>Entiteetin tilaa ei voitu muuttaa: %1</translation>
+        </message>
         <message>
             <source>The device</source>
             <translation>Laite</translation>
@@ -1883,6 +1971,95 @@ Web-konfiguraattorin</translation>
         </message>
     </context>
     <context>
+        <name>ReadinessCheck</name>
+        <message>
+            <source>Not needed — already in this state</source>
+            <translation>Ei tarpeen — jo tässä tilassa</translation>
+        </message>
+        <message>
+            <source>Skipped — deleted</source>
+            <translation>Ohitettu — poistettu</translation>
+        </message>
+        <message>
+            <source>Not connected</source>
+            <translation>Ei yhteyttä</translation>
+        </message>
+        <message>
+            <source>Integration disabled</source>
+            <translation>Integraatio pois käytöstä</translation>
+        </message>
+        <message>
+            <source>IR emitter unavailable</source>
+            <translation>IR-lähetin ei saatavilla</translation>
+        </message>
+        <message>
+            <source>No IR output configured</source>
+            <translation>IR-lähtöä ei ole määritetty</translation>
+        </message>
+        <message>
+            <source>IR output unavailable</source>
+            <translation>IR-lähtö ei saatavilla</translation>
+        </message>
+        <message>
+            <source>Bluetooth not connected</source>
+            <translation>Bluetooth-yhteyttä ei ole</translation>
+        </message>
+        <message>
+            <source>Not available</source>
+            <translation>Ei saatavilla</translation>
+        </message>
+        <message>
+            <source>Already running</source>
+            <translation>Käynnissä jo</translation>
+        </message>
+        <message>
+            <source>Cannot run right now</source>
+            <translation>Ei voi suorittaa juuri nyt</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Peruuta</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Jatka</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n device(s) need attention</source>
+            <translation>
+              <numerusform>%n laite vaatii huomiota</numerusform>
+              <numerusform>%n laitetta vaatii huomiota</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>The activity would stop at step %1 of %2.</source>
+            <translation>Toiminto pysähtyisi vaiheeseen %1/%2.</translation>
+        </message>
+        <message>
+            <source>Some devices will not respond.</source>
+            <translation>Kaikki laitteet eivät vastaa.</translation>
+        </message>
+        <message>
+            <source>What is wrong</source>
+            <translation>Mikä on vialla</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1 · %n step(s)</source>
+            <translation>
+              <numerusform>%1 · %n vaihe</numerusform>
+              <numerusform>%1 · %n vaihetta</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Wait %1 s</source>
+            <translation>Odota %1 s</translation>
+        </message>
+        <message>
+            <source>STOPS HERE</source>
+            <translation>PYSÄHTYY TÄHÄN</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Group</name>
         <message>
             <source>%1 already exists in this group.</source>
@@ -2203,8 +2380,32 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
             <translation>Sarja ei valmistunut %1 sekunnissa. Tarkista määritykset.</translation>
         </message>
         <message>
+            <source>Unknown device</source>
+            <translation>Tuntematon laite</translation>
+        </message>
+        <message>
             <source>There was an error during the sequence.</source>
             <translation>Sarjan aikana tapahtui virhe.</translation>
+        </message>
+        <message>
+            <source>%1 stopped</source>
+            <translation>%1 pysähtyi</translation>
+        </message>
+        <message>
+            <source>No response · carrying on</source>
+            <translation>Ei vastausta · jatketaan</translation>
+        </message>
+        <message>
+            <source>at step %1 of %2</source>
+            <translation>vaiheessa %1/%2</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Sulje</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Yritä uudelleen</translation>
         </message>
         <message>
             <source>The sequence timed out.</source>
@@ -2300,6 +2501,10 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
             <translation>Lisää ryhmä</translation>
         </message>
         <message>
+            <source>Pages</source>
+            <translation>Sivut</translation>
+        </message>
+        <message>
             <source>Reorder</source>
             <translation>Järjestä uudelleen</translation>
         </message>
@@ -2310,6 +2515,10 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
             <translation>Järjestettävää ei ole. Lisää ensin entiteettejä tai ryhmiä.</translation>
+        </message>
+        <message>
+            <source>Edit %1</source>
+            <translation>Muokkaa kohdetta %1</translation>
         </message>
         <message>
             <source>Show tips</source>

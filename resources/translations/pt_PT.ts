@@ -4,6 +4,22 @@
     <context>
         <name>Timezone</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Todos os fusos horários…</translation>
+        </message>
+        <message>
+            <source>Confirm timezone</source>
+            <translation>Confirmar fuso horário</translation>
+        </message>
+        <message>
+            <source>Confirm</source>
+            <translation>Confirmar</translation>
+        </message>
+        <message>
+            <source>Choose another timezone</source>
+            <translation>Escolher outro fuso horário</translation>
+        </message>
+        <message>
             <source>Select timezone</source>
             <translation>Selecionar fuso horário</translation>
         </message>
@@ -88,6 +104,10 @@
             <translation>Voltar</translation>
         </message>
         <message>
+            <source>None of the entities in this activity has an On/Off state that could be fixed</source>
+            <translation>Nenhuma das entidades desta atividade tem um estado ligado/desligado que possa ser corrigido</translation>
+        </message>
+        <message>
             <source>Empty page</source>
             <translation>Página vazia</translation>
         </message>
@@ -96,8 +116,24 @@
             <translation>Podes adicionar elementos da interface através do Configurador Web</translation>
         </message>
         <message>
+            <source>%1 is unavailable, its state cannot be changed</source>
+            <translation>%1 está indisponível, o seu estado não pode ser alterado</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Estado: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the device.</source>
+            <translation>Define o estado de %1. Não é enviado nenhum comando para o dispositivo.</translation>
+        </message>
+        <message>
+            <source>Device is on</source>
+            <translation>O dispositivo está ligado</translation>
+        </message>
+        <message>
+            <source>Device is off</source>
+            <translation>O dispositivo está desligado</translation>
         </message>
     </context>
     <context>
@@ -202,6 +238,18 @@
     <context>
         <name>GroupEdit</name>
         <message>
+            <source>Remove entity</source>
+            <translation>Remover entidade</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to remove %1 from the group?</source>
+            <translation>Tens a certeza de que queres remover %1 do grupo?</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Remover</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Concluído</translation>
         </message>
@@ -259,6 +307,10 @@
     <context>
         <name>Localisation</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Todos os fusos horários…</translation>
+        </message>
+        <message>
             <source>Language</source>
             <translation>Idioma</translation>
         </message>
@@ -269,6 +321,14 @@
         <message>
             <source>Country</source>
             <translation>País</translation>
+        </message>
+        <message>
+            <source>Suggested</source>
+            <translation>Sugeridos</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Todos os países</translation>
         </message>
         <message>
             <source>Select country</source>
@@ -924,6 +984,14 @@ dentro de %1 segundos.</translation>
     <context>
         <name>Country</name>
         <message>
+            <source>Suggested</source>
+            <translation>Sugeridos</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Todos os países</translation>
+        </message>
+        <message>
             <source>Select country</source>
             <translation>Selecionar país</translation>
         </message>
@@ -1286,6 +1354,26 @@ o Configurador Web</translation>
     </context>
     <context>
         <name>uc::ui::EntityController</name>
+        <message>
+            <source>Could not change the entity state: not connected</source>
+            <translation>Não foi possível alterar o estado da entidade: não ligado</translation>
+        </message>
+        <message>
+            <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
+            <translation>O estado não pode ser alterado enquanto a entidade estiver indisponível ou a atividade estiver em execução</translation>
+        </message>
+        <message>
+            <source>The state of this entity type cannot be changed</source>
+            <translation>O estado deste tipo de entidade não pode ser alterado</translation>
+        </message>
+        <message>
+            <source>Not allowed to change the entity state</source>
+            <translation>Não é permitido alterar o estado da entidade</translation>
+        </message>
+        <message>
+            <source>Could not change the entity state: %1</source>
+            <translation>Não foi possível alterar o estado da entidade: %1</translation>
+        </message>
         <message>
             <source>The device</source>
             <translation>O dispositivo</translation>
@@ -1883,6 +1971,95 @@ o Configurador Web</translation>
         </message>
     </context>
     <context>
+        <name>ReadinessCheck</name>
+        <message>
+            <source>Not needed — already in this state</source>
+            <translation>Não é necessário — já está neste estado</translation>
+        </message>
+        <message>
+            <source>Skipped — deleted</source>
+            <translation>Ignorado — eliminado</translation>
+        </message>
+        <message>
+            <source>Not connected</source>
+            <translation>Não ligado</translation>
+        </message>
+        <message>
+            <source>Integration disabled</source>
+            <translation>Integração desativada</translation>
+        </message>
+        <message>
+            <source>IR emitter unavailable</source>
+            <translation>Emissor IR indisponível</translation>
+        </message>
+        <message>
+            <source>No IR output configured</source>
+            <translation>Nenhuma saída IR configurada</translation>
+        </message>
+        <message>
+            <source>IR output unavailable</source>
+            <translation>Saída IR indisponível</translation>
+        </message>
+        <message>
+            <source>Bluetooth not connected</source>
+            <translation>Bluetooth não ligado</translation>
+        </message>
+        <message>
+            <source>Not available</source>
+            <translation>Indisponível</translation>
+        </message>
+        <message>
+            <source>Already running</source>
+            <translation>Já em execução</translation>
+        </message>
+        <message>
+            <source>Cannot run right now</source>
+            <translation>Não é possível executar agora</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Cancelar</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Continuar</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n device(s) need attention</source>
+            <translation>
+              <numerusform>%n dispositivo precisa de atenção</numerusform>
+              <numerusform>%n dispositivos precisam de atenção</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>The activity would stop at step %1 of %2.</source>
+            <translation>A atividade pararia no passo %1 de %2.</translation>
+        </message>
+        <message>
+            <source>Some devices will not respond.</source>
+            <translation>Alguns dispositivos não vão responder.</translation>
+        </message>
+        <message>
+            <source>What is wrong</source>
+            <translation>O que está mal</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1 · %n step(s)</source>
+            <translation>
+              <numerusform>%1 · %n passo</numerusform>
+              <numerusform>%1 · %n passos</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Wait %1 s</source>
+            <translation>Aguardar %1 s</translation>
+        </message>
+        <message>
+            <source>STOPS HERE</source>
+            <translation>PARA AQUI</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Group</name>
         <message>
             <source>%1 already exists in this group.</source>
@@ -2203,8 +2380,32 @@ Toca no código QR para o mostrar no ecrã.</translation>
             <translation>A sequência não terminou em %1 segundos. Verifica a configuração.</translation>
         </message>
         <message>
+            <source>Unknown device</source>
+            <translation>Dispositivo desconhecido</translation>
+        </message>
+        <message>
             <source>There was an error during the sequence.</source>
             <translation>Ocorreu um erro durante a sequência.</translation>
+        </message>
+        <message>
+            <source>%1 stopped</source>
+            <translation>%1 parou</translation>
+        </message>
+        <message>
+            <source>No response · carrying on</source>
+            <translation>Sem resposta · a continuar</translation>
+        </message>
+        <message>
+            <source>at step %1 of %2</source>
+            <translation>no passo %1 de %2</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Fechar</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Tentar novamente</translation>
         </message>
         <message>
             <source>The sequence timed out.</source>
@@ -2300,6 +2501,10 @@ Toca no código QR para o mostrar no ecrã.</translation>
             <translation>Adicionar grupo</translation>
         </message>
         <message>
+            <source>Pages</source>
+            <translation>Páginas</translation>
+        </message>
+        <message>
             <source>Reorder</source>
             <translation>Reordenar</translation>
         </message>
@@ -2310,6 +2515,10 @@ Toca no código QR para o mostrar no ecrã.</translation>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
             <translation>Não há nada para reordenar. Adiciona primeiro entidades ou grupos.</translation>
+        </message>
+        <message>
+            <source>Edit %1</source>
+            <translation>Editar %1</translation>
         </message>
         <message>
             <source>Show tips</source>

@@ -4,6 +4,22 @@
     <context>
         <name>Timezone</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Alle tidszoner…</translation>
+        </message>
+        <message>
+            <source>Confirm timezone</source>
+            <translation>Bekræft tidszone</translation>
+        </message>
+        <message>
+            <source>Confirm</source>
+            <translation>Bekræft</translation>
+        </message>
+        <message>
+            <source>Choose another timezone</source>
+            <translation>Vælg en anden tidszone</translation>
+        </message>
+        <message>
             <source>Select timezone</source>
             <translation>Vælg tidszone</translation>
         </message>
@@ -88,6 +104,10 @@
             <translation>Tilbage</translation>
         </message>
         <message>
+            <source>None of the entities in this activity has an On/Off state that could be fixed</source>
+            <translation>Ingen af entiteterne i denne aktivitet har en tændt/slukket-tilstand, der kan rettes</translation>
+        </message>
+        <message>
             <source>Empty page</source>
             <translation>Tom side</translation>
         </message>
@@ -96,8 +116,24 @@
             <translation>Du kan tilføje UI-elementer via Webkonfiguratoren</translation>
         </message>
         <message>
+            <source>%1 is unavailable, its state cannot be changed</source>
+            <translation>%1 er ikke tilgængelig, tilstanden kan ikke ændres</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Tilstand: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the device.</source>
+            <translation>Angiv tilstanden for %1. Der sendes ingen kommando til enheden.</translation>
+        </message>
+        <message>
+            <source>Device is on</source>
+            <translation>Enheden er tændt</translation>
+        </message>
+        <message>
+            <source>Device is off</source>
+            <translation>Enheden er slukket</translation>
         </message>
     </context>
     <context>
@@ -202,6 +238,18 @@
     <context>
         <name>GroupEdit</name>
         <message>
+            <source>Remove entity</source>
+            <translation>Fjern entitet</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to remove %1 from the group?</source>
+            <translation>Er du sikker på, at du vil fjerne %1 fra gruppen?</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Fjern</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Færdig</translation>
         </message>
@@ -259,6 +307,10 @@
     <context>
         <name>Localisation</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Alle tidszoner…</translation>
+        </message>
+        <message>
             <source>Language</source>
             <translation>Sprog</translation>
         </message>
@@ -269,6 +321,14 @@
         <message>
             <source>Country</source>
             <translation>Land</translation>
+        </message>
+        <message>
+            <source>Suggested</source>
+            <translation>Foreslået</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Alle lande</translation>
         </message>
         <message>
             <source>Select country</source>
@@ -924,6 +984,14 @@ om %1 sekunder.</translation>
     <context>
         <name>Country</name>
         <message>
+            <source>Suggested</source>
+            <translation>Foreslået</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Alle lande</translation>
+        </message>
+        <message>
             <source>Select country</source>
             <translation>Vælg land</translation>
         </message>
@@ -1286,6 +1354,26 @@ Webkonfiguratoren</translation>
     </context>
     <context>
         <name>uc::ui::EntityController</name>
+        <message>
+            <source>Could not change the entity state: not connected</source>
+            <translation>Entitetens tilstand kunne ikke ændres: ikke forbundet</translation>
+        </message>
+        <message>
+            <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
+            <translation>Tilstanden kan ikke ændres, mens entiteten er utilgængelig, eller aktiviteten kører</translation>
+        </message>
+        <message>
+            <source>The state of this entity type cannot be changed</source>
+            <translation>Tilstanden for denne entitetstype kan ikke ændres</translation>
+        </message>
+        <message>
+            <source>Not allowed to change the entity state</source>
+            <translation>Det er ikke tilladt at ændre entitetens tilstand</translation>
+        </message>
+        <message>
+            <source>Could not change the entity state: %1</source>
+            <translation>Entitetens tilstand kunne ikke ændres: %1</translation>
+        </message>
         <message>
             <source>The device</source>
             <translation>Enheden</translation>
@@ -1883,6 +1971,95 @@ Webkonfiguratoren</translation>
         </message>
     </context>
     <context>
+        <name>ReadinessCheck</name>
+        <message>
+            <source>Not needed — already in this state</source>
+            <translation>Ikke nødvendig — allerede i denne tilstand</translation>
+        </message>
+        <message>
+            <source>Skipped — deleted</source>
+            <translation>Sprunget over — slettet</translation>
+        </message>
+        <message>
+            <source>Not connected</source>
+            <translation>Ikke forbundet</translation>
+        </message>
+        <message>
+            <source>Integration disabled</source>
+            <translation>Integration deaktiveret</translation>
+        </message>
+        <message>
+            <source>IR emitter unavailable</source>
+            <translation>IR-sender ikke tilgængelig</translation>
+        </message>
+        <message>
+            <source>No IR output configured</source>
+            <translation>Ingen IR-udgang konfigureret</translation>
+        </message>
+        <message>
+            <source>IR output unavailable</source>
+            <translation>IR-udgang ikke tilgængelig</translation>
+        </message>
+        <message>
+            <source>Bluetooth not connected</source>
+            <translation>Bluetooth ikke forbundet</translation>
+        </message>
+        <message>
+            <source>Not available</source>
+            <translation>Ikke tilgængelig</translation>
+        </message>
+        <message>
+            <source>Already running</source>
+            <translation>Kører allerede</translation>
+        </message>
+        <message>
+            <source>Cannot run right now</source>
+            <translation>Kan ikke køre lige nu</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuller</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Fortsæt</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n device(s) need attention</source>
+            <translation>
+              <numerusform>%n enhed kræver opmærksomhed</numerusform>
+              <numerusform>%n enheder kræver opmærksomhed</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>The activity would stop at step %1 of %2.</source>
+            <translation>Aktiviteten ville stoppe ved trin %1 af %2.</translation>
+        </message>
+        <message>
+            <source>Some devices will not respond.</source>
+            <translation>Nogle enheder vil ikke svare.</translation>
+        </message>
+        <message>
+            <source>What is wrong</source>
+            <translation>Hvad er der galt</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1 · %n step(s)</source>
+            <translation>
+              <numerusform>%1 · %n trin</numerusform>
+              <numerusform>%1 · %n trin</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Wait %1 s</source>
+            <translation>Vent %1 s</translation>
+        </message>
+        <message>
+            <source>STOPS HERE</source>
+            <translation>STOPPER HER</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Group</name>
         <message>
             <source>%1 already exists in this group.</source>
@@ -2203,8 +2380,32 @@ Tryk på QR-koden for at vise den på skærmen.</translation>
             <translation>Sekvensen blev ikke afsluttet inden for %1 sekunder. Kontrollér konfigurationen.</translation>
         </message>
         <message>
+            <source>Unknown device</source>
+            <translation>Ukendt enhed</translation>
+        </message>
+        <message>
             <source>There was an error during the sequence.</source>
             <translation>Der opstod en fejl under sekvensen.</translation>
+        </message>
+        <message>
+            <source>%1 stopped</source>
+            <translation>%1 stoppede</translation>
+        </message>
+        <message>
+            <source>No response · carrying on</source>
+            <translation>Intet svar · fortsætter</translation>
+        </message>
+        <message>
+            <source>at step %1 of %2</source>
+            <translation>ved trin %1 af %2</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Luk</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Prøv igen</translation>
         </message>
         <message>
             <source>The sequence timed out.</source>
@@ -2300,6 +2501,10 @@ Tryk på QR-koden for at vise den på skærmen.</translation>
             <translation>Tilføj gruppe</translation>
         </message>
         <message>
+            <source>Pages</source>
+            <translation>Sider</translation>
+        </message>
+        <message>
             <source>Reorder</source>
             <translation>Omarrangér</translation>
         </message>
@@ -2310,6 +2515,10 @@ Tryk på QR-koden for at vise den på skærmen.</translation>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
             <translation>Der er intet at omarrangere. Prøv at tilføje entiteter eller grupper først.</translation>
+        </message>
+        <message>
+            <source>Edit %1</source>
+            <translation>Rediger %1</translation>
         </message>
         <message>
             <source>Show tips</source>

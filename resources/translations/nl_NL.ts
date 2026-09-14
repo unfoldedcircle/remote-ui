@@ -4,6 +4,22 @@
     <context>
         <name>Timezone</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Alle tijdzones…</translation>
+        </message>
+        <message>
+            <source>Confirm timezone</source>
+            <translation>Tijdzone bevestigen</translation>
+        </message>
+        <message>
+            <source>Confirm</source>
+            <translation>Bevestigen</translation>
+        </message>
+        <message>
+            <source>Choose another timezone</source>
+            <translation>Een andere tijdzone kiezen</translation>
+        </message>
+        <message>
             <source>Select timezone</source>
             <translation>Tijdzone selecteren</translation>
         </message>
@@ -88,6 +104,10 @@
             <translation>Terug</translation>
         </message>
         <message>
+            <source>None of the entities in this activity has an On/Off state that could be fixed</source>
+            <translation>Geen van de entiteiten in deze activiteit heeft een aan/uit-toestand die kan worden gecorrigeerd</translation>
+        </message>
+        <message>
             <source>Empty page</source>
             <translation>Lege pagina</translation>
         </message>
@@ -96,8 +116,24 @@
             <translation>Je kunt UI-elementen toevoegen via de Webconfigurator</translation>
         </message>
         <message>
+            <source>%1 is unavailable, its state cannot be changed</source>
+            <translation>%1 is niet beschikbaar, de toestand kan niet worden gewijzigd</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Status: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the device.</source>
+            <translation>Stel de toestand van %1 in. Er wordt geen opdracht naar het apparaat gestuurd.</translation>
+        </message>
+        <message>
+            <source>Device is on</source>
+            <translation>Apparaat staat aan</translation>
+        </message>
+        <message>
+            <source>Device is off</source>
+            <translation>Apparaat staat uit</translation>
         </message>
     </context>
     <context>
@@ -202,6 +238,18 @@
     <context>
         <name>GroupEdit</name>
         <message>
+            <source>Remove entity</source>
+            <translation>Entiteit verwijderen</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to remove %1 from the group?</source>
+            <translation>Weet je zeker dat je %1 uit de groep wilt verwijderen?</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Verwijderen</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Klaar</translation>
         </message>
@@ -259,6 +307,10 @@
     <context>
         <name>Localisation</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Alle tijdzones…</translation>
+        </message>
+        <message>
             <source>Language</source>
             <translation>Taal</translation>
         </message>
@@ -269,6 +321,14 @@
         <message>
             <source>Country</source>
             <translation>Land</translation>
+        </message>
+        <message>
+            <source>Suggested</source>
+            <translation>Voorgesteld</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Alle landen</translation>
         </message>
         <message>
             <source>Select country</source>
@@ -924,6 +984,14 @@ over %1 seconden.</translation>
     <context>
         <name>Country</name>
         <message>
+            <source>Suggested</source>
+            <translation>Voorgesteld</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Alle landen</translation>
+        </message>
+        <message>
             <source>Select country</source>
             <translation>Land selecteren</translation>
         </message>
@@ -1286,6 +1354,26 @@ te openen</translation>
     </context>
     <context>
         <name>uc::ui::EntityController</name>
+        <message>
+            <source>Could not change the entity state: not connected</source>
+            <translation>Kan de toestand van de entiteit niet wijzigen: niet verbonden</translation>
+        </message>
+        <message>
+            <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
+            <translation>De toestand kan niet worden gewijzigd terwijl de entiteit niet beschikbaar is of de activiteit loopt</translation>
+        </message>
+        <message>
+            <source>The state of this entity type cannot be changed</source>
+            <translation>De toestand van dit type entiteit kan niet worden gewijzigd</translation>
+        </message>
+        <message>
+            <source>Not allowed to change the entity state</source>
+            <translation>Het wijzigen van de toestand van de entiteit is niet toegestaan</translation>
+        </message>
+        <message>
+            <source>Could not change the entity state: %1</source>
+            <translation>Kan de toestand van de entiteit niet wijzigen: %1</translation>
+        </message>
         <message>
             <source>The device</source>
             <translation>Het apparaat</translation>
@@ -1883,6 +1971,95 @@ te openen</translation>
         </message>
     </context>
     <context>
+        <name>ReadinessCheck</name>
+        <message>
+            <source>Not needed — already in this state</source>
+            <translation>Niet nodig — al in deze toestand</translation>
+        </message>
+        <message>
+            <source>Skipped — deleted</source>
+            <translation>Overgeslagen — verwijderd</translation>
+        </message>
+        <message>
+            <source>Not connected</source>
+            <translation>Niet verbonden</translation>
+        </message>
+        <message>
+            <source>Integration disabled</source>
+            <translation>Integratie uitgeschakeld</translation>
+        </message>
+        <message>
+            <source>IR emitter unavailable</source>
+            <translation>IR-zender niet beschikbaar</translation>
+        </message>
+        <message>
+            <source>No IR output configured</source>
+            <translation>Geen IR-uitgang geconfigureerd</translation>
+        </message>
+        <message>
+            <source>IR output unavailable</source>
+            <translation>IR-uitgang niet beschikbaar</translation>
+        </message>
+        <message>
+            <source>Bluetooth not connected</source>
+            <translation>Bluetooth niet verbonden</translation>
+        </message>
+        <message>
+            <source>Not available</source>
+            <translation>Niet beschikbaar</translation>
+        </message>
+        <message>
+            <source>Already running</source>
+            <translation>Loopt al</translation>
+        </message>
+        <message>
+            <source>Cannot run right now</source>
+            <translation>Kan nu niet worden uitgevoerd</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuleren</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Doorgaan</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n device(s) need attention</source>
+            <translation>
+              <numerusform>%n apparaat heeft aandacht nodig</numerusform>
+              <numerusform>%n apparaten hebben aandacht nodig</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>The activity would stop at step %1 of %2.</source>
+            <translation>De activiteit zou stoppen bij stap %1 van %2.</translation>
+        </message>
+        <message>
+            <source>Some devices will not respond.</source>
+            <translation>Sommige apparaten zullen niet reageren.</translation>
+        </message>
+        <message>
+            <source>What is wrong</source>
+            <translation>Wat er mis is</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1 · %n step(s)</source>
+            <translation>
+              <numerusform>%1 · %n stap</numerusform>
+              <numerusform>%1 · %n stappen</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Wait %1 s</source>
+            <translation>Wacht %1 s</translation>
+        </message>
+        <message>
+            <source>STOPS HERE</source>
+            <translation>STOPT HIER</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Group</name>
         <message>
             <source>%1 already exists in this group.</source>
@@ -2203,8 +2380,32 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
             <translation>De reeks is niet binnen %1 seconden voltooid. Controleer de configuratie.</translation>
         </message>
         <message>
+            <source>Unknown device</source>
+            <translation>Onbekend apparaat</translation>
+        </message>
+        <message>
             <source>There was an error during the sequence.</source>
             <translation>Er is een fout opgetreden tijdens de reeks.</translation>
+        </message>
+        <message>
+            <source>%1 stopped</source>
+            <translation>%1 is gestopt</translation>
+        </message>
+        <message>
+            <source>No response · carrying on</source>
+            <translation>Geen reactie · gaat door</translation>
+        </message>
+        <message>
+            <source>at step %1 of %2</source>
+            <translation>bij stap %1 van %2</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Sluiten</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Opnieuw proberen</translation>
         </message>
         <message>
             <source>The sequence timed out.</source>
@@ -2300,6 +2501,10 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
             <translation>Groep toevoegen</translation>
         </message>
         <message>
+            <source>Pages</source>
+            <translation>Pagina's</translation>
+        </message>
+        <message>
             <source>Reorder</source>
             <translation>Herschikken</translation>
         </message>
@@ -2310,6 +2515,10 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
             <translation>Er is niets om te herschikken. Voeg eerst entiteiten of groepen toe.</translation>
+        </message>
+        <message>
+            <source>Edit %1</source>
+            <translation>%1 bewerken</translation>
         </message>
         <message>
             <source>Show tips</source>

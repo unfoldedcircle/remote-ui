@@ -4,6 +4,22 @@
     <context>
         <name>Timezone</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Aui Zytzone…</translation>
+        </message>
+        <message>
+            <source>Confirm timezone</source>
+            <translation>Zytzone bestätige</translation>
+        </message>
+        <message>
+            <source>Confirm</source>
+            <translation>Bestätige</translation>
+        </message>
+        <message>
+            <source>Choose another timezone</source>
+            <translation>Ne anderi Zytzone uswähle</translation>
+        </message>
+        <message>
             <source>Select timezone</source>
             <translation>Zytzone uswähle</translation>
         </message>
@@ -88,6 +104,10 @@
             <translation>Zrügg</translation>
         </message>
         <message>
+            <source>None of the entities in this activity has an On/Off state that could be fixed</source>
+            <translation>Kei vo de Entitäte i dere Aktivität het en Aa/Us-Zuestand, wo chönnt korrigiert wärde</translation>
+        </message>
+        <message>
             <source>Empty page</source>
             <translation>Leeri Siite</translation>
         </message>
@@ -96,8 +116,24 @@
             <translation>Chasch UI-Elemänt übere Web-Konfigurator hinzuefüege</translation>
         </message>
         <message>
+            <source>%1 is unavailable, its state cannot be changed</source>
+            <translation>%1 isch nid verfüegbar, der Zuestand cha nid gänderet wärde</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Status: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the device.</source>
+            <translation>Setz der Zuestand vo %1. Es wird kei Befähl a ds Grät gschickt.</translation>
+        </message>
+        <message>
+            <source>Device is on</source>
+            <translation>Ds Grät isch aa</translation>
+        </message>
+        <message>
+            <source>Device is off</source>
+            <translation>Ds Grät isch us</translation>
         </message>
     </context>
     <context>
@@ -202,6 +238,18 @@
     <context>
         <name>GroupEdit</name>
         <message>
+            <source>Remove entity</source>
+            <translation>Entität entferne</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to remove %1 from the group?</source>
+            <translation>Bisch sicher, dass du %1 us dr Gruppe wosch entferne?</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Entferne</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Fertig</translation>
         </message>
@@ -259,6 +307,10 @@
     <context>
         <name>Localisation</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Aui Zytzone…</translation>
+        </message>
+        <message>
             <source>Language</source>
             <translation>Sprach</translation>
         </message>
@@ -269,6 +321,14 @@
         <message>
             <source>Country</source>
             <translation>Land</translation>
+        </message>
+        <message>
+            <source>Suggested</source>
+            <translation>Vorgschlage</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Aui Länder</translation>
         </message>
         <message>
             <source>Select country</source>
@@ -924,6 +984,14 @@ i %1 Sekunde uus.</translation>
     <context>
         <name>Country</name>
         <message>
+            <source>Suggested</source>
+            <translation>Vorgschlage</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Aui Länder</translation>
+        </message>
+        <message>
             <source>Select country</source>
             <translation>Land uswähle</translation>
         </message>
@@ -1286,6 +1354,26 @@ vom Web-Konfigurator</translation>
     </context>
     <context>
         <name>uc::ui::EntityController</name>
+        <message>
+            <source>Could not change the entity state: not connected</source>
+            <translation>Der Zuestand vo der Entität het nid chönne gänderet wärde: nid verbunde</translation>
+        </message>
+        <message>
+            <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
+            <translation>Der Zuestand cha nid gänderet wärde, solang d Entität nid verfüegbar isch oder d Aktivität lauft</translation>
+        </message>
+        <message>
+            <source>The state of this entity type cannot be changed</source>
+            <translation>Der Zuestand vo dem Entitätstyp cha nid gänderet wärde</translation>
+        </message>
+        <message>
+            <source>Not allowed to change the entity state</source>
+            <translation>Der Zuestand vo der Entität darf nid gänderet wärde</translation>
+        </message>
+        <message>
+            <source>Could not change the entity state: %1</source>
+            <translation>Der Zuestand vo der Entität het nid chönne gänderet wärde: %1</translation>
+        </message>
         <message>
             <source>The device</source>
             <translation>Ds Grät</translation>
@@ -1883,6 +1971,95 @@ vom Web-Konfigurator</translation>
         </message>
     </context>
     <context>
+        <name>ReadinessCheck</name>
+        <message>
+            <source>Not needed — already in this state</source>
+            <translation>Nid nötig — scho i dem Zuestand</translation>
+        </message>
+        <message>
+            <source>Skipped — deleted</source>
+            <translation>Übersprunge — glöscht</translation>
+        </message>
+        <message>
+            <source>Not connected</source>
+            <translation>Nid verbunde</translation>
+        </message>
+        <message>
+            <source>Integration disabled</source>
+            <translation>Integration deaktiviert</translation>
+        </message>
+        <message>
+            <source>IR emitter unavailable</source>
+            <translation>IR-Sänder nid verfüegbar</translation>
+        </message>
+        <message>
+            <source>No IR output configured</source>
+            <translation>Kei IR-Uusgang konfiguriert</translation>
+        </message>
+        <message>
+            <source>IR output unavailable</source>
+            <translation>IR-Uusgang nid verfüegbar</translation>
+        </message>
+        <message>
+            <source>Bluetooth not connected</source>
+            <translation>Bluetooth nid verbunde</translation>
+        </message>
+        <message>
+            <source>Not available</source>
+            <translation>Nid verfüegbar</translation>
+        </message>
+        <message>
+            <source>Already running</source>
+            <translation>Lauft scho</translation>
+        </message>
+        <message>
+            <source>Cannot run right now</source>
+            <translation>Cha jetz nid uusgfüehrt wärde</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Abbräche</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Wyterfahre</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n device(s) need attention</source>
+            <translation>
+              <numerusform>%n Grät brucht Ufmerksamkeit</numerusform>
+              <numerusform>%n Grät bruche Ufmerksamkeit</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>The activity would stop at step %1 of %2.</source>
+            <translation>D Aktivität würd bim Schritt %1 vo %2 stoppe.</translation>
+        </message>
+        <message>
+            <source>Some devices will not respond.</source>
+            <translation>Einigi Grät reagiere nid.</translation>
+        </message>
+        <message>
+            <source>What is wrong</source>
+            <translation>Was nid stimmt</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1 · %n step(s)</source>
+            <translation>
+              <numerusform>%1 · %n Schritt</numerusform>
+              <numerusform>%1 · %n Schritt</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Wait %1 s</source>
+            <translation>%1 s warte</translation>
+        </message>
+        <message>
+            <source>STOPS HERE</source>
+            <translation>HÖRT DA UF</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Group</name>
         <message>
             <source>%1 already exists in this group.</source>
@@ -2204,8 +2381,32 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
             <translation>D Sequänz isch nid innerhalb vo %1 Sekunde fertig worde. Prüef d Konfiguration.</translation>
         </message>
         <message>
+            <source>Unknown device</source>
+            <translation>Unbekannts Grät</translation>
+        </message>
+        <message>
             <source>There was an error during the sequence.</source>
             <translation>Es het e Fähler ggä während dr Sequänz.</translation>
+        </message>
+        <message>
+            <source>%1 stopped</source>
+            <translation>%1 het gstoppt</translation>
+        </message>
+        <message>
+            <source>No response · carrying on</source>
+            <translation>Kei Antwort · macht wyter</translation>
+        </message>
+        <message>
+            <source>at step %1 of %2</source>
+            <translation>bim Schritt %1 vo %2</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Schliesse</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Nomau probiere</translation>
         </message>
         <message>
             <source>The sequence timed out.</source>
@@ -2301,6 +2502,10 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
             <translation>Gruppe hinzuefüege</translation>
         </message>
         <message>
+            <source>Pages</source>
+            <translation>Siite</translation>
+        </message>
+        <message>
             <source>Reorder</source>
             <translation>Neu anordne</translation>
         </message>
@@ -2311,6 +2516,10 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
             <translation>Es git nüt umzordne. Versuech zersch Entitä oder Gruppe hinzuezfüege.</translation>
+        </message>
+        <message>
+            <source>Edit %1</source>
+            <translation>%1 bearbeite</translation>
         </message>
         <message>
             <source>Show tips</source>

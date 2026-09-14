@@ -4,6 +4,22 @@
     <context>
         <name>Timezone</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Az összes időzóna…</translation>
+        </message>
+        <message>
+            <source>Confirm timezone</source>
+            <translation>Időzóna megerősítése</translation>
+        </message>
+        <message>
+            <source>Confirm</source>
+            <translation>Megerősít</translation>
+        </message>
+        <message>
+            <source>Choose another timezone</source>
+            <translation>Válasszon másik időzónát</translation>
+        </message>
+        <message>
             <source>Select timezone</source>
             <translation>Időzóna kiválasztása</translation>
         </message>
@@ -88,6 +104,10 @@
             <translation>Vissza</translation>
         </message>
         <message>
+            <source>None of the entities in this activity has an On/Off state that could be fixed</source>
+            <translation>Az ebben a tevékenységben szereplő entitások egyike sem rendelkezik olyan be-/kikapcsolható állapottal, amely rögzíthető lenne</translation>
+        </message>
+        <message>
             <source>Empty page</source>
             <translation>Üres oldal</translation>
         </message>
@@ -96,8 +116,24 @@
             <translation>A felület elemeit a Webkonfigurátorban adhatod hozzá</translation>
         </message>
         <message>
+            <source>%1 is unavailable, its state cannot be changed</source>
+            <translation>A(z) %1 nem érhető el, állapota nem módosítható</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Állapot: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the device.</source>
+            <translation>Állítsa be a(z) %1 állapotát. Az eszköz felé nem küldünk parancsot.</translation>
+        </message>
+        <message>
+            <source>Device is on</source>
+            <translation>Az eszköz be van kapcsolva</translation>
+        </message>
+        <message>
+            <source>Device is off</source>
+            <translation>Az eszköz ki van kapcsolva</translation>
         </message>
     </context>
     <context>
@@ -202,6 +238,18 @@
     <context>
         <name>GroupEdit</name>
         <message>
+            <source>Remove entity</source>
+            <translation>Entitás eltávolítása</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to remove %1 from the group?</source>
+            <translation>Biztosan eltávolítod a(z) %1 elemet a csoportból?</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Eltávolítás</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Kész</translation>
         </message>
@@ -259,6 +307,10 @@
     <context>
         <name>Localisation</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Az összes időzóna…</translation>
+        </message>
+        <message>
             <source>Language</source>
             <translation>Nyelv</translation>
         </message>
@@ -269,6 +321,14 @@
         <message>
             <source>Country</source>
             <translation>Ország</translation>
+        </message>
+        <message>
+            <source>Suggested</source>
+            <translation>Javasolt</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Minden ország</translation>
         </message>
         <message>
             <source>Select country</source>
@@ -924,6 +984,14 @@ in %1 seconds.</source>
     <context>
         <name>Country</name>
         <message>
+            <source>Suggested</source>
+            <translation>Javasolt</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Minden ország</translation>
+        </message>
+        <message>
             <source>Select country</source>
             <translation>Ország kiválasztása</translation>
         </message>
@@ -1286,6 +1354,26 @@ megnyitásához</translation>
     </context>
     <context>
         <name>uc::ui::EntityController</name>
+        <message>
+            <source>Could not change the entity state: not connected</source>
+            <translation>Nem sikerült módosítani az entitás állapotát: nincs kapcsolat</translation>
+        </message>
+        <message>
+            <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
+            <translation>Az állapot nem módosítható, amíg az entitás nem érhető el, vagy a tevékenység fut</translation>
+        </message>
+        <message>
+            <source>The state of this entity type cannot be changed</source>
+            <translation>Ennek az entitástípusnak az állapota nem módosítható</translation>
+        </message>
+        <message>
+            <source>Not allowed to change the entity state</source>
+            <translation>Az entitás állapotának módosítása nem engedélyezett</translation>
+        </message>
+        <message>
+            <source>Could not change the entity state: %1</source>
+            <translation>Nem sikerült módosítani az entitás állapotát: %1</translation>
+        </message>
         <message>
             <source>The device</source>
             <translation>Az eszköz</translation>
@@ -1883,6 +1971,93 @@ megnyitásához</translation>
         </message>
     </context>
     <context>
+        <name>ReadinessCheck</name>
+        <message>
+            <source>Not needed — already in this state</source>
+            <translation>Nem szükséges — már ebben az állapotban van</translation>
+        </message>
+        <message>
+            <source>Skipped — deleted</source>
+            <translation>Kihagyva — törölve</translation>
+        </message>
+        <message>
+            <source>Not connected</source>
+            <translation>Nincs csatlakoztatva</translation>
+        </message>
+        <message>
+            <source>Integration disabled</source>
+            <translation>Az integráció le van tiltva</translation>
+        </message>
+        <message>
+            <source>IR emitter unavailable</source>
+            <translation>Az IR-adó nem érhető el</translation>
+        </message>
+        <message>
+            <source>No IR output configured</source>
+            <translation>Nincs beállítva IR-kimenet</translation>
+        </message>
+        <message>
+            <source>IR output unavailable</source>
+            <translation>Az IR-kimenet nem érhető el</translation>
+        </message>
+        <message>
+            <source>Bluetooth not connected</source>
+            <translation>A Bluetooth nincs csatlakoztatva</translation>
+        </message>
+        <message>
+            <source>Not available</source>
+            <translation>Nem érhető el</translation>
+        </message>
+        <message>
+            <source>Already running</source>
+            <translation>Már fut</translation>
+        </message>
+        <message>
+            <source>Cannot run right now</source>
+            <translation>Most nem futtatható</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Mégse</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Tovább</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n device(s) need attention</source>
+            <translation>
+              <numerusform>%n eszköz figyelmet igényel</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>The activity would stop at step %1 of %2.</source>
+            <translation>Az aktivitás a(z) %1/%2. lépésnél megállna.</translation>
+        </message>
+        <message>
+            <source>Some devices will not respond.</source>
+            <translation>Néhány eszköz nem fog válaszolni.</translation>
+        </message>
+        <message>
+            <source>What is wrong</source>
+            <translation>Mi a probléma</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1 · %n step(s)</source>
+            <translation>
+              <numerusform>%1 · %n lépés</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Wait %1 s</source>
+            <translation>Várakozás %1 s</translation>
+        </message>
+        <message>
+            <source>STOPS HERE</source>
+            <translation>ITT MEGÁLL</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Group</name>
         <message>
             <source>%1 already exists in this group.</source>
@@ -2203,8 +2378,32 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
             <translation>A műveletsor nem fejeződött be %1 másodpercen belül. Ellenőrizd a beállításokat.</translation>
         </message>
         <message>
+            <source>Unknown device</source>
+            <translation>Ismeretlen eszköz</translation>
+        </message>
+        <message>
             <source>There was an error during the sequence.</source>
             <translation>Hiba történt a műveletsor közben.</translation>
+        </message>
+        <message>
+            <source>%1 stopped</source>
+            <translation>A(z) %1 leállt</translation>
+        </message>
+        <message>
+            <source>No response · carrying on</source>
+            <translation>Nincs válasz · folytatódik</translation>
+        </message>
+        <message>
+            <source>at step %1 of %2</source>
+            <translation>a(z) %1/%2. lépésnél</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Bezárás</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Újrapróbálkozás</translation>
         </message>
         <message>
             <source>The sequence timed out.</source>
@@ -2300,6 +2499,10 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
             <translation>Csoport hozzáadása</translation>
         </message>
         <message>
+            <source>Pages</source>
+            <translation>Oldalak</translation>
+        </message>
+        <message>
             <source>Reorder</source>
             <translation>Átrendezés</translation>
         </message>
@@ -2310,6 +2513,10 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
             <translation>Nincs mit átrendezni. Adj hozzá előbb entitásokat vagy csoportokat.</translation>
+        </message>
+        <message>
+            <source>Edit %1</source>
+            <translation>%1 szerkesztése</translation>
         </message>
         <message>
             <source>Show tips</source>

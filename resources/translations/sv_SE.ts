@@ -4,6 +4,22 @@
     <context>
         <name>Timezone</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Alla tidszoner…</translation>
+        </message>
+        <message>
+            <source>Confirm timezone</source>
+            <translation>Bekräfta tidszon</translation>
+        </message>
+        <message>
+            <source>Confirm</source>
+            <translation>Bekräfta</translation>
+        </message>
+        <message>
+            <source>Choose another timezone</source>
+            <translation>Välj en annan tidszon</translation>
+        </message>
+        <message>
             <source>Select timezone</source>
             <translation>Välj tidszon</translation>
         </message>
@@ -88,6 +104,10 @@
             <translation>Tillbaka</translation>
         </message>
         <message>
+            <source>None of the entities in this activity has an On/Off state that could be fixed</source>
+            <translation>Ingen av entiteterna i den här aktiviteten har ett på/av-tillstånd som kan korrigeras</translation>
+        </message>
+        <message>
             <source>Empty page</source>
             <translation>Tom sida</translation>
         </message>
@@ -96,8 +116,24 @@
             <translation>Du kan lägga till UI-element via webbkonfiguratorn</translation>
         </message>
         <message>
+            <source>%1 is unavailable, its state cannot be changed</source>
+            <translation>%1 är otillgänglig, dess tillstånd kan inte ändras</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Status: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the device.</source>
+            <translation>Ange tillståndet för %1. Inget kommando skickas till enheten.</translation>
+        </message>
+        <message>
+            <source>Device is on</source>
+            <translation>Enheten är på</translation>
+        </message>
+        <message>
+            <source>Device is off</source>
+            <translation>Enheten är av</translation>
         </message>
     </context>
     <context>
@@ -202,6 +238,18 @@
     <context>
         <name>GroupEdit</name>
         <message>
+            <source>Remove entity</source>
+            <translation>Ta bort entitet</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to remove %1 from the group?</source>
+            <translation>Är du säker på att du vill ta bort %1 från gruppen?</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Ta bort</translation>
+        </message>
+        <message>
             <source>Done</source>
             <translation>Klar</translation>
         </message>
@@ -259,6 +307,10 @@
     <context>
         <name>Localisation</name>
         <message>
+            <source>All timezones…</source>
+            <translation>Alla tidszoner…</translation>
+        </message>
+        <message>
             <source>Language</source>
             <translation>Språk</translation>
         </message>
@@ -269,6 +321,14 @@
         <message>
             <source>Country</source>
             <translation>Land</translation>
+        </message>
+        <message>
+            <source>Suggested</source>
+            <translation>Föreslagna</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Alla länder</translation>
         </message>
         <message>
             <source>Select country</source>
@@ -924,6 +984,14 @@ om %1 sekunder.</translation>
     <context>
         <name>Country</name>
         <message>
+            <source>Suggested</source>
+            <translation>Föreslagna</translation>
+        </message>
+        <message>
+            <source>All countries</source>
+            <translation>Alla länder</translation>
+        </message>
+        <message>
             <source>Select country</source>
             <translation>Välj land</translation>
         </message>
@@ -1286,6 +1354,26 @@ webbkonfiguratorn</translation>
     </context>
     <context>
         <name>uc::ui::EntityController</name>
+        <message>
+            <source>Could not change the entity state: not connected</source>
+            <translation>Det gick inte att ändra entitetens tillstånd: inte ansluten</translation>
+        </message>
+        <message>
+            <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
+            <translation>Tillståndet kan inte ändras medan entiteten är otillgänglig eller aktiviteten körs</translation>
+        </message>
+        <message>
+            <source>The state of this entity type cannot be changed</source>
+            <translation>Tillståndet för den här entitetstypen kan inte ändras</translation>
+        </message>
+        <message>
+            <source>Not allowed to change the entity state</source>
+            <translation>Det är inte tillåtet att ändra entitetens tillstånd</translation>
+        </message>
+        <message>
+            <source>Could not change the entity state: %1</source>
+            <translation>Det gick inte att ändra entitetens tillstånd: %1</translation>
+        </message>
         <message>
             <source>The device</source>
             <translation>Enheten</translation>
@@ -1883,6 +1971,95 @@ webbkonfiguratorn</translation>
         </message>
     </context>
     <context>
+        <name>ReadinessCheck</name>
+        <message>
+            <source>Not needed — already in this state</source>
+            <translation>Behövs inte — redan i detta läge</translation>
+        </message>
+        <message>
+            <source>Skipped — deleted</source>
+            <translation>Överhoppat — borttaget</translation>
+        </message>
+        <message>
+            <source>Not connected</source>
+            <translation>Inte ansluten</translation>
+        </message>
+        <message>
+            <source>Integration disabled</source>
+            <translation>Integrationen inaktiverad</translation>
+        </message>
+        <message>
+            <source>IR emitter unavailable</source>
+            <translation>IR-sändare otillgänglig</translation>
+        </message>
+        <message>
+            <source>No IR output configured</source>
+            <translation>Ingen IR-utgång konfigurerad</translation>
+        </message>
+        <message>
+            <source>IR output unavailable</source>
+            <translation>IR-utgång otillgänglig</translation>
+        </message>
+        <message>
+            <source>Bluetooth not connected</source>
+            <translation>Bluetooth inte ansluten</translation>
+        </message>
+        <message>
+            <source>Not available</source>
+            <translation>Otillgänglig</translation>
+        </message>
+        <message>
+            <source>Already running</source>
+            <translation>Körs redan</translation>
+        </message>
+        <message>
+            <source>Cannot run right now</source>
+            <translation>Kan inte köras just nu</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Avbryt</translation>
+        </message>
+        <message>
+            <source>Proceed</source>
+            <translation>Fortsätt</translation>
+        </message>
+        <message numerus="yes">
+            <source>%n device(s) need attention</source>
+            <translation>
+              <numerusform>%n enhet behöver åtgärdas</numerusform>
+              <numerusform>%n enheter behöver åtgärdas</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>The activity would stop at step %1 of %2.</source>
+            <translation>Aktiviteten skulle stoppa vid steg %1 av %2.</translation>
+        </message>
+        <message>
+            <source>Some devices will not respond.</source>
+            <translation>Vissa enheter kommer inte att svara.</translation>
+        </message>
+        <message>
+            <source>What is wrong</source>
+            <translation>Vad som är fel</translation>
+        </message>
+        <message numerus="yes">
+            <source>%1 · %n step(s)</source>
+            <translation>
+              <numerusform>%1 · %n steg</numerusform>
+              <numerusform>%1 · %n steg</numerusform>
+            </translation>
+        </message>
+        <message>
+            <source>Wait %1 s</source>
+            <translation>Vänta %1 s</translation>
+        </message>
+        <message>
+            <source>STOPS HERE</source>
+            <translation>STOPPAR HÄR</translation>
+        </message>
+    </context>
+    <context>
         <name>uc::ui::Group</name>
         <message>
             <source>%1 already exists in this group.</source>
@@ -2202,8 +2379,32 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <translation>Sekvensen slutfördes inte inom %1 sekunder. Kontrollera inställningarna.</translation>
         </message>
         <message>
+            <source>Unknown device</source>
+            <translation>Okänd enhet</translation>
+        </message>
+        <message>
             <source>There was an error during the sequence.</source>
             <translation>Ett fel uppstod under sekvensen.</translation>
+        </message>
+        <message>
+            <source>%1 stopped</source>
+            <translation>%1 stoppades</translation>
+        </message>
+        <message>
+            <source>No response · carrying on</source>
+            <translation>Inget svar · fortsätter</translation>
+        </message>
+        <message>
+            <source>at step %1 of %2</source>
+            <translation>vid steg %1 av %2</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Stäng</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Försök igen</translation>
         </message>
         <message>
             <source>The sequence timed out.</source>
@@ -2299,6 +2500,10 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <translation>Lägg till grupp</translation>
         </message>
         <message>
+            <source>Pages</source>
+            <translation>Sidor</translation>
+        </message>
+        <message>
             <source>Reorder</source>
             <translation>Omordna</translation>
         </message>
@@ -2309,6 +2514,10 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>There is nothing to reorder. Try adding entities or groups first.</source>
             <translation>Det finns inget att omordna. Försök lägga till entiteter eller grupper först.</translation>
+        </message>
+        <message>
+            <source>Edit %1</source>
+            <translation>Redigera %1</translation>
         </message>
         <message>
             <source>Show tips</source>
