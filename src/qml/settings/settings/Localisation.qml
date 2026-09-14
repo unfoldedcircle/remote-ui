@@ -17,6 +17,13 @@ Settings.Page {
     scrollTarget: flickable
     initialFocusItem: languageSelector
 
+    // The one handler for a selection in the popup list. Every row sets it in its trigger and it is
+    // cleared when the popup closes. Previously each row had its own Connections object that was
+    // enabled in the trigger and only disabled again by a selection: a popup closed with BACK left
+    // its handler armed, and the next selection in any other popup fired all armed handlers, e.g.
+    // writing a timezone id into the language, country and unit system settings.
+    property var popupSelectionHandler: null
+
     function loadList(title, list, showSearch = true, selectedItem = 0, closeOnSelected = true, sectionRole = "") {
         popupListLoader.setSource("qrc:/components/PopupList.qml", { title: title, listModel: list, showSearch: showSearch, initialSelected: selectedItem, closeOnSelected: closeOnSelected, sectionRole: sectionRole });
     }
@@ -95,7 +102,9 @@ Settings.Page {
                         loading.start();
                         listModel.clear();
 
-                        languageConnection.enabled = true;
+                        popupSelectionHandler = function(value) {
+                            Config.language = value;
+                        };
 
                         let languageList = Config.getTranslations();
                         let currentLanguageItem;
@@ -108,17 +117,6 @@ Settings.Page {
                         }
 
                         loadList(qsTr("Select language"), listModel, false, currentLanguageItem);
-                    }
-                }
-
-                Connections {
-                    id: languageConnection
-                    target: popupListLoader.item
-                    enabled: false
-
-                    function onItemSelected(value) {
-                        Config.language = value;
-                        languageConnection.enabled = false;
                     }
                 }
 
@@ -167,7 +165,9 @@ Settings.Page {
                             loading.start();
                             listModel.clear();
 
-                            countryConnection.enabled = true;
+                            popupSelectionHandler = function(value) {
+                                Config.country = value;
+                            };
 
                             // same structure as the onboarding country step: countries where the
                             // configured language is spoken first, then the full list; names
@@ -223,17 +223,6 @@ Settings.Page {
                     }
                 }
 
-                Connections {
-                    id: countryConnection
-                    target: popupListLoader.item
-                    enabled: false
-
-                    function onItemSelected(value) {
-                        Config.country = value;
-                        countryConnection.enabled = false;
-                    }
-                }
-
                 onFocusChanged: {
                     if (focus) {
                         item.highlight = true;
@@ -269,29 +258,20 @@ Settings.Page {
                     item.trigger = function() {
                         loading.start();
 
-                        timeZoneConnection.enabled = true;
+                        popupSelectionHandler = function(value) {
+                            if (value === "__all__") {
+                                popupListLoader.item.initialSelected = buildTimeZoneModel(true);
+                                popupListLoader.item.popupListmodel.reload();
+                                return;
+                            }
+
+                            Config.timezone = value;
+                            popupListLoader.item.state = "hidden";
+                        };
 
                         // the list stays open when "All timezones…" swaps the model, so the popup
                         // is closed manually on a real selection
                         loadList(qsTr("Select timezone"), listModel, true, buildTimeZoneModel(false), false);
-                    }
-                }
-
-                Connections {
-                    id: timeZoneConnection
-                    target: popupListLoader.item
-                    enabled: false
-
-                    function onItemSelected(value) {
-                        if (value === "__all__") {
-                            popupListLoader.item.initialSelected = buildTimeZoneModel(true);
-                            popupListLoader.item.popupListmodel.reload();
-                            return;
-                        }
-
-                        Config.timezone = value;
-                        timeZoneConnection.enabled = false;
-                        popupListLoader.item.state = "hidden";
                     }
                 }
 
@@ -371,24 +351,15 @@ Settings.Page {
                         //                        loading.start();
                         listModel.clear();
 
-                        unitSystemConnection.enabled = true;
+                        popupSelectionHandler = function(value) {
+                            Config.unitSystem = value;
+                        };
 
                         listModel.append({'name': "Metric", 'value': "Metric"})
                         listModel.append({'name': "Uk", 'value': "Uk"})
                         listModel.append({'name': "Us", 'value': "Us"})
 
                         loadList(qsTr("Select unit system"), listModel, false);
-                    }
-                }
-
-                Connections {
-                    id: unitSystemConnection
-                    target: popupListLoader.item
-                    enabled: false
-
-                    function onItemSelected(value) {
-                        Config.unitSystem = value;
-                        unitSystemConnection.enabled = false;
                     }
                 }
 
@@ -421,11 +392,17 @@ Settings.Page {
         Connections {
             target: popupListLoader.item
 
+            function onItemSelected(value) {
+                if (popupSelectionHandler) {
+                    popupSelectionHandler(value);
+                }
+            }
+
             function onDone() {
+                popupSelectionHandler = null;
                 // the page takes the focus back on its own, on the row the user came from
                 popupListLoader.source = "";
             }
-
         }
     }
 

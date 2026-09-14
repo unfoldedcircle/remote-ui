@@ -49,6 +49,11 @@ void Config::setCurrentProfileId(const QString& profileId) {
 }
 
 void Config::setLanguage(const QString& language) {
+    if (language.isEmpty()) {
+        qCWarning(lcConfig()) << "Ignoring empty language code";
+        return;
+    }
+
     if (m_language != language) {
         int id =
             m_core->setLocalizationCfg(language, getCountry(), getTimezone(), getClock24h(), getUnitSystem().toUpper());
@@ -72,6 +77,12 @@ void Config::setLanguage(const QString& language) {
 }
 
 void Config::setCountry(const QString& country) {
+    if (country.isEmpty()) {
+        qCWarning(lcConfig()) << "Ignoring empty country code";
+        emit countryChanged(false);
+        return;
+    }
+
     int id =
         m_core->setLocalizationCfg(getLanguage(), country, getTimezone(), getClock24h(), getUnitSystem().toUpper());
 
@@ -94,6 +105,12 @@ void Config::setCountry(const QString& country) {
 }
 
 void Config::setTimezone(const QString& timezone) {
+    if (timezone.isEmpty()) {
+        qCWarning(lcConfig()) << "Ignoring empty timezone";
+        emit timezoneChanged(false);
+        return;
+    }
+
     int id =
         m_core->setLocalizationCfg(getLanguage(), getCountry(), timezone, getClock24h(), getUnitSystem().toUpper());
 
@@ -114,7 +131,14 @@ void Config::setTimezone(const QString& timezone) {
 }
 
 void Config::setUnitSystem(QString value) {
-    UnitSystems unitSystem = Util::convertStringToEnum<UnitSystems>(value);
+    bool        ok = false;
+    UnitSystems unitSystem = Util::convertStringToEnum<UnitSystems>(value, &ok);
+
+    // an unknown value would be sent as an empty measurement_unit and rejected by core
+    if (!ok) {
+        qCWarning(lcConfig()) << "Ignoring unknown unit system:" << value;
+        return;
+    }
 
     if (m_unitSystem != unitSystem) {
         int id = m_core->setLocalizationCfg(getLanguage(), getCountry(), getTimezone(), getClock24h(),
@@ -987,28 +1011,42 @@ void Config::onHapticCfgChanged(core::cfgHaptic cfgHaptic) {
 }
 
 void Config::onLocalizationCfgChanged(core::cfgLocalization cfgLocalization) {
-    if (m_language != cfgLocalization.languageCode) {
+    // Every localization setter sends the complete localization configuration, so a field that is
+    // missing here must not clear the cached value: the next setter would send it back as empty
+    // and core would reject the whole request.
+    if (cfgLocalization.languageCode.isEmpty()) {
+        qCWarning(lcConfig()) << "Localization configuration without language code";
+    } else if (m_language != cfgLocalization.languageCode) {
         m_language = cfgLocalization.languageCode;
         emit languageChanged(m_language);
 
         setCountryNameAsSelectedLanguage();
     }
 
-    if (m_country != cfgLocalization.countryCode) {
+    if (cfgLocalization.countryCode.isEmpty()) {
+        qCWarning(lcConfig()) << "Localization configuration without country code";
+    } else if (m_country != cfgLocalization.countryCode) {
         m_country = cfgLocalization.countryCode;
         emit countryChanged(true);
 
         setCountryNameAsSelectedLanguage();
     }
 
-    if (m_timezone != cfgLocalization.timezone) {
+    if (cfgLocalization.timezone.isEmpty()) {
+        qCWarning(lcConfig()) << "Localization configuration without timezone";
+    } else if (m_timezone != cfgLocalization.timezone) {
         m_timezone = cfgLocalization.timezone;
         emit timezoneChanged(true);
     }
 
-    auto newUnitSystem = Util::convertStringToEnum<UnitSystems>(Util::FirstToUpper(cfgLocalization.measurementUnit));
+    bool ok = false;
+    auto newUnitSystem =
+        Util::convertStringToEnum<UnitSystems>(Util::FirstToUpper(cfgLocalization.measurementUnit), &ok);
 
-    if (m_unitSystem != newUnitSystem) {
+    if (!ok) {
+        qCWarning(lcConfig()) << "Localization configuration with unknown unit system:"
+                              << cfgLocalization.measurementUnit;
+    } else if (m_unitSystem != newUnitSystem) {
         m_unitSystem = newUnitSystem;
         emit unitSystemChanged(m_unitSystem);
     }

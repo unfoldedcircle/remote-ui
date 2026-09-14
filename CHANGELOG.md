@@ -59,6 +59,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The entity filter sheet and the add-entities step of an integration setup could not be left with the
   keypad. HOME closes the profile PIN prompt.
 - BACK on a running dock or integration setup now cancels the setup instead of only closing the popup.
+- Closing a selection list in the localisation settings with BACK left its selection handler active, so the
+  next selection in any other list of that page was written into every setting whose list had been cancelled
+  before, e.g. a timezone id into the language, country and unit system. Core rejected these with "Invalid
+  language code format" and "unknown variant ``" errors, which also showed up as seemingly random errors while
+  navigating the language, country, timezone and unit system lists. The settings now refuse empty or unknown
+  values instead of sending them to core, and a localization update from core that lacks a field no longer
+  clears the cached value that the next change would send back empty.
 - An activity that failed or timed out while its screen was open never showed it. The screen header was meant to turn
   red in that case, but the condition behind it asked for the activity to be in two states at once and could never be
   true, so the colour had never appeared since it was written.

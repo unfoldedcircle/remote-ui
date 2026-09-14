@@ -400,7 +400,7 @@ class Config : public QObject {
     QString      m_countryName;
     QVariantList m_countryList;
     QString      m_timezone;
-    UnitSystems  m_unitSystem;
+    UnitSystems  m_unitSystem = Metric;
     bool         m_clock24h = false;
 
     QString m_deviceName;

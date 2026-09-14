@@ -271,24 +271,11 @@ Settings.Page {
                     item.trigger = function() {
                         listModel.clear();
 
-                        wifiBandConnection.enabled = true;
-
                         listModel.append({'name': "Auto", 'value': "auto"})
                         listModel.append({'name': "2.4 GHz", 'value': "b"})
                         listModel.append({'name': "5 GHz", 'value': "a"})
 
                         loadList(qsTr("Select WiFi band"), listModel, false, Config.wifiBand);
-                    }
-                }
-
-                Connections {
-                    id: wifiBandConnection
-                    target: popupListLoader.item
-                    enabled: false
-
-                    function onItemSelected(value) {
-                        Config.wifiBand = value;
-                        wifiBandConnection.enabled = false;
                     }
                 }
             }
@@ -409,11 +396,18 @@ Settings.Page {
         Connections {
             target: popupListLoader.item
 
+            // the WiFi band list is the only popup list of this page. Should another one be added, do
+            // not arm a handler per row when its list opens: a list closed with BACK would leave the
+            // handler armed and the next selection in another list would fire it too (see
+            // Localisation.qml for the pattern with one handler per page)
+            function onItemSelected(value) {
+                Config.wifiBand = value;
+            }
+
             function onDone() {
                 // the page takes the focus back on its own, on the row the user came from
                 popupListLoader.source = "";
             }
-
         }
     }
 
