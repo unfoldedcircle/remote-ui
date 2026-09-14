@@ -433,7 +433,9 @@ EntityComponents.BaseDetail {
         id: title
         width: parent.width
         height: 80
-        color: (entityObj.state === ActivityStates.Error || entityObj.state === ActivityStates.Timeout) ? colors.red : colors.transparent
+        // the header turns red when the run failed
+        readonly property bool alert: entityObj.state === ActivityStates.Error || entityObj.state === ActivityStates.Timeout
+        color: title.alert ? colors.red : colors.transparent
 
         Components.Icon {
             id: iconOpen
@@ -467,7 +469,8 @@ EntityComponents.BaseDetail {
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 elide: Text.ElideRight
                 maximumLineCount: 1
-                color: colors.light
+                // the dim grey is tuned for the black background and unreadable on the red bar
+                color: title.alert ? colors.offwhite : colors.light
                 opacity: iconOpen.opacity
                 anchors { left: parent.left; top: titleOpen.bottom; topMargin: -5 }
                 font: fonts.secondaryFont(20, "Medium")

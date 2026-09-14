@@ -62,6 +62,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An activity that failed or timed out while its screen was open never showed it. The screen header was meant to turn
   red in that case, but the condition behind it asked for the activity to be in two states at once and could never be
   true, so the colour had never appeared since it was written.
+- The "Tap for more" hint under the activity name was nearly invisible on that red header: its dim grey is made for
+  the black background. It is shown in the regular light text colour while the header is red.
 
 ---
 
