@@ -25,6 +25,8 @@ EntityComponents.BaseDetail {
     property QtObject mediaWidgetEntityObj
     property bool resumeWindow: false
     property bool powerOffPressed: false
+    // open the menu on the "Fix states" page once the screen is up, set by the error popup of the activity tile
+    property bool openFixStates: false
 
     // Keypad selection in the activity menu (button navigation driven, see docs/key-navigation.md idiom b):
     // 0 is the button at the top of the current menu page ("Fix states" / "Back"), 1..n the list items below it.
@@ -350,6 +352,15 @@ EntityComponents.BaseDetail {
         updateVoiceAssistantConfig();
         setupMenuNavigation();
         root.isActivityOpen = true;
+
+        if (activityBase.openFixStates) {
+            // once the screen has slid into view
+            ui.setTimeOut(500, () => {
+                              showMenuPage(1);
+                              activityBase.menuKeypadActive = false;
+                              activityMenu.open();
+                          });
+        }
     }
 
     Timer {
@@ -463,8 +474,8 @@ EntityComponents.BaseDetail {
 
             Text {
                 id: titleDesc
-                //: Tap to close menu or tap to see more
-                text: activityMenu.opened ? qsTr("Tap to close") : qsTr("Tap for more")
+                //: Tap to close menu, tap to see more or, after a failed run, tap to fix the state
+                text: activityMenu.opened ? qsTr("Tap to close") : (title.alert ? qsTr("Tap to fix") : qsTr("Tap for more"))
                 height: visible ? implicitHeight : 0
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 elide: Text.ElideRight
@@ -747,8 +758,9 @@ EntityComponents.BaseDetail {
                     flickDeceleration: 1000
                     clip: true
 
-                    // only entities with an on/off state: sensors, buttons, macros etc. are left out
-                    model: entityObj.fixableEntities
+                    // the activity itself first, then only entities with an on/off state: sensors, buttons,
+                    // macros etc. are left out
+                    model: [entityObj.id].concat(entityObj.fixableEntities)
                     delegate: fixedEntityItem
 
                     Text {
@@ -760,7 +772,7 @@ EntityComponents.BaseDetail {
                         wrapMode: Text.WordWrap
                         horizontalAlignment: Text.AlignHCenter
                         anchors.centerIn: parent
-                        visible: fixedEntitiesList.count === 0
+                        visible: fixedEntitiesList.count === 1
                     }
                 }
             }
@@ -869,6 +881,9 @@ EntityComponents.BaseDetail {
             }
 
             property QtObject entity
+            // the first row is the activity itself
+            readonly property bool isActivity: modelData === entityObj.id
+            readonly property bool alert: isActivity && entity && (entity.state === ActivityStates.Error || entity.state === ActivityStates.Timeout)
 
             function activate() {
                 // state 0 is Unavailable for every entity type with an on/off state; the core refuses it
@@ -876,7 +891,12 @@ EntityComponents.BaseDetail {
                     ui.createNotification(qsTr("%1 is unavailable, its state cannot be changed").arg(entity.name), true);
                     return;
                 }
-                fixStatePopup.openFor(entity);
+                // the core refuses to change the state while a sequence is still running
+                if (isActivity && entity.state === ActivityStates.Running) {
+                    ui.createNotification(qsTr("%1 is running, its state cannot be changed").arg(entity.name), true);
+                    return;
+                }
+                fixStatePopup.openFor(entity, isActivity);
             }
 
             onClicked: {
@@ -924,10 +944,19 @@ EntityComponents.BaseDetail {
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     elide: Text.ElideRight
                     maximumLineCount: 1
-                    color: colors.light
+                    color: fixedEntityRoot.alert ? colors.red : colors.light
                     anchors { left: parent.left; top: fixedEntityItemName.bottom }
                     font: fonts.secondaryFont(22)
                 }
+            }
+
+            // separates the activity from its devices
+            Rectangle {
+                width: parent.width - 40
+                height: 1
+                color: colors.medium
+                anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+                visible: fixedEntityRoot.isActivity
             }
         }
     }
@@ -941,20 +970,29 @@ EntityComponents.BaseDetail {
         id: fixStatePopup
         parent: Overlay.overlay
 
-        function openFor(entity) {
-            //: Popup title when fixing the state of an entity. %1 is the entity name
-            fixStatePopup.title = qsTr("Set the state of %1. No command is sent to the device.").arg(entity.name);
+        function openFor(entity, isActivity) {
+            fixStatePopup.title = isActivity
+                    //: Popup title when fixing the state of an activity. %1 is the activity name
+                    ? qsTr("Set the state of %1. No command is sent to the devices.").arg(entity.name)
+                    //: Popup title when fixing the state of an entity. %1 is the entity name
+                    : qsTr("Set the state of %1. No command is sent to the device.").arg(entity.name);
             const entityId = entity.id;
             fixStatePopup.menuItems = [
                 {
-                    //: Button. Mark the device as switched on without sending a command
-                    title: qsTr("Device is on"),
+                    title: isActivity
+                           //: Button. Mark the activity as running without sending any command
+                           ? qsTr("Activity is on")
+                           //: Button. Mark the device as switched on without sending a command
+                           : qsTr("Device is on"),
                     icon: "uc:power-on",
                     callback: function() { EntityController.setEntityState(entityId, true); }
                 },
                 {
-                    //: Button. Mark the device as switched off without sending a command
-                    title: qsTr("Device is off"),
+                    title: isActivity
+                           //: Button. Mark the activity as stopped without sending any command
+                           ? qsTr("Activity is off")
+                           //: Button. Mark the device as switched off without sending a command
+                           : qsTr("Device is off"),
                     icon: "uc:power-off",
                     callback: function() { EntityController.setEntityState(entityId, false); }
                 }

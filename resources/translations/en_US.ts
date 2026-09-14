@@ -108,74 +108,102 @@
 <context>
     <name>Activity</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="467"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="478"/>
         <source>Tap to close</source>
-        <extracomment>Tap to close menu or tap to see more</extracomment>
+        <extracomment>Tap to close menu, tap to see more or, after a failed run, tap to fix the state</extracomment>
         <translation>Tap to close</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="467"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="478"/>
         <source>Tap for more</source>
         <translation>Tap for more</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="660"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="478"/>
+        <source>Tap to fix</source>
+        <translation>Tap to fix</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="671"/>
         <source>Fix states</source>
         <extracomment>Title referring to fixing device states that might out of sync</extracomment>
         <translation>Fix states</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="681"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="692"/>
         <source>Quickly access entities included in this activity:</source>
         <translation>Quickly access entities included in this activity:</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="731"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="742"/>
         <source>Back</source>
         <extracomment>Caption to go back</extracomment>
         <translation>Back</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="756"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="768"/>
         <source>None of the entities in this activity has an On/Off state that could be fixed</source>
         <extracomment>Shown in the &quot;Fix states&quot; list if none of the activity&apos;s entities has an on/off state</extracomment>
         <translation>None of the entities in this activity has an On/Off state that could be fixed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="784"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="796"/>
         <source>Empty page</source>
         <translation>Empty page</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="796"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="808"/>
         <source>You can add UI elements via the Web Configurator</source>
         <translation>You can add UI elements via the Web Configurator</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="876"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="891"/>
         <source>%1 is unavailable, its state cannot be changed</source>
         <translation>%1 is unavailable, its state cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="922"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="896"/>
+        <source>%1 is running, its state cannot be changed</source>
+        <translation>%1 is running, its state cannot be changed</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="942"/>
         <source>State: %1</source>
         <extracomment>Device state</extracomment>
         <translation>State: %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="946"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="976"/>
+        <source>Set the state of %1. No command is sent to the devices.</source>
+        <extracomment>Popup title when fixing the state of an activity. %1 is the activity name</extracomment>
+        <translation>Set the state of %1. No command is sent to the devices.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="978"/>
         <source>Set the state of %1. No command is sent to the device.</source>
         <extracomment>Popup title when fixing the state of an entity. %1 is the entity name</extracomment>
         <translation>Set the state of %1. No command is sent to the device.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="951"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="984"/>
+        <source>Activity is on</source>
+        <extracomment>Button. Mark the activity as running without sending any command</extracomment>
+        <translation>Activity is on</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="986"/>
         <source>Device is on</source>
         <extracomment>Button. Mark the device as switched on without sending a command</extracomment>
         <translation>Device is on</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="957"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="993"/>
+        <source>Activity is off</source>
+        <extracomment>Button. Mark the activity as stopped without sending any command</extracomment>
+        <translation>Activity is off</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="995"/>
         <source>Device is off</source>
         <extracomment>Button. Mark the device as switched off without sending a command</extracomment>
         <translation>Device is off</translation>
@@ -248,36 +276,77 @@
 <context>
     <name>Base</name>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="103"/>
         <source>Activity error. Select option below.</source>
-        <translation>Activity error. Select option below.</translation>
+        <translation type="vanished">Activity error. Select option below.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="107"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="119"/>
+        <source>Set the state of %1. No command is sent to the devices.</source>
+        <extracomment>Popup title when fixing the state of an activity. %1 is the activity name</extracomment>
+        <translation>Set the state of %1. No command is sent to the devices.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="123"/>
+        <source>Activity is on</source>
+        <extracomment>Button. Mark the activity as running without sending any command</extracomment>
+        <translation>Activity is on</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="133"/>
+        <source>Activity is off</source>
+        <extracomment>Button. Mark the activity as stopped without sending any command</extracomment>
+        <translation>Activity is off</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="139"/>
+        <source>Fix device states…</source>
+        <extracomment>Button. Opens the list of the activity&apos;s devices whose on/off state can be corrected</extracomment>
+        <translation>Fix device states…</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="145"/>
+        <source>Back</source>
+        <extracomment>Footer of a popup menu that sits one level below another one: return to it</extracomment>
+        <translation>Back</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="153"/>
+        <source>%1 failed. What do you want to do?</source>
+        <extracomment>Popup title when an activity&apos;s start or stop sequence failed. %1 is the activity name</extracomment>
+        <translation>%1 failed. What do you want to do?</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="157"/>
         <source>Turn activity on</source>
         <extracomment>Button. Imperative: start the activity.</extracomment>
         <translation>Turn activity on</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="117"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="167"/>
         <source>Turn activity off</source>
         <extracomment>Button. Imperative: stop the activity.</extracomment>
         <translation>Turn activity off</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="127"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="177"/>
+        <source>Fix state without sending commands</source>
+        <extracomment>Button. Opens the menu to correct the recorded state of the activity or its devices</extracomment>
+        <translation>Fix state without sending commands</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="183"/>
         <source>Open activity</source>
         <extracomment>Button. Imperative: open the activity screen.</extracomment>
         <translation>Open activity</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="159"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="174"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="209"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="224"/>
         <source>is unavailable</source>
         <translation>is unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="362"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="412"/>
         <location filename="../../src/qml/components/group/Base.qml" line="178"/>
         <source>Profile is restricted</source>
         <translation>Profile is restricted</translation>
@@ -2669,7 +2738,8 @@ Climate fan</extracomment>
 <context>
     <name>PopupMenu</name>
     <message>
-        <location filename="../../src/qml/components/PopupMenu.qml" line="247"/>
+        <location filename="../../src/qml/components/PopupMenu.qml" line="45"/>
+        <location filename="../../src/qml/components/PopupMenu.qml" line="72"/>
         <source>Close</source>
         <extracomment>As in close the menu</extracomment>
         <translation>Close</translation>

@@ -99,8 +99,58 @@ Rectangle {
             return true;
         }
 
+        function openActivity(showFixStates) {
+            const obj = EntityController.get(entityBaseContainer.entityId);
+
+            if (!obj) {
+                return;
+            }
+
+            loadSecondContainer("qrc:/components/entities/" + obj.getTypeAsString() + "/deviceclass/" + obj.getDeviceClass() + ".qml",
+                                { "entityId": obj.id, "entityObj": obj, "integrationObj": integrationObj, "openFixStates": showFixStates });
+        }
+
+        // Second level of the error popup: only the recorded state is changed, no sequence runs. The same popup
+        // instance is reused, its footer goes back to the first level.
+        function showFixStatePopup() {
+            const activityId = entityBaseContainer.entityId;
+
+            //: Popup title when fixing the state of an activity. %1 is the activity name
+            popupMenu.title = qsTr("Set the state of %1. No command is sent to the devices.").arg(currentEntityObj.name);
+            popupMenu.menuItems = [
+                {
+                    //: Button. Mark the activity as running without sending any command
+                    title: qsTr("Activity is on"),
+                    icon: "uc:power-on",
+                    callback: function() {
+                        EntityController.setEntityState(activityId, true);
+                        // the screen does not depend on the state: a refusal shows up as a notification on top of it
+                        openActivity(false);
+                    }
+                },
+                {
+                    //: Button. Mark the activity as stopped without sending any command
+                    title: qsTr("Activity is off"),
+                    icon: "uc:power-off",
+                    callback: function() { EntityController.setEntityState(activityId, false); }
+                },
+                {
+                    //: Button. Opens the list of the activity's devices whose on/off state can be corrected
+                    title: qsTr("Fix device states…"),
+                    icon: "uc:list-check",
+                    callback: function() { openActivity(true); }
+                }
+            ];
+            //: Footer of a popup menu that sits one level below another one: return to it
+            popupMenu.footerTitle = qsTr("Back");
+            popupMenu.footerIcon = "uc:arrow-left";
+            popupMenu.footerCallback = function() { showActivityPopup(); };
+            popupMenu.open();
+        }
+
         function showActivityPopup() {
-            popupMenu.title = qsTr("Activity error. Select option below.");
+            //: Popup title when an activity's start or stop sequence failed. %1 is the activity name
+            popupMenu.title = qsTr("%1 failed. What do you want to do?").arg(currentEntityObj.name);
             let menuItems = [];
             menuItems.push({
                                //: Button. Imperative: start the activity.
@@ -123,16 +173,16 @@ Rectangle {
                                }
                            });
             menuItems.push({
+                               //: Button. Opens the menu to correct the recorded state of the activity or its devices
+                               title: qsTr("Fix state without sending commands"),
+                               icon: "uc:wrench",
+                               callback: function() { showFixStatePopup(); }
+                           });
+            menuItems.push({
                                //: Button. Imperative: open the activity screen.
                                title: qsTr("Open activity"),
                                icon: "uc:arrow-up-right-and-arrow-down-left-from-center",
-                               callback: function() {
-                                   if (!entityObj) {
-                                       return;
-                                   }
-
-                                   loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
-                               }
+                               callback: function() { openActivity(false); }
                            });
             popupMenu.menuItems = menuItems;
             popupMenu.open();

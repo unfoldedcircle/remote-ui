@@ -316,7 +316,12 @@ void EntityController::setEntityState(const QString& entityId, bool on) {
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respEntity,
-        [=](core::Entity entity) { qCDebug(lcEntityController()) << "Entity state corrected:" << entity.id << state; },
+        [=](core::Entity entity) {
+            qCDebug(lcEntityController()) << "Entity state corrected:" << entity.id << state;
+            // the response carries the corrected entity: apply it right away for immediate feedback, the
+            // entity_change event only follows if the state actually changed
+            onEntityChanged(entityId, entity);
+        },
         [=](int code, QString message) {
             qCWarning(lcEntityController()) << "Error while setting entity state:" << code << message;
 

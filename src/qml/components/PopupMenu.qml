@@ -39,6 +39,19 @@ Popup {
     property bool footerSelected: false
     property var closeCallback: function() {}
     property bool homeButtonEnabled: false
+    // The footer closes the menu ("Close"). A menu that is one level below another one relabels it "Back" and
+    // sets footerCallback to reopen the level above. Both are reset when the menu has closed.
+    //: As in close the menu
+    property string footerTitle: qsTr("Close")
+    property string footerIcon: "uc:xmark"
+    property var footerCallback: null
+
+    function activateFooter() {
+        if (footerCallback) {
+            closeCallback = footerCallback;
+        }
+        close();
+    }
 
     onOpened: {
         console.debug('Popup menu opened');
@@ -52,8 +65,14 @@ Popup {
         menuItemsListView.currentIndex = 0;
         footerSelected = false;
         buttonNavigation.releaseControl();
-        closeCallback();
+
+        // the callback may fill and reopen this very menu, so the menu is back at its defaults before it runs
+        const callback = closeCallback;
         closeCallback = function() {};
+        footerTitle = qsTr("Close");
+        footerIcon = "uc:xmark";
+        footerCallback = null;
+        callback();
     }
 
     Components.ButtonNavigation {
@@ -80,7 +99,7 @@ Popup {
             "DPAD_MIDDLE": {
                 "pressed": function() {
                     if (footerSelected) {
-                        close();
+                        activateFooter();
                     } else {
                         menuItemsListView.currentItem.callBack();
                     }
@@ -235,7 +254,7 @@ Popup {
             Components.Icon {
                 id: icon
                 color: colors.offwhite
-                icon: "uc:xmark"
+                icon: popupMenu.footerIcon
                 anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter; }
                 size: 60
             }
@@ -243,8 +262,7 @@ Popup {
             Text {
                 id: title
                 color: colors.offwhite
-                //: As in close the menu
-                text: qsTr("Close")
+                text: popupMenu.footerTitle
                 anchors { left: icon.right; leftMargin: 10; verticalCenter: parent.verticalCenter }
                 font: fonts.primaryFont(30)
             }
@@ -253,7 +271,7 @@ Popup {
                 anchors.fill: parent
                 onClicked: {
                     Haptic.play(Haptic.Click);
-                    close();
+                    activateFooter();
                 }
             }
         }

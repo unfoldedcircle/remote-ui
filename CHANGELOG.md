@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- The state of an activity itself can now be fixed, not only the state of its devices. Tapping an activity whose
+  start or stop sequence failed offers "Fix state without sending commands" next to "Turn activity on" / "Turn
+  activity off": the second level of that menu marks the activity as on or off without running any sequence, or
+  jumps straight to the device list of the activity's "Fix states" page. The "Fix states" page lists the activity
+  as its first row, so its state can be corrected from the activity screen as well, and the header of a failed
+  activity reads "Tap to fix". Requires a remote-core version with the `set_entity_state` API for activities.
 - The "Join other network" dialog and the WiFi password dialog can be filled with the d-pad: the SSID field, the
   hidden network option, the security options and Cancel / Next / Join are walked in order, Return on a field submits
   it and the on-screen keyboard follows the fields. This covers the WiFi settings and the WiFi page of the dock setup.
