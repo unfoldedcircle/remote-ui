@@ -92,6 +92,10 @@
             <translation>Tippe für meh</translation>
         </message>
         <message>
+            <source>Tap to fix</source>
+            <translation>Tippe zum Korrigiere</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Status korrigiere</translation>
         </message>
@@ -120,16 +124,32 @@
             <translation>%1 isch nid verfüegbar, der Zuestand cha nid gänderet wärde</translation>
         </message>
         <message>
+            <source>%1 is running, its state cannot be changed</source>
+            <translation>%1 lauft, der Zuestand cha nid gänderet wärde</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Status: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Setz der Zuestand vo %1. Es wird kei Befähl a d Grät gschickt.</translation>
         </message>
         <message>
             <source>Set the state of %1. No command is sent to the device.</source>
             <translation>Setz der Zuestand vo %1. Es wird kei Befähl a ds Grät gschickt.</translation>
         </message>
         <message>
+            <source>Activity is on</source>
+            <translation>D Aktivität isch aa</translation>
+        </message>
+        <message>
             <source>Device is on</source>
             <translation>Ds Grät isch aa</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>D Aktivität isch us</translation>
         </message>
         <message>
             <source>Device is off</source>
@@ -3567,12 +3587,40 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
             <translation>Aktivitätsfähler. Wähl unde eini vo de Optione us.</translation>
         </message>
         <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Setz der Zuestand vo %1. Es wird kei Befähl a d Grät gschickt.</translation>
+        </message>
+        <message>
+            <source>Activity is on</source>
+            <translation>D Aktivität isch aa</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>D Aktivität isch us</translation>
+        </message>
+        <message>
+            <source>Fix device states…</source>
+            <translation>Grät-Status korrigiere…</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Zrügg</translation>
+        </message>
+        <message>
+            <source>%1 failed. What do you want to do?</source>
+            <translation>%1 isch fählgschlage. Was wotsch mache?</translation>
+        </message>
+        <message>
             <source>Turn activity on</source>
             <translation>Aktivität yschalte</translation>
         </message>
         <message>
             <source>Turn activity off</source>
             <translation>Aktivität usschalte</translation>
+        </message>
+        <message>
+            <source>Fix state without sending commands</source>
+            <translation>Status korrigiere ohni Befähl z schicke</translation>
         </message>
         <message>
             <source>Open activity</source>

@@ -92,6 +92,10 @@
             <translation>Trykk for mer</translation>
         </message>
         <message>
+            <source>Tap to fix</source>
+            <translation>Trykk for å rette</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Rett opp tilstander</translation>
         </message>
@@ -120,16 +124,32 @@
             <translation>%1 er ikke tilgjengelig, tilstanden kan ikke endres</translation>
         </message>
         <message>
+            <source>%1 is running, its state cannot be changed</source>
+            <translation>%1 kjører, tilstanden kan ikke endres</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Tilstand: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Angi tilstanden for %1. Ingen kommando sendes til enhetene.</translation>
         </message>
         <message>
             <source>Set the state of %1. No command is sent to the device.</source>
             <translation>Angi tilstanden for %1. Ingen kommando sendes til enheten.</translation>
         </message>
         <message>
+            <source>Activity is on</source>
+            <translation>Aktiviteten er på</translation>
+        </message>
+        <message>
             <source>Device is on</source>
             <translation>Enheten er på</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>Aktiviteten er av</translation>
         </message>
         <message>
             <source>Device is off</source>
@@ -3566,12 +3586,40 @@ Trykk på QR-koden for å vise den på skjermen.</translation>
             <translation>Feil i aktiviteten. Velg et alternativ nedenfor.</translation>
         </message>
         <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Angi tilstanden for %1. Ingen kommando sendes til enhetene.</translation>
+        </message>
+        <message>
+            <source>Activity is on</source>
+            <translation>Aktiviteten er på</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>Aktiviteten er av</translation>
+        </message>
+        <message>
+            <source>Fix device states…</source>
+            <translation>Rett opp enhetenes tilstander…</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Tilbake</translation>
+        </message>
+        <message>
+            <source>%1 failed. What do you want to do?</source>
+            <translation>%1 mislyktes. Hva vil du gjøre?</translation>
+        </message>
+        <message>
             <source>Turn activity on</source>
             <translation>Slå på aktivitet</translation>
         </message>
         <message>
             <source>Turn activity off</source>
             <translation>Slå av aktivitet</translation>
+        </message>
+        <message>
+            <source>Fix state without sending commands</source>
+            <translation>Rett opp tilstand uten å sende kommandoer</translation>
         </message>
         <message>
             <source>Open activity</source>

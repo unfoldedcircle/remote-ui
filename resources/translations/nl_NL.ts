@@ -92,6 +92,10 @@
             <translation>Tik voor meer</translation>
         </message>
         <message>
+            <source>Tap to fix</source>
+            <translation>Tik om te herstellen</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Statussen herstellen</translation>
         </message>
@@ -120,16 +124,32 @@
             <translation>%1 is niet beschikbaar, de toestand kan niet worden gewijzigd</translation>
         </message>
         <message>
+            <source>%1 is running, its state cannot be changed</source>
+            <translation>%1 loopt, de toestand kan niet worden gewijzigd</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Status: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Stel de toestand van %1 in. Er wordt geen opdracht naar de apparaten gestuurd.</translation>
         </message>
         <message>
             <source>Set the state of %1. No command is sent to the device.</source>
             <translation>Stel de toestand van %1 in. Er wordt geen opdracht naar het apparaat gestuurd.</translation>
         </message>
         <message>
+            <source>Activity is on</source>
+            <translation>Activiteit staat aan</translation>
+        </message>
+        <message>
             <source>Device is on</source>
             <translation>Apparaat staat aan</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>Activiteit staat uit</translation>
         </message>
         <message>
             <source>Device is off</source>
@@ -3566,12 +3586,40 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
             <translation>Fout in de activiteit. Kies hieronder een optie.</translation>
         </message>
         <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Stel de toestand van %1 in. Er wordt geen opdracht naar de apparaten gestuurd.</translation>
+        </message>
+        <message>
+            <source>Activity is on</source>
+            <translation>Activiteit staat aan</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>Activiteit staat uit</translation>
+        </message>
+        <message>
+            <source>Fix device states…</source>
+            <translation>Apparaatstatussen herstellen…</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Terug</translation>
+        </message>
+        <message>
+            <source>%1 failed. What do you want to do?</source>
+            <translation>%1 is mislukt. Wat wil je doen?</translation>
+        </message>
+        <message>
             <source>Turn activity on</source>
             <translation>Activiteit inschakelen</translation>
         </message>
         <message>
             <source>Turn activity off</source>
             <translation>Activiteit uitschakelen</translation>
+        </message>
+        <message>
+            <source>Fix state without sending commands</source>
+            <translation>Status herstellen zonder opdrachten te sturen</translation>
         </message>
         <message>
             <source>Open activity</source>

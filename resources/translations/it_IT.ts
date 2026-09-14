@@ -92,6 +92,10 @@
             <translation>Tocca per saperne di più</translation>
         </message>
         <message>
+            <source>Tap to fix</source>
+            <translation>Tocca per correggere</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Correggi stati</translation>
         </message>
@@ -120,16 +124,32 @@
             <translation>%1 non è disponibile, il suo stato non può essere cambiato</translation>
         </message>
         <message>
+            <source>%1 is running, its state cannot be changed</source>
+            <translation>%1 è in esecuzione, il suo stato non può essere cambiato</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Stato: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Imposta lo stato di %1. Nessun comando viene inviato ai dispositivi.</translation>
         </message>
         <message>
             <source>Set the state of %1. No command is sent to the device.</source>
             <translation>Imposta lo stato di %1. Nessun comando viene inviato al dispositivo.</translation>
         </message>
         <message>
+            <source>Activity is on</source>
+            <translation>L'attività è attiva</translation>
+        </message>
+        <message>
             <source>Device is on</source>
             <translation>Il dispositivo è acceso</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>L'attività non è attiva</translation>
         </message>
         <message>
             <source>Device is off</source>
@@ -3566,12 +3586,40 @@ Tocca il codice QR per mostrarlo sullo schermo.</translation>
             <translation>Errore nell'attività. Seleziona una delle opzioni qui sotto.</translation>
         </message>
         <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Imposta lo stato di %1. Nessun comando viene inviato ai dispositivi.</translation>
+        </message>
+        <message>
+            <source>Activity is on</source>
+            <translation>L'attività è attiva</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>L'attività non è attiva</translation>
+        </message>
+        <message>
+            <source>Fix device states…</source>
+            <translation>Correggi gli stati dei dispositivi…</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Indietro</translation>
+        </message>
+        <message>
+            <source>%1 failed. What do you want to do?</source>
+            <translation>%1 non è riuscito. Cosa vuoi fare?</translation>
+        </message>
+        <message>
             <source>Turn activity on</source>
             <translation>Attiva attività</translation>
         </message>
         <message>
             <source>Turn activity off</source>
             <translation>Disattiva attività</translation>
+        </message>
+        <message>
+            <source>Fix state without sending commands</source>
+            <translation>Correggi lo stato senza inviare comandi</translation>
         </message>
         <message>
             <source>Open activity</source>

@@ -92,6 +92,10 @@
             <translation>Koppints a részletekért</translation>
         </message>
         <message>
+            <source>Tap to fix</source>
+            <translation>Koppints a javításhoz</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Állapotok javítása</translation>
         </message>
@@ -120,16 +124,32 @@
             <translation>A(z) %1 nem érhető el, állapota nem módosítható</translation>
         </message>
         <message>
+            <source>%1 is running, its state cannot be changed</source>
+            <translation>A(z) %1 fut, állapota nem módosítható</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Állapot: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Állítsa be a(z) %1 állapotát. Az eszközök felé nem küldünk parancsot.</translation>
         </message>
         <message>
             <source>Set the state of %1. No command is sent to the device.</source>
             <translation>Állítsa be a(z) %1 állapotát. Az eszköz felé nem küldünk parancsot.</translation>
         </message>
         <message>
+            <source>Activity is on</source>
+            <translation>Az aktivitás be van kapcsolva</translation>
+        </message>
+        <message>
             <source>Device is on</source>
             <translation>Az eszköz be van kapcsolva</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>Az aktivitás ki van kapcsolva</translation>
         </message>
         <message>
             <source>Device is off</source>
@@ -3564,12 +3584,40 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
             <translation>Hiba az aktivitásban. Válassz az alábbi lehetőségek közül.</translation>
         </message>
         <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Állítsa be a(z) %1 állapotát. Az eszközök felé nem küldünk parancsot.</translation>
+        </message>
+        <message>
+            <source>Activity is on</source>
+            <translation>Az aktivitás be van kapcsolva</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>Az aktivitás ki van kapcsolva</translation>
+        </message>
+        <message>
+            <source>Fix device states…</source>
+            <translation>Eszközállapotok javítása…</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Vissza</translation>
+        </message>
+        <message>
+            <source>%1 failed. What do you want to do?</source>
+            <translation>A(z) %1 sikertelen. Mit szeretnél tenni?</translation>
+        </message>
+        <message>
             <source>Turn activity on</source>
             <translation>Aktivitás bekapcsolása</translation>
         </message>
         <message>
             <source>Turn activity off</source>
             <translation>Aktivitás kikapcsolása</translation>
+        </message>
+        <message>
+            <source>Fix state without sending commands</source>
+            <translation>Állapot javítása parancsok küldése nélkül</translation>
         </message>
         <message>
             <source>Open activity</source>

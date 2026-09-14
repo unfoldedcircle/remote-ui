@@ -92,6 +92,10 @@
             <translation>Kosketa nähdäksesi lisää</translation>
         </message>
         <message>
+            <source>Tap to fix</source>
+            <translation>Kosketa korjataksesi</translation>
+        </message>
+        <message>
             <source>Fix states</source>
             <translation>Korjaa tilat</translation>
         </message>
@@ -120,16 +124,32 @@
             <translation>%1 ei ole saatavilla, sen tilaa ei voi muuttaa</translation>
         </message>
         <message>
+            <source>%1 is running, its state cannot be changed</source>
+            <translation>%1 on käynnissä, sen tilaa ei voi muuttaa</translation>
+        </message>
+        <message>
             <source>State: %1</source>
             <translation>Tila: %1</translation>
+        </message>
+        <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Aseta kohteen %1 tila. Laitteille ei lähetetä komentoa.</translation>
         </message>
         <message>
             <source>Set the state of %1. No command is sent to the device.</source>
             <translation>Aseta kohteen %1 tila. Laitteelle ei lähetetä komentoa.</translation>
         </message>
         <message>
+            <source>Activity is on</source>
+            <translation>Toiminto on päällä</translation>
+        </message>
+        <message>
             <source>Device is on</source>
             <translation>Laite on päällä</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>Toiminto on pois päältä</translation>
         </message>
         <message>
             <source>Device is off</source>
@@ -3566,12 +3586,40 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
             <translation>Virhe toiminnossa. Valitse jokin alla olevista vaihtoehdoista.</translation>
         </message>
         <message>
+            <source>Set the state of %1. No command is sent to the devices.</source>
+            <translation>Aseta kohteen %1 tila. Laitteille ei lähetetä komentoa.</translation>
+        </message>
+        <message>
+            <source>Activity is on</source>
+            <translation>Toiminto on päällä</translation>
+        </message>
+        <message>
+            <source>Activity is off</source>
+            <translation>Toiminto on pois päältä</translation>
+        </message>
+        <message>
+            <source>Fix device states…</source>
+            <translation>Korjaa laitteiden tilat…</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Takaisin</translation>
+        </message>
+        <message>
+            <source>%1 failed. What do you want to do?</source>
+            <translation>%1 epäonnistui. Mitä haluat tehdä?</translation>
+        </message>
+        <message>
             <source>Turn activity on</source>
             <translation>Käynnistä toiminto</translation>
         </message>
         <message>
             <source>Turn activity off</source>
             <translation>Sammuta toiminto</translation>
+        </message>
+        <message>
+            <source>Fix state without sending commands</source>
+            <translation>Korjaa tila lähettämättä komentoja</translation>
         </message>
         <message>
             <source>Open activity</source>
