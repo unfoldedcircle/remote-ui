@@ -602,10 +602,9 @@ ListView {
                                                                        const eObj = EntityController.get(EntityController.activities[i]);
 
                                                                        if (eObj.type == EntityTypes.Activity) {
-                                                                           // several activities can prompt at once here, so each prompt is titled with its own
                                                                            checkActivityReadiness(eObj, false, function(activityObj) {
                                                                                activityObj.turnOff();
-                                                                           }, eObj.name);
+                                                                           });
                                                                        } else {
                                                                            eObj.turnOff();
                                                                        }

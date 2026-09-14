@@ -36,6 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the entity lists, and the add-entities step of an integration setup. The delete drawer of a dock or
   integration starts on Cancel so that deleting takes a deliberate second step.
 
+### Changed
+- The readiness check of an activity now has its own screens instead of a generic notification. The first screen
+  names the activity, says how many devices need attention and at which step the activity would stop; "What is
+  wrong" opens the predicted run step by step, with every device that will not react, the steps that are skipped
+  or not needed, and a mark where the run stops. Cancel and Proceed work from both screens, and the whole flow
+  can be operated with the keypad.
+
 ### Fixed
 - The WiFi settings could not be walked with the d-pad past the WiFi band row: the known and other network
   lists were stepped over, and the "Join other" button had no way to be selected. The lists now move their

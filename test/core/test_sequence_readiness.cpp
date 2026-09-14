@@ -197,6 +197,12 @@ class testSequenceReadiness : public QObject {
 
     void toSummary_reportsVerdictAndCauses();
     void toSummary_omitsOmittedOnlyCauses();
+
+    void plan_weavesOmittedStepAtAuthoredPosition();
+    void plan_reachedFlipsAfterAbortingStep();
+    void plan_appendsLeftoverOmittedSteps();
+    void plan_stopLabelIsFirstAbortingStep();
+    void plan_carriesReasonDetail();
 };
 
 void testSequenceReadiness::parse_fullExample() {
@@ -478,6 +484,141 @@ void testSequenceReadiness::toSummary_omitsOmittedOnlyCauses() {
 
     QCOMPARE(summary.value("verdict").toString(), QStringLiteral("ready"));
     QCOMPARE(summary.value("causes").toList().count(), 0);
+}
+
+static uc::core::ReadinessOmittedStep makeOmitted(int authoredIndex, const QString& name) {
+    uc::core::ReadinessOmittedStep step;
+    step.authoredIndex = authoredIndex;
+    step.type = QStringLiteral("command");
+    step.name = name;
+    step.reason.code = QStringLiteral("ALREADY_IN_STATE");
+    step.reason.groupId = QStringLiteral("ALREADY_IN_STATE:") + name;
+    return step;
+}
+
+void testSequenceReadiness::plan_weavesOmittedStepAtAuthoredPosition() {
+    // the example: a transition step first, then the stored sequence with the omitted first step back in its
+    // place, the delay, and the step nested in a macro with its two-part label
+    uc::core::SequenceReadiness report = uc::core::Api::parseSequenceReadiness(toMap(kFullReport));
+    QVariantMap                 summary = SequenceReadinessReport::toSummary(report);
+    QVariantList                plan = summary.value("plan").toList();
+
+    QCOMPARE(plan.count(), 5);
+    QCOMPARE(summary.value("stepCount").toInt(), 5);
+    QCOMPARE(summary.value("stopLabel").toString(), QString());
+
+    QVariantMap transition = plan.at(0).toMap();
+    QCOMPARE(transition.value("label").toString(), QString());
+    QCOMPARE(transition.value("name").toString(), QStringLiteral("Denon AVR"));
+    QCOMPARE(transition.value("marker").toString(), QStringLiteral("blocked"));
+
+    QVariantMap omitted = plan.at(1).toMap();
+    QCOMPARE(omitted.value("label").toString(), QStringLiteral("1"));
+    QCOMPARE(omitted.value("name").toString(), QStringLiteral("Stehlampe"));
+    QCOMPARE(omitted.value("marker").toString(), QStringLiteral("notNeeded"));
+    QCOMPARE(omitted.value("code").toString(), QStringLiteral("ALREADY_IN_STATE"));
+
+    QVariantMap command = plan.at(2).toMap();
+    QCOMPARE(command.value("label").toString(), QStringLiteral("2"));
+    QCOMPARE(command.value("type").toString(), QStringLiteral("command"));
+    QCOMPARE(command.value("cmdId").toString(), QStringLiteral("remote.send"));
+    QCOMPARE(command.value("marker").toString(), QStringLiteral("ok"));
+    QCOMPARE(command.value("code").toString(), QString());
+
+    QVariantMap delay = plan.at(3).toMap();
+    QCOMPARE(delay.value("label").toString(), QStringLiteral("3"));
+    QCOMPARE(delay.value("type").toString(), QStringLiteral("delay"));
+    QCOMPARE(delay.value("delay").toInt(), 2000);
+    QCOMPARE(delay.value("name").toString(), QString());
+
+    QVariantMap nested = plan.at(4).toMap();
+    QCOMPARE(nested.value("label").toString(), QStringLiteral("4.1"));
+    QCOMPARE(nested.value("marker").toString(), QStringLiteral("skipped"));
+
+    // nothing aborts: the whole run is reached
+    for (const QVariant& row : plan) {
+        QCOMPARE(row.toMap().value("reached").toBool(), true);
+    }
+}
+
+void testSequenceReadiness::plan_reachedFlipsAfterAbortingStep() {
+    uc::core::SequenceReadiness report;
+    report.steps.append(makeStep(1, true, false, false, "TV", QString()));
+    report.steps.append(makeStep(2, false, false, true, "AVR", "INTEGRATION_NOT_CONNECTED:denon"));
+    report.steps.append(makeStep(3, true, false, false, "Lamp", QString()));
+
+    for (int i = 0; i < report.steps.count(); i++) {
+        report.steps[i].authoredIndex = i + 1;
+    }
+
+    QString      stopLabel;
+    QVariantList plan = SequenceReadinessReport::plan(report, &stopLabel);
+
+    QCOMPARE(stopLabel, QStringLiteral("2"));
+    QCOMPARE(plan.count(), 3);
+    QCOMPARE(plan.at(0).toMap().value("marker").toString(), QStringLiteral("ok"));
+    QCOMPARE(plan.at(1).toMap().value("marker").toString(), QStringLiteral("aborting"));
+    QCOMPARE(plan.at(2).toMap().value("marker").toString(), QStringLiteral("ok"));
+    // the aborting step itself is reached, the run stops there
+    QCOMPARE(plan.at(0).toMap().value("reached").toBool(), true);
+    QCOMPARE(plan.at(1).toMap().value("reached").toBool(), true);
+    QCOMPARE(plan.at(2).toMap().value("reached").toBool(), false);
+    QCOMPARE(plan.at(1).toMap().value("stopsRun").toBool(), true);
+}
+
+void testSequenceReadiness::plan_appendsLeftoverOmittedSteps() {
+    // an omitted step authored after the last executed one goes to the end, and one authored after the aborting
+    // step is as unreached as the executed steps behind it
+    uc::core::SequenceReadiness report;
+    report.steps.append(makeStep(1, true, false, false, "TV", QString()));
+    report.steps.append(makeStep(2, false, false, true, "AVR", "A"));
+    report.steps[0].authoredIndex = 1;
+    report.steps[1].authoredIndex = 3;
+    // given out of order on purpose: the plan sorts by authored position
+    report.omitted.append(makeOmitted(5, "Ceiling light"));
+    report.omitted.append(makeOmitted(2, "Floor lamp"));
+
+    QVariantList plan = SequenceReadinessReport::plan(report);
+
+    QCOMPARE(plan.count(), 4);
+    QCOMPARE(plan.at(0).toMap().value("label").toString(), QStringLiteral("1"));
+    QCOMPARE(plan.at(1).toMap().value("name").toString(), QStringLiteral("Floor lamp"));
+    QCOMPARE(plan.at(1).toMap().value("reached").toBool(), true);
+    QCOMPARE(plan.at(2).toMap().value("label").toString(), QStringLiteral("3"));
+    QCOMPARE(plan.at(3).toMap().value("name").toString(), QStringLiteral("Ceiling light"));
+    QCOMPARE(plan.at(3).toMap().value("marker").toString(), QStringLiteral("notNeeded"));
+    QCOMPARE(plan.at(3).toMap().value("reached").toBool(), false);
+}
+
+void testSequenceReadiness::plan_stopLabelIsFirstAbortingStep() {
+    uc::core::SequenceReadiness report;
+    report.steps.append(makeStep(1, false, false, true, "AVR", "A"));
+    report.steps.append(makeStep(2, false, false, true, "TV", "B"));
+    report.steps[0].authoredIndex = 2;
+    report.steps[0].nestedIndex = 1;
+    report.steps[1].authoredIndex = 3;
+
+    QString      stopLabel;
+    QVariantList plan = SequenceReadinessReport::plan(report, &stopLabel);
+
+    QCOMPARE(stopLabel, QStringLiteral("2.1"));
+    // a run stops once: the second aborting step is behind the stop and never reached
+    QCOMPARE(plan.at(0).toMap().value("stopsRun").toBool(), true);
+    QCOMPARE(plan.at(0).toMap().value("reached").toBool(), true);
+    QCOMPARE(plan.at(1).toMap().value("stopsRun").toBool(), false);
+    QCOMPARE(plan.at(1).toMap().value("reached").toBool(), false);
+}
+
+void testSequenceReadiness::plan_carriesReasonDetail() {
+    // the row composes its status line from the code and the names in the reason
+    uc::core::SequenceReadiness report = uc::core::Api::parseSequenceReadiness(toMap(kFullReport));
+    QVariantMap                 transition = SequenceReadinessReport::plan(report).at(0).toMap();
+
+    QCOMPARE(transition.value("code").toString(), QStringLiteral("INTEGRATION_NOT_CONNECTED"));
+    QCOMPARE(transition.value("integrationName").toString(), QStringLiteral("Denon AVR"));
+    QCOMPARE(transition.value("state").toString(), QStringLiteral("DISCONNECTED"));
+    QCOMPARE(transition.value("dockName").toString(), QString());
+    QCOMPARE(transition.value("emitterName").toString(), QString());
 }
 
 QTEST_GUILESS_MAIN(testSequenceReadiness)

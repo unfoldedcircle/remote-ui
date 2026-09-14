@@ -2480,13 +2480,13 @@ Climate fan</extracomment>
         <translation>Turn off all</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="591"/>
+        <location filename="../../src/qml/components/Page.qml" line="590"/>
         <source>%1 is %2</source>
         <extracomment>Used to show the entity state: %1 is the entity name, %2 is the state</extracomment>
         <translation>%1 is %2</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="673"/>
+        <location filename="../../src/qml/components/Page.qml" line="672"/>
         <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
         <extracomment>Web configurator is the name of the application, does not need translation</extracomment>
         <translation>Press and hold the Home button or use the Web Configurator to configure the page</translation>
@@ -2914,6 +2914,129 @@ the Web Configurator</translation>
         <source>Restricted</source>
         <extracomment>Menu item for adding a limited guest profile</extracomment>
         <translation>Restricted</translation>
+    </message>
+</context>
+<context>
+    <name>ReadinessCheck</name>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="142"/>
+        <source>Not needed — already in this state</source>
+        <extracomment>Status of a step the activity leaves out because its device is already in the wanted state.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="145"/>
+        <source>Skipped — deleted</source>
+        <extracomment>Status of a step whose device was deleted after the activity was set up.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="152"/>
+        <source>Not connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="154"/>
+        <source>Integration disabled</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="156"/>
+        <source>IR emitter unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="158"/>
+        <source>No IR output configured</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="160"/>
+        <source>IR output unavailable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="162"/>
+        <source>Bluetooth not connected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="164"/>
+        <source>Not available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="166"/>
+        <source>Already running</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="169"/>
+        <source>Cannot run right now</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="231"/>
+        <source>Cancel</source>
+        <extracomment>Button on the readiness check screens: do not run the activity.</extracomment>
+        <translation type="unfinished">Cancel</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="258"/>
+        <source>Proceed</source>
+        <extracomment>Button on the readiness check screens: run the activity although devices are not ready.</extracomment>
+        <translation type="unfinished">Proceed</translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="422"/>
+        <source>%n device(s) need attention</source>
+        <extracomment>Headline of the readiness check screen. %n is the number of devices that will not react.</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="434"/>
+        <source>The activity would stop at step %1 of %2.</source>
+        <extracomment>%1 is the position of the step the activity would stop at, %2 the number of steps.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="437"/>
+        <source>Some devices will not respond.</source>
+        <extracomment>The activity runs to its end, but some devices will not react.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="457"/>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="510"/>
+        <source>What is wrong</source>
+        <extracomment>Row on the readiness check screen that opens the list of steps.
+----------
+Title of the screen listing the steps of an activity that is not ready.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="520"/>
+        <source>%1 · %n step(s)</source>
+        <extracomment>%1 is the name of the activity, %n the number of steps of its sequence.</extracomment>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="588"/>
+        <source>Wait %1 s</source>
+        <extracomment>A delay step of an activity. %1 is the number of seconds.</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/ReadinessCheck.qml" line="635"/>
+        <source>STOPS HERE</source>
+        <extracomment>Marks the step an activity would stop at. Upper case.</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4333,10 +4456,9 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>main</name>
     <message>
-        <location filename="../../src/qml/main.qml" line="158"/>
         <source>Some devices are not ready</source>
         <extracomment>Title of the popup shown when an activity starts, but some of its devices will not react.</extracomment>
-        <translation>Some devices are not ready</translation>
+        <translation type="vanished">Some devices are not ready</translation>
     </message>
     <message>
         <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
@@ -4347,126 +4469,12 @@ Tap the QR code to show it on the screen.</translation>
         <translation type="vanished">%1 are not connected yet. Tap Proceed to continue anyway.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/main.qml" line="156"/>
-        <source>%1 is not ready</source>
-        <extracomment>Title of the popup shown when an activity cannot start because a device blocks it. %1 is the name of the activity.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="167"/>
-        <source>%1 is not connected</source>
-        <extracomment>%1 is the name of an integration, e.g. &quot;Denon AVR&quot;.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="170"/>
-        <source>The %1 integration is disabled</source>
-        <extracomment>%1 is the name of an integration, e.g. &quot;Denon AVR&quot;.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="173"/>
-        <source>%1 has no integration</source>
-        <extracomment>%1 is the name of a device.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="176"/>
-        <source>The IR emitter of %1 is not available</source>
-        <extracomment>%1 is the name of a dock.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="178"/>
-        <source>IR emitter %1 is not available</source>
-        <extracomment>%1 is the name of an IR emitter.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="179"/>
-        <source>An IR emitter is not available</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="182"/>
-        <source>%1 has no IR output configured</source>
-        <extracomment>%1 is the name of an IR remote.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="185"/>
-        <source>The IR output of %1 is not available</source>
-        <extracomment>%1 is the name of an IR remote.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="187"/>
-        <source>Bluetooth is not connected</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="190"/>
-        <source>%1 is not available</source>
-        <extracomment>%1 is the name of a device.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="193"/>
-        <source>%1 no longer exists</source>
-        <extracomment>%1 is the name of a device that was deleted after the activity was set up.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="196"/>
-        <source>%1 is already running</source>
-        <extracomment>%1 is the name of an activity or macro that is already running.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="197"/>
-        <source>The sequence is already running</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="201"/>
-        <source>%1 cannot run right now</source>
-        <extracomment>Fallback for a problem this version has no wording for. %1 is the name of a device.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="202"/>
-        <source>A step cannot run right now</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message numerus="yes">
-        <location filename="../../src/qml/main.qml" line="217"/>
-        <source>+%n more issue(s)</source>
-        <extracomment>Stands for the problems that did not fit in the popup, e.g. &quot;+2 more issues&quot;.</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="222"/>
-        <source>The activity would stop at a blocked step. Tap Proceed to try anyway.</source>
-        <extracomment>Last line of the popup. &quot;Proceed&quot; is the button label.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="224"/>
-        <source>Tap Proceed to continue anyway.</source>
-        <extracomment>Last line of the popup. &quot;Proceed&quot; is the button label.</extracomment>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/main.qml" line="331"/>
         <source>Proceed</source>
         <extracomment>Button label, quoted by name in the &quot;not ready&quot; messages.</extracomment>
-        <translation>Proceed</translation>
+        <translation type="vanished">Proceed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/main.qml" line="905"/>
+        <location filename="../../src/qml/main.qml" line="824"/>
         <source>Done</source>
         <translation>Done</translation>
     </message>
@@ -4559,7 +4567,7 @@ Tap the QR code to show it on the screen.</translation>
         <translation>There was an error connecting to the core. If the issue persists, restart the remote.</translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1879"/>
+        <location filename="../../src/core/core.cpp" line="1880"/>
         <source>Authentication to core failed</source>
         <translation>Authentication to core failed</translation>
     </message>
@@ -4809,61 +4817,61 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>uc::ui::EntityController</name>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="316"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="313"/>
         <source>Could not change the entity state: not connected</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="331"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="328"/>
         <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="335"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="332"/>
         <source>The state of this entity type cannot be changed</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="339"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="336"/>
         <source>Not allowed to change the entity state</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="343"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="340"/>
         <source>Could not change the entity state: %1</source>
         <extracomment>Error while fixing an entity state. %1 is an error message from the remote</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="997"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="998"/>
         <source>The device</source>
         <translation>The device</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1017"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1018"/>
         <source>%1 is not responding</source>
         <translation>%1 is not responding</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1018"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1019"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation>The command did not reach the device. Would you like to try again?</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1049"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1050"/>
         <source>Try again</source>
         <translation>Try again</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1055"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1057"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation>%1 is not responding. Error code: %2</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1055"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1056"/>
         <source>Error sending the command</source>
         <translation>Error sending the command</translation>
     </message>

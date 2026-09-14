@@ -6,6 +6,7 @@
 #include <QList>
 #include <QString>
 #include <QStringList>
+#include <QVariantList>
 #include <QVariantMap>
 
 #include "../../core/structs.h"
@@ -50,7 +51,21 @@ class SequenceReadinessReport {
     /// Names of the devices a run would not reach, without duplicates, in execution order.
     static QStringList unresponsiveDeviceNames(const core::SequenceReadiness& report);
 
-    /// Flattened report for QML. See docs of the readiness check for the keys.
+    /**
+     * The predicted run as rows for a list, in execution order, with the omitted steps woven back in at their
+     * authored positions.
+     *
+     * Row keys: label (authored position, "4.1" for a nested step, empty for a transition step), name, cmdId,
+     * type ("command" | "delay"), delay (ms), marker ("ok" | "aborting" | "blocked" | "skipped" | "notNeeded"),
+     * reached (false for every row after the aborting one), stopsRun (true for the first aborting step only: the
+     * core flags every not-ready step behind it as aborting as well, but a run only stops once), code and the
+     * reason detail fields integrationName, dockName, emitterName, state.
+     *
+     * @param stopLabel receives the label of the first aborting step, empty when the run does not abort
+     */
+    static QVariantList plan(const core::SequenceReadiness& report, QString* stopLabel = nullptr);
+
+    /// Flattened report for QML: verdict, counts, causes, plus plan(), stepCount and stopLabel.
     static QVariantMap toSummary(const core::SequenceReadiness& report);
 
  private:

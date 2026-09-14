@@ -149,83 +149,6 @@ ApplicationWindow {
         EntityController.sequenceReadinessResult.connect(handler);
     }
 
-    function readinessTitle(summary) {
-        return summary.verdict === "not_ready"
-            //: Title of the popup shown when an activity cannot start because a device blocks it. %1 is the
-            //: name of the activity.
-            ? qsTr("%1 is not ready").arg(summary.name)
-            //: Title of the popup shown when an activity starts, but some of its devices will not react.
-            : qsTr("Some devices are not ready");
-    }
-
-    // One sentence per reported cause. The report's own message is an English diagnostic and is never shown: the
-    // sentence is composed from the reason code and the names in it, which the core already translated.
-    function readinessCauseText(cause) {
-        switch (cause.code) {
-        case "INTEGRATION_NOT_CONNECTED":
-            //: %1 is the name of an integration, e.g. "Denon AVR".
-            return qsTr("%1 is not connected").arg(cause.integrationName);
-        case "INTEGRATION_DISABLED":
-            //: %1 is the name of an integration, e.g. "Denon AVR".
-            return qsTr("The %1 integration is disabled").arg(cause.integrationName);
-        case "INTEGRATION_NOT_FOUND":
-            //: %1 is the name of a device.
-            return qsTr("%1 has no integration").arg(cause.entityName);
-        case "IR_EMITTER_NOT_AVAILABLE":
-            //: %1 is the name of a dock.
-            return cause.dockName !== "" ? qsTr("The IR emitter of %1 is not available").arg(cause.dockName)
-                //: %1 is the name of an IR emitter.
-                : (cause.emitterName !== "" ? qsTr("IR emitter %1 is not available").arg(cause.emitterName)
-                                            : qsTr("An IR emitter is not available"));
-        case "REMOTE_IR_OUTPUT_MISSING":
-            //: %1 is the name of an IR remote.
-            return qsTr("%1 has no IR output configured").arg(cause.entityName);
-        case "REMOTE_IR_OUTPUT_INVALID":
-            //: %1 is the name of an IR remote.
-            return qsTr("The IR output of %1 is not available").arg(cause.entityName);
-        case "BT_NOT_CONNECTED":
-            return qsTr("Bluetooth is not connected");
-        case "ENTITY_UNAVAILABLE":
-            //: %1 is the name of a device.
-            return qsTr("%1 is not available").arg(cause.entityName);
-        case "ENTITY_NOT_FOUND":
-            //: %1 is the name of a device that was deleted after the activity was set up.
-            return qsTr("%1 no longer exists").arg(cause.entityName);
-        case "SEQUENCE_ALREADY_RUNNING":
-            //: %1 is the name of an activity or macro that is already running.
-            return cause.entityName !== "" ? qsTr("%1 is already running").arg(cause.entityName)
-                                           : qsTr("The sequence is already running");
-        default:
-            // NESTING_LIMIT, INVALID_COMMAND and codes a newer core may add
-            //: Fallback for a problem this version has no wording for. %1 is the name of a device.
-            return cause.entityName !== "" ? qsTr("%1 cannot run right now").arg(cause.entityName)
-                                           : qsTr("A step cannot run right now");
-        }
-    }
-
-    // The worst causes first, then the hint naming the button that runs the sequence anyway.
-    function readinessMessage(summary) {
-        const maxCauses = 3;
-        let lines = [];
-
-        for (let i = 0; i < summary.causes.length && i < maxCauses; i++) {
-            lines.push(readinessCauseText(summary.causes[i]));
-        }
-
-        if (summary.causes.length > maxCauses) {
-            //: Stands for the problems that did not fit in the popup, e.g. "+2 more issues".
-            lines.push(qsTr("+%n more issue(s)", "", summary.causes.length - maxCauses));
-        }
-
-        lines.push(summary.verdict === "not_ready"
-            //: Last line of the popup. "Proceed" is the button label.
-            ? qsTr("The activity would stop at a blocked step. Tap Proceed to try anyway.")
-            //: Last line of the popup. "Proceed" is the button label.
-            : qsTr("Tap Proceed to continue anyway."));
-
-        return lines.join("\n");
-    }
-
     // keyed by activity id and direction: the readiness check of a sequence that is already waiting
     property var activityReadinessWaits: ({})
 
@@ -236,9 +159,7 @@ ApplicationWindow {
     // still disconnected. The sequence waits for them for as long as the resume window configured under
     // Power lasts - the same budget EntityController gives a single entity command - and only asks the user
     // whether to proceed anyway once that budget is spent.
-    // title overrides the heading of the prompt, for callers that would otherwise raise several
-    // indistinguishable ones at once
-    function checkActivityReadiness(activityObj, onSequence, proceed, title = "") {
+    function checkActivityReadiness(activityObj, onSequence, proceed) {
         if (!activityObj) {
             return;
         }
@@ -316,19 +237,14 @@ ApplicationWindow {
                     return;
                 }
 
-                ui.createActionableNotification(title !== "" ? title : readinessTitle(summary),
-                                                readinessMessage(summary),
-                                                "uc:link-slash",
-                                                () => {
-                                                    // the activity may be gone by the time the user answers
-                                                    const target = EntityController.get(activityId);
+                readinessCheck.show(summary, function() {
+                    // the activity may be gone by the time the user answers
+                    const target = EntityController.get(activityId);
 
-                                                    if (target) {
-                                                        proceed(target);
-                                                    }
-                                                },
-                                                //: Button label, quoted by name in the "not ready" messages.
-                                                qsTr("Proceed"));
+                    if (target) {
+                        proceed(target);
+                    }
+                });
             });
         }
 
@@ -750,6 +666,9 @@ ApplicationWindow {
 
         Components.Notification {}
         Components.ActionableNotification {}
+        Components.ReadinessCheck {
+            id: readinessCheck
+        }
 
         Loader {
             id: remoteOpenLoader
