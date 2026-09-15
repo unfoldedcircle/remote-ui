@@ -78,6 +78,12 @@ class Api : public QObject {
      */
     static SequenceReadiness parseSequenceReadiness(const QVariantMap &map);
 
+    /**
+     * Parse an integration setup info object, as returned by the setup requests and carried by the
+     * integration_setup_change event.
+     */
+    static IntegrationSetupInfo parseIntegrationSetupInfo(const QVariantMap &map);
+
     // profile handling
     int switchProfile(const QString &profileId, const QString &pin);
     int getProfiles();
@@ -122,7 +128,9 @@ class Api : public QObject {
     int integrationStopDiscovery();
     int integrationGetDiscoveredDriverMetadata(const QString &driverId, const QString &driverUrl = QString(),
                                                const QString &token = QString(), int timeOut = 5);
-    int integrationSetup(const QString &driverId, QVariantMap name, QVariantMap setupData);
+    int integrationSetup(const QString &driverId, QVariantMap name, QVariantMap setupData,
+                         const QString &language = QString());
+    int integrationSetupKeepAlive(const QString &driverId);
     int integrationStopSetup(const QString &driverId);
     int integrationSetUserDataSettings(const QString &driverId, QVariantMap settings);
     int integrationSetUserDataConfirm(const QString &driverId);

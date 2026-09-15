@@ -7,6 +7,8 @@ import QtGraphicalEffects 1.0
 
 import SoundEffects 1.0
 
+import "qrc:/components" as Components
+
 Popup {
     id: loadingScreenBase
     width: parent.width; height: parent.height
@@ -22,8 +24,33 @@ Popup {
     property var failureCallback
     property int yOffset
 
-    function start(showGradient = true, yOffSet = 0) {
-        ui.inputController.blockInput(true);
+    /**
+      CANCELLABLE WAIT
+      A wait that may take as long as an external party needs (an integration driver working on a
+      setup step) must stay cancellable. Started with a cancel callback, the loading screen does not
+      block the input but owns it: BACK cancels, and a Cancel button is shown for touch. Both are
+      only offered once the wait lasts longer than a moment, so a quick round trip does not flash them.
+      The callback is responsible for stopping the loading screen and whatever is waited for.
+     */
+    property var cancelCallback: null
+    property bool cancelReady: false
+    readonly property bool cancelable: cancelCallback !== null && cancelReady
+
+    function start(showGradient = true, yOffSet = 0, cancelCallBack = null) {
+        // a restart of the wait (a progress event) keeps the cancel offer as it is
+        const restart = loadingScreenBase.opened && cancelCallback !== null && cancelCallBack !== null;
+        cancelCallback = cancelCallBack;
+        if (cancelCallback) {
+            ui.inputController.blockInput(false);
+            loadingNavigation.takeControl();
+            if (!restart) {
+                cancelReady = false;
+                cancelDelay.start();
+            }
+        } else {
+            releaseCancel();
+            ui.inputController.blockInput(true);
+        }
         reset();
         yOffset = yOffSet;
         gradient.visible = showGradient;
@@ -35,8 +62,27 @@ Popup {
         timeOutTimer.start();
     }
 
+    function releaseCancel() {
+        cancelDelay.stop();
+        cancelReady = false;
+        if (cancelCallback) {
+            cancelCallback = null;
+            loadingNavigation.releaseControl();
+        }
+    }
+
+    function cancel() {
+        if (!cancelable) {
+            return;
+        }
+        const callBack = cancelCallback;
+        releaseCancel();
+        callBack();
+    }
+
     function stop(callBack) {
         ui.inputController.blockInput(false);
+        releaseCancel();
         stopCallback = callBack;
         rotatingAnimation.stop();
         closeAnimation.start();
@@ -44,6 +90,7 @@ Popup {
 
     function success(close = true, callBack) {
         ui.inputController.blockInput(false);
+        releaseCancel();
         successCallback = callBack;
         closeOnFinished = close;
         _success = true;
@@ -54,6 +101,7 @@ Popup {
 
     function failure(close = true, callBack) {
         ui.inputController.blockInput(false);
+        releaseCancel();
         failureCallback = callBack;
         closeOnFinished = close;
         _success = false;
@@ -285,6 +333,41 @@ Popup {
     MouseArea {
         id: blockingMouseArea
         anchors.fill: parent
+    }
+
+    Components.ButtonNavigation {
+        id: loadingNavigation
+        defaultConfig: {
+            "BACK": {
+                "pressed": function() {
+                    loadingScreenBase.cancel();
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: cancelDelay
+        interval: 3000
+        onTriggered: loadingScreenBase.cancelReady = true
+    }
+
+    Components.Button {
+        id: cancelButton
+
+        width: parent.width - 40
+        anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
+        visible: loadingScreenBase.cancelable
+        opacity: visible ? 1 : 0
+        color: colors.secondaryButton
+        text: qsTr("Cancel")
+        trigger: function() {
+            loadingScreenBase.cancel();
+        }
+
+        Behavior on opacity {
+            NumberAnimation { duration: 300 }
+        }
     }
 
     PropertyAnimation {

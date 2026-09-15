@@ -167,6 +167,7 @@ class RequestTypes {
         stop_all_integration_setups,   // TODO(marton): Implement me
         get_integration_setup_status,  // TODO(marton): Implement me
         set_integration_user_data,
+        integration_setup_keepalive,
         stop_integration_setup,
 
         // configuration handling
@@ -571,6 +572,7 @@ class IntegrationEnums {
     Q_ENUM(Commands)
 
     enum SetupState {
+        NEW,
         SETUP,
         WAIT_USER_ACTION,
         OK,
@@ -584,9 +586,22 @@ class IntegrationEnums {
         CONNECTION_REFUSED,
         AUTHORIZATION_ERROR,
         TIMEOUT,
+        DRIVER_UNAVAILABLE,
+        INVALID_INPUT,
+        ABORTED,
+        ALREADY_CONFIGURED,
+        NOT_SUPPORTED,
         OTHER,
     };
     Q_ENUM(SetupError)
+
+    // why a maximum duration is in force for a setup session (setup_limit_reason)
+    enum SetupLimitReason {
+        NO_LIMIT,
+        BATTERY,
+        LOW_BATTERY,
+    };
+    Q_ENUM(SetupLimitReason)
 
  private:
     IntegrationEnums() {}

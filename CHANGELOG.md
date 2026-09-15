@@ -8,6 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- An integration setup no longer has a maximum duration: the setup dialog keeps the session alive, so a driver may
+  wait for the user as long as needed, and the session is renewed right away after a standby or a reconnect.
+  Requires a remote-core version with the integration setup keep-alive API; older versions behave as before.
+- The device language is sent to the integration driver when a setup starts, so a driver can return its setup pages
+  and error messages in the language of the remote.
+- A driver-provided error message is shown on the setup failure page instead of a generic error text, in the language
+  of the remote when available. The new setup error codes are covered: driver not available, invalid input, setup
+  aborted, integration already configured and operation not supported by the driver.
+- Rejected user input no longer ends the setup: the same page is shown again with the reason from the driver, so
+  the input can be corrected.
+- While the remote runs on battery, the setup dialog shows how much time is left before the setup ends, and warns
+  when a low battery shortens it.
+- A setup step the integration driver is working on can be cancelled: after a moment the waiting screen offers a
+  Cancel button, and BACK cancels as well.
+
+### Fixed
+- A cancelled integration setup no longer flashes the failure page while the setup dialog closes.
+- A setup event repeating the current page (e.g. when the charger is removed) no longer adds the page a second time.
+- Setup events of a session started by another client, e.g. the web-configurator, are no longer applied to the
+  setup dialog of the remote.
 
 ---
 

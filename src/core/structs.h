@@ -146,9 +146,21 @@ struct IntegrationSetupInfo {
     QString                      id;
     IntegrationEnums::SetupState state;
     IntegrationEnums::SetupError error;
-    bool                         requireUserAction;
-    SettingsPage                 settingsPage;
-    ConfirmationPage             confirmationPage;
+    // optional driver provided error description, language text map
+    QVariantMap errorMessage;
+    bool        requireUserAction;
+    // raw require_user_action object: an event repeating the current page (e.g. a battery change) carries the
+    // same object as the event which introduced the page
+    QVariantMap      userAction;
+    SettingsPage     settingsPage;
+    ConfirmationPage confirmationPage;
+    // keep-alive lease of the session, 0 if not reported (session without lease)
+    int keepaliveTimeoutSec = 0;
+    // battery budget: only while the device runs on battery
+    bool                               setupLimitActive = false;
+    int                                setupExpiresInSec = 0;
+    int                                setupLimitTotalSec = 0;
+    IntegrationEnums::SetupLimitReason setupLimitReason = IntegrationEnums::SetupLimitReason::NO_LIMIT;
 };
 
 struct cfgButton {

@@ -16,10 +16,15 @@ Item {
     signal cancelled
     signal home
 
+    // error text of the current page: the driver rejected the provided input
+    property string pageError: ""
+
     function cancelSetup() {
         loading.stop();
 
-        if (configurationStepsSwipeView.currentIndex > 0) {
+        // a session exists as soon as the setup has been started from the first page, whether or not a further
+        // page has been shown: it has to be stopped, otherwise it lives on in the core (and is kept alive)
+        if (IntegrationController.setupSessionActive) {
             IntegrationController.stopIntegrationSetup(IntegrationController.integrationDriverTosetup.id)
         }
 
@@ -126,6 +131,7 @@ Item {
     }
 
     function goToStart() {
+        integrationConfigureContainer.pageError = "";
         configurationStepsSwipeView.currentIndex = 0;
     }
 
@@ -216,7 +222,84 @@ Item {
 
         interactive: false
         clip: true
-        anchors { top: integrationItemContainer.bottom; bottom: footer.top; bottomMargin: 20; left: parent.left; right: parent.right }
+        anchors { top: integrationItemContainer.bottom; bottom: setupInfo.top; bottomMargin: 10; left: parent.left; right: parent.right }
+    }
+
+    Column {
+        id: setupInfo
+
+        width: parent.width - 40
+        anchors { bottom: footer.top; bottomMargin: 10; horizontalCenter: parent.horizontalCenter }
+        spacing: 5
+
+        // battery budget of the session: on battery the setup has to finish within the reported time.
+        // A warning banner as in the web-configurator: orange, red once the time gets short
+        Rectangle {
+            id: setupLimitBanner
+
+            // counted down locally between the updates of the core
+            property int remaining: IntegrationController.setupExpiresInSec
+            readonly property string formatted: Math.floor(remaining / 60) + ":" + ("0" + remaining % 60).slice(-2)
+            readonly property bool urgent: IntegrationController.setupLimitLowBattery || remaining < 60
+
+            width: parent.width
+            height: setupLimitText.implicitHeight + 20
+            radius: ui.cornerRadiusSmall
+            visible: IntegrationController.setupLimitActive
+            color: urgent ? colors.red : colors.orange
+
+            Components.Icon {
+                id: setupLimitIcon
+                icon: "uc:triangle-exclamation"
+                size: 48
+                color: colors.offwhite
+                anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
+            }
+
+            Text {
+                id: setupLimitText
+
+                anchors { left: setupLimitIcon.right; leftMargin: 10; right: parent.right; rightMargin: 15; verticalCenter: parent.verticalCenter }
+                wrapMode: Text.WordWrap
+                maximumLineCount: 2
+                elide: Text.ElideRight
+                color: colors.offwhite
+                font: fonts.primaryFont(22)
+                lineHeight: 0.9
+                text: IntegrationController.setupLimitLowBattery
+                      //: %1 is a countdown in minutes:seconds
+                      ? qsTr("Low battery: the setup ends in %1").arg(setupLimitBanner.formatted)
+                      //: %1 is a countdown in minutes:seconds
+                      : qsTr("Running on battery: the setup ends in %1").arg(setupLimitBanner.formatted)
+            }
+
+            Connections {
+                target: IntegrationController
+                ignoreUnknownSignals: true
+
+                function onSetupLimitChanged() {
+                    setupLimitBanner.remaining = IntegrationController.setupExpiresInSec;
+                }
+            }
+
+            Timer {
+                interval: 1000
+                repeat: true
+                running: setupLimitBanner.visible && setupLimitBanner.remaining > 0
+                onTriggered: setupLimitBanner.remaining--
+            }
+        }
+
+        Text {
+            width: parent.width
+            visible: integrationConfigureContainer.pageError !== ""
+            text: integrationConfigureContainer.pageError
+            wrapMode: Text.WordWrap
+            maximumLineCount: 3
+            elide: Text.ElideRight
+            color: colors.red
+            font: fonts.secondaryFont(20)
+        }
     }
 
     Item {
@@ -240,8 +323,10 @@ Item {
                 const page = configurationStepsSwipeView.currentItem;
                 const setupData = page && typeof page.getData === "function" ? page.getData() : {};
 
+                integrationConfigureContainer.pageError = "";
+
                 if (configurationStepsSwipeView.currentIndex === 0) {
-                    loading.start();
+                    loading.start(true, 0, integrationConfigureContainer.cancelSetup);
                     IntegrationController.setupIntegration(IntegrationController.integrationDriverTosetup.id, setupData);
                 } else {
                     if (page && page.settings) {
@@ -284,15 +369,20 @@ Item {
                     configurationStepsSwipeView.incrementCurrentIndex();
                     loading.stop();
                 } else {
-                    loading.start();
+                    // the driver is working: a step may take as long as the driver needs, so the
+                    // wait stays cancellable
+                    loading.start(true, 0, integrationConfigureContainer.cancelSetup);
                 }
+                integrationConfigureContainer.pageError = error;
                 break;
 
             case IntegrationControllerEnums.Wait_user_action:
+                // a new page, or the current page again with the reason why the input was rejected
                 if (requireUserAction) {
                     configurationStepsSwipeView.incrementCurrentIndex();
-                    loading.stop();
                 }
+                integrationConfigureContainer.pageError = error;
+                loading.stop();
                 break;
 
             case IntegrationControllerEnums.Error:

@@ -950,10 +950,22 @@ Climate fan</extracomment>
 <context>
     <name>Configure</name>
     <message>
-        <location filename="../../src/qml/components/integrations/Configure.qml" line="205"/>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="211"/>
         <source>By %1</source>
         <extracomment>Integration driver developer name</extracomment>
         <translation>By %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="252"/>
+        <source>Low battery: the setup ends in %1</source>
+        <extracomment>%1 is a countdown in minutes:seconds</extracomment>
+        <translation>Low battery: the setup ends in %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="254"/>
+        <source>Running on battery: the setup ends in %1</source>
+        <extracomment>%1 is a countdown in minutes:seconds</extracomment>
+        <translation>Running on battery: the setup ends in %1</translation>
     </message>
     <message>
         <location filename="../../src/qml/components/docks/Configure.qml" line="256"/>
@@ -988,7 +1000,7 @@ Climate fan</extracomment>
     </message>
     <message>
         <location filename="../../src/qml/components/docks/Configure.qml" line="474"/>
-        <location filename="../../src/qml/components/integrations/Configure.qml" line="232"/>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="295"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>
@@ -999,7 +1011,7 @@ Climate fan</extracomment>
     </message>
     <message>
         <location filename="../../src/qml/components/docks/Configure.qml" line="461"/>
-        <location filename="../../src/qml/components/integrations/Configure.qml" line="259"/>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="324"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
@@ -1980,6 +1992,11 @@ Climate fan</extracomment>
         <source>Delay %1 ms</source>
         <extracomment>Current activity step is a delay of %1 miliseconds</extracomment>
         <translation>Delay %1 ms</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/LoadingScreen.qml" line="363"/>
+        <source>Cancel</source>
+        <translation>Cancel</translation>
     </message>
 </context>
 <context>
@@ -4688,17 +4705,17 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>uc::core::Api</name>
     <message>
-        <location filename="../../src/core/core.cpp" line="1396"/>
+        <location filename="../../src/core/core.cpp" line="1407"/>
         <source>Connection error</source>
         <translation>Connection error</translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1397"/>
+        <location filename="../../src/core/core.cpp" line="1408"/>
         <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
         <translation>There was an error connecting to the core. If the issue persists, restart the remote.</translation>
     </message>
     <message>
-        <location filename="../../src/core/core.cpp" line="1880"/>
+        <location filename="../../src/core/core.cpp" line="1891"/>
         <source>Authentication to core failed</source>
         <translation>Authentication to core failed</translation>
     </message>
@@ -4782,137 +4799,161 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>uc::integration::IntegrationController</name>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="229"/>
+        <location filename="../../src/integration/integrationController.cpp" line="239"/>
         <source>Error while deleting integration</source>
         <translation>Error while deleting integration</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="244"/>
+        <location filename="../../src/integration/integrationController.cpp" line="254"/>
         <source>Error while deleting integration driver</source>
         <translation>Error while deleting integration driver</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="267"/>
+        <location filename="../../src/integration/integrationController.cpp" line="277"/>
         <source>Integration discovery failed to start</source>
         <translation>Integration discovery failed to start</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="288"/>
+        <location filename="../../src/integration/integrationController.cpp" line="298"/>
         <source>Integration discovery failed to stop</source>
         <translation>Integration discovery failed to stop</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="305"/>
+        <location filename="../../src/integration/integrationController.cpp" line="315"/>
         <source>Error getting integration driver metadata</source>
         <translation>Error getting integration driver metadata</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="334"/>
+        <location filename="../../src/integration/integrationController.cpp" line="344"/>
         <source>Error getting integration driver</source>
         <translation>Error getting integration driver</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="350"/>
-        <location filename="../../src/integration/integrationController.cpp" line="366"/>
+        <location filename="../../src/integration/integrationController.cpp" line="360"/>
+        <location filename="../../src/integration/integrationController.cpp" line="376"/>
         <source>Error while starting integration driver</source>
         <translation>Error while starting integration driver</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="382"/>
+        <location filename="../../src/integration/integrationController.cpp" line="392"/>
         <source>Error while connecting to the integration</source>
         <translation>Error while connecting to the integration</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="398"/>
+        <location filename="../../src/integration/integrationController.cpp" line="408"/>
         <source>Error while disconnecting to the integration</source>
         <translation>Error while disconnecting from the integration</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="426"/>
-        <location filename="../../src/integration/integrationController.cpp" line="441"/>
-        <location filename="../../src/integration/integrationController.cpp" line="509"/>
-        <location filename="../../src/integration/integrationController.cpp" line="572"/>
-        <location filename="../../src/integration/integrationController.cpp" line="646"/>
+        <location filename="../../src/integration/integrationController.cpp" line="436"/>
+        <location filename="../../src/integration/integrationController.cpp" line="458"/>
+        <location filename="../../src/integration/integrationController.cpp" line="530"/>
+        <location filename="../../src/integration/integrationController.cpp" line="602"/>
+        <location filename="../../src/integration/integrationController.cpp" line="679"/>
         <source>Integration setup error. Aborting setup</source>
         <translation>Integration setup error. Aborting setup</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="465"/>
-        <location filename="../../src/integration/integrationController.cpp" line="596"/>
-        <location filename="../../src/integration/integrationController.cpp" line="655"/>
+        <location filename="../../src/integration/integrationController.cpp" line="485"/>
+        <location filename="../../src/integration/integrationController.cpp" line="629"/>
+        <location filename="../../src/integration/integrationController.cpp" line="691"/>
         <source>Invalid data</source>
         <translation>Invalid data</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="470"/>
-        <location filename="../../src/integration/integrationController.cpp" line="601"/>
-        <location filename="../../src/integration/integrationController.cpp" line="658"/>
+        <location filename="../../src/integration/integrationController.cpp" line="490"/>
+        <location filename="../../src/integration/integrationController.cpp" line="634"/>
+        <location filename="../../src/integration/integrationController.cpp" line="694"/>
         <source>The integration driver id does not exist.</source>
         <translation>The integration driver id does not exist.</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="478"/>
-        <location filename="../../src/integration/integrationController.cpp" line="609"/>
-        <location filename="../../src/integration/integrationController.cpp" line="666"/>
+        <location filename="../../src/integration/integrationController.cpp" line="498"/>
+        <location filename="../../src/integration/integrationController.cpp" line="642"/>
+        <location filename="../../src/integration/integrationController.cpp" line="702"/>
         <source>Failed to start setup</source>
         <translation>Failed to start setup</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="479"/>
-        <location filename="../../src/integration/integrationController.cpp" line="610"/>
-        <location filename="../../src/integration/integrationController.cpp" line="667"/>
+        <location filename="../../src/integration/integrationController.cpp" line="499"/>
+        <location filename="../../src/integration/integrationController.cpp" line="643"/>
+        <location filename="../../src/integration/integrationController.cpp" line="703"/>
         <source>There is already a running setup for this integration. Would you like to stop that?</source>
         <translation>There is already a running setup for this integration. Would you like to stop that?</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="487"/>
-        <location filename="../../src/integration/integrationController.cpp" line="618"/>
-        <location filename="../../src/integration/integrationController.cpp" line="675"/>
+        <location filename="../../src/integration/integrationController.cpp" line="507"/>
+        <location filename="../../src/integration/integrationController.cpp" line="651"/>
+        <location filename="../../src/integration/integrationController.cpp" line="711"/>
         <source>Stop</source>
         <translation>Stop</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="492"/>
-        <location filename="../../src/integration/integrationController.cpp" line="623"/>
-        <location filename="../../src/integration/integrationController.cpp" line="680"/>
+        <location filename="../../src/integration/integrationController.cpp" line="512"/>
+        <location filename="../../src/integration/integrationController.cpp" line="656"/>
+        <location filename="../../src/integration/integrationController.cpp" line="716"/>
         <source>The integration is already configured or doesn&apos;t allow to be set up again.</source>
         <translation>The integration is already configured or cannot be set up again.</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="495"/>
-        <location filename="../../src/integration/integrationController.cpp" line="626"/>
-        <location filename="../../src/integration/integrationController.cpp" line="683"/>
+        <location filename="../../src/integration/integrationController.cpp" line="515"/>
+        <location filename="../../src/integration/integrationController.cpp" line="659"/>
+        <location filename="../../src/integration/integrationController.cpp" line="719"/>
         <source>Cannot start integration setup</source>
         <translation>Cannot start integration setup</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="557"/>
+        <location filename="../../src/integration/integrationController.cpp" line="586"/>
         <source>Cannot stop the integration setup</source>
         <translation>Cannot stop the integration setup</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="771"/>
+        <location filename="../../src/integration/integrationController.cpp" line="948"/>
         <source>Authorization error</source>
         <translation>Authorization error</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="774"/>
+        <location filename="../../src/integration/integrationController.cpp" line="950"/>
         <source>Connection refused</source>
         <translation>Connection refused</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="777"/>
-        <location filename="../../src/integration/integrationController.cpp" line="783"/>
+        <location filename="../../src/integration/integrationController.cpp" line="956"/>
+        <source>The integration driver is not available</source>
+        <translation>The integration driver is not available</translation>
+    </message>
+    <message>
+        <location filename="../../src/integration/integrationController.cpp" line="958"/>
+        <source>Invalid input</source>
+        <translation>Invalid input</translation>
+    </message>
+    <message>
+        <location filename="../../src/integration/integrationController.cpp" line="960"/>
+        <source>The setup has been aborted</source>
+        <translation>The setup has been aborted</translation>
+    </message>
+    <message>
+        <location filename="../../src/integration/integrationController.cpp" line="962"/>
+        <source>The integration is already configured</source>
+        <translation>The integration is already configured</translation>
+    </message>
+    <message>
+        <location filename="../../src/integration/integrationController.cpp" line="964"/>
+        <source>Not supported by the integration driver</source>
+        <translation>Not supported by the integration driver</translation>
+    </message>
+    <message>
+        <location filename="../../src/integration/integrationController.cpp" line="970"/>
         <source>Unknown error</source>
         <translation>Unknown error</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="780"/>
+        <location filename="../../src/integration/integrationController.cpp" line="952"/>
         <source>Not found</source>
         <translation>Not found</translation>
     </message>
     <message>
-        <location filename="../../src/integration/integrationController.cpp" line="786"/>
+        <location filename="../../src/integration/integrationController.cpp" line="954"/>
         <source>Timeout</source>
         <translation>Timeout</translation>
     </message>
@@ -4953,56 +4994,56 @@ Tap the QR code to show it on the screen.</translation>
         <translation>Could not change the entity state: not connected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="328"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="333"/>
         <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation>The state cannot be changed while the entity is unavailable or the activity is running</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="332"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="337"/>
         <source>The state of this entity type cannot be changed</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation>The state of this entity type cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="336"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="341"/>
         <source>Not allowed to change the entity state</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation>Not allowed to change the entity state</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="340"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="345"/>
         <source>Could not change the entity state: %1</source>
         <extracomment>Error while fixing an entity state. %1 is an error message from the remote</extracomment>
         <translation>Could not change the entity state: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="998"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1003"/>
         <source>The device</source>
         <translation>The device</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1018"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1023"/>
         <source>%1 is not responding</source>
         <translation>%1 is not responding</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1019"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1024"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation>The command did not reach the device. Would you like to try again?</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1050"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1055"/>
         <source>Try again</source>
         <translation>Try again</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1057"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1062"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation>%1 is not responding. Error code: %2</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1056"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1061"/>
         <source>Error sending the command</source>
         <translation>Error sending the command</translation>
     </message>

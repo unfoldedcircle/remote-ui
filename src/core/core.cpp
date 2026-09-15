@@ -653,13 +653,24 @@ int Api::integrationGetDiscoveredDriverMetadata(const QString& driverId, const Q
     return sendRequest(RequestTypes::get_discovered_integration_driver_metadata, msgData);
 }
 
-int Api::integrationSetup(const QString& driverId, QVariantMap name, QVariantMap setupData) {
+int Api::integrationSetup(const QString& driverId, QVariantMap name, QVariantMap setupData, const QString& language) {
     QVariantMap msgData;
     msgData.insert("driver_id", driverId);
     msgData.insert("name", name);
     msgData.insert("setup_data", setupData);
+    // the driver may answer with page texts and error messages in this language only
+    if (!language.isEmpty()) {
+        msgData.insert("language", language);
+    }
 
     return sendRequest(RequestTypes::setup_integration, msgData);
+}
+
+int Api::integrationSetupKeepAlive(const QString& driverId) {
+    QVariantMap msgData;
+    msgData.insert("driver_id", driverId);
+
+    return sendRequest(RequestTypes::integration_setup_keepalive, msgData);
 }
 
 int Api::integrationStopSetup(const QString& driverId) {
@@ -2398,19 +2409,23 @@ void Api::processResponseIntegrationDriver(int reqId, int code, QVariant msgData
     emit respIntegrationDriver(reqId, code, integrationDriver);
 }
 
-void Api::processResponseIntegrationSetupInfo(int reqId, int code, QVariant msgData) {
-    QVariantMap                 msgDataMap = msgData.toMap();
+IntegrationSetupInfo Api::parseIntegrationSetupInfo(const QVariantMap& map) {
     struct IntegrationSetupInfo integrationSetupInfo;
 
-    integrationSetupInfo.id = msgDataMap.value("id").toString();
-    integrationSetupInfo.state =
-        Util::convertStringToEnum<IntegrationEnums::SetupState>(msgDataMap.value("state").toString());
-    integrationSetupInfo.error =
-        Util::convertStringToEnum<IntegrationEnums::SetupError>(msgDataMap.value("error").toString());
-    integrationSetupInfo.requireUserAction = msgDataMap.contains("require_user_action");
+    // the event carries the session id as driver_id, the responses as id
+    integrationSetupInfo.id = map.contains("id") ? map.value("id").toString() : map.value("driver_id").toString();
+    integrationSetupInfo.state = Util::convertStringToEnum<IntegrationEnums::SetupState>(map.value("state").toString());
+
+    QString error = map.value("error").toString();
+    integrationSetupInfo.error = error.isEmpty() ? IntegrationEnums::SetupError::NONE
+                                                 : Util::convertStringToEnum<IntegrationEnums::SetupError>(error);
+    integrationSetupInfo.errorMessage = map.value("error_message").toMap();
+
+    integrationSetupInfo.requireUserAction = map.contains("require_user_action");
 
     if (integrationSetupInfo.requireUserAction) {
-        QVariantMap reqUserAction = msgDataMap.value("require_user_action").toMap();
+        QVariantMap reqUserAction = map.value("require_user_action").toMap();
+        integrationSetupInfo.userAction = reqUserAction;
 
         if (reqUserAction.contains("input")) {
             struct SettingsPage settingsPage;
@@ -2427,7 +2442,23 @@ void Api::processResponseIntegrationSetupInfo(int reqId, int code, QVariant msgD
         }
     }
 
-    emit respIntegrationSetupInfo(reqId, code, integrationSetupInfo);
+    integrationSetupInfo.keepaliveTimeoutSec = map.value("keepalive_timeout_sec").toInt();
+
+    integrationSetupInfo.setupLimitActive = map.value("setup_limit_active").toBool();
+    if (integrationSetupInfo.setupLimitActive) {
+        integrationSetupInfo.setupExpiresInSec = map.value("setup_expires_in_sec").toInt();
+        integrationSetupInfo.setupLimitTotalSec = map.value("setup_limit_total_sec").toInt();
+        QString reason = map.value("setup_limit_reason").toString();
+        integrationSetupInfo.setupLimitReason =
+            reason.isEmpty() ? IntegrationEnums::SetupLimitReason::BATTERY
+                             : Util::convertStringToEnum<IntegrationEnums::SetupLimitReason>(reason);
+    }
+
+    return integrationSetupInfo;
+}
+
+void Api::processResponseIntegrationSetupInfo(int reqId, int code, QVariant msgData) {
+    emit respIntegrationSetupInfo(reqId, code, parseIntegrationSetupInfo(msgData.toMap()));
 }
 
 void Api::processResponseGroup(int reqId, int code, QVariant msgData) {
@@ -3463,32 +3494,8 @@ void Api::processIntegrationSetupChange(QVariant msgData) {
         case MsgEventTypes::START:
         case MsgEventTypes::SETUP:
         case MsgEventTypes::STOP: {
-            struct IntegrationSetupInfo integrationSetupInfo;
-
+            struct IntegrationSetupInfo integrationSetupInfo = parseIntegrationSetupInfo(msgDataMap);
             integrationSetupInfo.id = driverId;
-            integrationSetupInfo.state =
-                Util::convertStringToEnum<IntegrationEnums::SetupState>(msgDataMap.value("state").toString());
-            integrationSetupInfo.error =
-                Util::convertStringToEnum<IntegrationEnums::SetupError>(msgDataMap.value("error").toString());
-            integrationSetupInfo.requireUserAction = msgDataMap.contains("require_user_action");
-
-            if (integrationSetupInfo.requireUserAction) {
-                QVariantMap reqUserAction = msgDataMap.value("require_user_action").toMap();
-
-                if (reqUserAction.contains("input")) {
-                    struct SettingsPage settingsPage;
-                    settingsPage.title = reqUserAction.value("input").toMap().value("title").toMap();
-                    settingsPage.settings = reqUserAction.value("input").toMap().value("settings").toList();
-                    integrationSetupInfo.settingsPage = settingsPage;
-                } else if (reqUserAction.contains("confirmation")) {
-                    struct ConfirmationPage confirmationPage;
-                    confirmationPage.title = reqUserAction.value("confirmation").toMap().value("title").toMap();
-                    confirmationPage.message1 = reqUserAction.value("confirmation").toMap().value("message1").toMap();
-                    confirmationPage.image = reqUserAction.value("confirmation").toMap().value("image").toString();
-                    confirmationPage.message2 = reqUserAction.value("confirmation").toMap().value("message2").toMap();
-                    integrationSetupInfo.confirmationPage = confirmationPage;
-                }
-            }
 
             emit integrationSetupChange(integrationSetupInfo);
             break;
