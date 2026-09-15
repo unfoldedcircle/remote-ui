@@ -2452,6 +2452,10 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
             <source>Delay %1 ms</source>
             <translation>%1 ms verzögern</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Abbrechen</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2718,6 +2722,14 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
         <message>
             <source>By %1</source>
             <translation>Von %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Niedriger Akkustand: die Einrichtung endet in %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Akkubetrieb: die Einrichtung endet in %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3110,6 +3122,26 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Verbindung abgelehnt</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Der Integrationstreiber ist nicht verfügbar</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Ungültige Eingabe</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>Die Einrichtung wurde abgebrochen</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>Die Integration ist bereits konfiguriert</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Wird vom Integrationstreiber nicht unterstützt</translation>
         </message>
         <message>
             <source>Unknown error</source>

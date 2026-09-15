@@ -2451,6 +2451,10 @@ Tocca il codice QR per mostrarlo sullo schermo.</translation>
             <source>Delay %1 ms</source>
             <translation>Ritardo %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annulla</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2717,6 +2721,14 @@ Tocca il codice QR per mostrarlo sullo schermo.</translation>
         <message>
             <source>By %1</source>
             <translation>Di %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Batteria scarica: la configurazione termina tra %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Alimentazione a batteria: la configurazione termina tra %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3109,6 +3121,26 @@ Tocca il codice QR per mostrarlo sullo schermo.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Connessione rifiutata</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Il driver dell'integrazione non è disponibile</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Input non valido</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>La configurazione è stata interrotta</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>L'integrazione è già configurata</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Non supportato dal driver dell'integrazione</translation>
         </message>
         <message>
             <source>Unknown error</source>

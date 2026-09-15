@@ -2451,6 +2451,10 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
             <source>Delay %1 ms</source>
             <translation>Délai %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2717,6 +2721,14 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <message>
             <source>By %1</source>
             <translation>Par %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Batterie faible : la configuration se termine dans %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Sur batterie : la configuration se termine dans %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3109,6 +3121,26 @@ Appuyez sur le code QR pour l'afficher à l'écran.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Connexion refusée</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Le pilote d'intégration n'est pas disponible</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Saisie non valide</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>La configuration a été interrompue</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>L'intégration est déjà configurée</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Non pris en charge par le pilote d'intégration</translation>
         </message>
         <message>
             <source>Unknown error</source>

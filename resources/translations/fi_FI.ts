@@ -2451,6 +2451,10 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
             <source>Delay %1 ms</source>
             <translation>Viive %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Peruuta</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2717,6 +2721,14 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
         <message>
             <source>By %1</source>
             <translation>Tekijä: %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Akku vähissä: määritys päättyy %1 kuluttua</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Akkukäyttö: määritys päättyy %1 kuluttua</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3109,6 +3121,26 @@ Kosketa QR-koodia näyttääksesi sen näytöllä.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Yhteys hylättiin</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Integraatioajuri ei ole saatavilla</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Virheellinen syöte</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>Määritys keskeytettiin</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>Integraatio on jo määritetty</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Integraatioajuri ei tue tätä</translation>
         </message>
         <message>
             <source>Unknown error</source>

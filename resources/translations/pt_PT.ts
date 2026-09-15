@@ -2451,6 +2451,10 @@ Toca no código QR para o mostrar no ecrã.</translation>
             <source>Delay %1 ms</source>
             <translation>Atraso %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Cancelar</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2717,6 +2721,14 @@ Toca no código QR para o mostrar no ecrã.</translation>
         <message>
             <source>By %1</source>
             <translation>Por %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Bateria fraca: a configuração termina em %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>A funcionar com bateria: a configuração termina em %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3109,6 +3121,26 @@ Toca no código QR para o mostrar no ecrã.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Ligação recusada</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>O controlador da integração não está disponível</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Entrada inválida</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>A configuração foi cancelada</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>A integração já está configurada</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Não suportado pelo controlador da integração</translation>
         </message>
         <message>
             <source>Unknown error</source>

@@ -2452,6 +2452,10 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
             <source>Delay %1 ms</source>
             <translation>%1 ms verzögere</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Abbräche</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2718,6 +2722,14 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
         <message>
             <source>By %1</source>
             <translation>Vo %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Schwachi Batterie: d Yrichtig ändet i %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Lauft uf Akku: d Yrichtig ändet i %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3110,6 +3122,26 @@ Tippe uf e QR-Code, zum ne uf em Bildschirm z zeige.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Verbindig abglehnt</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Dr Integrationstryber isch nid verfüegbar</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Ugültigi Ygab</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>D Yrichtig isch abbroche worde</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>D Integration isch scho konfiguriert</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Wird vom Integrationstryber nid unterstützt</translation>
         </message>
         <message>
             <source>Unknown error</source>

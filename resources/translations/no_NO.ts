@@ -2451,6 +2451,10 @@ Trykk på QR-koden for å vise den på skjermen.</translation>
             <source>Delay %1 ms</source>
             <translation>Forsinkelse %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Avbryt</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2717,6 +2721,14 @@ Trykk på QR-koden for å vise den på skjermen.</translation>
         <message>
             <source>By %1</source>
             <translation>Av %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Lavt batterinivå: oppsettet avsluttes om %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Går på batteri: oppsettet avsluttes om %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3109,6 +3121,26 @@ Trykk på QR-koden for å vise den på skjermen.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Tilkobling avvist</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Integrasjonsdriveren er ikke tilgjengelig</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Ugyldig inndata</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>Oppsettet ble avbrutt</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>Integrasjonen er allerede konfigurert</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Støttes ikke av integrasjonsdriveren</translation>
         </message>
         <message>
             <source>Unknown error</source>

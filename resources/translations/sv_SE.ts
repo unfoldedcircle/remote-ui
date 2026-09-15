@@ -2450,6 +2450,10 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
             <source>Delay %1 ms</source>
             <translation>Fördröj %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Avbryt</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2716,6 +2720,14 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>By %1</source>
             <translation>Av %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Låg batterinivå: inställningen avslutas om %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Drift på batteri: inställningen avslutas om %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3108,6 +3120,26 @@ Tryck på QR-koden för att visa den på skärmen.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Anslutning nekad</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Integrationsdrivrutinen är inte tillgänglig</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Ogiltig inmatning</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>Inställningen avbröts</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>Integrationen är redan konfigurerad</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Stöds inte av integrationsdrivrutinen</translation>
         </message>
         <message>
             <source>Unknown error</source>

@@ -2449,6 +2449,10 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
             <source>Delay %1 ms</source>
             <translation>Késleltetés: %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Mégse</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2715,6 +2719,14 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
         <message>
             <source>By %1</source>
             <translation>Készítette: %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Alacsony akkumulátorszint: a beállítás %1 múlva véget ér</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Akkumulátorról működik: a beállítás %1 múlva véget ér</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3107,6 +3119,26 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
         <message>
             <source>Connection refused</source>
             <translation>A kapcsolat elutasítva</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Az integrációs illesztőprogram nem érhető el</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Érvénytelen bevitel</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>A beállítás megszakadt</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>Az integráció már be van állítva</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Az integrációs illesztőprogram nem támogatja</translation>
         </message>
         <message>
             <source>Unknown error</source>

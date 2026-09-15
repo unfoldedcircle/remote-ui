@@ -2451,6 +2451,10 @@ Toca el código QR para mostrarlo en la pantalla.</translation>
             <source>Delay %1 ms</source>
             <translation>Retardo %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Cancelar</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2717,6 +2721,14 @@ Toca el código QR para mostrarlo en la pantalla.</translation>
         <message>
             <source>By %1</source>
             <translation>De %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Batería baja: la configuración termina en %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Funcionando con batería: la configuración termina en %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3109,6 +3121,26 @@ Toca el código QR para mostrarlo en la pantalla.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Conexión rechazada</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>El controlador de la integración no está disponible</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Entrada no válida</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>La configuración se ha cancelado</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>La integración ya está configurada</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>No compatible con el controlador de la integración</translation>
         </message>
         <message>
             <source>Unknown error</source>

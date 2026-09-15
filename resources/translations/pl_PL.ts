@@ -2453,6 +2453,10 @@ Dotknij kodu QR, aby pokazać go na ekranie.</translation>
             <source>Delay %1 ms</source>
             <translation>Opóźnienie %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Anuluj</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2719,6 +2723,14 @@ Dotknij kodu QR, aby pokazać go na ekranie.</translation>
         <message>
             <source>By %1</source>
             <translation>Autor: %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Niski poziom baterii: konfiguracja zakończy się za %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Zasilanie z baterii: konfiguracja zakończy się za %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3111,6 +3123,26 @@ Dotknij kodu QR, aby pokazać go na ekranie.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Połączenie odrzucone</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Sterownik integracji jest niedostępny</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Nieprawidłowe dane</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>Konfiguracja została przerwana</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>Integracja jest już skonfigurowana</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Nieobsługiwane przez sterownik integracji</translation>
         </message>
         <message>
             <source>Unknown error</source>

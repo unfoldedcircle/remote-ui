@@ -2451,6 +2451,10 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
             <source>Delay %1 ms</source>
             <translation>Vertraging %1 ms</translation>
         </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuleren</translation>
+        </message>
     </context>
     <context>
         <name>StatusBar</name>
@@ -2717,6 +2721,14 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
         <message>
             <source>By %1</source>
             <translation>Van %1</translation>
+        </message>
+        <message>
+            <source>Low battery: the setup ends in %1</source>
+            <translation>Batterij bijna leeg: het instellen eindigt over %1</translation>
+        </message>
+        <message>
+            <source>Running on battery: the setup ends in %1</source>
+            <translation>Op batterij: het instellen eindigt over %1</translation>
         </message>
         <message>
             <source>Name</source>
@@ -3109,6 +3121,26 @@ Tik op de QR-code om deze op het scherm te tonen.</translation>
         <message>
             <source>Connection refused</source>
             <translation>Verbinding geweigerd</translation>
+        </message>
+        <message>
+            <source>The integration driver is not available</source>
+            <translation>Het integratiestuurprogramma is niet beschikbaar</translation>
+        </message>
+        <message>
+            <source>Invalid input</source>
+            <translation>Ongeldige invoer</translation>
+        </message>
+        <message>
+            <source>The setup has been aborted</source>
+            <translation>Het instellen is afgebroken</translation>
+        </message>
+        <message>
+            <source>The integration is already configured</source>
+            <translation>De integratie is al geconfigureerd</translation>
+        </message>
+        <message>
+            <source>Not supported by the integration driver</source>
+            <translation>Niet ondersteund door het integratiestuurprogramma</translation>
         </message>
         <message>
             <source>Unknown error</source>
