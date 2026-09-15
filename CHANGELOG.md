@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.82.1 - 2026-09-15
 ### Added
 - An integration setup no longer has a maximum duration: the setup dialog keeps the session alive, so a driver may
   wait for the user as long as needed, and the session is renewed right away after a standby or a reconnect.
@@ -29,8 +33,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A setup event repeating the current page (e.g. when the charger is removed) no longer adds the page a second time.
 - Setup events of a session started by another client, e.g. the web-configurator, are no longer applied to the
   setup dialog of the remote.
-
----
 
 ## v0.82.0 - 2026-09-14
 ### Added
