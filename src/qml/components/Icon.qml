@@ -21,7 +21,7 @@ Item {
 
     property string icon
     property string suffix
-    property string _icon: resource.getIcon(icon, suffix.toLowerCase())
+    property string _icon: icon ? resource.getIcon(icon, suffix.toLowerCase()) : ""
     property int size: 5
     property bool useLayer: false
     property alias color: iconText.color

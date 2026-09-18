@@ -7,6 +7,8 @@
 #include <QScreen>
 #include <QQuickWindow>
 
+#include <memory>
+
 #include "config/config.h"
 #include "core/core.h"
 #include "dock/dockController.h"
@@ -58,8 +60,9 @@ int main(int argc, char *argv[]) {
     qputenv("QT_VIRTUALKEYBOARD_LAYOUT_PATH", "qrc:/keyboard/layouts");
     qputenv("QT_VIRTUALKEYBOARD_STYLE", "remotestyle");
 
-    QGuiApplication       app(argc, argv);
-    QQmlApplicationEngine engine;
+    QGuiApplication app(argc, argv);
+    // Heap allocated to control the destruction order: the engine must go before the controllers, see the end of main().
+    auto engine = std::make_unique<QQmlApplicationEngine>();
 
 #ifdef Q_OS_UNIX
     // At least SIGTERM is required to run on the device for proper systemd integration,
@@ -69,7 +72,7 @@ int main(int argc, char *argv[]) {
     std::signal(SIGTERM, sigHandler);
 #endif
 
-    engine.addImportPath("qrc:/keyboard");
+    engine->addImportPath("qrc:/keyboard");
 
     QCoreApplication::setOrganizationName("Unfolded Circle");
     QCoreApplication::setOrganizationDomain("uc.io");
@@ -101,10 +104,10 @@ int main(int argc, char *argv[]) {
     uc::Config                             config(&core, &app);
     uc::SoftwareUpdate                     softwareUpdate(&core, &app);
     uc::hw::Controller                     hwController(model, &core, &config, &app);
-    uc::ui::Controller                     uiController(model, width, height, &engine, &config, &core, &app);
+    uc::ui::Controller                     uiController(model, width, height, engine.get(), &config, &core, &app);
     uc::integration::IntegrationController integrationController(&core, config.getLanguage(), &app);
     uc::dock::DockController               dockController(&core, &app);
-    uc::ui::Translation                    translation(&engine, &core, &app);
+    uc::ui::Translation                    translation(engine.get(), &core, &app);
     uc::Voice                              voice(&core, &app);
 
     QObject::connect(&integrationController, &uc::integration::IntegrationController::integrationIsConnecting,
@@ -122,7 +125,7 @@ int main(int argc, char *argv[]) {
     const QUrl url(QStringLiteral("qrc:/main.qml"));
 
     QObject::connect(
-        &engine, &QQmlApplicationEngine::objectCreated, &app,
+        engine.get(), &QQmlApplicationEngine::objectCreated, &app,
         [url](QObject *obj, const QUrl &objUrl) {
             if (!obj && url == objUrl) {
                 QCoreApplication::exit(-1);
@@ -130,9 +133,19 @@ int main(int argc, char *argv[]) {
         },
         Qt::QueuedConnection);
 
-    engine.load(url);
+    engine->load(url);
 
     uiController.init();
 
-    return app.exec();
+    const int ret = app.exec();
+
+    // Tear down the QML scene while the C++ side is still complete. The controllers above are destroyed in reverse
+    // order of declaration, i.e. before an engine declared next to the application would be. They own the objects
+    // behind the `ui`, `colors`, `fonts` and `resource` context properties and the QML singletons (Battery, Power,
+    // Wifi, ...): destroying those first turns every reference in the still existing QML items into null and
+    // re-evaluates hundreds of bindings, which floods the log with "TypeError: Cannot read property ... of null"
+    // on every shutdown.
+    engine.reset();
+
+    return ret;
 }

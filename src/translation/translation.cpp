@@ -28,9 +28,8 @@ Translation::Translation(QQmlEngine* engine, core::Api* core, QObject* parent)
 Translation::~Translation() {}
 
 void Translation::loadTranslation(const QString& countryCode) {
-    if (!qGuiApp->removeTranslator(m_translator)) {
-        qCWarning(lcI18n()) << "Failed to remove translation";
-    }
+    // removeTranslator() only fails if the translator isn't installed, which is the case before the first load
+    qGuiApp->removeTranslator(m_translator);
 
     if (countryCode == "en_US") {
         m_engine->retranslate();
@@ -38,7 +37,7 @@ void Translation::loadTranslation(const QString& countryCode) {
     }
 
     if (!m_translator->load(":/translations/" + countryCode)) {
-        qCWarning(lcI18n()) << "Couldn't load transaltion:" << countryCode << getLanguageName(countryCode);
+        qCWarning(lcI18n()) << "Couldn't load translation:" << countryCode << getLanguageName(countryCode);
         return;
     }
 

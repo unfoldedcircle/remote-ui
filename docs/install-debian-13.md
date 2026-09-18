@@ -228,6 +228,8 @@ them matter on Debian 13:
   works with the `qtwayland` archive of option 2B, but its plugin does not support the client-side virtual keyboard.
   `eglfs` is for the device only; on a desktop it aborts with `EGLFS: OpenGL windows cannot be mixed with others.`
   If you see that error, a stale `export QT_QPA_PLATFORM=eglfs` is still set in the current shell.
+  One line at startup is expected with Xwayland and harmless: `qt.qpa.xcb: QXcbConnection: XCB error: 146 (Unknown)
+  ... major code: 139 (Unknown), minor code: 20` is a RANDR `BadCrtc` reply to Qt 5.15's screen query.
 - `UC_DISPLAY_SCALE=1`. The app default of 0.5 is tuned for 2x displays (macOS Retina, GNOME at 200 %). On a regular
   1x display it draws the UI at half size in the centre of the 480x850 window, shows the virtual keyboard in its
   supposedly hidden position and cuts the button simulator. With 1 the main window is exactly the 480x850 screen

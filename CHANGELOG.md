@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Fixed
+- Stopping the app no longer floods the log with hundreds of `TypeError: Cannot read property ... of null` lines
+  from QML: the UI is now torn down before the objects it refers to. On the device these lines ended up in the
+  system journal on every shutdown and restart.
+- Without a sound effects directory (the usual case on the desktop simulator), the app logs a single line that sound
+  effects are disabled instead of five decoding errors for files at the root of the file system. A configured
+  directory that doesn't exist is reported as a warning.
+- An icon component without an icon no longer logs a warning, and the first language change no longer logs a
+  spurious "Failed to remove translation".
 
 ---
 

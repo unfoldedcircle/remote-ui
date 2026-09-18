@@ -106,7 +106,7 @@ class InputController : public QQuickItem {
 
     hw::HardwareModel::Enum m_model;
 
-    QObject* m_source;
+    QPointer<QObject> m_source;
 
     QPointer<QObject>             m_activeItem;
     QPointer<QObject>             m_baseOwner;
