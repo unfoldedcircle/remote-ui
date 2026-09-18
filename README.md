@@ -12,7 +12,7 @@ When run on a desktop, the app becomes a device simulator: the input buttons of 
 ## Requirements
 
 - Mac or Linux computer / virtual machine.
-- Qt 5.15.2 (or a newer patch release) and Qt Creator.
+- Qt 5.15 (5.15.19 recommended, 5.15.2 is what the CI uses) and Qt Creator.
 - [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator) for local development.
 - Docker for Remote-Core Simulator and cross-compilation.
 
@@ -42,8 +42,10 @@ make test           # unit tests
 make run-linux      # start the UI app (also run-linux-static)
 ```
 
-All cores are used. If Qt is not in `~/Qt/5.15.2/`, pass `QTDIR=<path>` for the dynamic and `QTDIR_STATIC=<path>` for
-the static Qt; a Qt of the wrong link type is refused. The Makefile is only a task runner that calls qmake in a build
+All cores are used. The newest Qt in `~/Qt/<version>/` is used (`make` without a target shows which); pass
+`QT_VERSION=5.15.2` to pick another one, or `QTDIR=<path>` for the dynamic and `QTDIR_STATIC=<path>` for the static Qt
+if it lives elsewhere. A Qt of the wrong link type is refused. `. scripts/env/qt-version.sh [version]` selects a Qt
+for the whole shell, see [docs/install.md](docs/install.md). The Makefile is only a task runner that calls qmake in a build
 directory: never run qmake in the repository root, it would overwrite the Makefile.
 
 ## Run

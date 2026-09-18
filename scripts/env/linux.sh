@@ -3,9 +3,10 @@
 # Every value is a default: set the variable before sourcing to override it.
 # Qt setup: docs/install.md (per-target guides linked there). App variables: README.md, "Environment Variables".
 
-# Qt 5.15.2 installed with aqtinstall
-export QT_VERSION="${QT_VERSION:-5.15.2}"
-export QTDIR="${QTDIR:-$HOME/Qt/$QT_VERSION/gcc_64}"
+# Qt: the newest ~/Qt/5.x.y/gcc_64 unless QT_VERSION or QTDIR is set (`. scripts/env/qt-version.sh` does that)
+export QTDIR="${QTDIR:-${QT_VERSION:+$HOME/Qt/$QT_VERSION/gcc_64}}"
+export QTDIR="${QTDIR:-$(ls -d "$HOME"/Qt/5.*/gcc_64 2>/dev/null | sort -V | tail -n 1)}"
+export QT_VERSION="${QT_VERSION:-$("$QTDIR/bin/qmake" -query QT_VERSION 2>/dev/null)}"
 export PATH="$QTDIR/bin:$PATH"
 export LD_LIBRARY_PATH="$QTDIR/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
 export QT_PLUGIN_PATH="$QTDIR/plugins"

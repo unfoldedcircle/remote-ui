@@ -1,6 +1,6 @@
 # Installation instructions
 
-How to set up a development environment for the remote-ui desktop simulator: Qt 5.15.2, the fonts, a container
+How to set up a development environment for the remote-ui desktop simulator: Qt 5.15, the fonts, a container
 runtime for the [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator) and optional integrations.
 
 We highly recommend using a dedicated virtual machine, especially if you are not yet familiar with setting up a Qt
@@ -8,13 +8,15 @@ runtime environment.
 
 ## Qt
 
-The remote-ui app is a Qt 5.15.2 application. Installing Qt with the system's package manager usually doesn't work (wrong
-version); the guides below install the official 5.15.2 binaries with [aqtinstall](https://github.com/miurahr/aqtinstall)
-or build Qt from source. Pick the guide for your system:
+The remote-ui app is a Qt 5.15 application: 5.15.2 is the version of the GitHub workflow (the last one with official
+binary packages), 5.15.19 is the final Qt 5.15 release and the recommended one for development. The Remote Two/3
+devices run a 5.15.8 built by the [cross-compile toolchain](cross-compile.md). Installing Qt with the system's package
+manager usually doesn't work (wrong version); the guides below build Qt 5.15.19 from source or install the official
+5.15.2 binaries with [aqtinstall](https://github.com/miurahr/aqtinstall). Pick the guide for your system:
 
 | Target                    | Guide                                                    | Notes                                                        |
 |---------------------------|----------------------------------------------------------|--------------------------------------------------------------|
-| Debian 13 "trixie"        | [install-debian-13.md](install-debian-13.md)             | aqtinstall, GCC 14 header patch, optional OpenSSL 1.1; verified on a fresh VM |
+| Debian 13 "trixie"        | [install-debian-13.md](install-debian-13.md)             | 5.15.19 from source (recommended) or 5.15.2 with aqtinstall, both side by side; verified on a fresh VM |
 | Ubuntu 22.04              | [install-ubuntu-22.04.md](install-ubuntu-22.04.md)       | the original guide, aqtinstall                               |
 | macOS                     | [static-compile-macos.md](static-compile-macos.md)       | Qt online installer and Qt Creator, static kit               |
 | Static desktop build      | [static-compile.md](static-compile.md)                   | self-contained binary without Qt libraries, macOS and Debian 13 |
@@ -23,7 +25,9 @@ or build Qt from source. Pick the guide for your system:
 Adding a target: copy the closest guide, name it `install-<distribution>-<version>.md`, and link it in this table.
 
 After Qt is installed, build with `make linux` (or `make linux-static`) and start the UI app with `make run-linux`;
-`make` without a target lists everything. Qt Creator users open `remote-ui.pro` with a kit for the installed Qt.
+`make` without a target lists everything. Several Qt versions can be installed side by side in `~/Qt/<version>/`:
+`. scripts/env/qt-version.sh [version]` selects one for the current shell and the Makefile defaults to the newest
+one (`make linux QT_VERSION=5.15.2` overrides). Qt Creator users open `remote-ui.pro` with a kit for the installed Qt.
 See the [README](../README.md) for the environment variables the app reads.
 
 ## Fonts

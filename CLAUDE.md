@@ -36,6 +36,10 @@ make -j $(nproc --all)
 
 Device builds are aarch64 static via docker only (`docs/cross-compile.md`); there is no in-repo toolchain file.
 
+Several Qt 5.15 versions can live in `~/Qt/<version>/gcc_64[-static]` (5.15.19 built from source, 5.15.2 from
+aqtinstall; `docs/install-debian-13.md`). `. scripts/env/qt-version.sh [version]` selects one for the shell; the
+`Makefile` defaults to the version of an exported `QTDIR`, else the newest installed (`make linux QT_VERSION=5.15.2`).
+
 ## Test
 
 See the `/test` skill. Short form:

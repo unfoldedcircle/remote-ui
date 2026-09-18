@@ -9,8 +9,16 @@ SHELL := bash
 MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL := help
 
-# Overridable on the command line, e.g. `make linux-static QTDIR_STATIC=/opt/qt-static`, or from the environment.
-QT_VERSION   ?= 5.15.2
+# Overridable on the command line, e.g. `make linux QT_VERSION=5.15.2` or `make linux-static QTDIR_STATIC=/opt/qt-static`,
+# or from the environment: `. scripts/env/qt-version.sh [version]` exports QTDIR and QT_VERSION for the shell.
+# QT_VERSION defaults to the version of an exported QTDIR, else to the newest Qt in ~/Qt (docs/install.md).
+qt_version_of  = $(filter 5.%,$(notdir $(patsubst %/,%,$(dir $(1)))))
+QTDIR_ENV     := $(QTDIR)
+QT_VERSION   ?= $(or $(call qt_version_of,$(QTDIR_ENV)), \
+                     $(call qt_version_of,$(lastword $(shell ls -d "$(HOME)"/Qt/5.*/gcc_64* 2>/dev/null | sort -V))),5.15.19)
+ifeq ($(origin QT_VERSION),command line)   # `make linux QT_VERSION=x` beats an exported QTDIR
+QTDIR         = $(HOME)/Qt/$(QT_VERSION)/gcc_64
+endif
 QTDIR        ?= $(HOME)/Qt/$(QT_VERSION)/gcc_64
 QTDIR_STATIC ?= $(HOME)/Qt/$(QT_VERSION)/gcc_64-static
 JOBS         ?= $(shell nproc 2>/dev/null || sysctl -n hw.ncpu)
@@ -55,6 +63,7 @@ ucr2: ## Cross-compile the static Remote Two/3 (aarch64) binary in the Docker to
 
 test: ## Build and run the unit tests (CMake, dynamic Qt)
 	mkdir -p "$(ROOT)/test/build"
+	@grep -qs 'Qt5_DIR:PATH=$(QTDIR)/' "$(ROOT)/test/build/CMakeCache.txt" || rm -rf "$(ROOT)/test/build"/*
 	cd "$(ROOT)/test/build" && cmake -D CMAKE_PREFIX_PATH="$(QTDIR)" .. && cmake --build . -j$(JOBS)
 	cd "$(ROOT)/test/build" && QT_QPA_PLATFORM=offscreen ctest --output-on-failure
 
@@ -62,7 +71,7 @@ test: ## Build and run the unit tests (CMake, dynamic Qt)
 
 run-linux: ## Start the dynamic build with scripts/env/linux.sh
 	@test -x "$(ROOT)/binaries/Linux-x64/remote-ui" || { echo "No binary yet, run: make linux"; exit 1; }
-	@cd "$(ROOT)" && . scripts/env/linux.sh && exec binaries/Linux-x64/remote-ui
+	@cd "$(ROOT)" && export QTDIR="$(QTDIR)" && . scripts/env/linux.sh && exec binaries/Linux-x64/remote-ui
 
 run-linux-static: ## Start the static build with scripts/env/linux-static.sh
 	@test -x "$(ROOT)/binaries/Linux-x64-static/remote-ui" || { echo "No binary yet, run: make linux-static"; exit 1; }
@@ -92,8 +101,9 @@ help: ## Show this help
 	@awk 'BEGIN { FS = ":.*## "; printf "Usage: make <target> [VARIABLE=value]\n" } \
 	      /^##@/ { printf "\n%s\n", substr($$0, 5) } \
 	      /^[a-zA-Z0-9_-]+:.*## / { printf "  %-22s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
-	@printf "\nVariables:\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n" \
-	        "QTDIR" "$(QTDIR)" "QTDIR_STATIC" "$(QTDIR_STATIC)" "JOBS" "$(JOBS)" "TOOLCHAIN_IMAGE" "$(TOOLCHAIN_IMAGE)"
+	@printf "\nVariables:\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n" \
+	        "QT_VERSION" "$(QT_VERSION)" "QTDIR" "$(QTDIR)" "QTDIR_STATIC" "$(QTDIR_STATIC)" "JOBS" "$(JOBS)" \
+	        "TOOLCHAIN_IMAGE" "$(TOOLCHAIN_IMAGE)"
 	@echo "  QTDIR is ignored by linux-static on purpose: it usually points to the dynamic Qt (docs/install.md)."
 
 # qmake runs lupdate, which rewrites every resources/translations/*.ts. ts_snapshot remembers in file $(1) which of
