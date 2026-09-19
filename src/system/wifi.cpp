@@ -473,7 +473,8 @@ void Wifi::addNetwork(const QString &ssid, const QString &ssidHex, const QString
             // fail
             qCWarning(lcHwWifi()) << "Error adding network:" << code << message;
             emit connected(false);
-            ui::Notification::createNotification("Error adding network: " + message, true);
+            //: Notification: a WiFi network could not be added. %1 is the core's error message
+            ui::Notification::createNotification(tr("Error adding network: %1").arg(message), true);
         });
 }
 
@@ -489,7 +490,8 @@ void Wifi::wifiNetworkCommand(int networkId, core::WifiEnums::WifiNetworkCmd com
         [=](int code, QString message) {
             // fail
             qCWarning(lcHwWifi()) << "Error executing network command:" << code << message;
-            ui::Notification::createNotification("Error executing network command: " + message, true);
+            //: Notification: a WiFi network could not be enabled, disabled or selected. %1 is the core's error message
+            ui::Notification::createNotification(tr("Error executing network command: %1").arg(message), true);
         });
 }
 

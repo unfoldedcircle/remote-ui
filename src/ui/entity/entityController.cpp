@@ -287,9 +287,9 @@ void EntityController::configureEntities(const QString& integrationId, const QSt
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Couldn't configured entity: " + message;
-            qCWarning(lcEntityController()) << code << errorMsg;
-            Notification::createNotification(errorMsg, true);
+            qCWarning(lcEntityController()) << "Couldn't configure entity:" << code << message;
+            //: Error while configuring an entity. %1 is an error message from the remote
+            Notification::createNotification(tr("Could not configure the entity: %1").arg(message), true);
         });
 }
 
@@ -312,9 +312,9 @@ void EntityController::setEntityName(const QString& entityId, const QString& nam
     m_core->onResponseWithErrorResult(
         id, &core::Api::respEntity, [=](core::Entity entity) { Q_UNUSED(entity) },
         [=](int code, QString message) {
-            QString errorMsg = "Error while setting entity name: " + message;
-            qCWarning(lcEntityController()) << code << errorMsg;
-            Notification::createNotification(errorMsg, true);
+            qCWarning(lcEntityController()) << "Error while setting entity name:" << code << message;
+            //: Error while renaming an entity. %1 is an error message from the remote
+            Notification::createNotification(tr("Could not rename the entity: %1").arg(message), true);
         });
 }
 
@@ -372,9 +372,9 @@ void EntityController::setEntityIcon(const QString& entityId, const QString& ico
     m_core->onResponseWithErrorResult(
         id, &core::Api::respEntity, [=](core::Entity entity) { Q_UNUSED(entity) },
         [=](int code, QString message) {
-            QString errorMsg = "Error while setting entity icon: " + message;
-            qCWarning(lcEntityController()) << code << errorMsg;
-            Notification::createNotification(errorMsg, true);
+            qCWarning(lcEntityController()) << "Error while setting entity icon:" << code << message;
+            //: Error while changing the icon of an entity. %1 is an error message from the remote
+            Notification::createNotification(tr("Could not change the entity icon: %1").arg(message), true);
         });
 }
 
@@ -449,9 +449,9 @@ void EntityController::deleteEntities(const QStringList& entities) {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Couldn't delete entities: " + message;
-            qCWarning(lcEntityController()) << code << errorMsg;
-            Notification::createNotification(errorMsg, true);
+            qCWarning(lcEntityController()) << "Couldn't delete entities:" << code << message;
+            //: Error while deleting entities. %1 is an error message from the remote
+            Notification::createNotification(tr("Could not delete the entities: %1").arg(message), true);
         });
 }
 
