@@ -58,9 +58,9 @@ void Power::powerOff() {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error on power off: " + message;
-            qCWarning(lcHw()) << code << errorMsg;
-            ui::Notification::createNotification(errorMsg, true);
+            qCWarning(lcHw()) << "Error on power off:" << code << message;
+            //: Notification: the remote could not be powered off. %1 is the core's error message
+            ui::Notification::createNotification(tr("Error on power off: %1").arg(message), true);
         });
 }
 
@@ -74,9 +74,9 @@ void Power::reboot() {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error on reboot: " + message;
-            qCWarning(lcHw()) << code << errorMsg;
-            ui::Notification::createNotification(errorMsg, true);
+            qCWarning(lcHw()) << "Error on reboot:" << code << message;
+            //: Notification: the remote could not be restarted. %1 is the core's error message
+            ui::Notification::createNotification(tr("Error on reboot: %1").arg(message), true);
         });
 }
 

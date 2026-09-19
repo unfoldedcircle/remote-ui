@@ -164,14 +164,16 @@ Settings.Page {
                 id: bandSelector
                 visible: HwInfo.modelNumber == "UCR3" || HwInfo.modelNumber == "DEV"
                 text: qsTr("WiFi band")
-                value: Config.wifiBand == 'auto' ? 'Auto' : Config.wifiBand == 'a' ? '5 GHz' : '2.4 GHz'
+                //: WiFi band: the remote chooses the band itself
+                value: Config.wifiBand == 'auto' ? qsTr('Auto') : Config.wifiBand == 'a' ? '5 GHz' : '2.4 GHz'
                 chevron: true
                 selected: activeFocus
 
                 function openList() {
                     listModel.clear();
 
-                    listModel.append({'name': "Auto", 'value': "auto"})
+                    //: WiFi band: the remote chooses the band itself
+                    listModel.append({'name': qsTr("Auto"), 'value': "auto"})
                     listModel.append({'name': "2.4 GHz", 'value': "b"})
                     listModel.append({'name': "5 GHz", 'value': "a"})
 

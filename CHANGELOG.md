@@ -62,6 +62,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with the rest of the previous one.
 - A notification that arrives while another one is shown starts on its default button again, so the keypad acts on the
   highlighted one.
+- Error messages are shown in the language of the remote instead of always in English: the errors around entity
+  management (configuring, renaming, re-iconing and deleting an entity), profiles and pages, WiFi, the power menu
+  and the device settings. The explanation the remote itself reports is still shown as it comes. Two of these
+  messages were also wrong: configuring an entity said "Couldn't configured entity", and setting the administrator
+  PIN said "Error white setting admin pin".
+- A few more texts that stayed English in every language are translated as well: the PIN confirmation mismatch, the
+  dock data error, the empty search field hint, the WiFi band and security choices, the enabled/disabled state of a
+  known WiFi network, and the message that an activity or entity is unavailable. That last one is now a whole
+  sentence instead of the device name glued in front of a phrase, so it reads correctly in languages that put the
+  name elsewhere.
+- The warning that the profile in use cannot be deleted shows its icon again.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.

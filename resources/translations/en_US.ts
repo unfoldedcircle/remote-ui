@@ -7,8 +7,8 @@
         <location filename="../../src/qml/components/SelectWidget.qml" line="43"/>
         <location filename="../../src/qml/components/SelectWidget.qml" line="44"/>
         <location filename="../../src/qml/components/SensorWidget.qml" line="55"/>
-        <location filename="../../src/qml/components/docks/Info.qml" line="374"/>
-        <location filename="../../src/qml/components/docks/Info.qml" line="392"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="375"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="393"/>
         <location filename="../../src/qml/components/entities/BaseSensorButton.qml" line="23"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Battery.qml" line="63"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Current.qml" line="64"/>
@@ -96,7 +96,7 @@
 <context>
     <name>ActionableNotification</name>
     <message>
-        <location filename="../../src/qml/components/ActionableNotification.qml" line="203"/>
+        <location filename="../../src/qml/components/ActionableNotification.qml" line="210"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
@@ -104,102 +104,102 @@
 <context>
     <name>Activity</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="475"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="473"/>
         <source>Tap to close</source>
         <extracomment>Tap to close menu, tap to see more or, after a failed run, tap to fix the state</extracomment>
         <translation>Tap to close</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="475"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="473"/>
         <source>Tap for more</source>
         <translation>Tap for more</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="475"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="473"/>
         <source>Tap to fix</source>
         <translation>Tap to fix</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="666"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="587"/>
         <source>Fix states</source>
         <extracomment>Title referring to fixing device states that might out of sync</extracomment>
         <translation>Fix states</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="687"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="608"/>
         <source>Quickly access entities included in this activity:</source>
         <translation>Quickly access entities included in this activity:</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="734"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="655"/>
         <source>Back</source>
         <extracomment>Caption to go back</extracomment>
         <translation>Back</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="760"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="681"/>
         <source>None of the entities in this activity has an On/Off state that could be fixed</source>
         <extracomment>Shown in the &quot;Fix states&quot; list if none of the activity&apos;s entities has an on/off state</extracomment>
         <translation>None of the entities in this activity has an On/Off state that could be fixed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="788"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="709"/>
         <source>Empty page</source>
         <translation>Empty page</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="800"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="721"/>
         <source>You can add UI elements via the Web Configurator</source>
         <translation>You can add UI elements via the Web Configurator</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="880"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="801"/>
         <source>%1 is unavailable, its state cannot be changed</source>
         <translation>%1 is unavailable, its state cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="885"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="806"/>
         <source>%1 is running, its state cannot be changed</source>
         <translation>%1 is running, its state cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="929"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="850"/>
         <source>State: %1</source>
         <extracomment>Device state</extracomment>
         <translation>State: %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="965"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="886"/>
         <source>Set the state of %1. No command is sent to the devices.</source>
         <extracomment>Popup title when fixing the state of an activity. %1 is the activity name</extracomment>
         <translation>Set the state of %1. No command is sent to the devices.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="967"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="888"/>
         <source>Set the state of %1. No command is sent to the device.</source>
         <extracomment>Popup title when fixing the state of an entity. %1 is the entity name</extracomment>
         <translation>Set the state of %1. No command is sent to the device.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="973"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="894"/>
         <source>Activity is on</source>
         <extracomment>Button. Mark the activity as running without sending any command</extracomment>
         <translation>Activity is on</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="975"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="896"/>
         <source>Device is on</source>
         <extracomment>Button. Mark the device as switched on without sending a command</extracomment>
         <translation>Device is on</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="982"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="903"/>
         <source>Activity is off</source>
         <extracomment>Button. Mark the activity as stopped without sending any command</extracomment>
         <translation>Activity is off</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="984"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="905"/>
         <source>Device is off</source>
         <extracomment>Button. Mark the device as switched off without sending a command</extracomment>
         <translation>Device is off</translation>
@@ -274,6 +274,15 @@
     </message>
 </context>
 <context>
+    <name>AdminPin</name>
+    <message>
+        <location filename="../../src/qml/settings/settings/AdminPin.qml" line="87"/>
+        <source>The PIN doesn&apos;t match. Try again.</source>
+        <extracomment>Notification: the PIN entered a second time differs from the first one</extracomment>
+        <translation>The PIN doesn&apos;t match. Try again.</translation>
+    </message>
+</context>
+<context>
     <name>Base</name>
     <message>
         <source>Activity error. Select option below.</source>
@@ -340,14 +349,19 @@
         <translation>Open activity</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="209"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="224"/>
-        <location filename="../../src/qml/components/entities/Base.qml" line="250"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="210"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="226"/>
+        <source>%1 is unavailable</source>
+        <extracomment>Notification when a command was not sent because the device is unavailable. %1 is the entity name</extracomment>
+        <translation>%1 is unavailable</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/Base.qml" line="252"/>
         <source>is unavailable</source>
         <translation>is unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="447"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="449"/>
         <location filename="../../src/qml/components/group/Base.qml" line="186"/>
         <source>Profile is restricted</source>
         <translation>Profile is restricted</translation>
@@ -372,7 +386,7 @@
 <context>
     <name>BaseDetail</name>
     <message>
-        <location filename="../../src/qml/components/entities/BaseDetail.qml" line="214"/>
+        <location filename="../../src/qml/components/entities/BaseDetail.qml" line="209"/>
         <source>Entity unavailable</source>
         <translation>Entity unavailable</translation>
     </message>
@@ -1692,7 +1706,7 @@ Climate fan</extracomment>
         <translation>Disconnected</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="354"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="355"/>
         <location filename="../../src/qml/components/integrations/Info.qml" line="382"/>
         <source>State</source>
         <translation>State</translation>
@@ -1737,126 +1751,132 @@ Climate fan</extracomment>
         <translation type="vanished">Tap to edit name</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="287"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="43"/>
+        <source>There was an error while getting the latest dock data</source>
+        <extracomment>Notification: the details of a dock could not be loaded</extracomment>
+        <translation>There was an error while getting the latest dock data</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/docks/Info.qml" line="288"/>
         <source>Select to edit the name</source>
         <extracomment>Hint under the dock name: selecting the name (touch or OK) opens the rename dialog</extracomment>
         <translation>Select to edit the name</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="305"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="306"/>
         <source>Something is wrong</source>
         <translation>Something is wrong</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="322"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="323"/>
         <source>Identify</source>
         <translation>Identify</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="336"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="337"/>
         <source>Connect</source>
         <translation>Connect</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="358"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="359"/>
         <source>Active</source>
         <translation>Active</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="360"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="361"/>
         <source>Connecting</source>
         <translation>Connecting</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="362"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="363"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="365"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="366"/>
         <source>Idle</source>
         <extracomment>Dock state: connected but doing nothing.</extracomment>
         <translation>Idle</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="367"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="368"/>
         <source>Reconnecting</source>
         <translation>Reconnecting</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="373"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="374"/>
         <source>Connection type</source>
         <translation>Connection type</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="378"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="379"/>
         <source>Service name</source>
         <translation>Service name</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="384"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="385"/>
         <source>Custom IP or URL</source>
         <translation>Custom IP or URL</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="385"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="386"/>
         <source>Not set</source>
         <translation>Not set</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="391"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="392"/>
         <source>Firmware version</source>
         <translation>Firmware version</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="410"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="411"/>
         <source>Led brightness</source>
         <translation>Led brightness</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="445"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="446"/>
         <source>Change password</source>
         <translation>Change password</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="463"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="464"/>
         <source>Change WiFi settings</source>
         <translation>Change WiFi settings</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="478"/>
-        <location filename="../../src/qml/components/docks/Info.qml" line="485"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="479"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="486"/>
         <source>Factory reset</source>
         <translation>Factory reset</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="486"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="487"/>
         <source>Are you sure you want to factory reset %1?</source>
         <translation>Are you sure you want to factory reset %1?</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="492"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="493"/>
         <source>Reset</source>
         <translation>Reset</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="665"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="666"/>
         <source>Delete dock</source>
         <translation>Delete dock</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="707"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="708"/>
         <source>Are you sure you want to delete %1?</source>
         <translation>Are you sure you want to delete %1?</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="728"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="729"/>
         <location filename="../../src/qml/components/integrations/Info.qml" line="664"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/docks/Info.qml" line="739"/>
+        <location filename="../../src/qml/components/docks/Info.qml" line="740"/>
         <location filename="../../src/qml/components/integrations/Info.qml" line="675"/>
         <source>Delete</source>
         <translation>Delete</translation>
@@ -2818,6 +2838,12 @@ Climate fan</extracomment>
         <source>This PIN is the administrator PIN.</source>
         <translation>This PIN is the administrator PIN.</translation>
     </message>
+    <message>
+        <location filename="../../src/qml/onboarding/Pin.qml" line="112"/>
+        <source>The PIN doesn&apos;t match. Try again.</source>
+        <extracomment>Notification: the PIN entered a second time differs from the first one</extracomment>
+        <translation>The PIN doesn&apos;t match. Try again.</translation>
+    </message>
 </context>
 <context>
     <name>PopupList</name>
@@ -3012,6 +3038,12 @@ the Web Configurator</translation>
     <message>
         <source>Tap to close</source>
         <translation type="vanished">Tap to close</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/onboarding/Profile.qml" line="29"/>
+        <source>Default</source>
+        <extracomment>Placeholder of the name field when the first profile is created</extracomment>
+        <translation>Default</translation>
     </message>
 </context>
 <context>
@@ -3419,6 +3451,15 @@ no return</translation>
         <location filename="../../src/qml/settings/settings/Reset.qml" line="165"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
+    </message>
+</context>
+<context>
+    <name>SearchField</name>
+    <message>
+        <location filename="../../src/qml/components/SearchField.qml" line="57"/>
+        <source>Input field is empty</source>
+        <extracomment>Error under a text field that has to be filled in</extracomment>
+        <translation>Input field is empty</translation>
     </message>
 </context>
 <context>
@@ -4470,29 +4511,36 @@ Select the QR code to read them on the screen.</translation>
         <translation>WiFi band</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Wifi.qml" line="178"/>
+        <location filename="../../src/qml/settings/settings/Wifi.qml" line="168"/>
+        <location filename="../../src/qml/settings/settings/Wifi.qml" line="176"/>
+        <source>Auto</source>
+        <extracomment>WiFi band: the remote chooses the band itself</extracomment>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Wifi.qml" line="180"/>
         <source>Select WiFi band</source>
         <translation>Select WiFi band</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Wifi.qml" line="203"/>
+        <location filename="../../src/qml/settings/settings/Wifi.qml" line="205"/>
         <source>Known Networks</source>
         <extracomment>known WiFi networks</extracomment>
         <translation>Known Networks</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Wifi.qml" line="233"/>
-        <location filename="../../src/qml/settings/settings/Wifi.qml" line="247"/>
+        <location filename="../../src/qml/settings/settings/Wifi.qml" line="235"/>
+        <location filename="../../src/qml/settings/settings/Wifi.qml" line="249"/>
         <source>Delete all networks</source>
         <translation>Delete all networks</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Wifi.qml" line="248"/>
+        <location filename="../../src/qml/settings/settings/Wifi.qml" line="250"/>
         <source>Are you sure you want to delete all WiFi networks?</source>
         <translation>Are you sure you want to delete all WiFi networks?</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Wifi.qml" line="254"/>
+        <location filename="../../src/qml/settings/settings/Wifi.qml" line="256"/>
         <source>Delete all</source>
         <translation>Delete all</translation>
     </message>
@@ -4615,6 +4663,18 @@ Select the QR code to read them on the screen.</translation>
         <source>Remove</source>
         <translation>Remove</translation>
     </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="454"/>
+        <source>Enabled</source>
+        <extracomment>State of a saved WiFi network: the remote connects to it</extracomment>
+        <translation>Enabled</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="456"/>
+        <source>Disabled</source>
+        <extracomment>State of a saved WiFi network: the remote does not connect to it</extracomment>
+        <translation>Disabled</translation>
+    </message>
 </context>
 <context>
     <name>WifiPassword</name>
@@ -4646,67 +4706,79 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>WifiSetup</name>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="177"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="179"/>
         <source>Enter SSID</source>
         <translation>Enter SSID</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="186"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="188"/>
         <source>Wifi network</source>
         <translation>Wifi network</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="200"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="202"/>
         <source>Hidden network</source>
         <extracomment>Checkbox to add a WiFi network which doesn&apos;t broadcast its name</extracomment>
         <translation>Hidden network</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="227"/>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="338"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="229"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="340"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="213"/>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="322"/>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="429"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="215"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="324"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="431"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="264"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="53"/>
+        <source>None</source>
+        <extracomment>WiFi security: an open network without a password</extracomment>
+        <translation>None</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="55"/>
+        <source>Auto</source>
+        <extracomment>WiFi security: taken from the network</extracomment>
+        <translation>Auto</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="266"/>
         <source>Choose WiFi security for
 %1</source>
         <translation>Choose WiFi security for
 %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="338"/>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="444"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="340"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="446"/>
         <source>Join</source>
         <extracomment>Join wifi network</extracomment>
         <translation>Join</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="346"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="348"/>
         <source>Select a security option</source>
         <translation>Select a security option</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="346"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="348"/>
         <source>Please select a security option</source>
         <translation>Please select a security option</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="404"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="406"/>
         <source>Enter WiFi password for
 %1</source>
         <translation>Enter WiFi password for
 %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="414"/>
+        <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="416"/>
         <source>Super secret</source>
         <extracomment>Placeholder text for password</extracomment>
         <translation>Super secret</translation>
@@ -4750,7 +4822,179 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>uc::Config</name>
     <message>
-        <location filename="../../src/config/config.cpp" line="970"/>
+        <location filename="../../src/config/config.cpp" line="76"/>
+        <source>Error setting language: %1</source>
+        <extracomment>Notification: the interface language could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting language: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="104"/>
+        <source>Error setting country: %1</source>
+        <extracomment>Notification: the country could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting country: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="130"/>
+        <source>Error setting timezone: %1</source>
+        <extracomment>Notification: the time zone could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting timezone: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="160"/>
+        <source>Error setting unit system: %1</source>
+        <extracomment>Notification: the unit system could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting unit system: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="181"/>
+        <source>Error setting clock: %1</source>
+        <extracomment>Notification: the 12/24-hour clock could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting clock: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="200"/>
+        <source>Error setting device name: %1</source>
+        <extracomment>Notification: the name of the remote could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting device name: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="220"/>
+        <source>Error changing haptic settings: %1</source>
+        <extracomment>Notification: haptic feedback could not be switched. %1 is the core&apos;s error message</extracomment>
+        <translation>Error changing haptic settings: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="241"/>
+        <source>Error setting microphone config: %1</source>
+        <extracomment>Notification: the microphone could not be switched. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting microphone config: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="259"/>
+        <source>Error setting voice assistant config: %1</source>
+        <extracomment>Notification: the voice assistant could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting voice assistant config: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="276"/>
+        <location filename="../../src/config/config.cpp" line="294"/>
+        <source>Error setting voice assistant profile config: %1</source>
+        <extracomment>Notification: a voice assistant option could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting voice assistant profile config: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="314"/>
+        <source>Error setting sound config: %1</source>
+        <extracomment>Notification: sound effects could not be switched. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting sound config: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="334"/>
+        <source>Error setting sound volume: %1</source>
+        <extracomment>Notification: the sound effect volume could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting sound volume: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="354"/>
+        <location filename="../../src/config/config.cpp" line="374"/>
+        <source>Error setting display config: %1</source>
+        <extracomment>Notification: the display brightness could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting display config: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="394"/>
+        <location filename="../../src/config/config.cpp" line="414"/>
+        <source>Error setting button backlight: %1</source>
+        <extracomment>Notification: the button backlight could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting button backlight: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="551"/>
+        <source>Error setting wakeup sensitivity: %1</source>
+        <extracomment>Notification: the wakeup sensitivity could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting wakeup sensitivity: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="571"/>
+        <source>Error setting sleep timeout: %1</source>
+        <extracomment>Notification: the sleep timeout could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting sleep timeout: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="591"/>
+        <source>Error setting display sleep timeout: %1</source>
+        <extracomment>Notification: the display timeout could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting display sleep timeout: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="611"/>
+        <location filename="../../src/config/config.cpp" line="631"/>
+        <source>Error setting update config: %1</source>
+        <extracomment>Notification: a software update setting could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting update config: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="651"/>
+        <source>Error setting Bluetooth: %1</source>
+        <extracomment>Notification: Bluetooth could not be switched on or off. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting Bluetooth: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="671"/>
+        <source>Error setting WiFi: %1</source>
+        <extracomment>Notification: WiFi could not be switched on or off. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting WiFi: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="691"/>
+        <source>Error setting WiFi in standby: %1</source>
+        <extracomment>Notification: &quot;Keep WiFi connected in standby&quot; could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting WiFi in standby: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="710"/>
+        <source>Error setting WiFi band: %1</source>
+        <extracomment>Notification: the WiFi band could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting WiFi band: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="729"/>
+        <source>Error setting WiFi scan interval: %1</source>
+        <extracomment>Notification: the WiFi scan interval could not be changed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error setting WiFi scan interval: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="766"/>
+        <source>Error getting country list: %1</source>
+        <extracomment>Notification: the list of countries could not be loaded. %1 is the core&apos;s error message</extracomment>
+        <translation>Error getting country list: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="783"/>
+        <source>Error getting timezones: %1</source>
+        <extracomment>Notification: the list of time zones could not be loaded. %1 is the core&apos;s error message</extracomment>
+        <translation>Error getting timezones: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="826"/>
+        <source>Could not set the admin PIN: %1</source>
+        <extracomment>Notification: the administrator PIN could not be set. %1 is the core&apos;s error message</extracomment>
+        <translation>Could not set the admin PIN: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="846"/>
+        <source>Error enabling the web configurator</source>
+        <extracomment>Notification: the state of the web configurator could not be read</extracomment>
+        <translation>Error enabling the web configurator</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="894"/>
+        <source>Error enabling the web configurator: %1</source>
+        <extracomment>Notification: the web configurator could not be switched on or off. %1 is the core&apos;s error message</extracomment>
+        <translation>Error enabling the web configurator: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/config/config.cpp" line="972"/>
         <source>Error while loading configuration. Trying again.</source>
         <translation>Error while loading configuration. Trying again.</translation>
     </message>
@@ -4904,6 +5148,21 @@ Select the QR code to read them on the screen.</translation>
     </message>
 </context>
 <context>
+    <name>uc::hw::Power</name>
+    <message>
+        <location filename="../../src/system/power.cpp" line="63"/>
+        <source>Error on power off: %1</source>
+        <extracomment>Notification: the remote could not be powered off. %1 is the core&apos;s error message</extracomment>
+        <translation>Error on power off: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/system/power.cpp" line="79"/>
+        <source>Error on reboot: %1</source>
+        <extracomment>Notification: the remote could not be restarted. %1 is the core&apos;s error message</extracomment>
+        <translation>Error on reboot: %1</translation>
+    </message>
+</context>
+<context>
     <name>uc::hw::Wifi</name>
     <message>
         <location filename="../../src/system/wifi.cpp" line="354"/>
@@ -4911,7 +5170,19 @@ Select the QR code to read them on the screen.</translation>
         <translation>Failed to delete network. Wifi network does not exist.</translation>
     </message>
     <message>
-        <location filename="../../src/system/wifi.cpp" line="560"/>
+        <location filename="../../src/system/wifi.cpp" line="477"/>
+        <source>Error adding network: %1</source>
+        <extracomment>Notification: a WiFi network could not be added. %1 is the core&apos;s error message</extracomment>
+        <translation>Error adding network: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/system/wifi.cpp" line="494"/>
+        <source>Error executing network command: %1</source>
+        <extracomment>Notification: a WiFi network could not be enabled, disabled or selected. %1 is the core&apos;s error message</extracomment>
+        <translation>Error executing network command: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/system/wifi.cpp" line="562"/>
         <source>Wrong network key</source>
         <translation>Wrong network key</translation>
     </message>
@@ -5081,6 +5352,12 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>uc::ui::Controller</name>
     <message>
+        <location filename="../../src/ui/uiController.cpp" line="290"/>
+        <source>Error adding profile: %1</source>
+        <extracomment>Notification: a profile could not be created. %1 is the core&apos;s error message</extracomment>
+        <translation>Error adding profile: %1</translation>
+    </message>
+    <message>
         <location filename="../../src/ui/uiController.cpp" line="309"/>
         <source>Error</source>
         <translation>Error</translation>
@@ -5091,17 +5368,53 @@ Select the QR code to read them on the screen.</translation>
         <translation>Deleting a current profile is not permitted. Please switch to another profile and try again.</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="633"/>
+        <location filename="../../src/ui/uiController.cpp" line="327"/>
+        <source>Error deleting profile: %1</source>
+        <extracomment>Notification: a profile could not be deleted. %1 is the core&apos;s error message</extracomment>
+        <translation>Error deleting profile: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/uiController.cpp" line="347"/>
+        <source>Error adding page: %1</source>
+        <extracomment>Notification: a page could not be created. %1 is the core&apos;s error message</extracomment>
+        <translation>Error adding page: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/uiController.cpp" line="370"/>
+        <source>Error renaming page: %1</source>
+        <extracomment>Notification: a page could not be renamed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error renaming page: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/uiController.cpp" line="389"/>
+        <source>Error deleting page: %1</source>
+        <extracomment>Notification: a page could not be deleted. %1 is the core&apos;s error message</extracomment>
+        <translation>Error deleting page: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/uiController.cpp" line="488"/>
+        <source>Error during factory reset: %1</source>
+        <extracomment>Notification: the factory reset failed. %1 is the core&apos;s error message</extracomment>
+        <translation>Error during factory reset: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/uiController.cpp" line="632"/>
         <source>Profile update error</source>
         <translation>Profile update error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="760"/>
+        <location filename="../../src/ui/uiController.cpp" line="693"/>
+        <source>Error updating page: %1</source>
+        <extracomment>Notification: a change to a page could not be saved. %1 is the core&apos;s error message</extracomment>
+        <translation>Error updating page: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/uiController.cpp" line="759"/>
         <source>%1 error</source>
         <translation>%1 error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="760"/>
+        <location filename="../../src/ui/uiController.cpp" line="759"/>
         <source>Error while connecting to %1, with id %2</source>
         <translation>Error while connecting to %1, with id %2</translation>
     </message>
@@ -5113,6 +5426,18 @@ Select the QR code to read them on the screen.</translation>
 </context>
 <context>
     <name>uc::ui::EntityController</name>
+    <message>
+        <location filename="../../src/ui/entity/entityController.cpp" line="292"/>
+        <source>Could not configure the entity: %1</source>
+        <extracomment>Error while configuring an entity. %1 is an error message from the remote</extracomment>
+        <translation>Could not configure the entity: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/entityController.cpp" line="317"/>
+        <source>Could not rename the entity: %1</source>
+        <extracomment>Error while renaming an entity. %1 is an error message from the remote</extracomment>
+        <translation>Could not rename the entity: %1</translation>
+    </message>
     <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="326"/>
         <source>Could not change the entity state: not connected</source>
@@ -5141,6 +5466,18 @@ Select the QR code to read them on the screen.</translation>
         <source>Could not change the entity state: %1</source>
         <extracomment>Error while fixing an entity state. %1 is an error message from the remote</extracomment>
         <translation>Could not change the entity state: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/entityController.cpp" line="377"/>
+        <source>Could not change the entity icon: %1</source>
+        <extracomment>Error while changing the icon of an entity. %1 is an error message from the remote</extracomment>
+        <translation>Could not change the entity icon: %1</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/entityController.cpp" line="454"/>
+        <source>Could not delete the entities: %1</source>
+        <extracomment>Error while deleting entities. %1 is an error message from the remote</extracomment>
+        <translation>Could not delete the entities: %1</translation>
     </message>
     <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="926"/>
