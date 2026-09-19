@@ -29,7 +29,12 @@ class SoftwareUpdate : public QObject {
     Q_PROPERTY(QString coreVersion READ getCoreVersion NOTIFY coreVersionChanged);
     Q_PROPERTY(QString uiVersion READ getUiVersion NOTIFY uiVersionChanged);
 
+    Q_PROPERTY(int minimumBatteryLevel READ getMinimumBatteryLevel CONSTANT)
+
  public:
+    /// Minimum battery charge in percent to install a software update; the low-battery warning shows the value.
+    static constexpr int MINIMUM_BATTERY_LEVEL = 50;
+
     explicit SoftwareUpdate(core::Api* core, QObject* parent = nullptr);
     ~SoftwareUpdate();
 
@@ -55,6 +60,8 @@ class SoftwareUpdate : public QObject {
     QString getApiVersion() { return m_apiVersion; }
     QString getCoreVersion() { return m_coreVersion; }
     QString getUiVersion() { return APP_VERSION; }
+
+    int getMinimumBatteryLevel() const { return MINIMUM_BATTERY_LEVEL; }
 
     Q_INVOKABLE void checkForUpdate(bool force = true, bool silent = false);
     Q_INVOKABLE void startUpdate();

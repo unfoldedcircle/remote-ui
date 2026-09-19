@@ -3710,6 +3710,12 @@ the Web Configurator</translation>
         <translation>Release notes</translation>
     </message>
     <message>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="197"/>
+        <source>Minimum %1% battery charge is required to install software updates</source>
+        <extracomment>Warning when the battery is too low to install a software update. %1 is the minimum charge in percent, a number without the % sign</extracomment>
+        <translation>Minimum %1% battery charge is required to install software updates</translation>
+    </message>
+    <message>
         <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="152"/>
         <source>Release notes</source>
         <translation>Release notes</translation>
@@ -3725,49 +3731,48 @@ the Web Configurator</translation>
         <translation>Download</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="194"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="195"/>
         <source>Low battery</source>
         <translation>Low battery</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="194"/>
         <source>Minimum 50% battery charge is required to install software updates</source>
-        <translation>Minimum 50% battery charge is required to install software updates</translation>
+        <translation type="vanished">Minimum 50% battery charge is required to install software updates</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="208"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="212"/>
         <source>Check for update</source>
         <translation>Check for update</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="233"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="237"/>
         <source>Beta updates</source>
         <translation>Beta updates</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="244"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="248"/>
         <source>Enabled</source>
         <translation>Enabled</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="253"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="257"/>
         <source>Check for updates</source>
         <extracomment>Title for indication of checking for software updates are enabled</extracomment>
         <translation>Check for updates</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="254"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="258"/>
         <source>Automatically check for updates.</source>
         <translation>Automatically check for updates.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="275"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="279"/>
         <source>Auto update</source>
         <extracomment>Title for indication of automatic software update is enabled</extracomment>
         <translation>Auto update</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="276"/>
+        <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="280"/>
         <source>Automatically update the remote when new software is available. Updates are installed between %1 and %2</source>
         <translation>Automatically update the remote when new software is available. Updates are installed between %1 and %2</translation>
     </message>
@@ -4876,7 +4881,7 @@ Select the QR code to read them on the screen.</translation>
         <translation>Error setting voice assistant config: %1</translation>
     </message>
     <message>
-        <location filename="../../src/config/config.cpp" line="276"/>
+        <location filename="../../src/config/config.cpp" line="275"/>
         <location filename="../../src/config/config.cpp" line="294"/>
         <source>Error setting voice assistant profile config: %1</source>
         <extracomment>Notification: a voice assistant option could not be changed. %1 is the core&apos;s error message</extracomment>

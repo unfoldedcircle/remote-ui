@@ -187,11 +187,15 @@ Settings.Page {
                 KeyNavigation.down: checkForUpdateButton
 
                 trigger: function() {
-                    if (Battery.level > 50) {
+                    if (Battery.level >= SoftwareUpdate.minimumBatteryLevel) {
                         SoftwareUpdate.startUpdate();
                         SoftwareUpdate.checkForUpdate(false);
                     } else {
-                        ui.createActionableWarningNotification(qsTr("Low battery"), qsTr("Minimum 50% battery charge is required to install software updates"), "uc:battery-low");
+                        ui.createActionableWarningNotification(
+                                    qsTr("Low battery"),
+                                    //: Warning when the battery is too low to install a software update. %1 is the minimum charge in percent, a number without the % sign
+                                    qsTr("Minimum %1% battery charge is required to install software updates").arg(SoftwareUpdate.minimumBatteryLevel),
+                                    "uc:battery-low");
                     }
                 }
             }
