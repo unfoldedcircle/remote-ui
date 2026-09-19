@@ -73,6 +73,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   sentence instead of the device name glued in front of a phrase, so it reads correctly in languages that put the
   name elsewhere.
 - The warning that the profile in use cannot be deleted shows its icon again.
+- A software update can be installed with exactly 50 % battery. The screen has always named 50 % as the minimum,
+  but the update was refused until the battery was above it.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.
