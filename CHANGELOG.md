@@ -5,6 +5,106 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+### Breaking Changes
+- The Git history of this repository was rewritten to remove a file that may not be redistributed.
+  Commits from v0.62.1 to v0.74.5 have new commit IDs.
+  Older commits, all tags and all releases are unchanged, and the application itself is not affected by the rewrite.
+  An existing clone cannot be updated with `git pull` and has to be reset.
+
+  <details>
+
+  <summary>Git CLI instructions</summary>
+
+  ```shell
+  # 1. Check that "origin" is this repository. If you cloned your own fork, "origin" is that fork,
+  #    which is not rewritten: use the remote that points here (usually "upstream") in the commands
+  #    below, and reset your fork afterwards in the same way.
+  git remote -v
+
+  # 2. For each branch of your own, note where it branched off main, while main is still the old one.
+  git merge-base main <your-branch>
+
+  # 3. Replace main with the rewritten history. Do not use git pull or git merge here: the old and
+  #    the new history are unrelated, and merging them brings the removed file back.
+  git fetch origin
+  git switch main
+  git reset --hard origin/main
+
+  # 4. Move your own commits onto the new main, using the commit noted in step 2.
+  git rebase --onto main <commit-from-step-2> <your-branch>
+
+  # 5. Remove the old commits, and the removed file with them, from your clone.
+  git reflog expire --expire=now --all
+  git gc --prune=now
+  ```
+
+  </details>
+
+---
+
+## v0.74.5 - 2026-07-28
+### Added
+- Spanish, Norwegian, Polish and Swedish translations
+
+---
+## v0.74.4 - 2026-07-27
+### Fixed
+- The touch slider did nothing when an activity mapped it to a light or a cover without picking a feature explicitly
+
+---
+## v0.74.3 - 2026-07-27
+### Fixed
+- The home screen jumped into the activity header area when the header resized, for example when starting or stopping an activity
+
+---
+## v0.74.2 - 2026-07-25
+### Fixed
+- Touch slider not working for lights in acitivites
+- Page incorreclty jumps to top over boundaries
+
+---
+## v0.74.1 - 2026-07-22
+### Added
+- A loading indicator on the home screen and on the entity while a command is running or being retried in the background after waking from suspend
+
+### Fixed
+- The settings menu could not be scrolled when it had more entries than fit on screen
+- Could not join a WiFi network during onboarding because a background scan removed the selected network before the join completed
+
+---
+## v0.74.0 - 2026-07-21
+### Added
+- A Touch Slider settings screen to adjust the slider sensitivity per use case (volume, brightness, cover position, seek) with a live test area
+- Smoother and more precise touch slider tracking that follows your finger movement
+
+### Fixed
+- The touch slider did not control brightness for dimmable lights
+- The touch slider could silently stop working until the volume was changed with the buttons
+- The touch slider could stop responding after the remote woke from suspend
+- Volume kept adjusting after releasing the button when controlling a device via IR
+- The dock detail view showed the wrong dock image
+- Starting an activity could show an error that repeats the same device name over and over
+- The media widget in the activity header sometimes stayed empty
+- Some media player features were missing or not recognized
+- Shuffle and repeat did not work on speakers
+- Some media types were not recognized and media browsing could fail to open items with special characters in their names
+- Profile pages could fail to load
+- Button presses were sometimes handled incorrectly, including power off on long press
+- The web configurator PIN could show up with fewer than 4 digits
+- The remote could slow down over long use (memory is now released properly after Wi-Fi scanning and voice playback)
+- Voice control could stop responding after audio playback
+- Devices could show outdated information after the remote reconnected or an integration was reconfigured
+- General stability improvements
+
+### Changed
+- All devices are now loaded when the remote starts, so pages and widgets are ready right away
+- Smoother scrolling and a more responsive interface, especially while media is playing
+- Album art loads faster
+- Faster and more responsive touch slider
+- Passwords, PINs and tokens are no longer written to the device logs
+- New translation platform (SimpleLocalize) for community translations
+
 ---
 ## v0.73.5 - 2026-06-05
 ### Changed
