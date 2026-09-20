@@ -1,3908 +1,3125 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="fr" sourcelanguage="en">
-  <context>
-    <name>Abbreviation for not available</name>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="751"/>
-      <location filename="../../src/qml/components/Profile.qml" line="753"/>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="474"/>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="476"/>
-      <location filename="../../src/qml/components/docks/Info.qml" line="326"/>
-      <location filename="../../src/qml/components/docks/Info.qml" line="350"/>
-      <location filename="../../src/qml/components/entities/BaseSensorButton.qml" line="23"/>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Battery.qml" line="64"/>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Current.qml" line="65"/>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Custom.qml" line="40"/>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Energy.qml" line="64"/>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Humidity.qml" line="64"/>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Power.qml" line="64"/>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Temperature.qml" line="64"/>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Voltage.qml" line="64"/>
-      <source>N/A</source>
-      <translation>N/D</translation>
-    </message>
-  </context>
-  <context>
-    <name>About</name>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="57"/>
-      <source>Model number</source>
-      <translation>Numéro de modèle</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="65"/>
-      <source>Serial number</source>
-      <translation>Numéro de série</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="73"/>
-      <source>Revision</source>
-      <translation>Révision</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="81"/>
-      <source>Wi-Fi address</source>
-      <translation>Adresse Wi-Fi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="89"/>
-      <source>Bluetooth address</source>
-      <translation>Adresse Bluetooth</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="97"/>
-      <source>UI version</source>
-      <translation>Version de l'interface utilisateur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="105"/>
-      <source>Core version</source>
-      <translation>Version principale</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="113"/>
-      <source>System version</source>
-      <translation>Version du système</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="134"/>
-      <source>Regulatory</source>
-      <translation>Réglementaire</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="138"/>
-      <source>Terms &amp; conditions</source>
-      <translation>Conditions générales</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="142"/>
-      <source>Warranty information</source>
-      <translation>Informations sur la garantie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/About.qml" line="146"/>
-      <source>Licenses</source>
-      <translation>Licences</translation>
-    </message>
-  </context>
-  <context>
-    <name>ActionableNotification</name>
-    <message>
-      <location filename="../../src/qml/components/ActionableNotification.qml" line="174"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>Activity</name>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="271"/>
-      <source>Tap to close</source>
-      <extracomment>Tap to close menu or tap to see more</extracomment>
-      <translation>Tapez pour fermer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="271"/>
-      <source>Tap for more</source>
-      <translation>Tapez pour plus d'infos</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="408"/>
-      <source>Fix states</source>
-      <extracomment>Title referring to fixing device states that might out of sync</extracomment>
-      <translation>Corriger les états</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="429"/>
-      <source>Quickly access entities included in this activity:</source>
-      <translation>Accédez rapidement aux entités incluses dans cette activité :</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="470"/>
-      <source>Back</source>
-      <extracomment>Caption to go back</extracomment>
-      <translation>Retour</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="510"/>
-      <source>Empty page</source>
-      <translation>Page vide</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="522"/>
-      <source>You can add UI elements via the Web Configurator</source>
-      <translation>Vous pouvez ajouter des éléments d'interface via le configurateur Web</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="633"/>
-      <source>State: %1</source>
-      <extracomment>Device state</extracomment>
-      <translation>État : %1</translation>
-    </message>
-  </context>
-  <context>
-    <name>Activity state</name>
-    <message>
-      <location filename="../../src/ui/entity/activity.h" line="36"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/activity.h" line="38"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/activity.h" line="40"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/activity.h" line="42"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/activity.h" line="44"/>
-      <source>Running</source>
-      <translation>En cours</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/activity.h" line="46"/>
-      <source>Error</source>
-      <translation>Erreur</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/activity.h" line="48"/>
-      <source>Completed</source>
-      <translation>Terminé</translation>
-    </message>
-  </context>
-  <context>
-    <name>AddEntities</name>
-    <message>
-      <location filename="../../src/qml/components/integrations/AddEntities.qml" line="70"/>
-      <source>Select entities to control with the remote</source>
-      <translation>Sélectionner les entités à contrôler avec la télécommande</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/AddEntities.qml" line="92"/>
-      <source>Select entities</source>
-      <translation>Sélectionner des entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/AddEntities.qml" line="92"/>
-      <source>Please select entities to add by tapping in the list.</source>
-      <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
-    </message>
-  </context>
-  <context>
-    <name>Base</name>
-    <message>
-      <location filename="../../src/qml/components/entities/Base.qml" line="63"/>
-      <source>Activity error. Select option below.</source>
-      <translation>Erreur d'activité. Sélectionnez l'option ci-dessous.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/Base.qml" line="66"/>
-      <source>Turn activity on</source>
-      <translation>Activer l'activité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/Base.qml" line="73"/>
-      <source>Turn activity off</source>
-      <translation>Désactiver l'activité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/Base.qml" line="84"/>
-      <source>is unavailable</source>
-      <translation>est indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/Base.qml" line="234"/>
-      <location filename="../../src/qml/components/group/Base.qml" line="176"/>
-      <source>Profile is restricted</source>
-      <translation>Profil restreint</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/Base.qml" line="228"/>
-      <source>%1 entity</source>
-      <extracomment>Tap and hold down to edit a group</extracomment>
-      <translation>%1 entité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/Base.qml" line="228"/>
-      <source>%1 entities</source>
-      <translation>%1 entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/help-overlay/Base.qml" line="54"/>
-      <source>Close</source>
-      <translation>Fermer</translation>
-    </message>
-  </context>
-  <context>
-    <name>BaseDetail</name>
-    <message>
-      <location filename="../../src/qml/components/entities/BaseDetail.qml" line="182"/>
-      <source>Entity unavailable</source>
-      <translation>Entité indisponible</translation>
-    </message>
-  </context>
-  <context>
-    <name>Battery</name>
-    <message>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Battery.qml" line="49"/>
-      <source>Battery</source>
-      <translation>Batterie</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state battery</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="141"/>
-      <source>Normal</source>
-      <translation>Normale</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="200"/>
-      <source>Low</source>
-      <translation>Faible</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state battery_charging</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="143"/>
-      <source>Charging</source>
-      <translation>En charge</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="202"/>
-      <source>Not charging</source>
-      <translation>Pas en chargement</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state cold</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="145"/>
-      <source>Cold</source>
-      <translation>Froid</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="204"/>
-      <source>Normal</source>
-      <translation>Normale</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state connectivity</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="147"/>
-      <source>Connected</source>
-      <translation>Connecté</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="206"/>
-      <source>Disconnected</source>
-      <translation>Déconnecté</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state door</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="150"/>
-      <source>Opened</source>
-      <translation>Ouvert</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="209"/>
-      <source>Closed</source>
-      <translation>Fermé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state gas</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="153"/>
-      <source>Detected</source>
-      <translation>Détecté</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="212"/>
-      <source>Clear</source>
-      <translation>Non détecté</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state heat</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="155"/>
-      <source>Hot</source>
-      <translation>Chaud</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="214"/>
-      <source>Normal</source>
-      <translation>Normale</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state light</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="157"/>
-      <source>Light detected</source>
-      <translation>Lumière détectée</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="216"/>
-      <source>No light</source>
-      <translation>Pas de lumière</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state lock</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="159"/>
-      <source>Unlocked</source>
-      <translation>Déverrouillé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="218"/>
-      <source>Locked</source>
-      <translation>Verrouillé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state moisture</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="161"/>
-      <source>Wet</source>
-      <translation>Humide</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="220"/>
-      <source>Dry</source>
-      <translation>Sec</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state motion</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="163"/>
-      <source>Detected</source>
-      <translation>Détecté</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="222"/>
-      <source>Clear</source>
-      <translation>Non détecté</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state moving</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="165"/>
-      <source>Moving</source>
-      <translation>En mouvement</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="224"/>
-      <source>Not moving</source>
-      <translation>Immobile</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state occupancy</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="167"/>
-      <source>Detected</source>
-      <translation>Détectée</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="226"/>
-      <source>Clear</source>
-      <translation>Non détectée</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state opening</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="169"/>
-      <source>Open</source>
-      <translation>Ouvert</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="228"/>
-      <source>Closed</source>
-      <translation>Fermé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state plug</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="171"/>
-      <source>Plugged in</source>
-      <translation>Branché</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="230"/>
-      <source>Unplugged</source>
-      <translation>Débranché</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state power</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="173"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="232"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state presence</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="175"/>
-      <source>Home</source>
-      <translation>Maison</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="234"/>
-      <source>Not home</source>
-      <translation>Absent</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state problem</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="177"/>
-      <source>Problem</source>
-      <translation>Problème</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="236"/>
-      <source>Ok</source>
-      <translation>Ok</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state running</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="179"/>
-      <source>Running</source>
-      <translation>En cours d'exécution</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="238"/>
-      <source>Not running</source>
-      <translation>À l'arrêt</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state safety</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="181"/>
-      <source>Unsafe</source>
-      <translation>Dangereux</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="240"/>
-      <source>Safe</source>
-      <translation>Sécurisé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state smoke</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="183"/>
-      <source>Detected</source>
-      <translation>Détectée</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="242"/>
-      <source>Clear</source>
-      <translation>Non détectée</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state sound</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="185"/>
-      <source>Detected</source>
-      <translation>Détecté</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="244"/>
-      <source>Clear</source>
-      <translation>Non détecté</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state tamper</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="187"/>
-      <source>Tampering detected</source>
-      <translation>Manipulation détectée</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="246"/>
-      <source>Clear</source>
-      <translation>Non détectée</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state update</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="189"/>
-      <source>Update detected</source>
-      <translation>Mise à jour disponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="248"/>
-      <source>Up-to-date</source>
-      <translation>À jour</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state vibration</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="191"/>
-      <source>Detected</source>
-      <translation>Détectée</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="250"/>
-      <source>Clear</source>
-      <translation>Non détectée</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state window</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="193"/>
-      <source>Open</source>
-      <translation>Ouvert</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="252"/>
-      <source>Closed</source>
-      <translation>Fermé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Binary sensor state without device class</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="195"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="254"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Blind</name>
-    <message>
-      <location filename="../../src/qml/components/entities/cover/deviceclass/Blind.qml" line="303"/>
-      <source>Stop</source>
-      <extracomment>Button caption to stop window blinds motion</extracomment>
-      <translation>Arrêter</translation>
-    </message>
-  </context>
-  <context>
-    <name>Button state</name>
-    <message>
-      <location filename="../../src/ui/entity/button.h" line="39"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/button.h" line="41"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/button.h" line="43"/>
-      <source>Available</source>
-      <translation>Disponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/button.h" line="45"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Climate</name>
-    <message>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="21"/>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="346"/>
-      <source>Mode</source>
-      <extracomment>Climate device mode
-----------
-Climate device state</extracomment>
-      <translation>Mode</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="27"/>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="328"/>
-      <source>Off</source>
-      <extracomment>Climate device state</extracomment>
-      <translation>Désactivé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="38"/>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="331"/>
-      <source>Heat</source>
-      <extracomment>Climate device state</extracomment>
-      <translation>Chauffage</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="49"/>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="334"/>
-      <source>Cool</source>
-      <extracomment>Climate device state</extracomment>
-      <translation>Refroidissement</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="59"/>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="343"/>
-      <source>Auto</source>
-      <extracomment>Climate device state</extracomment>
-      <translation>Auto</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="74"/>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="340"/>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="377"/>
-      <source>Fan</source>
-      <extracomment>Climate device state
-----------
-Climate fan</extracomment>
-      <translation>Ventilateur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="297"/>
-      <source>Current %1°</source>
-      <extracomment>Current temperature</extracomment>
-      <translation>Actuel %1°</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/climate/deviceclass/Climate.qml" line="337"/>
-      <source>Heat/Cool</source>
-      <extracomment>Climate device state</extracomment>
-      <translation>Chauffage/Refroidissement</translation>
-    </message>
-  </context>
-  <context>
-    <name>Climate state</name>
-    <message>
-      <location filename="../../src/ui/entity/climate.h" line="47"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/climate.h" line="49"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/climate.h" line="51"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/climate.h" line="53"/>
-      <source>Heat</source>
-      <translation>Chauffage</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/climate.h" line="55"/>
-      <source>Cool</source>
-      <translation>Refroidissement</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/climate.h" line="57"/>
-      <source>Heat/Cool</source>
-      <translation>Chauffage/Refroidissement</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/climate.h" line="59"/>
-      <source>Fan</source>
-      <translation>Ventilateur</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/climate.h" line="61"/>
-      <source>Auto</source>
-      <translation>Auto</translation>
-    </message>
-  </context>
-  <context>
-    <name>Color</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/Color.qml" line="63"/>
-      <source>Adjust the color tone of the user interface. Using the sliders, choose a color. The user interface colors will be generated based on that color.</source>
-      <translation>Ajustez la teinte de couleur de l'interface utilisateur. Avec les curseurs, choisissez une couleur. Les couleurs de l'interface utilisateur seront générées en fonction de cette couleur.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Color.qml" line="149"/>
-      <source>This is a darker text, in a darker container</source>
-      <translation>Ceci est un texte plus sombre, dans un contenant plus sombre</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Color.qml" line="157"/>
-      <source>Button</source>
-      <extracomment>Caption for a sample button</extracomment>
-      <translation>Bouton</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Color.qml" line="180"/>
-      <source>Main text color</source>
-      <translation>Couleur principale du texte</translation>
-    </message>
-  </context>
-  <context>
-    <name>Configure</name>
-    <message>
-      <location filename="../../src/qml/components/integrations/Configure.qml" line="142"/>
-      <source>By %1</source>
-      <extracomment>Integration driver developer name</extracomment>
-      <translation>Par %1</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="152"/>
-      <source>Name</source>
-      <translation>Nom</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="212"/>
-      <source>Required</source>
-      <translation>Requis</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="186"/>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="212"/>
-      <source>Optional</source>
-      <translation>Optionnel</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="175"/>
-      <source>Password</source>
-      <translation>Mot de passe</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="225"/>
-      <source>Add WiFi network</source>
-      <translation>Ajouter un réseau WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="260"/>
-      <source>Selected WiFi network</source>
-      <translation>Réseau WiFi sélectionné</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="335"/>
-      <location filename="../../src/qml/components/integrations/Configure.qml" line="169"/>
-      <source>Next</source>
-      <translation>Suivant</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="375"/>
-      <source>Select WiFi network</source>
-      <translation>Sélectionner un réseau WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Configure.qml" line="325"/>
-      <location filename="../../src/qml/components/integrations/Configure.qml" line="191"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>ConnectionStatus</name>
-    <message>
-      <location filename="../../src/qml/components/ConnectionStatus.qml" line="84"/>
-      <source>Connection status</source>
-      <extracomment>Headline for showing integration connection statuses</extracomment>
-      <translation>Statut de la connexion</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ConnectionStatus.qml" line="132"/>
-      <source>No connection errors</source>
-      <translation>Aucune erreur de connexion</translation>
-    </message>
-  </context>
-  <context>
-    <name>Country</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Country.qml" line="100"/>
-      <source>Select country</source>
-      <translation>Sélectionner le pays</translation>
-    </message>
-  </context>
-  <context>
-    <name>Cover state</name>
-    <message>
-      <location filename="../../src/ui/entity/cover.h" line="39"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/cover.h" line="41"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/cover.h" line="43"/>
-      <source>Opening</source>
-      <translation>Ouverture</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/cover.h" line="45"/>
-      <source>Open</source>
-      <translation>Ouvert</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/cover.h" line="47"/>
-      <source>Closing</source>
-      <translation>Fermeture</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/cover.h" line="49"/>
-      <source>Closed</source>
-      <translation>Fermé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Current</name>
-    <message>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Current.qml" line="50"/>
-      <source>Current</source>
-      <extracomment>Sensor entity: electrical current, e.g. &quot;12 ampere&quot;</extracomment>
-      <translation>Électrique</translation>
-    </message>
-  </context>
-  <context>
-    <name>Curtain</name>
-    <message>
-      <location filename="../../src/qml/components/entities/cover/deviceclass/Curtain.qml" line="368"/>
-      <source>Stop</source>
-      <extracomment>Button caption to stop window blinds motion</extracomment>
-      <translation>Arrêter</translation>
-    </message>
-  </context>
-  <context>
-    <name>Discovery</name>
-    <message>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="104"/>
-      <source>Bluetooth is disabled. Discovery limited to network only.</source>
-      <translation>Le Bluetooth est désactivé. La découverte est limitée au réseau uniquement.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="116"/>
-      <source>Bluetooth</source>
-      <translation>Bluetooth</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="135"/>
-      <source>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</source>
-      <translation>Appuyez sur découvrir pour rechercher des docks sur votre réseau ou par Bluetooth. Si vous souhaitez configurer un nouveau dock sans fil, assurez-vous qu'il est à proximité de la télécommande.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="151"/>
-      <source>Discover</source>
-      <translation>Découvrir</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="164"/>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="248"/>
-      <source>Skip</source>
-      <translation>Passer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="197"/>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="227"/>
-      <location filename="../../src/qml/components/integrations/Discovery.qml" line="85"/>
-      <location filename="../../src/qml/components/integrations/Discovery.qml" line="115"/>
-      <source>Discovering</source>
-      <extracomment>Title for searching for integrations to setup</extracomment>
-      <translation>Découverte</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Discovery.qml" line="232"/>
-      <source>%1 dock(s) found</source>
-      <translation>%1 dock(s) trouvée</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Discovery.qml" line="120"/>
-      <source>%1 integration(s) found</source>
-      <translation>%1 intégration(s) trouvée</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Discovery.qml" line="139"/>
-      <source>Integrations may require the Web Configurator for setup.</source>
-      <translation>Les intégrations peuvent nécessiter le configurateur Web pour l'installation.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Discovery.qml" line="214"/>
-      <source>By %1</source>
-      <extracomment>Integration driver developer name</extracomment>
-      <translation>Par %1</translation>
-    </message>
-  </context>
-  <context>
-    <name>Display</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/Display.qml" line="65"/>
-      <source>Auto brightness</source>
-      <extracomment>Title for indication of auto brightness functionality</extracomment>
-      <translation>Luminosité automatique</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Display.qml" line="91"/>
-      <source>Automatically adjust the display brightness based on ambient lighting conditions.</source>
-      <translation>Ajuster automatiquement la luminosité de l'écran en fonction des conditions de lumière ambiante.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Display.qml" line="113"/>
-      <source>Display brightness</source>
-      <translation>Luminosité de l'écran</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Display.qml" line="165"/>
-      <source>Button backlight</source>
-      <extracomment>Title for button backlight functionality</extracomment>
-      <translation>Rétroéclairage des boutons</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Display.qml" line="188"/>
-      <source>When on, button backlight will automatically turn on in a dark room.</source>
-      <translation>Lorsqu'allumé, le rétroéclairage des boutons s'allumera automatiquement dans une pièce sombre.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Display.qml" line="210"/>
-      <source>Button backlight brightness</source>
-      <translation>Luminosité du rétroéclairage des boutons</translation>
-    </message>
-  </context>
-  <context>
-    <name>Dock</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Dock.qml" line="29"/>
-      <source>Dock setup</source>
-      <extracomment>Smart charging dock</extracomment>
-      <translation>Configuration de la station</translation>
-    </message>
-  </context>
-  <context>
-    <name>Docks</name>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="68"/>
-      <location filename="../../src/qml/settings/Docks.qml" line="69"/>
-      <source>Add a new dock</source>
-      <translation>Ajouter une nouvelle station</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="368"/>
-      <source>Active</source>
-      <translation>Actif</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="370"/>
-      <source>Connecting</source>
-      <translation>En cours de connexion</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="372"/>
-      <source>Error</source>
-      <translation>Erreur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="374"/>
-      <source>Idle</source>
-      <translation>Inactif</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="376"/>
-      <source>Reconnecting</source>
-      <translation>Reconnexion en cours</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="389"/>
-      <source>Something is wrong</source>
-      <translation>Quelque chose ne va pas</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="403"/>
-      <source>Identify</source>
-      <translation>Identifier</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Docks.qml" line="415"/>
-      <source>Connect</source>
-      <translation>Connecter</translation>
-    </message>
-  </context>
-  <context>
-    <name>Energy</name>
-    <message>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Energy.qml" line="49"/>
-      <source>Energy</source>
-      <translation>Énergie</translation>
-    </message>
-  </context>
-  <context>
-    <name>EntityAdd</name>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityAdd.qml" line="17"/>
-      <source>Add entities</source>
-      <translation>Ajouter des entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityAdd.qml" line="37"/>
-      <source>Select entities</source>
-      <translation>Sélectionner des entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityAdd.qml" line="37"/>
-      <source>Please select entities to add by tapping in the list.</source>
-      <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
-    </message>
-  </context>
-  <context>
-    <name>EntityList</name>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="25"/>
-      <source>Add</source>
-      <translation>Ajouter</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="557"/>
-      <source>Select all</source>
-      <translation>Tout sélectionner</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="143"/>
-      <source>Search</source>
-      <translation>Rechercher</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="268"/>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="557"/>
-      <source>Clear</source>
-      <translation>Effacer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="279"/>
-      <source>Filters</source>
-      <translation>Filtres</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="297"/>
-      <source>Done</source>
-      <translation>Terminé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="331"/>
-      <source>Button</source>
-      <translation>Bouton</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="337"/>
-      <source>Climate</source>
-      <translation>Climat</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="343"/>
-      <source>Cover</source>
-      <translation>Couverture</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="349"/>
-      <source>Light</source>
-      <translation>Lumière</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="355"/>
-      <source>Media player</source>
-      <translation>Lecteur multimédia</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="361"/>
-      <source>Sensor</source>
-      <translation>Capteur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="367"/>
-      <source>Switch</source>
-      <translation>Interrupteur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="487"/>
-      <source>No entities</source>
-      <extracomment>No entities are in this list</extracomment>
-      <translation>Aucune entité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityList.qml" line="619"/>
-      <source>Loading</source>
-      <extracomment>The application is loading</extracomment>
-      <translation>Chargement</translation>
-    </message>
-  </context>
-  <context>
-    <name>EntityRename</name>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityRename.qml" line="119"/>
-      <source>Rename entity</source>
-      <translation>Renommer l'entité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityRename.qml" line="139"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/EntityRename.qml" line="150"/>
-      <source>Rename</source>
-      <extracomment>Label for button that will execute the action and rename the entity</extracomment>
-      <translation>Renommer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Finish</name>
-    <message>
-      <location filename="../../src/qml/components/docks/Finish.qml" line="34"/>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="33"/>
-      <location filename="../../src/qml/onboarding/Finish.qml" line="19"/>
-      <source>You&apos;re all set</source>
-      <translation>Tout est prêt</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="50"/>
-      <source>The integration has been added successfully.</source>
-      <translation>L'intégration a été ajoutée avec succès.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="96"/>
-      <source>Version</source>
-      <translation>Version</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="105"/>
-      <source>Developer</source>
-      <translation>Développeur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="117"/>
-      <source>Website</source>
-      <translation>Site web</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Finish.qml" line="93"/>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="148"/>
-      <source>Oops</source>
-      <translation>Oups</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="165"/>
-      <source>Something went wrong while setting up the integration.</source>
-      <translation>Une erreur s'est produite lors de la configuration de l'intégration.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Finish.qml" line="124"/>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="179"/>
-      <source>ERROR:</source>
-      <translation>ERREUR :</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Finish.qml" line="75"/>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="130"/>
-      <location filename="../../src/qml/onboarding/Finish.qml" line="261"/>
-      <source>Done</source>
-      <translation>Terminé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Finish.qml" line="51"/>
-      <source>The dock has been added successfully.</source>
-      <translation>La station d'accueil a été ajoutée avec succès.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Finish.qml" line="64"/>
-      <source>%1 is ready to blast IR codes.</source>
-      <translation>%1 est prêt à émettre des codes IR.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Finish.qml" line="110"/>
-      <source>Something went wrong while setting up the dock.</source>
-      <translation>Une erreur s'est produite lors de la configuration du dock.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Finish.qml" line="148"/>
-      <location filename="../../src/qml/components/integrations/Finish.qml" line="208"/>
-      <source>Try again</source>
-      <translation>Réessayer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Finish.qml" line="35"/>
-      <source>You can add integrations or change configuration via the Web configurator.</source>
-      <translation>Vous pouvez ajouter des intégrations ou modifier la configuration via le configurateur Web.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Finish.qml" line="77"/>
-      <source>Web configurator enabled</source>
-      <translation>Configurateur Web activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Finish.qml" line="77"/>
-      <source>Web configurator disabled</source>
-      <translation>Le configurateur web est désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Garage</name>
-    <message>
-      <location filename="../../src/qml/components/entities/cover/deviceclass/Garage.qml" line="293"/>
-      <source>Stop</source>
-      <extracomment>Button caption to stop window blinds motion</extracomment>
-      <translation>Arrêter</translation>
-    </message>
-  </context>
-  <context>
-    <name>GroupAdd</name>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="69"/>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="81"/>
-      <source>There was an error. Try again</source>
-      <translation>Il y a eu une erreur. Réessaie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="88"/>
-      <source>Group already exists</source>
-      <translation>Le groupe existe déjà</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="163"/>
-      <source>Name your group</source>
-      <extracomment>Name for a group of entities</extracomment>
-      <translation>Nommez votre groupe</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="175"/>
-      <source>All lights</source>
-      <extracomment>Example for a group name</extracomment>
-      <translation>Toutes les lumières</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="198"/>
-      <source>Next</source>
-      <translation>Suivant</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="188"/>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="404"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="223"/>
-      <source>Select entities to add</source>
-      <translation>Sélectionnez les entités à ajouter</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="237"/>
-      <source>Search</source>
-      <translation>Rechercher</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="415"/>
-      <source>Add</source>
-      <extracomment>Button that will add the selected entities</extracomment>
-      <translation>Ajouter</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="426"/>
-      <source>Select entities</source>
-      <translation>Sélectionner des entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupAdd.qml" line="426"/>
-      <source>Please select entities to add by tapping in the list.</source>
-      <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
-    </message>
-  </context>
-  <context>
-    <name>GroupEdit</name>
-    <message>
-      <location filename="../../src/qml/components/group/GroupEdit.qml" line="164"/>
-      <source>Done</source>
-      <extracomment>Button caption</extracomment>
-      <translation>Terminé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupEdit.qml" line="179"/>
-      <source>Add entities</source>
-      <translation>Ajouter des entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupEdit.qml" line="195"/>
-      <source>Select entities</source>
-      <translation>Sélectionner des entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupEdit.qml" line="195"/>
-      <source>Please select entities to add by tapping in the list.</source>
-      <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupEdit.qml" line="460"/>
-      <source>Add entity</source>
-      <translation>Ajouter l'entité</translation>
-    </message>
-  </context>
-  <context>
-    <name>GroupRename</name>
-    <message>
-      <location filename="../../src/qml/components/group/GroupRename.qml" line="119"/>
-      <source>Rename group</source>
-      <translation>Renommer le groupe</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupRename.qml" line="139"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/group/GroupRename.qml" line="150"/>
-      <source>Rename</source>
-      <extracomment>Label for button that will execute the action and rename the group</extracomment>
-      <translation>Renommer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Humidity</name>
-    <message>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Humidity.qml" line="49"/>
-      <source>Humidity</source>
-      <translation>Humidité</translation>
-    </message>
-  </context>
-  <context>
-    <name>IconSelector</name>
-    <message>
-      <location filename="../../src/qml/components/IconSelector.qml" line="75"/>
-      <source>Select icon</source>
-      <translation>Sélectionner une icône</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/IconSelector.qml" line="105"/>
-      <source>Unfolded Icons</source>
-      <translation>Icônes Dépliées</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/IconSelector.qml" line="125"/>
-      <source>Custom Icons</source>
-      <translation>Icônes personnalisées</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/IconSelector.qml" line="282"/>
-      <source>Close</source>
-      <translation>Fermer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Info</name>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="148"/>
-      <source>External integration</source>
-      <translation>Intégration externe</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="148"/>
-      <source>Local integration</source>
-      <translation>Intégration locale</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="268"/>
-      <source>Manage entities</source>
-      <translation>Gérer les entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="286"/>
-      <source>configured entities</source>
-      <translation>entités configurées</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="327"/>
-      <source>Connected</source>
-      <translation>Connecté</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="327"/>
-      <source>Disconnected</source>
-      <translation>Déconnecté</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="305"/>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="364"/>
-      <source>State</source>
-      <translation>État</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="371"/>
-      <source>Enabled</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="378"/>
-      <source>Id</source>
-      <translation>Id</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="385"/>
-      <source>Version</source>
-      <translation>Version</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="392"/>
-      <source>Developer</source>
-      <translation>Développeur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="400"/>
-      <source>Website</source>
-      <translation>Site web</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="558"/>
-      <source>Delete integration</source>
-      <translation>Supprimer l'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="592"/>
-      <source>Are you sure you want to delete the %1 integration?</source>
-      <translation>Es-tu sûr de vouloir supprimer l'intégration %1 ?</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="241"/>
-      <source>Tap to edit name</source>
-      <translation>Tapez pour éditer le nom</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="259"/>
-      <source>Something is wrong</source>
-      <translation>Quelque chose ne va pas</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="275"/>
-      <source>Identify</source>
-      <translation>Identifier</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="287"/>
-      <source>Connect</source>
-      <translation>Connecter</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="309"/>
-      <source>Active</source>
-      <translation>Actif</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="311"/>
-      <source>Connecting</source>
-      <translation>En cours de connexion</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="313"/>
-      <source>Error</source>
-      <translation>Erreur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="315"/>
-      <source>Idle</source>
-      <translation>Inactif</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="317"/>
-      <source>Reconnecting</source>
-      <translation>Reconnexion en cours</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="325"/>
-      <source>Connection type</source>
-      <translation>Type de connexion</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="332"/>
-      <source>Service name</source>
-      <translation>Nom du service</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="340"/>
-      <source>Custom IP or URL</source>
-      <translation>IP ou URL personnalisée</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="341"/>
-      <source>Not set</source>
-      <translation>Non défini</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="349"/>
-      <source>Firmware version</source>
-      <translation>Version du firmware</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="376"/>
-      <source>Led brightness</source>
-      <translation>Luminosité LED</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="411"/>
-      <source>Change password</source>
-      <translation>Changer le mot de passe</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="447"/>
-      <source>Change WiFi settings</source>
-      <translation>Changer les paramètres WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="469"/>
-      <location filename="../../src/qml/components/docks/Info.qml" line="483"/>
-      <source>Factory reset</source>
-      <translation>Rétablir la configuration d'usine</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="470"/>
-      <source>Are you sure you want to factory reset %1?</source>
-      <translation>Es-tu sûr de vouloir effectuer une réinitialisation d'usine sur %1 ?</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="476"/>
-      <source>Reset</source>
-      <translation>Réinitialiser</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="627"/>
-      <source>Delete dock</source>
-      <translation>Supprimer le dock</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="661"/>
-      <source>Are you sure you want to delete %1?</source>
-      <translation>Es-tu sûr de vouloir supprimer %1 ?</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="680"/>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="611"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Info.qml" line="700"/>
-      <location filename="../../src/qml/components/integrations/Info.qml" line="631"/>
-      <source>Delete</source>
-      <translation>Supprimer</translation>
-    </message>
-  </context>
-  <context>
-    <name>InputField</name>
-    <message>
-      <location filename="../../src/qml/components/InputField.qml" line="40"/>
-      <source>Input field is empty</source>
-      <translation>Le champ est vide</translation>
-    </message>
-  </context>
-  <context>
-    <name>Integration</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Integration.qml" line="26"/>
-      <source>Integration setup</source>
-      <translation>Configuration de l'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Integration.qml" line="44"/>
-      <source>Next</source>
-      <translation>Suivant</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Integration.qml" line="44"/>
-      <source>Skip</source>
-      <translation>Passer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Integrations</name>
-    <message>
-      <location filename="../../src/qml/settings/Integrations.qml" line="303"/>
-      <source>Version: </source>
-      <translation>Version : </translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Integrations.qml" line="71"/>
-      <location filename="../../src/qml/settings/Integrations.qml" line="72"/>
-      <source>Add an integration</source>
-      <translation>Ajouter une intégration</translation>
-    </message>
-  </context>
-  <context>
-    <name>Language</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Language.qml" line="47"/>
-      <source>Select language</source>
-      <translation>Sélectionner la langue</translation>
-    </message>
-  </context>
-  <context>
-    <name>Light state</name>
-    <message>
-      <location filename="../../src/ui/entity/light.h" line="67"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/light.h" line="69"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/light.h" line="71"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/light.h" line="73"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>LoadingScreen</name>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="149"/>
-      <source>Tap to close</source>
-      <translation>Tapez pour fermer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="391"/>
-      <source>Step %1/%2</source>
-      <extracomment>Indicating the activity steps</extracomment>
-      <translation>Étape %1/%2</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="419"/>
-      <source>Delay %1 ms</source>
-      <extracomment>Current activity step is a delay of %1 miliseconds</extracomment>
-      <translation>Délai %1 ms</translation>
-    </message>
-  </context>
-  <context>
-    <name>Localisation</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="72"/>
-      <source>Language</source>
-      <translation>Langue</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="93"/>
-      <source>Select language</source>
-      <translation>Sélectionner la langue</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="147"/>
-      <source>Country</source>
-      <translation>Pays</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="207"/>
-      <source>Select country</source>
-      <translation>Sélectionner le pays</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="262"/>
-      <source>Timezone</source>
-      <translation>Fuseau horaire</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="291"/>
-      <source>Select timezone</source>
-      <translation>Sélectionner le fuseau horaire</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="348"/>
-      <source>24-hour time</source>
-      <extracomment>Title for indicating if 24h time visualisation is enabled</extracomment>
-      <translation>Heure en 24h</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="399"/>
-      <source>Unit System</source>
-      <extracomment>Like metric, imperial</extracomment>
-      <translation>Système d'unité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Localisation.qml" line="411"/>
-      <source>Select unit system</source>
-      <translation>Sélectionner le système d'unité</translation>
-    </message>
-  </context>
-  <context>
-    <name>Macro state</name>
-    <message>
-      <location filename="../../src/ui/entity/macro.h" line="36"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/macro.h" line="38"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/macro.h" line="40"/>
-      <source>Running</source>
-      <translation>En cours</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/macro.h" line="42"/>
-      <source>Error</source>
-      <translation>Erreur</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/macro.h" line="44"/>
-      <source>Completed</source>
-      <translation>Terminé</translation>
-    </message>
-  </context>
-  <context>
-    <name>MainContainer</name>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="49"/>
-      <source>Add entity</source>
-      <translation>Ajouter l'entité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="57"/>
-      <source>Add group</source>
-      <translation>Ajouter un groupe</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="65"/>
-      <source>Reorder</source>
-      <translation>Réorganiser</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="71"/>
-      <source>Page is empty</source>
-      <translation>La page est vide</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="71"/>
-      <source>There is nothing to reorder. Try adding entities or groups first.</source>
-      <translation>Rien à réorganiser. Essayez d'ajouter des entités ou des groupes d'abord.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="77"/>
-      <source>Show tips</source>
-      <translation>Afficher les astuces</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="95"/>
-      <location filename="../../src/qml/MainContainer.qml" line="137"/>
-      <source>Rename</source>
-      <translation>Renommer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="103"/>
-      <source>Change icon</source>
-      <translation>Changer l'icône</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="112"/>
-      <source>Remove</source>
-      <translation>Retirer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="145"/>
-      <source>Edit entities</source>
-      <translation>Modifier les entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="153"/>
-      <source>Delete</source>
-      <translation>Supprimer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/MainContainer.qml" line="390"/>
-      <source>Profile is restricted</source>
-      <translation>Profil restreint</translation>
-    </message>
-  </context>
-  <context>
-    <name>ManageEntities</name>
-    <message>
-      <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="91"/>
-      <source>Manage entities</source>
-      <translation>Gérer les entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="138"/>
-      <source>Available: %1</source>
-      <extracomment>Tab caption that contains available entities</extracomment>
-      <translation>Disponible : %1</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="159"/>
-      <source>Configured: %1</source>
-      <extracomment>Tab caption that contains configured entities</extracomment>
-      <translation>Configuré : %1</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="203"/>
-      <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="224"/>
-      <source>Select entities</source>
-      <translation>Sélectionner des entités</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="203"/>
-      <source>Please select entities to add by tapping in the list.</source>
-      <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="224"/>
-      <source>Please select entities to remove by tapping in the list.</source>
-      <translation>Veuillez sélectionner les entités à supprimer en tapant dans la liste.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="227"/>
-      <source>Remove</source>
-      <translation>Retirer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Media platyer state</name>
-    <message>
-      <location filename="../../src/ui/entity/mediaPlayer.h" line="108"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/mediaPlayer.h" line="110"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/mediaPlayer.h" line="112"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/mediaPlayer.h" line="114"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/mediaPlayer.h" line="116"/>
-      <source>Playing</source>
-      <translation>En lecture</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/mediaPlayer.h" line="118"/>
-      <source>Paused</source>
-      <translation>En pause</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/mediaPlayer.h" line="120"/>
-      <source>Standby</source>
-      <translation>Veille</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/mediaPlayer.h" line="122"/>
-      <source>Buffering</source>
-      <translation>Mise en mémoire tampon</translation>
-    </message>
-  </context>
-  <context>
-    <name>NoPage</name>
-    <message>
-      <location filename="../../src/qml/NoPage.qml" line="45"/>
-      <source>Tap here to add your first page</source>
-      <translation>Tapez ici pour ajouter votre première page</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/NoPage.qml" line="45"/>
-      <source>No page found. Ask your administrator to setup pages.</source>
-      <translation>Aucune page trouvée. Demandez à votre administrateur de configurer les pages.</translation>
-    </message>
-  </context>
-  <context>
-    <name>NoProfile</name>
-    <message>
-      <location filename="../../src/qml/NoProfile.qml" line="22"/>
-      <source>There was an error loading the profile.</source>
-      <translation>Il y a eu une erreur lors du chargement du profil.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/NoProfile.qml" line="31"/>
-      <source>Select or add profile</source>
-      <translation>Sélectionner ou ajouter un profil</translation>
-    </message>
-  </context>
-  <context>
-    <name>NotificationDrawer</name>
-    <message>
-      <location filename="../../src/qml/components/NotificationDrawer.qml" line="61"/>
-      <source>Display brightness</source>
-      <translation>Luminosité de l'écran</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/NotificationDrawer.qml" line="166"/>
-      <source>Clear all</source>
-      <translation>Tout effacer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/NotificationDrawer.qml" line="166"/>
-      <source>No notifications</source>
-      <translation>Pas de notifications</translation>
-    </message>
-  </context>
-  <context>
-    <name>OnOff</name>
-    <message>
-      <location filename="../../src/qml/components/entities/light/OnOff.qml" line="18"/>
-      <source>On</source>
-      <extracomment>Light device state</extracomment>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/light/OnOff.qml" line="18"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>OpenClose</name>
-    <message>
-      <location filename="../../src/qml/components/entities/cover/OpenClose.qml" line="27"/>
-      <location filename="../../src/qml/components/entities/cover/OpenClose.qml" line="33"/>
-      <source>Unknown</source>
-      <extracomment>State of the cover entity (eg. blinds, shades)</extracomment>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/cover/OpenClose.qml" line="29"/>
-      <location filename="../../src/qml/components/entities/cover/OpenClose.qml" line="59"/>
-      <source>Open</source>
-      <translation>Ouvert</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/cover/OpenClose.qml" line="31"/>
-      <source>Closed</source>
-      <translation>Fermé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/cover/OpenClose.qml" line="46"/>
-      <source>Close</source>
-      <translation>Fermer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Outlet</name>
-    <message>
-      <location filename="../../src/qml/components/entities/switch/deviceclass/Outlet.qml" line="42"/>
-      <source>On</source>
-      <extracomment>Switch device state</extracomment>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/switch/deviceclass/Outlet.qml" line="42"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Page</name>
-    <message>
-      <location filename="../../src/qml/components/Page.qml" line="418"/>
-      <source>Turn off</source>
-      <translation>Éteindre</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Page.qml" line="439"/>
-      <source>Turn off all</source>
-      <translation>Tout éteindre</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Page.qml" line="466"/>
-      <source>%1 is %2</source>
-      <extracomment>Used to show the entity state: %1 is the entity name, %2 is the state</extracomment>
-      <translation>%1 est %2</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Page.qml" line="549"/>
-      <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
-      <extracomment>Web configurator is the name of the application, does not need translation</extracomment>
-      <translation>Maintenez appuyé le bouton d'accueil ou utilisez le configurateur Web pour configurer la page</translation>
-    </message>
-  </context>
-  <context>
-    <name>PageAdd</name>
-    <message>
-      <location filename="../../src/qml/components/PageAdd.qml" line="18"/>
-      <source>There was an error. Try again</source>
-      <translation>Il y a eu une erreur. Réessaie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/PageAdd.qml" line="79"/>
-      <source>Name your page</source>
-      <extracomment>Title for the page selector menu</extracomment>
-      <translation>Nommez votre page</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/PageAdd.qml" line="91"/>
-      <source>Living room</source>
-      <extracomment>Placeholder example for a page name</extracomment>
-      <translation>Salon</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/PageAdd.qml" line="113"/>
-      <source>Add</source>
-      <extracomment>Label of button that will add a page defined here</extracomment>
-      <translation>Ajouter</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/PageAdd.qml" line="100"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>PageRename</name>
-    <message>
-      <location filename="../../src/qml/components/PageRename.qml" line="21"/>
-      <source>There was an error. Try again</source>
-      <translation>Il y a eu une erreur. Réessaie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/PageRename.qml" line="82"/>
-      <source>Rename page</source>
-      <translation>Renommer la page</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/PageRename.qml" line="115"/>
-      <source>Rename</source>
-      <extracomment>Label for button that will execute the action and rename the page</extracomment>
-      <translation>Renommer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/PageRename.qml" line="102"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>PageSelector</name>
-    <message>
-      <location filename="../../src/qml/components/PageSelector.qml" line="168"/>
-      <source>Edit pages</source>
-      <extracomment>Title for the page selector menu</extracomment>
-      <translation>Modifier les pages</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/PageSelector.qml" line="168"/>
-      <source>Select page</source>
-      <translation>Sélectionner la page</translation>
-    </message>
-  </context>
-  <context>
-    <name>PasswordChange</name>
-    <message>
-      <location filename="../../src/qml/components/docks/PasswordChange.qml" line="52"/>
-      <source>There was an error. Try again</source>
-      <translation>Il y a eu une erreur. Réessaie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/PasswordChange.qml" line="128"/>
-      <source>Change password</source>
-      <translation>Changer le mot de passe</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/PasswordChange.qml" line="162"/>
-      <source>Change</source>
-      <translation>Modifier</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/PasswordChange.qml" line="150"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>Pin</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Pin.qml" line="20"/>
-      <source>Administrator PIN</source>
-      <translation>PIN administrateur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Pin.qml" line="36"/>
-      <source>This PIN is the administrator PIN.</source>
-      <translation>Ce code PIN est le code PIN administrateur.</translation>
-    </message>
-  </context>
-  <context>
-    <name>PopupList</name>
-    <message>
-      <location filename="../../src/qml/components/PopupList.qml" line="170"/>
-      <source>Search</source>
-      <translation>Rechercher</translation>
-    </message>
-  </context>
-  <context>
-    <name>PopupMenu</name>
-    <message>
-      <location filename="../../src/qml/components/PopupMenu.qml" line="237"/>
-      <source>Close</source>
-      <extracomment>As in close the menu</extracomment>
-      <translation>Fermer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Power</name>
-    <message>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Power.qml" line="49"/>
-      <source>Power</source>
-      <translation>Puissance</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="76"/>
-      <source>Keep WiFi connected in standby</source>
-      <extracomment>Title for indication of wifi always on functionality</extracomment>
-      <translation>Maintenir le WiFi connecté en veille</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="104"/>
-      <source>Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.</source>
-      <translation>Le WiFi reste toujours connecté, même lorsque l'appareil est en veille. Permet une reconnexion plus rapide après le réveil. Veuillez noter que l'activation de cette fonction réduit légèrement la durée de vie de la batterie.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="128"/>
-      <source>Wakeup sensitivity</source>
-      <extracomment>Movement the remote reacts to wake up</extracomment>
-      <translation>Sensibilité du réveil</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="138"/>
-      <source>Amount of movement needed to wake up the remote.</source>
-      <translation>Quantité de mouvement nécessaire pour réveiller la télécommande.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="153"/>
-      <source>Off</source>
-      <extracomment>Wakeup is turned off</extracomment>
-      <translation>Désactivé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="155"/>
-      <source>Sensitivity</source>
-      <extracomment>More sensitive wakeup setting, as in the remote will be more sensitive to movement</extracomment>
-      <translation>Sensibilité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="193"/>
-      <source>Display off timeout</source>
-      <extracomment>How much time the display will turn off after</extracomment>
-      <translation>Délai d'extinction de l'écran</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="213"/>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="214"/>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="270"/>
-      <source>%1 seconds</source>
-      <translation>%1 secondes</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="250"/>
-      <source>Sleep timeout</source>
-      <extracomment>How much time the remote will enter sleep mode after</extracomment>
-      <translation>Délai de veille</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Power.qml" line="271"/>
-      <source>%1 minutes</source>
-      <translation>%1 minutes</translation>
-    </message>
-  </context>
-  <context>
-    <name>Poweroff</name>
-    <message>
-      <location filename="../../src/qml/components/Poweroff.qml" line="110"/>
-      <source>Power off</source>
-      <extracomment>Caption for button to power off the remote</extracomment>
-      <translation>Éteindre</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Poweroff.qml" line="150"/>
-      <location filename="../../src/qml/components/Poweroff.qml" line="208"/>
-      <source>Press and hold</source>
-      <translation>Appuyer et maintenir</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Poweroff.qml" line="168"/>
-      <source>Reboot</source>
-      <extracomment>Caption for button to reboot the remote</extracomment>
-      <translation>Redémarrer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Poweroff.qml" line="231"/>
-      <source>Cancel</source>
-      <extracomment>Caption for button to cancel the power off menu</extracomment>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>Profile</name>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="130"/>
-      <source>Software update</source>
-      <translation>Mise à jour logicielle</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="136"/>
-      <source>Settings</source>
-      <translation>Paramètres</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="142"/>
-      <source>Integrations</source>
-      <translation>Intégrations</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="148"/>
-      <source>Docks</source>
-      <translation>Docks</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="166"/>
-      <source>About</source>
-      <translation>À propos</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="234"/>
-      <source>Your current profile</source>
-      <translation>Votre profil actuel</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="331"/>
-      <source>Web configurator enabled</source>
-      <translation>Configurateur Web activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="331"/>
-      <source>Web configurator disabled</source>
-      <translation>Le configurateur web est désactivé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="554"/>
-      <source>Restricted</source>
-      <extracomment>Text explaining that the profile has restricted access</extracomment>
-      <translation>Restreint</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="664"/>
-      <source>Scan to open
-the Web Configurator</source>
-      <translation>Scannez pour ouvrir
-le configurateur web</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/Profile.qml" line="675"/>
-      <source>Tap to close</source>
-      <translation>Tapez pour fermer</translation>
-    </message>
-  </context>
-  <context>
-    <name>ProfileAdd</name>
-    <message>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="28"/>
-      <source>There was an error. Try again</source>
-      <translation>Il y a eu une erreur. Réessaie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="91"/>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="100"/>
-      <source>Profile already exists</source>
-      <translation>Le profil existe déjà</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="101"/>
-      <source>The profile name you&apos;ve entered already exists. Would you like to continue with an existing profile?</source>
-      <translation>Le nom de profil que vous avez saisi existe déjà. Voulez-vous continuer avec un profil existant ?</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="108"/>
-      <source>Choose existing</source>
-      <translation>Choisir existant</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="172"/>
-      <source>Profile name</source>
-      <translation>Nom du profil</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="185"/>
-      <source>John</source>
-      <extracomment>Example for profile name</extracomment>
-      <translation>Jean</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="204"/>
-      <source>Add</source>
-      <extracomment>Label for button that add a profile</extracomment>
-      <translation>Ajouter</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileAdd.qml" line="192"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>ProfileRename</name>
-    <message>
-      <location filename="../../src/qml/components/ProfileRename.qml" line="27"/>
-      <source>There was an error. Try again</source>
-      <translation>Il y a eu une erreur. Réessaie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileRename.qml" line="98"/>
-      <source>Rename profile</source>
-      <translation>Renommer le profil</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileRename.qml" line="111"/>
-      <source>John</source>
-      <extracomment>Example name for a profile</extracomment>
-      <translation>Jean</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileRename.qml" line="138"/>
-      <source>Rename</source>
-      <extracomment>Button caption to execute the profile rename</extracomment>
-      <translation>Renommer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileRename.qml" line="126"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>ProfileSwitch</name>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="212"/>
-      <source>Profiles</source>
-      <extracomment>User profiles</extracomment>
-      <translation>Profils</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="294"/>
-      <source>Please enter the administrator PIN.</source>
-      <translation>Veuillez entrer le code PIN de l'administrateur.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="316"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="411"/>
-      <source>Rename</source>
-      <extracomment>Menu item for profile rename</extracomment>
-      <translation>Renommer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="421"/>
-      <source>Edit icon</source>
-      <extracomment>Menu item for changing icon</extracomment>
-      <translation>Modifier l'icône</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="430"/>
-      <source>Delete</source>
-      <extracomment>Menu item for profile delete</extracomment>
-      <translation>Supprimer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="477"/>
-      <source>Add a new profile</source>
-      <translation>Ajouter un nouveau profil</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="482"/>
-      <source>Normal</source>
-      <extracomment>Menu item for adding a normal profile</extracomment>
-      <translation>Normal</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/ProfileSwitch.qml" line="491"/>
-      <source>Restricted</source>
-      <extracomment>Menu item for adding a limited guest profile</extracomment>
-      <translation>Restreint</translation>
-    </message>
-  </context>
-  <context>
-    <name>Receiver</name>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="450"/>
-      <source>Live</source>
-      <translation>En direct</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="579"/>
-      <source>All</source>
-      <translation>Tout</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="581"/>
-      <source>One</source>
-      <translation>Un</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Receiver.qml" line="612"/>
-      <source>Sources</source>
-      <translation>Sources</translation>
-    </message>
-  </context>
-  <context>
-    <name>Remote</name>
-    <message>
-      <location filename="../../src/qml/components/entities/remote/deviceclass/Remote.qml" line="206"/>
-      <source>Empty page</source>
-      <translation>Page vide</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/remote/deviceclass/Remote.qml" line="218"/>
-      <source>You can add UI elements via the Web Configurator</source>
-      <translation>Vous pouvez ajouter des éléments d'interface via le configurateur Web</translation>
-    </message>
-  </context>
-  <context>
-    <name>Remote state</name>
-    <message>
-      <location filename="../../src/ui/entity/remote.h" line="35"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/remote.h" line="37"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/remote.h" line="39"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/remote.h" line="41"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>RemoteName</name>
-    <message>
-      <location filename="../../src/qml/onboarding/RemoteName.qml" line="71"/>
-      <source>Name your remote</source>
-      <translation>Nommez votre télécommande</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/RemoteName.qml" line="99"/>
-      <source>Next</source>
-      <translation>Suivant</translation>
-    </message>
-  </context>
-  <context>
-    <name>RemoteOpen</name>
-    <message>
-      <location filename="../../src/qml/components/RemoteOpen.qml" line="41"/>
-      <source>Do not operate the device disassembled.</source>
-      <translation>Ne pas utiliser l'appareil démonté.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/RemoteOpen.qml" line="53"/>
-      <source>The remote will turn off
+<TS language="fr_FR" version="2.1">
+    <context>
+        <name>Timezone</name>
+        <message>
+            <source>Select timezone</source>
+            <translation>Sélectionner le fuseau horaire</translation>
+        </message>
+    </context>
+    <context>
+        <name>Voice assistant state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state opening</name>
+        <message>
+            <source>Open</source>
+            <translation>Ouvert</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Fermé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Cover state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>Opening</source>
+            <translation>Ouverture</translation>
+        </message>
+        <message>
+            <source>Open</source>
+            <translation>Ouvert</translation>
+        </message>
+        <message>
+            <source>Closing</source>
+            <translation>Fermeture</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Fermé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Activity</name>
+        <message>
+            <source>Tap to close</source>
+            <translation>Tapez pour fermer</translation>
+        </message>
+        <message>
+            <source>Tap for more</source>
+            <translation>Tapez pour plus d'infos</translation>
+        </message>
+        <message>
+            <source>Fix states</source>
+            <translation>Corriger les états</translation>
+        </message>
+        <message>
+            <source>Quickly access entities included in this activity:</source>
+            <translation>Accédez rapidement aux entités incluses dans cette activité :</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Retour</translation>
+        </message>
+        <message>
+            <source>Empty page</source>
+            <translation>Page vide</translation>
+        </message>
+        <message>
+            <source>You can add UI elements via the Web Configurator</source>
+            <translation>Vous pouvez ajouter des éléments d'interface via le configurateur Web</translation>
+        </message>
+        <message>
+            <source>State: %1</source>
+            <translation>État : %1</translation>
+        </message>
+    </context>
+    <context>
+        <name>BaseDetail</name>
+        <message>
+            <source>Entity unavailable</source>
+            <translation>Entité indisponible</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::hw::Wifi</name>
+        <message>
+            <source>Failed to delete network. Wifi network does not exist.</source>
+            <translation>Échec lors de la suppression du réseau. Le réseau WiFi n'existe pas.</translation>
+        </message>
+        <message>
+            <source>Wrong network key</source>
+            <translation>Clé réseau incorrecte</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state occupancy</name>
+        <message>
+            <source>Detected</source>
+            <translation>Détectée</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Non détectée</translation>
+        </message>
+    </context>
+    <context>
+        <name>WifiSetup</name>
+        <message>
+            <source>Enter SSID</source>
+            <translation>Entrer le SSID</translation>
+        </message>
+        <message>
+            <source>Wifi network</source>
+            <translation>Réseau WiFi</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>Suivant</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+        <message>
+            <source>Choose WiFi security for
+%1</source>
+            <translation>Choisir la sécurité WiFi pour
+%1</translation>
+        </message>
+        <message>
+            <source>Join</source>
+            <translation>Rejoindre</translation>
+        </message>
+        <message>
+            <source>Select a security option</source>
+            <translation>Sélectionnez une option de sécurité</translation>
+        </message>
+        <message>
+            <source>Please select a security option</source>
+            <translation>Veuillez sélectionner une option de sécurité</translation>
+        </message>
+        <message>
+            <source>Enter WiFi password for
+%1</source>
+            <translation>Entrez le mot de passe WiFi pour
+%1</translation>
+        </message>
+        <message>
+            <source>Super secret</source>
+            <translation>Grand secret</translation>
+        </message>
+    </context>
+    <context>
+        <name>Switch state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>GroupEdit</name>
+        <message>
+            <source>Done</source>
+            <translation>Terminé</translation>
+        </message>
+        <message>
+            <source>Add entities</source>
+            <translation>Ajouter des entités</translation>
+        </message>
+        <message>
+            <source>Select entities</source>
+            <translation>Sélectionner des entités</translation>
+        </message>
+        <message>
+            <source>Please select entities to add by tapping in the list.</source>
+            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+        </message>
+        <message>
+            <source>Add entity</source>
+            <translation>Ajouter l'entité</translation>
+        </message>
+    </context>
+    <context>
+        <name>WifiJoin</name>
+        <message>
+            <source>Join WiFi network?</source>
+            <translation>Rejoindre le réseau WiFi ?</translation>
+        </message>
+        <message>
+            <source>Join</source>
+            <translation>Rejoindre</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Button state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>Available</source>
+            <translation>Disponible</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Localisation</name>
+        <message>
+            <source>Language</source>
+            <translation>Langue</translation>
+        </message>
+        <message>
+            <source>Select language</source>
+            <translation>Sélectionner la langue</translation>
+        </message>
+        <message>
+            <source>Country</source>
+            <translation>Pays</translation>
+        </message>
+        <message>
+            <source>Select country</source>
+            <translation>Sélectionner le pays</translation>
+        </message>
+        <message>
+            <source>Timezone</source>
+            <translation>Fuseau horaire</translation>
+        </message>
+        <message>
+            <source>Select timezone</source>
+            <translation>Sélectionner le fuseau horaire</translation>
+        </message>
+        <message>
+            <source>24-hour time</source>
+            <translation>Heure en 24h</translation>
+        </message>
+        <message>
+            <source>Unit System</source>
+            <translation>Système d'unité</translation>
+        </message>
+        <message>
+            <source>Select unit system</source>
+            <translation>Sélectionner le système d'unité</translation>
+        </message>
+    </context>
+    <context>
+        <name>ManageEntities</name>
+        <message>
+            <source>Manage entities</source>
+            <translation>Gérer les entités</translation>
+        </message>
+        <message>
+            <source>Available: %1</source>
+            <translation>Disponible : %1</translation>
+        </message>
+        <message>
+            <source>Configured: %1</source>
+            <translation>Configuré : %1</translation>
+        </message>
+        <message>
+            <source>Select entities</source>
+            <translation>Sélectionner des entités</translation>
+        </message>
+        <message>
+            <source>Please select entities to add by tapping in the list.</source>
+            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+        </message>
+        <message>
+            <source>Please select entities to remove by tapping in the list.</source>
+            <translation>Veuillez sélectionner les entités à supprimer en tapant dans la liste.</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Retirer</translation>
+        </message>
+    </context>
+    <context>
+        <name>WifiPassword</name>
+        <message>
+            <source>Enter WiFi password for
+%1</source>
+            <translation>Entrez le mot de passe WiFi pour
+%1</translation>
+        </message>
+        <message>
+            <source>Super secret</source>
+            <translation>Grand secret</translation>
+        </message>
+        <message>
+            <source>Join</source>
+            <translation>Rejoindre</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Curtain</name>
+        <message>
+            <source>Stop</source>
+            <translation>Arrêter</translation>
+        </message>
+    </context>
+    <context>
+        <name>Wifi</name>
+        <message>
+            <source>Select your WiFi network</source>
+            <translation>Sélectionnez votre réseau WiFi</translation>
+        </message>
+        <message>
+            <source>Wi-Fi address</source>
+            <translation>Adresse Wi-Fi</translation>
+        </message>
+        <message>
+            <source>Skip</source>
+            <translation>Passer</translation>
+        </message>
+        <message>
+            <source>Failed to connect</source>
+            <translation>Échec de la connexion</translation>
+        </message>
+        <message>
+            <source>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won't be possible now.</source>
+            <translation>Échec de la connexion au réseau WiFi. Vous pouvez réessayer ou continuer sans configurer de réseau WiFi. Vous pourrez configurer votre réseau WiFi plus tard dans les Paramètres. Si vous passez cette étape, l'installation du dock et de l'intégration ne sera pas possible pour le moment.</translation>
+        </message>
+        <message>
+            <source>Set up later</source>
+            <translation>Configurer plus tard</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Réessayer</translation>
+        </message>
+        <message>
+            <source>Bluetooth</source>
+            <translation>Bluetooth</translation>
+        </message>
+        <message>
+            <source>WiFi</source>
+            <translation>WiFi</translation>
+        </message>
+        <message>
+            <source>Active WiFi scanning</source>
+            <translation>Analyse WiFi active</translation>
+        </message>
+        <message>
+            <source>Actively scan for nearby WiFi networks in the configured interval: %1 seconds</source>
+            <translation>Analyser activement les réseaux WiFi à proximité à l'intervalle configuré : %1 secondes</translation>
+        </message>
+        <message>
+            <source>%1 seconds</source>
+            <translation>%1 secondes</translation>
+        </message>
+        <message>
+            <source>WiFi band</source>
+            <translation>Bande WiFi</translation>
+        </message>
+        <message>
+            <source>Select WiFi band</source>
+            <translation>Sélection de la bande WiFi</translation>
+        </message>
+        <message>
+            <source>Known Networks</source>
+            <translation>Réseaux connus</translation>
+        </message>
+        <message>
+            <source>Delete all networks</source>
+            <translation>Supprimer tous les réseaux</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to delete all WiFi networks?</source>
+            <translation>Es-tu sûr de vouloir supprimer tous les réseaux WiFi ?</translation>
+        </message>
+        <message>
+            <source>Delete all</source>
+            <translation>Tout supprimer</translation>
+        </message>
+    </context>
+    <context>
+        <name>ConnectionStatus</name>
+        <message>
+            <source>Connection status</source>
+            <translation>Statut de la connexion</translation>
+        </message>
+        <message>
+            <source>No connection errors</source>
+            <translation>Aucune erreur de connexion</translation>
+        </message>
+    </context>
+    <context>
+        <name>Settings</name>
+        <message>
+            <source>Display &amp; Brightness</source>
+            <translation>Affichage &amp; Luminosité</translation>
+        </message>
+        <message>
+            <source>User interface</source>
+            <translation>Interface utilisateur</translation>
+        </message>
+        <message>
+            <source>Sound &amp; Haptic</source>
+            <translation>Son &amp; Haptique</translation>
+        </message>
+        <message>
+            <source>Voice Control</source>
+            <translation>Contrôle à la voix</translation>
+        </message>
+        <message>
+            <source>Power Saving</source>
+            <translation>Économie d'énergie</translation>
+        </message>
+        <message>
+            <source>Wifi &amp; Bluetooth</source>
+            <translation>Wifi &amp; Bluetooth</translation>
+        </message>
+        <message>
+            <source>Localisation</source>
+            <translation>Localisation</translation>
+        </message>
+        <message>
+            <source>Administrator PIN</source>
+            <translation>PIN administrateur</translation>
+        </message>
+        <message>
+            <source>Factory reset</source>
+            <translation>Rétablir la configuration d'usine</translation>
+        </message>
+    </context>
+    <context>
+        <name>PageAdd</name>
+        <message>
+            <source>There was an error. Try again</source>
+            <translation>Il y a eu une erreur. Réessaie</translation>
+        </message>
+        <message>
+            <source>Name your page</source>
+            <translation>Nommez votre page</translation>
+        </message>
+        <message>
+            <source>Living room</source>
+            <translation>Salon</translation>
+        </message>
+        <message>
+            <source>Add</source>
+            <translation>Ajouter</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Set_top_box</name>
+        <message>
+            <source>Live</source>
+            <translation>En direct</translation>
+        </message>
+        <message>
+            <source>All</source>
+            <translation>Tout</translation>
+        </message>
+        <message>
+            <source>One</source>
+            <translation>Un</translation>
+        </message>
+        <message>
+            <source>Sources</source>
+            <translation>Sources</translation>
+        </message>
+    </context>
+    <context>
+        <name>WifiNetworkList</name>
+        <message>
+            <source>Other Networks</source>
+            <translation>Autres réseaux</translation>
+        </message>
+        <message>
+            <source>No networks found</source>
+            <translation>Aucun réseau trouvé</translation>
+        </message>
+        <message>
+            <source>Join other</source>
+            <translation>Rejoindre un autre</translation>
+        </message>
+        <message>
+            <source>Join and disable others</source>
+            <translation>Rejoindre et désactiver les autres</translation>
+        </message>
+        <message>
+            <source>Disable</source>
+            <translation>Désactiver</translation>
+        </message>
+        <message>
+            <source>Enable</source>
+            <translation>Activer</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Supprimer</translation>
+        </message>
+        <message>
+            <source>Remove WiFi network</source>
+            <translation>Supprimer le réseau WiFi</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to remove the network %1?</source>
+            <translation>Es-tu sûr de vouloir supprimer le réseau %1 ?</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Retirer</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state battery</name>
+        <message>
+            <source>Normal</source>
+            <translation>Normale</translation>
+        </message>
+        <message>
+            <source>Low</source>
+            <translation>Faible</translation>
+        </message>
+    </context>
+    <context>
+        <name>EntityRename</name>
+        <message>
+            <source>Rename entity</source>
+            <translation>Renommer l'entité</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+        <message>
+            <source>Rename</source>
+            <translation>Renommer</translation>
+        </message>
+    </context>
+    <context>
+        <name>EntityList</name>
+        <message>
+            <source>Add</source>
+            <translation>Ajouter</translation>
+        </message>
+        <message>
+            <source>Select all</source>
+            <translation>Tout sélectionner</translation>
+        </message>
+        <message>
+            <source>Search</source>
+            <translation>Rechercher</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Effacer</translation>
+        </message>
+        <message>
+            <source>Filters</source>
+            <translation>Filtres</translation>
+        </message>
+        <message>
+            <source>Done</source>
+            <translation>Terminé</translation>
+        </message>
+        <message>
+            <source>Button</source>
+            <translation>Bouton</translation>
+        </message>
+        <message>
+            <source>Climate</source>
+            <translation>Climat</translation>
+        </message>
+        <message>
+            <source>Cover</source>
+            <translation>Couverture</translation>
+        </message>
+        <message>
+            <source>Light</source>
+            <translation>Lumière</translation>
+        </message>
+        <message>
+            <source>Media player</source>
+            <translation>Lecteur multimédia</translation>
+        </message>
+        <message>
+            <source>Sensor</source>
+            <translation>Capteur</translation>
+        </message>
+        <message>
+            <source>Switch</source>
+            <translation>Interrupteur</translation>
+        </message>
+        <message>
+            <source>No entities</source>
+            <translation>Aucune entité</translation>
+        </message>
+        <message>
+            <source>Loading</source>
+            <translation>Chargement</translation>
+        </message>
+    </context>
+    <context>
+        <name>Sound</name>
+        <message>
+            <source>Sound effects</source>
+            <translation>Effets sonores</translation>
+        </message>
+        <message>
+            <source>Sound effects volume</source>
+            <translation>Volume des effets sonores</translation>
+        </message>
+        <message>
+            <source>Haptic feedback</source>
+            <translation>Retour haptique</translation>
+        </message>
+    </context>
+    <context>
+        <name>RemoteOpen</name>
+        <message>
+            <source>Do not operate the device disassembled.</source>
+            <translation>Ne pas utiliser l'appareil démonté.</translation>
+        </message>
+        <message>
+            <source>The remote will turn off
 in %1 seconds.</source>
-      <extracomment>
- and %1 must be included</extracomment>
-      <translation>La télécommande s'éteindra
+            <translation>La télécommande s'éteindra
 dans %1 secondes.</translation>
-    </message>
-  </context>
-  <context>
-    <name>Rename</name>
-    <message>
-      <location filename="../../src/qml/components/docks/Rename.qml" line="53"/>
-      <source>There was an error. Try again</source>
-      <translation>Il y a eu une erreur. Réessaie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Rename.qml" line="129"/>
-      <source>Rename dock</source>
-      <translation>Renommer la base</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Rename.qml" line="148"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Rename.qml" line="160"/>
-      <source>Rename</source>
-      <translation>Renommer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Reset</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/Reset.qml" line="59"/>
-      <source>Resetting will delete all settings, configuration and any information saved on the remote. Data cannot be recovered. Continue?</source>
-      <translation>La réinitialisation effacera tous les paramètres, la configuration et toute information enregistrée sur la télécommande. Les données ne peuvent pas être récupérées. Continuer?</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Reset.qml" line="68"/>
-      <source>Erase everything</source>
-      <translation>Tout effacer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Reset.qml" line="131"/>
-      <source>Point of
-no return</source>
-      <extracomment>Factory reset, after this step, everything is deleted</extracomment>
-      <translation>Point de
-non-retour</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Reset.qml" line="141"/>
-      <source>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</source>
-      <translation>La confirmation de la réinitialisation d'usine effacera toute la configuration et les données. Les données ne peuvent pas être récupérées.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Reset.qml" line="148"/>
-      <source>Confirm</source>
-      <translation>Confirmer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Reset.qml" line="159"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>Sensor state</name>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="42"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="44"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/sensor.h" line="46"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Set_top_box</name>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="431"/>
-      <source>Live</source>
-      <translation>En direct</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="560"/>
-      <source>All</source>
-      <translation>Tout</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="562"/>
-      <source>One</source>
-      <translation>Un</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Set_top_box.qml" line="593"/>
-      <source>Sources</source>
-      <translation>Sources</translation>
-    </message>
-  </context>
-  <context>
-    <name>Settings</name>
-    <message>
-      <location filename="../../src/qml/settings/Settings.qml" line="54"/>
-      <source>Display &amp; Brightness</source>
-      <translation>Affichage &amp; Luminosité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Settings.qml" line="59"/>
-      <source>User interface</source>
-      <translation>Interface utilisateur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Settings.qml" line="69"/>
-      <source>Sound &amp; Haptic</source>
-      <translation>Son &amp; Haptique</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Settings.qml" line="79"/>
-      <source>Power Saving</source>
-      <translation>Économie d'énergie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Settings.qml" line="84"/>
-      <source>Wifi &amp; Bluetooth</source>
-      <translation>Wifi &amp; Bluetooth</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Settings.qml" line="89"/>
-      <source>Localisation</source>
-      <translation>Localisation</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Settings.qml" line="94"/>
-      <source>Administrator PIN</source>
-      <translation>PIN administrateur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/Settings.qml" line="99"/>
-      <source>Factory reset</source>
-      <translation>Rétablir la configuration d'usine</translation>
-    </message>
-  </context>
-  <context>
-    <name>SettingsNew</name>
-    <message>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="130"/>
-      <source>Software update</source>
-      <translation>Mise à jour logicielle</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="136"/>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="217"/>
-      <source>Settings</source>
-      <translation>Paramètres</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="142"/>
-      <source>Integrations</source>
-      <translation>Intégrations</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="148"/>
-      <source>Docks</source>
-      <translation>Docks</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="166"/>
-      <source>About</source>
-      <translation>À propos</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="277"/>
-      <source>Restricted</source>
-      <extracomment>Text explaining that the profile has restricted access</extracomment>
-      <translation>Restreint</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="387"/>
-      <source>Scan to open
+        </message>
+    </context>
+    <context>
+        <name>MediaBrowser</name>
+        <message>
+            <source>Track</source>
+            <translation>Track</translation>
+        </message>
+        <message>
+            <source>Playlist</source>
+            <translation>Playlist</translation>
+        </message>
+        <message>
+            <source>Genre</source>
+            <translation>Genre</translation>
+        </message>
+        <message>
+            <source>Podcast</source>
+            <translation>Podcast</translation>
+        </message>
+        <message>
+            <source>Radio</source>
+            <translation>Radio</translation>
+        </message>
+        <message>
+            <source>Apps</source>
+            <translation>Apps</translation>
+        </message>
+        <message>
+            <source>URL</source>
+            <translation>URL</translation>
+        </message>
+        <message>
+            <source>Video</source>
+            <translation>Video</translation>
+        </message>
+    </context>
+    <context>
+        <name>PageRename</name>
+        <message>
+            <source>There was an error. Try again</source>
+            <translation>Il y a eu une erreur. Réessaie</translation>
+        </message>
+        <message>
+            <source>Rename page</source>
+            <translation>Renommer la page</translation>
+        </message>
+        <message>
+            <source>Rename</source>
+            <translation>Renommer</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Switch</name>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>PageSelector</name>
+        <message>
+            <source>Edit pages</source>
+            <translation>Modifier les pages</translation>
+        </message>
+        <message>
+            <source>Select page</source>
+            <translation>Sélectionner la page</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state motion</name>
+        <message>
+            <source>Detected</source>
+            <translation>Détecté</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Non détecté</translation>
+        </message>
+    </context>
+    <context>
+        <name>ProfileRename</name>
+        <message>
+            <source>There was an error. Try again</source>
+            <translation>Il y a eu une erreur. Réessaie</translation>
+        </message>
+        <message>
+            <source>Rename profile</source>
+            <translation>Renommer le profil</translation>
+        </message>
+        <message>
+            <source>John</source>
+            <translation>Jean</translation>
+        </message>
+        <message>
+            <source>Rename</source>
+            <translation>Renommer</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Country</name>
+        <message>
+            <source>Select country</source>
+            <translation>Sélectionner le pays</translation>
+        </message>
+    </context>
+    <context>
+        <name>Current</name>
+        <message>
+            <source>Current</source>
+            <translation>Électrique</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state heat</name>
+        <message>
+            <source>Hot</source>
+            <translation>Chaud</translation>
+        </message>
+        <message>
+            <source>Normal</source>
+            <translation>Normale</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state moisture</name>
+        <message>
+            <source>Wet</source>
+            <translation>Humide</translation>
+        </message>
+        <message>
+            <source>Dry</source>
+            <translation>Sec</translation>
+        </message>
+    </context>
+    <context>
+        <name>ProfileAdd</name>
+        <message>
+            <source>There was an error. Try again</source>
+            <translation>Il y a eu une erreur. Réessaie</translation>
+        </message>
+        <message>
+            <source>Profile already exists</source>
+            <translation>Le profil existe déjà</translation>
+        </message>
+        <message>
+            <source>The profile name you've entered already exists. Would you like to continue with an existing profile?</source>
+            <translation>Le nom de profil que vous avez saisi existe déjà. Voulez-vous continuer avec un profil existant ?</translation>
+        </message>
+        <message>
+            <source>Choose existing</source>
+            <translation>Choisir existant</translation>
+        </message>
+        <message>
+            <source>Profile name</source>
+            <translation>Nom du profil</translation>
+        </message>
+        <message>
+            <source>John</source>
+            <translation>Jean</translation>
+        </message>
+        <message>
+            <source>Add</source>
+            <translation>Ajouter</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Remote state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::ui::Controller</name>
+        <message>
+            <source>Error</source>
+            <translation>Erreur</translation>
+        </message>
+        <message>
+            <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
+            <translation>La suppression d'un profil actuel n'est pas autorisée. Veuillez passer à un autre profil et réessayer.</translation>
+        </message>
+        <message>
+            <source>Profile update error</source>
+            <translation>Erreur de mise à jour du profil</translation>
+        </message>
+        <message>
+            <source>%1 error</source>
+            <translation>Erreur %1</translation>
+        </message>
+        <message>
+            <source>Error while connecting to %1, with id %2</source>
+            <translation>Erreur lors de la connexion à %1, avec l'id %2</translation>
+        </message>
+    </context>
+    <context>
+        <name>WebConfig</name>
+        <message>
+            <source>Web Configurator</source>
+            <translation>Configuration Web</translation>
+        </message>
+        <message>
+            <source>Web configurator enabled</source>
+            <translation>Configurateur Web activé</translation>
+        </message>
+        <message>
+            <source>Web configurator disabled</source>
+            <translation>Le configurateur web est désactivé</translation>
+        </message>
+        <message>
+            <source>Restricted</source>
+            <translation>Restreint</translation>
+        </message>
+    </context>
+    <context>
+        <name>Macro state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>Running</source>
+            <translation>En cours</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>Erreur</translation>
+        </message>
+        <message>
+            <source>Completed</source>
+            <translation>Terminé</translation>
+        </message>
+    </context>
+    <context>
+        <name>NoPage</name>
+        <message>
+            <source>Tap here to add your first page</source>
+            <translation>Tapez ici pour ajouter votre première page</translation>
+        </message>
+        <message>
+            <source>No page found. Ask your administrator to setup pages.</source>
+            <translation>Aucune page trouvée. Demandez à votre administrateur de configurer les pages.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Profile</name>
+        <message>
+            <source>Software update</source>
+            <translation>Mise à jour logicielle</translation>
+        </message>
+        <message>
+            <source>Settings</source>
+            <translation>Paramètres</translation>
+        </message>
+        <message>
+            <source>Integrations</source>
+            <translation>Intégrations</translation>
+        </message>
+        <message>
+            <source>Docks</source>
+            <translation>Docks</translation>
+        </message>
+        <message>
+            <source>About</source>
+            <translation>À propos</translation>
+        </message>
+        <message>
+            <source>Your current profile</source>
+            <translation>Votre profil actuel</translation>
+        </message>
+        <message>
+            <source>Web configurator enabled</source>
+            <translation>Configurateur Web activé</translation>
+        </message>
+        <message>
+            <source>Web configurator disabled</source>
+            <translation>Le configurateur web est désactivé</translation>
+        </message>
+        <message>
+            <source>Restricted</source>
+            <translation>Restreint</translation>
+        </message>
+        <message>
+            <source>Scan to open
 the Web Configurator</source>
-      <translation>Scannez pour ouvrir
+            <translation>Scannez pour ouvrir
 le configurateur web</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/SettingsNew.qml" line="398"/>
-      <source>Tap to close</source>
-      <translation>Tapez pour fermer</translation>
-    </message>
-  </context>
-  <context>
-    <name>Setup</name>
-    <message>
-      <location filename="../../src/qml/components/integrations/Setup.qml" line="36"/>
-      <source>Integration setup</source>
-      <translation>Configuration de l'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/docks/Setup.qml" line="28"/>
-      <source>Dock setup</source>
-      <translation>Configuration de la station</translation>
-    </message>
-  </context>
-  <context>
-    <name>SoftwareUpdate</name>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="105"/>
-      <source>New software version is available</source>
-      <translation>Nouvelle version du logiciel disponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="105"/>
-      <source>Your software is up to date</source>
-      <translation>Votre logiciel est à jour</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="129"/>
-      <source>Current version</source>
-      <extracomment>Current software version</extracomment>
-      <translation>Version actuelle</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="167"/>
-      <source>New version</source>
-      <extracomment>New software version</extracomment>
-      <translation>Nouvelle version</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="200"/>
-      <source>Pending</source>
-      <extracomment>Software update download state</extracomment>
-      <translation>En attente</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="202"/>
-      <source>Downloading</source>
-      <translation>Téléchargement</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="204"/>
-      <source>Downloaded</source>
-      <translation>Téléchargé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="206"/>
-      <source>Error</source>
-      <translation>Erreur</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="225"/>
-      <source>Release Notes</source>
-      <translation>Notes de version</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="236"/>
-      <source>Release notes</source>
-      <translation>Notes de version</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="256"/>
-      <source>Install</source>
-      <translation>Installer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="256"/>
-      <source>Download</source>
-      <translation>Télécharger</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="265"/>
-      <source>Low battery</source>
-      <translation>Batterie faible</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="265"/>
-      <source>Minimum 50% battery charge is required to install software updates</source>
-      <translation>Une charge de batterie minimum de 50 % est requise pour installer les mises à jour logicielles</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="277"/>
-      <source>Check for update</source>
-      <translation>Vérifier les mises à jour</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="301"/>
-      <source>Beta updates</source>
-      <translation>Mises à jour beta</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="312"/>
-      <source>Enabled</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="338"/>
-      <source>Check for updates</source>
-      <extracomment>Title for indication of checking for software updates are enabled</extracomment>
-      <translation>Vérifier les mises à jour</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="365"/>
-      <source>Automatically check for updates.</source>
-      <translation>Vérification automatique des mises à jour.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="397"/>
-      <source>Auto update</source>
-      <extracomment>Title for indication of automatic software update is enabled</extracomment>
-      <translation>Mise à jour automatique</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="424"/>
-      <source>Automatically update the remote when new software is available. Updates are installed between %1 and %2</source>
-      <translation>Mettre à jour automatiquement la télécommande lorsque de nouveaux logiciels sont disponibles. Les mises à jour sont installées entre %1 et %2</translation>
-    </message>
-  </context>
-  <context>
-    <name>Sound</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/Sound.qml" line="61"/>
-      <source>Sound effects</source>
-      <translation>Effets sonores</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Sound.qml" line="100"/>
-      <source>Sound effects volume</source>
-      <translation>Volume des effets sonores</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Sound.qml" line="145"/>
-      <source>Haptic feedback</source>
-      <translation>Retour haptique</translation>
-    </message>
-  </context>
-  <context>
-    <name>Speaker</name>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="450"/>
-      <source>Live</source>
-      <translation>En direct</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="579"/>
-      <source>All</source>
-      <translation>Tout</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="581"/>
-      <source>One</source>
-      <translation>Un</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Speaker.qml" line="612"/>
-      <source>Sources</source>
-      <translation>Sources</translation>
-    </message>
-  </context>
-  <context>
-    <name>Start</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Start.qml" line="54"/>
-      <source>Tap the screen to begin</source>
-      <translation>Touchez l'écran pour commencer</translation>
-    </message>
-  </context>
-  <context>
-    <name>StatusBar</name>
-    <message>
-      <location filename="../../src/qml/components/StatusBar.qml" line="110"/>
-      <source>Reorder</source>
-      <translation>Réorganiser</translation>
-    </message>
-  </context>
-  <context>
-    <name>Streaming_box</name>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="431"/>
-      <source>Live</source>
-      <translation>En direct</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="560"/>
-      <source>All</source>
-      <translation>Tout</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="562"/>
-      <source>One</source>
-      <translation>Un</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Streaming_box.qml" line="593"/>
-      <source>Sources</source>
-      <translation>Sources</translation>
-    </message>
-  </context>
-  <context>
-    <name>Switch</name>
-    <message>
-      <location filename="../../src/qml/components/entities/switch/deviceclass/Switch.qml" line="42"/>
-      <source>On</source>
-      <extracomment>Switch device state</extracomment>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/switch/deviceclass/Switch.qml" line="42"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Switch state</name>
-    <message>
-      <location filename="../../src/ui/entity/switch.h" line="39"/>
-      <source>Unavailable</source>
-      <translation>Indisponible</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/switch.h" line="41"/>
-      <source>Unknown</source>
-      <translation>Inconnu</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/switch.h" line="43"/>
-      <source>On</source>
-      <translation>Activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/entity/switch.h" line="45"/>
-      <source>Off</source>
-      <translation>Désactivé</translation>
-    </message>
-  </context>
-  <context>
-    <name>Temperature</name>
-    <message>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Temperature.qml" line="49"/>
-      <source>Temperature</source>
-      <translation>Température</translation>
-    </message>
-  </context>
-  <context>
-    <name>Terms</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Terms.qml" line="37"/>
-      <location filename="../../src/qml/onboarding/Terms.qml" line="130"/>
-      <source>Terms &amp; conditions</source>
-      <translation>Conditions générales</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Terms.qml" line="53"/>
-      <source>By using Unfolded Circle products you agree to the Terms &amp; conditions.
+        </message>
+        <message>
+            <source>Tap to close</source>
+            <translation>Tapez pour fermer</translation>
+        </message>
+    </context>
+    <context>
+        <name>UpdateProgress</name>
+        <message>
+            <source>Update in progress</source>
+            <translation>Mise à jour en cours</translation>
+        </message>
+        <message>
+            <source>Installing step %1/%2 %3%</source>
+            <translation>Installation étape %1/%2 %3%</translation>
+        </message>
+        <message>
+            <source>Do not turn off the remote during the installation process!</source>
+            <translation>Ne pas éteindre la télécommande pendant le processus d'installation !</translation>
+        </message>
+        <message>
+            <source>Update success</source>
+            <translation>Mise à jour réussie</translation>
+        </message>
+        <message>
+            <source>Software update was successful.%1The remote will reboot now.</source>
+            <translation>La mise à jour du logiciel a été réussie.%1La télécommande va redémarrer maintenant.</translation>
+        </message>
+        <message>
+            <source>Update failed</source>
+            <translation>Échec de la mise à jour</translation>
+        </message>
+        <message>
+            <source>There was an error during installing the update.</source>
+            <translation>Une erreur s'est produite lors de l'installation de la mise à jour.</translation>
+        </message>
+        <message>
+            <source>Back</source>
+            <translation>Retour</translation>
+        </message>
+    </context>
+    <context>
+        <name>Integrations</name>
+        <message>
+            <source>Version:</source>
+            <translation>Version : </translation>
+        </message>
+        <message>
+            <source>Add an integration</source>
+            <translation>Ajouter une intégration</translation>
+        </message>
+    </context>
+    <context>
+        <name>Activity state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+        <message>
+            <source>Running</source>
+            <translation>En cours</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>Erreur</translation>
+        </message>
+        <message>
+            <source>Completed</source>
+            <translation>Terminé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Energy</name>
+        <message>
+            <source>Energy</source>
+            <translation>Énergie</translation>
+        </message>
+    </context>
+    <context>
+        <name>Humidity</name>
+        <message>
+            <source>Humidity</source>
+            <translation>Humidité</translation>
+        </message>
+    </context>
+    <context>
+        <name>Outlet</name>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::ui::EntityController</name>
+        <message>
+            <source>%1 is not responding</source>
+            <translation>%1 ne répond pas</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSliderBrightness</name>
+        <message>
+            <source>Touch slider is not available.</source>
+            <translation>Touch slider is not available.</translation>
+        </message>
+    </context>
+    <context>
+        <name>GroupRename</name>
+        <message>
+            <source>Rename group</source>
+            <translation>Renommer le groupe</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+        <message>
+            <source>Rename</source>
+            <translation>Renommer</translation>
+        </message>
+    </context>
+    <context>
+        <name>Speaker</name>
+        <message>
+            <source>Live</source>
+            <translation>En direct</translation>
+        </message>
+        <message>
+            <source>All</source>
+            <translation>Tout</translation>
+        </message>
+        <message>
+            <source>One</source>
+            <translation>Un</translation>
+        </message>
+        <message>
+            <source>Sources</source>
+            <translation>Sources</translation>
+        </message>
+    </context>
+    <context>
+        <name>Window</name>
+        <message>
+            <source>Stop</source>
+            <translation>Arrêter</translation>
+        </message>
+    </context>
+    <context>
+        <name>InputField</name>
+        <message>
+            <source>Input field is empty</source>
+            <translation>Le champ est vide</translation>
+        </message>
+    </context>
+    <context>
+        <name>Light state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state smoke</name>
+        <message>
+            <source>Detected</source>
+            <translation>Détectée</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Non détectée</translation>
+        </message>
+    </context>
+    <context>
+        <name>AddEntities</name>
+        <message>
+            <source>Select entities to control with the remote</source>
+            <translation>Sélectionner les entités à contrôler avec la télécommande</translation>
+        </message>
+        <message>
+            <source>Select entities</source>
+            <translation>Sélectionner des entités</translation>
+        </message>
+        <message>
+            <source>Please select entities to add by tapping in the list.</source>
+            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state without device class</name>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Poweroff</name>
+        <message>
+            <source>Power off</source>
+            <translation>Éteindre</translation>
+        </message>
+        <message>
+            <source>Press and hold</source>
+            <translation>Appuyer et maintenir</translation>
+        </message>
+        <message>
+            <source>Reboot</source>
+            <translation>Redémarrer</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>WifiInfo</name>
+        <message>
+            <source>MAC address</source>
+            <translation>Adresse MAC</translation>
+        </message>
+        <message>
+            <source>IP address</source>
+            <translation>Adresse IP</translation>
+        </message>
+        <message>
+            <source>Key management</source>
+            <translation>Gestion des clés</translation>
+        </message>
+        <message>
+            <source>Disconnect</source>
+            <translation>Déconnecter</translation>
+        </message>
+        <message>
+            <source>Connect</source>
+            <translation>Connecter</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Supprimer</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Fermer</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state vibration</name>
+        <message>
+            <source>Detected</source>
+            <translation>Détectée</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Non détectée</translation>
+        </message>
+    </context>
+    <context>
+        <name>Docks</name>
+        <message>
+            <source>Add a new dock</source>
+            <translation>Ajouter une nouvelle station</translation>
+        </message>
+        <message>
+            <source>Active</source>
+            <translation>Actif</translation>
+        </message>
+        <message>
+            <source>Connecting</source>
+            <translation>En cours de connexion</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>Erreur</translation>
+        </message>
+        <message>
+            <source>Idle</source>
+            <translation>Inactif</translation>
+        </message>
+        <message>
+            <source>Reconnecting</source>
+            <translation>Reconnexion en cours</translation>
+        </message>
+        <message>
+            <source>Something is wrong</source>
+            <translation>Quelque chose ne va pas</translation>
+        </message>
+        <message>
+            <source>Identify</source>
+            <translation>Identifier</translation>
+        </message>
+        <message>
+            <source>Connect</source>
+            <translation>Connecter</translation>
+        </message>
+    </context>
+    <context>
+        <name>SettingsNew</name>
+        <message>
+            <source>Software update</source>
+            <translation>Mise à jour logicielle</translation>
+        </message>
+        <message>
+            <source>Settings</source>
+            <translation>Paramètres</translation>
+        </message>
+        <message>
+            <source>Integrations</source>
+            <translation>Intégrations</translation>
+        </message>
+        <message>
+            <source>Docks</source>
+            <translation>Docks</translation>
+        </message>
+        <message>
+            <source>About</source>
+            <translation>À propos</translation>
+        </message>
+        <message>
+            <source>Restricted</source>
+            <translation>Restreint</translation>
+        </message>
+        <message>
+            <source>Scan to open
+the Web Configurator</source>
+            <translation>Scannez pour ouvrir
+le configurateur web</translation>
+        </message>
+        <message>
+            <source>Tap to close</source>
+            <translation>Tapez pour fermer</translation>
+        </message>
+    </context>
+    <context>
+        <name>Dock</name>
+        <message>
+            <source>Dock setup</source>
+            <translation>Configuration de la station</translation>
+        </message>
+    </context>
+    <context>
+        <name>Pin</name>
+        <message>
+            <source>Administrator PIN</source>
+            <translation>PIN administrateur</translation>
+        </message>
+        <message>
+            <source>This PIN is the administrator PIN.</source>
+            <translation>Ce code PIN est le code PIN administrateur.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state presence</name>
+        <message>
+            <source>Home</source>
+            <translation>Maison</translation>
+        </message>
+        <message>
+            <source>Not home</source>
+            <translation>Absent</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::hw::Battery</name>
+        <message>
+            <source>Low battery</source>
+            <translation>Batterie faible</translation>
+        </message>
+        <message>
+            <source>%1% battery remaining. Please charge the remote soon.</source>
+            <translation>%1% de batterie restante. Veuillez recharger la télécommande bientôt.</translation>
+        </message>
+        <message>
+            <source>Low battery voltage detected. Charge the battery to 100% before using the remote again.</source>
+            <translation>Faible tension de batterie détectée. Chargez la batterie à 100% avant d'utiliser de nouveau la télécommande.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state update</name>
+        <message>
+            <source>Update detected</source>
+            <translation>Mise à jour disponible</translation>
+        </message>
+        <message>
+            <source>Up-to-date</source>
+            <translation>À jour</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state lock</name>
+        <message>
+            <source>Unlocked</source>
+            <translation>Déverrouillé</translation>
+        </message>
+        <message>
+            <source>Locked</source>
+            <translation>Verrouillé</translation>
+        </message>
+    </context>
+    <context>
+        <name>OnOff</name>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Power</name>
+        <message>
+            <source>Power</source>
+            <translation>Puissance</translation>
+        </message>
+        <message>
+            <source>Keep WiFi connected in standby</source>
+            <translation>Maintenir le WiFi connecté en veille</translation>
+        </message>
+        <message>
+            <source>Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.</source>
+            <translation>Le WiFi reste toujours connecté, même lorsque l'appareil est en veille. Permet une reconnexion plus rapide après le réveil. Veuillez noter que l'activation de cette fonction réduit légèrement la durée de vie de la batterie.</translation>
+        </message>
+        <message>
+            <source>Wakeup sensitivity</source>
+            <translation>Sensibilité du réveil</translation>
+        </message>
+        <message>
+            <source>Amount of movement needed to wake up the remote.</source>
+            <translation>Quantité de mouvement nécessaire pour réveiller la télécommande.</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+        <message>
+            <source>Sensitivity</source>
+            <translation>Sensibilité</translation>
+        </message>
+        <message>
+            <source>Display off timeout</source>
+            <translation>Délai d'extinction de l'écran</translation>
+        </message>
+        <message>
+            <source>%1 seconds</source>
+            <translation>%1 secondes</translation>
+        </message>
+        <message>
+            <source>Disabled</source>
+            <translation>Désactivé</translation>
+        </message>
+        <message>
+            <source>Sleep timeout</source>
+            <translation>Délai de veille</translation>
+        </message>
+        <message>
+            <source>%1 minutes</source>
+            <translation>%1 minutes</translation>
+        </message>
+    </context>
+    <context>
+        <name>Display</name>
+        <message>
+            <source>Auto brightness</source>
+            <translation>Luminosité automatique</translation>
+        </message>
+        <message>
+            <source>Automatically adjust the display brightness based on ambient lighting conditions.</source>
+            <translation>Ajuster automatiquement la luminosité de l'écran en fonction des conditions de lumière ambiante.</translation>
+        </message>
+        <message>
+            <source>Display brightness</source>
+            <translation>Luminosité de l'écran</translation>
+        </message>
+        <message>
+            <source>Button backlight</source>
+            <translation>Rétroéclairage des boutons</translation>
+        </message>
+        <message>
+            <source>When on, button backlight will automatically turn on in a dark room.</source>
+            <translation>Lorsqu'allumé, le rétroéclairage des boutons s'allumera automatiquement dans une pièce sombre.</translation>
+        </message>
+        <message>
+            <source>Button backlight brightness</source>
+            <translation>Luminosité du rétroéclairage des boutons</translation>
+        </message>
+    </context>
+    <context>
+        <name>Climate</name>
+        <message>
+            <source>Mode</source>
+            <translation>Mode</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+        <message>
+            <source>Heat</source>
+            <translation>Chauffage</translation>
+        </message>
+        <message>
+            <source>Cool</source>
+            <translation>Refroidissement</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>Auto</translation>
+        </message>
+        <message>
+            <source>Fan</source>
+            <translation>Ventilateur</translation>
+        </message>
+        <message>
+            <source>Current %1</source>
+            <translation>Actuel %1</translation>
+        </message>
+        <message>
+            <source>Heat/Cool</source>
+            <translation>Chauffage/Refroidissement</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state safety</name>
+        <message>
+            <source>Unsafe</source>
+            <translation>Dangereux</translation>
+        </message>
+        <message>
+            <source>Safe</source>
+            <translation>Sécurisé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Start</name>
+        <message>
+            <source>Tap the screen to begin</source>
+            <translation>Touchez l'écran pour commencer</translation>
+        </message>
+    </context>
+    <context>
+        <name>main</name>
+        <message>
+            <source>Done</source>
+            <translation>Terminé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Page</name>
+        <message>
+            <source>Turn off</source>
+            <translation>Éteindre</translation>
+        </message>
+        <message>
+            <source>Turn off all</source>
+            <translation>Tout éteindre</translation>
+        </message>
+        <message>
+            <source>%1 is %2</source>
+            <translation>%1 est %2</translation>
+        </message>
+        <message>
+            <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
+            <translation>Maintenez appuyé le bouton d'accueil ou utilisez le configurateur Web pour configurer la page</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::ui::Group</name>
+        <message>
+            <source>%1 already exists in this group.</source>
+            <translation>%1 existe déjà dans ce groupe.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state problem</name>
+        <message>
+            <source>Problem</source>
+            <translation>Problème</translation>
+        </message>
+        <message>
+            <source>Ok</source>
+            <translation>Ok</translation>
+        </message>
+    </context>
+    <context>
+        <name>Battery</name>
+        <message>
+            <source>Battery</source>
+            <translation>Batterie</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state plug</name>
+        <message>
+            <source>Plugged in</source>
+            <translation>Branché</translation>
+        </message>
+        <message>
+            <source>Unplugged</source>
+            <translation>Débranché</translation>
+        </message>
+    </context>
+    <context>
+        <name>Setup</name>
+        <message>
+            <source>Integration setup</source>
+            <translation>Configuration de l'intégration</translation>
+        </message>
+        <message>
+            <source>Dock setup</source>
+            <translation>Configuration de la station</translation>
+        </message>
+    </context>
+    <context>
+        <name>Reset</name>
+        <message>
+            <source>Resetting will delete all settings, configuration and any information saved on the remote. Data cannot be recovered. Continue?</source>
+            <translation>La réinitialisation effacera tous les paramètres, la configuration et toute information enregistrée sur la télécommande. Les données ne peuvent pas être récupérées. Continuer?</translation>
+        </message>
+        <message>
+            <source>Erase everything</source>
+            <translation>Tout effacer</translation>
+        </message>
+        <message>
+            <source>Point of
+no return</source>
+            <translation>Point de
+non-retour</translation>
+        </message>
+        <message>
+            <source>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</source>
+            <translation>La confirmation de la réinitialisation d'usine effacera toute la configuration et les données. Les données ne peuvent pas être récupérées.</translation>
+        </message>
+        <message>
+            <source>Confirm</source>
+            <translation>Confirmer</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state gas</name>
+        <message>
+            <source>Detected</source>
+            <translation>Détecté</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Non détecté</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state moving</name>
+        <message>
+            <source>Moving</source>
+            <translation>En mouvement</translation>
+        </message>
+        <message>
+            <source>Not moving</source>
+            <translation>Immobile</translation>
+        </message>
+    </context>
+    <context>
+        <name>OpenClose</name>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>Open</source>
+            <translation>Ouvert</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Fermé</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Fermer</translation>
+        </message>
+    </context>
+    <context>
+        <name>IconSelector</name>
+        <message>
+            <source>Select icon</source>
+            <translation>Sélectionner une icône</translation>
+        </message>
+        <message>
+            <source>Unfolded Icons</source>
+            <translation>Icônes Dépliées</translation>
+        </message>
+        <message>
+            <source>Custom Icons</source>
+            <translation>Icônes personnalisées</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Fermer</translation>
+        </message>
+    </context>
+    <context>
+        <name>Tv</name>
+        <message>
+            <source>Nothing is playing</source>
+            <translation>Rien ne joue</translation>
+        </message>
+        <message>
+            <source>Open an app or use the directional keys to navigate.</source>
+            <translation>Ouvrez une application ou utilisez les touches directionnelles pour naviguer.</translation>
+        </message>
+        <message>
+            <source>Live</source>
+            <translation>En direct</translation>
+        </message>
+        <message>
+            <source>All</source>
+            <translation>Tout</translation>
+        </message>
+        <message>
+            <source>One</source>
+            <translation>Un</translation>
+        </message>
+        <message>
+            <source>Apps</source>
+            <translation>Applications</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::core::Api</name>
+        <message>
+            <source>Connection error</source>
+            <translation>Erreur de connexion</translation>
+        </message>
+        <message>
+            <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
+            <translation>Une erreur s'est produite lors de la connexion au cœur du système. Si le problème persiste, redémarrez la télécommande.</translation>
+        </message>
+        <message>
+            <source>Authentication to core failed</source>
+            <translation>Échec de l'authentification du cœur</translation>
+        </message>
+    </context>
+    <context>
+        <name>Sensor state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Color</name>
+        <message>
+            <source>Adjust the color tone of the user interface. Using the sliders, choose a color. The user interface colors will be generated based on that color.</source>
+            <translation>Ajustez la teinte de couleur de l'interface utilisateur. Avec les curseurs, choisissez une couleur. Les couleurs de l'interface utilisateur seront générées en fonction de cette couleur.</translation>
+        </message>
+        <message>
+            <source>This is a darker text, in a darker container</source>
+            <translation>Ceci est un texte plus sombre, dans un contenant plus sombre</translation>
+        </message>
+        <message>
+            <source>Button</source>
+            <translation>Bouton</translation>
+        </message>
+        <message>
+            <source>Main text color</source>
+            <translation>Couleur principale du texte</translation>
+        </message>
+    </context>
+    <context>
+        <name>Terms</name>
+        <message>
+            <source>Terms &amp; conditions</source>
+            <translation>Conditions générales</translation>
+        </message>
+        <message>
+            <source>By using Unfolded Circle products you agree to the Terms &amp; conditions.
 
 You can read them on
 unfoldedcircle.com/legal
 or by scanning this QR code.
 Tap the QR code to show it on the screen.</source>
-      <translation>En utilisant les produits d'Unfolded Circle, vous acceptez les conditions générales.
+            <translation>En utilisant les produits d'Unfolded Circle, vous acceptez les conditions générales.
 
  Vous pouvez les lire sur
 unfoldedcircle.com/legal
 ou en scannant ce code QR.
 Appuyez sur le code QR pour l'afficher à l'écran.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Terms.qml" line="86"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Terms.qml" line="97"/>
-      <source>Agree</source>
-      <extracomment>Agree to terms and conditions</extracomment>
-      <translation>Accepter</translation>
-    </message>
-  </context>
-  <context>
-    <name>Timezone</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Timezone.qml" line="46"/>
-      <source>Select timezone</source>
-      <translation>Sélectionner le fuseau horaire</translation>
-    </message>
-  </context>
-  <context>
-    <name>TouchSlider</name>
-    <message>
-      <location filename="../../src/qml/components/TouchSlider.qml" line="162"/>
-      <source>Not supported</source>
-      <translation>Pas supporté</translation>
-    </message>
-  </context>
-  <context>
-    <name>Tv</name>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="380"/>
-      <source>Nothing is playing</source>
-      <translation>Rien ne joue</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="390"/>
-      <source>Open an app or use the directional keys to navigate.</source>
-      <translation>Ouvrez une application ou utilisez les touches directionnelles pour naviguer.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="476"/>
-      <source>Live</source>
-      <translation>En direct</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="607"/>
-      <source>All</source>
-      <translation>Tout</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="609"/>
-      <source>One</source>
-      <translation>Un</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/entities/media_player/deviceclass/Tv.qml" line="640"/>
-      <source>Apps</source>
-      <translation>Applications</translation>
-    </message>
-  </context>
-  <context>
-    <name>Ui</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/Ui.qml" line="63"/>
-      <source>Inverted button behaviour</source>
-      <translation>Comportement du bouton inversé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Ui.qml" line="89"/>
-      <source>Inverts button functions on the main screen: short press to open the control screen, long press to quick toggle.</source>
-      <translation>Inverse les fonctions des boutons sur l'écran principal : appui court pour ouvrir l'écran de contrôle, appui long pour basculer rapidement.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Ui.qml" line="115"/>
-      <source>Show battery percentage</source>
-      <translation>Afficher le pourcentage de la batterie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Ui.qml" line="138"/>
-      <source>Always show the battery percentage next to the icon.</source>
-      <translation>Toujours afficher le pourcentage de la batterie à côté de l'icône.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Ui.qml" line="164"/>
-      <source>Activities on pages</source>
-      <translation>Activités sur les pages</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Ui.qml" line="187"/>
-      <source>Show the running activities and playing media players in the page header.</source>
-      <translation>Afficher les activités en cours et les lecteurs multimédia en lecture dans l'en-tête de la page.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Ui.qml" line="213"/>
-      <source>Zoom media image</source>
-      <translation>Zoomer l'image multimédia</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Ui.qml" line="235"/>
-      <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
-      <translation>Zoomer et recadrer les illustrations dans les widgets du lecteur multimédia au lieu de les mettre à l'échelle.</translation>
-    </message>
-  </context>
-  <context>
-    <name>UpdateProgress</name>
-    <message>
-      <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="59"/>
-      <source>Update in progress</source>
-      <translation>Mise à jour en cours</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="87"/>
-      <source>Installing step %1/%2 %3%</source>
-      <translation>Installation étape %1/%2 %3%</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="98"/>
-      <source>Do not turn off the remote during the installation process!</source>
-      <translation>Ne pas éteindre la télécommande pendant le processus d'installation !</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="120"/>
-      <source>Update success</source>
-      <translation>Mise à jour réussie</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="130"/>
-      <source>Software update was successful.%1The remote will reboot now.</source>
-      <translation>La mise à jour du logiciel a été réussie.%1La télécommande va redémarrer maintenant.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="153"/>
-      <source>Update failed</source>
-      <translation>Échec de la mise à jour</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="164"/>
-      <source>There was an error during installing the update.</source>
-      <translation>Une erreur s'est produite lors de l'installation de la mise à jour.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/softwareupdate/UpdateProgress.qml" line="182"/>
-      <source>Back</source>
-      <translation>Retour</translation>
-    </message>
-  </context>
-  <context>
-    <name>Voice</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/Voice.qml" line="59"/>
-      <source>Voice control</source>
-      <translation>Commande vocale</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Voice.qml" line="85"/>
-      <source>Disabling voice control will still let you use voice dictation with integrations.
-
-Press and hold the voice button and say the command.</source>
-      <translation>Désactiver le contrôle vocal vous permettra toujours d'utiliser la dictée vocale avec les intégrations.
-
-Appuyez et maintenez le bouton vocal et dites la commande.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Voice.qml" line="108"/>
-      <source>Microphone</source>
-      <translation>Microphone</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Voice.qml" line="130"/>
-      <source>Disabling the microphone will completely turn it off. You won’t be able to use voice control or dictation with integrations</source>
-      <translation>La désactivation du microphone l'éteindra complètement. Vous ne pourrez pas utiliser le contrôle vocal ou la dictée avec les intégrations</translation>
-    </message>
-  </context>
-  <context>
-    <name>VoiceOverlay</name>
-    <message>
-      <location filename="../../src/qml/components/VoiceOverlay.qml" line="53"/>
-      <location filename="../../src/qml/components/VoiceOverlay.qml" line="494"/>
-      <source>Listening ...</source>
-      <extracomment>Waiting for audio/voice input</extracomment>
-      <translation>Écoute ...</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/VoiceOverlay.qml" line="73"/>
-      <location filename="../../src/qml/components/VoiceOverlay.qml" line="134"/>
-      <source>Set brightness %1%</source>
-      <translation>Régler la luminosité %1%</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/VoiceOverlay.qml" line="142"/>
-      <source>Entity was not recognised</source>
-      <translation>L'entité n'a pas été reconnue</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/VoiceOverlay.qml" line="151"/>
-      <source>Found %1 similar entities. Please select one to use</source>
-      <translation>%1 entités similaires trouvées. Veuillez en sélectionner une à utiliser</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/VoiceOverlay.qml" line="549"/>
-      <source>You can say commands like</source>
-      <translation>Vous pouvez dire des commandes comme</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/VoiceOverlay.qml" line="561"/>
-      <source>“Turn on the Living room lights”
-“Start activity Watch TV”
-“Set Kitchen radiator temperature to 24º”</source>
-      <translation>"Allume les lumières du salon"
-"Commencer l'activité regarder la TV"
-"Régler la température du radiateur de la cuisine à 24º"</translation>
-    </message>
-  </context>
-  <context>
-    <name>Voltage</name>
-    <message>
-      <location filename="../../src/qml/components/entities/sensor/deviceclass/Voltage.qml" line="49"/>
-      <source>Voltage</source>
-      <translation>Tension électrique</translation>
-    </message>
-  </context>
-  <context>
-    <name>WebConfig</name>
-    <message>
-      <location filename="../../src/qml/components/WebConfig.qml" line="80"/>
-      <source>Web Configurator</source>
-      <translation>Configuration Web</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/WebConfig.qml" line="142"/>
-      <source>Web configurator enabled</source>
-      <translation>Configurateur Web activé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/WebConfig.qml" line="142"/>
-      <source>Web configurator disabled</source>
-      <translation>Le configurateur web est désactivé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/components/WebConfig.qml" line="329"/>
-      <source>Restricted</source>
-      <extracomment>Text explaining that the profile has restricted access</extracomment>
-      <translation>Restreint</translation>
-    </message>
-  </context>
-  <context>
-    <name>Wifi</name>
-    <message>
-      <location filename="../../src/qml/onboarding/Wifi.qml" line="64"/>
-      <source>Select your WiFi network</source>
-      <translation>Sélectionnez votre réseau WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Wifi.qml" line="88"/>
-      <source>Wi-Fi address</source>
-      <translation>Adresse Wi-Fi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Wifi.qml" line="122"/>
-      <source>Skip</source>
-      <translation>Passer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Wifi.qml" line="147"/>
-      <source>Failed to connect</source>
-      <extracomment>Failed to connect to a wifi network</extracomment>
-      <translation>Échec de la connexion</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Wifi.qml" line="163"/>
-      <source>Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won&apos;t be possible now.</source>
-      <translation>Échec de la connexion au réseau WiFi. Vous pouvez réessayer ou continuer sans configurer de réseau WiFi. Vous pourrez configurer votre réseau WiFi plus tard dans les Paramètres. Si vous passez cette étape, l'installation du dock et de l'intégration ne sera pas possible pour le moment.</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Wifi.qml" line="170"/>
-      <source>Set up later</source>
-      <translation>Configurer plus tard</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/onboarding/Wifi.qml" line="181"/>
-      <source>Try again</source>
-      <translation>Réessayer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="86"/>
-      <source>Bluetooth</source>
-      <translation>Bluetooth</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="127"/>
-      <source>WiFi</source>
-      <translation>WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="165"/>
-      <source>Active WiFi scanning</source>
-      <translation>Analyse WiFi active</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="199"/>
-      <source>Actively scan for nearby WiFi networks in the configured interval: %1 seconds</source>
-      <translation>Analyser activement les réseaux WiFi à proximité à l'intervalle configuré : %1 secondes</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="210"/>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="211"/>
-      <source>%1 seconds</source>
-      <translation>%1 secondes</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="249"/>
-      <source>WiFi band</source>
-      <translation>Bande WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="263"/>
-      <source>Select WiFi band</source>
-      <translation>Sélection de la bande WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="289"/>
-      <source>Known Networks</source>
-      <extracomment>known WiFi networks</extracomment>
-      <translation>Réseaux connus</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="307"/>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="311"/>
-      <source>Delete all networks</source>
-      <translation>Supprimer tous les réseaux</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="312"/>
-      <source>Are you sure you want to delete all WiFi networks?</source>
-      <translation>Es-tu sûr de vouloir supprimer tous les réseaux WiFi ?</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/Wifi.qml" line="318"/>
-      <source>Delete all</source>
-      <translation>Tout supprimer</translation>
-    </message>
-  </context>
-  <context>
-    <name>WifiInfo</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="175"/>
-      <source>MAC address</source>
-      <translation>Adresse MAC</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="204"/>
-      <source>IP address</source>
-      <translation>Adresse IP</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="233"/>
-      <source>Key management</source>
-      <translation>Gestion des clés</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="249"/>
-      <source>Disconnect</source>
-      <translation>Déconnecter</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="249"/>
-      <source>Connect</source>
-      <translation>Connecter</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="264"/>
-      <source>Delete</source>
-      <translation>Supprimer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="275"/>
-      <source>Close</source>
-      <translation>Fermer</translation>
-    </message>
-  </context>
-  <context>
-    <name>WifiJoin</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiJoin.qml" line="132"/>
-      <source>Join WiFi network?</source>
-      <translation>Rejoindre le réseau WiFi ?</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiJoin.qml" line="203"/>
-      <source>Join</source>
-      <extracomment>Join wifi network</extracomment>
-      <translation>Rejoindre</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiJoin.qml" line="221"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>WifiNetworkList</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="31"/>
-      <source>Other Networks</source>
-      <translation>Autres réseaux</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="157"/>
-      <source>No networks found</source>
-      <translation>Aucun réseau trouvé</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="168"/>
-      <source>Join other</source>
-      <extracomment>Join other wifi network</extracomment>
-      <translation>Rejoindre un autre</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="194"/>
-      <source>Join and disable others</source>
-      <extracomment>Wifi network join</extracomment>
-      <translation>Rejoindre et désactiver les autres</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="204"/>
-      <source>Disable</source>
-      <extracomment>Wifi network enable or disable</extracomment>
-      <translation>Désactiver</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="204"/>
-      <source>Enable</source>
-      <translation>Activer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="213"/>
-      <source>Delete</source>
-      <extracomment>Wifi network delete</extracomment>
-      <translation>Supprimer</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="216"/>
-      <source>Remove WiFi network</source>
-      <translation>Supprimer le réseau WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="216"/>
-      <source>Are you sure you want to remove the network %1?</source>
-      <translation>Es-tu sûr de vouloir supprimer le réseau %1 ?</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="220"/>
-      <source>Remove</source>
-      <translation>Retirer</translation>
-    </message>
-  </context>
-  <context>
-    <name>WifiPassword</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiPassword.qml" line="104"/>
-      <source>Enter WiFi password for
-%1</source>
-      <translation>Entrez le mot de passe WiFi pour
-%1</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiPassword.qml" line="118"/>
-      <source>Super secret</source>
-      <extracomment>Placeholder text for password</extracomment>
-      <translation>Grand secret</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiPassword.qml" line="130"/>
-      <source>Join</source>
-      <extracomment>Join wifi network</extracomment>
-      <translation>Rejoindre</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiPassword.qml" line="139"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-  </context>
-  <context>
-    <name>WifiSetup</name>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="103"/>
-      <source>Enter SSID</source>
-      <translation>Entrer le SSID</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="116"/>
-      <source>Wifi network</source>
-      <translation>Réseau WiFi</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="125"/>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="193"/>
-      <source>Next</source>
-      <translation>Suivant</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="134"/>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="228"/>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="301"/>
-      <source>Cancel</source>
-      <translation>Annuler</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="153"/>
-      <source>Choose WiFi security for
-%1</source>
-      <translation>Choisir la sécurité WiFi pour
-%1</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="193"/>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="292"/>
-      <source>Join</source>
-      <extracomment>Join wifi network</extracomment>
-      <translation>Rejoindre</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="205"/>
-      <source>Select a security option</source>
-      <translation>Sélectionnez une option de sécurité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="205"/>
-      <source>Please select a security option</source>
-      <translation>Veuillez sélectionner une option de sécurité</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="266"/>
-      <source>Enter WiFi password for
-%1</source>
-      <translation>Entrez le mot de passe WiFi pour
-%1</translation>
-    </message>
-    <message>
-      <location filename="../../src/qml/settings/settings/WifiSetup.qml" line="280"/>
-      <source>Super secret</source>
-      <extracomment>Placeholder text for password</extracomment>
-      <translation>Grand secret</translation>
-    </message>
-  </context>
-  <context>
-    <name>Window</name>
-    <message>
-      <location filename="../../src/qml/components/entities/cover/deviceclass/Window.qml" line="281"/>
-      <source>Stop</source>
-      <extracomment>Button caption to stop window blinds motion</extracomment>
-      <translation>Arrêter</translation>
-    </message>
-  </context>
-  <context>
-    <name>main</name>
-    <message>
-      <location filename="../../src/qml/main.qml" line="628"/>
-      <source>Done</source>
-      <translation>Terminé</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::Config</name>
-    <message>
-      <location filename="../../src/config/config.cpp" line="808"/>
-      <source>Error while loading configuration. Trying again.</source>
-      <translation>Erreur lors du chargement de la configuration. Réessayez.</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::SoftwareUpdate</name>
-    <message>
-      <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="92"/>
-      <source>Update check failed</source>
-      <translation>Échec de la vérification de mise à jour</translation>
-    </message>
-    <message>
-      <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="93"/>
-      <source>There was an error while checking for new updates. Please try again later.</source>
-      <translation>Une erreur s'est produite lors de la vérification des nouvelles mises à jour. Veuillez réessayer plus tard.</translation>
-    </message>
-    <message>
-      <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="110"/>
-      <source>Update error</source>
-      <translation>Erreur de mise à jour</translation>
-    </message>
-    <message>
-      <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="110"/>
-      <source>Couldn&apos;t start the software update. Please try again later.</source>
-      <translation>Impossible de lancer la mise à jour du logiciel. Veuillez réessayer plus tard.</translation>
-    </message>
-    <message>
-      <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="162"/>
-      <location filename="../../src/softwareupdate/softwareUpdate.cpp" line="187"/>
-      <source>Software update has failed.</source>
-      <translation>La mise à jour du logiciel a échoué.</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::Voice</name>
-    <message>
-      <location filename="../../src/voice.cpp" line="151"/>
-      <source>Command was not recognised</source>
-      <translation>Commande non reconnue</translation>
-    </message>
-    <message>
-      <location filename="../../src/voice.cpp" line="174"/>
-      <source>Entity was not recognised</source>
-      <translation>L'entité n'a pas été reconnue</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::core::Api</name>
-    <message>
-      <location filename="../../src/core/core.cpp" line="1341"/>
-      <source>Connection error</source>
-      <translation>Erreur de connexion</translation>
-    </message>
-    <message>
-      <location filename="../../src/core/core.cpp" line="1342"/>
-      <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
-      <translation>Une erreur s'est produite lors de la connexion au cœur du système. Si le problème persiste, redémarrez la télécommande.</translation>
-    </message>
-    <message>
-      <location filename="../../src/core/core.cpp" line="1736"/>
-      <source>Authentication to core failed</source>
-      <translation>Échec de l'authentification du cœur</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::dock::DockController</name>
-    <message>
-      <location filename="../../src/dock/dockController.cpp" line="113"/>
-      <source>Failed to start dock discovery</source>
-      <translation>Échec du démarrage de la découverte de dock</translation>
-    </message>
-    <message>
-      <location filename="../../src/dock/dockController.cpp" line="113"/>
-      <source>There was an error starting dock discovery: %1</source>
-      <translation>Il y a eu une erreur de démarrage de la découverte de la station d'accueil : %1</translation>
-    </message>
-    <message>
-      <location filename="../../src/dock/dockController.cpp" line="119"/>
-      <location filename="../../src/dock/dockController.cpp" line="143"/>
-      <source>Try again</source>
-      <translation>Réessayer</translation>
-    </message>
-    <message>
-      <location filename="../../src/dock/dockController.cpp" line="137"/>
-      <source>Failed to stop dock discovery</source>
-      <translation>Échec de l'arrêt de la découverte de dock</translation>
-    </message>
-    <message>
-      <location filename="../../src/dock/dockController.cpp" line="137"/>
-      <source>There was an error stopping dock discovery: %1</source>
-      <translation>Il y a eu une erreur lors de l'arrêt de la découverte de la station d'accueil : %1</translation>
-    </message>
-    <message>
-      <location filename="../../src/dock/dockController.cpp" line="412"/>
-      <source>Configuring</source>
-      <translation>Configuration</translation>
-    </message>
-    <message>
-      <location filename="../../src/dock/dockController.cpp" line="415"/>
-      <source>Restarting</source>
-      <translation>Redémarrage</translation>
-    </message>
-    <message>
-      <location filename="../../src/dock/dockController.cpp" line="418"/>
-      <source>Uploading</source>
-      <translation>Téléversement en cours</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::hw::Battery</name>
-    <message>
-      <location filename="../../src/hardware/battery.cpp" line="86"/>
-      <location filename="../../src/hardware/battery.cpp" line="92"/>
-      <source>Low battery</source>
-      <translation>Batterie faible</translation>
-    </message>
-    <message>
-      <location filename="../../src/hardware/battery.cpp" line="86"/>
-      <source>%1% battery remaining. Please charge the remote soon.</source>
-      <translation>%1% de batterie restante. Veuillez recharger la télécommande bientôt.</translation>
-    </message>
-    <message>
-      <location filename="../../src/hardware/battery.cpp" line="93"/>
-      <source>Low battery voltage detected. Charge the battery to 100% before using the remote again.</source>
-      <translation>Faible tension de batterie détectée. Chargez la batterie à 100% avant d'utiliser de nouveau la télécommande.</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::hw::Wifi</name>
-    <message>
-      <location filename="../../src/hardware/wifi.cpp" line="262"/>
-      <source>Failed to delete network. Wifi network does not exist.</source>
-      <translation>Échec lors de la suppression du réseau. Le réseau WiFi n'existe pas.</translation>
-    </message>
-    <message>
-      <location filename="../../src/hardware/wifi.cpp" line="403"/>
-      <source>Wrong network key</source>
-      <translation>Clé réseau incorrecte</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::integration::IntegrationController</name>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="229"/>
-      <source>Error while deleting integration</source>
-      <translation>Erreur lors de la suppression de l'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="244"/>
-      <source>Error while deleting integration driver</source>
-      <translation>Erreur lors de la suppression du pilote d'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="267"/>
-      <source>Integration discovery failed to start</source>
-      <translation>Échec du démarrage de la découverte d'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="288"/>
-      <source>Integration discovery failed to stop</source>
-      <translation>Échec de l'arrêt de la découverte d'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="305"/>
-      <source>Error getting integration driver metadata</source>
-      <translation>Erreur lors de la récupération des métadonnées du pilote d'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="334"/>
-      <source>Error getting integration driver</source>
-      <translation>Erreur lors de la récupération du pilote d'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="350"/>
-      <location filename="../../src/integration/integrationController.cpp" line="366"/>
-      <source>Error while starting integration driver</source>
-      <translation>Erreur lors du démarrage du pilote d'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="382"/>
-      <source>Error while connecting to the integration</source>
-      <translation>Erreur lors de la connexion à l'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="398"/>
-      <source>Error while disconnecting to the integration</source>
-      <translation>Erreur lors de la déconnexion de l'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="426"/>
-      <location filename="../../src/integration/integrationController.cpp" line="441"/>
-      <location filename="../../src/integration/integrationController.cpp" line="509"/>
-      <location filename="../../src/integration/integrationController.cpp" line="572"/>
-      <location filename="../../src/integration/integrationController.cpp" line="646"/>
-      <source>Integration setup error. Aborting setup</source>
-      <translation>Erreur de configuration d'intégration. Abandon de la configuration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="465"/>
-      <location filename="../../src/integration/integrationController.cpp" line="596"/>
-      <location filename="../../src/integration/integrationController.cpp" line="655"/>
-      <source>Invalid data</source>
-      <translation>Données invalides</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="470"/>
-      <location filename="../../src/integration/integrationController.cpp" line="601"/>
-      <location filename="../../src/integration/integrationController.cpp" line="658"/>
-      <source>The integration driver id does not exist.</source>
-      <translation>L'ID du pilote d'intégration n'existe pas.</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="478"/>
-      <location filename="../../src/integration/integrationController.cpp" line="609"/>
-      <location filename="../../src/integration/integrationController.cpp" line="666"/>
-      <source>Failed to start setup</source>
-      <translation>Échec du démarrage de la configuration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="479"/>
-      <location filename="../../src/integration/integrationController.cpp" line="610"/>
-      <location filename="../../src/integration/integrationController.cpp" line="667"/>
-      <source>There is already a running setup for this integration. Would you like to stop that?</source>
-      <translation>Il y a déjà une configuration en cours pour cette intégration. Souhaitez-vous l'arrêter ?</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="487"/>
-      <location filename="../../src/integration/integrationController.cpp" line="618"/>
-      <location filename="../../src/integration/integrationController.cpp" line="675"/>
-      <source>Stop</source>
-      <translation>Arrêter</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="492"/>
-      <location filename="../../src/integration/integrationController.cpp" line="623"/>
-      <location filename="../../src/integration/integrationController.cpp" line="680"/>
-      <source>The integration is already configured or doesn&apos;t allow to be set up again.</source>
-      <translation>L'intégration est déjà configurée ou ne permet pas d'être configurée à nouveau.</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="495"/>
-      <location filename="../../src/integration/integrationController.cpp" line="626"/>
-      <location filename="../../src/integration/integrationController.cpp" line="683"/>
-      <source>Cannot start integration setup</source>
-      <translation>Impossible de démarrer la configuration de l'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="557"/>
-      <source>Cannot stop the integration setup</source>
-      <translation>Impossible de stopper la configuration de l'intégration</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="771"/>
-      <source>Authorization error</source>
-      <translation>Erreur d'autorisation</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="774"/>
-      <source>Connection refused</source>
-      <translation>Connexion refusée</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="777"/>
-      <location filename="../../src/integration/integrationController.cpp" line="783"/>
-      <source>Unknown error</source>
-      <translation>Erreur inconnue</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="780"/>
-      <source>Not found</source>
-      <translation>Non trouvé</translation>
-    </message>
-    <message>
-      <location filename="../../src/integration/integrationController.cpp" line="786"/>
-      <source>Timeout</source>
-      <translation>Délai dépassé</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::ui::Controller</name>
-    <message>
-      <location filename="../../src/ui/uiController.cpp" line="296"/>
-      <source>Error</source>
-      <translation>Erreur</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/uiController.cpp" line="297"/>
-      <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
-      <translation>La suppression d'un profil actuel n'est pas autorisée. Veuillez passer à un autre profil et réessayer.</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/uiController.cpp" line="584"/>
-      <source>Profile update error</source>
-      <translation>Erreur de mise à jour du profil</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/uiController.cpp" line="707"/>
-      <source>%1 error</source>
-      <translation>Erreur %1</translation>
-    </message>
-    <message>
-      <location filename="../../src/ui/uiController.cpp" line="707"/>
-      <source>Error while connecting to %1, with id %2</source>
-      <translation>Erreur lors de la connexion à %1, avec l'id %2</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::ui::Group</name>
-    <message>
-      <location filename="../../src/ui/group/group.cpp" line="178"/>
-      <source>%1 already exists in this group.</source>
-      <translation>%1 existe déjà dans ce groupe.</translation>
-    </message>
-  </context>
-  <context>
-    <name>uc::ui::Page</name>
-    <message>
-      <location filename="../../src/ui/page/page.cpp" line="181"/>
-      <source>%1 already exists on the page.</source>
-      <translation>%1 existe déjà sur la page.</translation>
-    </message>
-  </context>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+        <message>
+            <source>Agree</source>
+            <translation>Accepter</translation>
+        </message>
+    </context>
+    <context>
+        <name>Discovery</name>
+        <message>
+            <source>Bluetooth is disabled. Discovery limited to network only.</source>
+            <translation>Le Bluetooth est désactivé. La découverte est limitée au réseau uniquement.</translation>
+        </message>
+        <message>
+            <source>Bluetooth</source>
+            <translation>Bluetooth</translation>
+        </message>
+        <message>
+            <source>Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</source>
+            <translation>Appuyez sur découvrir pour rechercher des docks sur votre réseau ou par Bluetooth. Si vous souhaitez configurer un nouveau dock sans fil, assurez-vous qu'il est à proximité de la télécommande.</translation>
+        </message>
+        <message>
+            <source>Discover</source>
+            <translation>Découvrir</translation>
+        </message>
+        <message>
+            <source>Skip</source>
+            <translation>Passer</translation>
+        </message>
+        <message>
+            <source>Discovering</source>
+            <translation>Découverte</translation>
+        </message>
+        <message>
+            <source>%1 dock(s) found</source>
+            <translation>%1 dock(s) trouvée</translation>
+        </message>
+        <message>
+            <source>%1 integration(s) found</source>
+            <translation>%1 intégration(s) trouvée</translation>
+        </message>
+        <message>
+            <source>Integrations may require the Web Configurator for setup.</source>
+            <translation>Les intégrations peuvent nécessiter le configurateur Web pour l'installation.</translation>
+        </message>
+        <message>
+            <source>By %1</source>
+            <translation>Par %1</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state running</name>
+        <message>
+            <source>Running</source>
+            <translation>En cours d'exécution</translation>
+        </message>
+        <message>
+            <source>Not running</source>
+            <translation>À l'arrêt</translation>
+        </message>
+    </context>
+    <context>
+        <name>Receiver</name>
+        <message>
+            <source>Live</source>
+            <translation>En direct</translation>
+        </message>
+        <message>
+            <source>All</source>
+            <translation>Tout</translation>
+        </message>
+        <message>
+            <source>One</source>
+            <translation>Un</translation>
+        </message>
+        <message>
+            <source>Sources</source>
+            <translation>Sources</translation>
+        </message>
+    </context>
+    <context>
+        <name>LoadingScreen</name>
+        <message>
+            <source>Tap to close</source>
+            <translation>Tapez pour fermer</translation>
+        </message>
+        <message>
+            <source>Step %1/%2</source>
+            <translation>Étape %1/%2</translation>
+        </message>
+        <message>
+            <source>Delay %1 ms</source>
+            <translation>Délai %1 ms</translation>
+        </message>
+    </context>
+    <context>
+        <name>StatusBar</name>
+        <message>
+            <source>Reorder</source>
+            <translation>Réorganiser</translation>
+        </message>
+    </context>
+    <context>
+        <name>VoiceOverlay</name>
+        <message>
+            <source>Voice Assistant is not available.</source>
+            <translation>L'assistant vocal n'est pas disponible.</translation>
+        </message>
+        <message>
+            <source>Processing ...</source>
+            <translation>Traitement en cours...</translation>
+        </message>
+        <message>
+            <source>Listening ...</source>
+            <translation>Écoute ...</translation>
+        </message>
+    </context>
+    <context>
+        <name>MainContainer</name>
+        <message>
+            <source>Add entity</source>
+            <translation>Ajouter l'entité</translation>
+        </message>
+        <message>
+            <source>Add group</source>
+            <translation>Ajouter un groupe</translation>
+        </message>
+        <message>
+            <source>Reorder</source>
+            <translation>Réorganiser</translation>
+        </message>
+        <message>
+            <source>Page is empty</source>
+            <translation>La page est vide</translation>
+        </message>
+        <message>
+            <source>There is nothing to reorder. Try adding entities or groups first.</source>
+            <translation>Rien à réorganiser. Essayez d'ajouter des entités ou des groupes d'abord.</translation>
+        </message>
+        <message>
+            <source>Show tips</source>
+            <translation>Afficher les astuces</translation>
+        </message>
+        <message>
+            <source>Rename</source>
+            <translation>Renommer</translation>
+        </message>
+        <message>
+            <source>Change icon</source>
+            <translation>Changer l'icône</translation>
+        </message>
+        <message>
+            <source>Remove</source>
+            <translation>Retirer</translation>
+        </message>
+        <message>
+            <source>Edit entities</source>
+            <translation>Modifier les entités</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Supprimer</translation>
+        </message>
+        <message>
+            <source>Profile is restricted</source>
+            <translation>Profil restreint</translation>
+        </message>
+    </context>
+    <context>
+        <name>About</name>
+        <message>
+            <source>Model number</source>
+            <translation>Numéro de modèle</translation>
+        </message>
+        <message>
+            <source>Serial number</source>
+            <translation>Numéro de série</translation>
+        </message>
+        <message>
+            <source>Revision</source>
+            <translation>Révision</translation>
+        </message>
+        <message>
+            <source>Wi-Fi address</source>
+            <translation>Adresse Wi-Fi</translation>
+        </message>
+        <message>
+            <source>Bluetooth address</source>
+            <translation>Adresse Bluetooth</translation>
+        </message>
+        <message>
+            <source>UI version</source>
+            <translation>Version de l'interface utilisateur</translation>
+        </message>
+        <message>
+            <source>Core version</source>
+            <translation>Version principale</translation>
+        </message>
+        <message>
+            <source>System version</source>
+            <translation>Version du système</translation>
+        </message>
+        <message>
+            <source>Regulatory</source>
+            <translation>Réglementaire</translation>
+        </message>
+        <message>
+            <source>Terms &amp; conditions</source>
+            <translation>Conditions générales</translation>
+        </message>
+        <message>
+            <source>Warranty information</source>
+            <translation>Informations sur la garantie</translation>
+        </message>
+        <message>
+            <source>Licenses</source>
+            <translation>Licences</translation>
+        </message>
+    </context>
+    <context>
+        <name>Ui</name>
+        <message>
+            <source>Inverted button behaviour</source>
+            <translation>Comportement du bouton inversé</translation>
+        </message>
+        <message>
+            <source>Inverts button functions on the main screen: short press to open the control screen, long press to quick toggle.</source>
+            <translation>Inverse les fonctions des boutons sur l'écran principal : appui court pour ouvrir l'écran de contrôle, appui long pour basculer rapidement.</translation>
+        </message>
+        <message>
+            <source>Show battery percentage</source>
+            <translation>Afficher le pourcentage de la batterie</translation>
+        </message>
+        <message>
+            <source>Always show the battery percentage next to the icon.</source>
+            <translation>Toujours afficher le pourcentage de la batterie à côté de l'icône.</translation>
+        </message>
+        <message>
+            <source>Activities on pages</source>
+            <translation>Activités sur les pages</translation>
+        </message>
+        <message>
+            <source>Show the running activities and playing media players in the page header.</source>
+            <translation>Afficher les activités en cours et les lecteurs multimédia en lecture dans l'en-tête de la page.</translation>
+        </message>
+        <message>
+            <source>Zoom media image</source>
+            <translation>Zoomer l'image multimédia</translation>
+        </message>
+        <message>
+            <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
+            <translation>Zoomer et recadrer les illustrations dans les widgets du lecteur multimédia au lieu de les mettre à l'échelle.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state window</name>
+        <message>
+            <source>Open</source>
+            <translation>Ouvert</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Fermé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state tamper</name>
+        <message>
+            <source>Tampering detected</source>
+            <translation>Manipulation détectée</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Non détectée</translation>
+        </message>
+    </context>
+    <context>
+        <name>Configure</name>
+        <message>
+            <source>By %1</source>
+            <translation>Par %1</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Nom</translation>
+        </message>
+        <message>
+            <source>Required</source>
+            <translation>Requis</translation>
+        </message>
+        <message>
+            <source>Optional</source>
+            <translation>Optionnel</translation>
+        </message>
+        <message>
+            <source>Password</source>
+            <translation>Mot de passe</translation>
+        </message>
+        <message>
+            <source>Add WiFi network</source>
+            <translation>Ajouter un réseau WiFi</translation>
+        </message>
+        <message>
+            <source>Selected WiFi network</source>
+            <translation>Réseau WiFi sélectionné</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>Suivant</translation>
+        </message>
+        <message>
+            <source>Select WiFi network</source>
+            <translation>Sélectionner un réseau WiFi</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::ui::Page</name>
+        <message>
+            <source>%1 already exists on the page.</source>
+            <translation>%1 existe déjà sur la page.</translation>
+        </message>
+    </context>
+    <context>
+        <name>PopupMenu</name>
+        <message>
+            <source>Close</source>
+            <translation>Fermer</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state connectivity</name>
+        <message>
+            <source>Connected</source>
+            <translation>Connecté</translation>
+        </message>
+        <message>
+            <source>Disconnected</source>
+            <translation>Déconnecté</translation>
+        </message>
+    </context>
+    <context>
+        <name>Temperature</name>
+        <message>
+            <source>Temperature</source>
+            <translation>Température</translation>
+        </message>
+    </context>
+    <context>
+        <name>SoftwareUpdate</name>
+        <message>
+            <source>New software version is available</source>
+            <translation>Nouvelle version du logiciel disponible</translation>
+        </message>
+        <message>
+            <source>Your software is up to date</source>
+            <translation>Votre logiciel est à jour</translation>
+        </message>
+        <message>
+            <source>Current version</source>
+            <translation>Version actuelle</translation>
+        </message>
+        <message>
+            <source>New version</source>
+            <translation>Nouvelle version</translation>
+        </message>
+        <message>
+            <source>Pending</source>
+            <translation>En attente</translation>
+        </message>
+        <message>
+            <source>Downloading</source>
+            <translation>Téléchargement</translation>
+        </message>
+        <message>
+            <source>Downloaded</source>
+            <translation>Téléchargé</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>Erreur</translation>
+        </message>
+        <message>
+            <source>Release Notes</source>
+            <translation>Notes de version</translation>
+        </message>
+        <message>
+            <source>Release notes</source>
+            <translation>Notes de version</translation>
+        </message>
+        <message>
+            <source>Install</source>
+            <translation>Installer</translation>
+        </message>
+        <message>
+            <source>Download</source>
+            <translation>Télécharger</translation>
+        </message>
+        <message>
+            <source>Low battery</source>
+            <translation>Batterie faible</translation>
+        </message>
+        <message>
+            <source>Minimum 50% battery charge is required to install software updates</source>
+            <translation>Une charge de batterie minimum de 50 % est requise pour installer les mises à jour logicielles</translation>
+        </message>
+        <message>
+            <source>Check for update</source>
+            <translation>Vérifier les mises à jour</translation>
+        </message>
+        <message>
+            <source>Beta updates</source>
+            <translation>Mises à jour beta</translation>
+        </message>
+        <message>
+            <source>Enabled</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Check for updates</source>
+            <translation>Vérifier les mises à jour</translation>
+        </message>
+        <message>
+            <source>Automatically check for updates.</source>
+            <translation>Vérification automatique des mises à jour.</translation>
+        </message>
+        <message>
+            <source>Auto update</source>
+            <translation>Mise à jour automatique</translation>
+        </message>
+        <message>
+            <source>Automatically update the remote when new software is available. Updates are installed between %1 and %2</source>
+            <translation>Mettre à jour automatiquement la télécommande lorsque de nouveaux logiciels sont disponibles. Les mises à jour sont installées entre %1 et %2</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state sound</name>
+        <message>
+            <source>Detected</source>
+            <translation>Détecté</translation>
+        </message>
+        <message>
+            <source>Clear</source>
+            <translation>Non détecté</translation>
+        </message>
+    </context>
+    <context>
+        <name>Remote</name>
+        <message>
+            <source>Empty page</source>
+            <translation>Page vide</translation>
+        </message>
+        <message>
+            <source>You can add UI elements via the Web Configurator</source>
+            <translation>Vous pouvez ajouter des éléments d'interface via le configurateur Web</translation>
+        </message>
+    </context>
+    <context>
+        <name>GroupAdd</name>
+        <message>
+            <source>There was an error. Try again</source>
+            <translation>Il y a eu une erreur. Réessaie</translation>
+        </message>
+        <message>
+            <source>Group already exists</source>
+            <translation>Le groupe existe déjà</translation>
+        </message>
+        <message>
+            <source>Name your group</source>
+            <translation>Nommez votre groupe</translation>
+        </message>
+        <message>
+            <source>All lights</source>
+            <translation>Toutes les lumières</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>Suivant</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+        <message>
+            <source>Select entities to add</source>
+            <translation>Sélectionnez les entités à ajouter</translation>
+        </message>
+        <message>
+            <source>Search</source>
+            <translation>Rechercher</translation>
+        </message>
+        <message>
+            <source>Add</source>
+            <translation>Ajouter</translation>
+        </message>
+        <message>
+            <source>Select entities</source>
+            <translation>Sélectionner des entités</translation>
+        </message>
+        <message>
+            <source>Please select entities to add by tapping in the list.</source>
+            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+        </message>
+    </context>
+    <context>
+        <name>NoProfile</name>
+        <message>
+            <source>There was an error loading the profile.</source>
+            <translation>Il y a eu une erreur lors du chargement du profil.</translation>
+        </message>
+        <message>
+            <source>Select or add profile</source>
+            <translation>Sélectionner ou ajouter un profil</translation>
+        </message>
+    </context>
+    <context>
+        <name>Media platyer state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+        <message>
+            <source>Playing</source>
+            <translation>En lecture</translation>
+        </message>
+        <message>
+            <source>Paused</source>
+            <translation>En pause</translation>
+        </message>
+        <message>
+            <source>Standby</source>
+            <translation>Veille</translation>
+        </message>
+        <message>
+            <source>Buffering</source>
+            <translation>Mise en mémoire tampon</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state light</name>
+        <message>
+            <source>Light detected</source>
+            <translation>Lumière détectée</translation>
+        </message>
+        <message>
+            <source>No light</source>
+            <translation>Pas de lumière</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state cold</name>
+        <message>
+            <source>Cold</source>
+            <translation>Froid</translation>
+        </message>
+        <message>
+            <source>Normal</source>
+            <translation>Normale</translation>
+        </message>
+    </context>
+    <context>
+        <name>NotificationDrawer</name>
+        <message>
+            <source>Display brightness</source>
+            <translation>Luminosité de l'écran</translation>
+        </message>
+        <message>
+            <source>Clear all</source>
+            <translation>Tout effacer</translation>
+        </message>
+        <message>
+            <source>No notifications</source>
+            <translation>Pas de notifications</translation>
+        </message>
+    </context>
+    <context>
+        <name>EntityAdd</name>
+        <message>
+            <source>Add entities</source>
+            <translation>Ajouter des entités</translation>
+        </message>
+        <message>
+            <source>Select entities</source>
+            <translation>Sélectionner des entités</translation>
+        </message>
+        <message>
+            <source>Please select entities to add by tapping in the list.</source>
+            <translation>Veuillez sélectionner les entités à ajouter en appuyant dans la liste.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Language</name>
+        <message>
+            <source>Select language</source>
+            <translation>Sélectionner la langue</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::integration::IntegrationController</name>
+        <message>
+            <source>Error while deleting integration</source>
+            <translation>Erreur lors de la suppression de l'intégration</translation>
+        </message>
+        <message>
+            <source>Error while deleting integration driver</source>
+            <translation>Erreur lors de la suppression du pilote d'intégration</translation>
+        </message>
+        <message>
+            <source>Integration discovery failed to start</source>
+            <translation>Échec du démarrage de la découverte d'intégration</translation>
+        </message>
+        <message>
+            <source>Integration discovery failed to stop</source>
+            <translation>Échec de l'arrêt de la découverte d'intégration</translation>
+        </message>
+        <message>
+            <source>Error getting integration driver metadata</source>
+            <translation>Erreur lors de la récupération des métadonnées du pilote d'intégration</translation>
+        </message>
+        <message>
+            <source>Error getting integration driver</source>
+            <translation>Erreur lors de la récupération du pilote d'intégration</translation>
+        </message>
+        <message>
+            <source>Error while starting integration driver</source>
+            <translation>Erreur lors du démarrage du pilote d'intégration</translation>
+        </message>
+        <message>
+            <source>Error while connecting to the integration</source>
+            <translation>Erreur lors de la connexion à l'intégration</translation>
+        </message>
+        <message>
+            <source>Error while disconnecting to the integration</source>
+            <translation>Erreur lors de la déconnexion de l'intégration</translation>
+        </message>
+        <message>
+            <source>Integration setup error. Aborting setup</source>
+            <translation>Erreur de configuration d'intégration. Abandon de la configuration</translation>
+        </message>
+        <message>
+            <source>Invalid data</source>
+            <translation>Données invalides</translation>
+        </message>
+        <message>
+            <source>The integration driver id does not exist.</source>
+            <translation>L'ID du pilote d'intégration n'existe pas.</translation>
+        </message>
+        <message>
+            <source>Failed to start setup</source>
+            <translation>Échec du démarrage de la configuration</translation>
+        </message>
+        <message>
+            <source>There is already a running setup for this integration. Would you like to stop that?</source>
+            <translation>Il y a déjà une configuration en cours pour cette intégration. Souhaitez-vous l'arrêter ?</translation>
+        </message>
+        <message>
+            <source>Stop</source>
+            <translation>Arrêter</translation>
+        </message>
+        <message>
+            <source>The integration is already configured or doesn't allow to be set up again.</source>
+            <translation>L'intégration est déjà configurée ou ne permet pas d'être configurée à nouveau.</translation>
+        </message>
+        <message>
+            <source>Cannot start integration setup</source>
+            <translation>Impossible de démarrer la configuration de l'intégration</translation>
+        </message>
+        <message>
+            <source>Cannot stop the integration setup</source>
+            <translation>Impossible de stopper la configuration de l'intégration</translation>
+        </message>
+        <message>
+            <source>Authorization error</source>
+            <translation>Erreur d'autorisation</translation>
+        </message>
+        <message>
+            <source>Connection refused</source>
+            <translation>Connexion refusée</translation>
+        </message>
+        <message>
+            <source>Unknown error</source>
+            <translation>Erreur inconnue</translation>
+        </message>
+        <message>
+            <source>Not found</source>
+            <translation>Non trouvé</translation>
+        </message>
+        <message>
+            <source>Timeout</source>
+            <translation>Délai dépassé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Voltage</name>
+        <message>
+            <source>Voltage</source>
+            <translation>Tension électrique</translation>
+        </message>
+    </context>
+    <context>
+        <name>Streaming_box</name>
+        <message>
+            <source>Live</source>
+            <translation>En direct</translation>
+        </message>
+        <message>
+            <source>All</source>
+            <translation>Tout</translation>
+        </message>
+        <message>
+            <source>One</source>
+            <translation>Un</translation>
+        </message>
+        <message>
+            <source>Sources</source>
+            <translation>Sources</translation>
+        </message>
+    </context>
+    <context>
+        <name>Abbreviation for not available</name>
+        <message>
+            <source>N/A</source>
+            <translation>N/D</translation>
+        </message>
+    </context>
+    <context>
+        <name>ProfileSwitch</name>
+        <message>
+            <source>Profiles</source>
+            <translation>Profils</translation>
+        </message>
+        <message>
+            <source>Please enter the administrator PIN.</source>
+            <translation>Veuillez entrer le code PIN de l'administrateur.</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+        <message>
+            <source>Rename</source>
+            <translation>Renommer</translation>
+        </message>
+        <message>
+            <source>Edit icon</source>
+            <translation>Modifier l'icône</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Supprimer</translation>
+        </message>
+        <message>
+            <source>Add a new profile</source>
+            <translation>Ajouter un nouveau profil</translation>
+        </message>
+        <message>
+            <source>Normal</source>
+            <translation>Normale</translation>
+        </message>
+        <message>
+            <source>Restricted</source>
+            <translation>Restreint</translation>
+        </message>
+    </context>
+    <context>
+        <name>Finish</name>
+        <message>
+            <source>You're all set</source>
+            <translation>Tout est prêt</translation>
+        </message>
+        <message>
+            <source>The integration has been added successfully.</source>
+            <translation>L'intégration a été ajoutée avec succès.</translation>
+        </message>
+        <message>
+            <source>Version</source>
+            <translation>Version</translation>
+        </message>
+        <message>
+            <source>Developer</source>
+            <translation>Développeur</translation>
+        </message>
+        <message>
+            <source>Website</source>
+            <translation>Site web</translation>
+        </message>
+        <message>
+            <source>Oops</source>
+            <translation>Oups</translation>
+        </message>
+        <message>
+            <source>Something went wrong while setting up the integration.</source>
+            <translation>Une erreur s'est produite lors de la configuration de l'intégration.</translation>
+        </message>
+        <message>
+            <source>ERROR:</source>
+            <translation>ERREUR :</translation>
+        </message>
+        <message>
+            <source>Done</source>
+            <translation>Terminé</translation>
+        </message>
+        <message>
+            <source>The dock has been added successfully.</source>
+            <translation>La station d'accueil a été ajoutée avec succès.</translation>
+        </message>
+        <message>
+            <source>%1 is ready to blast IR codes.</source>
+            <translation>%1 est prêt à émettre des codes IR.</translation>
+        </message>
+        <message>
+            <source>Something went wrong while setting up the dock.</source>
+            <translation>Une erreur s'est produite lors de la configuration du dock.</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Réessayer</translation>
+        </message>
+        <message>
+            <source>You can add integrations or change configuration via the Web configurator.</source>
+            <translation>Vous pouvez ajouter des intégrations ou modifier la configuration via le configurateur Web.</translation>
+        </message>
+        <message>
+            <source>Web configurator enabled</source>
+            <translation>Configurateur Web activé</translation>
+        </message>
+        <message>
+            <source>Web configurator disabled</source>
+            <translation>Le configurateur web est désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::dock::DockController</name>
+        <message>
+            <source>Failed to start dock discovery</source>
+            <translation>Échec du démarrage de la découverte de dock</translation>
+        </message>
+        <message>
+            <source>There was an error starting dock discovery: %1</source>
+            <translation>Il y a eu une erreur de démarrage de la découverte de la station d'accueil : %1</translation>
+        </message>
+        <message>
+            <source>Try again</source>
+            <translation>Réessayer</translation>
+        </message>
+        <message>
+            <source>Failed to stop dock discovery</source>
+            <translation>Échec de l'arrêt de la découverte de dock</translation>
+        </message>
+        <message>
+            <source>There was an error stopping dock discovery: %1</source>
+            <translation>Il y a eu une erreur lors de l'arrêt de la découverte de la station d'accueil : %1</translation>
+        </message>
+        <message>
+            <source>Configuring</source>
+            <translation>Configuration</translation>
+        </message>
+        <message>
+            <source>Restarting</source>
+            <translation>Redémarrage</translation>
+        </message>
+        <message>
+            <source>Uploading</source>
+            <translation>Téléversement en cours</translation>
+        </message>
+    </context>
+    <context>
+        <name>Blind</name>
+        <message>
+            <source>Stop</source>
+            <translation>Arrêter</translation>
+        </message>
+    </context>
+    <context>
+        <name>Integration</name>
+        <message>
+            <source>Integration setup</source>
+            <translation>Configuration de l'intégration</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>Suivant</translation>
+        </message>
+        <message>
+            <source>Skip</source>
+            <translation>Passer</translation>
+        </message>
+    </context>
+    <context>
+        <name>ActionableNotification</name>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state power</name>
+        <message>
+            <source>On</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::Voice</name>
+        <message>
+            <source>The service is temporarily unavailable.</source>
+            <translation>Ce service est temporairement indisponible.</translation>
+        </message>
+        <message>
+            <source>Incorrect audio format.</source>
+            <translation>Format audio incorrect.</translation>
+        </message>
+        <message>
+            <source>Something went wrong on our side. Please try again.</source>
+            <translation>Something went wrong on our side. Please try again.</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::Config</name>
+        <message>
+            <source>Error while loading configuration. Trying again.</source>
+            <translation>Erreur lors du chargement de la configuration. Réessayez.</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::SoftwareUpdate</name>
+        <message>
+            <source>Update check failed</source>
+            <translation>Échec de la vérification de mise à jour</translation>
+        </message>
+        <message>
+            <source>There was an error while checking for new updates. Please try again later.</source>
+            <translation>Une erreur s'est produite lors de la vérification des nouvelles mises à jour. Veuillez réessayer plus tard.</translation>
+        </message>
+        <message>
+            <source>Update error</source>
+            <translation>Erreur de mise à jour</translation>
+        </message>
+        <message>
+            <source>Couldn't start the software update. Please try again later.</source>
+            <translation>Impossible de lancer la mise à jour du logiciel. Veuillez réessayer plus tard.</translation>
+        </message>
+        <message>
+            <source>Software update has failed.</source>
+            <translation>La mise à jour du logiciel a échoué.</translation>
+        </message>
+    </context>
+    <context>
+        <name>Info</name>
+        <message>
+            <source>External integration</source>
+            <translation>Intégration externe</translation>
+        </message>
+        <message>
+            <source>Local integration</source>
+            <translation>Intégration locale</translation>
+        </message>
+        <message>
+            <source>Manage entities</source>
+            <translation>Gérer les entités</translation>
+        </message>
+        <message>
+            <source>configured entities</source>
+            <translation>entités configurées</translation>
+        </message>
+        <message>
+            <source>Connected</source>
+            <translation>Connecté</translation>
+        </message>
+        <message>
+            <source>Disconnected</source>
+            <translation>Déconnecté</translation>
+        </message>
+        <message>
+            <source>State</source>
+            <translation>État</translation>
+        </message>
+        <message>
+            <source>Enabled</source>
+            <translation>Activé</translation>
+        </message>
+        <message>
+            <source>Id</source>
+            <translation>Id</translation>
+        </message>
+        <message>
+            <source>Version</source>
+            <translation>Version</translation>
+        </message>
+        <message>
+            <source>Developer</source>
+            <translation>Développeur</translation>
+        </message>
+        <message>
+            <source>Website</source>
+            <translation>Site web</translation>
+        </message>
+        <message>
+            <source>Delete integration</source>
+            <translation>Supprimer l'intégration</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to delete the %1 integration?</source>
+            <translation>Es-tu sûr de vouloir supprimer l'intégration %1 ?</translation>
+        </message>
+        <message>
+            <source>Tap to edit name</source>
+            <translation>Tapez pour éditer le nom</translation>
+        </message>
+        <message>
+            <source>Something is wrong</source>
+            <translation>Quelque chose ne va pas</translation>
+        </message>
+        <message>
+            <source>Identify</source>
+            <translation>Identifier</translation>
+        </message>
+        <message>
+            <source>Connect</source>
+            <translation>Connecter</translation>
+        </message>
+        <message>
+            <source>Active</source>
+            <translation>Actif</translation>
+        </message>
+        <message>
+            <source>Connecting</source>
+            <translation>En cours de connexion</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>Erreur</translation>
+        </message>
+        <message>
+            <source>Idle</source>
+            <translation>Inactif</translation>
+        </message>
+        <message>
+            <source>Reconnecting</source>
+            <translation>Reconnexion en cours</translation>
+        </message>
+        <message>
+            <source>Connection type</source>
+            <translation>Type de connexion</translation>
+        </message>
+        <message>
+            <source>Service name</source>
+            <translation>Nom du service</translation>
+        </message>
+        <message>
+            <source>Custom IP or URL</source>
+            <translation>IP ou URL personnalisée</translation>
+        </message>
+        <message>
+            <source>Not set</source>
+            <translation>Non défini</translation>
+        </message>
+        <message>
+            <source>Firmware version</source>
+            <translation>Version du firmware</translation>
+        </message>
+        <message>
+            <source>Led brightness</source>
+            <translation>Luminosité LED</translation>
+        </message>
+        <message>
+            <source>Change password</source>
+            <translation>Changer le mot de passe</translation>
+        </message>
+        <message>
+            <source>Change WiFi settings</source>
+            <translation>Changer les paramètres WiFi</translation>
+        </message>
+        <message>
+            <source>Factory reset</source>
+            <translation>Rétablir la configuration d'usine</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to factory reset %1?</source>
+            <translation>Es-tu sûr de vouloir effectuer une réinitialisation d'usine sur %1 ?</translation>
+        </message>
+        <message>
+            <source>Reset</source>
+            <translation>Réinitialiser</translation>
+        </message>
+        <message>
+            <source>Delete dock</source>
+            <translation>Supprimer le dock</translation>
+        </message>
+        <message>
+            <source>Are you sure you want to delete %1?</source>
+            <translation>Es-tu sûr de vouloir supprimer %1 ?</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+        <message>
+            <source>Delete</source>
+            <translation>Supprimer</translation>
+        </message>
+    </context>
+    <context>
+        <name>Rename</name>
+        <message>
+            <source>There was an error. Try again</source>
+            <translation>Il y a eu une erreur. Réessaie</translation>
+        </message>
+        <message>
+            <source>Rename dock</source>
+            <translation>Renommer la base</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+        <message>
+            <source>Rename</source>
+            <translation>Renommer</translation>
+        </message>
+    </context>
+    <context>
+        <name>Base</name>
+        <message>
+            <source>Activity error. Select option below.</source>
+            <translation>Erreur d'activité. Sélectionnez l'option ci-dessous.</translation>
+        </message>
+        <message>
+            <source>Turn activity on</source>
+            <translation>Activer l'activité</translation>
+        </message>
+        <message>
+            <source>Turn activity off</source>
+            <translation>Désactiver l'activité</translation>
+        </message>
+        <message>
+            <source>is unavailable</source>
+            <translation>est indisponible</translation>
+        </message>
+        <message>
+            <source>Profile is restricted</source>
+            <translation>Profil restreint</translation>
+        </message>
+        <message>
+            <source>%1 entity</source>
+            <translation>%1 entité</translation>
+        </message>
+        <message>
+            <source>%1 entities</source>
+            <translation>%1 entités</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Fermer</translation>
+        </message>
+    </context>
+    <context>
+        <name>RemoteName</name>
+        <message>
+            <source>Name your remote</source>
+            <translation>Nommez votre télécommande</translation>
+        </message>
+        <message>
+            <source>Next</source>
+            <translation>Suivant</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state door</name>
+        <message>
+            <source>Opened</source>
+            <translation>Ouvert</translation>
+        </message>
+        <message>
+            <source>Closed</source>
+            <translation>Fermé</translation>
+        </message>
+    </context>
+    <context>
+        <name>Garage</name>
+        <message>
+            <source>Stop</source>
+            <translation>Arrêter</translation>
+        </message>
+    </context>
+    <context>
+        <name>PasswordChange</name>
+        <message>
+            <source>There was an error. Try again</source>
+            <translation>Il y a eu une erreur. Réessaie</translation>
+        </message>
+        <message>
+            <source>Change password</source>
+            <translation>Changer le mot de passe</translation>
+        </message>
+        <message>
+            <source>Change</source>
+            <translation>Modifier</translation>
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation>Annuler</translation>
+        </message>
+    </context>
+    <context>
+        <name>Climate state</name>
+        <message>
+            <source>Unavailable</source>
+            <translation>Indisponible</translation>
+        </message>
+        <message>
+            <source>Unknown</source>
+            <translation>Inconnu</translation>
+        </message>
+        <message>
+            <source>Off</source>
+            <translation>Désactivé</translation>
+        </message>
+        <message>
+            <source>Heat</source>
+            <translation>Chauffage</translation>
+        </message>
+        <message>
+            <source>Cool</source>
+            <translation>Refroidissement</translation>
+        </message>
+        <message>
+            <source>Heat/Cool</source>
+            <translation>Chauffage/Refroidissement</translation>
+        </message>
+        <message>
+            <source>Fan</source>
+            <translation>Ventilateur</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>Auto</translation>
+        </message>
+    </context>
+    <context>
+        <name>Binary sensor state battery_charging</name>
+        <message>
+            <source>Charging</source>
+            <translation>En charge</translation>
+        </message>
+        <message>
+            <source>Not charging</source>
+            <translation>Pas en chargement</translation>
+        </message>
+    </context>
+    <context>
+        <name>Voice</name>
+        <message>
+            <source>Microphone</source>
+            <translation>Microphone</translation>
+        </message>
+        <message>
+            <source>Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.</source>
+            <translation>Désactivé le microphone le rend complètement éteint. Vous ne serez pas en mesure d'utiliser l'assistant vocal.</translation>
+        </message>
+        <message>
+            <source>Voice Assistant</source>
+            <translation>Assistant vocal</translation>
+        </message>
+        <message>
+            <source>None selected</source>
+            <translation>Aucun sélectionné</translation>
+        </message>
+        <message>
+            <source>Profile: %1</source>
+            <translation>Profil: %1</translation>
+        </message>
+        <message>
+            <source>No profile selected</source>
+            <translation>Aucun profil sélectionné</translation>
+        </message>
+    </context>
+    <context>
+        <name>PopupList</name>
+        <message>
+            <source>Search</source>
+            <translation>Rechercher</translation>
+        </message>
+    </context>
 </TS>

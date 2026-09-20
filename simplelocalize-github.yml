@@ -1,0 +1,43 @@
+pull-request:
+  title: "Update translations from SimpleLocalize"
+  body: |
+    This PR contains updated translations from SimpleLocalize.
+    Please review the changes before merging.
+  base-branch: "main"
+
+upload:
+  when:
+    push:
+      branches: [ "main" ]
+  files:
+    - path: "resources/translations/en_US.ts"
+      format: "qt-linguist"
+      language-key: "en_US"
+      options:
+        - "REPLACE_TRANSLATION_IF_FOUND"
+        - "DEPRECATE_NOT_PRESENT_KEYS"
+        - "MARK_AS_ACCEPTED"
+        - "UPDATE_ORDER"
+
+download:
+  push-branch: "l10n"
+  pull-branch: "main"
+  files:
+    - path: "resources/translations/{lang}.ts"
+      format: "qt-linguist"
+      sort: "IMPORT_ORDER"
+      options:
+        - "ONLY_ACCEPTED"
+      language-keys:
+        - "da_DK"
+        - "de_DE"
+        - "de_CH"
+        - "es_ES"
+        - "fr_FR"
+        - "hu_HU"
+        - "it_IT"
+        - "nl_NL"
+        - "no_NO"
+        - "pl_PL"
+        - "pt_PT"
+        - "sv_SE"

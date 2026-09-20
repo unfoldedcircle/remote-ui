@@ -33,6 +33,7 @@ Thumbs.db
 *.rc
 /.qmake.cache
 /.qmake.stash
+*.bak
 
 # qtcreator generated files
 *.pro.user*
@@ -81,5 +82,8 @@ build/osx-x86_64/release/moc/moc_predefs.h
 /resources/about_html/*
 
 # Translations
-/resources/translations/*.qm
+/resources/translations/*
 !/resources/translations/en_US.ts
+
+# build directories
+/build

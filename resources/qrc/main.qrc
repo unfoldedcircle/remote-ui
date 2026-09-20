@@ -60,6 +60,7 @@
         <file alias="settings/settings/Color.qml">../../src/qml/settings/settings/Color.qml</file>
         <file alias="settings/settings/Display.qml">../../src/qml/settings/settings/Display.qml</file>
         <file alias="settings/settings/Ui.qml">../../src/qml/settings/settings/Ui.qml</file>
+        <file alias="settings/settings/TouchSlider.qml">../../src/qml/settings/settings/TouchSlider.qml</file>
         <file alias="settings/settings/Sound.qml">../../src/qml/settings/settings/Sound.qml</file>
         <file alias="settings/settings/Voice.qml">../../src/qml/settings/settings/Voice.qml</file>
         <file alias="settings/settings/Power.qml">../../src/qml/settings/settings/Power.qml</file>

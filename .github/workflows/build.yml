@@ -6,18 +6,19 @@ name: "Build & Release"
 on:
   push:
     branches-ignore:
-      - i18n
+      - l10n
     paths:
       - '.github/**/*.yml'
       - '.gitmodules'
       - 'remote-ui.pro'
       - 'resources/**'
       - 'src/**'
+      - 'test/**'
     tags:
       # This is not regex: https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#filter-pattern-cheat-sheet
       - v[0-9]+.[0-9]+.[0-9]+*
   pull_request:
-    branches: 
+    branches:
       - main
     types: [ opened, synchronize, reopened ]
 
@@ -34,9 +35,90 @@ env:
   HASH_FILENAME: remote-ui.hash
 
 jobs:
+  unit-tests:
+    name: Qt unit tests
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Cache libicu56 build
+        id: cache-libicu56
+        uses: actions/cache@v3
+        with:
+          path: icu
+          key: libicu56-${{ matrix.config.artifact }}
+
+      # Qt lrelease & lupdate tools require a very old libicu version which is not available on Linux!
+      # Even installing the Ubuntu qt5dev (or similar) package which provides these tools is broken!!!
+      - name: Build libicu56 library for lupdate
+        if: runner.os == 'Linux' && steps.cache-libicu56.outputs.cache-hit != 'true'
+        run: |
+          wget https://github.com/unicode-org/icu/releases/download/release-56-2/icu4c-56_2-src.tgz
+          tar xzf icu4c-56_2-src.tgz
+          cd icu/source
+          chmod +x runConfigureICU configure install-sh
+          ./runConfigureICU Linux
+          make -j$(nproc)
+
+      - name: Install libicu56 library
+        if: runner.os == 'Linux'
+        run: |
+          cd icu/source
+          sudo make install
+
+      # Attention shared Qt installation cache: use the same configuration as for the desktop build below!
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: ${{ env.QT_VERSION }}
+          # modules & archives: https://ddalcino.github.io/aqt-list-server/
+          modules: 'qtvirtualkeyboard'
+          # qtbase: qmake
+          # qttools: lrelease & lupdate
+          archives: 'qtbase qtdeclarative qtmultimedia qtquickcontrols2 qtsvg qttools qtwebsockets'
+          cache: true
+          cache-key-prefix: ${{ env.QT_VERSION }}-${{ matrix.config.artifact }}
+
+      - name: Show environment
+        if: env.DEBUG_OUTPUT == 'true'
+        run: |
+          printenv
+          ls -lah ..
+          echo "Qt5_DIR directory:"
+          ls -lah "$Qt5_DIR"
+          echo "qmake   : $(which qmake)"
+          echo "lrelease: $(which lrelease)"
+          echo "lupdate : $(which lupdate)"
+          qmake --version
+          qmake -query
+
+      - name: Checkout ${{ env.PROJECT_NAME }}
+        uses: actions/checkout@v4
+        with:
+          path: ${{ env.PROJECT_NAME }}
+          submodules: recursive
+
+      - name: Build unit tests
+        shell: bash
+        run: |
+          mkdir ${{ env.PROJECT_NAME }}/test/build
+          cd ${{ env.PROJECT_NAME }}/test/build
+          cmake -D CMAKE_PREFIX_PATH="$QT_ROOT_DIR" ..
+          cmake --build .
+
+      - name: Unit tests
+        shell: bash
+        run: |
+          cd ${{ env.PROJECT_NAME }}/test/build
+          common/testCommon
+          core/testCore
+          hardware/testHardware
+          ui/testUiModels
+          hardware/testBattery
+
   build-embedded:
     name: ${{ matrix.config.name }}
     runs-on: ubuntu-latest
+    needs: [unit-tests]
     strategy:
       matrix:
         config:
@@ -98,7 +180,7 @@ jobs:
           tar czvf ${{ env.ARTIFACT_NAME }}.tar.gz -C ${{ env.UC_BIN }} .
           ls -lah
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         id: upload_artifact
         with:
           name: ${{ env.ARTIFACT_NAME }}
@@ -109,6 +191,11 @@ jobs:
   build-desktop:
     name: ${{ matrix.config.name }}
     runs-on: ${{ matrix.config.os }}
+    needs: [unit-tests]
+    # FIXME GitHub removed Ubuntu 20.04 runners April 15 2025 - build doesn't work anymore. --> disabled for now, no time to fix
+    #       Potential fix is in https://github.com/msys2/MINGW-packages/issues/10502
+    #       Attention: once enabled, the release step dependency has to be updated too!
+    if: 0
     strategy:
       matrix:
         config:
@@ -116,7 +203,7 @@ jobs:
             name: "Linux x64", artifact: "Linux-x64", build: "release",
             qmake-args: "CONFIG+=release",
             # Warning: 22.04 comes with GCC 11 which doesn't work with Qt 5.18.2! https://github.com/msys2/MINGW-packages/issues/10502
-            os: ubuntu-20.04
+            os: ubuntu-24.04
           }
           # Attention: macOS minutes count 10x more than Linux!
 #          - {
@@ -160,6 +247,7 @@ jobs:
           cd icu/source
           sudo make install
 
+      # Attention shared Qt installation cache: use the same configuration as for the unit test build above!
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
@@ -196,7 +284,7 @@ jobs:
           fetch-depth: 0
           path: ${{ env.PROJECT_NAME }}
           submodules: recursive
-          
+
       - name: Fetch all tags to determine version
         run: |
           cd ${{ env.PROJECT_NAME }}
@@ -244,7 +332,7 @@ jobs:
               endif()
             endforeach()
           endif()
-          
+
           execute_process(
             COMMAND qmake
               $ENV{GITHUB_WORKSPACE}/$ENV{PROJECT_NAME}/$ENV{APP_PRO}
@@ -271,15 +359,15 @@ jobs:
           else()
             set(ENV{PATH} "${{ steps.qt.outputs.qt_dir }}/bin/:$ENV{PATH}")
           endif()
-  
+
           if ("${{ runner.os }}" STREQUAL "Windows")
             set(make_program jom)
           else()
             include(ProcessorCount)
-            ProcessorCount(N)            
+            ProcessorCount(N)
             set(make_program make -j ${N})
           endif()
-  
+
           execute_process(
             COMMAND ${make_program}
             WORKING_DIRECTORY $ENV{GITHUB_WORKSPACE}/$ENV{PROJECT_NAME}/build
@@ -288,7 +376,7 @@ jobs:
           if (NOT result EQUAL 0)
             message(FATAL_ERROR "Build failed: bad exit status")
           endif()
-  
+
           execute_process(
             COMMAND cp $ENV{GITHUB_WORKSPACE}/$ENV{PROJECT_NAME}/build/version.txt $ENV{UC_BIN}
           )
@@ -326,7 +414,7 @@ jobs:
           tar czvf ${{ env.ARTIFACT_NAME }}.tar.gz -C ${GITHUB_WORKSPACE}/${{env.BIN_OUTPUT_PATH }} .
           ls -lah
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         id: upload_artifact
         with:
           name: ${{ env.ARTIFACT_NAME }}
@@ -338,18 +426,20 @@ jobs:
     name: Create Release
     if: github.ref == 'refs/heads/main' || contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
-    needs: [build-desktop, build-embedded]
+    # FIXME desktop build is currently disabled!
+    # needs: [build-desktop, build-embedded]
+    needs: [build-embedded]
 
     steps:
       - name: Download build artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Extract build archives from downloaded files
         run: |
           ls -R
           # extract tar.gz build archives from downloaded artifacts
           # (wrapped in tar from actions/upload-artifact, then extracted into a directory by actions/download-artifact)
-          for D in * 
+          for D in *
             do if [ -d "${D}" ]; then
               mv $D/* ./
             fi
