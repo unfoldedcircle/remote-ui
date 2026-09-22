@@ -1,31 +1,60 @@
-/******************************************************************************
- *
- * Copyright (C) 2018-2020 Marton Borzak <hello@martonborzak.com>
- *
- * This file is part of the YIO-Remote software project.
- *
- * YIO-Remote software is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * YIO-Remote software is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with YIO-Remote software. If not, see <https://www.gnu.org/licenses/>.
- *
- * SPDX-License-Identifier: GPL-3.0-or-later
- *****************************************************************************/
+// Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
-import QtQuick 2.0
-import QtQuick.VirtualKeyboard 2.1
+import QtQuick 2.15
+import QtQuick.VirtualKeyboard 2.3
 
 KeyboardLayout {
     inputMode: InputEngine.InputMode.Latin
     keyWeight: 160
+
+    KeyboardRow {
+        SymbolModeKey { weight: 100 }
+        BackspaceKey {}
+    }
+
+    KeyboardRow {
+        Key {
+            key: Qt.Key_1
+            text: "1"
+        }
+        Key {
+            key: Qt.Key_2
+            text: "2"
+        }
+        Key {
+            key: Qt.Key_3
+            text: "3"
+        }
+        Key {
+            key: Qt.Key_4
+            text: "4"
+        }
+        Key {
+            key: Qt.Key_5
+            text: "5"
+        }
+        Key {
+            key: Qt.Key_6
+            text: "6"
+        }
+        Key {
+            key: Qt.Key_7
+            text: "7"
+        }
+        Key {
+            key: Qt.Key_8
+            text: "8"
+        }
+        Key {
+            key: Qt.Key_9
+            text: "9"
+        }
+        Key {
+            key: Qt.Key_0
+            text: "0"
+        }
+    }
     KeyboardRow {
         Key {
             key: Qt.Key_Q
@@ -38,7 +67,7 @@ KeyboardLayout {
         Key {
             key: Qt.Key_E
             text: "e"
-            alternativeKeys: "ēęėëeêèé"
+            alternativeKeys: "é"
         }
         Key {
             key: Qt.Key_R
@@ -55,35 +84,28 @@ KeyboardLayout {
         Key {
             key: Qt.Key_U
             text: "u"
-            alternativeKeys: "üûuùú"
+            alternativeKeys: "úü"
         }
         Key {
             key: Qt.Key_I
             text: "i"
-            alternativeKeys: "ïįîiìí"
+            alternativeKeys: "í"
         }
         Key {
             key: Qt.Key_O
             text: "o"
-            alternativeKeys: "öõôoòóº"
+            alternativeKeys: "ó"
         }
         Key {
             key: Qt.Key_P
             text: "p"
         }
-        BackspaceKey {
-            weight: 180
-        }
     }
     KeyboardRow {
-        keyWeight: 156
-        FillerKey {
-            weight: 56
-        }
         Key {
             key: Qt.Key_A
             text: "a"
-            alternativeKeys: "äãaâàáª"
+            alternativeKeys: "á"
         }
         Key {
             key: Qt.Key_S
@@ -121,13 +143,8 @@ KeyboardLayout {
             key: Qt.Key_Ntilde
             text: "ñ"
         }
-        EnterKey {
-            weight: 246
-        }
     }
     KeyboardRow {
-        keyWeight: 156
-        ShiftKey {}
         Key {
             key: Qt.Key_Z
             text: "z"
@@ -139,7 +156,6 @@ KeyboardLayout {
         Key {
             key: Qt.Key_C
             text: "c"
-            alternativeKeys: "čcçć"
         }
         Key {
             key: Qt.Key_V
@@ -157,48 +173,21 @@ KeyboardLayout {
             key: Qt.Key_M
             text: "m"
         }
-        Key {
-            key: Qt.Key_Comma
-            text: ","
-        }
-        Key {
-            key: Qt.Key_Period
-            text: "."
-        }
-        Key {
-            key: Qt.Key_Minus
-            text: "-"
-        }
-        ShiftKey {
-            weight: 264
-        }
     }
     KeyboardRow {
-        keyWeight: 154
-        SymbolModeKey {
-            weight: 217
-        }
-        ChangeLanguageKey {
-            weight: 154
-        }
-        HandwritingModeKey {
-            weight: 154
-        }
-        SpaceKey {
-            weight: 864
+        ShiftKey {
+            weight: 160
         }
         Key {
-            key: Qt.Key_Question
-            text: "?"
-            alternativeKeys: "¿?¡!"
-        }
-        Key {
-            key: 0xE000
-            text: ":-)"
-            alternativeKeys: [ ";-)", ":-)", ":-D", ":-(", "<3" ]
+            text: " "
+            displayText: "Space"
+            repeat: true
+            showPreview: false
+            key: Qt.Key_Space
+            weight: 300
         }
         HideKeyboardKey {
-            weight: 204
+            onClicked: root.keyboard.hide();
         }
     }
 }

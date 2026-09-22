@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- The on-screen keyboard now has a layout for Spanish, Finnish, French, Hungarian, Italian, Norwegian, Polish,
+  Portuguese and Swedish. Until now these interface languages showed a US keyboard without a single accented
+  character. The keys follow the national layout of the selected language, and its accented characters are
+  reachable: å, ä, ö, æ, ø, ñ and ç have a key of their own where the national keyboard has one, the remaining
+  accented letters appear when the base letter is pressed and held.
+
 ### Fixed
 - Stopping the app no longer floods the log with hundreds of `TypeError: Cannot read property ... of null` lines
   from QML: the UI is now torn down before the objects it refers to. On the device these lines ended up in the

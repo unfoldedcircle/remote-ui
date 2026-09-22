@@ -67,7 +67,7 @@ KeyboardLayout {
         Key {
             key: Qt.Key_E
             text: "e"
-            alternativeKeys: "é"
+            alternativeKeys: "éèê"
         }
         Key {
             key: Qt.Key_R
@@ -84,6 +84,7 @@ KeyboardLayout {
         Key {
             key: Qt.Key_U
             text: "u"
+            alternativeKeys: "ü"
         }
         Key {
             key: Qt.Key_I
@@ -92,6 +93,7 @@ KeyboardLayout {
         Key {
             key: Qt.Key_O
             text: "o"
+            alternativeKeys: "óòô"
         }
         Key {
             key: Qt.Key_P
@@ -106,6 +108,7 @@ KeyboardLayout {
         Key {
             key: Qt.Key_A
             text: "a"
+            alternativeKeys: "äâá"
         }
         Key {
             key: Qt.Key_S
@@ -140,12 +143,14 @@ KeyboardLayout {
             text: "l"
         }
         Key {
-            key: Qt.Key_Odiaeresis
-            text: "ö"
+            key: Qt.Key_Ooblique
+            text: "ø"
+            alternativeKeys: "ö"
         }
         Key {
-            key: Qt.Key_Adiaeresis
-            text: "ä"
+            key: Qt.Key_AE
+            text: "æ"
+            alternativeKeys: "ä"
         }
     }
     KeyboardRow {
