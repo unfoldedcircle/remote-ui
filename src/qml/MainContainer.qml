@@ -346,7 +346,7 @@ Item {
                         if (Config.entityButtonFuncInverted) {
                             currentEntity.delegateItem.open();
                         } else {
-                            currentEntity.delegateItem.controlTrigger();
+                            currentEntity.delegateItem.control();
                         }
                     } else {
                         if (currentEntity.delegateItem.state === "closed") {
@@ -356,14 +356,12 @@ Item {
                                 currentEntity.delegateItem.toggle();
                             }
                         } else {
-                            if (currentEntity.delegateItem.groups.currentItem.item.entityObj.state == 0) {
-                                return;
-                            }
-
+                            // open() and control() refuse an unavailable entity themselves, on a
+                            // page and inside a group alike
                             if (Config.entityButtonFuncInverted) {
                                 currentEntity.delegateItem.groups.currentItem.item.open();
                             } else {
-                                currentEntity.delegateItem.groups.currentItem.item.controlTrigger();
+                                currentEntity.delegateItem.groups.currentItem.item.control();
                             }
                         }
                     }
@@ -380,7 +378,7 @@ Item {
 
                     if (!currentEntity.delegateItem.groupObj) {
                         if (Config.entityButtonFuncInverted) {
-                            currentEntity.delegateItem.controlTrigger();
+                            currentEntity.delegateItem.control();
                         } else {
                             currentEntity.delegateItem.open();
                         }
@@ -392,12 +390,8 @@ Item {
                                 currentEntity.delegateItem.open();
                             }
                         } else {
-                            if (currentEntity.delegateItem.groups.currentItem.item.entityObj.state == 0) {
-                                return;
-                            }
-
                             if (Config.entityButtonFuncInverted) {
-                                currentEntity.delegateItem.groups.currentItem.item.controlTrigger();
+                                currentEntity.delegateItem.groups.currentItem.item.control();
                             } else {
                                 currentEntity.delegateItem.groups.currentItem.item.open();
                             }

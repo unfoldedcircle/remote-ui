@@ -306,7 +306,9 @@ EntityComponents.BaseDetail {
                                             }
                                         });
 
-        buttonNavigation.overrideConfig = overrideConfig;
+        // assigned to the screen's own property, not to buttonNavigation: the base binds the
+        // navigation to it and drops it while the entity is unavailable
+        activityBase.overrideConfig = overrideConfig;
     }
 
     function updateSliderConfig() {

@@ -231,8 +231,38 @@ Rectangle {
         }
     }
 
+    /**
+      An unavailable entity accepts no command: the tile refuses it and says so, instead of the
+      press doing nothing at all. Both the tap and the keypad go through commandAllowed(), on a
+      page and inside a group alike, so the refusal is always the same.
+
+      While the remote is coming back from a wakeup every entity is marked unavailable, and the
+      press still has to reach the device: EntityController.mayCommandEntity() carries that
+      exception, see src/ui/entity/entityCommandPolicy.h.
+      */
+    function commandAllowed() {
+        if (EntityController.mayCommandEntity(currentEntityObj.enabled)) {
+            return true;
+        }
+
+        // an entity that could not be loaded has no name to report, the tile shows its placeholder
+        if (currentEntityObj !== entityBaseContainer.entityObjDummy) {
+            ui.createNotification(currentEntityObj.name + " " + qsTr("is unavailable"), true);
+        }
+
+        return false;
+    }
+
+    function control() {
+        if (!entityBaseContainer.commandAllowed()) {
+            return;
+        }
+
+        entityBaseContainer.controlTrigger();
+    }
+
     function open() {
-        if (!entityObj) {
+        if (!entityObj || !entityBaseContainer.commandAllowed()) {
             return;
         }
 
@@ -397,10 +427,8 @@ Rectangle {
         id: mouseArea
         anchors.fill: parent
         onClicked: {
-            if (currentEntityObj.enabled) {
-                if (!editMode) {
-                    entityBaseContainer.open();
-                }
+            if (!editMode) {
+                entityBaseContainer.open();
             }
         }
         onPressAndHold: {
@@ -433,7 +461,7 @@ Rectangle {
         Components.HapticMouseArea {
             anchors.fill: parent
             onClicked: {
-                entityBaseContainer.controlTrigger();
+                entityBaseContainer.control();
             }
         }
     }

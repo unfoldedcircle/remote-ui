@@ -17,8 +17,18 @@ Item {
     property alias brightnessSlider: brightnessSlider
     property alias colorTempSlider: colorTempSlider
 
+    // set by the hosting loader: true while this is the feature page on screen
+    property bool currentPage: false
+
+    // set by the hosting loader from the screen's own gate (BaseDetail.acceptsCommands)
+    property bool acceptsCommands: true
+
     Components.ButtonNavigation {
-        overrideActive: true
+        // The light screen owns the input, so these keys only arrive through overrideActive. They
+        // are limited to the page the user is on - the other feature pages are alive as well - and
+        // to a light that takes commands: an unavailable one takes none and the overlay of the
+        // screen says so, unless the remote is coming back from a wakeup (BaseDetail.acceptsCommands).
+        overrideActive: brightnessFeature.currentPage && brightnessFeature.acceptsCommands
 
         defaultConfig: {
             "VOLUME_UP": {

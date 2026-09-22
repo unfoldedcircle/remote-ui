@@ -226,9 +226,12 @@ Rectangle {
         parentObj: itemList
     }
 
+    // Catches the tap that dismisses the on-screen keyboard. It must follow the keyboard, not only
+    // the focus: the keyboard can also be closed with its own hide key, which leaves the search
+    // field focused, and the overlay then stayed armed and swallowed the next tap on the list.
     MouseArea {
         anchors.fill: parent
-        enabled: inputHasFocus
+        enabled: inputHasFocus && keyboard.active
         onClicked: {
             keyboard.hide();
             inputHasFocus = false;

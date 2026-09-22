@@ -19,8 +19,6 @@ Item {
     id: buttonNavigation
     property Item scope: buttonNavigation.parent
 
-    property bool ignoreInput: false
-
     /**
       FOCUS OWNERSHIP (opt-in, only needed when the scope navigates via the QML focus chain)
 
@@ -482,10 +480,6 @@ Item {
                 return;
             }
 
-            if (buttonNavigation.ignoreInput) {
-                return;
-            }
-
             if (hasConfig(key, ButtonNavigation.ConfigType.LongPress) === true && (buttonNavigation.repeats[key] === false || !buttonNavigation.repeats[key])) {
                 stopTimer(key);
 
@@ -524,18 +518,11 @@ Item {
 
             if (timers[key] && timers[key].running) {
                 stopTimer(key);
-
-                if (!buttonNavigation.ignoreInput) {
-                    executeCommand(key, ButtonNavigation.ConfigType.Pressed);
-                }
+                executeCommand(key, ButtonNavigation.ConfigType.Pressed);
             }
 
             if (buttonNavigation.longPressExecuted[key]) {
                 delete buttonNavigation.longPressExecuted[key];
-            }
-
-            if (buttonNavigation.ignoreInput) {
-                return;
             }
 
             if (hasConfig(key, ButtonNavigation.ConfigType.Released)) {

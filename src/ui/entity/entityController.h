@@ -92,6 +92,17 @@ class EntityController : public QObject {
     Q_INVOKABLE QObject* get(const QString& entityId);
 
     /**
+     * @brief Whether a control may send a command to an entity with this availability right now.
+     *
+     * The decision itself is mayCommandEntity() in entityCommandPolicy.h; this fills in the remote's resume
+     * state. A control that reacts to a binding rather than to a press reads `enabled` and `resumePending`
+     * itself, so that the binding is re-evaluated when either of them changes.
+     *
+     * @param entityAvailable the entity's `enabled` property
+     */
+    Q_INVOKABLE bool mayCommandEntity(bool entityAvailable) const;
+
+    /**
      * @brief Configure entities from selected available ones
      * @param integrationId: the id of the integration
      * @param entities: list of entity ids
@@ -248,6 +259,19 @@ class EntityController : public QObject {
     void setEntityBusy(const QString& entityId, bool busy);
     // common handling for a command that was rejected, timed out or could not be sent at all
     void handleCommandFailure(const QString& commandId, int requestId, int code, const QString& message);
+
+    /**
+     * @brief Refuses a command addressed to an entity that is unavailable.
+     *
+     * Applies mayCommandEntity() from entityCommandPolicy.h - including its exception while the remote is
+     * coming back from a wakeup - to the command paths whose target is not the control the user pressed,
+     * i.e. an activity's button mapping: the mapped entity can be unavailable while the activity screen it
+     * was pressed on is not, so the refusal is reported here instead of the command being sent and silently
+     * dropped by the core. A control the user can see refuses the command itself, before it gets here.
+     *
+     * @return true if the command was refused and must not be sent
+     */
+    bool refuseUnavailableEntity(const QString& entityId, const QString& command);
 
     bool   m_wasSuspended = false;
     bool   m_resumeWindow = false;

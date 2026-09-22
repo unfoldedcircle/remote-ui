@@ -16,6 +16,7 @@
 #include "../../logging.h"
 #include "./../notification.h"
 #include "commandRetryPolicy.h"
+#include "entityCommandPolicy.h"
 #include "sequenceReadinessReport.h"
 
 namespace uc {
@@ -558,7 +559,13 @@ void EntityController::addEntityObject(core::Entity entity) {
                 QObject::connect(activity, &entity::Activity::startedExternally, this,
                                  &EntityController::onActivityStartedExternally);
                 QObject::connect(activity, &entity::Activity::sendCommandToEntity, this,
-                                 &EntityController::onEntityCommand);
+                                 [this](const QString& entityId, const QString& command, QVariantMap params) {
+                                     if (refuseUnavailableEntity(entityId, command)) {
+                                         return;
+                                     }
+
+                                     onEntityCommand(entityId, command, params);
+                                 });
 
                 if (activity->getState() == entity::ActivityStates::On) {
                     onAddToActivities(entity.id);
@@ -860,6 +867,24 @@ void EntityController::clearPendingCommands() {
     for (const QString& busyEntityId : busyEntities) {
         setEntityBusy(busyEntityId, false);
     }
+}
+
+bool EntityController::mayCommandEntity(bool entityAvailable) const {
+    return uc::ui::mayCommandEntity(entityAvailable, getResumePending());
+}
+
+bool EntityController::refuseUnavailableEntity(const QString& entityId, const QString& command) {
+    entity::Base* e = m_entities.value(entityId);
+
+    // an entity this remote does not know about is left to the core to reject
+    if (!e || mayCommandEntity(e->isEnabled())) {
+        return false;
+    }
+
+    qCDebug(lcEntityController()) << "Entity is unavailable, command refused:" << entityId << command;
+    //: Notification when a command was not sent because the device is unavailable. %1 is the entity name
+    Notification::createNotification(tr("%1 is unavailable").arg(e->getName()), true);
+    return true;
 }
 
 void EntityController::onEntityCommand(const QString& entityId, const QString& command, QVariantMap params) {

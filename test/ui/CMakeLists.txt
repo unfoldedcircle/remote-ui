@@ -117,6 +117,7 @@ add_executable (testEntityController
     "../../src/ui/entity/voiceAssistant.cpp"
     "../../src/ui/entity/entities.cpp"
     "../../src/ui/entity/entitiesProxy.cpp"
+    "../../src/ui/entity/entityCommandPolicy.cpp"
     # header only: contains the Q_GADGET class moc has to process
     "../../src/ui/entity/sequenceStep.h"
     "../../src/ui/mediaImageProvider.cpp"
@@ -164,5 +165,19 @@ target_link_libraries(testUiEntities
     Qt5::Core
     Qt5::Gui
     Qt5::Qml
+    Qt5::Test
+    )
+
+add_executable (testEntityCommandPolicy
+    "test_entity_command_policy.cpp"
+    "../../src/ui/entity/entityCommandPolicy.cpp"
+    )
+
+add_test(NAME testEntityCommandPolicy
+         COMMAND testEntityCommandPolicy)
+
+target_link_libraries(testEntityCommandPolicy
+    PUBLIC
+    Qt5::Core
     Qt5::Test
     )

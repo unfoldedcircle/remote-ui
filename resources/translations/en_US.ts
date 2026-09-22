@@ -5018,6 +5018,12 @@ Tap the QR code to show it on the screen.</translation>
         <translation>Could not change the entity state: %1</translation>
     </message>
     <message>
+        <location filename="../../src/ui/entity/entityController.cpp" line="871"/>
+        <source>%1 is unavailable</source>
+        <extracomment>Notification when a command was not sent because the device is unavailable. %1 is the entity name</extracomment>
+        <translation>%1 is unavailable</translation>
+    </message>
+    <message>
         <location filename="../../src/ui/entity/entityController.cpp" line="1003"/>
         <source>The device</source>
         <translation>The device</translation>

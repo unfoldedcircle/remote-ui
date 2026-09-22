@@ -16,8 +16,15 @@ Item {
     property QtObject entityObj
     property alias brightnessSliderColor: brightnessSliderColor
 
+    // set by the hosting loader: true while this is the feature page on screen
+    property bool currentPage: false
+
+    // set by the hosting loader from the screen's own gate (BaseDetail.acceptsCommands)
+    property bool acceptsCommands: true
+
     Components.ButtonNavigation {
-        overrideActive: true
+        // see Brightness.qml: only the page on screen reacts, and only while the light is available
+        overrideActive: colorFeature.currentPage && colorFeature.acceptsCommands
 
         defaultConfig: {
             "DPAD_UP": {

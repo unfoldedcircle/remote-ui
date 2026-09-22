@@ -26,6 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   falling back to the entity state until the option changes the next time.
 - A switch shows its On/Off state on the entity screen even when the integration does not provide the toggle
   feature, and no longer shows a state for a switch that is unavailable or whose state is unknown.
+- The control screen of an unavailable entity can be left with the keypad again: BACK and HOME close it, while every
+  key that would send a command stays blocked behind the "Entity unavailable" overlay. Before, the screen ignored the
+  whole keypad and only the ✕ closed it.
+- An unavailable entity no longer accepts commands, wherever it is: pressing OK on an unavailable tile on a page
+  behaves like the same tile inside a group, an activity's button mapping no longer sends to an unavailable device,
+  and the brightness and colour keys of a light are ignored while it is unavailable. A refused command now says
+  which device is unavailable instead of doing nothing at all. A button pressed while the remote is waking up is
+  still sent and retried as before, as everything is briefly unavailable then.
+- The brightness and colour temperature keys on a light screen only act on the page that is on screen. A single key
+  press could change the brightness twice when the brightness and the colour page both reacted to it.
+- A list with a search field, e.g. the language or country list, reacts to the first tap again after the on-screen
+  keyboard was closed with its hide key. That tap used to be swallowed.
 - Stopping the app no longer floods the log with hundreds of `TypeError: Cannot read property ... of null` lines
   from QML: the UI is now torn down before the objects it refers to. On the device these lines ended up in the
   system journal on every shutdown and restart.

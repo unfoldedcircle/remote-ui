@@ -107,6 +107,24 @@ EntityComponents.BaseDetail {
             width: ListView.view.width
             height: ListView.view.height
 
+            // The list keeps the neighbouring feature pages alive, and their key handlers are
+            // overrideActive, so without this one brightness key press moved the slider on the
+            // brightness page and on the colour page and each of them sent its own command.
+            readonly property bool currentPage: ListView.isCurrentItem
+
+            // the on/off page has no keys of its own and declares neither property
+            onLoaded: {
+                if (lightFeaturesDelegateLoader.item.currentPage !== undefined) {
+                    lightFeaturesDelegateLoader.item.currentPage =
+                            Qt.binding(function() { return lightFeaturesDelegateLoader.currentPage; });
+                }
+
+                if (lightFeaturesDelegateLoader.item.acceptsCommands !== undefined) {
+                    lightFeaturesDelegateLoader.item.acceptsCommands =
+                            Qt.binding(function() { return lightBase.acceptsCommands; });
+                }
+            }
+
             Component.onCompleted: {
                 if (feature == "onoff") {
                     lightFeaturesDelegateLoader.setSource("qrc:/components/entities/light/OnOff.qml", {entityObj: entityObj});

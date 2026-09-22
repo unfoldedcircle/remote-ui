@@ -73,6 +73,14 @@ Rectangle {
     property bool skipAnimation: false
     property var overrideConfig: ([])
 
+    /**
+      Whether the screen may still send a command. An unavailable entity accepts none, except while
+      the remote is coming back from a wakeup, when every entity carries that state until they have
+      been reloaded - see src/ui/entity/entityCommandPolicy.h for the rule. Read as a binding, from
+      the two properties the rule is made of, so that it follows both of them.
+      */
+    readonly property bool acceptsCommands: entityObj.state != 0 || EntityController.resumePending
+
     property alias iconClose: iconClose
     property alias buttonNavigation: buttonNavigation
 
@@ -96,7 +104,6 @@ Rectangle {
 
     Components.ButtonNavigation {
         id: buttonNavigation
-        ignoreInput: entityObj.state == 0
         defaultConfig: {
             "BACK": {
                 "pressed": function() {
@@ -123,7 +130,12 @@ Rectangle {
                 }
             }
         }
-        overrideConfig: entityBaseDetailContainer.overrideConfig
+        // An unavailable entity accepts no command. Every key that sends one is declared by the
+        // screen itself, in overrideConfig, so dropping that config while the entity is unavailable
+        // blocks them all - including the BACK / HOME overrides of the media player screens, which
+        // then fall back to the handlers above and always leave the screen. The overlay on top says
+        // why nothing happens, so a refused key needs no notification of its own here.
+        overrideConfig: entityBaseDetailContainer.acceptsCommands ? entityBaseDetailContainer.overrideConfig : ({})
     }
 
     Components.Icon {
