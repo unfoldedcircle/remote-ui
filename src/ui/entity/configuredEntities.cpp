@@ -86,11 +86,16 @@ void ConfiguredEntities::loadMore() {
 
 void ConfiguredEntities::loadFromCore(int limit, int page) {
     int id = m_core->getEntities(limit, page, m_filter);
+    setActiveRequest(id);
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respEntities,
         [=](QList<core::Entity> entities, int count, int limit, int page) {
             // success
+            if (isStaleResponse(id)) {
+                return;
+            }
+
             qCDebug(lcEntities()) << "Configured entities:" << count << "page:" << page << "limit:" << limit;
 
             setCount(count);
@@ -121,6 +126,10 @@ void ConfiguredEntities::loadFromCore(int limit, int page) {
         },
         [=](int code, QString message) {
             // fail
+            if (isStaleResponse(id)) {
+                return;
+            }
+
             qCWarning(lcEntities()) << "Cannot get configured entities" << code << message;
         });
 }

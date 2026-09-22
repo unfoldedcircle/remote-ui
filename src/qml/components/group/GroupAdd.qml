@@ -110,8 +110,9 @@ Rectangle {
                 steps.incrementCurrentIndex();
                 keyboard.hide();
                 loading.start();
-                EntityController.configuredEntities.init();
-                entityList.resetSelection();
+                // through the list's own open(): it reloads the entities and resets the selection,
+                // the search term and the filters of the previous visit
+                entityList.open();
                 ui.pages.get(addGroupContainer.pageId).addGroup(groupId);
                 addGroupContainer.groupId = groupId;
             } else {

@@ -32,9 +32,19 @@ class AvailableEntities : public Entities {
     Q_INVOKABLE void loadMore() override;
 
  private:
+    static constexpr int DEFAULT_LIMIT = 100;
+
     core::AvailableEntitiesFilter m_filter;
 
-    void loadFromCore(int limit = 100, int page = 1) override;
+    void loadFromCore(int limit = DEFAULT_LIMIT, int page = 1) override;
+
+    /**
+     * @brief Loads a page of available entities from the core.
+     * @param forceReload asks the core to fetch the entities from the integration again. That is an
+     * expensive round trip for the integration and is only wanted when the list is opened, not for
+     * every keystroke of a search.
+     */
+    void loadFromCore(int limit, int page, bool forceReload);
 
  private slots:
     void onFilterChanged() override;

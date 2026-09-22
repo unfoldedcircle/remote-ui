@@ -181,3 +181,28 @@ target_link_libraries(testEntityCommandPolicy
     Qt5::Core
     Qt5::Test
     )
+
+add_executable (testEntitiesStaleResponse
+    "test_entities_stale_response.cpp"
+    "../../src/ui/entity/entities.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/ui/notification.cpp"
+    "../../src/core/core.cpp"
+    # header only: contains the Q_GADGET enums moc has to process
+    "../../src/core/enums.h"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testEntitiesStaleResponse
+         COMMAND testEntitiesStaleResponse)
+
+target_link_libraries(testEntitiesStaleResponse
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::WebSockets
+    Qt5::Test
+    )

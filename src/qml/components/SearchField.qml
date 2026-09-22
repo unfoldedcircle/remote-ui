@@ -25,6 +25,8 @@
  showError function display the error message
 
  focusInput function focuses the input and brings up the keyboard
+
+ clear function empties the input and restores the placeholder and the search icon
 **/
 
 import QtQuick 2.15
@@ -89,6 +91,20 @@ Rectangle {
         inputField.focus = true;
         inputField.forceActiveFocus();
         keyboard.show();
+    }
+
+    /**
+      Resets the field to its empty state. Clearing the text alone is not enough: the placeholder and the
+      search icon are hidden as soon as the input is focused and only come back when it loses the focus
+      while being empty, so a field cleared from the outside would stay blank without its hint.
+      */
+    function clear() {
+        inputField.clear();
+
+        if (!inputField.focus) {
+            inputField.placeholderText = "   " + inputFieldContainer.placeholderText;
+            searchIcon.visible = true;
+        }
     }
 
     Connections {

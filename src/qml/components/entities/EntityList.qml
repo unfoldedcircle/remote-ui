@@ -167,7 +167,25 @@ Rectangle {
         }
     }
 
+    // The search term and the filters belong to one visit of the list: opening it reloads the list
+    // unfiltered, so the search field and the filter check marks are cleared with it. Without this the
+    // list came back showing every entity while the header still claimed a search term and filters.
+    // Set while the reset runs so that emptying the input field does not trigger another search.
+    property bool resettingSearch: false
+
+    function resetSearchAndFilters() {
+        entityList.resettingSearch = true;
+        entitySearch.clear();
+
+        for (let i = 0; i < filterTypesListModel.count; i++) {
+            filterTypesListModel.get(i).typeChecked = false;
+        }
+
+        entityList.resettingSearch = false;
+    }
+
     function open() {
+        resetSearchAndFilters();
         entityList.model.init(entityList.integrationId);
         stopLoading();
         resetSelection();
@@ -295,6 +313,10 @@ Rectangle {
                     }
                 }
                 inputField.onTextChanged: {
+                    if (entityList.resettingSearch) {
+                        return;
+                    }
+
                     entityList.model.search(inputField.text);
                 }
             }

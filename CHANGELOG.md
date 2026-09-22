@@ -51,6 +51,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An entity the UI has no screen for no longer blocks the remote: opening it closes again with a message in the log
   instead of leaving an empty screen behind that made every following entity, activity and settings page refuse to
   open until the app was restarted.
+- The entity list used to add entities to a page or to manage the entities of an integration no longer shows the
+  results of a search term that was already changed. Typing quickly sent several searches and a slower answer could
+  arrive last and put its entities back into the list; answers that no longer belong to what is in the search field
+  are now discarded.
+- Reopening that entity list starts over: the search term and the entity type filters of the previous visit are
+  cleared. Before, the list came back showing every entity while the search field and the filter button still
+  claimed that a search and a filter were active.
+- Searching the available entities of an integration no longer makes the integration fetch all its entities again
+  for every typed character. The list is refreshed from the integration when it is opened, and searching, filtering
+  and scrolling use the entities the remote already has, which makes typing noticeably quicker with a slow or large
+  integration.
 
 ### Changed
 - Optional overlay of Font Awesome Pro at build time. CI checks that the font in the repository is the Free edition.

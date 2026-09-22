@@ -83,11 +83,31 @@ class Entities : public QAbstractListModel {
 
     bool m_allSelected = false;
 
+    // -1: the list is not waiting for a response
+    int m_activeRequestId = -1;
+
     void add(entity::Base* o);
     void remove(const QString& key);
     void remove(int row);
 
     bool contains(const QString& key);
+
+    /**
+     * @brief Remembers the request the list is currently waiting for.
+     *
+     * Every search, filter change and page load sends a new request. Typing in the search field sends one
+     * per keystroke, and the answers are not guaranteed to arrive in the order they were requested.
+     */
+    void setActiveRequest(int requestId);
+
+    /**
+     * @brief Returns true if the response of @p requestId no longer belongs to the request the list is
+     * waiting for, so its rows must not be added to the model.
+     *
+     * Same one-request-at-a-time guard as the media browser search (MediaPlayer::onSearchMediaResult).
+     * A response that is accepted settles the request: anything else still in flight is stale as well.
+     */
+    bool isStaleResponse(int requestId);
 
  protected:
     QModelIndex getModelIndexByKey(const QString& key);

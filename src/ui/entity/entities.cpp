@@ -96,6 +96,21 @@ bool Entities::contains(const QString &key) {
     return m_rowById.contains(key);
 }
 
+void Entities::setActiveRequest(int requestId) {
+    m_activeRequestId = requestId;
+}
+
+bool Entities::isStaleResponse(int requestId) {
+    if (requestId != m_activeRequestId) {
+        qCDebug(lcEntities()) << "Dropping stale entities response" << requestId << ", waiting for"
+                              << m_activeRequestId;
+        return true;
+    }
+
+    m_activeRequestId = -1;
+    return false;
+}
+
 void Entities::selectAll() {
     bool changed = false;
 
