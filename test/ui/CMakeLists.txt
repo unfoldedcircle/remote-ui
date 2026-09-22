@@ -91,3 +91,58 @@ target_link_libraries(testCommandRetryPolicy
     Qt5::Core
     Qt5::Test
     )
+
+# the entity classes are QML items: uc::ui::entity::Light derives from QQuickPaintedItem
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick REQUIRED)
+
+add_executable (testEntityController
+    "test_entity_controller.cpp"
+    "../../src/ui/entity/entityController.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/ui/entity/activity.cpp"
+    "../../src/ui/entity/availableEntities.cpp"
+    "../../src/ui/entity/button.cpp"
+    "../../src/ui/entity/climate.cpp"
+    "../../src/ui/entity/commandRetryPolicy.cpp"
+    "../../src/ui/entity/configuredEntities.cpp"
+    "../../src/ui/entity/cover.cpp"
+    "../../src/ui/entity/light.cpp"
+    "../../src/ui/entity/macro.cpp"
+    "../../src/ui/entity/mediaPlayer.cpp"
+    "../../src/ui/entity/remote.cpp"
+    "../../src/ui/entity/select.cpp"
+    "../../src/ui/entity/sensor.cpp"
+    "../../src/ui/entity/sequenceReadinessReport.cpp"
+    "../../src/ui/entity/switch.cpp"
+    "../../src/ui/entity/voiceAssistant.cpp"
+    "../../src/ui/entity/entities.cpp"
+    "../../src/ui/entity/entitiesProxy.cpp"
+    # header only: contains the Q_GADGET class moc has to process
+    "../../src/ui/entity/sequenceStep.h"
+    "../../src/ui/mediaImageProvider.cpp"
+    "../../src/ui/notification.cpp"
+    "../../src/config/config.cpp"
+    "../../src/translation/translation.cpp"
+    "../../src/core/core.cpp"
+    # header only: contains the Q_GADGET enums moc has to process
+    "../../src/core/enums.h"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+# uc::Config reports the UI version in its settings
+target_compile_definitions(testEntityController PRIVATE APP_VERSION="test")
+
+add_test(NAME testEntityController
+         COMMAND testEntityController)
+
+target_link_libraries(testEntityController
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Quick
+    Qt5::WebSockets
+    Qt5::Test
+    )

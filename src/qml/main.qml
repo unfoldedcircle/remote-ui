@@ -460,6 +460,17 @@ ApplicationWindow {
                 onStatusChanged: {
                     if (status == Loader.Ready && loader.openAfterLoad) {
                         loader.item.open();
+                    } else if (status == Loader.Error) {
+                        // Nothing was loaded, so there is no item that could ever emit closed() - the only
+                        // thing that releases the container again. Without this the container stays active
+                        // and open, and loadSecondContainer() refuses every screen from then on.
+                        // An entity type or device class the UI does not implement gets here: the screen is
+                        // addressed by qrc:/components/entities/<type>/deviceclass/<device class>.qml.
+                        console.warn("Second container failed to load:", loader.source);
+                        loader.source = "";
+                        loader.active = false;
+                        containerSecond.close();
+                        root.isActivityOpen = false;
                     }
                 }
             }
@@ -535,6 +546,13 @@ ApplicationWindow {
                     if (status == Loader.Ready && loaderThird.openAfterLoad) {
                         loaderThird.item.open(true);
                         containerSecondHideAnimation.start();
+                    } else if (status == Loader.Error) {
+                        // Same as for the second container: without an item nothing ever emits closed(), and
+                        // loadThirdContainer() would refuse every further screen. The exit transition resets
+                        // the loader, so this leaves exactly the state a regular close does. The hide
+                        // animation of the second container has not been started, nothing was shown yet.
+                        console.warn("Third container failed to load:", loaderThird.source);
+                        containerThird.close();
                     }
                 }
             }

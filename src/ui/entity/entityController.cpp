@@ -286,7 +286,16 @@ void EntityController::configureEntities(const QString& integrationId, const QSt
 }
 
 void EntityController::setEntityName(const QString& entityId, const QString& name) {
-    QVariantMap nameMap = m_entities.value(entityId)->getNameI18n();
+    // only entities the UI has asked for are kept: an id that was never loaded, or one whose entity has been
+    // deleted in the meantime, has no object to read the translated names from
+    entity::Base* entityObj = m_entities.value(entityId);
+
+    if (!entityObj) {
+        qCWarning(lcEntityController()) << "Cannot set the name of an entity that is not loaded:" << entityId;
+        return;
+    }
+
+    QVariantMap nameMap = entityObj->getNameI18n();
 
     nameMap.insert(m_language, name);
 
@@ -345,6 +354,11 @@ void EntityController::setEntityState(const QString& entityId, bool on) {
 }
 
 void EntityController::setEntityIcon(const QString& entityId, const QString& icon) {
+    if (!m_entities.contains(entityId)) {
+        qCWarning(lcEntityController()) << "Cannot set the icon of an entity that is not loaded:" << entityId;
+        return;
+    }
+
     int id = m_core->updateEntity(entityId, QVariantMap(), icon);
 
     m_core->onResponseWithErrorResult(

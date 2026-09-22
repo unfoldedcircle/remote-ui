@@ -28,6 +28,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   directory that doesn't exist is reported as a warning.
 - An icon component without an icon no longer logs a warning, and the first language change no longer logs a
   spurious "Failed to remove translation".
+- Renaming or changing the icon of an entity that is no longer there - one that was deleted while its screen was
+  still open - no longer crashes the app.
+- An entity the UI has no screen for no longer blocks the remote: opening it closes again with a message in the log
+  instead of leaving an empty screen behind that made every following entity, activity and settings page refuse to
+  open until the app was restarted.
 
 ### Changed
 - Optional overlay of Font Awesome Pro at build time. CI checks that the font in the repository is the Free edition.
