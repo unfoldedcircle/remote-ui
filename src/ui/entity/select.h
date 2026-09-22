@@ -87,6 +87,9 @@ class Select : public Base {
     void optionsChanged();
 
  private:
+    /** Text for the entity tile: the selected option while the entity is available, the state otherwise. */
+    QString getStateInfoText() const;
+
     QString m_currentOption;
     QStringList m_options;
 };

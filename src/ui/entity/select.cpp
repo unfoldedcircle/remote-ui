@@ -67,7 +67,8 @@ void Select::selectNext()
 void Select::selectPrevious()
 {
     QVariantMap params;
-    params.insert("cycle", false);
+    // stepping wraps around in both directions: a key press must never be a no-op on the remote
+    params.insert("cycle", true);
     sendCommand(SelectCommands::Select_previous, params);
 }
 
@@ -97,13 +98,8 @@ bool Select::updateAttribute(const QString &attribute, QVariant data) {
                 m_stateAsString = SelectStates::getTranslatedString(static_cast<SelectStates::Enum>(m_state));
                 emit stateAsStringChanged();
 
-                if (m_state != SelectStates::Enum::On) {
-                    m_stateInfo = getStateAsString();
-                    emit stateInfoChanged();
-                } else {
-                    m_stateInfo = m_currentOption;
-                    emit stateInfoChanged();
-                }
+                m_stateInfo = getStateInfoText();
+                emit stateInfoChanged();
             }
             break;
         }
@@ -114,15 +110,10 @@ bool Select::updateAttribute(const QString &attribute, QVariant data) {
         }
         case SelectAttributes::Current_option: {
             m_currentOption = data.toString();
-
-            if (m_currentOption.isEmpty()) {
-                m_currentOption = QCoreApplication::translate("No option is selected in the select entity", "None");
-            }
-
             emit currentOptionChanged();
 
             if (m_state == SelectStates::Enum::On) {
-                m_stateInfo = m_currentOption;
+                m_stateInfo = getStateInfoText();
                 emit stateInfoChanged();
             }
 
@@ -133,13 +124,26 @@ bool Select::updateAttribute(const QString &attribute, QVariant data) {
     return ok;
 }
 
+QString Select::getStateInfoText() const {
+    if (m_state != SelectStates::Enum::On) {
+        return m_stateAsString;
+    }
+
+    if (m_currentOption.isEmpty()) {
+        return QCoreApplication::translate("No option is selected in the select entity", "None");
+    }
+
+    return m_currentOption;
+}
+
 void Select::onLanguageChangedTypeSpecific()
 {
     QTimer::singleShot(500, [=]() {
         m_stateAsString = SelectStates::getTranslatedString(static_cast<SelectStates::Enum>(m_state));
         emit stateAsStringChanged();
 
-        m_stateInfo = getStateAsString();
+        // an available select shows the selected option, not the state: keep it after a language change
+        m_stateInfo = getStateInfoText();
         emit stateInfoChanged();
     });
 }

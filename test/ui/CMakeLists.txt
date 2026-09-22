@@ -146,3 +146,23 @@ target_link_libraries(testEntityController
     Qt5::WebSockets
     Qt5::Test
     )
+
+add_executable (testUiEntities
+    "test_entities.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/ui/entity/select.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testUiEntities
+         COMMAND testUiEntities)
+
+target_link_libraries(testUiEntities
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Test
+    )

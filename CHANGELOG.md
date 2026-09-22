@@ -20,6 +20,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   again every half second until the wake-up retry window of the Power Saving settings has run out. Commands that fail
   because the remote is still waking up, when an entity isn't known yet or an integration isn't connected again, are
   retried as before.
+- Stepping backwards through the options of a select entity now wraps around from the first option to the last one,
+  the way stepping forwards already wrapped around from the last option to the first one.
+- The tile of a select entity keeps showing the selected option after the interface language is changed, instead of
+  falling back to the entity state until the option changes the next time.
+- A switch shows its On/Off state on the entity screen even when the integration does not provide the toggle
+  feature, and no longer shows a state for a switch that is unavailable or whose state is unknown.
 - Stopping the app no longer floods the log with hundreds of `TypeError: Cannot read property ... of null` lines
   from QML: the UI is now torn down before the objects it refers to. On the device these lines ended up in the
   system journal on every shutdown and restart.

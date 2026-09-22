@@ -37,7 +37,8 @@ EntityComponents.BaseDetail {
         anchors { top: title.bottom }
 
         Text {
-            visible: entityObj.hasFeature(SwitchFeatures.Toggle)
+            // the state is shown whenever the switch reports one, independently of the toggle feature
+            visible: entityObj.state === SwitchStates.On || entityObj.state === SwitchStates.Off
             //: Switch device state
             text: entityObj.state === SwitchStates.On ? qsTr("On") : qsTr("Off")
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
