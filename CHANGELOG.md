@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   accented letters appear when the base letter is pressed and held.
 
 ### Fixed
+- A command the device rejects, for example one it doesn't support, is now reported right away instead of being sent
+  again every half second until the wake-up retry window of the Power Saving settings has run out. Commands that fail
+  because the remote is still waking up, when an entity isn't known yet or an integration isn't connected again, are
+  retried as before.
 - Stopping the app no longer floods the log with hundreds of `TypeError: Cannot read property ... of null` lines
   from QML: the UI is now torn down before the objects it refers to. On the device these lines ended up in the
   system journal on every shutdown and restart.

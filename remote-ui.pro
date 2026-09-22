@@ -111,6 +111,7 @@ HEADERS += \
     src/ui/entity/activity.h \
     src/ui/entity/button.h \
     src/ui/entity/climate.h \
+    src/ui/entity/commandRetryPolicy.h \
     src/ui/entity/cover.h \
     src/ui/entity/entitiesProxy.h \
     src/ui/entity/entity.h \
@@ -175,6 +176,7 @@ SOURCES += \
         src/ui/entity/activity.cpp \
         src/ui/entity/button.cpp \
         src/ui/entity/climate.cpp \
+        src/ui/entity/commandRetryPolicy.cpp \
         src/ui/entity/cover.cpp \
         src/ui/entity/entitiesProxy.cpp \
         src/ui/entity/entity.cpp \

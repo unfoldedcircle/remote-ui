@@ -77,3 +77,17 @@ target_link_libraries(testUiModels
     Qt5::WebSockets
     Qt5::Test
     )
+
+add_executable (testCommandRetryPolicy
+    "test_command_retry_policy.cpp"
+    "../../src/ui/entity/commandRetryPolicy.cpp"
+    )
+
+add_test(NAME testCommandRetryPolicy
+         COMMAND testCommandRetryPolicy)
+
+target_link_libraries(testCommandRetryPolicy
+    PUBLIC
+    Qt5::Core
+    Qt5::Test
+    )

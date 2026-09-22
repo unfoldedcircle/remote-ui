@@ -15,6 +15,7 @@
 
 #include "../../logging.h"
 #include "./../notification.h"
+#include "commandRetryPolicy.h"
 #include "sequenceReadinessReport.h"
 
 namespace uc {
@@ -22,11 +23,6 @@ namespace ui {
 
 /// A readiness check the user is waiting on gives up well before the core's own request timeout does.
 static constexpr int readinessCheckTimeout = 4000;
-
-static bool isRepeatingCommand(const QString& command, const QVariantMap& params)
-{
-    return command == QStringLiteral("remote.send") && params.contains(QStringLiteral("repeat"));
-}
 
 static QString buildCommandKey(const QString& entityId, const QString& command, const QVariantMap& params)
 {
@@ -872,10 +868,9 @@ void EntityController::onEntityCommand(const QString& entityId, const QString& c
     // The button press that wakes the remote sends its command before the core reports that the remote is
     // awake again, so the resume window is not open yet at that point. m_wasSuspended still marks it: it is
     // set when the remote goes to sleep and only cleared once the wakeup has been reported.
-    // A key repeat is excluded on purpose: by the time it could be sent again it is stale and resending it
-    // would replay a button press the user has long released.
-    pendingCmd.retryOnFailure =
-        m_resumeTimerTimeout > 0 && (m_resumeWindow || m_wasSuspended) && !pendingCmd.repeating;
+    // Only the timing is sampled here. Whether this particular command and this particular failure may be
+    // sent again is decided by mayResendAfterWakeup() once the failure is known.
+    pendingCmd.retryOnFailure = m_resumeTimerTimeout > 0 && (m_resumeWindow || m_wasSuspended);
     // provisional as long as the remote is still waking up, extended to the end of the window once it opens
     pendingCmd.retryDeadlineMs = QDateTime::currentMSecsSinceEpoch() + m_resumeTimerTimeout;
 
@@ -966,9 +961,13 @@ void EntityController::handleCommandFailure(const QString& commandId, int reques
                                     << message;
 
     // a command issued around a wakeup keeps being sent for the configured window: the core and the
-    // integrations are likely still coming back up. Eligibility was sampled when the command was issued,
-    // because the failure is regularly reported only after the window has closed again.
-    if (live.retryOnFailure && QDateTime::currentMSecsSinceEpoch() < live.retryDeadlineMs) {
+    // integrations are likely still coming back up. The timing was sampled when the command was issued,
+    // because the failure is regularly reported only after the window has closed again. What the command and
+    // the failure code say about sending it again is decided here, where both are known: a request the core
+    // or the driver rejected is reported to the user right away instead.
+    if (live.retryOnFailure && !mayResendAfterWakeup(live.command, live.params, code)) {
+        qCDebug(lcEntityController()) << "Not sending the command again after a wakeup:" << commandId << code;
+    } else if (live.retryOnFailure && QDateTime::currentMSecsSinceEpoch() < live.retryDeadlineMs) {
         qCDebug(lcEntityController()) << "Issued around a wakeup, trying command again:" << commandId << "attempt"
                                       << live.attemptCount;
 
