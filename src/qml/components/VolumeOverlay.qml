@@ -173,7 +173,7 @@ Popup {
         text: resource.getIcon(volume.up ? "uc:plus" : "uc:minus")
         anchors { left: volumeBar.right; leftMargin: 60; verticalCenter: volumeBar.verticalCenter }
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignRight
-        font { family: "UC Icons"; pixelSize: 180 }
+        font { family: fonts.iconFamily; pixelSize: 180 }
         visible: !volume.supportsVolumeSet
     }
 

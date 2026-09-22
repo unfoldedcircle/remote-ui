@@ -18,6 +18,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An icon component without an icon no longer logs a warning, and the first language change no longer logs a
   spurious "Failed to remove translation".
 
+### Changed
+- Optional overlay of Font Awesome Pro at build time. CI checks that the font in the repository is the Free edition.
+- Renamed the icon font, using the correct .ttf file extension, and added icon font documentation.
+
 ---
 
 ## v0.82.1 - 2026-09-15

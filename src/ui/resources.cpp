@@ -24,10 +24,72 @@ Resources::Resources(const QString& resourcePath, const QString& legalPath, QObj
         qCDebug(lcResources()) << "Icon mapping file loaded";
     }
 
+    QFile fallbackFile(":icon-fallback.json");
+
+    if (!fallbackFile.open(QIODevice::ReadOnly)) {
+        qCWarning(lcResources()) << "Cannot open icon fallback file";
+    } else {
+        QJsonObject fallback = QJsonDocument::fromJson(fallbackFile.readAll()).object();
+
+        m_iconFallback = fallback.value("fallback").toObject();
+        m_iconPlaceholder = fallback.value("placeholder").toString();
+
+        qCDebug(lcResources()) << "Icon fallback mapping loaded:" << m_iconFallback.count() << "icons";
+    }
+
     qmlRegisterUncreatableType<Resources>("ResourceTypes", 1, 0, "ResourceTypes", "Enum is not a type");
 }
 
 Resources::~Resources() {}
+
+void Resources::setIconFont(const QString& family) {
+    QFont font(family);
+    m_iconMetrics.reset(new QFontMetrics(font));
+
+    qCDebug(lcResources()) << "Icon font family:" << family;
+}
+
+bool Resources::canRenderGlyph(const QString& glyph) const {
+    if (glyph.isEmpty()) {
+        return false;
+    }
+
+    // Without a font the icons are rendered by whatever QML picks: don't second-guess it.
+    if (m_iconMetrics.isNull()) {
+        return true;
+    }
+
+    return m_iconMetrics->inFontUcs4(glyph.toUcs4().first());
+}
+
+QString Resources::getIconGlyph(const QString& name) {
+    if (!m_iconList.contains(name)) {
+        qCDebug(lcResources()) << "Cannot find icon:" << name;
+        return QString();
+    }
+
+    QString glyph = m_iconList.value(name).toString();
+
+    if (canRenderGlyph(glyph)) {
+        return glyph;
+    }
+
+    // The embedded font doesn't have this icon: it is only in the Pro edition of the icon set.
+    const QString alternative = m_iconFallback.value(name).toString();
+    const QString alternativeGlyph = m_iconList.value(alternative).toString();
+
+    if (!alternativeGlyph.isEmpty() && canRenderGlyph(alternativeGlyph)) {
+        qCDebug(lcResources()) << "Icon" << name << "not in the icon font, using" << alternative;
+        return alternativeGlyph;
+    }
+
+    const QString placeholderGlyph = m_iconList.value(m_iconPlaceholder).toString();
+
+    qCDebug(lcResources()) << "Icon" << name << "not in the icon font and without a fallback,"
+                           << "using" << m_iconPlaceholder;
+
+    return canRenderGlyph(placeholderGlyph) ? placeholderGlyph : QString();
+}
 
 QString Resources::getIcon(const QString& id, const QString& suffix) {
     QString _id;
@@ -141,7 +203,11 @@ QStringList Resources::getIconList() {
     QStringList list;
 
     foreach(const QString& key, m_iconList.keys()) {
-        list.append("uc:" + key);
+        // Don't offer icons the embedded font cannot draw: they would all look like the
+        // placeholder in the icon selection.
+        if (canRenderGlyph(m_iconList.value(key).toString())) {
+            list.append("uc:" + key);
+        }
     }
 
     return list;
@@ -180,11 +246,7 @@ QString Resources::getResource(ResourceType type, const QString& id) {
         case Icon: {
             // UC icon
             if (prefix.contains("uc")) {
-                if (m_iconList.contains(resourceName)) {
-                    return m_iconList.value(resourceName).toString();
-                } else {
-                    qCDebug(lcResources()) << "Cannot find icon:" << id;
-                }
+                return getIconGlyph(resourceName);
             } else if (prefix.contains("custom")) {
                 // Custom icon
                 if (QFile::exists(m_resourcePaths.value(type) + resourceName)) {

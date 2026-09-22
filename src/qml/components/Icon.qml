@@ -50,7 +50,7 @@ Item {
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         anchors.centerIn: parent
         color: colors.offwhite
-        font { family: "UC Icons"; pixelSize: Math.round(size / 2); }
+        font { family: fonts.iconFamily; pixelSize: Math.round(size / 2); }
         visible: image.source == ""
         renderType: Text.NativeRendering
     }

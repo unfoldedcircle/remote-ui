@@ -1,0 +1,33 @@
+{
+  "comment": [
+    "Icon names that exist in the Pro edition of the icon font but not in the Free edition,",
+    "with the Free icon to draw instead. Only used when the embedded font lacks the glyph, so",
+    "a Pro build ignores this file. Names without an entry fall back to 'placeholder'.",
+    "See docs/icon-font.md."
+  ],
+  "placeholder": "circle-question",
+  "fallback": {
+    "album-circle-plus": "circle-plus",
+    "album-collection": "compact-disc",
+    "arrow-up-right-and-arrow-down-left-from-center": "up-right-and-down-left-from-center",
+    "battery-low": "battery-quarter",
+    "blind": "bars",
+    "blinds": "bars",
+    "bluetooth": "tower-broadcast",
+    "brightness": "sun",
+    "globe-pointer": "globe",
+    "grid-2": "border-all",
+    "keyboard-down": "keyboard",
+    "light-switch": "lightbulb",
+    "list": "list-ul",
+    "puzzle": "puzzle-piece",
+    "sensor": "gauge",
+    "up": "arrow-up",
+    "up-to-line": "arrow-up",
+    "volume": "volume-high",
+    "wifi-01": "wifi",
+    "wifi-02": "wifi",
+    "wifi-fair": "wifi",
+    "wifi-weak": "wifi"
+  }
+}

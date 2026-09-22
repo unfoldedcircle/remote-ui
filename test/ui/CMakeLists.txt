@@ -46,6 +46,29 @@ add_executable (testUiModels
 add_test(NAME testUiModels
          COMMAND testUiModels)
 
+# The icon fallback depends on what the embedded icon font can draw, so the test compiles the
+# icon resources in (font + mapping + fallback mapping).
+add_executable (testIconFont
+    "test_icon_font.cpp"
+    "../../src/ui/resources.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    # util.cpp generates QR codes
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    "../../resources/qrc/icons.qrc"
+    )
+
+add_test(NAME testIconFont
+         COMMAND testIconFont)
+
+target_link_libraries(testIconFont
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Test
+    )
+
 target_link_libraries(testUiModels
     PUBLIC
     Qt5::Core

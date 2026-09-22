@@ -5,10 +5,13 @@
 
 #include <QDir>
 #include <QFile>
+#include <QFont>
+#include <QFontMetrics>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
 #include <QQmlEngine>
+#include <QScopedPointer>
 
 namespace uc {
 namespace ui {
@@ -36,11 +39,34 @@ class Resources : public QObject {
     Q_INVOKABLE QStringList getIconList();
     Q_INVOKABLE QStringList getCustomIconList();
 
+    /**
+     * @brief Sets the font family the icon glyphs are rendered with.
+     *
+     * Enables the icon fallback: an icon the embedded font cannot draw is replaced by its
+     * mapped alternative, or by the placeholder icon. Called once at startup with the family
+     * of the embedded icon font, which differs between the Free and the Pro edition of the
+     * icon set (see docs/icon-font.md).
+     */
+    void setIconFont(const QString& family);
+
  signals:
     void aboutInfo(QString content, QString baseDir);
 
  private:
     QJsonObject m_iconList;
+    QJsonObject m_iconFallback;
+    QString     m_iconPlaceholder;
+
+    QScopedPointer<QFontMetrics> m_iconMetrics;
+
+    /**
+     * @brief Returns the icon glyph for a mapped icon name, or an empty string.
+     *
+     * An icon the embedded font cannot draw is replaced by its entry in the fallback mapping
+     * and, if that does not help either, by the placeholder icon.
+     */
+    QString getIconGlyph(const QString& name);
+    bool    canRenderGlyph(const QString& glyph) const;
 
     QString                      m_resourcePath;
     QHash<ResourceType, QString> m_resourcePaths = {{Icon, m_resourcePath + "/Icon/"},
