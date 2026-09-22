@@ -351,17 +351,13 @@
     <message>
         <location filename="../../src/qml/components/entities/Base.qml" line="210"/>
         <location filename="../../src/qml/components/entities/Base.qml" line="226"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="253"/>
         <source>%1 is unavailable</source>
         <extracomment>Notification when a command was not sent because the device is unavailable. %1 is the entity name</extracomment>
         <translation>%1 is unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="252"/>
-        <source>is unavailable</source>
-        <translation>is unavailable</translation>
-    </message>
-    <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="449"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="450"/>
         <location filename="../../src/qml/components/group/Base.qml" line="186"/>
         <source>Profile is restricted</source>
         <translation>Profile is restricted</translation>
