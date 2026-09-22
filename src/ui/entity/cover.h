@@ -73,6 +73,9 @@ class Cover : public Base {
     Q_OBJECT
 
     Q_PROPERTY(int position READ getPosition NOTIFY positionChanged)
+    // Whether the cover ever reported a position. Until then `position` is a placeholder and the UI must not
+    // present it as the real one: a cover without the position feature never reports one at all.
+    Q_PROPERTY(bool positionAvailable READ isPositionAvailable NOTIFY positionChanged)
     Q_PROPERTY(int tiltPosition READ getTiltPosition NOTIFY tiltPositionChanged)
 
  public:
@@ -81,10 +84,13 @@ class Cover : public Base {
                    QVariantMap attributes, const QString &integrationId, QObject *parent);
     ~Cover();
 
-    int getPosition() { return m_position; }
-    int getTiltPosition() { return m_tiltPosition; }
+    int  getPosition() { return m_position; }
+    bool isPositionAvailable() { return m_positionAvailable; }
+    int  getTiltPosition() { return m_tiltPosition; }
 
-    QString getStateInfo() override { return m_stateInfo1 + " " + m_stateInfo2; }
+    QString getStateInfo() override {
+        return m_stateInfo2.isEmpty() ? m_stateInfo1 : m_stateInfo1 + " " + m_stateInfo2;
+    }
 
     Q_INVOKABLE void turnOn() override;
     Q_INVOKABLE void turnOff() override;
@@ -109,8 +115,9 @@ class Cover : public Base {
     void tiltPositionChanged();
 
  private:
-    int m_position;
-    int m_tiltPosition;
+    int  m_position = 0;
+    bool m_positionAvailable = false;
+    int  m_tiltPosition = 0;
 
     QString m_stateInfo1;
     QString m_stateInfo2;

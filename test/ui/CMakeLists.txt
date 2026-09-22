@@ -24,6 +24,26 @@ set(CMAKE_OSX_ARCHITECTURES x86_64)
 
 enable_testing(true)
 
+add_executable (testCoverEntity
+    "test_cover_entity.cpp"
+    "../../src/ui/entity/cover.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testCoverEntity
+         COMMAND testCoverEntity)
+
+target_link_libraries(testCoverEntity
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Test
+    )
+
 add_executable (testUiModels
     "test_models.cpp"
     "../../src/ui/page/pages.cpp"

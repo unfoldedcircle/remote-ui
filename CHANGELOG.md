@@ -51,6 +51,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - An entity the UI has no screen for no longer blocks the remote: opening it closes again with a message in the log
   instead of leaving an empty screen behind that made every following entity, activity and settings page refuse to
   open until the app was restarted.
+- Opening a curtain no longer shows 0 % until the blind next moves: the screen starts at the position the cover
+  already reported. A cover that has never reported a position shows `--` instead of a made-up 0 %.
+- The icon of a cover on a page is no longer highlighted while the cover is closed. It now lights up when the cover
+  is open, matching the on/off control on the same tile.
+- The position under a cover's name on a page keeps up with a moving blind. It used to refresh only when the cover
+  changed between opening, open, closing and closed, so it could show a stale percentage.
+- On the screen of a cover that cannot be opened or closed as a whole, a short press of the up or down key no longer
+  sends an open or close command the integration does not support.
 - The entity list used to add entities to a page or to manage the entities of an integration no longer shows the
   results of a search term that was already changed. Typing quickly sent several searches and a slower answer could
   arrive last and put its entities back into the list; answers that no longer belong to what is in the search field

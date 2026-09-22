@@ -133,14 +133,26 @@ bool Cover::updateAttribute(const QString &attribute, QVariant data) {
             break;
         }
         case CoverAttributes::Position: {
-            int newPos = data.toInt();
+            bool valid = false;
+            int  newPos = data.toInt(&valid);
 
-            if (m_position != newPos) {
+            if (!valid) {
+                qCWarning(lcCover()) << "Ignoring non-numeric position attribute of entity" << m_id;
+                break;
+            }
+
+            // the core API defines the position as a percentage, 0 = closed, 100 = open
+            newPos = qBound(0, newPos, 100);
+
+            if (!m_positionAvailable || m_position != newPos) {
                 m_position = newPos;
+                m_positionAvailable = true;
                 ok = true;
                 emit positionChanged();
 
                 m_stateInfo2 = QString::number(m_position) + "%";
+                // the tile shows the state and the position in one line: it only refreshes on stateInfoChanged
+                emit stateInfoChanged();
             }
             break;
         }

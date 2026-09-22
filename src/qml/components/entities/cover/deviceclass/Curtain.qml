@@ -16,6 +16,10 @@ import "qrc:/components/entities/cover" as CoverComponents
 EntityComponents.BaseDetail {
     id: coverBase
 
+    // A cover that never reported a position must not be shown as 0 %: the readout stays neutral until
+    // the position is known. Adjusting it locally makes the value on screen the one being sent.
+    property bool positionKnown: entityObj.positionAvailable
+
     overrideConfig: {
         "DPAD_UP": {
             "pressed": function() {
@@ -36,7 +40,7 @@ EntityComponents.BaseDetail {
                 if (repeatPressTimer.running) {
                     repeatPressTimer.stop();
                     positionChangeTimeOut.restart();
-                } else {
+                } else if (entityObj.hasFeature(CoverFeatures.Open)) {
                     entityObj.open();
                 }
             }
@@ -60,7 +64,7 @@ EntityComponents.BaseDetail {
                 if (repeatPressTimer.running) {
                     repeatPressTimer.stop();
                     positionChangeTimeOut.restart();
-                } else {
+                } else if (entityObj.hasFeature(CoverFeatures.Close)) {
                     entityObj.close();
                 }
             }
@@ -111,6 +115,9 @@ EntityComponents.BaseDetail {
             if (count >= 5) {
                 changeInterval = 40;
             }
+
+            // the user is setting the position: the value on screen is the one being sent
+            coverBase.positionKnown = true;
 
             if (up) {
                 positionSliderLeft.increase();
@@ -165,7 +172,7 @@ EntityComponents.BaseDetail {
 
             Text {
                 id: positionText
-                text: positionSliderLeft.value
+                text: coverBase.positionKnown ? positionSliderLeft.value : "--"
                 elide: Text.ElideRight
                 maximumLineCount: 1
                 color: colors.offwhite
@@ -189,6 +196,15 @@ EntityComponents.BaseDetail {
             Layout.fillHeight: true
 
             visible: entityObj.hasFeature(CoverFeatures.Position)
+
+            // The two sliders mirror each other and assign to each other on every change, which would
+            // break a declarative `value: entityObj.position` binding right away. Seed them once with
+            // the position the entity already has, otherwise the screen opens at 0 % until the core
+            // sends the next position.
+            Component.onCompleted: {
+                positionSliderLeft.value = entityObj.position;
+                positionSliderRight.value = entityObj.position;
+            }
 
             Connections {
                 target: entityObj
@@ -264,6 +280,8 @@ EntityComponents.BaseDetail {
                     implicitWidth: 80; implicitHeight: 80
                 }
 
+                onMoved: coverBase.positionKnown = true
+
                 onValueChanged: {
                     Haptic.play(Haptic.Bump);
                     positionSliderRight.value = positionSliderLeft.value
@@ -334,6 +352,8 @@ EntityComponents.BaseDetail {
                     y: positionSliderRight.topPadding + positionSliderRight.availableHeight / 2 - height / 2
                     implicitWidth: 80; implicitHeight: 80
                 }
+
+                onMoved: coverBase.positionKnown = true
 
                 onValueChanged: {
                     Haptic.play(Haptic.Bump);

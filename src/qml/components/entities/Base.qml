@@ -307,8 +307,8 @@ Rectangle {
             break;
 
         case EntityTypes.Cover:
-            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state === CoverStates.Closed; });
-
+            // an open cover is the active state, like the on/off control below: a closed one is not lit
+            entityBaseContainer.iconOn = Qt.binding(function() { return currentEntityObj.state === CoverStates.Open; });
 
             if (entityObj && entityObj.hasAllFeatures([CoverFeatures.Open, CoverFeatures.Close])) {
                 entityBaseContainer.controlTrigger = function() {
