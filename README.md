@@ -11,7 +11,8 @@ When run on a desktop, the app becomes a device simulator: the input buttons of 
 
 ## Requirements
 
-- Mac or Linux computer / virtual machine.
+- Mac or Linux computer / virtual machine. (A Windows build exists as an experiment, cross-compiled on Linux and
+  unsupported, see [docs/static-compile-windows.md](docs/static-compile-windows.md).)
 - Qt 5.15 (5.15.19 recommended, 5.15.2 is what the CI uses) and Qt Creator.
 - [Remote-Core Simulator](https://github.com/unfoldedcircle/core-simulator) for local development.
 - Docker for Remote-Core Simulator and cross-compilation.
@@ -39,6 +40,7 @@ make linux          # dynamic Qt  -> binaries/Linux-x64/remote-ui
 make linux-static   # static Qt   -> binaries/Linux-x64-static/remote-ui
 make linux-x64      # static Qt in the Docker toolchain image, no Qt installation needed -> binaries/linux-x64/release/remote-ui
 make ucr2           # Remote Two/3 aarch64 static binary via the Docker toolchain -> binaries/linux-arm64/release/remote-ui
+make windows-x64    # experimental Windows x64 static binary via the Docker toolchain -> binaries/windows-x64/release/remote-ui.exe
 make test           # unit tests
 make run-linux      # start the UI app (also run-linux-static)
 ```
@@ -67,6 +69,7 @@ set sensible defaults for every variable; set a variable before sourcing to over
 . scripts/env/linux.sh        && binaries/Linux-x64/remote-ui          # Linux, dynamic Qt  (= make run-linux)
 . scripts/env/linux-static.sh && binaries/Linux-x64-static/remote-ui   # Linux, static Qt   (= make run-linux-static)
 . scripts/env/linux-static.sh && binaries/linux-x64/release/remote-ui  # Linux, Docker-built static Qt (= make run-linux-x64)
+scripts\env\windows.cmd                                                # Windows, experimental (docs/static-compile-windows.md)
 . scripts/env/macos.sh        # macOS: app settings only, e.g. for the Qt Creator run settings
 ```
 
@@ -78,7 +81,7 @@ set sensible defaults for every variable; set a variable before sourcing to over
 | UC_MODEL              | The model of the hardware                | DEV                    |
 | UC_DISPLAY_WIDTH      | Width of the display                     | 480                    |
 | UC_DISPLAY_HEIGHT     | Height of the display                    | 850                    |
-| UC_DISPLAY_SCALE      | Scale factor for the display             | 0.5                    |
+| UC_DISPLAY_SCALE      | Scale factor for the display             | 0.5 on macOS (2x Retina displays), 1 on Linux and Windows |
 | UC_SOCKET_URL         | Websocket url of the core                | ws://127.0.0.1:8080/ws |
 | UC_TOKEN_PATH         | Location of the token file from the core | None                   |
 | UC_RESOURCE_PATH      | Location of the resources directory      | None                   |

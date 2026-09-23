@@ -18,6 +18,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`remote-ui-<version>-Linux-x64-static.tar.gz`) that runs on Ubuntu 24.04 / Debian 13 and newer without a Qt
   installation. `make linux-x64` produces the same build locally in the Docker toolchain image, see
   `docs/static-compile.md`.
+- Experimental, unsupported Windows x64 build: `make windows-x64` cross-compiles it on Linux in a Docker image,
+  documented in `docs/static-compile-windows.md` with a start script `scripts/env/windows.cmd`. We develop on Linux
+  and macOS only; the Windows build is not verified for releases.
+
+### Changed
+- The default display scale of the desktop simulator (`UC_DISPLAY_SCALE`) is now 1 on Linux and Windows; it stays
+  0.5 on macOS, where the desktop is a 2x Retina display. Previously 0.5 everywhere, which drew the UI at half size
+  on a regular Linux display.
 
 ### Fixed
 - The voice assistant no longer starts listening after the microphone button was released. Holding the button

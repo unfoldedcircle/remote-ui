@@ -17,7 +17,7 @@ export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
 export UC_MODEL="${UC_MODEL:-DEV}"
 export UC_DISPLAY_WIDTH="${UC_DISPLAY_WIDTH:-480}"
 export UC_DISPLAY_HEIGHT="${UC_DISPLAY_HEIGHT:-850}"
-# 1 on a regular display. The app default 0.5 is meant for 2x (Retina / 200 % scaled) displays.
+# 1 is the app default on Linux (regular display); use 0.5 on a desktop scaled to 200 %.
 export UC_DISPLAY_SCALE="${UC_DISPLAY_SCALE:-1}"
 # Access token of the core-simulator (https://github.com/unfoldedcircle/core-simulator)
 export UC_TOKEN_PATH="${UC_TOKEN_PATH:-$HOME/projects/core-simulator/docker/ui-env/ws-token}"

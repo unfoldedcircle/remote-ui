@@ -49,7 +49,11 @@ bool TouchSliderUCR3::openDevice() {
         return false;
     }
 
+#ifdef __linux__
     m_fd = open(m_devicePath.toUtf8().data(), O_RDONLY | O_NONBLOCK);
+#else
+    m_fd = -1;  // evdev devices only exist on Linux
+#endif
     if (m_fd == -1) {
         qCWarning(lcHwTouchSlider()) << "Cannot open touch slider device, errno:" << errno;
         return false;

@@ -52,7 +52,18 @@ int main(int argc, char *argv[]) {
         QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
         QCoreApplication::setAttribute(Qt::AA_UseHighDpiPixmaps);
 
-        double ratio = qgetenv("UC_DISPLAY_SCALE").toDouble() != 0.0 ? qgetenv("UC_DISPLAY_SCALE").toDouble() : 0.5;
+        // Scale factor of the simulator window. Default 0.5 on macOS, where the desktop is a 2x Retina display and
+        // the 480x850 panel is rendered at half size, and 1 on Linux and Windows (regular 1x displays; the desktop
+        // scaling is handled by the platform). UC_DISPLAY_SCALE overrides it.
+#ifdef Q_OS_MACOS
+        const double defaultScale = 0.5;
+#else
+        const double defaultScale = 1.0;
+#endif
+        double ratio = qgetenv("UC_DISPLAY_SCALE").toDouble();
+        if (ratio <= 0.0) {
+            ratio = defaultScale;
+        }
         qputenv("QT_SCALE_FACTOR", QString::number(ratio).toLocal8Bit());
     }
 

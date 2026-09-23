@@ -21,6 +21,7 @@ manager usually doesn't work (wrong version); the guides below build Qt 5.15.19 
 | macOS                     | [static-compile-macos.md](static-compile-macos.md)       | Qt online installer and Qt Creator, static kit               |
 | Static desktop build      | [static-compile.md](static-compile.md)                   | self-contained binary without Qt libraries, macOS and Debian 13 |
 | Remote Two/3 device       | [cross-compile.md](cross-compile.md)                     | Docker toolchain, `make ucr2`                                |
+| Windows x64 (experimental) | [static-compile-windows.md](static-compile-windows.md)  | cross-compiled on Linux in a Docker image, unsupported: we develop on Linux and macOS only |
 
 Adding a target: copy the closest guide, name it `install-<distribution>-<version>.md`, and link it in this table.
 

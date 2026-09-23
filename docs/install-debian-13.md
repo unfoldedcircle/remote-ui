@@ -230,10 +230,10 @@ them matter on Debian 13:
   If you see that error, a stale `export QT_QPA_PLATFORM=eglfs` is still set in the current shell.
   One line at startup is expected with Xwayland and harmless: `qt.qpa.xcb: QXcbConnection: XCB error: 146 (Unknown)
   ... major code: 139 (Unknown), minor code: 20` is a RANDR `BadCrtc` reply to Qt 5.15's screen query.
-- `UC_DISPLAY_SCALE=1`. The app default of 0.5 is tuned for 2x displays (macOS Retina, GNOME at 200 %). On a regular
-  1x display it draws the UI at half size in the centre of the 480x850 window, shows the virtual keyboard in its
-  supposedly hidden position and cuts the button simulator. With 1 the main window is exactly the 480x850 screen
-  panel and the button window shows just the buttons. Go back to 0.5 if the desktop runs at 200 % scaling.
+- `UC_DISPLAY_SCALE`. The app default is 1 on Linux and Windows (0.5 on macOS, for 2x Retina displays): the main
+  window is exactly the 480x850 screen panel and the button window shows just the buttons. On a desktop scaled to
+  200 % set it to 0.5. With the wrong factor the UI is drawn at half size in the centre of the window, the virtual
+  keyboard shows in its supposedly hidden position and the button simulator is cut.
 
 The dynamic and the static build, and builds with different Qt versions, use separate object directories
 (`build/linux-x86_64/release[-static]/` is keyed by the build directory, and the Makefile targets use `build/` and

@@ -25,6 +25,7 @@ JOBS         ?= $(shell nproc 2>/dev/null || sysctl -n hw.ncpu)
 # Docker toolchain images (docs/cross-compile.md, docs/static-compile.md). `docker pull <image>` to update one.
 TOOLCHAIN_IMAGE ?= unfoldedcircle/r2-toolchain-qt-5.15.8-static:latest
 DESKTOP_IMAGE   ?= unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-x64:latest
+WINDOWS_IMAGE   ?= unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-windows-x64:latest
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ARCH := $(shell uname -m)
@@ -63,6 +64,13 @@ linux-x64: ## Build the static simulator in the Docker toolchain image (no Qt ne
 	$(docker_build)
 	@echo "Run it with:  make run-linux-x64   or:  . scripts/env/linux-static.sh && binaries/linux-x64/release/remote-ui"
 
+windows-x64: IMAGE = $(WINDOWS_IMAGE)
+windows-x64: OUT_DIR = $(ROOT)/binaries/windows-x64/release
+windows-x64: BIN = remote-ui.exe
+windows-x64: ## Cross-compile the experimental static Windows simulator in the Docker toolchain image -> binaries/windows-x64/release/remote-ui.exe
+	$(docker_build)
+	@echo "Copy remote-ui.exe to a Windows machine and start it with scripts\\env\\windows.cmd, see docs/static-compile-windows.md"
+
 test: ## Build and run the unit tests (CMake, dynamic Qt)
 	mkdir -p "$(ROOT)/test/build"
 	@grep -qs 'Qt5_DIR:PATH=$(QTDIR)/' "$(ROOT)/test/build/CMakeCache.txt" || rm -rf "$(ROOT)/test/build"/*
@@ -98,6 +106,9 @@ clean-ucr2: ## Remove the Remote Two/3 cross-compile build (intermediate files, 
 clean-linux-x64: ## Remove the Docker-built static desktop build (intermediate files, binaries/linux-x64/)
 	rm -rf "$(ROOT)/build/linux-$(ARCH)/release-static" "$(ROOT)/binaries/linux-x64" "$(ROOT)/build/.clean-ts-linux-x64"
 
+clean-windows-x64: ## Remove the Windows cross-compile build (intermediate files, binaries/windows-x64/)
+	rm -rf "$(ROOT)/build/windows-x86_64" "$(ROOT)/binaries/windows-x64" "$(ROOT)/build/.clean-ts-windows-x64"
+
 clean-all: ## Remove every build, test build and output directory
 	rm -rf "$(ROOT)/build" "$(ROOT)/build-static" "$(ROOT)/binaries" "$(ROOT)/test/build"
 
@@ -110,9 +121,9 @@ help: ## Show this help
 	@awk 'BEGIN { FS = ":.*## "; printf "Usage: make <target> [VARIABLE=value]\n" } \
 	      /^##@/ { printf "\n%s\n", substr($$0, 5) } \
 	      /^[a-zA-Z0-9_-]+:.*## / { printf "  %-22s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
-	@printf "\nVariables:\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n" \
+	@printf "\nVariables:\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n" \
 	        "QT_VERSION" "$(QT_VERSION)" "QTDIR" "$(QTDIR)" "QTDIR_STATIC" "$(QTDIR_STATIC)" "JOBS" "$(JOBS)" \
-	        "TOOLCHAIN_IMAGE" "$(TOOLCHAIN_IMAGE)" "DESKTOP_IMAGE" "$(DESKTOP_IMAGE)"
+	        "TOOLCHAIN_IMAGE" "$(TOOLCHAIN_IMAGE)" "DESKTOP_IMAGE" "$(DESKTOP_IMAGE)" "WINDOWS_IMAGE" "$(WINDOWS_IMAGE)"
 	@echo "  QTDIR is ignored by linux-static on purpose: it usually points to the dynamic Qt (docs/install.md)."
 
 # qmake runs lupdate, which rewrites every resources/translations/*.ts. ts_snapshot remembers in file $(1) which of
@@ -126,9 +137,10 @@ define ts_restore
 	@cd "$(ROOT)" && xargs -r git checkout --quiet -- < "$(1)"
 endef
 
-# Docker toolchain build recipe (ucr2, linux-x64). IMAGE and OUT_DIR are set per target above. The image runs qmake
-# and make on the bind-mounted repository and writes the binary to OUT_DIR (binaries/<platform>/release, the path
-# the GitHub workflow tars). The intermediate files go to build/<platform>/release-static/ in the repository.
+# Docker toolchain build recipe (ucr2, linux-x64, windows-x64). IMAGE, OUT_DIR and BIN are set per target above. The
+# image runs qmake and make on the bind-mounted repository and writes the binary to OUT_DIR (binaries/<platform>/release,
+# the path the GitHub workflow tars). The intermediate files go to build/<platform>/release-static/ in the repository.
+BIN = remote-ui
 define docker_build
 	@docker image inspect "$(IMAGE)" >/dev/null 2>&1 || docker pull "$(IMAGE)"
 	git -C "$(ROOT)" submodule update --init --recursive
@@ -137,7 +149,7 @@ define docker_build
 	docker run --rm --user=$$(id -u):$$(id -g) -v "$(ROOT)":/sources "$(IMAGE)"
 	cd "$(ROOT)" && git describe --match "v[0-9]*" --tags HEAD --always > "$(OUT_DIR)/version.txt"
 	$(call ts_restore,$(ROOT)/build/.clean-ts-$@)
-	@echo; echo "Build finished: $(OUT_DIR)/remote-ui ($$(cat "$(OUT_DIR)/version.txt"))"
+	@echo; echo "Build finished: $(OUT_DIR)/$(BIN) ($$(cat "$(OUT_DIR)/version.txt"))"
 endef
 
 # Common build recipe. Variables QT, LINK, BUILD_DIR, OUT_DIR, QMAKE_ARGS, DOC and ENV_FILE are set per target above.
@@ -159,4 +171,4 @@ define build
 	@echo "Run it with:  make run-$@   or:  . $(ENV_FILE) && $(subst $(ROOT)/,,$(OUT_DIR))/remote-ui"
 endef
 
-.PHONY: help linux linux-static linux-x64 ucr2 test run-linux run-linux-static run-linux-x64 clean clean-static clean-ucr2 clean-linux-x64 clean-all translations-restore
+.PHONY: help linux linux-static linux-x64 windows-x64 ucr2 test run-linux run-linux-static run-linux-x64 clean clean-static clean-ucr2 clean-linux-x64 clean-windows-x64 clean-all translations-restore

@@ -5,6 +5,11 @@ static {
     QT += svg
 }
 
+win32 {
+    # Console subsystem: Qt's log output goes to the console the app was started from, or to a new console window
+    # when double-clicked. A Windows GUI application has no stderr and Qt would only log to the debugger.
+    # CONFIG += console
+}
 macx {
     CONFIG+=sdk_no_version_check
     # There seems no other way to change the taskbar & app switcher name
@@ -324,6 +329,9 @@ macx {
 }
 linux {
     platform_path = linux
+}
+win32 {
+    platform_path = windows
 }
 
 BUILD_DEBUG {

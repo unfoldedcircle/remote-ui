@@ -5,6 +5,13 @@
 
 #include <QObject>
 
+#ifdef Q_OS_WIN
+// windows.h, pulled in by QtQuick / QOpenGL headers, defines ERROR (wingdi.h) and DELETE (winnt.h) as macros.
+// They clash with the enum values below; this header must be included after those Qt headers in such files.
+#undef ERROR
+#undef DELETE
+#endif
+
 namespace uc {
 namespace core {
 
