@@ -24,10 +24,10 @@
 #include "macro.h"
 #include "mediaPlayer.h"
 #include "remote.h"
+#include "select.h"
 #include "sensor.h"
 #include "switch.h"
 #include "voiceAssistant.h"
-#include "select.h"
 
 namespace uc {
 namespace ui {
@@ -58,8 +58,8 @@ class EntityController : public QObject {
     Q_PROPERTY(bool commandInProgress READ getCommandInProgress NOTIFY commandInProgressChanged)
 
  public:
-    explicit EntityController(core::Api* core, const QString& language, const Config::UnitSystems unitSystem, int resumeTimeoutWindowSec,
-                              QObject* parent = nullptr);
+    explicit EntityController(core::Api* core, const QString& language, const Config::UnitSystems unitSystem,
+                              int resumeTimeoutWindowSec, QObject* parent = nullptr);
     ~EntityController();
 
     AvailableEntities*  getAvailableEntities() { return &m_availableEntities; }
@@ -72,12 +72,10 @@ class EntityController : public QObject {
     // reports a wakeup only once it is through, so the resume window alone leaves the span in which the
     // remote is already awake and taking input uncovered, which is where a button press that wakes it up
     // lands. Everything that has to survive a wakeup is gated on this, not on the window alone.
-    bool                getResumePending() const {
-        return m_resumeTimerTimeout > 0 && (m_resumeWindow || m_wasSuspended);
-    }
+    bool getResumePending() const { return m_resumeTimerTimeout > 0 && (m_resumeWindow || m_wasSuspended); }
     // length of the resume window in milliseconds, 0 if retrying after a wakeup is turned off
-    int                 getResumeTimeout() const { return m_resumeTimerTimeout; }
-    bool                getCommandInProgress() { return !m_busyEntities.isEmpty(); }
+    int  getResumeTimeout() const { return m_resumeTimerTimeout; }
+    bool getCommandInProgress() { return !m_busyEntities.isEmpty(); }
 
     /**
      * @brief Refresh entity data from the core
@@ -136,6 +134,24 @@ class EntityController : public QObject {
      * @param on: true for ON, false for OFF
      */
     Q_INVOKABLE void setEntityState(const QString& entityId, bool on);
+
+    /**
+     * @brief Drop a voice_start that is still pending for a voice session which has already ended.
+     *
+     * A command that failed around a wakeup is sent again for the whole resume window. Nothing else keeps such
+     * a repetition from delivering the start of a session the UI has already closed, which lets the assistant
+     * begin listening after the user let go of the microphone button. Removing the pending command is what
+     * cancels a scheduled resend: retrySendAttempt() and the resend timer look the command up again and give
+     * up when it is gone.
+     *
+     * Called for every voice_end, and by the voice overlay for the session ends that send none, e.g. when it
+     * closes after an error or a timeout.
+     *
+     * @param entityId: voice assistant entity of the ended session
+     * @param sessionId: the ended session, -1 for every session of that entity
+     * @return true if a pending start was dropped
+     */
+    Q_INVOKABLE bool cancelPendingVoiceStart(const QString& entityId, int sessionId);
 
     /**
      * @brief Ask the core whether a sequence command can run right now.
@@ -222,13 +238,13 @@ class EntityController : public QObject {
     QStringList                   m_activities;
 
     struct pendingCommand {
-        QString entityId;
-        QString command;
+        QString     entityId;
+        QString     command;
         QVariantMap params;
-        QString commandId;
-        int requestId = -1;
-        int attemptCount = 0;
-        bool repeating = false;
+        QString     commandId;
+        int         requestId = -1;
+        int         attemptCount = 0;
+        bool        repeating = false;
         // set for a command issued around a wakeup. Sampled when the command is issued, not when it fails:
         // the core reports an unanswered request only after its own timeout, which is longer than the
         // configured resume window, so by then the window has regularly closed again
@@ -273,9 +289,9 @@ class EntityController : public QObject {
      */
     bool refuseUnavailableEntity(const QString& entityId, const QString& command);
 
-    bool   m_wasSuspended = false;
-    bool   m_resumeWindow = false;
-    int    m_resumeTimerTimeout = 2000;
+    bool    m_wasSuspended = false;
+    bool    m_resumeWindow = false;
+    int     m_resumeTimerTimeout = 2000;
     quint64 m_entityLoadGeneration = 0;
 
     /**

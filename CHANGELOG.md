@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   accented letters appear when the base letter is pressed and held.
 
 ### Fixed
+- The voice assistant no longer starts listening after the microphone button was released. Holding the button
+  right after waking the remote could reach the assistant before it was ready; the request was then repeated in
+  the background and could arrive after the button was already let go, so the assistant recorded an empty
+  request. A voice request is now dropped as soon as it is over, and the voice screen then reports the assistant
+  as unavailable right away instead of waiting for its own timeout.
 - A command the device rejects, for example one it doesn't support, is now reported right away instead of being sent
   again every half second until the wake-up retry window of the Power Saving settings has run out. Commands that fail
   because the remote is still waking up, when an entity isn't known yet or an integration isn't connected again, are

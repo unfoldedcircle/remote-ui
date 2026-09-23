@@ -135,6 +135,7 @@ add_executable (testEntityController
     "../../src/ui/entity/sequenceReadinessReport.cpp"
     "../../src/ui/entity/switch.cpp"
     "../../src/ui/entity/voiceAssistant.cpp"
+    "../../src/ui/entity/voiceSession.cpp"
     "../../src/ui/entity/entities.cpp"
     "../../src/ui/entity/entitiesProxy.cpp"
     "../../src/ui/entity/entityCommandPolicy.cpp"
@@ -224,5 +225,19 @@ target_link_libraries(testEntitiesStaleResponse
     Qt5::Gui
     Qt5::Qml
     Qt5::WebSockets
+    Qt5::Test
+    )
+
+add_executable (testVoiceSession
+    "test_voice_session.cpp"
+    "../../src/ui/entity/voiceSession.cpp"
+    )
+
+add_test(NAME testVoiceSession
+         COMMAND testVoiceSession)
+
+target_link_libraries(testVoiceSession
+    PUBLIC
+    Qt5::Core
     Qt5::Test
     )

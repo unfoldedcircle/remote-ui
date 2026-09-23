@@ -34,6 +34,15 @@ Popup {
 
     onClosed: {
         buttonNavigation.releaseControl();
+
+        // the session is over, also when it ended without a voice_end: after an error, after the timeout, or
+        // because the overlay was dismissed. A voice_start that is still being resent after a wakeup would
+        // otherwise let the assistant start listening once it finally gets through. Unlike a voice_end, this
+        // reports no error for the dropped start: the overlay is closed and there is nothing to show it on.
+        if (voice.voiceEntityObj) {
+            EntityController.cancelPendingVoiceStart(voice.voiceEntityObj.id, voice.sessionId);
+        }
+
         circleContainer.reset();
         titleText.text = qsTr("Listening ...");
         voice.wasError = false;
