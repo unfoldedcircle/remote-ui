@@ -1,5 +1,6 @@
-# GitHub Action to build the remote-ui Qt project for the Remote Two as a static Qt app and
-# as a shared library desktop app for Linux (and maybe later also for macOS and Windows).
+# GitHub Action to build the remote-ui Qt project as a static Qt app for the Remote Two/3 and, for release builds,
+# as a static Linux x64 desktop simulator. Both are built in the Docker toolchain images of
+# https://github.com/unfoldedcircle/ucr2-toolchain (see docs/cross-compile.md and docs/static-compile.md).
 ---
 name: "Build & Release"
 
@@ -139,22 +140,40 @@ jobs:
           ui/testUiModels
           hardware/testBattery
 
-  build-embedded:
+  # The static builds run in Docker toolchain images. The Linux x64 desktop simulator is only built for release
+  # builds (push to main and version tags), not for pull requests, so the matrix is computed here.
+  build-matrix:
+    name: Build matrix
+    runs-on: ubuntu-latest
+    outputs:
+      config: ${{ steps.matrix.outputs.config }}
+    steps:
+      - name: Select the static build targets
+        id: matrix
+        shell: bash
+        run: |
+          UCR2='{ "name": "UCR2 aarch64", "artifact": "UCR2", "build": "static", "output": "linux-arm64/release",
+                  "build-image": "unfoldedcircle/r2-toolchain-qt-5.15.8-static", "changelog": true }'
+          LINUX_X64='{ "name": "Linux x64 desktop", "artifact": "Linux-x64", "build": "static", "output": "linux-x64/release",
+                       "build-image": "unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-x64", "changelog": false }'
+          if [[ "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == refs/tags/v* ]]; then
+            CONFIG="[$UCR2, $LINUX_X64]"
+          else
+            CONFIG="[$UCR2]"
+          fi
+          echo "config=$(echo "$CONFIG" | tr -d '\n')" >> "$GITHUB_OUTPUT"
+          echo "$CONFIG"
+
+  build-static:
     name: ${{ matrix.config.name }}
     runs-on: ubuntu-latest
-    needs: [unit-tests]
+    needs: [unit-tests, build-matrix]
     strategy:
       matrix:
-        config:
-          - {
-            name: "UCR2 aarch64", artifact: "UCR2", build: "static",
-            qmake-args: "CONFIG+=release CONFIG+=static",
-            build-image: "unfoldedcircle/r2-toolchain-qt-5.15.8-static"
-          }
+        config: ${{ fromJSON(needs.build-matrix.outputs.config) }}
 # TODO add YIO Remote support
 #          - {
 #            name: "YIO Remote", artifact: "YIO", build: "static",
-#            qmake-args: "CONFIG+=release CONFIG+=static",
 #            build-image: ""
 #          }
 
@@ -214,19 +233,18 @@ jobs:
       - name: Set build output directory
         shell: bash
         run: |
-          # replicate default path from remote-ui.pro
+          # the toolchain images write to binaries/<platform>/release (default path of remote-ui.pro, or UC_BIN)
           mkdir ${{ env.PROJECT_NAME }}/build
           mkdir ${{ env.PROJECT_NAME }}/${{env.BIN_OUTPUT_PATH }}
-          echo "UC_BIN=${GITHUB_WORKSPACE}/${{ env.PROJECT_NAME }}/${BIN_OUTPUT_PATH}/linux-arm64/release" >> $GITHUB_ENV
+          echo "UC_BIN=${GITHUB_WORKSPACE}/${{ env.PROJECT_NAME }}/${BIN_OUTPUT_PATH}/${{ matrix.config.output }}" >> $GITHUB_ENV
 
-      - name: Cross compile
+      - name: Build in the Docker toolchain image
         run: |
           docker pull ${{ matrix.config.build-image }}
           docker run --rm  \
               --user=$(id -u):$(id -g) \
               -v ${GITHUB_WORKSPACE}/${{ env.PROJECT_NAME }}:/sources \
               ${{ matrix.config.build-image }}
-
       - name: Set build artifact name
         shell: bash
         run: |
@@ -251,13 +269,16 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-      # Release notes for the release job, built from the conventional commits since the last tag
+      # Release notes for the release job, built from the conventional commits since the last tag.
+      # Attention: artifact names must be unique, only one matrix entry may create and upload the changelog!
       - name: Setup Node.js
+        if: matrix.config.changelog
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "lts/*"
 
       - name: Create changelog
+        if: matrix.config.changelog
         shell: bash
         run: |
           CHANGELOG="${GITHUB_WORKSPACE}/${{ env.BUILD_CHANGELOG }}"
@@ -270,8 +291,8 @@ jobs:
           sed -i -e '1{/^## \[\]/d}' -e '/./,$!d' "$CHANGELOG"
           cat "$CHANGELOG"
 
-      # Attention: artifact names must be unique, only one matrix entry may upload the changelog!
       - name: Upload changelog
+        if: matrix.config.changelog
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: changelog
@@ -279,243 +300,11 @@ jobs:
           if-no-files-found: error
           retention-days: 3
 
-  build-desktop:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    needs: [unit-tests]
-    # FIXME GitHub removed Ubuntu 20.04 runners April 15 2025 - build doesn't work anymore. --> disabled for now, no time to fix
-    #       Potential fix is in https://github.com/msys2/MINGW-packages/issues/10502
-    #       Attention: once enabled, the release step dependency has to be updated too!
-    if: 0
-    strategy:
-      matrix:
-        config:
-          - {
-            name: "Linux x64", artifact: "Linux-x64", build: "release",
-            qmake-args: "CONFIG+=release",
-            # Warning: 22.04 comes with GCC 11 which doesn't work with Qt 5.18.2! https://github.com/msys2/MINGW-packages/issues/10502
-            os: ubuntu-24.04
-          }
-          # Attention: macOS minutes count 10x more than Linux!
-#          - {
-#            name: "macOS x64", artifact: "macOS-x64", build: "release",
-#            qmake-args: "CONFIG+=release",
-#            os: macos-latest
-#          }
-# TODO Windows not yet tested! Not sure if bash shell can be used...
-#          # TODO for Windows build install: https://download.qt.io/official_releases/jom/jom.zip
-#          - {
-#            name: "Windows x64", artifact: "Windows-x64", build: "release",
-#            msvc: win64_msvc2017_64,
-#            qmake-args: "CONFIG+=release",
-#            os: windows-latest,
-#            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-#          }
-
-    steps:
-      - name: Cache libicu56 build
-        id: cache-libicu56
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: icu
-          key: libicu56-${{ matrix.config.artifact }}
-
-      # Qt lrelease & lupdate tools require a very old libicu version which is not available on Linux!
-      # Even installing the Ubuntu qt5dev (or similar) package which provides these tools is broken!!!
-      - name: Build libicu56 library for lupdate
-        if: runner.os == 'Linux' && steps.cache-libicu56.outputs.cache-hit != 'true'
-        run: |
-          wget https://github.com/unicode-org/icu/releases/download/release-56-2/icu4c-56_2-src.tgz
-          tar xzf icu4c-56_2-src.tgz
-          cd icu/source
-          chmod +x runConfigureICU configure install-sh
-          ./runConfigureICU Linux
-          make -j$(nproc)
-
-      - name: Install libicu56 library
-        if: runner.os == 'Linux'
-        run: |
-          cd icu/source
-          sudo make install
-
-      # Attention shared Qt installation cache: use the same configuration as for the unit test build above!
-      - name: Install Qt
-        uses: jurplel/install-qt-action@48d3ad6db93f3627c8ee7a0454bc6f3744f7e730 # v4.3.1
-        with:
-          version: ${{ env.QT_VERSION }}
-          # modules & archives: https://ddalcino.github.io/aqt-list-server/
-          modules: 'qtvirtualkeyboard'
-          # qtbase: qmake
-          # qttools: lrelease & lupdate
-          archives: 'qtbase qtdeclarative qtmultimedia qtquickcontrols2 qtsvg qttools qtwebsockets'
-          cache: true
-          cache-key-prefix: ${{ env.QT_VERSION }}-${{ matrix.config.artifact }}
-
-      - name: Show environment
-        if: env.DEBUG_OUTPUT == 'true'
-        run: |
-          printenv
-          ls -lah ..
-          echo "Qt5 bin directory:"
-          ls -lah $Qt5_DIR/bin
-          echo "Qt5 lib directory:"
-          ls -lah $Qt5_DIR/lib
-          echo "qmake   : $(which qmake)"
-          echo "lrelease: $(which lrelease)"
-          echo "lupdate : $(which lupdate)"
-          #aqt list-tool linux desktop
-          #aqt list-qt linux desktop --archives 5.15.2 gcc_64
-          qmake --version
-          qmake -query
-
-      - name: Checkout ${{ env.PROJECT_NAME }}
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          # history and tags required to determine number of commits since last release tag
-          fetch-depth: 0
-          path: ${{ env.PROJECT_NAME }}
-          submodules: recursive
-
-      - name: Set build output directory
-        shell: bash
-        run: |
-          mkdir ${{ env.PROJECT_NAME }}/build
-          mkdir ${GITHUB_WORKSPACE}/${{env.BIN_OUTPUT_PATH }}
-          echo "UC_BIN=${GITHUB_WORKSPACE}/${BIN_OUTPUT_PATH}/${{ matrix.config.artifact }}" >> $GITHUB_ENV
-
-      # The easy way, but only for Linux
-      - name: Configure with qmake
-        if: env.USE_CMAKE_SHELL == 'false'
-        run: |
-          cd ${{ env.PROJECT_NAME }}/build
-          qmake ${GITHUB_WORKSPACE}/${{ env.PROJECT_NAME }}/${{ env.APP_PRO }} ${{ matrix.config.qmake-args }}
-          ls -lah
-
-      - name: Build with make
-        if: env.USE_CMAKE_SHELL == 'false'
-        run: |
-          cd ${{ env.PROJECT_NAME }}/build
-          make -j $(nproc --all)
-          cp version.txt ${{ env.UC_BIN }}
-
-      # Use cmake as a platform independent shell
-      # Credits go to: https://github.com/fpoussin/qtcreator-doxygen/blob/master/.github/workflows/build_qmake.yml
-      - name: Configure with cmake shell
-        if: env.USE_CMAKE_SHELL == 'true'
-        shell: cmake -P {0}
-        run: |
-          if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-            execute_process(
-              COMMAND "${{ matrix.config.environment_script }}" && set
-              OUTPUT_FILE environment_script_output.txt
-            )
-            file(STRINGS environment_script_output.txt output_lines)
-            foreach(line IN LISTS output_lines)
-              if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-                set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-                # Set for other steps
-                message("::set-env name=${CMAKE_MATCH_1}::${CMAKE_MATCH_2}")
-              endif()
-            endforeach()
-          endif()
-
-          execute_process(
-            COMMAND qmake
-              $ENV{GITHUB_WORKSPACE}/$ENV{PROJECT_NAME}/$ENV{APP_PRO}
-              ${{ matrix.config.qmake-args }}
-            WORKING_DIRECTORY $ENV{GITHUB_WORKSPACE}/$ENV{PROJECT_NAME}/build
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Bad exit status")
-          endif()
-
-      - name: Build with cmake shell
-        if: env.USE_CMAKE_SHELL == 'true'
-        shell: cmake -P {0}
-        run: |
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            file(STRINGS environment_script_output.txt output_lines)
-            foreach(line IN LISTS output_lines)
-              if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-                set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-              endif()
-            endforeach()
-            set(ENV{PATH} "${{ steps.qt.outputs.qt_dir }}/bin/;$ENV{PATH}")
-          else()
-            set(ENV{PATH} "${{ steps.qt.outputs.qt_dir }}/bin/:$ENV{PATH}")
-          endif()
-
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(make_program jom)
-          else()
-            include(ProcessorCount)
-            ProcessorCount(N)
-            set(make_program make -j ${N})
-          endif()
-
-          execute_process(
-            COMMAND ${make_program}
-            WORKING_DIRECTORY $ENV{GITHUB_WORKSPACE}/$ENV{PROJECT_NAME}/build
-            RESULT_VARIABLE result
-          )
-          if (NOT result EQUAL 0)
-            message(FATAL_ERROR "Build failed: bad exit status")
-          endif()
-
-          execute_process(
-            COMMAND cp $ENV{GITHUB_WORKSPACE}/$ENV{PROJECT_NAME}/build/version.txt $ENV{UC_BIN}
-          )
-
-      - name: Show output
-        if: env.DEBUG_OUTPUT == 'true'
-        run: |
-          pwd
-          ls -lah
-          cd ${{ env.PROJECT_NAME }}/build
-          pwd
-          ls -lah
-          cd ${GITHUB_WORKSPACE}/${BIN_OUTPUT_PATH}
-          pwd
-          ls -lah
-          cd ${{ env.UC_BIN }}
-          pwd
-          ls -lah
-          cd ${GITHUB_WORKSPACE}/${{ env.PROJECT_NAME }}
-          pwd
-          ls -lah
-
-      - name: Set build artifact name
-        shell: bash
-        run: |
-          APP_VERSION=$(cat "${{ env.UC_BIN }}/version.txt" | awk '{print $1}')
-          echo "App version: $APP_VERSION"
-          echo "ARTIFACT_NAME=${{ env.APP_NAME }}-$APP_VERSION-Qt${{ env.QT_VERSION }}-${{ matrix.config.artifact }}-${{ matrix.config.build }}" >> $GITHUB_ENV
-
-      # Archive is required to preserve file permissions and re-used for release uploads
-      - name: Create upload artifact
-        shell: bash
-        run: |
-          pwd
-          tar czvf ${{ env.ARTIFACT_NAME }}.tar.gz -C ${GITHUB_WORKSPACE}/${{env.BIN_OUTPUT_PATH }} .
-          ls -lah
-
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        id: upload_artifact
-        with:
-          name: ${{ env.ARTIFACT_NAME }}
-          path: ${{ env.ARTIFACT_NAME }}.tar.gz
-          if-no-files-found: error
-          retention-days: 3
-
   release:
     name: Create Release
     if: github.ref == 'refs/heads/main' || contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
-    # FIXME desktop build is currently disabled!
-    # needs: [build-desktop, build-embedded]
-    needs: [build-embedded]
+    needs: [build-static]
     # required to delete the previous pre-release and to create a new release
     permissions:
       contents: write

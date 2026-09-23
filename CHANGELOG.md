@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   character. The keys follow the national layout of the selected language, and its accented characters are
   reachable: å, ä, ö, æ, ø, ñ and ç have a key of their own where the national keyboard has one, the remaining
   accented letters appear when the base letter is pressed and held.
+- Release builds now include a statically linked Linux x64 desktop simulator
+  (`remote-ui-<version>-Linux-x64-static.tar.gz`) that runs on Ubuntu 24.04 / Debian 13 and newer without a Qt
+  installation. `make linux-x64` produces the same build locally in the Docker toolchain image, see
+  `docs/static-compile.md`.
 
 ### Fixed
 - The voice assistant no longer starts listening after the microphone button was released. Holding the button

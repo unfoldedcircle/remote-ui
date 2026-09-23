@@ -22,8 +22,9 @@ endif
 QTDIR        ?= $(HOME)/Qt/$(QT_VERSION)/gcc_64
 QTDIR_STATIC ?= $(HOME)/Qt/$(QT_VERSION)/gcc_64-static
 JOBS         ?= $(shell nproc 2>/dev/null || sysctl -n hw.ncpu)
-# Remote Two/3 cross-compile toolchain (docs/cross-compile.md). `docker pull $(TOOLCHAIN_IMAGE)` to update it.
+# Docker toolchain images (docs/cross-compile.md, docs/static-compile.md). `docker pull <image>` to update one.
 TOOLCHAIN_IMAGE ?= unfoldedcircle/r2-toolchain-qt-5.15.8-static:latest
+DESKTOP_IMAGE   ?= unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-x64:latest
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ARCH := $(shell uname -m)
@@ -50,16 +51,17 @@ linux-static: ENV_FILE = scripts/env/linux-static.sh
 linux-static: ## Build the self-contained simulator with the static Qt -> binaries/Linux-x64-static/remote-ui
 	$(build)
 
+ucr2: IMAGE = $(TOOLCHAIN_IMAGE)
+ucr2: OUT_DIR = $(ROOT)/binaries/linux-arm64/release
 ucr2: ## Cross-compile the static Remote Two/3 (aarch64) binary in the Docker toolchain -> binaries/linux-arm64/release/remote-ui
-	@docker image inspect "$(TOOLCHAIN_IMAGE)" >/dev/null 2>&1 || docker pull "$(TOOLCHAIN_IMAGE)"
-	git -C "$(ROOT)" submodule update --init --recursive
-	mkdir -p "$(ROOT)/build"
-	$(call ts_snapshot,$(ROOT)/build/.clean-ts-ucr2)
-	docker run --rm --user=$$(id -u):$$(id -g) -v "$(ROOT)":/sources "$(TOOLCHAIN_IMAGE)"
-	cd "$(ROOT)" && git describe --match "v[0-9]*" --tags HEAD --always > binaries/linux-arm64/release/version.txt
-	$(call ts_restore,$(ROOT)/build/.clean-ts-ucr2)
-	@echo; echo "Build finished: $(ROOT)/binaries/linux-arm64/release/remote-ui ($$(cat "$(ROOT)/binaries/linux-arm64/release/version.txt"))"
+	$(docker_build)
 	@echo "Install it on the device as described in docs/cross-compile.md"
+
+linux-x64: IMAGE = $(DESKTOP_IMAGE)
+linux-x64: OUT_DIR = $(ROOT)/binaries/linux-x64/release
+linux-x64: ## Build the static simulator in the Docker toolchain image (no Qt needed) -> binaries/linux-x64/release/remote-ui
+	$(docker_build)
+	@echo "Run it with:  make run-linux-x64   or:  . scripts/env/linux-static.sh && binaries/linux-x64/release/remote-ui"
 
 test: ## Build and run the unit tests (CMake, dynamic Qt)
 	mkdir -p "$(ROOT)/test/build"
@@ -77,6 +79,10 @@ run-linux-static: ## Start the static build with scripts/env/linux-static.sh
 	@test -x "$(ROOT)/binaries/Linux-x64-static/remote-ui" || { echo "No binary yet, run: make linux-static"; exit 1; }
 	@cd "$(ROOT)" && . scripts/env/linux-static.sh && exec binaries/Linux-x64-static/remote-ui
 
+run-linux-x64: ## Start the Docker-built static build with scripts/env/linux-static.sh
+	@test -x "$(ROOT)/binaries/linux-x64/release/remote-ui" || { echo "No binary yet, run: make linux-x64"; exit 1; }
+	@cd "$(ROOT)" && . scripts/env/linux-static.sh && exec binaries/linux-x64/release/remote-ui
+
 ##@ Clean
 
 clean: ## Remove the dynamic build (build/, intermediate files, binaries/Linux-x64/)
@@ -88,6 +94,9 @@ clean-static: ## Remove the static build (build-static/, intermediate files, bin
 
 clean-ucr2: ## Remove the Remote Two/3 cross-compile build (intermediate files, binaries/linux-arm64/)
 	rm -rf "$(ROOT)/build/linux-arm64" "$(ROOT)/binaries/linux-arm64" "$(ROOT)/build/.clean-ts-ucr2"
+
+clean-linux-x64: ## Remove the Docker-built static desktop build (intermediate files, binaries/linux-x64/)
+	rm -rf "$(ROOT)/build/linux-$(ARCH)/release-static" "$(ROOT)/binaries/linux-x64" "$(ROOT)/build/.clean-ts-linux-x64"
 
 clean-all: ## Remove every build, test build and output directory
 	rm -rf "$(ROOT)/build" "$(ROOT)/build-static" "$(ROOT)/binaries" "$(ROOT)/test/build"
@@ -101,9 +110,9 @@ help: ## Show this help
 	@awk 'BEGIN { FS = ":.*## "; printf "Usage: make <target> [VARIABLE=value]\n" } \
 	      /^##@/ { printf "\n%s\n", substr($$0, 5) } \
 	      /^[a-zA-Z0-9_-]+:.*## / { printf "  %-22s %s\n", $$1, $$2 }' $(MAKEFILE_LIST)
-	@printf "\nVariables:\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n" \
+	@printf "\nVariables:\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n  %-22s %s\n" \
 	        "QT_VERSION" "$(QT_VERSION)" "QTDIR" "$(QTDIR)" "QTDIR_STATIC" "$(QTDIR_STATIC)" "JOBS" "$(JOBS)" \
-	        "TOOLCHAIN_IMAGE" "$(TOOLCHAIN_IMAGE)"
+	        "TOOLCHAIN_IMAGE" "$(TOOLCHAIN_IMAGE)" "DESKTOP_IMAGE" "$(DESKTOP_IMAGE)"
 	@echo "  QTDIR is ignored by linux-static on purpose: it usually points to the dynamic Qt (docs/install.md)."
 
 # qmake runs lupdate, which rewrites every resources/translations/*.ts. ts_snapshot remembers in file $(1) which of
@@ -115,6 +124,20 @@ define ts_snapshot
 endef
 define ts_restore
 	@cd "$(ROOT)" && xargs -r git checkout --quiet -- < "$(1)"
+endef
+
+# Docker toolchain build recipe (ucr2, linux-x64). IMAGE and OUT_DIR are set per target above. The image runs qmake
+# and make on the bind-mounted repository and writes the binary to OUT_DIR (binaries/<platform>/release, the path
+# the GitHub workflow tars). The intermediate files go to build/<platform>/release-static/ in the repository.
+define docker_build
+	@docker image inspect "$(IMAGE)" >/dev/null 2>&1 || docker pull "$(IMAGE)"
+	git -C "$(ROOT)" submodule update --init --recursive
+	mkdir -p "$(ROOT)/build"
+	$(call ts_snapshot,$(ROOT)/build/.clean-ts-$@)
+	docker run --rm --user=$$(id -u):$$(id -g) -v "$(ROOT)":/sources "$(IMAGE)"
+	cd "$(ROOT)" && git describe --match "v[0-9]*" --tags HEAD --always > "$(OUT_DIR)/version.txt"
+	$(call ts_restore,$(ROOT)/build/.clean-ts-$@)
+	@echo; echo "Build finished: $(OUT_DIR)/remote-ui ($$(cat "$(OUT_DIR)/version.txt"))"
 endef
 
 # Common build recipe. Variables QT, LINK, BUILD_DIR, OUT_DIR, QMAKE_ARGS, DOC and ENV_FILE are set per target above.
@@ -136,4 +159,4 @@ define build
 	@echo "Run it with:  make run-$@   or:  . $(ENV_FILE) && $(subst $(ROOT)/,,$(OUT_DIR))/remote-ui"
 endef
 
-.PHONY: help linux linux-static ucr2 test run-linux run-linux-static clean clean-static clean-ucr2 clean-all translations-restore
+.PHONY: help linux linux-static linux-x64 ucr2 test run-linux run-linux-static run-linux-x64 clean clean-static clean-ucr2 clean-linux-x64 clean-all translations-restore
