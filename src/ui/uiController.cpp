@@ -275,8 +275,9 @@ int Controller::addProfile(const QString &name, bool restricted) {
     m_core->onResponseWithErrorResult(
         id, &core::Api::respProfile,
         [=](core::Profile profile) {
-            // success
-            m_config->setCurrentProfileId(profile.id);
+            // success: switching to the new profile is left to the profile NEW event, which the core sends to
+            // every client. Setting the current profile here would only switch locally, without telling the core.
+            Q_UNUSED(profile)
             emit profileAdded(true);
         },
         [=](int code, QString message) {
@@ -431,23 +432,46 @@ int Controller::updatePageItems(const QString &pageId) {
 }
 
 void Controller::getFactoryResetToken() {
+    m_factoryResetToken.clear();
+
     int id = m_core->getFactoryResetToken();
+
+    if (id < 0) {
+        qCWarning(lcUi()) << "Error getting factory reset token: request not sent";
+        m_notification.createNotification(factoryResetNotStartedMsg(), true);
+        emit factoryResetTokenReceived(false);
+        return;
+    }
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respFactoryResetToken,
         [=](QString token) {
             // success
             m_factoryResetToken = token;
+            if (m_factoryResetToken.isEmpty()) {
+                qCWarning(lcUi()) << "Error getting factory reset token: empty token";
+                m_notification.createNotification(factoryResetNotStartedMsg(), true);
+                emit factoryResetTokenReceived(false);
+                return;
+            }
+            emit factoryResetTokenReceived(true);
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error getting factory reset token: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
-            m_notification.createNotification(errorMsg, true);
+            qCWarning(lcUi()) << code << "Error getting factory reset token:" << message;
+            m_notification.createNotification(factoryResetNotStartedMsg(), true);
+            emit factoryResetTokenReceived(false);
         });
 }
 
 void Controller::factoryReset() {
+    // defensive: the confirmation is not offered without a token
+    if (m_factoryResetToken.isEmpty()) {
+        qCWarning(lcUi()) << "Not starting the factory reset: no token";
+        m_notification.createNotification(factoryResetNotStartedMsg(), true);
+        return;
+    }
+
     int id = m_core->factoryReset(m_factoryResetToken);
 
     m_core->onResult(
@@ -758,13 +782,24 @@ void Controller::onProfileChanged(QString profileId, core::Profile profile) {
 }
 
 void Controller::onProfileDeleted(QString profileId) {
-    if (m_profile.getId() == profileId) {
-        qCDebug(lcUi()) << "Profile deleted" << profileId;
-        m_profile.setId("-1");
-        emit profileChanged();
-    }
+    qCDebug(lcUi()) << "Profile deleted" << profileId;
 
+    // remove it first: the no profile screen below picks the profile list or the add form by the remaining count
     m_profiles.removeItem(profileId);
+
+    if (m_profile.getId() == profileId) {
+        qCDebug(lcUi()) << "The current profile was deleted, dropping its pages";
+
+        m_profile.setId("-1");
+        m_profile.setName(QString());
+        m_profile.setIcon(QString());
+        m_profile.setRestricted(false);
+        emit profileChanged();
+
+        // drop the pages of the deleted profile, like switching to another profile does, and ask for a new one
+        m_pages.clear();
+        emit isNoProfileChanged();
+    }
 }
 
 void Controller::onPageAdded(QString profileId, core::Page page) {

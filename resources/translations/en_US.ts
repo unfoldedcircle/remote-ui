@@ -956,13 +956,13 @@ Climate fan</extracomment>
         <translation>By %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/integrations/Configure.qml" line="252"/>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="271"/>
         <source>Low battery: the setup ends in %1</source>
         <extracomment>%1 is a countdown in minutes:seconds</extracomment>
         <translation>Low battery: the setup ends in %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/integrations/Configure.qml" line="254"/>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="273"/>
         <source>Running on battery: the setup ends in %1</source>
         <extracomment>%1 is a countdown in minutes:seconds</extracomment>
         <translation>Running on battery: the setup ends in %1</translation>
@@ -1000,7 +1000,7 @@ Climate fan</extracomment>
     </message>
     <message>
         <location filename="../../src/qml/components/docks/Configure.qml" line="474"/>
-        <location filename="../../src/qml/components/integrations/Configure.qml" line="295"/>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="315"/>
         <source>Next</source>
         <translation>Next</translation>
     </message>
@@ -1011,7 +1011,7 @@ Climate fan</extracomment>
     </message>
     <message>
         <location filename="../../src/qml/components/docks/Configure.qml" line="461"/>
-        <location filename="../../src/qml/components/integrations/Configure.qml" line="324"/>
+        <location filename="../../src/qml/components/integrations/Configure.qml" line="344"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
@@ -2530,14 +2530,12 @@ Climate fan</extracomment>
 <context>
     <name>NoProfile</name>
     <message>
-        <location filename="../../src/qml/NoProfile.qml" line="22"/>
         <source>There was an error loading the profile.</source>
-        <translation>There was an error loading the profile.</translation>
+        <translation type="vanished">There was an error loading the profile.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/NoProfile.qml" line="31"/>
         <source>Select or add profile</source>
-        <translation>Select or add profile</translation>
+        <translation type="vanished">Select or add profile</translation>
     </message>
 </context>
 <context>
@@ -3318,7 +3316,7 @@ in %1 seconds.</translation>
         <translation>Erase everything</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Reset.qml" line="123"/>
+        <location filename="../../src/qml/settings/settings/Reset.qml" line="136"/>
         <source>Point of
 no return</source>
         <extracomment>Factory reset, after this step, everything is deleted</extracomment>
@@ -3326,17 +3324,17 @@ no return</source>
 no return</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Reset.qml" line="133"/>
+        <location filename="../../src/qml/settings/settings/Reset.qml" line="146"/>
         <source>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</source>
         <translation>Confirming factory reset will erase all configuration and data. Data cannot be recovered.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Reset.qml" line="140"/>
+        <location filename="../../src/qml/settings/settings/Reset.qml" line="153"/>
         <source>Confirm</source>
         <translation>Confirm</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Reset.qml" line="151"/>
+        <location filename="../../src/qml/settings/settings/Reset.qml" line="164"/>
         <source>Cancel</source>
         <translation>Cancel</translation>
     </message>
@@ -4622,7 +4620,7 @@ Tap the QR code to show it on the screen.</translation>
         <translation type="vanished">Proceed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/main.qml" line="824"/>
+        <location filename="../../src/qml/main.qml" line="820"/>
         <source>Done</source>
         <translation>Done</translation>
     </message>
@@ -4961,29 +4959,34 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>uc::ui::Controller</name>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="299"/>
+        <location filename="../../src/ui/uiController.cpp" line="307"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="300"/>
+        <location filename="../../src/ui/uiController.cpp" line="308"/>
         <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
         <translation>Deleting a current profile is not permitted. Please switch to another profile and try again.</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="600"/>
+        <location filename="../../src/ui/uiController.cpp" line="631"/>
         <source>Profile update error</source>
         <translation>Profile update error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="719"/>
+        <location filename="../../src/ui/uiController.cpp" line="750"/>
         <source>%1 error</source>
         <translation>%1 error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="719"/>
+        <location filename="../../src/ui/uiController.cpp" line="750"/>
         <source>Error while connecting to %1, with id %2</source>
         <translation>Error while connecting to %1, with id %2</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/uiController.h" line="257"/>
+        <source>The factory reset could not be started. Please try again.</source>
+        <translation>The factory reset could not be started. Please try again.</translation>
     </message>
 </context>
 <context>

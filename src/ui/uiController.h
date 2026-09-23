@@ -178,6 +178,10 @@ class Controller : public QObject {
     void profileChanged();
     void profileAdded(bool success, int code = 200);
     void profileSwitch(bool success);
+    /**
+     * @brief Result of the factory reset token request. Without a token the reset cannot be started.
+     */
+    void factoryResetTokenReceived(bool success);
 
  public slots:
     void onCoreConnected();
@@ -248,6 +252,10 @@ class Controller : public QObject {
      * icon set, so it is read from the font instead of being hard coded.
      */
     QString loadIconFont(const QString& path);
+
+    static QString factoryResetNotStartedMsg() {
+        return tr("The factory reset could not be started. Please try again.");
+    }
 
     void onActivity(QString entityId, bool remove = false);
 

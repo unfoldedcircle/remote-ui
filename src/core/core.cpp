@@ -2846,18 +2846,37 @@ void Api::processApiAccess(int reqId, int code, QVariant msgData) {
     emit respApiAccess(reqId, code, apiAcces);
 }
 
+Profile Api::parseProfileChange(const QVariantMap& msgData) {
+    struct Profile profile;
+    QVariantMap    newProfile = msgData.value("new_state").toMap().value("profile").toMap();
+
+    profile.id = msgData.value("profile_id").toString();
+    profile.name = newProfile.value("name").toString();
+    if (newProfile.contains("icon")) {
+        profile.icon = newProfile.value("icon").toString();
+    }
+    profile.restricted = newProfile.value("restricted").toBool();
+    if (newProfile.contains("description")) {
+        profile.description = newProfile.value("description").toString();
+    }
+    if (newProfile.contains("pages")) {
+        profile.pages = newProfile.value("pages").toStringList();
+    }
+
+    return profile;
+}
+
 void Api::processProfileChange(QVariant msgData) {
     QVariantMap msgDataMap = msgData.toMap();
     QVariantMap newState = msgDataMap.value("new_state").toMap();
 
     MsgEventTypes::Enum eventType =
         Util::convertStringToEnum<MsgEventTypes::Enum>(msgDataMap.value("event_type").toString());
-    QString        profileId = msgDataMap.value("profile_id").toString();
-    QString        pageId = msgDataMap.contains("page_id") ? msgDataMap.value("page_id").toString() : QString();
-    QString        groupId = msgDataMap.contains("group_id") ? msgDataMap.value("group_id").toString() : QString();
-    struct Page    page;
-    struct Group   group;
-    struct Profile profile;
+    QString      profileId = msgDataMap.value("profile_id").toString();
+    QString      pageId = msgDataMap.contains("page_id") ? msgDataMap.value("page_id").toString() : QString();
+    QString      groupId = msgDataMap.contains("group_id") ? msgDataMap.value("group_id").toString() : QString();
+    struct Page  page;
+    struct Group group;
 
     switch (eventType) {
         case MsgEventTypes::NEW:
@@ -2886,22 +2905,7 @@ void Api::processProfileChange(QVariant msgData) {
 
                 emit groupAdded(profileId, group);
             } else {
-                QVariantMap newProfile = newState.value("profile").toMap();
-
-                profile.id = profileId;
-                profile.name = newProfile.value("name").toString();
-                if (newProfile.contains("icon")) {
-                    profile.icon = newProfile.value("icon").toString();
-                }
-                profile.restricted = newState.value("restricted").toBool();
-                if (newProfile.contains("description")) {
-                    profile.description = newProfile.value("description").toString();
-                }
-                if (newProfile.contains("pages")) {
-                    profile.pages = newProfile.value("pages").toStringList();
-                }
-
-                emit profileAdded(profileId, profile);
+                emit profileAdded(profileId, parseProfileChange(msgDataMap));
             }
             break;
         case MsgEventTypes::CHANGE:
@@ -2950,24 +2954,11 @@ void Api::processProfileChange(QVariant msgData) {
                 group.entities = newGroup.value("entities").toStringList();
 
                 emit groupChanged(profileId, group);
-            } else {
-                QVariantMap newProfile = newState.value("profile").toMap();
-
-                profile.id = profileId;
-                profile.name = newProfile.value("name").toString();
-                if (newProfile.contains("icon")) {
-                    profile.icon = newProfile.value("icon").toString();
-                }
-                profile.restricted = newProfile.value("restricted").toBool();
-                if (newProfile.contains("description")) {
-                    profile.description = newProfile.value("description").toString();
-                }
-                if (newProfile.contains("pages")) {
-                    profile.pages = newProfile.value("pages").toStringList();
-                }
-
-                emit profileChanged(profileId, profile);
+            } else if (newState.contains("profile")) {
+                emit profileChanged(profileId, parseProfileChange(msgDataMap));
             }
+            // a profile change event without a profile object carries no profile data to apply:
+            // the core sends it when only the pages of the profile changed
             break;
         case MsgEventTypes::DELETE:
             if (!pageId.isEmpty()) {

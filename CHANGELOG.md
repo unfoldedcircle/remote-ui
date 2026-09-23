@@ -26,6 +26,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   falling back to the entity state until the option changes the next time.
 - A switch shows its On/Off state on the entity screen even when the integration does not provide the toggle
   feature, and no longer shows a state for a switch that is unavailable or whose state is unknown.
+- A restricted profile stays restricted when it is created or changed from another client, for instance the
+  web-configurator. The remote read the restriction from the wrong place in the profile event and treated a newly
+  announced restricted profile as a normal one, so its settings were not locked.
+- When the profile the remote is showing is deleted elsewhere, the remote no longer keeps its pages on screen. It
+  now clears them and asks for a profile, just like switching to another profile does.
+- A factory reset is only offered for confirmation once the remote has the confirmation token from the core. The
+  final confirmation used to be shown even when the token could not be obtained, and confirming then did nothing.
+  A failed request is now reported and the reset is not offered.
+- Creating a profile switches the remote to it only once. The remote used to ask the core to switch up to three
+  times for a single new profile, and one of those switches was only applied locally, which could leave the remote
+  and the core disagreeing about the active profile.
 - The control screen of an unavailable entity can be left with the keypad again: BACK and HOME close it, while every
   key that would send a command stays blocked behind the "Entity unavailable" overlay. Before, the screen ignored the
   whole keypad and only the ✕ closed it.

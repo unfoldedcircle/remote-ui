@@ -569,10 +569,6 @@ ApplicationWindow {
             }
         }
 
-        NoProfile {
-            visible: ui.profile.id === "" && !ui.isOnboarding
-        }
-
         ActivityComponents.LoadingScreen {
             id: activityLoading
         }

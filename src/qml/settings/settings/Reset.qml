@@ -58,12 +58,25 @@ Settings.Page {
                     anchors { top: descriptionText.bottom; topMargin: 30 }
                     color: colors.red
                     text: qsTr("Erase everything")
+                    // the confirmation is only offered once the reset token is there: confirming without
+                    // one would send an empty token to the core and the reset would never start
                     trigger: function() {
                         ui.getFactoryResetToken();
-                        confirmationPopup.open();
                     }
                     // keypad control is not enabled for earese button to avoid accidental presses
                 }
+            }
+        }
+    }
+
+    Connections {
+        target: ui
+        ignoreUnknownSignals: true
+
+        // the reset cannot be started without a token, the controller reports the failure to the user
+        function onFactoryResetTokenReceived(success) {
+            if (success) {
+                confirmationPopup.open();
             }
         }
     }

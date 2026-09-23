@@ -84,6 +84,16 @@ class Api : public QObject {
      */
     static IntegrationSetupInfo parseIntegrationSetupInfo(const QVariantMap &map);
 
+    /**
+     * @brief Parse the profile of a `profile_change` event message payload.
+     *
+     * The profile identifier is a property of the event itself, all other profile data is carried in the
+     * `new_state.profile` object. This holds for the `NEW` and the `CHANGE` event alike.
+     *
+     * @param msgData the `msg_data` object of the event
+     */
+    static Profile parseProfileChange(const QVariantMap &msgData);
+
     // profile handling
     int switchProfile(const QString &profileId, const QString &pin);
     int getProfiles();

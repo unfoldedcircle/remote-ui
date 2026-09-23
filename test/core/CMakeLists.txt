@@ -71,6 +71,29 @@ target_link_libraries(testSequenceReadiness
     Qt5::Test
     )
 
+add_executable (testProfileChangeEvent
+    "test_profile_change_event.cpp"
+    "../../src/core/core.cpp"
+    # header only: contains the Q_GADGET enums moc has to process
+    "../../src/core/enums.h"
+    "../../src/ui/notification.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testProfileChangeEvent
+         COMMAND testProfileChangeEvent)
+
+target_link_libraries(testProfileChangeEvent
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::WebSockets
+    Qt5::Test
+    )
+
 add_executable (testIntegrationSetupInfo
     "test_integration_setup_info.cpp"
     "../../src/core/core.cpp"

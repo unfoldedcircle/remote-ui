@@ -3,7 +3,6 @@
         <file alias="main.qml">../../src/qml/main.qml</file>
         <file alias="MainContainer.qml">../../src/qml/MainContainer.qml</file>
         <file alias="NoPage.qml">../../src/qml/NoPage.qml</file>
-        <file alias="NoProfile.qml">../../src/qml/NoProfile.qml</file>
         <file alias="BorderCheck.qml">../../src/qml/BorderCheck.qml</file>
         <file alias="components/LoadingFirst.qml">../../src/qml/components/LoadingFirst.qml</file>
         <file alias="components/LoadingScreen.qml">../../src/qml/components/LoadingScreen.qml</file>

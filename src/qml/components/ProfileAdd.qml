@@ -89,12 +89,12 @@ Rectangle {
 
         function onProfileAdded(success, code) {
             if (success) {
+                // switching to the new profile is driven by the profile NEW event of the core
                 loading.success(true, function() {
                     if (!ui.isOnboarding) {
                         parent.state = "hidden";
                         parent.parent.closeAnimation.start();
                     }
-                    ui.switchProfile(ui.profile.id);
                 });
                 addProfileContainer.state = "hidden";
                 resetForm();

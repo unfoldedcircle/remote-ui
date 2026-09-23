@@ -27,8 +27,8 @@ struct Profile {
     QString     id;
     QString     name;
     QString     icon;
-    bool        restricted;
-    int         pin;
+    bool        restricted = false;
+    int         pin = -1;
     QString     description;
     QStringList pages;
 };
