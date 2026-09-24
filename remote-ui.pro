@@ -134,6 +134,7 @@ HEADERS += \
     src/ui/entity/voiceAssistant.h \
     src/ui/entity/voiceSession.h \
     src/ui/fonts.h \
+    src/ui/iconFont.h \
     src/ui/group/group.h \
     src/ui/group/groupController.h \
     src/ui/group/groupItem.h \
@@ -202,6 +203,7 @@ SOURCES += \
         src/ui/group/group.cpp \
         src/ui/group/groupController.cpp \
         src/ui/group/groupItem.cpp \
+        src/ui/iconFont.cpp \
         src/ui/inputController.cpp \
         src/ui/mediaImageProvider.cpp \
         src/integration/integrationController.cpp \

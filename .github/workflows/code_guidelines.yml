@@ -44,9 +44,8 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install cpplint fonttools
 
-      # The repository is GPLv3 and is mirrored publicly: only the Free edition of the icon
-      # font may be committed. The Pro font is overlaid on the firmware build system only
-      # (docs/icon-font.md).
+      # The repository is GPLv3: only the Free edition of the icon font may be committed. The
+      # licensed Pro font is a file the firmware installs on the device (docs/icon-font.md).
       - name: Verify the embedded icon font
         run: python tools/icon-font.py check --require-free
 

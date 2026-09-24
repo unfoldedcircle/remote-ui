@@ -4,6 +4,7 @@
 #include "uiController.h"
 
 #include "../logging.h"
+#include "iconFont.h"
 #include "mediaImageProvider.h"
 
 namespace uc {
@@ -48,19 +49,20 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     // set ownership to c++ to prevent qml deleting the object
     engine->setObjectOwnership(this, QQmlEngine::CppOwnership);
 
-    // load the icon font and tell the resources and the QML which family it registered:
-    // the family differs between the Free and the Pro edition of the icon set, and an icon
-    // the loaded font cannot draw is replaced by a fallback (see docs/icon-font.md).
-    const QString iconFontFamily = loadIconFont(":icon-font.ttf");
+    // load the icon font and tell the resources and the QML which family it registered: the
+    // firmware may provide the licensed edition as a file (UC_ICON_FONT_PATH), otherwise the
+    // embedded Free edition is used, and an icon the loaded font cannot draw is replaced by a
+    // fallback (see docs/icon-font.md).
+    const IconFontResult iconFont = IconFont::load(qEnvironmentVariable("UC_ICON_FONT_PATH"));
 
-    if (iconFontFamily.isEmpty()) {
+    if (iconFont.family.isEmpty()) {
         qCWarning(lcUi()) << "Icon font failed to load";
     } else {
-        qCDebug(lcUi()) << "Icon font loaded:" << iconFontFamily;
+        qCInfo(lcUi()) << "Icon font loaded:" << iconFont.family << "from" << iconFont.path;
     }
 
-    m_fonts.setIconFamily(iconFontFamily);
-    m_resources.setIconFont(iconFontFamily);
+    m_fonts.setIconFamily(iconFont.family);
+    m_resources.setIconFont(iconFont.family);
 
     // set rendering of text
     QQuickWindow::setTextRenderType(QQuickWindow::NativeTextRendering);
@@ -894,24 +896,6 @@ bool Controller::loadFont(const QString &path) {
     }
 
     return success;
-}
-
-QString Controller::loadIconFont(const QString &path) {
-    const int id = m_fontDatabase.addApplicationFont(path);
-
-    if (id == -1) {
-        qCWarning(lcUi()) << "Failed to load font" << path;
-        return QString();
-    }
-
-    const QStringList families = m_fontDatabase.applicationFontFamilies(id);
-
-    if (families.isEmpty()) {
-        qCWarning(lcUi()) << "Font without a family name" << path;
-        return QString();
-    }
-
-    return families.first();
 }
 
 void Controller::onActivity(QString entityId, bool remove) {

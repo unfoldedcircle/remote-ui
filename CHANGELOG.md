@@ -23,6 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and macOS only; the Windows build is not verified for releases.
 
 ### Changed
+- The licensed icon font of the device is no longer built into the binary. The app loads it from the file
+  named in `UC_ICON_FONT_PATH` when the firmware provides one, and otherwise uses the built-in Font Awesome
+  Free font, so the device build and a build from the public sources are the same binary.
 - The default display scale of the desktop simulator (`UC_DISPLAY_SCALE`) is now 1 on Linux and Windows; it stays
   0.5 on macOS, where the desktop is a 2x Retina display. Previously 0.5 everywhere, which drew the UI at half size
   on a regular Linux display.

@@ -70,6 +70,7 @@ add_test(NAME testUiModels
 # icon resources in (font + mapping + fallback mapping).
 add_executable (testIconFont
     "test_icon_font.cpp"
+    "../../src/ui/iconFont.cpp"
     "../../src/ui/resources.cpp"
     "../../src/util.cpp"
     "../../src/logging.cpp"

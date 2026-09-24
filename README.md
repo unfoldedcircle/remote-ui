@@ -86,6 +86,7 @@ scripts\env\windows.cmd                                                # Windows
 | UC_TOKEN_PATH         | Location of the token file from the core | None                   |
 | UC_RESOURCE_PATH      | Location of the resources directory      | None                   |
 | UC_SOUND_EFFECTS_PATH | Location of the sound effects directory  | None                   |
+| UC_ICON_FONT_PATH     | Icon font file to load instead of the built-in Font Awesome Free edition, e.g. the licensed font installed by the firmware (docs/icon-font.md) | None |
 
 ## Remote Two/3 Cross-Compilation and Custom Installation
 

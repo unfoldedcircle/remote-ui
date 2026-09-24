@@ -246,13 +246,6 @@ class Controller : public QObject {
     QFontDatabase m_fontDatabase;
     bool          loadFont(const QString& path);
 
-    /**
-     * @brief Loads the icon font and returns the font family it registered, or an empty
-     * string if it could not be loaded. The family depends on the embedded edition of the
-     * icon set, so it is read from the font instead of being hard coded.
-     */
-    QString loadIconFont(const QString& path);
-
     static QString factoryResetNotStartedMsg() {
         return tr("The factory reset could not be started. Please try again.");
     }

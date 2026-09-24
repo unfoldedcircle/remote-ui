@@ -187,49 +187,6 @@ jobs:
           path: ${{ env.PROJECT_NAME }}
           submodules: recursive
 
-      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
-        with:
-          python-version: '3.11'
-
-      - name: Install fonttools
-        run: python -m pip install --quiet fonttools
-
-      # The repository tracks the redistributable Font Awesome Free icon font; the device ships
-      # the licensed Pro edition (docs/icon-font.md). It is overlaid here, in the runner's
-      # throwaway checkout, and is never committed. Without the subscription token — the public
-      # mirror, a fork — the Free font stays in place, which is a valid build.
-      - name: Overlay the licensed icon font
-        shell: bash
-        env:
-          FONTAWESOME_NPM_AUTH_TOKEN: ${{ secrets.FONTAWESOME_NPM_AUTH_TOKEN }}
-        run: |
-          cd ${{ env.PROJECT_NAME }}
-          if [ -z "$FONTAWESOME_NPM_AUTH_TOKEN" ]; then
-            # A build without the subscription token is a valid build, it just carries the Free
-            # font. That the shipping firmware got the licensed one is checked by the firmware
-            # build, not here.
-            echo "::warning::FONTAWESOME_NPM_AUTH_TOKEN is not set: building with the Font Awesome Free icon font"
-            echo "ICON_FONT_EDITION=free" >> $GITHUB_ENV
-            exit 0
-          fi
-          tools/icon-font.sh --pro
-          # The script rewrites the provenance file along with the font, so verify what it wrote
-          # rather than trusting that the download picked the licensed package.
-          python -c "import json,sys; sys.exit(json.load(open('resources/icons/icon-font.json'))['edition'] != 'pro')" || {
-            echo "::error::the icon font overlay did not produce the Pro edition"
-            exit 1
-          }
-          echo "ICON_FONT_EDITION=pro" >> $GITHUB_ENV
-
-      # The binary embeds the font but not its provenance file, so record here what went in.
-      - name: Show the embedded icon font
-        shell: bash
-        run: |
-          cd ${{ env.PROJECT_NAME }}
-          INFO=$(python tools/icon-font.py info resources/icons/icon-font.ttf)
-          echo "$INFO"
-          printf '### Icon font: %s edition\n\n```\n%s\n```\n' "$ICON_FONT_EDITION" "$INFO" >> "$GITHUB_STEP_SUMMARY"
-
       - name: Set build output directory
         shell: bash
         run: |

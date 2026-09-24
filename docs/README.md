@@ -17,8 +17,8 @@
 
 ## Implementation
 
-- [Icon font](icon-font.md): which Font Awesome edition is embedded, how a firmware build switches to the
-  licensed one, and how missing icons fall back.
+- [Icon font](icon-font.md): the Free edition built into every binary, the licensed edition the firmware installs and
+  names in `UC_ICON_FONT_PATH`, how missing icons fall back, and how the font is rebuilt.
 - [Startup sequence](startup.md)
 - [Key navigation](key-navigation.md): how d-pad / button presses reach the UI, input and focus ownership, the idioms a screen must follow, and the traps.
 

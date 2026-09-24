@@ -1,19 +1,23 @@
 // Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include <QFile>
 #include <QFontDatabase>
+#include <QTemporaryDir>
 #include <QtTest>
 
+#include "ui/iconFont.h"
 #include "ui/resources.h"
 
 /**
- * The embedded icon font comes in two editions: the Free one in the repository and the licensed
- * Pro one, overlaid by the firmware build (docs/icon-font.md). The Free edition does not have
- * every icon, so an icon it cannot draw has to be replaced by its mapped alternative or by the
- * placeholder - and the icon selection must not offer icons that would end up as the placeholder.
+ * The icon font comes in two editions: the Free one embedded in the binary and the licensed Pro
+ * one, which the firmware installs as a file and names in UC_ICON_FONT_PATH (docs/icon-font.md).
+ * The Free edition does not have every icon, so an icon it cannot draw has to be replaced by its
+ * mapped alternative or by the placeholder - and the icon selection must not offer icons that
+ * would end up as the placeholder.
  *
- * The tests run against whichever edition is embedded: with the Pro font every name resolves on
- * its own and the fallback cases are skipped.
+ * The tests run against the embedded font, and check that an external font is only used when it
+ * names a loadable file.
  */
 class testIconFont : public QObject {
     Q_OBJECT
@@ -28,6 +32,11 @@ class testIconFont : public QObject {
     void iconMissingFromTheFontWithoutFallbackUsesThePlaceholder();
     void iconListOnlyOffersIconsTheFontCanDraw();
     void withoutAFontEveryMappedIconIsReturned();
+
+    void embeddedFontIsUsedWithoutAnOverride();
+    void embeddedFontIsUsedWhenTheOverrideIsMissing();
+    void embeddedFontIsUsedWhenTheOverrideIsNotAFont();
+    void externalFontIsUsedWhenItLoads();
 
  private:
     QString m_family;
@@ -128,6 +137,60 @@ void testIconFont::withoutAFontEveryMappedIconIsReturned() {
 
     QVERIFY(!resources->getIcon("uc:" + m_proOnlyIcon).isEmpty());
     QVERIFY(resources->getIconList().contains("uc:" + m_proOnlyIcon));
+}
+
+void testIconFont::embeddedFontIsUsedWithoutAnOverride() {
+    QCOMPARE(uc::ui::IconFont::select(QString()), uc::ui::IconFont::embeddedPath);
+
+    const uc::ui::IconFontResult result = uc::ui::IconFont::load(QString());
+
+    QCOMPARE(result.path, uc::ui::IconFont::embeddedPath);
+    QCOMPARE(result.family, m_family);
+}
+
+void testIconFont::embeddedFontIsUsedWhenTheOverrideIsMissing() {
+    // The firmware names a file that is not there: a warning, and the embedded font.
+    const QString missing = QDir::temp().filePath("uc-icon-font-that-does-not-exist.ttf");
+    QVERIFY(!QFile::exists(missing));
+
+    QCOMPARE(uc::ui::IconFont::select(missing), uc::ui::IconFont::embeddedPath);
+
+    const uc::ui::IconFontResult result = uc::ui::IconFont::load(missing);
+
+    QCOMPARE(result.path, uc::ui::IconFont::embeddedPath);
+    QCOMPARE(result.family, m_family);
+}
+
+void testIconFont::embeddedFontIsUsedWhenTheOverrideIsNotAFont() {
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath("not-a-font.ttf");
+    QFile         file(path);
+    QVERIFY(file.open(QIODevice::WriteOnly));
+    file.write("this is not a font");
+    file.close();
+
+    // The file is readable, so it is selected - and rejected when it does not load.
+    QCOMPARE(uc::ui::IconFont::select(path), path);
+
+    const uc::ui::IconFontResult result = uc::ui::IconFont::load(path);
+
+    QCOMPARE(result.path, uc::ui::IconFont::embeddedPath);
+    QCOMPARE(result.family, m_family);
+}
+
+void testIconFont::externalFontIsUsedWhenItLoads() {
+    // Stand-in for the font the firmware installs: a copy of the embedded one outside the binary.
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    const QString path = dir.filePath("icon-font.ttf");
+    QVERIFY(QFile::copy(uc::ui::IconFont::embeddedPath, path));
+
+    const uc::ui::IconFontResult result = uc::ui::IconFont::load(path);
+
+    QCOMPARE(result.path, path);
+    QVERIFY(!result.family.isEmpty());
+    QVERIFY(!result.family.contains("Font Awesome"));
 }
 
 QTEST_MAIN(testIconFont)
