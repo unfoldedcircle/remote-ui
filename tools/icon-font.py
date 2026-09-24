@@ -6,9 +6,13 @@
 The app embeds exactly one icon font, `resources/icons/icon-font.ttf`, built from a Font
 Awesome webfont:
 
-  build   patch a source webfont and write it with its provenance file
-  check   verify the tracked font against its provenance (used by CI and by the build)
-  info    print what a font file contains
+  build          patch a source webfont and write it with its provenance file
+  check          verify the tracked font against its provenance (used by CI and by the build)
+  info           print what a font file contains
+  mapping        regenerate resources/icons/icon-mapping.json from a Font Awesome package
+                 plus resources/icons/icon-mapping-overrides.json
+  check-mapping  verify the mapping, the overrides, the fallback file and the icon names the
+                 sources use against each other and the tracked font (used by CI)
 
 Patching does two things:
 
@@ -38,6 +42,10 @@ EMOJI_FILES = ["emoji-sequences.txt", "emoji-zwj-sequences.txt"]
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONT = os.path.join(ROOT, "resources", "icons", "icon-font.ttf")
 PROVENANCE = os.path.join(ROOT, "resources", "icons", "icon-font.json")
+MAPPING = os.path.join(ROOT, "resources", "icons", "icon-mapping.json")
+OVERRIDES = os.path.join(ROOT, "resources", "icons", "icon-mapping-overrides.json")
+FALLBACK = os.path.join(ROOT, "resources", "icons", "icon-fallback.json")
+SOURCES = os.path.join(ROOT, "src")
 
 
 def sha256(path):
@@ -192,6 +200,127 @@ def cmd_check(args):
     return 0
 
 
+def load_json(path):
+    with open(path, encoding="utf-8") as handle:
+        return json.load(handle)
+
+
+def package_version(package_dir):
+    try:
+        return load_json(os.path.join(package_dir, "package.json"))["version"]
+    except (OSError, KeyError, ValueError):
+        return "unknown"
+
+
+def icon_names(package_dir):
+    """Canonical icon name -> character for every icon of a Font Awesome package.
+
+    Reads metadata/icon-families.json when the package has it: it lists every icon of the
+    release (all editions) with its aliases. A package without it, e.g. a trimmed copy, still
+    has scss/_variables.scss, where the first name of a code point is the canonical one and the
+    names that follow are its aliases; aliases are not mapped, the overrides file is the place
+    for extra names.
+    """
+    metadata = os.path.join(package_dir, "metadata", "icon-families.json")
+    scss = os.path.join(package_dir, "scss", "_variables.scss")
+    if os.path.exists(metadata):
+        families = load_json(metadata)
+        return {name: chr(int(entry["unicode"], 16)) for name, entry in families.items()}, "metadata"
+    if os.path.exists(scss):
+        names = {}
+        with open(scss, encoding="utf-8") as handle:
+            for match in re.finditer(r"^\$fa-var-([a-z0-9-]+):\s*\\([0-9a-f]+);", handle.read(), re.M):
+                glyph = chr(int(match.group(2), 16))
+                if glyph not in names.values():
+                    names[match.group(1)] = glyph
+        return names, "scss"
+    sys.exit(f"error: {package_dir} has neither metadata/icon-families.json nor scss/_variables.scss")
+
+
+def used_icon_names():
+    """Every literal uc:<name> in the QML and C++ sources."""
+    names = set()
+    for directory, _, files in os.walk(SOURCES):
+        for name in files:
+            if name.endswith((".qml", ".cpp", ".h")):
+                with open(os.path.join(directory, name), encoding="utf-8") as handle:
+                    names.update(re.findall(r"uc:([a-z0-9_-]+)", handle.read()))
+    return names
+
+
+def cmd_mapping(args):
+    names, source = icon_names(args.package)
+    overrides = load_json(args.overrides)["overrides"]
+
+    missing = [(name, target) for name, target in overrides.items() if target not in names]
+    for name, target in missing:
+        print(f"error: override {name} -> {target}: {target} is not an icon of this release", file=sys.stderr)
+    if missing:
+        return 1
+
+    mapping = dict(names)
+    for name, target in overrides.items():
+        mapping[name] = names[target]
+
+    with open(args.output, "w", encoding="utf-8") as handle:
+        json.dump(mapping, handle, indent=1, sort_keys=True, ensure_ascii=True)
+        handle.write("\n")
+
+    print(f"[+] {args.output}: {len(names)} icons of Font Awesome {package_version(args.package)} ({source}) "
+          f"+ {len(overrides)} overrides = {len(mapping)} names")
+    return 0
+
+
+def cmd_check_mapping(args):
+    """Verifies the mapping, the overrides, the fallback file and the sources against each other."""
+    from fontTools.ttLib import TTFont
+
+    mapping = load_json(args.mapping)
+    overrides = load_json(args.overrides)["overrides"]
+    fallback_doc = load_json(args.fallback)
+    fallback = fallback_doc["fallback"]
+    placeholder = fallback_doc["placeholder"]
+    cmap = TTFont(args.font, lazy=True).getBestCmap()
+    problems = []
+
+    def drawable(name):
+        return name in mapping and ord(mapping[name]) in cmap
+
+    for name, target in overrides.items():
+        if target not in mapping:
+            problems.append(f"override {name} -> {target}: {target} is not in the mapping")
+        elif target in overrides:
+            # The target's own glyph is not in the mapping under its name (e.g. list-alt -> list
+            # while list itself is overridden), so only the generator can verify this one.
+            continue
+        elif mapping.get(name) != mapping[target]:
+            problems.append(f"override {name} -> {target} is not applied in the mapping (run 'mapping')")
+
+    if not drawable(placeholder):
+        problems.append(f"the placeholder {placeholder} is not drawable by {os.path.basename(args.font)}")
+    for name, target in fallback.items():
+        if name not in mapping:
+            problems.append(f"fallback {name} -> {target}: {name} is not in the mapping")
+        if not drawable(target):
+            problems.append(f"fallback {name} -> {target}: {os.path.basename(args.font)} cannot draw {target}")
+
+    used = used_icon_names()
+    for name in sorted(used):
+        if name not in mapping:
+            problems.append(f"the sources use uc:{name}, which is not in the mapping")
+        elif not drawable(name) and name not in fallback:
+            problems.append(f"the sources use uc:{name}, which {os.path.basename(args.font)} cannot draw "
+                            f"and which has no fallback entry")
+
+    for problem in problems:
+        print(f"error: {problem}", file=sys.stderr)
+    if problems:
+        return 1
+    print(f"[+] {os.path.basename(args.mapping)}: {len(mapping)} names, {len(overrides)} overrides, "
+          f"{len(fallback)} fallbacks, {len(used)} names used by the sources, all consistent")
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     sub = parser.add_subparsers(dest="command", required=True)
@@ -213,6 +342,19 @@ def main():
     info = sub.add_parser("info", help="print what a font file contains")
     info.add_argument("font")
     info.set_defaults(func=cmd_info)
+
+    mapping = sub.add_parser("mapping", help="regenerate the icon name mapping from a Font Awesome package")
+    mapping.add_argument("package", help="extracted Font Awesome package (Pro, so that every icon is listed)")
+    mapping.add_argument("-o", "--output", default=MAPPING)
+    mapping.add_argument("--overrides", default=OVERRIDES)
+    mapping.set_defaults(func=cmd_mapping)
+
+    check_mapping = sub.add_parser("check-mapping", help="verify mapping, overrides, fallbacks and the sources")
+    check_mapping.add_argument("-m", "--mapping", default=MAPPING)
+    check_mapping.add_argument("--overrides", default=OVERRIDES)
+    check_mapping.add_argument("--fallback", default=FALLBACK)
+    check_mapping.add_argument("-f", "--font", default=FONT)
+    check_mapping.set_defaults(func=cmd_check_mapping)
 
     args = parser.parse_args()
     return args.func(args)

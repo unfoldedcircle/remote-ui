@@ -23,6 +23,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and macOS only; the Windows build is not verified for releases.
 
 ### Changed
+- The icon set is updated from Font Awesome 6.5.1 to 6.7.2. Fourteen icons are new (`carpool`, `chart-diagram`,
+  `chart-fft`, `chart-sine`, `circles-overlap-3`, `comment-nodes`, `css`, `file-fragment`, `file-half-dashed`,
+  `files-pinwheel`, `hexagon-nodes`, `hexagon-nodes-bolt`, `square-binary`, `square-bluesky`), no icon was removed
+  or renamed, and a few glyphs were redrawn by Font Awesome and look different on a tile that uses them: among
+  the built-in icons `angle-down`, `angles-up/left/right`, `sort`, `lamp-floor` (also the older name `lamp-1`),
+  `phone-plus`, `phone-xmark`, `arrow-down-arrow-up`, `wind-turbine`, `exclamation`, `toolbox` and `fire-smoke`.
 - The licensed icon font of the device is no longer built into the binary. The app loads it from the file
   named in `UC_ICON_FONT_PATH` when the firmware provides one, and otherwise uses the built-in Font Awesome
   Free font, so the device build and a build from the public sources are the same binary.

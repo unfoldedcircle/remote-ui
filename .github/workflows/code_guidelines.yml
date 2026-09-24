@@ -49,6 +49,11 @@ jobs:
       - name: Verify the embedded icon font
         run: python tools/icon-font.py check --require-free
 
+      # The icon name mapping is generated from the Font Awesome package plus the overrides file;
+      # every uc: name the sources use must be in it, and every fallback must be drawable.
+      - name: Verify the icon mapping
+        run: python tools/icon-font.py check-mapping
+
       - name: cpplint
         shell: python
         run: |

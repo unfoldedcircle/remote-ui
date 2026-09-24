@@ -22,7 +22,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 # Keep in step with the icon code points in resources/icons/icon-mapping.json.
-FA_VERSION="6.5.1"
+FA_VERSION="6.7.2"
 # Style embedded per edition. Free has no Light weight, so the embedded font is Solid.
 FREE_STYLE="fa-solid-900.ttf"
 PRO_STYLE="fa-light-300.ttf"
