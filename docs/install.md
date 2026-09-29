@@ -18,7 +18,7 @@ manager usually doesn't work (wrong version); the guides below build Qt 5.15.19 
 |---------------------------|----------------------------------------------------------|--------------------------------------------------------------|
 | Debian 13 "trixie"        | [install-debian-13.md](install-debian-13.md)             | 5.15.19 from source (recommended) or 5.15.2 with aqtinstall, both side by side; verified on a fresh VM |
 | Ubuntu 22.04              | [install-ubuntu-22.04.md](install-ubuntu-22.04.md)       | the original guide, aqtinstall                               |
-| macOS                     | [static-compile-macos.md](static-compile-macos.md)       | Qt online installer and Qt Creator, static kit               |
+| macOS                     | [static-compile-macos.md](static-compile-macos.md)       | Qt 5.15.19 built from source as static Qt (Intel and Apple Silicon), `make macos-static`; verified on macOS 14 and 26 |
 | Static desktop build      | [static-compile.md](static-compile.md)                   | self-contained binary without Qt libraries, macOS and Debian 13 |
 | Remote Two/3 device       | [cross-compile.md](cross-compile.md)                     | Docker toolchain, `make ucr2`                                |
 | Windows x64 (experimental) | [static-compile-windows.md](static-compile-windows.md)  | cross-compiled on Linux in a Docker image, unsupported: we develop on Linux and macOS only |

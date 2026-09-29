@@ -1,6 +1,6 @@
 # Select the Qt installation for the current shell (build environment for `make`, cmake and Qt Creator).
 # Source it, don't execute it:
-#   . scripts/env/qt-version.sh            # newest ~/Qt/5.*/gcc_64
+#   . scripts/env/qt-version.sh            # newest ~/Qt/5.*/gcc_64 (Linux) or clang_64 (macOS)
 #   . scripts/env/qt-version.sh 5.15.19    # ~/Qt/5.15.19/gcc_64
 #   . scripts/env/qt-version.sh 5.15.2     # ~/Qt/5.15.2/gcc_64
 #   . scripts/env/qt-version.sh /opt/qt    # any Qt prefix (must contain bin/qmake)
@@ -11,14 +11,16 @@
 
 _qt_root="${QT_ROOT:-$HOME/Qt}"
 if [ -z "${1:-}" ]; then
-    _qt_dir=$(ls -d "$_qt_root"/5.*/gcc_64 2>/dev/null | sort -V | tail -n 1)
+    _qt_dir=$(ls -d "$_qt_root"/5.*/gcc_64 "$_qt_root"/5.*/clang_64 2>/dev/null | sort -V | tail -n 1)
 elif [ -x "$1/bin/qmake" ]; then
     _qt_dir="$1"
+elif [ -x "$_qt_root/$1/clang_64/bin/qmake" ]; then
+    _qt_dir="$_qt_root/$1/clang_64"          # macOS (aqtinstall and configure-qt-macos.sh naming)
 else
-    _qt_dir="$_qt_root/$1/gcc_64"
+    _qt_dir="$_qt_root/$1/gcc_64"            # Linux
 fi
 if [ ! -x "$_qt_dir/bin/qmake" ]; then
-    echo "qt-version.sh: no Qt installation in ${_qt_dir:-$_qt_root/5.*/gcc_64} (see docs/install.md)" >&2
+    echo "qt-version.sh: no Qt installation in ${_qt_dir:-$_qt_root/5.*/{gcc_64,clang_64}} (see docs/install.md)" >&2
     unset _qt_root _qt_dir
     return 1 2>/dev/null || exit 1
 fi

@@ -24,7 +24,7 @@ up and debug.
 
 | Target                                     | Status                                         |
 |--------------------------------------------|------------------------------------------------|
-| [macOS](static-compile-macos.md)           | Qt Creator kit built from the Qt online installer sources |
+| [macOS](static-compile-macos.md)           | Qt 5.15.19 from source, verified on Intel (macOS 14) and Apple Silicon (macOS 26); patch and configure scripts in `scripts/qt/`, build with `make macos-static` |
 | [Linux, Debian 13 x86_64](static-compile-debian-13.md) | Qt 5.15.19, verified on a Debian 13 VM with GCC 14; configure script in `scripts/qt/`, build with `make linux-static` |
 | [Linux x64, Docker image](#linux-x64-docker-image) | no Qt installation needed: `make linux-x64` builds in the `unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-x64` image; the same build is attached to every release |
 | [Windows x64](static-compile-windows.md)   | **experimental, unsupported**: `make windows-x64` cross-compiles on Linux with the MXE based Docker image `unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-windows-x64`; needs the ANGLE DLLs on machines without OpenGL drivers |

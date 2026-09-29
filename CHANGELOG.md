@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- macOS desktop simulator: `make macos-static` builds a self-contained `Remote UI.app` with a static Qt 5.15.19
+  compiled from source, on Intel and Apple Silicon Macs, for macOS 11 and newer; `make macos` builds it with a
+  dynamic Qt for development. The rewritten
+  `docs/static-compile-macos.md` replaces the Qt online installer based instructions, which no longer work with
+  current Xcode versions.
 - The on-screen keyboard now has a layout for Spanish, Finnish, French, Hungarian, Italian, Norwegian, Polish,
   Portuguese and Swedish. Until now these interface languages showed a US keyboard without a single accented
   character. The keys follow the national layout of the selected language, and its accented characters are

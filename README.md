@@ -38,6 +38,7 @@ Qt Creator. `make` without a target lists all targets:
 ```bash
 make linux          # dynamic Qt  -> binaries/Linux-x64/remote-ui
 make linux-static   # static Qt   -> binaries/Linux-x64-static/remote-ui
+make macos          # macOS, dynamic Qt -> binaries/macOS-<arch>/Remote UI.app   (also macos-static, see docs/static-compile-macos.md)
 make linux-x64      # static Qt in the Docker toolchain image, no Qt installation needed -> binaries/linux-x64/release/remote-ui
 make ucr2           # Remote Two/3 aarch64 static binary via the Docker toolchain -> binaries/linux-arm64/release/remote-ui
 make windows-x64    # experimental Windows x64 static binary via the Docker toolchain -> binaries/windows-x64/release/remote-ui.exe
@@ -68,6 +69,7 @@ set sensible defaults for every variable; set a variable before sourcing to over
 ```bash
 . scripts/env/linux.sh        && binaries/Linux-x64/remote-ui          # Linux, dynamic Qt  (= make run-linux)
 . scripts/env/linux-static.sh && binaries/Linux-x64-static/remote-ui   # Linux, static Qt   (= make run-linux-static)
+. scripts/env/macos.sh && "binaries/macOS-x64/Remote UI.app/Contents/MacOS/Remote UI"   # macOS (= make run-macos, run-macos-static)
 . scripts/env/linux-static.sh && binaries/linux-x64/release/remote-ui  # Linux, Docker-built static Qt (= make run-linux-x64)
 scripts\env\windows.cmd                                                # Windows, experimental (docs/static-compile-windows.md)
 . scripts/env/macos.sh        # macOS: app settings only, e.g. for the Qt Creator run settings

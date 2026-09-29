@@ -1,6 +1,6 @@
-# Runtime environment for the macOS desktop simulator ("Remote UI.app", built with Qt Creator or a static Qt kit,
+# Runtime environment for the macOS desktop simulator ("Remote UI.app", built with `make macos-static` or Qt Creator,
 # see docs/static-compile-macos.md). Source it in the shell that starts the app, e.g.
-#   . scripts/env/macos.sh && "binaries/macOS-x64/Remote UI.app/Contents/MacOS/Remote UI"
+#   . scripts/env/macos.sh && "binaries/macOS-x64-static/Remote UI.app/Contents/MacOS/Remote UI"   (= make run-macos-static)
 # or enter the same variables in the Qt Creator run settings.
 # Every value is a default: set the variable before sourcing to override it.
 # App variables: README.md, "Environment Variables".

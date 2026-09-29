@@ -13,14 +13,17 @@ MAKEFLAGS += --no-print-directory
 # or from the environment: `. scripts/env/qt-version.sh [version]` exports QTDIR and QT_VERSION for the shell.
 # QT_VERSION defaults to the version of an exported QTDIR, else to the newest Qt in ~/Qt (docs/install.md).
 qt_version_of  = $(filter 5.%,$(notdir $(patsubst %/,%,$(dir $(1)))))
+# The Qt directory name inside ~/Qt/<version>/ follows aqtinstall: gcc_64 on Linux, clang_64 on macOS.
+UNAME_S       := $(shell uname -s)
+QT_SPEC       := $(if $(filter Darwin,$(UNAME_S)),clang_64,gcc_64)
 QTDIR_ENV     := $(QTDIR)
 QT_VERSION   ?= $(or $(call qt_version_of,$(QTDIR_ENV)), \
-                     $(call qt_version_of,$(lastword $(shell ls -d "$(HOME)"/Qt/5.*/gcc_64* 2>/dev/null | sort -V))),5.15.19)
+                     $(call qt_version_of,$(lastword $(shell ls -d "$(HOME)"/Qt/5.*/$(QT_SPEC)* 2>/dev/null | sort -V))),5.15.19)
 ifeq ($(origin QT_VERSION),command line)   # `make linux QT_VERSION=x` beats an exported QTDIR
-QTDIR         = $(HOME)/Qt/$(QT_VERSION)/gcc_64
+QTDIR         = $(HOME)/Qt/$(QT_VERSION)/$(QT_SPEC)
 endif
-QTDIR        ?= $(HOME)/Qt/$(QT_VERSION)/gcc_64
-QTDIR_STATIC ?= $(HOME)/Qt/$(QT_VERSION)/gcc_64-static
+QTDIR        ?= $(HOME)/Qt/$(QT_VERSION)/$(QT_SPEC)
+QTDIR_STATIC ?= $(HOME)/Qt/$(QT_VERSION)/$(QT_SPEC)-static
 JOBS         ?= $(shell nproc 2>/dev/null || sysctl -n hw.ncpu)
 # Docker toolchain images (docs/cross-compile.md, docs/static-compile.md). `docker pull <image>` to update one.
 TOOLCHAIN_IMAGE ?= unfoldedcircle/r2-toolchain-qt-5.15.8-static:latest
@@ -29,6 +32,8 @@ WINDOWS_IMAGE   ?= unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-windows-
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ARCH := $(shell uname -m)
+# Output directory suffix of the macOS builds: x64 or arm64
+MACOS_ARCH := $(if $(filter arm64,$(ARCH)),arm64,x64)
 
 ##@ Build
 
@@ -50,6 +55,28 @@ linux-static: QMAKE_ARGS = CONFIG+=release CONFIG+=static
 linux-static: DOC = docs/static-compile-debian-13.md
 linux-static: ENV_FILE = scripts/env/linux-static.sh
 linux-static: ## Build the self-contained simulator with the static Qt -> binaries/Linux-x64-static/remote-ui
+	$(build)
+
+macos: QT = $(QTDIR)
+macos: LINK = shared
+macos: BUILD_DIR = $(ROOT)/build
+macos: OUT_DIR = $(ROOT)/binaries/macOS-$(MACOS_ARCH)
+macos: QMAKE_ARGS = CONFIG+=release
+macos: DOC = docs/static-compile-macos.md
+macos: ENV_FILE = scripts/env/macos.sh
+macos: BIN = Remote UI.app/Contents/MacOS/Remote UI
+macos: ## Build the macOS simulator with the dynamic Qt -> binaries/macOS-<arch>/Remote UI.app
+	$(build)
+
+macos-static: QT = $(QTDIR_STATIC)
+macos-static: LINK = static
+macos-static: BUILD_DIR = $(ROOT)/build-static
+macos-static: OUT_DIR = $(ROOT)/binaries/macOS-$(MACOS_ARCH)-static
+macos-static: QMAKE_ARGS = CONFIG+=release CONFIG+=static
+macos-static: DOC = docs/static-compile-macos.md
+macos-static: ENV_FILE = scripts/env/macos.sh
+macos-static: BIN = Remote UI.app/Contents/MacOS/Remote UI
+macos-static: ## Build the self-contained macOS simulator with the static Qt -> binaries/macOS-<arch>-static/Remote UI.app
 	$(build)
 
 ucr2: IMAGE = $(TOOLCHAIN_IMAGE)
@@ -91,6 +118,14 @@ run-linux-x64: ## Start the Docker-built static build with scripts/env/linux-sta
 	@test -x "$(ROOT)/binaries/linux-x64/release/remote-ui" || { echo "No binary yet, run: make linux-x64"; exit 1; }
 	@cd "$(ROOT)" && . scripts/env/linux-static.sh && exec binaries/linux-x64/release/remote-ui
 
+run-macos: ## Start the dynamic macOS build with scripts/env/macos.sh
+	@test -x "$(ROOT)/binaries/macOS-$(MACOS_ARCH)/Remote UI.app/Contents/MacOS/Remote UI" || { echo "No app yet, run: make macos"; exit 1; }
+	@cd "$(ROOT)" && . scripts/env/macos.sh && exec "binaries/macOS-$(MACOS_ARCH)/Remote UI.app/Contents/MacOS/Remote UI"
+
+run-macos-static: ## Start the static macOS build with scripts/env/macos.sh
+	@test -x "$(ROOT)/binaries/macOS-$(MACOS_ARCH)-static/Remote UI.app/Contents/MacOS/Remote UI" || { echo "No app yet, run: make macos-static"; exit 1; }
+	@cd "$(ROOT)" && . scripts/env/macos.sh && exec "binaries/macOS-$(MACOS_ARCH)-static/Remote UI.app/Contents/MacOS/Remote UI"
+
 ##@ Clean
 
 clean: ## Remove the dynamic build (build/, intermediate files, binaries/Linux-x64/)
@@ -99,6 +134,13 @@ clean: ## Remove the dynamic build (build/, intermediate files, binaries/Linux-x
 
 clean-static: ## Remove the static build (build-static/, intermediate files, binaries/Linux-x64-static/)
 	rm -rf "$(ROOT)/build/linux-$(ARCH)/release-static" "$(ROOT)/binaries/Linux-x64-static" "$(ROOT)/build-static"
+
+clean-macos: ## Remove the dynamic macOS build (build/, intermediate files, binaries/macOS-<arch>/)
+	rm -rf "$(ROOT)/build/osx-$(ARCH)/release" "$(ROOT)/binaries/macOS-$(MACOS_ARCH)" \
+	       "$(ROOT)/build/Makefile" "$(ROOT)/build/.qmake.stash" "$(ROOT)/build/version.txt" "$(ROOT)/build/.clean-ts"
+
+clean-macos-static: ## Remove the static macOS build (build-static/, intermediate files, binaries/macOS-<arch>-static/)
+	rm -rf "$(ROOT)/build/osx-$(ARCH)/release-static" "$(ROOT)/binaries/macOS-$(MACOS_ARCH)-static" "$(ROOT)/build-static"
 
 clean-ucr2: ## Remove the Remote Two/3 cross-compile build (intermediate files, binaries/linux-arm64/)
 	rm -rf "$(ROOT)/build/linux-arm64" "$(ROOT)/binaries/linux-arm64" "$(ROOT)/build/.clean-ts-ucr2"
@@ -167,8 +209,8 @@ define build
 	$(MAKE) -C "$(BUILD_DIR)" -j$(JOBS)
 	cp "$(BUILD_DIR)/version.txt" "$(OUT_DIR)/"
 	$(call ts_restore,$(BUILD_DIR)/.clean-ts)
-	@echo; echo "Build finished: $(OUT_DIR)/remote-ui ($$(cat "$(OUT_DIR)/version.txt"))"
-	@echo "Run it with:  make run-$@   or:  . $(ENV_FILE) && $(subst $(ROOT)/,,$(OUT_DIR))/remote-ui"
+	@echo; echo "Build finished: $(OUT_DIR)/$(BIN) ($$(cat "$(OUT_DIR)/version.txt"))"
+	@echo "Run it with:  make run-$@   or:  . $(ENV_FILE) && \"$(subst $(ROOT)/,,$(OUT_DIR))/$(BIN)\""
 endef
 
-.PHONY: help linux linux-static linux-x64 windows-x64 ucr2 test run-linux run-linux-static run-linux-x64 clean clean-static clean-ucr2 clean-linux-x64 clean-windows-x64 clean-all translations-restore
+.PHONY: help linux linux-static macos macos-static linux-x64 windows-x64 ucr2 test run-linux run-linux-static run-macos run-macos-static run-linux-x64 clean clean-static clean-macos clean-macos-static clean-ucr2 clean-linux-x64 clean-windows-x64 clean-all translations-restore
