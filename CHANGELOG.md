@@ -42,6 +42,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- Loading all entities at startup no longer runs forever on Apple Silicon builds. The number of pages was derived
+  from the `limit` field of the core's response, which holds the number of items in that page (0 for a page past
+  the end); a division by zero converted to an integer gave an endless page count on arm64. The page size of the
+  request is used now, in all paged requests, and an empty page ends the loading.
 - The voice assistant no longer starts listening after the microphone button was released. Holding the button
   right after waking the remote could reach the assistant before it was ready; the request was then repeated in
   the background and could arrive after the button was already let go, so the assistant recorded an empty

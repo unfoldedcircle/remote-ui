@@ -4,6 +4,7 @@
 #include "integrationController.h"
 
 #include "../logging.h"
+#include "../util.h"
 
 namespace uc {
 namespace integration {
@@ -98,7 +99,8 @@ void IntegrationController::getIntegrationStatus(int limit, int page) {
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respIntegrationStatus,
-        [=](QList<core::IntegrationStatus> integrationStatus, int count, int limit, int page) {
+        [=](QList<core::IntegrationStatus> integrationStatus, int count, int responseLimit, int page) {
+            Q_UNUSED(responseLimit)  // number of items in this page, not the page size
             // success
 
             qCDebug(lcIntegrationController())
@@ -108,7 +110,7 @@ void IntegrationController::getIntegrationStatus(int limit, int page) {
                 m_integrationStatusTotalItems = count;
                 if (m_integrationStatusLimit == 0) {
                     m_integrationStatusLimit = limit;
-                    m_integrationStatusTotalPages = qCeil(static_cast<float>(count) / static_cast<float>(limit));
+                    m_integrationStatusTotalPages = Util::pageCount(count, limit);
                 }
                 m_integrationStatusLastPageLoaded = page;
 
@@ -148,7 +150,8 @@ void IntegrationController::getIntegrationDrivers(int limit, int page) {
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respIntegrationDrivers,
-        [=](QList<core::IntegrationDriver> integrationDrivers, int count, int limit, int page) {
+        [=](QList<core::IntegrationDriver> integrationDrivers, int count, int responseLimit, int page) {
+            Q_UNUSED(responseLimit)  // number of items in this page, not the page size
             // success
 
             qCDebug(lcIntegrationController()) << "Integrations:" << count << "page:" << page << "limit:" << limit;
@@ -157,7 +160,7 @@ void IntegrationController::getIntegrationDrivers(int limit, int page) {
                 m_integrationDrivers.totalItems = count;
                 if (m_integrationDrivers.limit == 0) {
                     m_integrationDrivers.limit = limit;
-                    m_integrationDrivers.totalPages = qCeil(static_cast<float>(count) / static_cast<float>(limit));
+                    m_integrationDrivers.totalPages = Util::pageCount(count, limit);
                 }
                 m_integrationDrivers.lastPageLoaded = page;
 
@@ -183,7 +186,8 @@ void IntegrationController::getIntegrations(int limit, int page) {
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respIntegrations,
-        [=](QList<core::Integration> integrations, int count, int limit, int page) {
+        [=](QList<core::Integration> integrations, int count, int responseLimit, int page) {
+            Q_UNUSED(responseLimit)  // number of items in this page, not the page size
             // success
             qCDebug(lcIntegrationController()) << "Integrations:" << count << "page:" << page << "limit:" << limit;
 
@@ -191,7 +195,7 @@ void IntegrationController::getIntegrations(int limit, int page) {
                 m_integrations.totalItems = count;
                 if (m_integrations.limit == 0) {
                     m_integrations.limit = limit;
-                    m_integrations.totalPages = qCeil(static_cast<float>(count) / static_cast<float>(limit));
+                    m_integrations.totalPages = Util::pageCount(count, limit);
                 }
                 m_integrations.lastPageLoaded = page;
 

@@ -291,14 +291,15 @@ void DockController::getDocks(int limit, int page) {
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respDocks,
-        [=](QList<core::DockConfiguration> docks, int count, int limit, int page) {
+        [=](QList<core::DockConfiguration> docks, int count, int responseLimit, int page) {
+            Q_UNUSED(responseLimit)  // number of items in this page, not the page size
             qCDebug(lcIntegrationController()) << "Docks:" << count << "page:" << page << "limit:" << limit;
 
             if (count > 0) {
                 m_configuredDocks.totalItems = count;
                 if (m_configuredDocks.limit == 0) {
                     m_configuredDocks.limit = limit;
-                    m_configuredDocks.totalPages = qCeil(static_cast<float>(count) / static_cast<float>(limit));
+                    m_configuredDocks.totalPages = Util::pageCount(count, limit);
                 }
                 m_configuredDocks.lastPageLoaded = page;
 

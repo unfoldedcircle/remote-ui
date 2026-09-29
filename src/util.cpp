@@ -28,6 +28,13 @@ QStringList Util::FirstToUpperList(const QStringList &list) {
     return returnList;
 }
 
+int Util::pageCount(int itemCount, int pageSize) {
+    if (itemCount <= 0 || pageSize <= 0) {
+        return 1;
+    }
+    return (itemCount + pageSize - 1) / pageSize;
+}
+
 bool Util::FloatCompare(float f1, float f2) {
     static constexpr auto epsilon = 1.0e-05f;
 

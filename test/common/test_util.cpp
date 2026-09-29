@@ -6,6 +6,7 @@ class testCommon : public QObject {
     Q_OBJECT
 
  private slots:
+    void pageCount();
     void getDefaultCountryLocale_data();
     void getDefaultCountryLocale();
 
@@ -39,6 +40,19 @@ void testCommon::getDefaultCountryLocale() {
     QString result = uc::Util::getDefaultCountryLocale(locale);
 
     QCOMPARE(result, expected);
+}
+
+void testCommon::pageCount() {
+    QCOMPARE(uc::Util::pageCount(369, 100), 4);
+    QCOMPARE(uc::Util::pageCount(300, 100), 3);
+    QCOMPARE(uc::Util::pageCount(301, 100), 4);
+    QCOMPARE(uc::Util::pageCount(1, 100), 1);
+    QCOMPARE(uc::Util::pageCount(100, 100), 1);
+    // nothing to page, or an unusable page size (the core reports 0 items for a page past the end): one page
+    QCOMPARE(uc::Util::pageCount(0, 100), 1);
+    QCOMPARE(uc::Util::pageCount(369, 0), 1);
+    QCOMPARE(uc::Util::pageCount(-1, 100), 1);
+    QCOMPARE(uc::Util::pageCount(369, -1), 1);
 }
 
 void testCommon::getLanguageStringWithFallback() {

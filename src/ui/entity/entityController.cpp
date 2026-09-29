@@ -14,6 +14,7 @@
 #include <QUuid>
 
 #include "../../logging.h"
+#include "../../util.h"
 #include "./../notification.h"
 #include "commandRetryPolicy.h"
 #include "entityCommandPolicy.h"
@@ -469,19 +470,21 @@ void EntityController::onCoreConnected() {
 
 void EntityController::loadAllEntities(int page, quint64 generation,
                                        const QSharedPointer<QSet<QString>>& loadedEntityIds) {
-    int id = m_core->getEntities(100, page);
+    static constexpr int pageSize = 100;
+    int                  id = m_core->getEntities(pageSize, page);
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respEntities,
-        [=](QList<core::Entity> entities, int count, int limit, int pageNum) {
+        [=](QList<core::Entity> entities, int count, int responseLimit, int pageNum) {
+            Q_UNUSED(responseLimit)  // number of items in this page, not the page size
             if (generation != m_entityLoadGeneration || !loadedEntityIds) {
                 qCDebug(lcEntityController()) << "Ignoring stale bulk entity load page:" << pageNum;
                 return;
             }
 
-            qCDebug(lcEntityController())
-                << "Bulk loading entities, page:" << pageNum << "of"
-                << (count > 0 ? qCeil(static_cast<float>(count) / limit) : 1) << "total:" << count;
+            const int totalPages = Util::pageCount(count, pageSize);
+            qCDebug(lcEntityController()) << "Bulk loading entities, page:" << pageNum << "of" << totalPages
+                                          << "total:" << count;
             for (const auto& entity : entities) {
                 loadedEntityIds->insert(entity.id);
 
@@ -491,8 +494,8 @@ void EntityController::loadAllEntities(int page, quint64 generation,
                     addEntityObject(entity);
                 }
             }
-            int totalPages = count > 0 ? qCeil(static_cast<float>(count) / static_cast<float>(limit)) : 1;
-            if (pageNum < totalPages) {
+            // an empty page means the end was reached, whatever the count says (entities may have been removed)
+            if (pageNum < totalPages && !entities.isEmpty()) {
                 loadAllEntities(pageNum + 1, generation, loadedEntityIds);
             } else {
                 removeMissingEntities(*loadedEntityIds);

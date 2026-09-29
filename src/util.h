@@ -25,6 +25,16 @@ class Util : public QObject {
 
     static bool FloatCompare(float f1, float f2);
 
+    /**
+     * Number of pages needed to list `itemCount` items with `pageSize` items per page, at least 1.
+     *
+     * Use the page size of the request, never the `limit` field of a paged response: the core reports the number
+     * of items returned in that page there, which is smaller on the last page and 0 for a page past the end.
+     * Integer arithmetic on purpose: converting an out-of-range floating point value (count / 0) to int is undefined
+     * behaviour and yields INT_MAX on arm64.
+     */
+    static int pageCount(int itemCount, int pageSize);
+
     template <class T>
     static T convertStringToEnum(const QString &enumString, bool *ok = nullptr) {
         return static_cast<T>(QMetaEnum::fromType<T>().keyToValue(enumString.toUtf8(), ok));
