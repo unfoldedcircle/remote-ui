@@ -20,6 +20,7 @@
 #include "configuredEntities.h"
 #include "cover.h"
 #include "entity.h"
+#include "entityScreens.h"
 #include "light.h"
 #include "macro.h"
 #include "mediaPlayer.h"
@@ -88,6 +89,13 @@ class EntityController : public QObject {
      * @param entityId: id of the entity to get
      */
     Q_INVOKABLE QObject* get(const QString& entityId);
+
+    /**
+     * @brief The qrc URL of the detail screen of an entity, see EntityScreens.
+     * @param entity the entity object as returned by get()
+     * @return the URL, or an empty URL if the entity has no detail screen: then nothing is opened.
+     */
+    Q_INVOKABLE QUrl screenUrl(QObject* entity);
 
     /**
      * @brief Whether a control may send a command to an entity with this availability right now.

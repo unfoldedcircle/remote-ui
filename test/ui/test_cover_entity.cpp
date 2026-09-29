@@ -26,15 +26,19 @@ class testUiCover : public QObject {
     void stateInfo_withoutPositionHasNoTrailingSeparator();
     void stateInfo_combinesStateAndPosition();
 
+    void deviceClass_sharesScreens_data();
+    void deviceClass_sharesScreens();
+
  private:
     static uc::ui::entity::Cover* makeCover(QObject* parent, const QVariantMap& attributes = QVariantMap(),
-                                            const QStringList& features = QStringList()) {
+                                            const QStringList& features = QStringList(),
+                                            const QString&     deviceClass = QStringLiteral("blind")) {
         QVariantMap name;
         name.insert(QStringLiteral("en"), QStringLiteral("Blind"));
 
         return new uc::ui::entity::Cover(QStringLiteral("cover-1"), name, QStringLiteral("en"), QString(), QString(),
-                                         QStringLiteral("blind"), features, true, attributes,
-                                         QStringLiteral("integration-1"), parent);
+                                         deviceClass, features, true, attributes, QStringLiteral("integration-1"),
+                                         parent);
     }
 };
 
@@ -137,6 +141,32 @@ void testUiCover::stateInfo_combinesStateAndPosition() {
     auto cover = makeCover(&parent, attributes, QStringList() << QStringLiteral("position"));
 
     QCOMPARE(cover->getStateInfo(), cover->getStateAsString() + QStringLiteral(" 30%"));
+}
+
+void testUiCover::deviceClass_sharesScreens_data() {
+    QTest::addColumn<QString>("deviceClass");
+    QTest::addColumn<QString>("expected");
+
+    // the core's device_class arrives with a capital first letter
+    QTest::newRow("blind") << "Blind" << "Blind";
+    QTest::newRow("curtain") << "Curtain" << "Curtain";
+    QTest::newRow("garage") << "Garage" << "Garage";
+    QTest::newRow("shade looks like a blind") << "Shade" << "Blind";
+    QTest::newRow("door looks like a window") << "Door" << "Window";
+    QTest::newRow("gate looks like a window") << "Gate" << "Window";
+    QTest::newRow("window") << "Window" << "Window";
+    QTest::newRow("unknown") << "Awning" << "Blind";
+    QTest::newRow("empty") << "" << "Blind";
+}
+
+void testUiCover::deviceClass_sharesScreens() {
+    QFETCH(QString, deviceClass);
+    QFETCH(QString, expected);
+
+    QObject parent;
+    auto    cover = makeCover(&parent, QVariantMap(), QStringList(), deviceClass);
+
+    QCOMPARE(cover->getDeviceClass(), expected);
 }
 
 QTEST_GUILESS_MAIN(testUiCover)

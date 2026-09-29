@@ -57,6 +57,11 @@ ApplicationWindow {
     }
 
     function loadSecondContainer(source, parameters = {}, openAfterLoad = true) {
+        // an entity without a detail screen: EntityController.screenUrl() returns an empty URL
+        if (String(source) === "") {
+            return;
+        }
+
         if (!containerSecond.loader.active) {
             console.debug("Loading second container", source);
             containerSecond.loader.openAfterLoad = openAfterLoad;
@@ -67,7 +72,7 @@ ApplicationWindow {
 
     function loadActivityToSecondContainer(entityObj) {
         ui.setTimeOut(1000, () => {
-                          loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityObj.id, "entityObj": entityObj });
+                          loadSecondContainer(EntityController.screenUrl(entityObj), { "entityId": entityObj.id, "entityObj": entityObj });
                       });
     }
 
@@ -103,10 +108,15 @@ ApplicationWindow {
         }
 
         unloadSecondAndThirdContainer();
-        loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityObj.id, "entityObj": entityObj });
+        loadSecondContainer(EntityController.screenUrl(entityObj), { "entityId": entityObj.id, "entityObj": entityObj });
     }
 
     function loadThirdContainer(source, parameters = {}, openAfterLoad = true) {
+        // an entity without a detail screen: EntityController.screenUrl() returns an empty URL
+        if (String(source) === "") {
+            return;
+        }
+
         if (!containerThird.loaderThird.active) {
             console.debug("Loading third container", source);
             containerThird.loaderThird.openAfterLoad = openAfterLoad;
@@ -464,8 +474,8 @@ ApplicationWindow {
                         // Nothing was loaded, so there is no item that could ever emit closed() - the only
                         // thing that releases the container again. Without this the container stays active
                         // and open, and loadSecondContainer() refuses every screen from then on.
-                        // An entity type or device class the UI does not implement gets here: the screen is
-                        // addressed by qrc:/components/entities/<type>/deviceclass/<device class>.qml.
+                        // Entity screens come from EntityController.screenUrl(), which only returns screens the
+                        // testEntityScreens unit test found in the qrc: this is the safety net if one is missing.
                         console.warn("Second container failed to load:", loader.source);
                         loader.source = "";
                         loader.active = false;

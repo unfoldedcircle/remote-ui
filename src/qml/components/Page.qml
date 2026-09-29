@@ -438,7 +438,7 @@ ListView {
                         }
 
                         onClicked: {
-                            loadSecondContainer("qrc:/components/entities/" + entity.getTypeAsString() + "/deviceclass/" + entity.getDeviceClass() + ".qml", { "entityId": entity.id, "entityObj": entity });
+                            loadSecondContainer(EntityController.screenUrl(entity), { "entityId": entity.id, "entityObj": entity });
                         }
 
                         Components.TouchSlider {

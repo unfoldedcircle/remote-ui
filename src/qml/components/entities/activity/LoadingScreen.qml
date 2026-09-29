@@ -33,7 +33,7 @@ Popup {
         buttonNavigation.releaseControl();
 
         if (!activityLoading.isMacro && entityObj.state === ActivityStates.On) {
-            loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj });
+            loadSecondContainer(EntityController.screenUrl(entityObj), { "entityId": entityId, "entityObj": entityObj });
         }
 
         activityLoading.entityId = "";

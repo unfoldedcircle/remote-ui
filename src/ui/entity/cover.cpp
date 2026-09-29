@@ -5,6 +5,7 @@
 
 #include "../../logging.h"
 #include "../../util.h"
+#include "entityScreens.h"
 
 namespace uc {
 namespace ui {
@@ -38,19 +39,8 @@ Cover::Cover(const QString &id, QVariantMap nameI18n, const QString &language, c
         m_deviceClass = QVariant::fromValue(CoverDeviceClass::Blind).toString();
     }
 
-    // some device classes look the same from UI point of view
-    switch (deviceClassEnum) {
-        case CoverDeviceClass::Shade:
-            m_deviceClass = Util::convertEnumToString(CoverDeviceClass::Blind);
-            break;
-        case CoverDeviceClass::Door:
-        case CoverDeviceClass::Gate:
-        case CoverDeviceClass::Window:
-            m_deviceClass = Util::convertEnumToString(CoverDeviceClass::Window);
-            break;
-        default:
-            break;
-    }
+    // some device classes look the same from UI point of view: the screen registry knows which ones
+    m_deviceClass = EntityScreens::screenName(Type::Cover, m_deviceClass);
 }
 
 Cover::~Cover() {

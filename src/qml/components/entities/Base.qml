@@ -106,7 +106,7 @@ Rectangle {
                 return;
             }
 
-            loadSecondContainer("qrc:/components/entities/" + obj.getTypeAsString() + "/deviceclass/" + obj.getDeviceClass() + ".qml",
+            loadSecondContainer(EntityController.screenUrl(obj),
                                 { "entityId": obj.id, "entityObj": obj, "integrationObj": integrationObj, "openFixStates": showFixStates });
         }
 
@@ -208,7 +208,7 @@ Rectangle {
                     if (!activityObj.enabled) {
                         ui.createNotification(activityObj.name + " " + qsTr("is unavailable"), true);
                     } else {
-                        loadSecondContainer("qrc:/components/entities/" + activityObj.getTypeAsString() + "/deviceclass/" + activityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": activityObj, "integrationObj": integrationObj });
+                        loadSecondContainer(EntityController.screenUrl(activityObj), { "entityId": entityId, "entityObj": activityObj, "integrationObj": integrationObj });
                     }
                     break;
                 }
@@ -267,7 +267,7 @@ Rectangle {
         }
 
         if (entityBaseContainer.handleActivityOpen()) {
-            loadSecondContainer("qrc:/components/entities/" + entityObj.getTypeAsString() + "/deviceclass/" + entityObj.getDeviceClass() + ".qml", { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
+            loadSecondContainer(EntityController.screenUrl(entityObj), { "entityId": entityId, "entityObj": entityObj, "integrationObj": integrationObj });
         }
     }
 

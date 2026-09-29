@@ -834,7 +834,7 @@ EntityComponents.BaseDetail {
             property QtObject entity
 
             function activate() {
-                loadThirdContainer("qrc:/components/entities/" + entity.getTypeAsString() + "/deviceclass/" + entity.getDeviceClass() + ".qml", { "entityId": entity.id, "entityObj": entity });
+                loadThirdContainer(EntityController.screenUrl(entity), { "entityId": entity.id, "entityObj": entity });
             }
 
             onClicked: {

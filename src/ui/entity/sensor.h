@@ -62,7 +62,7 @@ class SensorDeviceClass : public QObject {
     Q_GADGET
  public:
     // Supported sensor device classes.
-    // WARNING: changing device classes requires QML screen support! Dynamically loaded in components/entities/Base.qml
+    // WARNING: changing device classes requires QML screen support! The screen is registered in entityScreens.cpp
     enum Enum { Custom, Battery, Current, Energy, Humidity, Power, Temperature, Voltage, Binary };
     Q_ENUM(Enum)
 

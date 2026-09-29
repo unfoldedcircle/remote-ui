@@ -27,6 +27,7 @@ enable_testing(true)
 add_executable (testCoverEntity
     "test_cover_entity.cpp"
     "../../src/ui/entity/cover.cpp"
+    "../../src/ui/entity/entityScreens.cpp"
     "../../src/ui/entity/entity.cpp"
     "../../src/util.cpp"
     "../../src/logging.cpp"
@@ -140,6 +141,7 @@ add_executable (testEntityController
     "../../src/ui/entity/entities.cpp"
     "../../src/ui/entity/entitiesProxy.cpp"
     "../../src/ui/entity/entityCommandPolicy.cpp"
+    "../../src/ui/entity/entityScreens.cpp"
     # header only: contains the Q_GADGET class moc has to process
     "../../src/ui/entity/sequenceStep.h"
     "../../src/ui/mediaImageProvider.cpp"
@@ -240,5 +242,51 @@ add_test(NAME testVoiceSession
 target_link_libraries(testVoiceSession
     PUBLIC
     Qt5::Core
+    Qt5::Test
+    )
+
+# Checks the entity detail screen registry against the device class enums of the entity classes and against
+# resources/qrc/main.qrc, so that a screen missing from the qrc fails here and not on the device. The entity
+# sources are only compiled for the moc output of their device class enums.
+add_executable (testEntityScreens
+    "test_entity_screens.cpp"
+    "../../src/ui/entity/entityScreens.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/ui/entity/activity.cpp"
+    "../../src/ui/entity/button.cpp"
+    "../../src/ui/entity/climate.cpp"
+    "../../src/ui/entity/cover.cpp"
+    "../../src/ui/entity/light.cpp"
+    "../../src/ui/entity/macro.cpp"
+    "../../src/ui/entity/mediaPlayer.cpp"
+    "../../src/ui/entity/remote.cpp"
+    "../../src/ui/entity/select.cpp"
+    "../../src/ui/entity/sensor.cpp"
+    "../../src/ui/entity/switch.cpp"
+    "../../src/ui/entity/voiceAssistant.cpp"
+    "../../src/ui/entity/voiceSession.cpp"
+    # header only: contains the Q_OBJECT class moc has to process
+    "../../src/ui/entity/sequenceStep.h"
+    "../../src/ui/mediaImageProvider.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+target_compile_definitions(testEntityScreens PRIVATE
+    MAIN_QRC="${CMAKE_CURRENT_SOURCE_DIR}/../../resources/qrc/main.qrc"
+    ENTITIES_QML_DIR="${CMAKE_CURRENT_SOURCE_DIR}/../../src/qml/components/entities"
+    )
+
+add_test(NAME testEntityScreens
+         COMMAND testEntityScreens)
+
+target_link_libraries(testEntityScreens
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Quick
+    Qt5::WebSockets
     Qt5::Test
     )

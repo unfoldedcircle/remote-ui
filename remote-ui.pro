@@ -121,6 +121,7 @@ HEADERS += \
     src/ui/entity/entitiesProxy.h \
     src/ui/entity/entity.h \
     src/ui/entity/entityCommandPolicy.h \
+    src/ui/entity/entityScreens.h \
     src/ui/entity/light.h \
     src/ui/entity/macro.h \
     src/ui/entity/mediaPlayer.h \
@@ -189,6 +190,7 @@ SOURCES += \
         src/ui/entity/entitiesProxy.cpp \
         src/ui/entity/entity.cpp \
         src/ui/entity/entityCommandPolicy.cpp \
+        src/ui/entity/entityScreens.cpp \
         src/ui/entity/light.cpp \
         src/ui/entity/macro.cpp \
         src/ui/entity/mediaPlayer.cpp \

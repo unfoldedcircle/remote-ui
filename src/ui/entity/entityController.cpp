@@ -782,6 +782,21 @@ QObject* EntityController::get(const QString& entityId) {
     return obj;
 }
 
+QUrl EntityController::screenUrl(QObject* entity) {
+    auto* obj = qobject_cast<entity::Base*>(entity);
+    if (!obj) {
+        qCDebug(lcEntityController()) << "No detail screen: not an entity";
+        return QUrl();
+    }
+
+    const QUrl url = EntityScreens::screenUrl(obj->getType(), obj->getDeviceClass());
+    if (url.isEmpty()) {
+        qCDebug(lcEntityController()) << "No detail screen for entity" << obj->getId() << "of type"
+                                      << obj->getTypeAsString();
+    }
+    return url;
+}
+
 void EntityController::refreshEntity(const QString& entityId) {
     int id = m_core->getEntity(entityId);
 
