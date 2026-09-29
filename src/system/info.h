@@ -8,8 +8,8 @@
 #include <QObject>
 #include <QQmlEngine>
 
+#include "../hardware/hardwareModel.h"
 #include "../util.h"
-#include "hardwareModel.h"
 
 namespace uc {
 namespace hw {

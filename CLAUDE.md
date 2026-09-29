@@ -65,7 +65,7 @@ QML has no linter or formatter configured; match surrounding style.
 
 ## Desktop simulator
 
-Desktop == simulator, selected by `UC_MODEL` (`DEV` | `YIO1` | `UCR2` | `UCR3`; unset/invalid → `DEV`). `DEV` opens a scaled 480x850 window plus a second window from `src/qml/button-simulator/` emulating the physical buttons. Hardware paths (haptic, touch slider, wifi, power) branch on the model in `src/hardware/hardwareController.cpp` and do not run on desktop.
+Desktop == simulator, selected by `UC_MODEL` (`DEV` | `UCR2` | `UCR3`; unset/invalid → `DEV`). `DEV` opens a scaled 480x850 window plus a second window from `src/qml/button-simulator/` emulating the physical buttons. Hardware backends (haptic, touch slider) branch on the model in `src/hardware/hardwareController.cpp` and do not run on desktop. Wifi, power, battery and system info are Core API clients under `src/system/` (namespace `uc::hw`), the same on every model.
 
 Needs the [core-simulator](https://github.com/unfoldedcircle/core-simulator) running via docker-compose. Key env vars — `UC_TOKEN_PATH` (required, point at `$CORE_SIMULATOR_PATH/docker/ui-env/ws-token`), `UC_SOCKET_URL` (default `ws://127.0.0.1:8080/ws`), `UC_DISPLAY_WIDTH`/`_HEIGHT`/`_SCALE`, `UC_RESOURCE_PATH`, `UC_LEGAL_PATH`, `UC_SOUND_EFFECTS_PATH`, `UC_ONBOARDING_PATH`. Full list in `README.md` and `remote-ui.pro`.
 

@@ -39,7 +39,7 @@ target_link_libraries(testHardware
 
 add_executable (testBattery
     "test_battery.cpp"
-    "../../src/hardware/battery.cpp"
+    "../../src/system/battery.cpp"
     "../../src/core/core.cpp"
     # header only: contains the Q_GADGET enums moc has to process
     "../../src/core/enums.h"

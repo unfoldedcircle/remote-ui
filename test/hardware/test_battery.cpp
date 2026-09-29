@@ -4,7 +4,7 @@
 #include <QtTest>
 
 #include "core/core.h"
-#include "hardware/battery.h"
+#include "system/battery.h"
 
 // an unreachable address: the socket connection attempt is asynchronous and never completes during a test
 static const QString kTestUrl = QStringLiteral("ws://127.0.0.1:1/ws");

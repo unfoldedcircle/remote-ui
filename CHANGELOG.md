@@ -36,6 +36,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   0.5 on macOS, where the desktop is a 2x Retina display. Previously 0.5 everywhere, which drew the UI at half size
   on a regular Linux display.
 
+### Removed
+- The desktop simulator no longer knows the `YIO1` model of the first YIO remote, which is no longer supported.
+  `UC_MODEL=YIO1` is now treated like any other unknown value and starts the `DEV` simulator. The valid values are
+  `DEV`, `UCR2` and `UCR3`.
+
 ### Fixed
 - The voice assistant no longer starts listening after the microphone button was released. Holding the button
   right after waking the remote could reach the assistant before it was ready; the request was then repeated in

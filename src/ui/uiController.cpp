@@ -199,7 +199,6 @@ bool Controller::getKeyNavigationEnabled() {
     switch (m_model) {
         case HardwareModel::UCR2:
         case HardwareModel::UCR3:
-        case HardwareModel::YIO1:
         case HardwareModel::DEV:
             return true;
         default:

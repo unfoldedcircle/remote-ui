@@ -78,7 +78,7 @@ scripts\env\windows.cmd                                                # Windows
 
 | Variable              | Description                              | Default                |
 | --------------------- | ---------------------------------------- | ---------------------- |
-| UC_MODEL              | The model of the hardware                | DEV                    |
+| UC_MODEL              | The model of the hardware: `DEV` (desktop simulator), `UCR2` or `UCR3`; any other value starts `DEV` | DEV |
 | UC_DISPLAY_WIDTH      | Width of the display                     | 480                    |
 | UC_DISPLAY_HEIGHT     | Height of the display                    | 850                    |
 | UC_DISPLAY_SCALE      | Scale factor for the display             | 0.5 on macOS (2x Retina displays), 1 on Linux and Windows |

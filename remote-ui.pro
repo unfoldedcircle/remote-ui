@@ -89,17 +89,13 @@ HEADERS += \
     src/dock/configuredDocks.h \
     src/dock/discoveredDocks.h \
     src/dock/dockController.h \
-    src/hardware/battery.h \
     src/hardware/haptic.h \
     src/hardware/hardwareController.h \
-    src/hardware/info.h \
-    src/hardware/power.h \
     src/hardware/touchSlider.h \
     src/hardware/ucr2/hapticUCR2.h \
     src/hardware/ucr2/hapticUCR3.h \
     src/hardware/ucr3/touchSliderEventFilter.h \
     src/hardware/ucr3/touchSliderUCR3.h \
-    src/hardware/wifi.h \
     src/integration/confirmationPage.h \
     src/integration/integrationController.h \
     src/integration/integrationDrivers.h \
@@ -108,6 +104,10 @@ HEADERS += \
     src/logging.h \
     src/hardware/hardwareModel.h \
     src/softwareupdate/softwareUpdate.h \
+    src/system/battery.h \
+    src/system/info.h \
+    src/system/power.h \
+    src/system/wifi.h \
     src/translation/translation.h \
     src/ui/colors.h \
     src/ui/entity/availableEntities.h \
@@ -160,22 +160,22 @@ SOURCES += \
         src/dock/configuredDocks.cpp \
         src/dock/discoveredDocks.cpp \
         src/dock/dockController.cpp \
-        src/hardware/battery.cpp \
         src/hardware/haptic.cpp \
         src/hardware/hardwareController.cpp \
-        src/hardware/info.cpp \
-        src/hardware/power.cpp \
         src/hardware/touchSlider.cpp \
         src/hardware/ucr2/hapticUCR2.cpp \
         src/hardware/ucr2/hapticUCR3.cpp \
         src/hardware/ucr3/touchSliderEventFilter.cpp \
         src/hardware/ucr3/touchSliderUCR3.cpp \
-        src/hardware/wifi.cpp \
         src/integration/confirmationPage.cpp \
         src/integration/setupSchema.cpp \
         src/logging.cpp \
         src/main.cpp \
         src/softwareupdate/softwareUpdate.cpp \
+        src/system/battery.cpp \
+        src/system/info.cpp \
+        src/system/power.cpp \
+        src/system/wifi.cpp \
         src/translation/translation.cpp \
         src/ui/colors.cpp \
         src/ui/entity/availableEntities.cpp \
