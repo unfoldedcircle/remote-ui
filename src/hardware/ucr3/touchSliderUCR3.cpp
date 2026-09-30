@@ -45,9 +45,14 @@ bool TouchSliderUCR3::openDevice() {
     }
 
     if (!QFile::exists(m_devicePath)) {
-        qCWarning(lcHwTouchSlider()) << "Touch slider device does not exist:" << m_devicePath;
+        // the reopen timer tries every second: one warning until the device is back
+        if (!m_missingDeviceReported) {
+            m_missingDeviceReported = true;
+            qCWarning(lcHwTouchSlider()) << "Touch slider device does not exist:" << m_devicePath;
+        }
         return false;
     }
+    m_missingDeviceReported = false;
 
 #ifdef __linux__
     m_fd = open(m_devicePath.toUtf8().data(), O_RDONLY | O_NONBLOCK);

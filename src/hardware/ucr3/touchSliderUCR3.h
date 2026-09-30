@@ -37,6 +37,8 @@ class TouchSliderUCR3 : public TouchSlider
     QSocketNotifier *m_notifier = nullptr;
     int m_fd = -1;
     QTimer m_reopenTimer;
+    // the missing device was warned about: the reopen timer asks every second
+    bool m_missingDeviceReported = false;
 
  private slots:
     void readData();
