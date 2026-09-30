@@ -23,7 +23,7 @@ Controller::Controller(HardwareModel::Enum model, core::Api* core, Config* confi
                 Q_UNUSED(modelName)
                 Q_UNUSED(modelNumber)
 
-                m_info->set(model, serialNumber, hwRevision);
+                m_info->set(serialNumber, hwRevision);
             },
             [=](int code, QString message) {
                 // fail
@@ -31,7 +31,7 @@ Controller::Controller(HardwareModel::Enum model, core::Api* core, Config* confi
             });
     });
 
-    m_info = new Info(this);
+    m_info = new Info(model, this);
     m_wifi = new Wifi(m_core, this);
     m_power = new Power(m_core, this);
     m_battery = new Battery(m_core, this);

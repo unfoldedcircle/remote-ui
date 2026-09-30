@@ -22,7 +22,11 @@ class Info : public QObject {
     Q_PROPERTY(QString revision READ getRevision CONSTANT)
 
  public:
-    explicit Info(QObject *parnet = nullptr);
+    /**
+     * @param model the model the UI runs on. It is known from the start and never changes, which is what the
+     *              CONSTANT property promises: the serial number and the revision arrive later from the core.
+     */
+    explicit Info(HardwareModel::Enum model, QObject *parent = nullptr);
     ~Info();
 
     // Q_PROPERTY methods
@@ -30,7 +34,7 @@ class Info : public QObject {
     QString getSerialNumber() { return m_serialNumber; }
     QString getRevision() { return m_revision; }
 
-    void set(HardwareModel::Enum modelNumber, const QString &serialNumber, const QString &revision);
+    void set(const QString &serialNumber, const QString &revision);
 
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine);
 
