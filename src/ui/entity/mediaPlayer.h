@@ -12,9 +12,9 @@
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
 #include <QPointer>
+#include <QSharedPointer>
 #include <QThreadPool>
 #include <QTimer>
-
 #include <atomic>
 
 #include "../../core/structs.h"
@@ -485,8 +485,10 @@ class MediaPlayer : public Base {
                                                    const QImage &mediaImage, const QColor &mediaImageColor,
                                                    bool success);
     int                   m_mediaImageDownloadTries = 0;
-    std::atomic<quint64>  m_mediaImageProcessingRequestId{0};
-    bool                  isMediaImageRequestCurrent(quint64 requestId) const;
+    // Counts the artwork requests, only the newest one is applied. Shared with the workers of the thread pool,
+    // which read it to stop early: it outlives this object, so a worker never touches the object itself.
+    QSharedPointer<std::atomic<quint64>> m_mediaImageProcessingRequestId =
+        QSharedPointer<std::atomic<quint64>>::create(0);
 
  private slots:
     void onPositionTimerTimeout();

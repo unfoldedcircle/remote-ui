@@ -10,6 +10,7 @@
 #include "ui/entity/entityController.h"
 #include "ui/entity/light.h"
 #include "ui/entity/mediaPlayer.h"
+#include "ui/mediaImageProvider.h"
 #include "ui/notification.h"
 
 // an unreachable address: the socket connection attempt is asynchronous and never completes during a test
@@ -60,9 +61,14 @@ class testEntityController : public QObject {
 
     void mediaPlayer_positionTimer_onlyAnnouncesAChange();
 
+    void mediaPlayer_embeddedArtwork_isDecodedOnAWorkerThread();
+    void mediaPlayer_deletedWhileArtworkIsDecoded_doesNotCrash();
+
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
     static QVariantMap      voiceStartParams(int sessionId);
+    // a small PNG as a data URL, the way an integration embeds artwork in media_image_url
+    static QString embeddedArtwork(const QColor& color);
     // the unreachable test socket warns about the connection on its own, so only the warnings of the entity
     // lookup are counted
     static int notLoadedWarnings(const QString& entityId);
@@ -145,6 +151,18 @@ void testEntityController::setEntityName_knownEntity_doesNotWarn() {
     // a loaded entity takes the regular path: the request is built and handed to the core, which is not
     // connected in a test and reports that separately - nothing warns about a missing entity
     QCOMPARE(notLoadedWarnings(entityId), 0);
+}
+
+QString testEntityController::embeddedArtwork(const QColor& color) {
+    QImage image(64, 64, QImage::Format_RGB32);
+    image.fill(color);
+
+    QByteArray png;
+    QBuffer    buffer(&png);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, "PNG");
+
+    return QStringLiteral("data:image/png;base64,") + QString::fromLatin1(png.toBase64());
 }
 
 QVariantMap testEntityController::voiceStartParams(int sessionId) {
@@ -411,6 +429,63 @@ void testEntityController::mediaPlayer_positionTimer_onlyAnnouncesAChange() {
     QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
     QCOMPARE(mediaPlayer->getMediaPosition(), 3);
     QCOMPARE(positionChanged.count(), 2);
+}
+
+/**
+ * The artwork is decoded and its average colour computed on a thread of the global pool; the result is applied
+ * on the GUI thread, where the media player lives.
+ */
+void testEntityController::mediaPlayer_embeddedArtwork_isDecodedOnAWorkerThread() {
+    uc::core::Api              api(kTestUrl);
+    uc::ui::EntityController   controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+    uc::ui::MediaImageProvider provider;
+
+    const QString    entityId = QStringLiteral("media_player.art");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Media_player");
+    controller.onEntityAdded(entity);
+
+    auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+    QVERIFY(mediaPlayer);
+
+    QSignalSpy imageChanged(mediaPlayer, &uc::ui::entity::MediaPlayer::mediaImageChanged);
+    mediaPlayer->updateAttribute(QStringLiteral("Media_image_url"), embeddedArtwork(QColor(200, 30, 30)));
+
+    QVERIFY(imageChanged.wait(5000));
+    QVERIFY(mediaPlayer->getMediaImage().startsWith(QStringLiteral("image://media-art/")));
+    // the artwork is red: so is its average colour
+    QVERIFY(mediaPlayer->getMediaImageColor().red() > mediaPlayer->getMediaImageColor().blue());
+}
+
+/**
+ * An entity can be removed while its artwork is still being decoded, e.g. by the reload after a reconnect. The
+ * worker used to check and dereference a QPointer from its own thread, which races with the deletion on the GUI
+ * thread; it now only reads a shared counter and the result is dropped on the GUI thread.
+ */
+void testEntityController::mediaPlayer_deletedWhileArtworkIsDecoded_doesNotCrash() {
+    uc::core::Api              api(kTestUrl);
+    uc::ui::EntityController   controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+    uc::ui::MediaImageProvider provider;
+
+    for (int round = 0; round < 20; round++) {
+        const QString    entityId = QStringLiteral("media_player.art%1").arg(round);
+        uc::core::Entity entity = makeEntity(entityId);
+        entity.type = QStringLiteral("Media_player");
+        controller.onEntityAdded(entity);
+
+        auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+        QVERIFY(mediaPlayer);
+
+        mediaPlayer->updateAttribute(QStringLiteral("Media_image_url"), embeddedArtwork(QColor(30, 30, 200)));
+        // the entity is removed right away: the controller deletes it 100 ms later, while the decoding is still
+        // running or about to deliver its result
+        controller.onEntityDeleted(entityId);
+        QTest::qWait(round % 2 == 0 ? 110 : 10);
+    }
+
+    QThreadPool::globalInstance()->waitForDone(5000);
+    // the queued results of the deleted players are delivered and dropped
+    QTest::qWait(200);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

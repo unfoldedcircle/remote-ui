@@ -3,6 +3,7 @@
 
 #include "mediaPlayer.h"
 
+#include <QCoreApplication>
 #include <QSslConfiguration>
 #include <functional>
 #include <utility>
@@ -210,6 +211,9 @@ MediaPlayer::MediaPlayer(const QString &id, QVariantMap nameI18n, const QString 
 }
 
 MediaPlayer::~MediaPlayer() {
+    // a worker that is still decoding artwork for this object stops at its next check
+    ++*m_mediaImageProcessingRequestId;
+
     if (!m_mediaImageCacheKey.isEmpty()) {
         if (auto *provider = MediaImageProvider::instance()) {
             provider->removeImage(m_mediaImageCacheKey);
@@ -645,7 +649,7 @@ void MediaPlayer::getMediaImageColor(QString imageUrl, quint64 requestId) {
 }
 
 void MediaPlayer::clearMediaImageState() {
-    ++m_mediaImageProcessingRequestId;
+    ++*m_mediaImageProcessingRequestId;
 
     if (!m_mediaImageCacheKey.isEmpty()) {
         if (auto *provider = MediaImageProvider::instance()) {
@@ -669,16 +673,19 @@ void MediaPlayer::clearMediaImageState() {
 void MediaPlayer::processMediaImageAsync(const QString &imageUrl, const QByteArray &imageData, quint64 requestId,
                                          const QString &dataUrl) {
     const QColor fallbackColor = QColor("#171717");
-    QPointer<MediaPlayer> guard(this);
+    // The worker runs on a pool thread while this object lives on the GUI thread and can be deleted at any time,
+    // e.g. when the entity is removed while its artwork is decoded. QPointer is not thread safe: the worker only
+    // holds the shared request counter, which outlives the object. The guard is dereferenced on the GUI thread.
+    const QSharedPointer<std::atomic<quint64>> currentRequestId = m_mediaImageProcessingRequestId;
+    const QPointer<MediaPlayer>                guard(this);
 
-    QThreadPool::globalInstance()->start([guard, requestId, imageUrl, imageData, dataUrl, fallbackColor]() {
-        if (!guard) {
+    QThreadPool::globalInstance()->start([currentRequestId, guard, requestId, imageUrl, imageData, dataUrl,
+                                          fallbackColor]() {
+        const auto isRequestCurrent = [currentRequestId, requestId]() { return currentRequestId->load() == requestId; };
+
+        if (!isRequestCurrent()) {
             return;
         }
-
-        const auto isRequestCurrent = [guard, requestId]() {
-            return guard && guard->isMediaImageRequestCurrent(requestId);
-        };
 
         ProcessedMediaImage result;
         if (dataUrl.isEmpty()) {
@@ -687,16 +694,19 @@ void MediaPlayer::processMediaImageAsync(const QString &imageUrl, const QByteArr
             result = processEmbeddedMediaImage(dataUrl, fallbackColor, isRequestCurrent);
         }
 
-        if (result.cancelled) {
+        if (result.cancelled || !isRequestCurrent()) {
             return;
         }
 
-        if (!guard) {
+        // Hand the result to the GUI thread through the application object, which is always there: whether
+        // the media player still exists is decided on that thread, where it is deleted.
+        QCoreApplication *app = QCoreApplication::instance();
+        if (!app) {
             return;
         }
 
         QMetaObject::invokeMethod(
-            guard,
+            app,
             [guard, imageUrl, requestId, result]() {
                 if (!guard) {
                     return;
@@ -711,7 +721,7 @@ void MediaPlayer::processMediaImageAsync(const QString &imageUrl, const QByteArr
 
 void MediaPlayer::applyProcessedMediaImage(const QString &imageUrl, quint64 requestId, const QImage &mediaImage,
                                            const QColor &mediaImageColor, bool success) {
-    if (requestId != m_mediaImageProcessingRequestId.load() || imageUrl != m_mediaImageUrl) {
+    if (requestId != m_mediaImageProcessingRequestId->load() || imageUrl != m_mediaImageUrl) {
         qCDebug(lcMediaPlayer()) << "Ignoring stale processed image result";
         return;
     }
@@ -748,10 +758,6 @@ void MediaPlayer::applyProcessedMediaImage(const QString &imageUrl, quint64 requ
         qCDebug(lcMediaPlayer()).noquote() << "Background image lightness" << m_mediaImageColor.lightness();
         emit mediaImageColorChanged();
     }
-}
-
-bool MediaPlayer::isMediaImageRequestCurrent(quint64 requestId) const {
-    return m_mediaImageProcessingRequestId.load() == requestId;
 }
 
 void MediaPlayer::sendCommand(MediaPlayerCommands::Enum cmd, QVariantMap params) {
@@ -804,7 +810,7 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
             }
 
             if (m_state == MediaPlayerStates::Off) {
-                ++m_mediaImageProcessingRequestId;
+                ++*m_mediaImageProcessingRequestId;
 
                 m_mediaDuration = 0;
                 emit mediaDurationChanged();
@@ -903,7 +909,7 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
                 emit mediaImageUrlChanged();
 
                 m_mediaImageDownloadTries = 0;
-                const quint64 requestId = ++m_mediaImageProcessingRequestId;
+                const quint64 requestId = ++*m_mediaImageProcessingRequestId;
 
                 bool isBase64 = newImageUrl.startsWith("data:image/", Qt::CaseInsensitive) && newImageUrl.contains(";base64,");
 
@@ -1086,7 +1092,7 @@ void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
     const QString replyImageUrl = reply->property("mediaImageUrl").toString();
     const quint64 replyRequestId = reply->property("mediaImageRequestId").toULongLong();
 
-    if (replyImageUrl != m_mediaImageUrl || replyRequestId != m_mediaImageProcessingRequestId.load()) {
+    if (replyImageUrl != m_mediaImageUrl || replyRequestId != m_mediaImageProcessingRequestId->load()) {
         qCDebug(lcMediaPlayer()) << "Ignoring stale image download response";
         reply->deleteLater();
         return;
@@ -1105,7 +1111,7 @@ void MediaPlayer::onNetworkRequestFinished(QNetworkReply *reply) {
             return;
         } else {
             QTimer::singleShot(1000, this, [this, replyImageUrl, replyRequestId] {
-                if (replyImageUrl == m_mediaImageUrl && replyRequestId == m_mediaImageProcessingRequestId.load()) {
+                if (replyImageUrl == m_mediaImageUrl && replyRequestId == m_mediaImageProcessingRequestId->load()) {
                     getMediaImageColor(replyImageUrl, replyRequestId);
                 }
             });
