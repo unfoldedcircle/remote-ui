@@ -116,9 +116,10 @@ bool Light::updateAttribute(const QString &attribute, QVariant data) {
                     emit brightnessChanged();
 
                     m_stateInfo2 = "";
-                } else if (m_state == LightStates::Unavailable || m_state == LightStates::Unknown) {
-                    m_stateInfo2 = "";
                 }
+                // Unavailable and Unknown keep the brightness and its text: getStateInfo() only shows the text
+                // while the light is on, and it is only built again when the brightness value changes. Clearing
+                // it here lost the percentage of a light that came back on with the brightness it had before.
                 ok = true;
                 emit stateChanged(m_id, m_state);
 

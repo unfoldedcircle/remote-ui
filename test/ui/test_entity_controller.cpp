@@ -8,6 +8,7 @@
 #include "ui/entity/activity.h"
 #include "ui/entity/climate.h"
 #include "ui/entity/entityController.h"
+#include "ui/entity/light.h"
 #include "ui/entity/mediaPlayer.h"
 #include "ui/notification.h"
 
@@ -54,6 +55,8 @@ class testEntityController : public QObject {
 
     void climate_stateInfo_usesTheUnitOfTheEntity();
     void climate_stateInfo_followsTheUnitSystem();
+
+    void light_brightnessText_survivesUnavailable();
 
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
@@ -339,6 +342,34 @@ void testEntityController::climate_stateInfo_followsTheUnitSystem() {
     // the value is the one the integration reported, only the label follows the unit
     QVERIFY2(climate->getStateInfo().contains(QStringLiteral("21°F")), qPrintable(climate->getStateInfo()));
     QCOMPARE(stateInfoChanged.count(), 1);
+}
+
+/**
+ * An integration that reconnects reports its lights as unavailable for a moment. A light that comes back on with
+ * the brightness it had before must still show the percentage on its tile.
+ */
+void testEntityController::light_brightnessText_survivesUnavailable() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("light.desk");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Light");
+    controller.onEntityAdded(entity);
+
+    auto light = qobject_cast<uc::ui::entity::Light*>(controller.get(entityId));
+    QVERIFY(light);
+
+    light->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
+    light->updateAttribute(QStringLiteral("Brightness"), 128);
+    QVERIFY2(light->getStateInfo().contains(QStringLiteral("50%")), qPrintable(light->getStateInfo()));
+
+    light->updateAttribute(QStringLiteral("State"), QStringLiteral("UNAVAILABLE"));
+    QVERIFY2(!light->getStateInfo().contains(QStringLiteral("%")), qPrintable(light->getStateInfo()));
+
+    light->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
+    light->updateAttribute(QStringLiteral("Brightness"), 128);
+    QVERIFY2(light->getStateInfo().contains(QStringLiteral("50%")), qPrintable(light->getStateInfo()));
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

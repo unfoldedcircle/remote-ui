@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- A light that comes back from unavailable, for example when its integration reconnects, shows its brightness
+  percentage again.
 - The climate tile shows the temperature with the unit of the entity right away. A Fahrenheit entity showed its
   temperature with °C until the temperature changed.
 - Links in the legal documents of the About settings open the linked document on every platform, not only when
