@@ -38,6 +38,14 @@ class testUiModels : public QObject {
 
     void groupItems_unknownKeyReturnsNull();
     void groupItems_removeUnknownKeyKeepsModel();
+
+    void pages_swapData_viewAndDataAgree();
+    void pageItems_swapData_viewAndDataAgree();
+    void groupItems_swapData_viewAndDataAgree();
+
+ private:
+    // what a view makes of a rowsMoved signal: the row is taken out and inserted in front of the destination
+    static void applyRowsMoved(QStringList* viewOrder, const QList<QVariant>& rowsMovedArguments);
 };
 
 void testUiModels::pages_unknownKeyReturnsNull() {
@@ -206,6 +214,115 @@ void testUiModels::groupItems_removeUnknownKeyKeepsModel() {
 
     QCOMPARE(items.count(), 1);
     QVERIFY(items.getGroupItem(QStringLiteral("entity-1")) != nullptr);
+}
+
+void testUiModels::applyRowsMoved(QStringList* viewOrder, const QList<QVariant>& rowsMovedArguments) {
+    const int start = rowsMovedArguments.at(1).toInt();
+    const int end = rowsMovedArguments.at(2).toInt();
+    const int destinationRow = rowsMovedArguments.at(4).toInt();
+    QCOMPARE(start, end);
+
+    const QString moved = viewOrder->at(start);
+    viewOrder->insert(destinationRow, moved);
+    viewOrder->removeAt(destinationRow > start ? start : start + 1);
+}
+
+/**
+ * Reordering by drag and drop moves an item to the row it is dropped on. A view only learns about it through
+ * rowsMoved, whose destination is the row the item is inserted in front of, which is not the index the item
+ * ends up at when it moves down. Every move has to leave the view and the model data in the same order.
+ */
+void testUiModels::pages_swapData_viewAndDataAgree() {
+    static const QStringList ids = {"a", "b", "c", "d", "e"};
+
+    for (int from = 0; from < ids.size(); from++) {
+        for (int to = 0; to < ids.size(); to++) {
+            uc::ui::Pages pages;
+            for (const QString& id : ids) {
+                pages.append(new uc::ui::Page(id, id, QString(), &pages));
+            }
+            QSignalSpy rowsMoved(&pages, &QAbstractItemModel::rowsMoved);
+
+            pages.swapData(from, to);
+
+            QStringList expected = ids;
+            expected.move(from, to);
+            QStringList viewOrder = ids;
+            if (from != to) {
+                QCOMPARE(rowsMoved.count(), 1);
+                applyRowsMoved(&viewOrder, rowsMoved.at(0));
+            }
+
+            QStringList dataOrder;
+            for (int row = 0; row < pages.count(); row++) {
+                dataOrder.append(pages.getPage(row)->pageId());
+            }
+            QCOMPARE(dataOrder, expected);
+            QCOMPARE(viewOrder, expected);
+        }
+    }
+}
+
+void testUiModels::pageItems_swapData_viewAndDataAgree() {
+    static const QStringList ids = {"a", "b", "c", "d", "e"};
+
+    for (int from = 0; from < ids.size(); from++) {
+        for (int to = 0; to < ids.size(); to++) {
+            uc::ui::PageItemList items;
+            for (const QString& id : ids) {
+                items.addItem(id, uc::ui::PageItem::Entity);
+            }
+            QSignalSpy rowsMoved(&items, &QAbstractItemModel::rowsMoved);
+
+            items.swapData(from, to);
+
+            QStringList expected = ids;
+            expected.move(from, to);
+            QStringList viewOrder = ids;
+            if (from != to) {
+                QCOMPARE(rowsMoved.count(), 1);
+                applyRowsMoved(&viewOrder, rowsMoved.at(0));
+            }
+
+            QStringList dataOrder;
+            for (int row = 0; row < items.count(); row++) {
+                dataOrder.append(items.getPageItem(row)->pageItemId());
+            }
+            QCOMPARE(dataOrder, expected);
+            QCOMPARE(viewOrder, expected);
+        }
+    }
+}
+
+void testUiModels::groupItems_swapData_viewAndDataAgree() {
+    static const QStringList ids = {"a", "b", "c", "d", "e"};
+
+    for (int from = 0; from < ids.size(); from++) {
+        for (int to = 0; to < ids.size(); to++) {
+            uc::ui::GroupItemList items;
+            for (const QString& id : ids) {
+                items.addItem(id);
+            }
+            QSignalSpy rowsMoved(&items, &QAbstractItemModel::rowsMoved);
+
+            items.swapData(from, to);
+
+            QStringList expected = ids;
+            expected.move(from, to);
+            QStringList viewOrder = ids;
+            if (from != to) {
+                QCOMPARE(rowsMoved.count(), 1);
+                applyRowsMoved(&viewOrder, rowsMoved.at(0));
+            }
+
+            QStringList dataOrder;
+            for (int row = 0; row < items.count(); row++) {
+                dataOrder.append(items.getGroupItem(row)->groupItemId());
+            }
+            QCOMPARE(dataOrder, expected);
+            QCOMPARE(viewOrder, expected);
+        }
+    }
 }
 
 QTEST_GUILESS_MAIN(testUiModels)

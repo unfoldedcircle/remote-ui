@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- Dragging a page, or an entity of a page or group, over more than one position no longer shows another item in
+  the dragged tile.
 - The onboarding no longer skips the step for naming the remote when the connection to the core is re-established
   while that step is shown.
 - A forgotten WiFi network appears in the list of available networks again right away, instead of only after a
