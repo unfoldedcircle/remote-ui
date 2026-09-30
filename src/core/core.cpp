@@ -1620,10 +1620,6 @@ void Api::processResponseMessage(QVariantMap map) {
             processAuthResult(reqId, code, msgData);
             break;
         }
-        case MsgResponse::pong: {
-            // TODO(marton): Implement me
-            break;
-        }
         case MsgResponse::result:
         case MsgResponse::button_cfg:
         case MsgResponse::display_cfg:
@@ -1657,24 +1653,12 @@ void Api::processResponseMessage(QVariantMap map) {
             processApiAccess(reqId, code, msgData);
             break;
         }
-        case MsgResponse::entity_types: {
-            // TODO(marton): Implement me
-            break;
-        }
         case MsgResponse::entities: {
             processResponseEntities(reqId, code, msgData);
             break;
         }
         case MsgResponse::available_entities: {
             processResponseAvailableEntities(reqId, code, msgData);
-            break;
-        }
-        case MsgResponse::entity_features: {
-            // TODO(marton): Implement me
-            break;
-        }
-        case MsgResponse::entity_commands: {
-            // TODO(marton): Implement me
             break;
         }
         case MsgResponse::entity: {
@@ -1710,10 +1694,6 @@ void Api::processResponseMessage(QVariantMap map) {
             processResponseIntegrationStatus(reqId, code, msgData);
             break;
         }
-        case MsgResponse::integration_driver_count: {
-            // TODO(marton): Implement me
-            break;
-        }
         case MsgResponse::integration_drivers: {
             processResponseIntegrationDrivers(reqId, code, msgData);
             break;
@@ -1722,16 +1702,8 @@ void Api::processResponseMessage(QVariantMap map) {
             processResponseIntegrationDriver(reqId, code, msgData);
             break;
         }
-        case MsgResponse::integration_count: {
-            // TODO(marton): Implement me
-            break;
-        }
         case MsgResponse::integrations: {
             processResponseIntegrations(reqId, code, msgData);
-            break;
-        }
-        case MsgResponse::integration: {
-            // TODO(marton): Implement me
             break;
         }
         case MsgResponse::integration_setup_info: {
@@ -1824,7 +1796,21 @@ void Api::processResponseMessage(QVariantMap map) {
             processResponseSequenceReadiness(reqId, code, msgData);
             break;
         }
+        case MsgResponse::pong:
+        case MsgResponse::entity_types:
+        case MsgResponse::entity_features:
+        case MsgResponse::entity_commands:
+        case MsgResponse::integration_driver_count:
+        case MsgResponse::integration_count:
+        case MsgResponse::integration:
         default:
+            // A response the UI does not read, or one it does not know: a newer core may answer with a message
+            // this version has never heard of. The request is settled as a plain result all the same, its
+            // handlers would otherwise wait forever, since the request timeout was cancelled above.
+            if (resp == static_cast<MsgResponse::Enum>(-1)) {
+                qCWarning(lcCore()) << "Unknown response" << map.value("msg").toString() << "for request" << reqId;
+            }
+            emit respResult(reqId, code, QString());
             break;
     }
 }

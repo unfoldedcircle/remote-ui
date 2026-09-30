@@ -93,6 +93,11 @@ class Api : public QObject {
      * @param msgData the `msg_data` object of the event
      */
     static Profile parseProfileChange(const QVariantMap &msgData);
+    /**
+     * Dispatches a response message of the core to its handlers. Public for the unit tests, which have no core
+     * to answer their requests.
+     */
+    void processResponseMessage(QVariantMap map);
 
     // profile handling
     int switchProfile(const QString &profileId, const QString &pin);
@@ -580,7 +585,6 @@ class Api : public QObject {
     int sendRequest(RequestTypes::Enum type, const QVariantMap msgData = QVariantMap());
 
     void processEventMessage(QVariantMap map);
-    void processResponseMessage(QVariantMap map);
     void processRequestMessage(QVariantMap map);
 
     void                 setupTimerForRequest(int requestId);
