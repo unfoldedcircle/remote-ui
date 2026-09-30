@@ -45,7 +45,10 @@ Light::Light(const QString &id, QVariantMap nameI18n, const QString &language, c
         m_colorTempSteps = options.value("color_temperature_steps").toInt();
     }
 
-    qmlRegisterType<LightColorWheel>("Entity.Light", 1, 0, "ColorWheel");
+    // Registered once: a type registration is never released, and every light entity ran this line.
+    // It stays here so that the type is registered before the first light screen can be loaded, as before.
+    static const int colorWheelTypeId = qmlRegisterType<LightColorWheel>("Entity.Light", 1, 0, "ColorWheel");
+    Q_UNUSED(colorWheelTypeId)
 }
 
 Light::~Light() {
