@@ -92,6 +92,8 @@ void testCommon::getLanguageString_data() {
 
     QTest::newRow("English fallback for missing it") << map << "it" << "English fallback";
     QTest::newRow("English fallback for missing it_IT") << map << "it_IT" << "English fallback";
+    // the language is empty until the first configuration arrived: English, not the first key in the map
+    QTest::newRow("English fallback for empty language") << map << "" << "English fallback";
 
     // Special logic for Swiss German de_CH
     QVariantMap mapCH = {{"en", "English fallback"}, {"de_DE", "German"}, {"de_CH", "Swiss German"}};
