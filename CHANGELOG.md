@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- A forgotten WiFi network appears in the list of available networks again right away, instead of only after a
+  later scan found a change.
 - A dock setup that cannot be started is reported as failed right away. The setup screen used to stay behind the
   loading screen for three minutes.
 - An integration that is connected is no longer shown as not connected after it was renamed or otherwise changed

@@ -355,7 +355,10 @@ void Wifi::deleteSavedNetwork(const QString &identifier) {
                 removedNetwork->deleteLater();
             }
             emit knownNetworkListChanged();
-            QTimer::singleShot(1500, [=] { getAllWifiNetworks(); });
+            // The scan list excludes the saved networks: it changed with them. The reload below does not
+            // announce it, the network is already gone from the saved ones by then.
+            emit networkListChanged();
+            QTimer::singleShot(1500, this, [=] { getAllWifiNetworks(); });
         },
         [=](int code, QString message) {
             // fail
@@ -373,6 +376,8 @@ void Wifi::deleteAllNetworks() {
             // success
             clearKnownNetworkList();
             emit knownNetworkListChanged();
+            // the scan list excludes the saved networks: it changed with them
+            emit networkListChanged();
         },
         [=](int code, QString message) {
             // fail
