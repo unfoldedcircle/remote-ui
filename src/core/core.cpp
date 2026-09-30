@@ -1361,8 +1361,9 @@ void Api::onStateChanged(QAbstractSocket::SocketState state) {
             //            emit connected();
             break;
         case QAbstractSocket::UnconnectedState:
-            emit disconnected();
+            // the flag first: a slot of disconnected() must see the connection as gone
             m_connected = false;
+            emit disconnected();
             m_reconnectTimer->start();
             break;
         default:
