@@ -80,6 +80,8 @@ Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &languag
     }
 
     updateTemperaturUnitValues();
+    // the attributes were applied above with the default unit label: the unit is only known now
+    updateCurrentTemperatureInfo();
 
     if (options.contains("fan_modes")) {
         m_fanModes = options.value("fan_modes").toStringList();
@@ -88,6 +90,18 @@ Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &languag
 
 Climate::~Climate() {
     qCDebug(lcClimate()) << "Climate entity destructor";
+}
+
+void Climate::updateCurrentTemperatureInfo() {
+    if (!m_currentTemperatureReported) {
+        return;
+    }
+
+    const QString info = QString::number(m_currentTemperature) + m_temperatureLabel;
+    if (m_stateInfo2 != info) {
+        m_stateInfo2 = info;
+        emit stateInfoChanged();
+    }
 }
 
 void Climate::updateTemperaturUnitValues() {
@@ -248,8 +262,8 @@ bool Climate::updateAttribute(const QString &attribute, QVariant data) {
                 ok = true;
                 emit currentTemperatureChanged();
 
-                m_stateInfo2 = QString::number(m_currentTemperature) + m_temperatureLabel;
-                emit stateInfoChanged();
+                m_currentTemperatureReported = true;
+                updateCurrentTemperatureInfo();
             }
             break;
         }
@@ -325,6 +339,7 @@ void Climate::onUnitSystemChanged(Config::UnitSystems unitSystem) {
                          << unit;
 
     updateTemperaturUnitValues();
+    updateCurrentTemperatureInfo();
 
     emit targetTemperatureLowChanged();
     emit targetTemperatureHighChanged();

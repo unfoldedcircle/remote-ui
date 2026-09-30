@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The climate tile shows the temperature with the unit of the entity right away. A Fahrenheit entity showed its
+  temperature with °C until the temperature changed.
 - Links in the legal documents of the About settings open the linked document on every platform, not only when
   the app runs from the root directory, and the images of the linked document are shown. Only documents of the
   legal directory are opened: no link leads to the network.

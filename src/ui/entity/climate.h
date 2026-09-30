@@ -157,6 +157,8 @@ class Climate : public Base {
 
  private:
     void updateTemperaturUnitValues();
+    // builds the temperature part of the state info, with the unit label that is current
+    void updateCurrentTemperatureInfo();
 
  private:
     TemperatureUnit::Enum m_temperatureUnit;
@@ -170,6 +172,8 @@ class Climate : public Base {
     // TODO(marton) use better names, what is info1 & 2?
     QString m_stateInfo1;
     QString m_stateInfo2;
+    // a current temperature was reported: without one the state info has no temperature part
+    bool m_currentTemperatureReported = false;
 
     // options
     QVariantMap m_options;

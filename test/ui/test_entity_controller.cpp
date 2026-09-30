@@ -6,6 +6,7 @@
 #include "config/config.h"
 #include "core/core.h"
 #include "ui/entity/activity.h"
+#include "ui/entity/climate.h"
 #include "ui/entity/entityController.h"
 #include "ui/entity/mediaPlayer.h"
 #include "ui/notification.h"
@@ -50,6 +51,9 @@ class testEntityController : public QObject {
     void activity_onAgainAfterReconnect_isNotStartedExternally();
 
     void config_reloadedDeviceName_isNotAnnouncedAgain();
+
+    void climate_stateInfo_usesTheUnitOfTheEntity();
+    void climate_stateInfo_followsTheUnitSystem();
 
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
@@ -292,6 +296,49 @@ void testEntityController::config_reloadedDeviceName_isNotAnnouncedAgain() {
     emit api.cfgDeviceChanged(device);
     QCOMPARE(nameChanged.count(), 2);
     QCOMPARE(config.getDeviceName(), device.name);
+}
+
+/**
+ * The attributes of a climate entity are applied before its temperature unit is known. The temperature in the
+ * state info, which the entity tile shows, was built with the Celsius label at that point and kept it.
+ */
+void testEntityController::climate_stateInfo_usesTheUnitOfTheEntity() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("climate.living_room");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Climate");
+    entity.options = QVariantMap({{QStringLiteral("temperature_unit"), QStringLiteral("FAHRENHEIT")}});
+    entity.attributes = QVariantMap({{QStringLiteral("current_temperature"), 72}});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entityId));
+    QVERIFY(climate);
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("72°F")), qPrintable(climate->getStateInfo()));
+}
+
+void testEntityController::climate_stateInfo_followsTheUnitSystem() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    // no temperature_unit option: the entity follows the unit system of the remote
+    const QString    entityId = QStringLiteral("climate.bedroom");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Climate");
+    entity.attributes = QVariantMap({{QStringLiteral("current_temperature"), 21}});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entityId));
+    QVERIFY(climate);
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("21°C")), qPrintable(climate->getStateInfo()));
+
+    QSignalSpy stateInfoChanged(climate, &uc::ui::entity::Base::stateInfoChanged);
+    climate->onUnitSystemChanged(uc::Config::UnitSystems::Us);
+
+    // the value is the one the integration reported, only the label follows the unit
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("21°F")), qPrintable(climate->getStateInfo()));
+    QCOMPARE(stateInfoChanged.count(), 1);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)
