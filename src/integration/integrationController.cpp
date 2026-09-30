@@ -189,8 +189,8 @@ void IntegrationController::getIntegrationDrivers(int limit, int page) {
             // every driver of the page is fetched with a request of its own: the page is done when all of them
             // are settled, with or without success
             m_integrationDriversPending = integrationDrivers.size();
-            for (QList<core::IntegrationDriver>::iterator i = integrationDrivers.begin();
-                 i != integrationDrivers.end(); i++) {
+            for (QList<core::IntegrationDriver>::iterator i = integrationDrivers.begin(); i != integrationDrivers.end();
+                 i++) {
                 // get detailed driver info
                 getIntegrationDriver(i->id, generation);
             }

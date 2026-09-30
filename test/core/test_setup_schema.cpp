@@ -42,11 +42,11 @@ QVariantMap testSetupSchema::title() {
 void testSetupSchema::settingWithoutField_isSkipped() {
     // several rounds: an indeterminate value does not have to be wrong the first time
     for (int i = 0; i < 20; i++) {
-        SetupSchema schema(title(),
-                           {setting(QStringLiteral("none"), QVariant()),
-                            setting(QStringLiteral("empty"), QVariantMap()),
-                            setting(QStringLiteral("no_object"), QStringLiteral("text"))},
-                           QStringLiteral("en"));
+        SetupSchema schema(
+            title(),
+            {setting(QStringLiteral("none"), QVariant()), setting(QStringLiteral("empty"), QVariantMap()),
+             setting(QStringLiteral("no_object"), QStringLiteral("text"))},
+            QStringLiteral("en"));
 
         QCOMPARE(schema.getSettings().size(), 0);
     }
@@ -61,12 +61,11 @@ void testSetupSchema::settingWithUnknownField_isSkipped() {
 }
 
 void testSetupSchema::knownFields_areCreated() {
-    SetupSchema schema(
-        title(),
-        {setting(QStringLiteral("address"), QVariantMap({{QStringLiteral("text"), QVariantMap()}})),
-         setting(QStringLiteral("missing"), QVariant()),
-         setting(QStringLiteral("port"), QVariantMap({{QStringLiteral("number"), QVariantMap()}}))},
-        QStringLiteral("en"));
+    SetupSchema schema(title(),
+                       {setting(QStringLiteral("address"), QVariantMap({{QStringLiteral("text"), QVariantMap()}})),
+                        setting(QStringLiteral("missing"), QVariant()),
+                        setting(QStringLiteral("port"), QVariantMap({{QStringLiteral("number"), QVariantMap()}}))},
+                       QStringLiteral("en"));
 
     QCOMPARE(schema.getSettings().size(), 2);
 }
