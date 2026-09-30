@@ -1235,10 +1235,13 @@ void IntegrationController::onIntegrationDriverStateChanged(QString driverId, QS
         return;
     }
 
-    if (!m_integrationDrivers.get(driverId)->getState().contains(state.toLower())) {
+    // The driver state is optional in an integration state event: an empty one is no state to apply. The states
+    // are compared as a whole, "reconnecting" contains "connecting".
+    const QString newState = state.toLower();
+    if (!newState.isEmpty() && m_integrationDrivers.get(driverId)->getState() != newState) {
         qCDebug(lcIntegrationController()) << "Integration driver state changed" << driverId << state;
 
-        m_integrationDrivers.setState(driverId, state.toLower());
+        m_integrationDrivers.setState(driverId, newState);
 
         if (state.contains("error", Qt::CaseInsensitive)) {
             emit integrationError(m_integrationDrivers.get(driverId)->getName(),
