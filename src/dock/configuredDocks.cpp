@@ -94,7 +94,10 @@ void ConfiguredDocks::setCount(int count) {
 }
 
 int ConfiguredDocks::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent)
+    // a flat list: no row has children
+    if (parent.isValid()) {
+        return 0;
+    }
     return m_data.size();
 }
 
@@ -167,9 +170,6 @@ QHash<int, QByteArray> ConfiguredDocks::roleNames() const {
 }
 
 void ConfiguredDocks::append(ConfiguredDock *o) {
-    //    int i = m_data.size();
-    emit layoutAboutToBeChanged();
-
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_data.append(o);
 

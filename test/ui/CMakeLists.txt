@@ -337,3 +337,21 @@ target_link_libraries(testResources
     Qt5::Qml
     Qt5::Test
     )
+
+add_executable (testDockModels
+    "test_dock_models.cpp"
+    "../../src/dock/configuredDocks.cpp"
+    "../../src/dock/discoveredDocks.cpp"
+    "../../src/logging.cpp"
+    )
+
+add_test(NAME testDockModels
+         COMMAND testDockModels)
+
+target_link_libraries(testDockModels
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Test
+    )
