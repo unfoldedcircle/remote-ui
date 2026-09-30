@@ -111,7 +111,7 @@ class Api : public QObject {
 
     // page handling
     int getPages(const QString &profileId, int pin = -1);
-    int getPage(const QString pageId, int pin = 1);
+    int getPage(const QString pageId, int pin = -1);
     int addPage(const QString &profileId, const QString &name, int pos, int pin = -1);
     int updatePage(const QString &pageId, const QString &profileId, const QString &name = QString(),
                    const QString &image = "-1", int pos = -1, const QVariantList &items = QVariantList({"-1"}),

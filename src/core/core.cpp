@@ -2595,7 +2595,7 @@ void Api::processResponseConfig(int reqId, int code, QVariant msgData) {
                 profile.id = map.value("id").toString();
                 profile.name = map.value("name").toString();
 
-                if (map.contains("langauge")) {
+                if (map.contains("language")) {
                     profile.language = map.value("language").toString();
                 }
 
@@ -2779,7 +2779,7 @@ void Api::processConfigChange(QVariant msgData) {
                     profile.id = map.value("id").toString();
                     profile.name = map.value("name").toString();
 
-                    if (map.contains("langauge")) {
+                    if (map.contains("language")) {
                         profile.language = map.value("language").toString();
                     }
 
@@ -2875,7 +2875,7 @@ void Api::processProfileChange(QVariant msgData) {
                 if (newPage.contains("image")) {
                     page.image = newPage.value("image").toString();
                 }
-                page.pos = newPage.value("post").toInt();
+                page.pos = newPage.value("pos").toInt();
 
                 emit pageAdded(profileId, page);
             } else if (!groupId.isEmpty()) {
@@ -2904,7 +2904,7 @@ void Api::processProfileChange(QVariant msgData) {
                 if (newPage.contains("image")) {
                     page.image = newPage.value("image").toString();
                 }
-                page.pos = newPage.value("post").toInt();
+                page.pos = newPage.value("pos").toInt();
 
                 QVariantList items = newPage.value("items").toList();
 
