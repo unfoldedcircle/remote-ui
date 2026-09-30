@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- A language whose translation file cannot be loaded no longer leaves the interface half translated: the language
+  shown so far stays in place.
 - A response of a newer core that this version doesn't know no longer leaves the request waiting forever.
 - An integration driver that goes from reconnecting to connecting shows that state.
 - A light that comes back from unavailable, for example when its integration reconnects, shows its brightness
