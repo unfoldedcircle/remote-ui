@@ -381,6 +381,8 @@ void DockController::startDockSetup(const QString &dockId, const QString &friend
         [=](int code, QString message) {
             // fail
             qCWarning(lcDockController()) << "Error starting dock setup:" << code << message;
+            // like a failed setup creation in setupDock(): the setup screen is waiting behind a loading screen
+            emit setupFinished(false, message);
         });
 }
 
