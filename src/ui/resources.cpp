@@ -3,6 +3,10 @@
 
 #include "resources.h"
 
+#include <QFileInfo>
+#include <QTextStream>
+#include <QUrl>
+
 #include "../logging.h"
 #include "../util.h"
 
@@ -182,21 +186,46 @@ void Resources::getAboutInfo(int type) {
 }
 
 void Resources::getLinkContent(const QString& baseDir, const QString& path) {
-    QDir directory(baseDir);
+    // QML hands in the base URL of its text item: "file:" + directory + "/". Only the prefix is removed, the rest
+    // is the directory as it was reported by aboutInfo.
+    QString localDir = baseDir;
+    if (localDir.startsWith("file:")) {
+        localDir.remove(0, 5);
+        while (localDir.startsWith("//")) {
+            localDir.remove(0, 1);
+        }
+    }
+    const QDir directory(localDir);
 
-    QFile   file;
-    QString dir = baseDir;
-    file.setFileName(dir.replace("file:/", "") + path);
+    // Only documents of the legal directory are shown: never an external URL, whatever its scheme, and no path
+    // that leads out of the directory. The check is lexical, a link inside the directory may be a symbolic link.
+    const QString filePath = QDir::cleanPath(directory.absoluteFilePath(path));
+    QString       legalRoot = QDir::cleanPath(QDir(m_legalPath + "/").absolutePath());
+    if (!legalRoot.endsWith('/')) {
+        legalRoot.append('/');
+    }
+    const bool externalLink = !QUrl(path).isRelative() || path.startsWith("//");
 
-    if (!file.open(QIODevice::ReadOnly)) {
-        qCWarning(lcResources()) << "Cannot open file" << file;
+    QString ret;
+    QString contentDir = directory.absolutePath();
+
+    if (path.isEmpty() || externalLink || !filePath.startsWith(legalRoot)) {
+        qCWarning(lcResources()) << "Not a document of the legal directory, link is not followed:" << path;
+    } else {
+        QFile file(filePath);
+
+        if (!file.open(QIODevice::ReadOnly)) {
+            qCWarning(lcResources()) << "Cannot open file" << filePath;
+        } else {
+            QTextStream in(&file);
+            ret = in.readAll();
+            file.close();
+            // relative links and images of the document are resolved against its own directory
+            contentDir = QFileInfo(filePath).absolutePath();
+        }
     }
 
-    QTextStream in(&file);
-    QString     ret = in.readAll();
-    file.close();
-
-    emit aboutInfo(ret, directory.absolutePath());
+    emit aboutInfo(ret, contentDir);
 }
 
 QStringList Resources::getIconList() {

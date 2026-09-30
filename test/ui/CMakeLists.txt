@@ -316,3 +316,24 @@ target_link_libraries(testGroupController
     Qt5::WebSockets
     Qt5::Test
     )
+
+add_executable (testResources
+    "test_resources.cpp"
+    "../../src/ui/iconFont.cpp"
+    "../../src/ui/resources.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    # util.cpp generates QR codes
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testResources
+         COMMAND testResources)
+
+target_link_libraries(testResources
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Test
+    )

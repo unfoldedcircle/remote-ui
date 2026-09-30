@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- Links in the legal documents of the About settings open the linked document on every platform, not only when
+  the app runs from the root directory, and the images of the linked document are shown. Only documents of the
+  legal directory are opened: no link leads to the network.
 - Dragging a page, or an entity of a page or group, over more than one position no longer shows another item in
   the dragged tile.
 - The onboarding no longer skips the step for naming the remote when the connection to the core is re-established
