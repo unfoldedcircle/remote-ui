@@ -44,7 +44,8 @@ class Haptic : public QObject {
  private:
     static Haptic *s_instance;
 
-    bool m_enabled;
+    // off until the configuration of the core says otherwise
+    bool m_enabled = false;
 };
 
 }  // namespace hw

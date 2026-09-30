@@ -165,7 +165,7 @@ class Climate : public Base {
     float m_targetTemperature;
     float m_targetTemperatureHigh;
     float m_targetTemperatureLow;
-    int   m_fanMode;
+    int   m_fanMode = -1;
 
     // TODO(marton) use better names, what is info1 & 2?
     QString m_stateInfo1;

@@ -556,7 +556,7 @@ class Api : public QObject {
     QWebSocket   m_webSocket;
     unsigned int m_requestId = 0;
 
-    QTimer *m_keepAliveTimer;
+    QTimer *m_keepAliveTimer = nullptr;
     int     m_keepAliveInterval = 60000;
 
     QTimer *m_reconnectTimer;

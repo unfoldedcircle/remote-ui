@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- Settings no longer show arbitrary values, and haptic feedback no longer fires although it is disabled, in the
+  moment between the start of the app and the first configuration received from the core.
 - The charging screen no longer appears on the charger when the app reconnects to the core, for example after a
   restart of the core. It is still shown when the remote wakes up on the charger, as intended.
 - An activity that was already running is no longer reported as started from another device after the app

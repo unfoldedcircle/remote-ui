@@ -360,8 +360,8 @@ class Sensor : public Base {
     QString m_customUnit;
     QString m_nativeUnit;
     int     m_decimals;
-    int     m_minValue;
-    int     m_maxValue;
+    int     m_minValue = 0;
+    int     m_maxValue = 0;
 };
 
 }  // namespace entity

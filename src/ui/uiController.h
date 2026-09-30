@@ -275,7 +275,7 @@ class Controller : public QObject {
     Notification          m_notification;
     EntityController*     m_entityController;
     GroupController*      m_groupController;
-    OnboardingController* m_onboardingController;
+    OnboardingController* m_onboardingController = nullptr;
 
     QString m_factoryResetToken;
 };

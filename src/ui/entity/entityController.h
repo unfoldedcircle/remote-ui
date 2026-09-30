@@ -242,7 +242,7 @@ class EntityController : public QObject {
     QSet<QString>                 m_connectedEntities;
     AvailableEntities             m_availableEntities;
     ConfiguredEntities            m_configuredEntities;
-    int                           m_configuredEntitiesCount;
+    int                           m_configuredEntitiesCount = 0;
     QStringList                   m_activities;
 
     struct pendingCommand {

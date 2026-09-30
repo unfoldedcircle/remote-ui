@@ -88,7 +88,7 @@ class SequenceStep : public QObject {
     void errorMessageChanged();
 
  private:
-    Type    m_type;
+    Type    m_type = Command;
     int     m_currentIndex = 0;
     int     m_delay = 0;
     QString m_entityId;
