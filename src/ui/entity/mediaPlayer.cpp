@@ -1043,10 +1043,13 @@ void MediaPlayer::onLanguageChangedTypeSpecific()
 }
 
 void MediaPlayer::onPositionTimerTimeout() {
-    m_mediaPosition++;
-    if (m_mediaPosition >= m_mediaDuration) {
-        m_mediaPosition = m_mediaDuration;
+    // The position is counted up to the duration. Without a duration (live content) and at the end of the media
+    // it stands still, which is not announced every second.
+    const int position = qMin(m_mediaPosition + 1, m_mediaDuration);
+    if (position == m_mediaPosition) {
+        return;
     }
+    m_mediaPosition = position;
     emit mediaPositionChanged();
 }
 

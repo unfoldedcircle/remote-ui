@@ -58,6 +58,8 @@ class testEntityController : public QObject {
 
     void light_brightnessText_survivesUnavailable();
 
+    void mediaPlayer_positionTimer_onlyAnnouncesAChange();
+
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
     static QVariantMap      voiceStartParams(int sessionId);
@@ -370,6 +372,45 @@ void testEntityController::light_brightnessText_survivesUnavailable() {
     light->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
     light->updateAttribute(QStringLiteral("Brightness"), 128);
     QVERIFY2(light->getStateInfo().contains(QStringLiteral("50%")), qPrintable(light->getStateInfo()));
+}
+
+/**
+ * The position of a playing media player is counted up once a second. Live content has no duration and the
+ * position stands still, as it does at the end of the media: that is not a change to announce every second.
+ */
+void testEntityController::mediaPlayer_positionTimer_onlyAnnouncesAChange() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("media_player.tv");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Media_player");
+    controller.onEntityAdded(entity);
+
+    auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+    QVERIFY(mediaPlayer);
+
+    QSignalSpy positionChanged(mediaPlayer, &uc::ui::entity::MediaPlayer::mediaPositionChanged);
+
+    // no duration
+    QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
+    QCOMPARE(positionChanged.count(), 0);
+    QCOMPARE(mediaPlayer->getMediaPosition(), 0);
+
+    mediaPlayer->updateAttribute(QStringLiteral("Media_duration"), 3);
+    mediaPlayer->updateAttribute(QStringLiteral("Media_position"), 1);
+    positionChanged.clear();
+
+    QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
+    QCOMPARE(mediaPlayer->getMediaPosition(), 2);
+    QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
+    QCOMPARE(mediaPlayer->getMediaPosition(), 3);
+    QCOMPARE(positionChanged.count(), 2);
+
+    // the end of the media
+    QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
+    QCOMPARE(mediaPlayer->getMediaPosition(), 3);
+    QCOMPARE(positionChanged.count(), 2);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)
