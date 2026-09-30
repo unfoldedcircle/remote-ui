@@ -1001,6 +1001,11 @@ void Config::onDisplayCfgChanged(core::cfgDisplay cfgDisplay) {
 }
 
 void Config::onDeviceCfgChanged(core::cfgDevice cfgDevice) {
+    // deviceNameChanged(true) also tells the onboarding that the name it sent was accepted: a configuration that
+    // is merely loaded again, e.g. after a reconnect, must not look like that
+    if (m_deviceName == cfgDevice.name) {
+        return;
+    }
     m_deviceName = cfgDevice.name;
     emit deviceNameChanged(true);
 }

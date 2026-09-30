@@ -3,6 +3,7 @@
 
 #include <QtTest>
 
+#include "config/config.h"
 #include "core/core.h"
 #include "ui/entity/activity.h"
 #include "ui/entity/entityController.h"
@@ -47,6 +48,8 @@ class testEntityController : public QObject {
     void mediaPlayerRepeat_invalidAttribute_keepsModeAndSendsValidCommand();
 
     void activity_onAgainAfterReconnect_isNotStartedExternally();
+
+    void config_reloadedDeviceName_isNotAnnouncedAgain();
 
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
@@ -262,6 +265,33 @@ void testEntityController::activity_onAgainAfterReconnect_isNotStartedExternally
     activity->setState(uc::ui::entity::ActivityStates::Unavailable);
     activity->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
     QCOMPARE(startedExternally.count(), 2);
+}
+
+/**
+ * The onboarding reads deviceNameChanged(true) as "the name was accepted" and moves to the next step. The
+ * configuration is loaded again after every reconnect, which must not look like that.
+ */
+void testEntityController::config_reloadedDeviceName_isNotAnnouncedAgain() {
+    uc::core::Api api(kTestUrl);
+    uc::Config    config(&api);
+
+    QSignalSpy nameChanged(&config, &uc::Config::deviceNameChanged);
+
+    uc::core::cfgDevice device;
+    device.name = QStringLiteral("Living room remote");
+
+    emit api.cfgDeviceChanged(device);
+    QCOMPARE(nameChanged.count(), 1);
+    QCOMPARE(config.getDeviceName(), device.name);
+
+    // the same configuration again
+    emit api.cfgDeviceChanged(device);
+    QCOMPARE(nameChanged.count(), 1);
+
+    device.name = QStringLiteral("Bedroom remote");
+    emit api.cfgDeviceChanged(device);
+    QCOMPARE(nameChanged.count(), 2);
+    QCOMPARE(config.getDeviceName(), device.name);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)
