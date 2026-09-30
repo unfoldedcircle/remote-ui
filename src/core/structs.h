@@ -98,14 +98,13 @@ struct ConfirmationPage {
 };
 
 struct Integration {
-    QString            id;
-    QString            driverId;
-    QString            deviceId;
-    QVariantMap        name;
-    QString            icon;
-    bool               enabled = false;
-    QVariantMap        setupData;
-    DeviceStates::Enum deviceState = {};
+    QString     id;
+    QString     driverId;
+    QString     deviceId;
+    QVariantMap name;
+    QString     icon;
+    bool        enabled = false;
+    QVariantMap setupData;
 };
 
 struct DriverDeveloper {

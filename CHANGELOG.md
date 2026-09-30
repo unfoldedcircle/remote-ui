@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- An integration that is connected is no longer shown as not connected after it was renamed or otherwise changed
+  in the web configurator. The new name also appears in the integration list right away.
 - Settings no longer show arbitrary values, and haptic feedback no longer fires although it is disabled, in the
   moment between the start of the app and the first configuration received from the core.
 - The charging screen no longer appears on the charger when the app reconnects to the core, for example after a

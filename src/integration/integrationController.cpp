@@ -1205,9 +1205,14 @@ void IntegrationController::onIntegrationChanged(QString integrationId, core::In
             obj->setNameI18n(integration.name);
             obj->setIcon(integration.icon);
             obj->setEnabled(integration.enabled);
-            obj->setState(Util::convertEnumToString(integration.deviceState));
+            // The state is not part of a change event (Core-API: IntegrationUpdate), it arrives with the
+            // integration state events and the status load. It must not be touched here.
             obj->setSetupData(integration.setupData);
             obj->updateLanguage(m_language);
+
+            // the list views read the integration through the model roles
+            const QModelIndex modelIndex = m_integrations.getModelIndexByKey(integrationId);
+            emit              m_integrations.dataChanged(modelIndex, modelIndex);
         }
 
         qCDebug(lcIntegrationController()) << "Changed integration:" << integrationId;
