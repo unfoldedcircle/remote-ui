@@ -214,6 +214,8 @@ QHash<int, QByteArray> IntegrationDrivers::roleNames() const {
 void IntegrationDrivers::append(IntegrationDriver *o) {
     //    int i = m_data.size();
     if (contains(o->getId())) {
+        // the caller created the object for this list: a rejected one would leak
+        o->deleteLater();
         return;
     }
 

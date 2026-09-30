@@ -18,6 +18,8 @@ int GroupItemList::count() const {
 
 void GroupItemList::append(GroupItem *item) {
     if (contains(item->groupItemId())) {
+        // the caller created the item for this list: a rejected one would leak
+        item->deleteLater();
         return;
     }
 

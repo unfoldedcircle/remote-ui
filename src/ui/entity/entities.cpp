@@ -180,6 +180,8 @@ void Entities::add(entity::Base *o) {
     const QString key = o->getId();
 
     if (m_rowById.contains(key)) {
+        // the caller created the entity object for this list: a rejected one would leak
+        o->deleteLater();
         return;
     }
 

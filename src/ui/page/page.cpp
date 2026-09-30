@@ -19,6 +19,8 @@ int PageItemList::count() const {
 void PageItemList::append(PageItem *item) {
     if (contains(item->pageItemId())) {
         qCDebug(lcPage()) << "Already exists" << item->pageItemId();
+        // the caller created the item for this list: a rejected one would leak
+        item->deleteLater();
         return;
     }
 

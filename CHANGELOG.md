@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- Settings that are changed right before the remote shuts down are written to disk.
 - Names of integrations and entities loaded before the language of the remote is known are shown in English
   instead of the alphabetically first translation.
 - A language whose translation file cannot be loaded no longer leaves the interface half translated: the language

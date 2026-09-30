@@ -37,7 +37,9 @@ Config::Config(core::Api* core, QObject* parent) : QObject(parent), m_core(core)
 
 Config::~Config() {
     s_instance = nullptr;
-    m_settings->deleteLater();
+    // The destructor runs after the event loop has ended, deleteLater() would never delete it. Deleting the
+    // settings object writes the values that were changed last.
+    delete m_settings;
 }
 
 void Config::setCurrentProfileId(const QString& profileId) {
