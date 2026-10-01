@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The WiFi connection details show the key management as reported (`WPA2-PSK`, not `WPA2_PSK`), and a WPA3
+  connection is recognised as such instead of as an unknown security type.
 - The on/off text of a binary sensor (opened/closed, detected/clear, ...) follows a language change right away,
   and a device class that arrives after the value.
 - A climate device shows a current temperature of 0, and `--` while it has no temperature to report. 0 was never

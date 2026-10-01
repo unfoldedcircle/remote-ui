@@ -117,12 +117,7 @@ void Wifi::getWifiStatus() {
             emit macAddressChanged();
 
             if (wifiStatus.wpaState == core::WifiEnums::WpaState::COMPLETED) {
-                Security::Enum security;
-                if (wifiStatus.keyManagement.isEmpty()) {
-                    security = Security::Enum::OPEN;
-                } else {
-                    security = Util::convertStringToEnum<Security::Enum>(wifiStatus.keyManagement.replace("-", "_"));
-                }
+                const Security::Enum security = securityFromKeyManagement(wifiStatus.keyManagement);
 
                 if (m_currentNetwork) {
                     m_currentNetwork->deleteLater();
@@ -384,6 +379,32 @@ void Wifi::deleteAllNetworks() {
             qCWarning(lcHwWifi()) << "Error deleting all wifi networks" << code << message;
             ui::Notification::createNotification(message, true);
         });
+}
+
+Security::Enum Wifi::securityFromKeyManagement(const QString &keyManagement) {
+    // wpa_supplicant key management of the connection, e.g. "WPA2-PSK", "SAE", "WPA-PSK-SHA256", "FT-SAE",
+    // "WPA-EAP", "NONE". The enum keys were matched literally before, with "-" replaced by "_": "SAE" (every
+    // WPA3 network) and the SHA256 / FT variants matched nothing and became -1.
+    const QString key = keyManagement.trimmed().toUpper();
+
+    if (key.isEmpty() || key == QLatin1String("NONE")) {
+        return Security::Enum::OPEN;
+    }
+    if (key.contains(QLatin1String("SAE"))) {
+        return Security::Enum::WPA3_SAE;
+    }
+    if (key.contains(QLatin1String("EAP"))) {
+        return key.startsWith(QLatin1String("WPA2")) ? Security::Enum::WPA2_EAP : Security::Enum::WPA_EAP;
+    }
+    if (key.startsWith(QLatin1String("WPA2"))) {
+        return Security::Enum::WPA2_PSK;
+    }
+    if (key.startsWith(QLatin1String("WPA"))) {
+        return Security::Enum::WPA_PSK;
+    }
+    // something newer: encrypted in any case, so not OPEN
+    qCDebug(lcHwWifi()) << "Unknown key management, treating as WPA2:" << keyManagement;
+    return Security::Enum::WPA2_PSK;
 }
 
 core::WifiEnums::WifiSecurity Wifi::toApiSecurity(Security::Enum security) {
