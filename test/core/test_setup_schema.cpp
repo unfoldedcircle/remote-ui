@@ -19,6 +19,7 @@ class testSetupSchema : public QObject {
     void settingWithoutField_isSkipped();
     void settingWithUnknownField_isSkipped();
     void knownFields_areCreated();
+    void dropdown_hasThePreselectedValue();
 
  private:
     static QVariantMap setting(const QString& id, const QVariant& field);
@@ -68,6 +69,29 @@ void testSetupSchema::knownFields_areCreated() {
                        QStringLiteral("en"));
 
     QCOMPARE(schema.getSettings().size(), 2);
+}
+
+void testSetupSchema::dropdown_hasThePreselectedValue() {
+    QVariantMap dropdown;
+    dropdown.insert(QStringLiteral("value"), QStringLiteral("b"));
+    dropdown.insert(
+        QStringLiteral("items"),
+        QVariantList(
+            {QVariantMap({{QStringLiteral("id"), QStringLiteral("a")},
+                          {QStringLiteral("label"), QVariantMap({{QStringLiteral("en"), QStringLiteral("A")}})}}),
+             QVariantMap({{QStringLiteral("id"), QStringLiteral("b")},
+                          {QStringLiteral("label"), QVariantMap({{QStringLiteral("en"), QStringLiteral("B")}})}})}));
+
+    SetupSchema schema(title(),
+                       {setting(QStringLiteral("choice"), QVariantMap({{QStringLiteral("dropdown"), dropdown}}))},
+                       QStringLiteral("en"));
+
+    QCOMPARE(schema.getSettings().size(), 1);
+    auto item = qobject_cast<uc::integration::SettingsItemDropdown*>(schema.getSettings().first());
+    QVERIFY(item);
+    // the Core-API's optional id of the preselected item; the first item was sent instead
+    QCOMPARE(item->getValue(), QStringLiteral("b"));
+    QCOMPARE(item->getModel().size(), 2);
 }
 
 QTEST_GUILESS_MAIN(testSetupSchema)
