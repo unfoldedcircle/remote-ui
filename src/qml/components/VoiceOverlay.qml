@@ -77,6 +77,10 @@ Popup {
             return;
         }
 
+        // the answer to the previous question may still be playing after its overlay was closed: it would be
+        // recorded with the new question, and its end would close this overlay
+        Voice.stopSpeechResponse();
+
         voice.open();
 
         voice.profileId = profileId;

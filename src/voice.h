@@ -31,6 +31,13 @@ class Voice : public QObject {
      */
     Q_INVOKABLE void playSpeechResponse(const QString& url, const QString &mimeType);
 
+    /**
+     * Stops the answer that is playing, without reporting its end. A new voice question stops it: the voice
+     * overlay can be closed while the answer goes on, and the end of that answer used to close the overlay of
+     * the next question.
+     */
+    Q_INVOKABLE void stopSpeechResponse();
+
     /// The player the answer is streamed into, on its standard input. ffplay by default; for the unit tests.
     void setPlayer(const QString& program, const QStringList& arguments);
 
@@ -59,9 +66,6 @@ class Voice : public QObject {
     static Voice* s_instance;
 
     core::Api* m_core;
-
-    // stops the current playback and its download without reporting the end of the playback
-    void stopSpeechResponse();
 
     QString     m_playerProgram;
     QStringList m_playerArguments;

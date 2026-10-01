@@ -22,6 +22,7 @@ class testVoice : public QObject {
 
     void playback_streamsTheAnswerAndReportsItsEnd();
     void secondAnswer_replacesTheFirstWithoutMixingOrEndingEarly();
+    void stop_endsThePlaybackWithoutReportingItsEnd();
     void playerThatCannotStart_reportsTheEnd();
     void unsupportedType_reportsTheEnd();
 
@@ -96,6 +97,32 @@ void testVoice::secondAnswer_replacesTheFirstWithoutMixingOrEndingEarly() {
     QVERIFY(content.endsWith(QByteArray(100000, 'b')));
     QCOMPARE(content.count('b'), 100000);
     QVERIFY2(!content.mid(content.indexOf('b')).contains('a'), "the first answer reached the second player");
+}
+
+/**
+ * The voice overlay can be closed while its answer goes on playing. A new question then stops that answer: its
+ * end used to be reported while the next question was being asked, which closed the overlay of the new question.
+ */
+void testVoice::stop_endsThePlaybackWithoutReportingItsEnd() {
+    uc::core::Api api(kTestUrl);
+    uc::Voice     voice(&api);
+    // a player that never ends on its own, like a long answer
+    voice.setPlayer(QStringLiteral("/bin/sh"),
+                    {QStringLiteral("-c"), QStringLiteral("cat > /dev/null; exec sleep 30")});
+
+    QSignalSpy ended(&voice, &uc::Voice::assistantAudioSpeechResponseEnd);
+    voice.playSpeechResponse(writeAnswer(QStringLiteral("long.mp3"), 'e', 1000), QStringLiteral("audio/mpeg"));
+    QTest::qWait(300);
+
+    voice.stopSpeechResponse();
+
+    // the killed player goes, nothing is reported for it
+    QTest::qWait(500);
+    QCOMPARE(ended.count(), 0);
+
+    // stopping without a playback is harmless
+    voice.stopSpeechResponse();
+    QCOMPARE(ended.count(), 0);
 }
 
 void testVoice::playerThatCannotStart_reportsTheEnd() {
