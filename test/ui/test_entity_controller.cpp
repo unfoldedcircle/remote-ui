@@ -58,6 +58,7 @@ class testEntityController : public QObject {
     void climate_stateInfo_usesTheUnitOfTheEntity();
     void climate_stateInfo_followsTheUnitSystem();
     void climate_currentTemperature_zeroIsShownAndNullIsNotAvailable();
+    void climate_modelIndex_isTheNearestTemperature();
 
     void binarySensor_valueIsTranslatedWhenRead();
 
@@ -653,6 +654,40 @@ void testEntityController::mediaPlayer_browseMedia_returnsTheRequestIdThatTheAns
     QCOMPARE(results.count(), 1);
     QCOMPARE(results.at(0).at(0).toInt(), 42);
     QCOMPARE(results.at(0).at(1).toMap().value(QStringLiteral("title")).toString(), QStringLiteral("Folder"));
+}
+
+/**
+ * The climate screen positions its temperature list on the target temperature and sends the entry of the
+ * list the user moves to. A target that is not on the step grid, or outside the range, gave index -1: the next
+ * key press then sent NaN, or the highest temperature of the list.
+ */
+void testEntityController::climate_modelIndex_isTheNearestTemperature() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("climate.thermostat");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Climate");
+    entity.options = QVariantMap({{QStringLiteral("min_temperature"), 10},
+                                  {QStringLiteral("max_temperature"), 30},
+                                  {QStringLiteral("target_temperature_step"), 0.5}});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entityId));
+    QVERIFY(climate);
+
+    const QVariantList model = climate->getModel();
+    QVERIFY(!model.isEmpty());
+    auto valueAt = [&model](int index) { return model.at(index).toFloat(); };
+
+    // on the grid
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(21.5f)), 21.5f);
+    // off the grid: the nearest step
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(21.3f)), 21.5f);
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(21.2f)), 21.0f);
+    // outside the range: the end of the list
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(35.0f)), 30.0f);
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(-5.0f)), 10.0f);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

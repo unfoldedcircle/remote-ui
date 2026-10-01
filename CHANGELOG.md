@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The climate screen starts on the nearest temperature of its list when the target temperature of the device is
+  not one of its steps, or outside its range. Pressing up or down then sent an invalid temperature, or the
+  highest one of the list.
 - A software update download that fails is shown as failed on the software update page. The page kept showing
   "Downloading" with the button disabled, and the keys went to the hidden installation screen.
 - The power off menu can be opened again after a software update whose end the remote missed while it was

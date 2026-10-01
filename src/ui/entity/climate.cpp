@@ -215,13 +215,28 @@ void Climate::fanMode(int mode) {
 }
 
 int Climate::getModelIndexFromTemperature(float temperature) {
+    // The nearest entry of the temperature list. A target that is not on the step grid (21.3 with a 0.5 step), or
+    // outside the range, used to give -1: the climate screen then indexed the list with -1 and the next key press
+    // sent NaN, or the highest temperature of the list. -1 is only left for an empty list.
+    int   nearest = -1;
+    float nearestDistance = 0;
+
     for (int i = 0; i < m_model.length(); i++) {
-        if (Util::FloatCompare(m_model[i].toFloat(), temperature)) {
+        const float distance = qAbs(m_model[i].toFloat() - temperature);
+        if (Util::FloatCompare(distance, 0)) {
             return i;
+        }
+        if (nearest < 0 || distance < nearestDistance) {
+            nearest = i;
+            nearestDistance = distance;
         }
     }
 
-    return -1;
+    if (nearest >= 0) {
+        qCDebug(lcClimate()) << "Target temperature" << temperature << "is not in the list of entity" << m_id
+                             << ", nearest:" << m_model[nearest];
+    }
+    return nearest;
 }
 
 void Climate::sendCommand(ClimateCommands::Enum cmd, QVariantMap params) {
