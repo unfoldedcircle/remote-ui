@@ -43,8 +43,11 @@ void SoftwareUpdate::checkForUpdate(bool force, bool silent) {
                                         << "installedVersion:" << systemUpdate.installedVersion
                                         << "available updates:" << systemUpdate.available.size();
 
-            if (systemUpdate.updateInProgress) {
-                m_updateInProgress = true;
+            // The core reports whether an installation is running right now. Taken over both ways: the end of
+            // an installation is otherwise only known from its events, and one that was missed (the connection
+            // was down) left the flag set until the app restarted, which keeps the power off menu closed.
+            if (m_updateInProgress != systemUpdate.updateInProgress) {
+                m_updateInProgress = systemUpdate.updateInProgress;
                 emit updateInProgressChanged();
             }
 
@@ -188,6 +191,18 @@ void SoftwareUpdate::onSoftwareUpdateChanged(core::MsgEventTypes::Enum type, QSt
                     qCDebug(lcSoftwareUpdate()) << "Update done";
                     break;
                 case core::UpdateEnums::UpdateProgressType::FAILURE: {
+                    // The core reports a failed download with the same state as a failed installation. A download
+                    // runs without a START event and without the progress screen: it is the download that failed,
+                    // shown on the software update page, not an installation.
+                    if (!m_updateInProgress) {
+                        qCWarning(lcSoftwareUpdate()) << "Update download failed:" << updateId;
+                        if (m_updateDownloadState != DownloadState::Error) {
+                            m_updateDownloadState = DownloadState::Error;
+                            emit updateDownloadStateChanged();
+                        }
+                        break;
+                    }
+
                     m_updateInProgress = false;
                     emit updateInProgressChanged();
                     emit updateFailed(tr("Software update has failed."));

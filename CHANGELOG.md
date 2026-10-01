@@ -47,6 +47,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- A software update download that fails is shown as failed on the software update page. The page kept showing
+  "Downloading" with the button disabled, and the keys went to the hidden installation screen.
+- The power off menu can be opened again after a software update whose end the remote missed while it was
+  reconnecting to its core.
 - The media browser no longer shows the content of a folder that was left before it finished loading in place of
   the folder shown.
 - A dropdown in the setup of an integration starts on the option the integration preselects instead of the first

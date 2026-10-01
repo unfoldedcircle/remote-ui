@@ -29,6 +29,11 @@ Popup {
 
         function onUpdateFailed(error) {
             console.debug("UpdateProgress: onUpdateFailed received, error:", error);
+            // only an installation shown in this popup can fail here: taking the input for a popup that is not
+            // shown would leave the keys with an invisible screen
+            if (!updateProgress.opened) {
+                return;
+            }
             failMessage.text = error;
             failedScreen.opacity = 1;
             // the input was blocked for the whole update: the failure screen must be usable again
