@@ -190,13 +190,17 @@ void Wifi::stopNetworkScan() {
 }
 
 void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan> &scan) {
-    if (scan.isEmpty()) {
-        return;
-    }
-
+    // the scan state is taken over whatever the result: Wifi.qml restarts the scan cycle when it ends
     if (m_scanActive != scanActive) {
         m_scanActive = scanActive;
         emit scanActiveChanged();
+    }
+
+    // An empty result does not clear the list: the core may answer with no access points while a scan has only
+    // just started.
+    if (scan.isEmpty()) {
+        qCDebug(lcHwWifi()) << "Empty scan result, scan active:" << scanActive;
+        return;
     }
 
     // a network can be broadcast by multiple access points: only keep the one with the strongest signal.
@@ -255,16 +259,27 @@ void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan>
     }
 
     if (changed) {
+        qCDebug(lcHwWifi()) << "Network list changed:" << m_networkList.size() << "networks";
         emit networkListChanged();
     }
 }
 
 void Wifi::clearNetworkList() {
+    if (m_networkList.isEmpty()) {
+        return;
+    }
+
+    qCDebug(lcHwWifi()) << "Clearing the network list:" << m_networkList.size() << "networks";
+
+    // Announced before the objects go: the delegates of the WiFi settings showed objects that were deleted, and
+    // a network tapped on such a row did not open (the join dialogs work around it by copying the values).
     const auto networks = m_networkList.values();
+    m_networkList.clear();
+    emit networkListChanged();
+
     for (WifiNetwork *network : networks) {
         network->deleteLater();
     }
-    m_networkList.clear();
 }
 
 void Wifi::clearKnownNetworkList() {

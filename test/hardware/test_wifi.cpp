@@ -3,7 +3,12 @@
 
 #include <QtTest>
 
+#include "core/core.h"
 #include "system/wifi.h"
+#include "ui/notification.h"
+
+// an unreachable address: the socket connection attempt is asynchronous and never completes during a test
+static const QString kTestUrl = QStringLiteral("ws://127.0.0.1:1/ws");
 
 using uc::hw::Security;
 using uc::hw::Wifi;
@@ -18,7 +23,22 @@ class testWifi : public QObject {
  private slots:
     void securityFromKeyManagement_data();
     void securityFromKeyManagement();
+
+    void clearNetworkList_announcesTheChangeBeforeTheObjectsGo();
+    void emptyScanResult_updatesTheScanState();
+
+ private:
+    static uc::core::AccessPointScan accessPoint(const QString& ssid, int signal);
 };
+
+uc::core::AccessPointScan testWifi::accessPoint(const QString& ssid, int signal) {
+    uc::core::AccessPointScan ap;
+    ap.ssid = ssid;
+    ap.ssidHex = QString::fromLatin1(ssid.toUtf8().toHex());
+    ap.signalLevel = signal;
+    ap.auth = QStringLiteral("WPA2-PSK");
+    return ap;
+}
 
 void testWifi::securityFromKeyManagement_data() {
     QTest::addColumn<QString>("keyManagement");
@@ -44,6 +64,53 @@ void testWifi::securityFromKeyManagement() {
     QFETCH(Security::Enum, expected);
 
     QCOMPARE(Wifi::securityFromKeyManagement(keyManagement), expected);
+}
+
+/**
+ * The WiFi settings clear the list of available networks when a dialog opens on top of them. The objects were
+ * deleted without the list being announced as changed: the rows of the settings page kept pointing at deleted
+ * objects until the next scan result rebuilt them.
+ */
+void testWifi::clearNetworkList_announcesTheChangeBeforeTheObjectsGo() {
+    uc::core::Api        api(kTestUrl);
+    uc::ui::Notification notification;
+    Wifi                 wifi(&api);
+
+    wifi.updateNetworkList(false, {accessPoint("Home", -50), accessPoint("Office", -70)});
+    QCOMPARE(wifi.getNetworkList().size(), 2);
+    QPointer<uc::hw::WifiNetwork> row = wifi.getNetworkList().first();
+
+    QSignalSpy listChanged(&wifi, &Wifi::networkListChanged);
+    bool       rowAliveWhenAnnounced = false;
+    QObject::connect(&wifi, &Wifi::networkListChanged, &wifi, [&] { rowAliveWhenAnnounced = !row.isNull(); });
+
+    wifi.clearNetworkList();
+
+    QCOMPARE(listChanged.count(), 1);
+    QVERIFY(wifi.getNetworkList().isEmpty());
+    // the views let go of the row while it still exists, it is deleted afterwards
+    QVERIFY(rowAliveWhenAnnounced);
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    QVERIFY(row.isNull());
+
+    // nothing to clear: nothing announced
+    wifi.clearNetworkList();
+    QCOMPARE(listChanged.count(), 1);
+}
+
+void testWifi::emptyScanResult_updatesTheScanState() {
+    uc::core::Api        api(kTestUrl);
+    uc::ui::Notification notification;
+    Wifi                 wifi(&api);
+
+    wifi.updateNetworkList(true, {accessPoint("Home", -50)});
+    QVERIFY(wifi.getScanActive());
+    QCOMPARE(wifi.getNetworkList().size(), 1);
+
+    // the scan ended without access points: the scan state follows, the list is kept
+    wifi.updateNetworkList(false, {});
+    QVERIFY(!wifi.getScanActive());
+    QCOMPARE(wifi.getNetworkList().size(), 1);
 }
 
 QTEST_GUILESS_MAIN(testWifi)
