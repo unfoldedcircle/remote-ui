@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- Stopping the app during the first seconds after its start no longer leaves it running until the system kills
+  it, which made the device fall back to the factory UI and reboot.
 - The WiFi connection details show the key management as reported (`WPA2-PSK`, not `WPA2_PSK`), and a WPA3
   connection is recognised as such instead of as an unknown security type.
 - The on/off text of a binary sensor (opened/closed, detected/clear, ...) follows a language change right away,

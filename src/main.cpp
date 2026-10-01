@@ -22,12 +22,25 @@
 #include "voice.h"
 
 #ifdef Q_OS_UNIX
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <QSocketNotifier>
 #include <csignal>
 
-// a minimal signal handler for the embedded device
+// A termination signal is handed to the main thread through a socket pair, the only thing a signal handler may
+// safely do. QCoreApplication::quit() from the handler was not safe (it takes locks the interrupted thread may
+// hold) and, worse, is a no-op before the event loop runs: a SIGTERM during the first seconds of the start-up was
+// lost, the app never exited, systemd killed it after its timeout and the failure handler rebooted the device.
+// The notifier reads the byte once the event loop runs, so a signal that arrives earlier still quits the app.
+static int s_terminationSocket[2] = {-1, -1};
+
 void sigHandler(int s) {
+    // a second signal terminates right away
     std::signal(s, SIG_DFL);
-    qApp->quit();
+    const char    signalNumber = static_cast<char>(s);
+    const ssize_t written = ::write(s_terminationSocket[0], &signalNumber, 1);
+    Q_UNUSED(written)
 }
 #endif
 
@@ -78,6 +91,17 @@ int main(int argc, char *argv[]) {
 #ifdef Q_OS_UNIX
     // At least SIGTERM is required to run on the device for proper systemd integration,
     // otherwise the recovery handler might get called when stopping the app!
+    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, s_terminationSocket) != 0) {
+        qCCritical(lcApp()) << "Cannot create the termination socket pair, the app cannot be stopped by a signal";
+    }
+    QSocketNotifier terminationNotifier(s_terminationSocket[1], QSocketNotifier::Read, &app);
+    QObject::connect(&terminationNotifier, &QSocketNotifier::activated, &app, [&app] {
+        char signalNumber = 0;
+        if (::read(s_terminationSocket[1], &signalNumber, 1) == 1) {
+            qCInfo(lcApp()) << "Termination signal" << static_cast<int>(signalNumber) << "received, quitting";
+        }
+        app.quit();
+    });
     std::signal(SIGINT, sigHandler);
     std::signal(SIGQUIT, sigHandler);
     std::signal(SIGTERM, sigHandler);
