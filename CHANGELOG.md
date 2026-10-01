@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- A spoken answer of the voice assistant that arrives while the previous one is still playing replaces it cleanly:
+  the rest of the previous answer was played into the new one, the voice screen closed before the new answer had
+  finished, and the remote did not react for up to eight seconds while the previous answer was stopped.
 - The climate screen starts on the nearest temperature of its list when the target temperature of the device is
   not one of its steps, or outside its range. Pressing up or down then sent an invalid temperature, or the
   highest one of the list.
