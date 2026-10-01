@@ -34,8 +34,6 @@ class Battery : public QObject {
     void setCharging(bool value);
     void setPowerSupply(bool value);
 
-    void getPowerMode();
-
     static QObject *qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine);
 
  signals:
@@ -57,6 +55,8 @@ class Battery : public QObject {
  private slots:
     void onBatteryStatusChanged(int capacitiy, bool powerSupply, core::PowerEnums::PowerStatus powerStatus);
     void onWarning(core::MsgEventTypes::WarningEvent event, bool shutdown, QString message);
+    void onPowerModeResponse(int reqId, int code, core::PowerEnums::PowerMode powerMode, int capacity, bool powerSupply,
+                             core::PowerEnums::PowerStatus powerStatus);
 };
 
 }  // namespace hw
