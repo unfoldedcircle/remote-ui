@@ -10,6 +10,7 @@
 #include "ui/entity/entityController.h"
 #include "ui/entity/light.h"
 #include "ui/entity/mediaPlayer.h"
+#include "ui/entity/sensor.h"
 #include "ui/mediaImageProvider.h"
 #include "ui/notification.h"
 
@@ -57,6 +58,8 @@ class testEntityController : public QObject {
     void climate_stateInfo_usesTheUnitOfTheEntity();
     void climate_stateInfo_followsTheUnitSystem();
     void climate_currentTemperature_zeroIsShownAndNullIsNotAvailable();
+
+    void binarySensor_valueIsTranslatedWhenRead();
 
     void light_brightnessText_survivesUnavailable();
 
@@ -531,6 +534,40 @@ void testEntityController::climate_currentTemperature_zeroIsShownAndNullIsNotAva
     auto heaterObj = qobject_cast<uc::ui::entity::Climate*>(controller.get(heaterId));
     QVERIFY(heaterObj);
     QVERIFY2(!heaterObj->getStateInfo().contains(QStringLiteral("--")), qPrintable(heaterObj->getStateInfo()));
+}
+
+/**
+ * A binary sensor reports on/off, the UI shows a text for its device class. The text is produced when the value
+ * is read, so that it follows a language change and a device class that arrives after the value.
+ */
+void testEntityController::binarySensor_valueIsTranslatedWhenRead() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("sensor.front_door");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Sensor");
+    entity.deviceClass = QStringLiteral("Binary");
+    controller.onEntityAdded(entity);
+
+    auto sensor = qobject_cast<uc::ui::entity::Sensor*>(controller.get(entityId));
+    QVERIFY(sensor);
+    // no value yet: nothing, not "off"
+    QCOMPARE(sensor->getValue(), QString());
+
+    QSignalSpy valueChanged(sensor, &uc::ui::entity::Sensor::valueChanged);
+
+    sensor->updateAttribute(QStringLiteral("Value"), QStringLiteral("on"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("On"));
+
+    // the device class arrives after the value: the text follows it
+    sensor->updateAttribute(QStringLiteral("Unit"), QStringLiteral("door"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("Opened"));
+    QCOMPARE(sensor->getStateInfo(), QStringLiteral("Opened"));
+    QCOMPARE(valueChanged.count(), 2);
+
+    sensor->updateAttribute(QStringLiteral("Value"), QStringLiteral("off"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("Closed"));
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

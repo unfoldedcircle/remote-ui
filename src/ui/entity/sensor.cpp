@@ -119,11 +119,8 @@ bool Sensor::updateAttribute(const QString &attribute, QVariant data) {
             break;
         }
         case SensorAttributes::Value: {
-            if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
-                m_value = BinarySensorDeviceClass::getTranslatedValue(m_binarySensorDeviceClass, data.toString());
-            } else {
-                m_value = data;
-            }
+            // stored as reported, a binary sensor's on/off is translated by getValue()
+            m_value = data;
             ok = true;
             emit valueChanged();
             emit stateInfoChanged();
@@ -132,6 +129,8 @@ bool Sensor::updateAttribute(const QString &attribute, QVariant data) {
         case SensorAttributes::Unit: {
             if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
                 m_binarySensorDeviceClass = BinarySensorDeviceClass::fromString(data.toString());
+                // the translated on/off text depends on the device class
+                emit valueChanged();
             } else {
                 m_unit = data.toString();
             }
@@ -150,6 +149,12 @@ void Sensor::onLanguageChangedTypeSpecific()
     QTimer::singleShot(500, this, [=]() {
         m_stateAsString = SensorStates::getTranslatedString(static_cast<SensorStates::Enum>(m_state));
         emit stateAsStringChanged();
+
+        // a binary sensor's value is a translated on/off text
+        if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
+            emit valueChanged();
+            emit stateInfoChanged();
+        }
     });
 }
 }  // namespace entity

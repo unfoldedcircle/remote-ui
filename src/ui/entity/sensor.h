@@ -319,8 +319,15 @@ class Sensor : public Base {
                     QVariantMap options, const QString &integrationId, QObject *parent);
     ~Sensor();
 
+    // The value as the sensor reported it; a binary sensor's on/off is translated here, with the binary device
+    // class that is current, so a language change and a later unit (device class) change are reflected.
     QString getValue() {
-        return m_value.toString();
+        const QString value = m_value.toString();
+        // getTranslatedValue() reads everything but "on" as off: no value stays no value
+        if (m_sensorDeviceClass == SensorDeviceClass::Binary && !value.isEmpty()) {
+            return BinarySensorDeviceClass::getTranslatedValue(m_binarySensorDeviceClass, value);
+        }
+        return value;
     }
     QString getUnit() { return m_unit; }
 
@@ -336,7 +343,7 @@ class Sensor : public Base {
 
     QString getStateInfo() override {
         if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
-            return m_value.toString();
+            return getValue();
         } else {
             return m_value.toString() + " " + m_unit;
         }

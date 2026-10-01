@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The on/off text of a binary sensor (opened/closed, detected/clear, ...) follows a language change right away,
+  and a device class that arrives after the value.
 - A climate device shows a current temperature of 0, and `--` while it has no temperature to report. 0 was never
   shown, and a missing temperature was shown as 0.
 - Removing a media player entity, or reloading the entities after a reconnect, while its artwork is still being
