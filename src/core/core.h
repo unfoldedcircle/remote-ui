@@ -106,17 +106,16 @@ class Api : public QObject {
     int getActiveProfile();
     int addProfile(const QString &name, bool restricted = false);
     int updateProfile(const QString &profileId, const QString &name = QString(), const QString &icon = "-1",
-                      int pin = -1, const QStringList pages = QStringList({"-1"}));
-    int deleteProfile(const QString &profileId, int pin = -1);
+                      const QStringList pages = QStringList({"-1"}));
+    int deleteProfile(const QString &profileId);
 
     // page handling
-    int getPages(const QString &profileId, int pin = -1);
-    int getPage(const QString pageId, int pin = -1);
-    int addPage(const QString &profileId, const QString &name, int pos, int pin = -1);
+    int getPages(const QString &profileId);
+    int getPage(const QString pageId);
+    int addPage(const QString &profileId, const QString &name, int pos);
     int updatePage(const QString &pageId, const QString &profileId, const QString &name = QString(),
-                   const QString &image = "-1", int pos = -1, const QVariantList &items = QVariantList({"-1"}),
-                   int pin = -1);
-    int deletePage(const QString &pageId, int pin = -1);
+                   const QString &image = "-1", int pos = -1, const QVariantList &items = QVariantList({"-1"}));
+    int deletePage(const QString &pageId);
 
     // group handling
     int getGroup(const QString &groupId);
@@ -130,7 +129,7 @@ class Api : public QObject {
                     const QString &icon = QString(), const QStringList &entities = QStringList(),
                     bool setEntities = true);
     int deleteGroup(const QString &groupId);
-    int getGroups(const QString &profileId, int pin = -1);
+    int getGroups(const QString &profileId);
 
     // integration handling
     int getIntegrationStatus(int limit = 100, int page = 1);

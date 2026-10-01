@@ -174,7 +174,7 @@ Rectangle {
                         //: Menu item for profile delete
                         title: qsTr("Delete"),
                         icon: "uc:trash",
-                        callback: function() { ui.deleteProfile(profileId, -1); }
+                        callback: function() { ui.deleteProfile(profileId); }
                     }
                 ];
         popupMenu.open();

@@ -176,8 +176,7 @@ int Api::addProfile(const QString& name, bool restricted) {
     return sendRequest(RequestTypes::add_profile, msgData);
 }
 
-int Api::updateProfile(const QString& profileId, const QString& name, const QString& icon, int pin,
-                       const QStringList pages) {
+int Api::updateProfile(const QString& profileId, const QString& name, const QString& icon, const QStringList pages) {
     if (profileId.isEmpty()) {
         return -1;
     }
@@ -190,60 +189,45 @@ int Api::updateProfile(const QString& profileId, const QString& name, const QStr
     if (icon != "-1") {
         msgData.insert("icon", icon);
     }
-    if (pin != -1) {
-        msgData.insert("pin", pin);
-    }
     if ((pages.length() > 0 && pages[0] != "-1") || pages.isEmpty()) {
         msgData.insert("pages", pages);
     }
     return sendRequest(RequestTypes::update_profile, msgData);
 }
 
-int Api::deleteProfile(const QString& profileId, int pin) {
+int Api::deleteProfile(const QString& profileId) {
     if (profileId.isEmpty()) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("profile_id", profileId);
-    if (pin != -1) {
-        msgData.insert("pin", pin);
-    }
     return sendRequest(RequestTypes::delete_profile, msgData);
 }
 
-int Api::getPages(const QString& profileId, int pin) {
+int Api::getPages(const QString& profileId) {
     QVariantMap msgData;
     msgData.insert("profile_id", profileId);
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
     return sendRequest(RequestTypes::get_pages, msgData);
 }
 
-int Api::getPage(const QString pageId, int pin) {
+int Api::getPage(const QString pageId) {
     if (pageId.isEmpty()) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("page_id", pageId);
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
     return sendRequest(RequestTypes::get_page, msgData);
 }
 
-int Api::addPage(const QString& profileId, const QString& name, int pos, int pin) {
+int Api::addPage(const QString& profileId, const QString& name, int pos) {
     if (profileId.isEmpty() || name.isEmpty() || pos < 0) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("profile_id", profileId);
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
     msgData.insert("name", name);
     msgData.insert("pos", pos);
 
@@ -251,7 +235,7 @@ int Api::addPage(const QString& profileId, const QString& name, int pos, int pin
 }
 
 int Api::updatePage(const QString& pageId, const QString& profileId, const QString& name, const QString& image, int pos,
-                    const QVariantList& items, int pin) {
+                    const QVariantList& items) {
     if (pageId.isEmpty() || profileId.isEmpty()) {
         return -1;
     }
@@ -266,9 +250,6 @@ int Api::updatePage(const QString& pageId, const QString& profileId, const QStri
     if (image != "-1") {
         msgData.insert("image", image);
     }
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
     if ((items.length() > 0 && items[0] != "-1") || items.isEmpty()) {
         msgData.insert("items", items);
     }
@@ -280,16 +261,13 @@ int Api::updatePage(const QString& pageId, const QString& profileId, const QStri
     return sendRequest(RequestTypes::update_page, msgData);
 }
 
-int Api::deletePage(const QString& pageId, int pin) {
+int Api::deletePage(const QString& pageId) {
     if (pageId.isEmpty()) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("page_id", pageId);
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
 
     return sendRequest(RequestTypes::delete_page, msgData);
 }
@@ -495,17 +473,13 @@ int Api::deleteGroup(const QString& groupId) {
     return sendRequest(RequestTypes::delete_group, msgData);
 }
 
-int Api::getGroups(const QString& profileId, int pin) {
+int Api::getGroups(const QString& profileId) {
     if (profileId.isEmpty()) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("profile_id", profileId);
-
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
 
     return sendRequest(RequestTypes::get_groups, msgData);
 }

@@ -18,13 +18,12 @@ Rectangle {
 
     property string profileId
     property string name
-    property int pin: -1
 
     property alias inputFieldContainer: inputFieldContainer
 
     function add() {
         if (!inputFieldContainer.isEmpty()) {
-            if (ui.renameProfile(profileId, name, pin) === -1) {
+            if (ui.renameProfile(profileId, name) === -1) {
                 console.debug("Rename profile failed");
                 inputFieldContainer.showError(qsTr("There was an error. Try again"));
                 loading.failure(true, keyboard.show);
