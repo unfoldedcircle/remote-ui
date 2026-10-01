@@ -82,6 +82,7 @@ class Entities : public QAbstractListModel {
     bool m_filtered = false;
 
     bool m_allSelected = false;
+    void updateAllSelected();
 
     // -1: the list is not waiting for a response
     int m_activeRequestId = -1;
