@@ -398,7 +398,8 @@ Item {
         Text {
             id: pageNameText
             color: colors.offwhite
-            text: containerMain.item.currentPage ? containerMain.item.currentPage.title : ""
+            // the main container is loaded asynchronously and is replaced while the pages are reloaded: no item then
+            text: containerMain.item && containerMain.item.currentPage ? containerMain.item.currentPage.title : ""
             height: parent.height
             anchors { left: parent.left; verticalCenter: parent.verticalCenter; verticalCenterOffset: pageNameOffset }
             verticalAlignment: Text.AlignVCenter
