@@ -61,6 +61,9 @@ class testEntityController : public QObject {
 
     void binarySensor_valueIsTranslatedWhenRead();
 
+    void mediaImageProvider_keepsTheArtworkOfManyPlayers();
+    void mediaImageProvider_evictsTheLeastRecentlyShownImage();
+
     void light_brightnessText_survivesUnavailable();
 
     void mediaPlayer_positionTimer_onlyAnnouncesAChange();
@@ -568,6 +571,51 @@ void testEntityController::binarySensor_valueIsTranslatedWhenRead() {
 
     sensor->updateAttribute(QStringLiteral("Value"), QStringLiteral("off"));
     QCOMPARE(sensor->getValue(), QStringLiteral("Closed"));
+}
+
+/**
+ * A remote has dozens of media players, each with one artwork in the provider's cache. The cache used to hold 12
+ * images of any size: the 13th player lost its artwork while its tile still pointed at the cache.
+ */
+void testEntityController::mediaImageProvider_keepsTheArtworkOfManyPlayers() {
+    uc::ui::MediaImageProvider provider;
+
+    // typical artwork: 500x500, about 1 MiB
+    QImage artwork(500, 500, QImage::Format_ARGB32);
+    artwork.fill(Qt::darkCyan);
+
+    QStringList keys;
+    for (int i = 0; i < 41; i++) {
+        keys.append(provider.storeImage(QStringLiteral("media_player.%1").arg(i), 1, artwork));
+    }
+
+    for (const QString& key : qAsConst(keys)) {
+        QSize size;
+        QVERIFY2(!provider.requestImage(key, &size, QSize()).isNull(), qPrintable(key));
+    }
+}
+
+void testEntityController::mediaImageProvider_evictsTheLeastRecentlyShownImage() {
+    uc::ui::MediaImageProvider provider;
+
+    // the largest artwork the entity keeps: 1024x1024, 4 MiB, twelve of them fill the 48 MiB budget
+    QImage artwork(1024, 1024, QImage::Format_ARGB32);
+    artwork.fill(Qt::darkRed);
+
+    QStringList keys;
+    for (int i = 0; i < 12; i++) {
+        keys.append(provider.storeImage(QStringLiteral("media_player.%1").arg(i), 1, artwork));
+    }
+
+    // the first one is shown again: it is no longer the one to go
+    QSize size;
+    QVERIFY(!provider.requestImage(keys.first(), &size, QSize()).isNull());
+
+    const QString thirteenth = provider.storeImage(QStringLiteral("media_player.12"), 1, artwork);
+
+    QVERIFY(!provider.requestImage(keys.first(), &size, QSize()).isNull());
+    QVERIFY(provider.requestImage(keys.at(1), &size, QSize()).isNull());
+    QVERIFY(!provider.requestImage(thirteenth, &size, QSize()).isNull());
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

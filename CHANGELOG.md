@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The artwork of a media player no longer disappears when more than twelve media players show artwork.
 - The "Select all" button of an entity list is shown again when a search, a filter or more loaded entities bring
   in entities that are not selected. It kept reading "Clear" and did nothing when pressed.
 - The connection status of the integrations no longer lists a driver as failing that recovered while the remote
