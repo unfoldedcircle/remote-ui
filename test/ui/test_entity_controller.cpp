@@ -56,6 +56,7 @@ class testEntityController : public QObject {
 
     void climate_stateInfo_usesTheUnitOfTheEntity();
     void climate_stateInfo_followsTheUnitSystem();
+    void climate_currentTemperature_zeroIsShownAndNullIsNotAvailable();
 
     void light_brightnessText_survivesUnavailable();
 
@@ -486,6 +487,50 @@ void testEntityController::mediaPlayer_deletedWhileArtworkIsDecoded_doesNotCrash
     QThreadPool::globalInstance()->waitForDone(5000);
     // the queued results of the deleted players are delivered and dropped
     QTest::qWait(200);
+}
+
+/**
+ * 0 is a temperature like any other and is shown. A device that measures the temperature but has none to report
+ * (null) shows "--" instead, like the cover does for an unknown position.
+ */
+void testEntityController::climate_currentTemperature_zeroIsShownAndNullIsNotAvailable() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("climate.freezer");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Climate");
+    entity.features = QStringList({QStringLiteral("Current_temperature")});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entityId));
+    QVERIFY(climate);
+
+    // nothing reported yet
+    QVERIFY(!climate->isCurrentTemperatureAvailable());
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("--")), qPrintable(climate->getStateInfo()));
+
+    climate->updateAttribute(QStringLiteral("Current_temperature"), 0);
+    QVERIFY(climate->isCurrentTemperatureAvailable());
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("0°C")), qPrintable(climate->getStateInfo()));
+
+    climate->updateAttribute(QStringLiteral("Current_temperature"), QVariant());
+    QVERIFY(!climate->isCurrentTemperatureAvailable());
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("--")), qPrintable(climate->getStateInfo()));
+    QVERIFY2(!climate->getStateInfo().contains(QStringLiteral("°C")), qPrintable(climate->getStateInfo()));
+
+    climate->updateAttribute(QStringLiteral("Current_temperature"), -18.5);
+    QVERIFY(climate->isCurrentTemperatureAvailable());
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("-18.5°C")), qPrintable(climate->getStateInfo()));
+
+    // a device that does not measure the temperature shows no temperature part at all
+    const QString    heaterId = QStringLiteral("climate.heater");
+    uc::core::Entity heater = makeEntity(heaterId);
+    heater.type = QStringLiteral("Climate");
+    controller.onEntityAdded(heater);
+    auto heaterObj = qobject_cast<uc::ui::entity::Climate*>(controller.get(heaterId));
+    QVERIFY(heaterObj);
+    QVERIFY2(!heaterObj->getStateInfo().contains(QStringLiteral("--")), qPrintable(heaterObj->getStateInfo()));
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

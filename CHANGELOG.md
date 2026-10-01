@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- A climate device shows a current temperature of 0, and `--` while it has no temperature to report. 0 was never
+  shown, and a missing temperature was shown as 0.
 - Removing a media player entity, or reloading the entities after a reconnect, while its artwork is still being
   decoded can no longer crash the app.
 - The log of a desktop simulator run as Remote 3 no longer repeats the missing touch slider warning every second.
