@@ -478,8 +478,10 @@ void IntegrationController::selectIntegrationToSetup(const QString &integrationD
 
         SetupSchema *schema = qobject_cast<SetupSchema *>(obj->getSetupSchema());
 
-        if (!schema->getTitle().isEmpty()) {
-            m_configPages.append(obj->getSetupSchema());
+        if (schema && !schema->getTitle().isEmpty()) {
+            // the setup pages are owned by this controller and deleted when the setup ends: a copy, the driver
+            // keeps its own schema
+            m_configPages.append(schema->clone(this));
             emit configPagesChanged();
         }
 
@@ -601,6 +603,10 @@ void IntegrationController::configureDiscoveredIntegrationDriver(const QString &
                                                           setupData.value("driver_url").toString(),
                                                           setupData.value("token").toString());
 
+    // the discovered drivers are deleted when a discovery is started again, which can happen while the request
+    // is on its way
+    const QPointer<IntegrationDriver> driver(obj);
+
     m_core->onResponseWithErrorResult(
         id, &core::Api::respIntegrationDriver,
         [=](core::IntegrationDriver integrationDriver) {
@@ -608,10 +614,13 @@ void IntegrationController::configureDiscoveredIntegrationDriver(const QString &
 
             qCDebug(lcIntegrationController()) << "Integration setup info" << integrationDriver.id;
 
-            obj->setSetupScehma(new SetupSchema(integrationDriver.settingsPage.title,
-                                                integrationDriver.settingsPage.settings, m_language));
+            auto schema = new SetupSchema(integrationDriver.settingsPage.title, integrationDriver.settingsPage.settings,
+                                          m_language, this);
+            if (driver) {
+                driver->setSetupScehma(schema->clone());
+            }
 
-            m_configPages.append(obj->getSetupSchema());
+            m_configPages.append(schema);
             emit configPagesChanged();
         },
         [=](int code, QString message) {
@@ -786,8 +795,21 @@ void IntegrationController::integrationSetUserDataConfirm(const QString &integra
 }
 
 void IntegrationController::clearConfigPages() {
+    if (m_configPages.isEmpty()) {
+        return;
+    }
+
+    // The pages are owned by this controller, they used to be kept until the app exited. Deleted after the
+    // views have let go of them: the setup screen only copies their content when it builds a page.
+    const QList<QObject *> pages = m_configPages;
     m_configPages.clear();
     emit configPagesChanged();
+
+    for (QObject *page : pages) {
+        if (page && page->parent() == this) {
+            page->deleteLater();
+        }
+    }
 }
 
 QObject *IntegrationController::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {
@@ -1103,8 +1125,10 @@ void IntegrationController::onDriverDiscoveryStarted() {
                     driver->getId(), driver->getNameI18n(), driver->getDriverUrl(), driver->getVersion(),
                     driver->getIcon(), false, QString(), driver->getDescription(), driver->getDeveloperName(),
                     driver->getHomePage(), driver->getReleaseDate(),
-                    qobject_cast<SetupSchema *>(driver->getSetupSchema()), false, driver->getInstanceCount(),
-                    m_language, false, driver->getExternal(), this));
+                    // a copy: the discovered driver owns its schema, and the configured one is deleted with the
+                    // next driver list reload
+                    driver->getSetupSchema() ? qobject_cast<SetupSchema *>(driver->getSetupSchema())->clone() : nullptr,
+                    false, driver->getInstanceCount(), m_language, false, driver->getExternal(), this));
             }
         }
     }
@@ -1157,7 +1181,7 @@ void IntegrationController::onDriverChanged(QString driverId, core::IntegrationD
     obj->setDeveloperName(integrationDriver.developer.name);
     obj->setHomePage(integrationDriver.homePage);
     obj->setReleaseDate(integrationDriver.releaseDate);
-    // The previous schema is not deleted: a setup in progress may still show it as a configuration page.
+    // replaces and deletes the previous schema; a setup in progress shows a copy of it
     obj->setSetupScehma(
         new SetupSchema(integrationDriver.settingsPage.title, integrationDriver.settingsPage.settings, m_language));
     obj->setInstanceCount(integrationDriver.instanceCount);

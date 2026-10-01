@@ -120,6 +120,7 @@ target_link_libraries(testIntegrationSetupInfo
 add_executable (testSetupSchema
     "test_setup_schema.cpp"
     "../../src/integration/setupSchema.cpp"
+    "../../src/integration/integrationDrivers.cpp"
     "../../src/util.cpp"
     "../../src/logging.cpp"
     "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"

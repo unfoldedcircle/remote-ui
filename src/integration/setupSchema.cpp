@@ -95,7 +95,7 @@ SettingsItemLabel::SettingsItemLabel(const QString &id, QVariantMap labelI18n, S
 SettingsItemLabel::~SettingsItemLabel() {}
 
 SetupSchema::SetupSchema(QVariantMap title, QVariantList settings, const QString &language, QObject *parent)
-    : QObject(parent), m_title_i18n(title) {
+    : QObject(parent), m_title_i18n(title), m_settingsData(settings), m_language(language) {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 
     qCDebug(lcIntegrationDriver()) << "Schema" << settings;
@@ -157,6 +157,10 @@ SetupSchema::SetupSchema(QVariantMap title, QVariantList settings, const QString
 
 SetupSchema::~SetupSchema() {
     qCDebug(lcIntegrationDriver()) << "Schema destructor";
+}
+
+SetupSchema *SetupSchema::clone(QObject *parent) const {
+    return new SetupSchema(m_title_i18n, m_settingsData, m_language, parent);
 }
 
 }  // namespace integration
