@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The connection status of the integrations no longer lists a driver as failing that recovered while the remote
+  was reconnecting to its core, or that was deleted in the meantime.
 - Stopping the app during the first seconds after its start no longer leaves it running until the system kills
   it, which made the device fall back to the factory UI and reboot.
 - The WiFi connection details show the key management as reported (`WPA2-PSK`, not `WPA2_PSK`), and a WPA3

@@ -86,6 +86,11 @@ void IntegrationController::getAllIntegrationStatus() {
 
 void IntegrationController::getAllIntegrationDrivers() {
     m_integrationDrivers.clear();
+    // the list of drivers in error is built again from the status load and the state events that follow
+    if (!m_integrationDriversError.isEmpty()) {
+        m_integrationDriversError.clear();
+        emit driversErrorChanged();
+    }
     // answers of a load that is still on its way belong to the list that was just dropped
     ++m_driverLoadGeneration;
     m_integrationDriversPending = 0;
@@ -135,6 +140,8 @@ void IntegrationController::getIntegrationStatus(int limit, int page) {
 
                             if (driver) {
                                 m_integrationDrivers.setState(driver->getId(), i->driverState.toLower());
+                                // the list of drivers in error follows the loaded state as well as the events
+                                updateDriversError(driver->getId(), i->driverState);
                             }
                         }
                     }
@@ -1027,9 +1034,6 @@ bool IntegrationController::checkConnections() {
     bool connecting = false;
 
     for (int i = 0; i < m_integrationDrivers.count(); i++) {
-        qCDebug(lcIntegrationController())
-            << m_integrationDrivers.get(i)->getId() << m_integrationDrivers.get(i)->getState();
-
         if (m_integrationDrivers.get(i)->getState().contains("connecting")) {
             connecting = true;
         }
@@ -1173,6 +1177,9 @@ void IntegrationController::onDriverChanged(QString driverId, core::IntegrationD
 }
 
 void IntegrationController::onDriverDeleted(QString driverId) {
+    // a deleted driver is no longer in error, ConnectionStatus.qml would look it up and find nothing
+    updateDriversError(driverId, QString());
+
     if (m_integrationDrivers.contains(driverId)) {
         m_integrationDrivers.get(driverId)->deleteLater();
         m_integrationDrivers.removeItem(driverId);
@@ -1248,17 +1255,29 @@ void IntegrationController::onIntegrationDriverStateChanged(QString driverId, QS
                                   m_integrationDrivers.get(driverId)->getId());
         }
 
-        if (!state.contains("active", Qt::CaseInsensitive)) {
-            if (!m_integrationDriversError.contains(driverId)) {
-                m_integrationDriversError.append(driverId);
-            }
-        } else {
-            m_integrationDriversError.removeOne(driverId);
-        }
-        emit driversErrorChanged();
+        updateDriversError(driverId, state);
     }
 
     emit integrationIsConnecting(checkConnections());
+}
+
+void IntegrationController::updateDriversError(const QString &driverId, const QString &state) {
+    // a driver that is not active is listed on the connection status page; an empty state (deleted driver,
+    // state unknown) takes it off the list
+    const bool inError = !state.isEmpty() && !state.contains("active", Qt::CaseInsensitive);
+    bool       changed = false;
+
+    if (inError && !m_integrationDriversError.contains(driverId)) {
+        m_integrationDriversError.append(driverId);
+        changed = true;
+    } else if (!inError && m_integrationDriversError.removeOne(driverId)) {
+        changed = true;
+    }
+
+    if (changed) {
+        qCDebug(lcIntegrationController()) << "Drivers in error:" << m_integrationDriversError;
+        emit driversErrorChanged();
+    }
 }
 
 }  // namespace integration

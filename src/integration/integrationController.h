@@ -145,6 +145,7 @@ class IntegrationController : public QObject {
 
  public slots:
     void onIntegrationDriverStateChanged(QString driverId, QString state);
+    void updateDriversError(const QString& driverId, const QString& state);
     void onIntegrationDeviceStateChanged(QString integrationId, QString driverId, QString state);
     void onLanguageChanged(QString language);
     void onIntegrationSetupChange(core::IntegrationSetupInfo integrationSetupInfo);
