@@ -43,20 +43,6 @@ Settings.Page {
         }
     }
 
-    Connections {
-        target: ui.inputController
-        ignoreUnknownSignals: true
-
-        function onActiveControllerChanged() {
-            if (ui.inputController.activeController !== wifiPageContent) {
-                Wifi.stopNetworkScan();
-                scanStartTimer.stop();
-                scanTimer.stop();
-                Wifi.clearNetworkList();
-            }
-        }
-    }
-
     Flickable {
         id: flickableContent
         width: parent.width
