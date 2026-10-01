@@ -544,7 +544,8 @@ Rectangle {
                 color: colors.red
                 icon: "uc:link-slash"
                 size: 40
-                visible: integrationObj.state != "connected" && integrationObj.state != ""
+                // the integration objects are dropped and loaded again after a reconnect: null in between
+                visible: integrationObj ? integrationObj.state != "connected" && integrationObj.state != "" : false
             }
 
             Text {

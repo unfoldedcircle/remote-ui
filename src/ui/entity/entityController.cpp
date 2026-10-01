@@ -764,8 +764,10 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
 
             case entity::Base::Type::Sensor:
             case entity::Base::Type::Select:
+                // no features, the core sends an empty list
+                break;
             default:
-                qCWarning(lcEntityController()) << "Not updating features, unsupported entity type.";
+                qCWarning(lcEntityController()) << "Not updating features, unsupported entity type:" << entity.type;
                 break;
         }
     }
