@@ -12,7 +12,9 @@ namespace entity {
 class RemoteFeatures : public QObject {
     Q_GADGET
  public:
-    enum Enum { Send_cmd, On_off, Toggle };
+    // Core-API RemoteFeature: send and on_off. The core's own remotes send "send", the remotes of integration
+    // drivers "send_cmd" (the name the entity document uses), and both send toggle.
+    enum Enum { Send, Send_cmd, On_off, Toggle };
     Q_ENUM(Enum)
 };
 
