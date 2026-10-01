@@ -512,7 +512,7 @@ void MediaPlayer::clearPlaylist() {
     sendCommand(MediaPlayerCommands::Clear_playlist);
 }
 
-void MediaPlayer::browseMedia(const QString &mediaId, const QString &mediaType, int limit, int page) {
+int MediaPlayer::browseMedia(const QString &mediaId, const QString &mediaType, int limit, int page) {
     QVariantMap params;
     if (!mediaId.isEmpty()) {
         params.insert("media_id", mediaId);
@@ -524,7 +524,9 @@ void MediaPlayer::browseMedia(const QString &mediaId, const QString &mediaType, 
     paging.insert("limit", limit);
     paging.insert("page", page);
     params.insert("paging", paging);
+    m_lastBrowseRequestId = -1;
     emit browseMediaRequested(m_id, params);
+    return m_lastBrowseRequestId;
 }
 
 void MediaPlayer::searchMedia(const QString &query, const QString &mediaId, const QString &mediaType,
@@ -549,8 +551,13 @@ void MediaPlayer::searchMedia(const QString &query, const QString &mediaId, cons
     emit searchMediaRequested(m_id, params);
 }
 
-void MediaPlayer::onBrowseMediaResult(const core::BrowseMediaItem &media, const core::Pagination &pagination) {
-    emit browseMediaResult(browseItemToVariant(media), paginationToVariant(pagination));
+void MediaPlayer::onBrowseMediaRequested(int requestId) {
+    m_lastBrowseRequestId = requestId;
+}
+
+void MediaPlayer::onBrowseMediaResult(int requestId, const core::BrowseMediaItem &media,
+                                      const core::Pagination &pagination) {
+    emit browseMediaResult(requestId, browseItemToVariant(media), paginationToVariant(pagination));
 }
 
 void MediaPlayer::onSearchMediaRequested(int requestId) {
@@ -584,8 +591,8 @@ void MediaPlayer::onSearchMediaError(int requestId, int code, const QString &mes
     emit searchMediaError(code, message);
 }
 
-void MediaPlayer::onMediaBrowseError(int code, const QString &message) {
-    emit mediaBrowseError(code, message);
+void MediaPlayer::onMediaBrowseError(int requestId, int code, const QString &message) {
+    emit mediaBrowseError(requestId, code, message);
 }
 
 QVariantMap MediaPlayer::browseItemToVariant(const core::BrowseMediaItem &item) {

@@ -62,6 +62,7 @@ class testEntityController : public QObject {
     void binarySensor_valueIsTranslatedWhenRead();
 
     void mediaImageProvider_keepsTheArtworkOfManyPlayers();
+    void mediaPlayer_browseMedia_returnsTheRequestIdThatTheAnswerCarries();
     void mediaImageProvider_evictsTheLeastRecentlyShownImage();
 
     void light_brightnessText_survivesUnavailable();
@@ -616,6 +617,42 @@ void testEntityController::mediaImageProvider_evictsTheLeastRecentlyShownImage()
     QVERIFY(!provider.requestImage(keys.first(), &size, QSize()).isNull());
     QVERIFY(provider.requestImage(keys.at(1), &size, QSize()).isNull());
     QVERIFY(!provider.requestImage(thirteenth, &size, QSize()).isNull());
+}
+
+/**
+ * The media browser keeps the id of the request each of its pages waits for, so that a late answer lands on the
+ * page that asked, or nowhere when that page was left. browseMedia() returns the id the controller assigned, and
+ * the result and error signals carry it.
+ */
+void testEntityController::mediaPlayer_browseMedia_returnsTheRequestIdThatTheAnswerCarries() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("media_player.browser");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Media_player");
+    controller.onEntityAdded(entity);
+
+    auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+    QVERIFY(mediaPlayer);
+
+    QSignalSpy errors(mediaPlayer, &uc::ui::entity::MediaPlayer::mediaBrowseError);
+    QSignalSpy results(mediaPlayer, &uc::ui::entity::MediaPlayer::browseMediaResult);
+
+    // not connected to a core: the request cannot be sent, which is reported with the same id, -1
+    const int requestId = mediaPlayer->browseMedia(QStringLiteral("folder"), QStringLiteral("directory"), 10, 1);
+    QCOMPARE(requestId, -1);
+    QCOMPARE(errors.count(), 1);
+    QCOMPARE(errors.at(0).at(0).toInt(), -1);
+    QCOMPARE(errors.at(0).at(1).toInt(), 503);
+
+    // an answer names its request
+    uc::core::BrowseMediaItem item;
+    item.title = QStringLiteral("Folder");
+    mediaPlayer->onBrowseMediaResult(42, item, uc::core::Pagination());
+    QCOMPARE(results.count(), 1);
+    QCOMPARE(results.at(0).at(0).toInt(), 42);
+    QCOMPARE(results.at(0).at(1).toMap().value(QStringLiteral("title")).toString(), QStringLiteral("Folder"));
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

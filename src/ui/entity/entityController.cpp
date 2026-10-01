@@ -603,10 +603,12 @@ void EntityController::connectLazySignals(entity::Base* obj) {
                 mediaPlayer, &entity::MediaPlayer::browseMediaRequested, this,
                 [=](const QString& entityId, QVariantMap params) {
                     int id = m_core->browseMedia(entityId, params);
+                    // the id lets the browser tell which of its pages an answer belongs to
+                    mediaPlayer->onBrowseMediaRequested(id);
                     // A request that was never sent never gets a response: report it right away,
                     // otherwise the UI keeps waiting for it forever.
                     if (id < 0) {
-                        mediaPlayer->onMediaBrowseError(503, QString());
+                        mediaPlayer->onMediaBrowseError(id, 503, QString());
                         return;
                     }
                     // The response handlers have no context object and outlive the entity if it is deleted
@@ -614,14 +616,14 @@ void EntityController::connectLazySignals(entity::Base* obj) {
                     const QPointer<entity::MediaPlayer> guard(mediaPlayer);
                     m_core->onResponseWithErrorResult(
                         id, &core::Api::respMediaBrowse,
-                        [guard](core::BrowseMediaItem media, core::Pagination pagination) {
+                        [guard, id](core::BrowseMediaItem media, core::Pagination pagination) {
                             if (guard) {
-                                guard->onBrowseMediaResult(media, pagination);
+                                guard->onBrowseMediaResult(id, media, pagination);
                             }
                         },
-                        [guard](int code, QString message) {
+                        [guard, id](int code, QString message) {
                             if (guard) {
-                                guard->onMediaBrowseError(code, message);
+                                guard->onMediaBrowseError(id, code, message);
                             }
                         });
                 });

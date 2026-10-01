@@ -377,8 +377,11 @@ class MediaPlayer : public Base {
     Q_INVOKABLE void playMedia(const QString &mediaId, const QString &mediaType,
                                const QString &action = QString());
     Q_INVOKABLE void clearPlaylist();
-    Q_INVOKABLE void browseMedia(const QString &mediaId = QString(),
-                                 const QString &mediaType = QString(),
+    /**
+     * Asks for the content of a media folder. Returns the id of the request, which the result and the error
+     * carry as well, so that the browser can tell which page an answer belongs to; -1 if nothing was sent.
+     */
+    Q_INVOKABLE int  browseMedia(const QString &mediaId = QString(), const QString &mediaType = QString(),
                                  int limit = 10, int page = 1);
     Q_INVOKABLE void searchMedia(const QString &query,
                                  const QString &mediaId = QString(),
@@ -394,8 +397,9 @@ class MediaPlayer : public Base {
     void onLanguageChangedTypeSpecific() override;
 
  public slots:
-    void onBrowseMediaResult(const core::BrowseMediaItem &media, const core::Pagination &pagination);
-    void onMediaBrowseError(int code, const QString &message);
+    void onBrowseMediaRequested(int requestId);
+    void onBrowseMediaResult(int requestId, const core::BrowseMediaItem &media, const core::Pagination &pagination);
+    void onMediaBrowseError(int requestId, int code, const QString &message);
 
     /**
      * @brief Remembers which search request the UI is waiting for.
@@ -436,10 +440,10 @@ class MediaPlayer : public Base {
     void mediaIdChanged();
     void mediaPlaylistChanged();
     void searchMediaClassesChanged();
-    void browseMediaResult(QVariantMap media, QVariantMap pagination);
+    void browseMediaResult(int requestId, QVariantMap media, QVariantMap pagination);
     void searchMediaResult(QVariantList items, QVariantMap pagination);
     // browsing and searching fail independently: a failed search must not discard the browsed page
-    void mediaBrowseError(int code, QString message);
+    void mediaBrowseError(int requestId, int code, QString message);
     void searchMediaError(int code, QString message);
 
  private:
@@ -465,6 +469,8 @@ class MediaPlayer : public Base {
 
     // request id of the search the UI is waiting for, -1 if none is pending
     int m_activeSearchRequestId = -1;
+    // id of the browse request that was just sent, set by the controller while browseMedia() emits the request
+    int m_lastBrowseRequestId = -1;
 
     // options
     int         m_volumeSteps;

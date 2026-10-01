@@ -101,14 +101,13 @@ Popup {
             page.pageLimit       = defaultPageLimit;
             page.pageHasMore     = false;
             page.pageLoadingMore = false;
+            page.pendingRequestId = entityObj.browseMedia("", "", defaultPageLimit, 1);
         }
-
-        entityObj.browseMedia("", "", defaultPageLimit, 1);
     }
 
     function browseInto(mediaId, mediaType, title, thumbnail) {
         searchMode = false;
-        browseNav.push(levelPage, {
+        var page = browseNav.push(levelPage, {
             pageTitle:       title,
             pageThumbnail:   (thumbnail && !thumbnail.startsWith("icon://")) ? decodeURIComponent(thumbnail) : "",
             pageMediaId:     mediaId,
@@ -122,7 +121,20 @@ Popup {
             pageHasMore:     false,
             pageLoadingMore: false
         });
-        entityObj.browseMedia(mediaId, mediaType, defaultPageLimit, 1);
+        page.pendingRequestId = entityObj.browseMedia(mediaId, mediaType, defaultPageLimit, 1);
+    }
+
+    // The page a browse answer belongs to: the one that sent the request with that id, wherever it is in the
+    // stack. A page that was left (BACK) is gone with its request, so a late answer finds no page and is dropped;
+    // an answer to a page below the current one lands on that page, not on the one shown.
+    function pageForRequest(requestId) {
+        // a request that could not be sent (-1) is reported while browseMedia() runs, for the page shown
+        if (requestId < 0) return browseNav.currentItem;
+        for (var i = 0; i < browseNav.depth; i++) {
+            var page = browseNav.get(i, StackView.ForceLoad);
+            if (page && page.pendingRequestId === requestId) return page;
+        }
+        return null;
     }
 
     function goBack() { browseNav.pop(); }
@@ -231,13 +243,13 @@ Popup {
 
         page.pageLoadingMore = true;
         page.requestedPage = page.pagePage + 1;
-        entityObj.browseMedia(page.pageMediaId, page.pageMediaType, page.pageLimit, page.requestedPage);
+        page.pendingRequestId = entityObj.browseMedia(page.pageMediaId, page.pageMediaType, page.pageLimit, page.requestedPage);
     }
 
     onOpened: {
         coverFlowMode = Config.mediaCoverflowDefault;
         browseNav.clear();
-        browseNav.push(levelPage, {
+        var rootPage = browseNav.push(levelPage, {
             pageLoading: true,
             pagePage: 1,
             requestedPage: 1,
@@ -245,7 +257,7 @@ Popup {
             pageHasMore: false,
             pageLoadingMore: false
         }, StackView.Immediate);
-        entityObj.browseMedia("", "", defaultPageLimit, 1);
+        rootPage.pendingRequestId = entityObj.browseMedia("", "", defaultPageLimit, 1);
         buttonNavigation.takeControl();
     }
 
@@ -374,11 +386,12 @@ Popup {
         target: entityObj
         ignoreUnknownSignals: true
 
-        function onBrowseMediaResult(media, pagination) {
-            var page = browseNav.currentItem;
+        function onBrowseMediaResult(requestId, media, pagination) {
+            var page = mediaBrowser.pageForRequest(requestId);
             if (!page) return;
+            page.pendingRequestId = -1;
 
-            if (browseNav.depth > 1) {
+            if (page !== browseNav.get(0, StackView.ForceLoad)) {
                 page.pageContainer = media;
                 var t = media.thumbnail || "";
                 if (t && !t.startsWith("icon://"))
@@ -458,9 +471,10 @@ Popup {
             );
         }
 
-        function onMediaBrowseError(code, message) {
+        function onMediaBrowseError(requestId, code, message) {
             loading.stop();
-            var page = browseNav.currentItem; if (!page) return;
+            var page = mediaBrowser.pageForRequest(requestId); if (!page) return;
+            page.pendingRequestId = -1;
             page.pageLoading     = false;
             page.pageLoadingMore = false;
 
@@ -483,10 +497,10 @@ Popup {
                         page.requestedPage = 1;
                         page.pageItems = [];
                         page.pageHasMore = false;
-                        if (browseNav.depth <= 1) {
-                            entityObj.browseMedia("", "", page.pageLimit, 1);
+                        if (page === browseNav.get(0, StackView.ForceLoad)) {
+                            page.pendingRequestId = entityObj.browseMedia("", "", page.pageLimit, 1);
                         } else {
-                            entityObj.browseMedia(page.pageMediaId, page.pageMediaType, page.pageLimit, 1);
+                            page.pendingRequestId = entityObj.browseMedia(page.pageMediaId, page.pageMediaType, page.pageLimit, 1);
                         }
                     },
                     qsTr("Retry")
@@ -758,6 +772,8 @@ Popup {
             property int    pageLimit:        mediaBrowser.defaultPageLimit
             property bool   pageHasMore:      false
             property bool   pageLoadingMore:  false
+            // id of the browse request this page is waiting for, -1 when none
+            property int    pendingRequestId: -1
             readonly property bool isContainerView: pageContainer !== null &&
                 (pageContainer.media_class === "album" || pageContainer.media_class === "playlist")
 
