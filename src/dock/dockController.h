@@ -6,6 +6,8 @@
 #include <QJSEngine>
 #include <QObject>
 #include <QQmlEngine>
+#include <QSet>
+#include <QSharedPointer>
 
 #include "../core/core.h"
 #include "../ui/notification.h"
@@ -81,6 +83,8 @@ class DockController : public QObject {
     QString         m_dockToSetup;
 
     ConfiguredDocks m_configuredDocks;
+    // counts the loads of the dock list, an answer of an earlier load is ignored
+    quint64 m_dockLoadGeneration = 0;
 
     void startDockSetup(const QString& dockId, const QString& friendlyName, const QString& password,
                         const QString& wifiSsid, const QString& wifiPassword);
@@ -93,6 +97,8 @@ class DockController : public QObject {
     void onDockDiscovered(core::DockDiscovery dock);
     void onDockSetupChanged(core::MsgEventTypes::Enum type, QString dockId, core::DockSetupEnums::DockSetupState state,
                             core::DockSetupEnums::DockSetupError error);
+
+    void loadDocks(int limit, int page, quint64 generation, const QSharedPointer<QSet<QString>>& loadedDockIds);
 
     void onDockAdded(QString dockId, core::DockConfiguration dock);
     void onDockChanged(QString dockId, core::DockConfiguration dock);

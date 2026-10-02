@@ -52,6 +52,8 @@ class GroupController : public QObject {
 
     QHash<QString, Group*> m_groups;
     QString                m_profileId;
+    // id of the newest group list request, answers to older ones are ignored
+    int m_groupsRequestId = -1;
 
  private slots:
     void onGroupAdded(QString profileId, core::Group group);

@@ -161,7 +161,13 @@ class IntegrationController : public QObject {
     IntegrationDrivers    m_integrationDrivers;
     QSortFilterProxyModel m_integrationDriversFilter;
     QStringList           m_integrationDriversError;
-    int                   m_integrationDriversLoaded = 0;
+    // Counts the (re)loads of the driver list: an answer of an earlier load is ignored. Never 0, which marks a
+    // single driver request outside a list load.
+    quint64 m_driverLoadGeneration = 0;
+    // driver requests of the current page that are not settled yet
+    int m_integrationDriversPending = 0;
+    // receiver of the pending "start discovery once the drivers are loaded", deleted when it fired
+    QPointer<QObject> m_discoveryStartScope;
 
     IntegrationDrivers m_discoveredIntegrationDrivers;
     // an item of m_discoveredIntegrationDrivers, which deletes its items whenever a discovery is started: guarded,
@@ -210,7 +216,8 @@ class IntegrationController : public QObject {
 
  private slots:
     void onIntegrationStatusLoaded();
-    void onIntegrationDriverLoaded(QString driverId);
+    void getIntegrationDriver(const QString& driverId, quint64 generation);
+    void onIntegrationDriverSettled(quint64 generation);
     void onIntegrationDriversLoaded();
     void onIntegrationsLoaded();
 

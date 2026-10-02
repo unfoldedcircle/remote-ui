@@ -109,14 +109,21 @@ void GroupController::setProfileId(const QString &profileId) {
     m_profileId = profileId;
 
     int id = m_core->getGroups(m_profileId);
+    // only the newest request counts: a late answer for a profile that is no longer the current one is dropped
+    m_groupsRequestId = id;
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respGroups,
         [=](QList<core::Group> groups) {
             // success
+            if (id != m_groupsRequestId) {
+                qCDebug(lcGroupController()) << "Ignoring stale groups response of profile" << profileId;
+                return;
+            }
+
             if (groups.size() > 0) {
                 for (QList<core::Group>::iterator i = groups.begin(); i != groups.end(); i++) {
-                    onGroupAdded(m_profileId, *i);
+                    onGroupAdded(profileId, *i);
                 }
             }
         },
@@ -137,6 +144,11 @@ Group *GroupController::getGroup(const QString &groupId) {
 void GroupController::onGroupAdded(QString profileId, core::Group group) {
     if (m_profileId != profileId) {
         return;
+    }
+
+    // a group announced by an event while the groups are loading arrives a second time with the answer
+    if (auto existing = m_groups.take(group.id)) {
+        existing->deleteLater();
     }
 
     Group *obj = new Group(group.id, group.profileId, group.name, group.icon, this);

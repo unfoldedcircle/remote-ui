@@ -177,6 +177,13 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
                     m_sequencePending = false;
                 }
 
+                // The state is forced to Unavailable while the core is disconnected and reported again after the
+                // reconnect. An activity that was On before and is On again was not started by anyone.
+                const bool wasOn = m_lastReportedState == ActivityStates::On;
+                if (newState != ActivityStates::Unavailable && newState != ActivityStates::Unknown) {
+                    m_lastReportedState = newState;
+                }
+
                 m_state = newState;
                 ok      = true;
 
@@ -193,7 +200,7 @@ bool Activity::updateAttribute(const QString &attribute, QVariant data) {
 
                         if (m_startedFromRemote) {
                             m_startedFromRemote = false;
-                        } else {
+                        } else if (!wasOn) {
                             emit startedExternally(m_id);
                         }
                         break;

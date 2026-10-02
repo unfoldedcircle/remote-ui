@@ -47,6 +47,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The charging screen no longer appears on the charger when the app reconnects to the core, for example after a
+  restart of the core. It is still shown when the remote wakes up on the charger, as intended.
+- An activity that was already running is no longer reported as started from another device after the app
+  reconnects to the core, for example after a restart of the core. With "open activity when started externally"
+  enabled, its screen opened over whatever was shown.
+- Pages and groups are no longer shown twice, or under the wrong profile, when two reloads overlap, for example a
+  reconnect during a profile switch.
+- Loading the integrations always completes. A single integration driver that could not be loaded, or a remote
+  without any driver, left the connection states unknown and kept the search for new integrations from starting;
+  with more than 100 drivers only the first 100 were loaded.
+- Docks are brought up to date after a reconnect: a dock that was removed or changed in the meantime no longer
+  keeps its old entry until the remote is restarted.
 - Setting up an integration driver found on the network now sends the address and the access token entered for
   it. They were left out of the request, so such a driver could not be configured.
 - A change of an integration driver, for example a new version or name after an update, is shown right away

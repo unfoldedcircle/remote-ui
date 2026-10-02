@@ -48,7 +48,11 @@ class Power : public QObject {
     static Power *s_instance;
     core::Api    *m_core;
 
-    PowerMode m_powerMode;
+    // the remote is awake while the UI is starting: Normal until the core says otherwise
+    PowerMode m_powerMode = Normal;
+
+    // powerModeChanged is a transition: it is not emitted when the mode stays the same
+    void setPowerMode(PowerMode powerMode);
 };
 
 }  // namespace hw

@@ -219,6 +219,9 @@ class Activity : public Base {
 
     // set when a start command was sent from this remote, cleared when the activity settles again
     bool m_startedFromRemote = false;
+    // the last state the core reported that says whether the activity is running: not Unavailable or Unknown,
+    // and not the Unavailable every entity is set to while the core is disconnected
+    int m_lastReportedState = -1;
 
     // set while a sequence started from this remote has not reported its outcome yet
     bool m_sequencePending = false;

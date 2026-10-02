@@ -228,6 +228,8 @@ class Controller : public QObject {
     Profiles m_profiles;
     Profile  m_profile;
     Pages    m_pages;
+    // id of the newest page list request, answers to older ones are ignored
+    int m_pagesRequestId = -1;
 
     bool m_coreConnected = false;
     bool m_isConnecting = false;

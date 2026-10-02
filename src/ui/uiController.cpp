@@ -640,11 +640,21 @@ void Controller::loadPages(const QString &profileId, int pin) {
     m_pages.clear();
 
     int id = m_core->getPages(profileId, pin);
+    // Only the newest request counts: a reload after a reconnect can overlap a profile switch or a sync after a
+    // failed page update, and every answer used to append its pages to the same list.
+    m_pagesRequestId = id;
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respPages,
         [=](QList<core::Page> pages) {
             // success
+            if (id != m_pagesRequestId) {
+                qCDebug(lcUi()) << "Ignoring stale pages response";
+                return;
+            }
+            // a page announced by an event since the request was sent is part of the answer
+            m_pages.clear();
+
             if (pages.size() > 0) {
                 for (QList<core::Page>::iterator i = pages.begin(); i != pages.end(); i++) {
                     auto page = new Page(i->id, i->name, i->image, this);
@@ -665,6 +675,9 @@ void Controller::loadPages(const QString &profileId, int pin) {
         [=](int code, QString message) {
             // fail
             qCWarning(lcUi()) << "Error:" << code << message;
+            if (id != m_pagesRequestId) {
+                return;
+            }
             emit configLoaded();
         });
 }

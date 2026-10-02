@@ -37,9 +37,8 @@ void Power::getPowerModeFromCore() {
             Q_UNUSED(powerSupply)
             Q_UNUSED(powerStatus)
 
-            auto oldPowerMode = m_powerMode;
-            m_powerMode = static_cast<PowerMode>(powerMode);
-            emit powerModeChanged(oldPowerMode, m_powerMode);
+            // asked for after every (re)connect: most of the time the mode is the one already known
+            setPowerMode(static_cast<PowerMode>(powerMode));
         },
         [=](int code, QString message) {
             // fail
@@ -90,8 +89,16 @@ QObject *Power::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {
 }
 
 void Power::onPowerModeChanged(core::PowerEnums::PowerMode powerMode) {
+    setPowerMode(static_cast<PowerMode>(powerMode));
+}
+
+void Power::setPowerMode(PowerMode powerMode) {
+    if (m_powerMode == powerMode) {
+        return;
+    }
+
     auto oldPowerMode = m_powerMode;
-    m_powerMode = static_cast<PowerMode>(powerMode);
+    m_powerMode = powerMode;
     emit powerModeChanged(oldPowerMode, m_powerMode);
 }
 

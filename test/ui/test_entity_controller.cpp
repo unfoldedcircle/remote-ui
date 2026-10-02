@@ -4,6 +4,7 @@
 #include <QtTest>
 
 #include "core/core.h"
+#include "ui/entity/activity.h"
 #include "ui/entity/entityController.h"
 #include "ui/entity/mediaPlayer.h"
 #include "ui/notification.h"
@@ -44,6 +45,8 @@ class testEntityController : public QObject {
     void voiceEnd_nothingPending_reportsNothing();
 
     void mediaPlayerRepeat_invalidAttribute_keepsModeAndSendsValidCommand();
+
+    void activity_onAgainAfterReconnect_isNotStartedExternally();
 
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
@@ -220,6 +223,45 @@ void testEntityController::mediaPlayerRepeat_invalidAttribute_keepsModeAndSendsV
 
     QCOMPARE(commands.count(), 1);
     QCOMPARE(commands.at(0).at(2).toMap().value(QStringLiteral("repeat")).toString(), QStringLiteral("OFF"));
+}
+
+/**
+ * Every entity is set to Unavailable while the core is disconnected, and its state is reported again after the
+ * reconnect. An activity that was running all along must not be announced as started by someone else, which
+ * opens its screen when the user has that option on.
+ */
+void testEntityController::activity_onAgainAfterReconnect_isNotStartedExternally() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("activity.watch_tv");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Activity");
+    entity.attributes = QVariantMap({{QStringLiteral("state"), QStringLiteral("ON")}});
+    controller.onEntityAdded(entity);
+
+    auto activity = qobject_cast<uc::ui::entity::Activity*>(controller.get(entityId));
+    QVERIFY(activity);
+    QCOMPARE(activity->getState(), static_cast<int>(uc::ui::entity::ActivityStates::On));
+
+    QSignalSpy startedExternally(activity, &uc::ui::entity::Activity::startedExternally);
+
+    // what EntityController::onCoreDisconnected() does to every entity, and the reload after the reconnect
+    activity->setState(uc::ui::entity::ActivityStates::Unavailable);
+    activity->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
+    QCOMPARE(activity->getState(), static_cast<int>(uc::ui::entity::ActivityStates::On));
+    QCOMPARE(startedExternally.count(), 0);
+
+    // an activity that was off and is started by another client is still reported
+    activity->updateAttribute(QStringLiteral("State"), QStringLiteral("OFF"));
+    activity->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
+    QCOMPARE(startedExternally.count(), 1);
+
+    // also when it was started while the connection was down
+    activity->updateAttribute(QStringLiteral("State"), QStringLiteral("OFF"));
+    activity->setState(uc::ui::entity::ActivityStates::Unavailable);
+    activity->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
+    QCOMPARE(startedExternally.count(), 2);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

@@ -53,8 +53,6 @@ IntegrationController::IntegrationController(core::Api *core, const QString &lan
 
     QObject::connect(this, &IntegrationController::integrationStatusLoaded, this,
                      &IntegrationController::onIntegrationStatusLoaded);
-    QObject::connect(this, &IntegrationController::integrationDriverLoaded, this,
-                     &IntegrationController::onIntegrationDriverLoaded);
     QObject::connect(this, &IntegrationController::integrationDriversLoaded, this,
                      &IntegrationController::onIntegrationDriversLoaded);
     QObject::connect(this, &IntegrationController::integrationsLoaded, this,
@@ -78,12 +76,19 @@ IntegrationController::~IntegrationController() {
 }
 
 void IntegrationController::getAllIntegrationStatus() {
+    // start over like the two models do in clear(): the page count of an earlier load may no longer be right
+    m_integrationStatusLimit = 0;
+    m_integrationStatusTotalItems = 0;
+    m_integrationStatusTotalPages = 0;
+    m_integrationStatusLastPageLoaded = 0;
     getIntegrationStatus();
 }
 
 void IntegrationController::getAllIntegrationDrivers() {
     m_integrationDrivers.clear();
-    m_integrationDriversLoaded = 0;
+    // answers of a load that is still on its way belong to the list that was just dropped
+    ++m_driverLoadGeneration;
+    m_integrationDriversPending = 0;
     getIntegrationDrivers();
 }
 
@@ -144,38 +149,58 @@ void IntegrationController::getIntegrationStatus(int limit, int page) {
 }
 
 void IntegrationController::getIntegrationDrivers(int limit, int page) {
-    int id = m_core->getIntegrationDrivers(limit, page);
+    const quint64 generation = m_driverLoadGeneration;
+    int           id = m_core->getIntegrationDrivers(limit, page);
 
     qCDebug(lcIntegrationController()) << "Call get integration drivers";
+
+    // The load always ends with integrationDriversLoaded, whatever happens: the status load and a pending
+    // discovery start wait for it. A request that could not be sent never gets an answer.
+    if (id < 0) {
+        emit integrationDriversLoaded();
+        return;
+    }
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respIntegrationDrivers,
         [=](QList<core::IntegrationDriver> integrationDrivers, int count, int responseLimit, int page) {
             Q_UNUSED(responseLimit)  // number of items in this page, not the page size
             // success
+            if (generation != m_driverLoadGeneration) {
+                qCDebug(lcIntegrationController()) << "Ignoring stale integration driver page:" << page;
+                return;
+            }
 
             qCDebug(lcIntegrationController()) << "Integrations:" << count << "page:" << page << "limit:" << limit;
 
-            if (count > 0) {
-                m_integrationDrivers.totalItems = count;
-                if (m_integrationDrivers.limit == 0) {
-                    m_integrationDrivers.limit = limit;
-                    m_integrationDrivers.totalPages = Util::pageCount(count, limit);
-                }
-                m_integrationDrivers.lastPageLoaded = page;
+            m_integrationDrivers.totalItems = count;
+            if (m_integrationDrivers.limit == 0) {
+                m_integrationDrivers.limit = limit;
+                m_integrationDrivers.totalPages = Util::pageCount(count, limit);
+            }
+            m_integrationDrivers.lastPageLoaded = page;
 
-                if (integrationDrivers.size() > 0) {
-                    for (QList<core::IntegrationDriver>::iterator i = integrationDrivers.begin();
-                         i != integrationDrivers.end(); i++) {
-                        // get detailed driver info
-                        getIntegrationDriver(i->id);
-                    }
-                }
+            // no driver at all, or a page past the end because drivers were removed meanwhile
+            if (integrationDrivers.isEmpty()) {
+                emit integrationDriversLoaded();
+                return;
+            }
+
+            // every driver of the page is fetched with a request of its own: the page is done when all of them
+            // are settled, with or without success
+            m_integrationDriversPending = integrationDrivers.size();
+            for (QList<core::IntegrationDriver>::iterator i = integrationDrivers.begin();
+                 i != integrationDrivers.end(); i++) {
+                // get detailed driver info
+                getIntegrationDriver(i->id, generation);
             }
         },
         [=](int code, QString message) {
             // fail
             qCWarning(lcIntegrationController()) << "Cannot get integration drivers" << code << message;
+            if (generation == m_driverLoadGeneration) {
+                emit integrationDriversLoaded();
+            }
         });
 }
 
@@ -269,7 +294,10 @@ void IntegrationController::startDriverDiscovery() {
     m_discoveredIntegrationDrivers.clear();
 
     // first we get all the integration drivers again
+    // a start that is still waiting for an earlier driver load is replaced, not added to
+    delete m_discoveryStartScope;
     QObject *scope = new QObject(this);
+    m_discoveryStartScope = scope;
     QObject::connect(this, &IntegrationController::integrationDriversLoaded, scope, [=]() {
         scope->deleteLater();
         int id = m_core->integrationStartDiscovery();
@@ -326,12 +354,25 @@ void IntegrationController::getDiscoveredDriverMetadata(const QString &driverId,
 }
 
 void IntegrationController::getIntegrationDriver(const QString &driverId) {
+    getIntegrationDriver(driverId, 0);
+}
+
+void IntegrationController::getIntegrationDriver(const QString &driverId, quint64 generation) {
     int id = m_core->getIntegrationDriver(driverId);
+
+    // a request that could not be sent never gets an answer
+    if (id < 0) {
+        onIntegrationDriverSettled(generation);
+        return;
+    }
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respIntegrationDriver,
         [=](core::IntegrationDriver integrationDriver) {
             // success
+            if (generation != 0 && generation != m_driverLoadGeneration) {
+                return;
+            }
 
             qCDebug(lcIntegrationController()) << "Integration driver" << integrationDriver.id;
             if (!m_integrationDrivers.contains(integrationDriver.id)) {
@@ -346,11 +387,14 @@ void IntegrationController::getIntegrationDriver(const QString &driverId) {
             }
 
             emit integrationDriverLoaded(driverId);
+            onIntegrationDriverSettled(generation);
         },
         [=](int code, QString message) {
             // fail
             qCWarning(lcIntegrationController()) << "Error getting integration driver" << code << message;
             ui::Notification::createNotification(tr("Error getting integration driver"), true);
+            // a driver that cannot be loaded must not hold up the rest of the load
+            onIntegrationDriverSettled(generation);
         });
 }
 
@@ -1004,24 +1048,28 @@ void IntegrationController::onIntegrationStatusLoaded() {
     }
 }
 
-void IntegrationController::onIntegrationDriverLoaded(QString driverId) {
-    Q_UNUSED(driverId)
+void IntegrationController::onIntegrationDriverSettled(quint64 generation) {
+    // 0: a single driver request that is not part of a list load
+    if (generation == 0 || generation != m_driverLoadGeneration) {
+        return;
+    }
 
-    m_integrationDriversLoaded++;
-    if (m_integrationDriversLoaded == m_integrationDrivers.totalItems) {
+    if (--m_integrationDriversPending > 0) {
+        return;
+    }
+
+    if (m_integrationDrivers.lastPageLoaded < m_integrationDrivers.totalPages) {
+        qCDebug(lcIntegrationController())
+            << "More integration drivers to load" << m_integrationDrivers.lastPageLoaded + 1;
+        getIntegrationDrivers(m_integrationDrivers.limit, m_integrationDrivers.lastPageLoaded + 1);
+    } else {
         emit integrationDriversLoaded();
     }
 }
 
 void IntegrationController::onIntegrationDriversLoaded() {
-    if (m_integrationDrivers.totalPages != m_integrationDrivers.lastPageLoaded) {
-        qCDebug(lcIntegrationController())
-            << "More integration drivers to load" << m_integrationDrivers.lastPageLoaded + 1;
-        getIntegrationDrivers(100, m_integrationDrivers.lastPageLoaded + 1);
-    } else {
-        qCDebug(lcIntegrationController()) << "Integration drivers all loaded";
-        getAllIntegrationStatus();
-    }
+    qCDebug(lcIntegrationController()) << "Integration drivers all loaded";
+    getAllIntegrationStatus();
 }
 
 void IntegrationController::onIntegrationsLoaded() {
