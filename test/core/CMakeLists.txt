@@ -19,9 +19,6 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Mostly for developing on macOS with an M1 or newer CPU. Old Qt version isn't available as arm64
-set(CMAKE_OSX_ARCHITECTURES x86_64)
-
 enable_testing(true)
 
 add_executable (testCore

@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- `make test` works on Apple Silicon Macs with the Qt compiled from source: the unit tests are built for the Mac's own
+  architecture, like that Qt, instead of always for x86_64.
 - The activity bar of a page follows changes to the page and its groups. A running activity or playing media player
   that was removed from a page stayed in that page's activity bar, and one that was added to a page, also through a
   group or with a new page, was missing from it, until the activity was stopped or started again.

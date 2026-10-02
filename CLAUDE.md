@@ -52,7 +52,7 @@ cmake -D CMAKE_PREFIX_PATH="$QT_ROOT_DIR" .. && cmake --build .
 ctest            # or: ctest -R testCore for one target
 ```
 
-QtTest framework. Targets: `testCommon`, `testCore`, `testHardware`, `testBattery`, `testUiModels`. All four test CMakeLists force `CMAKE_OSX_ARCHITECTURES x86_64` (old Qt has no arm64 build), so on Apple Silicon this needs an x86_64 Qt under Rosetta. `tests.bak/` is stale — ignore it.
+QtTest framework. Targets: `testCommon`, `testCore`, `testHardware`, `testBattery`, `testUiModels`. The tests build for the host architecture; never hard code `CMAKE_OSX_ARCHITECTURES` (an x86_64-only Qt on Apple Silicon takes `-D CMAKE_OSX_ARCHITECTURES=x86_64` on the command line). `tests.bak/` is stale — ignore it.
 
 ## Style
 

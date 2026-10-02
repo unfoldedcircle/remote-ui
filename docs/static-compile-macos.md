@@ -121,6 +121,11 @@ after the same patch step and with the same options otherwise. `make macos` buil
 build; `QTDIR` selects another dynamic Qt. The app links the Qt frameworks from `~/Qt/5.15.19/clang_64/lib` through
 an rpath, so it runs without environment variables but not on another Mac.
 
+`make test` builds and runs the unit tests with the same Qt, natively like the Qt itself (arm64 on Apple Silicon). It
+needs CMake, which Xcode does not include (installer from cmake.org, or Homebrew). An x86_64-only Qt, such as the
+5.15.2 binary packages, cannot be linked into arm64 tests: on Apple Silicon configure `test/build` with
+`-D CMAKE_OSX_ARCHITECTURES=x86_64` instead, the tests then run under Rosetta.
+
 ## 6. Build remote-ui statically
 
 ```bash
