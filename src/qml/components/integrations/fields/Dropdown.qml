@@ -11,6 +11,9 @@ FieldBase {
     id: root
 
     property var model
+    // The id the driver preselects. It is kept apart from value: the ComboBox reports its first entry as the
+    // current value while it is set up, which overwrites value before this item is completed.
+    property string initialValue: ""
 
     /** KEYBOARD NAVIGATION **/
     // The ComboBox's own popup takes no input and would swallow the chain keys. Both a tap and
@@ -30,6 +33,14 @@ FieldBase {
         for (let i = 0; i < root.model.length; i++) {
             optionsModel.append({ name: String(root.model[i].label), value: root.model[i].id,
                                   secondary: "", rightText: "", searchKey: "" });
+        }
+
+        // the driver's preselected item, if it is one of the items
+        if (root.initialValue !== "") {
+            const index = dropDown.indexOfValue(root.initialValue);
+            if (index >= 0) {
+                dropDown.currentIndex = index;
+            }
         }
     }
 

@@ -18,9 +18,9 @@ struct Paging {
 };
 
 struct Pagination {
-    int count;
-    int limit;
-    int page;
+    int count = 0;
+    int limit = 0;
+    int page = 0;
 };
 
 struct Profile {
@@ -44,7 +44,7 @@ struct Page {
     QString         profileId;
     QString         image;
     QList<PageItem> items;
-    int             pos;
+    int             pos = 0;
 };
 
 struct EntityFilter {
@@ -70,7 +70,9 @@ struct Entity {
     bool        featuresProvided = false;
     QString     area;
     QString     deviceClass;
-    bool        enabled;
+    // TODO(zehnm): the enabled flag of an entity is not used yet, see Base::Base(). What it means for an entity that is
+    // still delivered to the UI has to be checked in the core first.
+    bool        enabled = true;
     QVariantMap options;
     QVariantMap attributes;
 };
@@ -96,14 +98,13 @@ struct ConfirmationPage {
 };
 
 struct Integration {
-    QString            id;
-    QString            driverId;
-    QString            deviceId;
-    QVariantMap        name;
-    QString            icon;
-    bool               enabled;
-    QVariantMap        setupData;
-    DeviceStates::Enum deviceState;
+    QString     id;
+    QString     driverId;
+    QString     deviceId;
+    QVariantMap name;
+    QString     icon;
+    bool        enabled = false;
+    QVariantMap setupData;
 };
 
 struct DriverDeveloper {
@@ -119,18 +120,18 @@ struct IntegrationDriver {
     QString                        version;
     QString                        min_core_api;
     QString                        icon;
-    bool                           enabled;
+    bool                           enabled = false;
     QString                        description;
     DriverDeveloper                developer;
     QString                        homePage;
-    bool                           deviceDiscovery;
+    bool                           deviceDiscovery = false;
     SettingsPage                   settingsPage;
     QString                        releaseDate;
-    IntegrationDriverEnums::States state;
+    IntegrationDriverEnums::States state = {};
 
-    bool external;
-    bool configured;
-    int  instanceCount;
+    bool external = false;
+    bool configured = false;
+    int  instanceCount = 0;
 };
 
 struct IntegrationStatus {
@@ -139,16 +140,16 @@ struct IntegrationStatus {
     QString icon;
     QString deviceState;
     QString driverState;
-    bool    enabled;
+    bool    enabled = false;
 };
 
 struct IntegrationSetupInfo {
     QString                      id;
-    IntegrationEnums::SetupState state;
-    IntegrationEnums::SetupError error;
+    IntegrationEnums::SetupState state = {};
+    IntegrationEnums::SetupError error = {};
     // optional driver provided error description, language text map
     QVariantMap errorMessage;
-    bool        requireUserAction;
+    bool        requireUserAction = false;
     // raw require_user_action object: an event repeating the current page (e.g. a battery change) carries the
     // same object as the event which introduced the page
     QVariantMap      userAction;
@@ -164,13 +165,13 @@ struct IntegrationSetupInfo {
 };
 
 struct cfgButton {
-    int  brightness;
-    bool autoBrightness;
+    int  brightness = 0;
+    bool autoBrightness = false;
 };
 
 struct cfgDisplay {
-    int  brightness;
-    bool autoBrightness;
+    int  brightness = 0;
+    bool autoBrightness = false;
 };
 
 struct cfgDevice {
@@ -178,49 +179,49 @@ struct cfgDevice {
 };
 
 struct cfgHaptic {
-    bool enabled;
+    bool enabled = false;
 };
 
 struct cfgLocalization {
     QString languageCode;
     QString countryCode;
     QString timezone;
-    bool    timeFormat24h;
+    bool    timeFormat24h = false;
     QString measurementUnit;
 };
 
 struct cfgWifi {
-    bool wowlan;
+    bool wowlan = false;
     QStringList bands;
     QString band;
     QString ipv4Type;
-    int scanIntervalSec;
+    int scanIntervalSec = 0;
 };
 
 struct cfgNetwork {
-    bool    bluetoothEnabled;
-    bool    wifiEnabled;
+    bool    bluetoothEnabled = false;
+    bool    wifiEnabled = false;
     QString bluetoothMac;
     cfgWifi wifi;
 };
 
 struct cfgPowerSaving {
-    int wakeupSensitivity;
-    int displayOffSec;
-    int standbySec;
+    int wakeupSensitivity = 0;
+    int displayOffSec = 0;
+    int standbySec = 0;
 };
 
 struct cfgSoftwareUpdate {
-    bool                       checkForUpdates;
-    bool                       autoUpdate;
+    bool                       checkForUpdates = false;
+    bool                       autoUpdate = false;
     QString                    otaWindowStart;
     QString                    otaWindowEnd;
-    UpdateEnums::UpdateChannel channel;
+    UpdateEnums::UpdateChannel channel = {};
 };
 
 struct cfgSound {
-    bool enabled;
-    int  volume;
+    bool enabled = false;
+    int  volume = 0;
 };
 
 struct VoiceAssistantProfile {
@@ -243,11 +244,11 @@ struct VoiceAssistant {
 struct cfgVoiceAssistant {
     VoiceAssistant      active;
     QString             profile_id;
-    bool                speechResponse;
+    bool                speechResponse = false;
 };
 
 struct cfgVoiceControl {
-    bool                microphoneEnabled;
+    bool                microphoneEnabled = false;
     cfgVoiceAssistant   voiceAsssistant;
 };
 
@@ -265,62 +266,62 @@ struct Config {
 };
 
 struct ApiAccess {
-    bool      enabled;
+    bool      enabled = false;
     QDateTime validTo;
 };
 
 struct AccessPointScan {
     QString                 bssid;
-    int                     frequency;
-    int                     signalLevel;
+    int                     frequency = 0;
+    int                     signalLevel = 0;
     QString                 auth;
-    WifiEnums::WifiSecurity security;
+    WifiEnums::WifiSecurity security = {};
     QString                 ssid;
     QString                 ssidHex;
 };
 
 struct SavedNetwork {
-    int                     id;
+    int                     id = 0;
     QString                 ssid;
     QString                 ssidHex;
-    WifiEnums::NetworkState state;
-    bool                    secured;
-    WifiEnums::WifiSecurity security;
-    int                     signalLevel;
+    WifiEnums::NetworkState state = {};
+    bool                    secured = false;
+    WifiEnums::WifiSecurity security = {};
+    int                     signalLevel = 0;
 };
 
 struct WifiStatus {
-    WifiEnums::WpaState wpaState;
-    int                 id;
+    WifiEnums::WpaState wpaState = {};
+    int                 id = 0;
     QString             bssid;
     QString             ssid;
     QString             ssidHex;
-    int                 freq;
+    int                 freq = 0;
     QString             address;
     QString             pairwiseCipher;
     QString             groupCipher;
     QString             keyManagement;
     QString             ipAddress;
-    int                 noise;
-    int                 rssi;
-    int                 averageRssi;
-    int                 estimatedThroughput;
-    int                 snr;
-    int                 linkSpeed;
+    int                 noise = 0;
+    int                 rssi = 0;
+    int                 averageRssi = 0;
+    int                 estimatedThroughput = 0;
+    int                 snr = 0;
+    int                 linkSpeed = 0;
 };
 
 struct DockConfiguration {
     QString              id;
     QString              name;
     QString              customWsUrl;
-    bool                 active;
+    bool                 active = false;
     QString              model;
     QString              revision;
     QString              serial;
     QString              connectionType;
     QString              version;
-    DockEnums::DockState state;
-    bool                 learningActive;
+    DockEnums::DockState state = {};
+    bool                 learningActive = false;
     QString              description;
     int                  ledBrightness = -1;
     int                  ethLedBrightness = -1;
@@ -330,14 +331,14 @@ struct DockDiscovery {
     QString                           id;
     QString                           friendlyName;
     QString                           address;
-    bool                              configured;
+    bool                              configured = false;
     QString                           model;
     QString                           revision;
     QString                           serial;
     QString                           version;
-    DockSetupEnums::DockDiscoveryType discoveryType;
-    int                               bluetoothSignal;
-    int                               bluetoothLastSeenSeconds;
+    DockSetupEnums::DockDiscoveryType discoveryType = {};
+    int                               bluetoothSignal = 0;
+    int                               bluetoothLastSeenSeconds = 0;
 };
 
 struct AvailableSystemUpdate {
@@ -345,28 +346,28 @@ struct AvailableSystemUpdate {
     QString                    title;
     QVariantMap                description;
     QString                    version;
-    UpdateEnums::UpdateChannel channel;
+    UpdateEnums::UpdateChannel channel = {};
     QDateTime                  releaseDate;
-    int                        size;
-    UpdateEnums::DownloadState downloadState;
+    int                        size = 0;
+    UpdateEnums::DownloadState downloadState = {};
 };
 
 struct SystemUpdate {
-    bool                         updateInProgress;
+    bool                         updateInProgress = false;
     QDateTime                    lastCheckDate;
-    bool                         updateCheckEnabled;
+    bool                         updateCheckEnabled = false;
     QString                      installedVersion;
     QList<AvailableSystemUpdate> available;
 };
 
 struct SystemUpdateProgress {
-    UpdateEnums::UpdateProgressType state;
+    UpdateEnums::UpdateProgressType state = {};
     QString                         udpateId;
-    int                             downloadPercent;
-    int                             downloadBytes;
-    int                             totalSteps;
-    int                             currentStep;
-    int                             currentPercent;
+    int                             downloadPercent = 0;
+    int                             downloadBytes = 0;
+    int                             totalSteps = 0;
+    int                             currentStep = 0;
+    int                             currentPercent = 0;
 };
 
 struct BrowseMediaItem {

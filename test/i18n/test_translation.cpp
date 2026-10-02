@@ -25,6 +25,9 @@ class testI18n : public QObject {
     void getTimeZoneInfosSingleZoneCountry();
     void getTimeZoneInfosMultiZoneCountry();
     void getAllTimeZoneInfos();
+
+    void getNativeLanguageName_data();
+    void getNativeLanguageName();
 };
 
 // regression test: the timezone list used to be widened to every world zone sharing the
@@ -144,6 +147,32 @@ void testI18n::getTimeZoneInfosMultiZoneCountry() {
         }
     }
     QVERIFY(foundNewYork);
+}
+
+void testI18n::getNativeLanguageName_data() {
+    QTest::addColumn<QString>("code");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("german") << "de_DE" << "Deutsch";
+    QTest::newRow("swiss german") << "de_CH" << "Schwitzertüütsch";
+    // the language is empty until the first configuration arrived, and a newer core may send a code this
+    // Qt does not know: QLocale has no native name for either, which used to be indexed anyway
+    QTest::newRow("empty") << "" << "";
+    QTest::newRow("unknown") << "xx_YY" << "";
+}
+
+void testI18n::getNativeLanguageName() {
+    QFETCH(QString, code);
+    QFETCH(QString, expected);
+
+    // QLocale falls back to the C locale for a code it does not know, whose native name is empty; the "empty"
+    // and "unknown" rows only need to not read past the end of an empty string
+    const QString name = Translation::getNativeLanguageName(code);
+    if (expected.isEmpty()) {
+        QVERIFY2(name.isEmpty() || name == QStringLiteral("American English"), qPrintable(name));
+    } else {
+        QCOMPARE(name, expected);
+    }
 }
 
 void testI18n::getAllTimeZoneInfos() {

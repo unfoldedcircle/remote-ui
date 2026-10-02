@@ -31,6 +31,7 @@ class TestEntities : public uc::ui::Entities {
 
     using uc::ui::Entities::isStaleResponse;
     using uc::ui::Entities::setActiveRequest;
+    using uc::ui::Entities::add;
 
  protected:
     void loadFromCore(int limit, int page) override {
@@ -56,7 +57,18 @@ class testEntitiesStaleResponse : public QObject {
     void acceptedResponseSettlesTheRequest();
     void requestThatWasNotSentDropsThePendingAnswer();
     void consecutiveRequestsAreAllAccepted();
+
+    void allSelected_followsTheRows();
+
+ private:
+    static uc::ui::entity::Base* makeRow(const QString& entityId, QObject* parent);
 };
+
+uc::ui::entity::Base* testEntitiesStaleResponse::makeRow(const QString& entityId, QObject* parent) {
+    return new uc::ui::entity::Base(entityId, QVariantMap({{QStringLiteral("en"), entityId}}), QStringLiteral("en"),
+                                    QString(), QString(), uc::ui::entity::Base::Type::Light, true, QVariantMap(),
+                                    QString(), false, parent);
+}
 
 void testEntitiesStaleResponse::answerOfTheNewestRequestIsAccepted() {
     TestEntities entities;
@@ -108,6 +120,46 @@ void testEntitiesStaleResponse::consecutiveRequestsAreAllAccepted() {
 
     entities.setActiveRequest(6);
     QVERIFY(!entities.isStaleResponse(6));
+}
+
+/**
+ * "Select all" / "Clear" in the entity list footer follows the allSelected property. It used to be a flag set by
+ * the last button press: after "Select all", a search or filter replaced the rows with unselected ones and the
+ * button still said "Clear", and the next page appended unselected rows while the list claimed all selected.
+ */
+void testEntitiesStaleResponse::allSelected_followsTheRows() {
+    TestEntities entities;
+    QSignalSpy   allSelectedChanged(&entities, &uc::ui::Entities::allSelectedChanged);
+
+    QVERIFY(!entities.getAllSelected());
+
+    entities.add(makeRow(QStringLiteral("light.a"), &entities));
+    entities.add(makeRow(QStringLiteral("light.b"), &entities));
+    QVERIFY(!entities.getAllSelected());
+
+    entities.selectAll();
+    QVERIFY(entities.getAllSelected());
+    QCOMPARE(allSelectedChanged.count(), 1);
+
+    // the next page appends rows that are not selected
+    entities.add(makeRow(QStringLiteral("light.c"), &entities));
+    QVERIFY(!entities.getAllSelected());
+    QCOMPARE(allSelectedChanged.count(), 2);
+
+    // selecting the last one by hand completes the selection
+    entities.setSelected(QStringLiteral("light.c"), true);
+    QVERIFY(entities.getAllSelected());
+
+    // and deselecting one breaks it
+    entities.setSelected(QStringLiteral("light.a"), false);
+    QVERIFY(!entities.getAllSelected());
+
+    entities.selectAll();
+    QVERIFY(entities.getAllSelected());
+
+    // a search or a filter replaces the rows
+    entities.clear();
+    QVERIFY(!entities.getAllSelected());
 }
 
 QTEST_GUILESS_MAIN(testEntitiesStaleResponse)

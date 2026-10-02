@@ -125,6 +125,14 @@ provenance, which is what CI runs.
    choosing the closest icon the Free font can draw (`tools/icon-font.py check-mapping` tells you when a used
    Pro-only name has no fallback). Users of the device never see the fallback; builds from the public sources do.
 
+The fallback is looked up by the name as it is stored, not by the icon it shows: an override name (`switch` for
+`light-switch`, `integration` for `puzzle`) needs its own entry, even when its target has one.
+
+Icons the core sends are not in the UI sources, so `check-mapping` cannot see them: the default icon of every entity
+type, the media browser thumbnails (`icon://uc:...`), the button pages of IR remotes and Bluetooth peripherals, the
+default integration icon and the default activity group. `testIconFont` keeps their list (taken from remote-core) and
+fails when one of them would be drawn as the placeholder by the Free font; extend it when the core adds a default.
+
 ## Rebuilding the font and the mapping
 
 Both editions and the mapping are produced by the same tools; nothing has to be run for a normal build.

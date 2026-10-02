@@ -37,7 +37,9 @@ Config::Config(core::Api* core, QObject* parent) : QObject(parent), m_core(core)
 
 Config::~Config() {
     s_instance = nullptr;
-    m_settings->deleteLater();
+    // The destructor runs after the event loop has ended, deleteLater() would never delete it. Deleting the
+    // settings object writes the values that were changed last.
+    delete m_settings;
 }
 
 void Config::setCurrentProfileId(const QString& profileId) {
@@ -1001,6 +1003,11 @@ void Config::onDisplayCfgChanged(core::cfgDisplay cfgDisplay) {
 }
 
 void Config::onDeviceCfgChanged(core::cfgDevice cfgDevice) {
+    // deviceNameChanged(true) also tells the onboarding that the name it sent was accepted: a configuration that
+    // is merely loaded again, e.g. after a reconnect, must not look like that
+    if (m_deviceName == cfgDevice.name) {
+        return;
+    }
     m_deviceName = cfgDevice.name;
     emit deviceNameChanged(true);
 }

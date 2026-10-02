@@ -156,6 +156,7 @@ void GroupController::onGroupAdded(QString profileId, core::Group group) {
     m_groups.insert(group.id, obj);
 
     qCDebug(lcGroupController()) << "Group added" << group.id;
+    emit groupItemsChanged();
 }
 
 void GroupController::onGroupChanged(QString profileId, core::Group group) {
@@ -181,6 +182,7 @@ void GroupController::onGroupChanged(QString profileId, core::Group group) {
 
     groupObj->clearEntities();
     groupObj->addEntities(group.entities);
+    emit groupItemsChanged();
 }
 
 void GroupController::onGroupDeleted(QString profileId, QString groupId) {
@@ -195,8 +197,15 @@ void GroupController::onGroupDeleted(QString profileId, QString groupId) {
 }
 
 void GroupController::onEntityDeleted(QString entityId) {
+    bool removed = false;
     for (QHash<QString, Group *>::iterator i = m_groups.begin(); i != m_groups.end(); ++i) {
-        i.value()->removeEntity(entityId);
+        if (i.value()->m_items->contains(entityId)) {
+            i.value()->removeEntity(entityId);
+            removed = true;
+        }
+    }
+    if (removed) {
+        emit groupItemsChanged();
     }
 }
 

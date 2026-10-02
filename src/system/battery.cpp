@@ -17,7 +17,9 @@ Battery::Battery(core::Api *core, QObject *parent) : QObject(parent), m_core(cor
 
     QObject::connect(m_core, &core::Api::batteryStatusChanged, this, &Battery::onBatteryStatusChanged);
     QObject::connect(m_core, &core::Api::warning, this, &Battery::onWarning);
-    QObject::connect(m_core, &core::Api::connected, this, [=] { getPowerMode(); });
+    // Power asks for the power mode after every connect; the answer carries the battery state as well, so it is
+    // read from there instead of asking a second time
+    QObject::connect(m_core, &core::Api::respPowerMode, this, &Battery::onPowerModeResponse);
 }
 
 Battery::~Battery() {
@@ -52,23 +54,16 @@ void Battery::setPowerSupply(bool value)
     }
 }
 
-void Battery::getPowerMode() {
-    int id = m_core->getPowerMode();
-
-    m_core->onResponseWithErrorResult(
-        id, &core::Api::respPowerMode,
-        [=](core::PowerEnums::PowerMode powerMode, int capacitiy, bool powerSupply, core::PowerEnums::PowerStatus powerStatus) {
-            // success
-            Q_UNUSED(powerMode)
-            setLevel(capacitiy);
-            setCharging(powerStatus == core::PowerEnums::PowerStatus::CHARGING);
-            setPowerSupply(powerSupply);
-        },
-        [=](int code, QString message) {
-            // fail
-            Q_UNUSED(code);
-            qCWarning(lcHwBattery()) << "Error getting power mode" << code << message;
-        });
+void Battery::onPowerModeResponse(int reqId, int code, core::PowerEnums::PowerMode powerMode, int capacity,
+                                  bool powerSupply, core::PowerEnums::PowerStatus powerStatus) {
+    Q_UNUSED(reqId)
+    Q_UNUSED(powerMode)
+    if (code != 200) {
+        return;
+    }
+    setLevel(capacity);
+    setCharging(powerStatus == core::PowerEnums::PowerStatus::CHARGING);
+    setPowerSupply(powerSupply);
 }
 
 QObject *Battery::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {

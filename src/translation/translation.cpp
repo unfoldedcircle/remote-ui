@@ -28,25 +28,33 @@ Translation::Translation(QQmlEngine* engine, core::Api* core, QObject* parent)
 Translation::~Translation() {}
 
 void Translation::loadTranslation(const QString& countryCode) {
-    // removeTranslator() only fails if the translator isn't installed, which is the case before the first load
-    qGuiApp->removeTranslator(m_translator);
-
     if (countryCode == "en_US") {
+        // removeTranslator() only fails if the translator isn't installed, which is the case before the first load
+        qGuiApp->removeTranslator(m_translator);
         m_engine->retranslate();
         return;
     }
 
-    if (!m_translator->load(":/translations/" + countryCode)) {
+    // The new translation is loaded into a translator of its own: a failed load empties a translator, and the
+    // one installed keeps translating until the new one is ready.
+    QTranslator* translator = new QTranslator(this);
+    if (!translator->load(":/translations/" + countryCode)) {
         qCWarning(lcI18n()) << "Couldn't load translation:" << countryCode << getLanguageName(countryCode);
+        delete translator;
         return;
     }
 
-    if (qGuiApp->installTranslator(m_translator)) {
+    qGuiApp->removeTranslator(m_translator);
+    if (qGuiApp->installTranslator(translator)) {
         qCDebug(lcI18n()) << "Installed translation:" << countryCode << getLanguageName(countryCode);
+        delete m_translator;
+        m_translator = translator;
         m_engine->retranslate();
         m_CountryCode = countryCode;
     } else {
         qCWarning(lcI18n()) << "Failed to install translation";
+        delete translator;
+        qGuiApp->installTranslator(m_translator);
     }
 }
 
@@ -78,7 +86,10 @@ QString Translation::getNativeLanguageName(const QString& countryCode) {
 
     QLocale locale = QLocale(countryCode);
     QString name = locale.nativeLanguageName();
-    name.replace(0, 1, name.at(0).toUpper());
+    // empty for a code QLocale does not know, e.g. before the first configuration arrived
+    if (!name.isEmpty()) {
+        name.replace(0, 1, name.at(0).toUpper());
+    }
     return name;
 }
 

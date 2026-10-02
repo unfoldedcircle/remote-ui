@@ -80,6 +80,8 @@ Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &languag
     }
 
     updateTemperaturUnitValues();
+    // the attributes were applied above with the default unit label: the unit is only known now
+    updateCurrentTemperatureInfo();
 
     if (options.contains("fan_modes")) {
         m_fanModes = options.value("fan_modes").toStringList();
@@ -88,6 +90,19 @@ Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &languag
 
 Climate::~Climate() {
     qCDebug(lcClimate()) << "Climate entity destructor";
+}
+
+void Climate::updateCurrentTemperatureInfo() {
+    // only a device that measures the temperature has a temperature part, "--" while it has not reported one
+    QString info;
+    if (hasFeature(ClimateFeatures::Current_temperature) || m_currentTemperatureAvailable) {
+        info = m_currentTemperatureAvailable ? QString::number(m_currentTemperature) + m_temperatureLabel
+                                             : QStringLiteral("--");
+    }
+    if (m_stateInfo2 != info) {
+        m_stateInfo2 = info;
+        emit stateInfoChanged();
+    }
 }
 
 void Climate::updateTemperaturUnitValues() {
@@ -200,13 +215,28 @@ void Climate::fanMode(int mode) {
 }
 
 int Climate::getModelIndexFromTemperature(float temperature) {
+    // The nearest entry of the temperature list. A target that is not on the step grid (21.3 with a 0.5 step), or
+    // outside the range, used to give -1: the climate screen then indexed the list with -1 and the next key press
+    // sent NaN, or the highest temperature of the list. -1 is only left for an empty list.
+    int   nearest = -1;
+    float nearestDistance = 0;
+
     for (int i = 0; i < m_model.length(); i++) {
-        if (Util::FloatCompare(m_model[i].toFloat(), temperature)) {
+        const float distance = qAbs(m_model[i].toFloat() - temperature);
+        if (Util::FloatCompare(distance, 0)) {
             return i;
+        }
+        if (nearest < 0 || distance < nearestDistance) {
+            nearest = i;
+            nearestDistance = distance;
         }
     }
 
-    return -1;
+    if (nearest >= 0) {
+        qCDebug(lcClimate()) << "Target temperature" << temperature << "is not in the list of entity" << m_id
+                             << ", nearest:" << m_model[nearest];
+    }
+    return nearest;
 }
 
 void Climate::sendCommand(ClimateCommands::Enum cmd, QVariantMap params) {
@@ -241,15 +271,27 @@ bool Climate::updateAttribute(const QString &attribute, QVariant data) {
             break;
         }
         case ClimateAttributes::Current_temperature: {
-            float newTemp = data.toFloat();
+            bool  numeric = false;
+            float newTemp = data.toFloat(&numeric);
 
-            if (!Util::FloatCompare(newTemp, m_currentTemperature)) {
+            if (!numeric) {
+                // null or no number: the device has no temperature to report right now
+                if (m_currentTemperatureAvailable) {
+                    m_currentTemperatureAvailable = false;
+                    ok = true;
+                    emit currentTemperatureChanged();
+                    updateCurrentTemperatureInfo();
+                }
+                break;
+            }
+
+            // the first value is shown whatever it is, 0 included
+            if (!m_currentTemperatureAvailable || !Util::FloatCompare(newTemp, m_currentTemperature)) {
                 m_currentTemperature = newTemp;
+                m_currentTemperatureAvailable = true;
                 ok = true;
                 emit currentTemperatureChanged();
-
-                m_stateInfo2 = QString::number(m_currentTemperature) + m_temperatureLabel;
-                emit stateInfoChanged();
+                updateCurrentTemperatureInfo();
             }
             break;
         }
@@ -325,6 +367,7 @@ void Climate::onUnitSystemChanged(Config::UnitSystems unitSystem) {
                          << unit;
 
     updateTemperaturUnitValues();
+    updateCurrentTemperatureInfo();
 
     emit targetTemperatureLowChanged();
     emit targetTemperatureHighChanged();

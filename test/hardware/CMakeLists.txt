@@ -64,3 +64,31 @@ target_link_libraries(testBattery
     Qt5::WebSockets
     Qt5::Test
     )
+
+add_executable (testWifi
+    "test_wifi.cpp"
+    "../../src/system/wifi.cpp"
+    "../../src/core/core.cpp"
+    # header only: contains the Q_GADGET enums moc has to process
+    "../../src/core/enums.h"
+    "../../src/ui/notification.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+# the core response handler templates use generic lambdas
+set_property(TARGET testWifi PROPERTY CXX_STANDARD 17)
+set_property(TARGET testWifi PROPERTY CXX_STANDARD_REQUIRED ON)
+
+add_test(NAME testWifi
+         COMMAND testWifi)
+
+target_link_libraries(testWifi
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::WebSockets
+    Qt5::Test
+    )

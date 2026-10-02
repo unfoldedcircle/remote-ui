@@ -294,7 +294,9 @@ EntityComponents.BaseDetail {
             Text {
                 visible: entityObj.hasFeature(ClimateFeatures.Current_temperature)
                 //: Current temperature
-                text: qsTr("Current %1").arg(entityObj.currentTemperature.toLocaleString(Qt.locale(), 'f', entityObj.targetTemperatureStep === 1 ? 0 : 1) + entityObj.temperatureLabel)
+                text: qsTr("Current %1").arg(entityObj.currentTemperatureAvailable
+                                             ? entityObj.currentTemperature.toLocaleString(Qt.locale(), 'f', entityObj.targetTemperatureStep === 1 ? 0 : 1) + entityObj.temperatureLabel
+                                             : "--")
                 color: colors.light
                 opacity: temperatureTumbler.moving ? 0 : 1
                 font: fonts.secondaryFont(26)
@@ -412,7 +414,10 @@ EntityComponents.BaseDetail {
             Text {
                 id: selectedTemperature
                 text: entityObj.model[index].toLocaleString(Qt.locale(), 'f', entityObj.targetTemperatureStep === 1 ? 0 : 1)
-                color: entityObj.currentTemperature > entityObj.targetTemperature && isCurrentItem ? colors.blue : ( (entityObj.currentTemperature === entityObj.targetTemperature && isCurrentItem) || !isCurrentItem ? colors.offwhite : colors.red )
+                // blue when the room is warmer than the target, red when colder; neutral without a current temperature
+                color: !isCurrentItem || !entityObj.currentTemperatureAvailable ? colors.offwhite
+                       : entityObj.currentTemperature > entityObj.targetTemperature ? colors.blue
+                       : entityObj.currentTemperature === entityObj.targetTemperature ? colors.offwhite : colors.red
                 opacity: isCurrentItem ? 1 : 0.5
                 horizontalAlignment: Text.AlignHCenter
                 font: isCurrentItem ? fonts.primaryFont(160, "Light") : fonts.primaryFont(120, "ExtraLight")

@@ -162,7 +162,8 @@ Rectangle {
         icon: "uc:link-slash"
         anchors { right: iconClose.left; verticalCenter: iconClose.verticalCenter }
         size: 40
-        visible: integrationObj.state != "connected" && integrationObj.state != ""
+        // the integration objects are dropped and loaded again after a reconnect: null in between
+        visible: integrationObj ? integrationObj.state != "connected" && integrationObj.state != "" : false
         z: 1001
     }
 

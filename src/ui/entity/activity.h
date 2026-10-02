@@ -13,7 +13,9 @@ namespace entity {
 class ActivityFeatures : public QObject {
     Q_GADGET
  public:
-    enum Enum { Send, On_off };
+    // Core-API ActivityFeature: on_off when the activity has an off sequence, otherwise only start; the core
+    // sends stop as well
+    enum Enum { On_off, Start, Stop };
     Q_ENUM(Enum)
 };
 

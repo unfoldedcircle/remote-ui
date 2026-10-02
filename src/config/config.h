@@ -405,39 +405,41 @@ class Config : public QObject {
 
     QString m_deviceName;
 
-    bool m_hapticEnabled;
+    // The values below are what the UI shows and compares against until the first configuration response of the
+    // core arrives, which replaces all of them.
+    bool m_hapticEnabled = false;
 
-    bool    m_micEnabled;
+    bool    m_micEnabled = false;
     QString m_voiceAssistantId;
     QString m_voiceAssistantProfileId;
-    bool    m_voiceAssistantSpeechResponse;
+    bool    m_voiceAssistantSpeechResponse = false;
 
-    bool m_soundEnabled;
-    int  m_soundVolume;
+    bool m_soundEnabled = false;
+    int  m_soundVolume = 0;
 
-    bool m_displayAutoBrightness;
-    int  m_displayBrightness;
+    bool m_displayAutoBrightness = false;
+    int  m_displayBrightness = 50;
 
-    bool m_buttonAutoBrightness;
-    int  m_buttonBrightness;
+    bool m_buttonAutoBrightness = false;
+    int  m_buttonBrightness = 50;
 
-    WakeupSensitivities m_wakeupSensitivity;
-    int                 m_sleepTimeout;
-    int                 m_displayTimeout;
+    WakeupSensitivities m_wakeupSensitivity = high;
+    int                 m_sleepTimeout = 60;
+    int                 m_displayTimeout = 30;
 
-    bool    m_autoUpdate;
-    bool    m_checkForUpdates;
+    bool    m_autoUpdate = false;
+    bool    m_checkForUpdates = false;
     QString m_otaWindowStart;
     QString m_otaWindowEnd;
     QString m_updateChannel = "DEFAULT";
 
-    bool m_bluetoothEnabled;
-    bool m_wifiEnabled;
-    bool m_wowlanEnabled;
+    bool m_bluetoothEnabled = false;
+    bool m_wifiEnabled = true;
+    bool m_wowlanEnabled = false;
 
     QStringList m_bands;
     QString     m_band;
-    int         m_scanIntervalSec;
+    int         m_scanIntervalSec = 0;
 
     QString m_bluetoothMac;
 

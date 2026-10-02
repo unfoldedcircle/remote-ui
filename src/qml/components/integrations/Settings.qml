@@ -111,6 +111,7 @@ Item {
                                                                   labelId: item.id,
                                                                   labelText: item.label,
                                                                   value: item.value,
+                                                                  initialValue: item.value,
                                                                   model: item.model
                                                               });
                                  inputObjects.push(obj);

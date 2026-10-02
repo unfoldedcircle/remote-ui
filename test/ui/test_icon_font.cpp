@@ -3,6 +3,10 @@
 
 #include <QFile>
 #include <QFontDatabase>
+#include <QFontMetrics>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QRawFont>
 #include <QTemporaryDir>
 #include <QtTest>
 
@@ -30,8 +34,11 @@ class testIconFont : public QObject {
     void unknownIconReturnsEmpty();
     void iconMissingFromTheFontUsesItsFallback();
     void iconMissingFromTheFontWithoutFallbackUsesThePlaceholder();
+    void iconMissingFromTheFontIsNotTakenFromAnotherFont();
     void iconListOnlyOffersIconsTheFontCanDraw();
     void withoutAFontEveryMappedIconIsReturned();
+    void defaultIconOfTheCoreIsDrawable_data();
+    void defaultIconOfTheCoreIsDrawable();
 
     void embeddedFontIsUsedWithoutAnOverride();
     void embeddedFontIsUsedWhenTheOverrideIsMissing();
@@ -117,6 +124,36 @@ void testIconFont::iconMissingFromTheFontWithoutFallbackUsesThePlaceholder() {
     QCOMPARE(resources->getIcon("uc:" + m_proOnlyIcon), resources->getIcon("uc:" + m_placeholder));
 }
 
+void testIconFont::iconMissingFromTheFontIsNotTakenFromAnotherFont() {
+    // Qt draws a code point the icon font lacks with any installed font that has it (OpenSymbol and DejaVu have
+    // glyphs at Font Awesome code points). Such an icon is missing all the same: it gets its fallback or the
+    // placeholder, never the other font's unrelated glyph. Find one on this system: QFontMetrics answers for the
+    // fallback fonts too, the font file only for itself.
+    QFile mappingFile(":icon-mapping.json");
+    QVERIFY(mappingFile.open(QIODevice::ReadOnly));
+    const QJsonObject mapping = QJsonDocument::fromJson(mappingFile.readAll()).object();
+
+    const QRawFont     iconFont(QStringLiteral(":icon-font.ttf"), 16);
+    const QFontMetrics withFallbacks{QFont(m_family)};
+    QString            name;
+
+    for (auto i = mapping.constBegin(); i != mapping.constEnd() && name.isEmpty(); ++i) {
+        const uint codePoint = i.value().toString().toUcs4().value(0);
+        if (!iconFont.supportsCharacter(codePoint) && withFallbacks.inFontUcs4(codePoint)) {
+            name = i.key();
+        }
+    }
+    if (name.isEmpty()) {
+        QSKIP("no font on this system has a glyph at a code point the icon font lacks");
+    }
+
+    QScopedPointer<uc::ui::Resources> resources(createResources());
+    resources->setIconFont(m_family);
+
+    QVERIFY2(resources->getIcon("uc:" + name) != mapping.value(name).toString(), qPrintable(name));
+    QVERIFY2(!resources->getIconList().contains("uc:" + name), qPrintable(name));
+}
+
 void testIconFont::iconListOnlyOffersIconsTheFontCanDraw() {
     QScopedPointer<uc::ui::Resources> resources(createResources());
     resources->setIconFont(m_family);
@@ -137,6 +174,51 @@ void testIconFont::withoutAFontEveryMappedIconIsReturned() {
 
     QVERIFY(!resources->getIcon("uc:" + m_proOnlyIcon).isEmpty());
     QVERIFY(resources->getIconList().contains("uc:" + m_proOnlyIcon));
+}
+
+void testIconFont::defaultIconOfTheCoreIsDrawable_data() {
+    QTest::addColumn<QString>("name");
+
+    // The icons remote-core assigns on its own, which the UI shows without naming them in its sources, so
+    // `tools/icon-font.py check-mapping` cannot see them. Extend the list when the core adds a default.
+    const QList<QPair<const char*, QStringList>> defaults = {
+        // default icon per entity type (crates/core/src/entity/mod.rs, default_icon())
+        {"entity",
+         {"activity", "blind", "button", "button-brightness", "climate", "light", "list-dropdown", "macro",
+          "mediaplayer", "microphone", "remote", "sensor", "switch"}},
+        // media browser thumbnails without an image, sent as icon://uc:... (actors/entity/entity_actor.rs)
+        {"media",
+         {"browser", "compact-disc", "file-music", "film", "folder", "gamepad", "globe-wifi", "image", "list-music",
+          "masks-theater", "music", "photo-film", "podcast", "radio", "tv-retro", "user-music", "video"}},
+        // button pages of IR remotes (actors/ir/remote/ui/mapping.rs)
+        {"ir",
+         {"bw", "ff", "next", "pause", "play", "play-pause", "playlist", "prev", "rec", "repeat", "shuffle", "stop"}},
+        // button pages of Bluetooth peripherals (resources/bt/peripherals)
+        {"bt",
+         {"back", "bw", "ff", "home", "menu", "next", "pause", "play", "play-pause", "prev", "rec", "stop", "system",
+          "tv"}},
+        // integration without an icon, IR codeset remote, the default activity group (migrations)
+        {"other", {"integration", "remote", "popcorn"}},
+    };
+
+    for (const auto& group : defaults) {
+        for (const QString& name : group.second) {
+            QTest::addRow("%s: %s", group.first, qPrintable(name)) << name;
+        }
+    }
+}
+
+void testIconFont::defaultIconOfTheCoreIsDrawable() {
+    QFETCH(QString, name);
+
+    QScopedPointer<uc::ui::Resources> resources(createResources());
+    resources->setIconFont(m_family);
+
+    const QString glyph = resources->getIcon("uc:" + name);
+
+    QVERIFY2(!glyph.isEmpty(), "not in the icon mapping");
+    QVERIFY2(glyph != resources->getIcon("uc:" + m_placeholder),
+             "drawn as the placeholder: add a fallback to resources/icons/icon-fallback.json");
 }
 
 void testIconFont::embeddedFontIsUsedWithoutAnOverride() {

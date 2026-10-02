@@ -116,9 +116,9 @@ class Controller : public QObject {
     Q_INVOKABLE int  switchProfile(const QString& profileId, const QString& pin = "");
 
     Q_INVOKABLE int addProfile(const QString& name, bool restricted = false);
-    Q_INVOKABLE int renameProfile(const QString& profileId, const QString& name, int pin = -1);
-    Q_INVOKABLE int changeProfileIcon(const QString& profileId, const QString& icon, int pin = -1);
-    Q_INVOKABLE int deleteProfile(const QString& profileId, int pin = -1);
+    Q_INVOKABLE int renameProfile(const QString& profileId, const QString& name);
+    Q_INVOKABLE int changeProfileIcon(const QString& profileId, const QString& icon);
+    Q_INVOKABLE int deleteProfile(const QString& profileId);
 
     Q_INVOKABLE int addPage(const QString& name);
     Q_INVOKABLE int renamePage(const QString& pageId, const QString& name);
@@ -156,10 +156,10 @@ class Controller : public QObject {
     void syncWithCore();
 
     void loadProfile(const QString& profileId);
-    int  updateProfile(const QString& profileId, const QString& name, const QString& icon = "-1", int pin = -1,
+    int  updateProfile(const QString& profileId, const QString& name, const QString& icon = "-1",
                        const QStringList& pages = QStringList({"-1"}));
 
-    void loadPages(const QString& profileId, int pin = -1);
+    void loadPages(const QString& profileId);
     int  updatePage(const QString& pageId, const QString& name, const QString& image, int pos = -1,
                     const QVariantList& items = QVariantList());
 
@@ -213,6 +213,9 @@ class Controller : public QObject {
     void onActivityAdded(QString entityId);
     void onActivityRemoved(QString entityId);
 
+    // the activity bar of every page: the running activities and playing media players on the page or in its groups
+    void updatePageActivities();
+
  private:
     QQmlApplicationEngine* m_engine;
     Config*                m_config;
@@ -252,8 +255,6 @@ class Controller : public QObject {
         return tr("The factory reset could not be started. Please try again.");
     }
 
-    void onActivity(QString entityId, bool remove = false);
-
  private:
     /**
      * @brief get a QML object, you need to have objectName property of the QML object set to be able to use this
@@ -275,7 +276,7 @@ class Controller : public QObject {
     Notification          m_notification;
     EntityController*     m_entityController;
     GroupController*      m_groupController;
-    OnboardingController* m_onboardingController;
+    OnboardingController* m_onboardingController = nullptr;
 
     QString m_factoryResetToken;
 };

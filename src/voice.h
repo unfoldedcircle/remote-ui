@@ -5,11 +5,12 @@
 
 #include <QJSEngine>
 #include <QJsonDocument>
-#include <QObject>
-#include <QQmlEngine>
-#include <QProcess>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+#include <QObject>
+#include <QPointer>
+#include <QProcess>
+#include <QQmlEngine>
 
 #include "core/core.h"
 
@@ -23,7 +24,22 @@ class Voice : public QObject {
     ~Voice();
 
     Q_INVOKABLE int getSessionId();
+    /**
+     * Plays the spoken answer of the assistant: downloads it from `url` and streams it into the player.
+     * assistantAudioSpeechResponseEnd() is emitted once when this playback ends, or could not start. A playback
+     * that is still running is stopped first, without reporting its end: the end of the new one follows.
+     */
     Q_INVOKABLE void playSpeechResponse(const QString& url, const QString &mimeType);
+
+    /**
+     * Stops the answer that is playing, without reporting its end. A new voice question stops it: the voice
+     * overlay can be closed while the answer goes on, and the end of that answer used to close the overlay of
+     * the next question.
+     */
+    Q_INVOKABLE void stopSpeechResponse();
+
+    /// The player the answer is streamed into, on its standard input. ffplay by default; for the unit tests.
+    void setPlayer(const QString& program, const QStringList& arguments);
 
     static QObject* qmlInstance(QQmlEngine* engine, QJSEngine* scriptEngine);
 
@@ -51,7 +67,13 @@ class Voice : public QObject {
 
     core::Api* m_core;
 
-    QProcess m_process;
+    QString     m_playerProgram;
+    QStringList m_playerArguments;
+    // A player and a download per playback: the previous player is killed and deleted once it has exited, no
+    // waiting on the UI thread, and nothing of the previous playback can reach the current one.
+    QPointer<QProcess>      m_player;
+    QPointer<QNetworkReply> m_speechReply;
+    QNetworkAccessManager   m_networkManager;
 
     int m_sessionId = 0;
 };

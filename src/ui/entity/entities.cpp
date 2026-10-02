@@ -82,6 +82,7 @@ void Entities::clear() {
     m_rowById.clear();
     endResetModel();
     emit countChanged(count());
+    updateAllSelected();
 
     m_totalPages = 0;
     m_lastPageLoaded = 0;
@@ -125,8 +126,7 @@ void Entities::selectAll() {
         emit dataChanged(index(0, 0), index(m_rows.size() - 1, 0), QVector<int>{SelectedRole});
     }
 
-    m_allSelected = true;
-    emit allSelectedChanged();
+    updateAllSelected();
 }
 
 void Entities::clearSelected() {
@@ -143,8 +143,24 @@ void Entities::clearSelected() {
         emit dataChanged(index(0, 0), index(m_rows.size() - 1, 0), QVector<int>{SelectedRole});
     }
 
-    m_allSelected = false;
-    emit allSelectedChanged();
+    updateAllSelected();
+}
+
+void Entities::updateAllSelected() {
+    // "all selected" is a fact about the rows, not a flag set by the last button press: a search, a filter or
+    // another page replaces or appends rows that are not selected
+    bool allSelected = !m_rows.isEmpty();
+    for (entity::Base *item : qAsConst(m_rows)) {
+        if (!item->getSelected()) {
+            allSelected = false;
+            break;
+        }
+    }
+
+    if (m_allSelected != allSelected) {
+        m_allSelected = allSelected;
+        emit allSelectedChanged();
+    }
 }
 
 void Entities::setSelected(const QString &entityId, bool value) {
@@ -162,6 +178,8 @@ void Entities::setSelected(const QString &entityId, bool value) {
 
     const QModelIndex itemIndex = index(*it, 0);
     emit dataChanged(itemIndex, itemIndex, QVector<int>{SelectedRole});
+
+    updateAllSelected();
 }
 
 QStringList Entities::getSelected() {
@@ -180,6 +198,8 @@ void Entities::add(entity::Base *o) {
     const QString key = o->getId();
 
     if (m_rowById.contains(key)) {
+        // the caller created the entity object for this list: a rejected one would leak
+        o->deleteLater();
         return;
     }
 
@@ -189,6 +209,8 @@ void Entities::add(entity::Base *o) {
     m_rows.append(o);
     m_rowById.insert(key, row);
     endInsertRows();
+
+    updateAllSelected();
 }
 
 void Entities::remove(const QString &key) {
@@ -198,6 +220,7 @@ void Entities::remove(const QString &key) {
 void Entities::remove(int row) {
     removeRows(row, 1, QModelIndex());
     emit countChanged(count());
+    updateAllSelected();
 }
 
 QModelIndex Entities::getModelIndexByKey(const QString &key) {

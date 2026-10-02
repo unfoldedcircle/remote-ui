@@ -117,12 +117,7 @@ void Wifi::getWifiStatus() {
             emit macAddressChanged();
 
             if (wifiStatus.wpaState == core::WifiEnums::WpaState::COMPLETED) {
-                Security::Enum security;
-                if (wifiStatus.keyManagement.isEmpty()) {
-                    security = Security::Enum::OPEN;
-                } else {
-                    security = Util::convertStringToEnum<Security::Enum>(wifiStatus.keyManagement.replace("-", "_"));
-                }
+                const Security::Enum security = securityFromKeyManagement(wifiStatus.keyManagement);
 
                 if (m_currentNetwork) {
                     m_currentNetwork->deleteLater();
@@ -195,13 +190,17 @@ void Wifi::stopNetworkScan() {
 }
 
 void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan> &scan) {
-    if (scan.isEmpty()) {
-        return;
-    }
-
+    // the scan state is taken over whatever the result: Wifi.qml restarts the scan cycle when it ends
     if (m_scanActive != scanActive) {
         m_scanActive = scanActive;
         emit scanActiveChanged();
+    }
+
+    // An empty result does not clear the list: the core may answer with no access points while a scan has only
+    // just started.
+    if (scan.isEmpty()) {
+        qCDebug(lcHwWifi()) << "Empty scan result, scan active:" << scanActive;
+        return;
     }
 
     // a network can be broadcast by multiple access points: only keep the one with the strongest signal.
@@ -260,16 +259,27 @@ void Wifi::updateNetworkList(bool scanActive, const QList<core::AccessPointScan>
     }
 
     if (changed) {
+        qCDebug(lcHwWifi()) << "Network list changed:" << m_networkList.size() << "networks";
         emit networkListChanged();
     }
 }
 
 void Wifi::clearNetworkList() {
+    if (m_networkList.isEmpty()) {
+        return;
+    }
+
+    qCDebug(lcHwWifi()) << "Clearing the network list:" << m_networkList.size() << "networks";
+
+    // Announced before the objects go: the delegates of the WiFi settings showed objects that were deleted, and
+    // a network tapped on such a row did not open (the join dialogs work around it by copying the values).
     const auto networks = m_networkList.values();
+    m_networkList.clear();
+    emit networkListChanged();
+
     for (WifiNetwork *network : networks) {
         network->deleteLater();
     }
-    m_networkList.clear();
 }
 
 void Wifi::clearKnownNetworkList() {
@@ -355,7 +365,10 @@ void Wifi::deleteSavedNetwork(const QString &identifier) {
                 removedNetwork->deleteLater();
             }
             emit knownNetworkListChanged();
-            QTimer::singleShot(1500, [=] { getAllWifiNetworks(); });
+            // The scan list excludes the saved networks: it changed with them. The reload below does not
+            // announce it, the network is already gone from the saved ones by then.
+            emit networkListChanged();
+            QTimer::singleShot(1500, this, [=] { getAllWifiNetworks(); });
         },
         [=](int code, QString message) {
             // fail
@@ -373,12 +386,40 @@ void Wifi::deleteAllNetworks() {
             // success
             clearKnownNetworkList();
             emit knownNetworkListChanged();
+            // the scan list excludes the saved networks: it changed with them
+            emit networkListChanged();
         },
         [=](int code, QString message) {
             // fail
             qCWarning(lcHwWifi()) << "Error deleting all wifi networks" << code << message;
             ui::Notification::createNotification(message, true);
         });
+}
+
+Security::Enum Wifi::securityFromKeyManagement(const QString &keyManagement) {
+    // wpa_supplicant key management of the connection, e.g. "WPA2-PSK", "SAE", "WPA-PSK-SHA256", "FT-SAE",
+    // "WPA-EAP", "NONE". The enum keys were matched literally before, with "-" replaced by "_": "SAE" (every
+    // WPA3 network) and the SHA256 / FT variants matched nothing and became -1.
+    const QString key = keyManagement.trimmed().toUpper();
+
+    if (key.isEmpty() || key == QLatin1String("NONE")) {
+        return Security::Enum::OPEN;
+    }
+    if (key.contains(QLatin1String("SAE"))) {
+        return Security::Enum::WPA3_SAE;
+    }
+    if (key.contains(QLatin1String("EAP"))) {
+        return key.startsWith(QLatin1String("WPA2")) ? Security::Enum::WPA2_EAP : Security::Enum::WPA_EAP;
+    }
+    if (key.startsWith(QLatin1String("WPA2"))) {
+        return Security::Enum::WPA2_PSK;
+    }
+    if (key.startsWith(QLatin1String("WPA"))) {
+        return Security::Enum::WPA_PSK;
+    }
+    // something newer: encrypted in any case, so not OPEN
+    qCDebug(lcHwWifi()) << "Unknown key management, treating as WPA2:" << keyManagement;
+    return Security::Enum::WPA2_PSK;
 }
 
 core::WifiEnums::WifiSecurity Wifi::toApiSecurity(Security::Enum security) {

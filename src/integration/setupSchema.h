@@ -180,8 +180,13 @@ class SetupSchema : public QObject {
     QString               getTitle() { return m_title; }
     QList<SettingsItem *> getSettings() { return m_settings; }
 
+    /// A schema of its own with the same content, for a holder that has to own its schema.
+    SetupSchema *clone(QObject *parent = nullptr) const;
+
  private:
     QVariantMap           m_title_i18n;
+    QVariantList          m_settingsData;
+    QString               m_language;
     QString               m_title;
     QList<SettingsItem *> m_settings;
 };

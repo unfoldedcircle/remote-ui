@@ -93,6 +93,11 @@ class Api : public QObject {
      * @param msgData the `msg_data` object of the event
      */
     static Profile parseProfileChange(const QVariantMap &msgData);
+    /**
+     * Dispatches a response message of the core to its handlers. Public for the unit tests, which have no core
+     * to answer their requests.
+     */
+    void processResponseMessage(QVariantMap map);
 
     // profile handling
     int switchProfile(const QString &profileId, const QString &pin);
@@ -101,17 +106,16 @@ class Api : public QObject {
     int getActiveProfile();
     int addProfile(const QString &name, bool restricted = false);
     int updateProfile(const QString &profileId, const QString &name = QString(), const QString &icon = "-1",
-                      int pin = -1, const QStringList pages = QStringList({"-1"}));
-    int deleteProfile(const QString &profileId, int pin = -1);
+                      const QStringList pages = QStringList({"-1"}));
+    int deleteProfile(const QString &profileId);
 
     // page handling
-    int getPages(const QString &profileId, int pin = -1);
-    int getPage(const QString pageId, int pin = 1);
-    int addPage(const QString &profileId, const QString &name, int pos, int pin = -1);
+    int getPages(const QString &profileId);
+    int getPage(const QString pageId);
+    int addPage(const QString &profileId, const QString &name, int pos);
     int updatePage(const QString &pageId, const QString &profileId, const QString &name = QString(),
-                   const QString &image = "-1", int pos = -1, const QVariantList &items = QVariantList({"-1"}),
-                   int pin = -1);
-    int deletePage(const QString &pageId, int pin = -1);
+                   const QString &image = "-1", int pos = -1, const QVariantList &items = QVariantList({"-1"}));
+    int deletePage(const QString &pageId);
 
     // group handling
     int getGroup(const QString &groupId);
@@ -125,7 +129,7 @@ class Api : public QObject {
                     const QString &icon = QString(), const QStringList &entities = QStringList(),
                     bool setEntities = true);
     int deleteGroup(const QString &groupId);
-    int getGroups(const QString &profileId, int pin = -1);
+    int getGroups(const QString &profileId);
 
     // integration handling
     int getIntegrationStatus(int limit = 100, int page = 1);
@@ -556,7 +560,7 @@ class Api : public QObject {
     QWebSocket   m_webSocket;
     unsigned int m_requestId = 0;
 
-    QTimer *m_keepAliveTimer;
+    QTimer *m_keepAliveTimer = nullptr;
     int     m_keepAliveInterval = 60000;
 
     QTimer *m_reconnectTimer;
@@ -580,7 +584,6 @@ class Api : public QObject {
     int sendRequest(RequestTypes::Enum type, const QVariantMap msgData = QVariantMap());
 
     void processEventMessage(QVariantMap map);
-    void processResponseMessage(QVariantMap map);
     void processRequestMessage(QVariantMap map);
 
     void                 setupTimerForRequest(int requestId);

@@ -24,6 +24,9 @@ class testCoreResponseHandlers : public QObject {
 
     void onResponseWithErrorResult_success_runsOnce();
     void onResponseWithErrorResult_lateResponseAfterTimeoutIsIgnored();
+
+    void unknownResponse_settlesTheRequest();
+    void unknownResponse_withErrorCode_failsTheRequest();
 };
 
 void testCoreResponseHandlers::onResult_success_runsOnce() {
@@ -166,6 +169,67 @@ void testCoreResponseHandlers::onResponseWithErrorResult_lateResponseAfterTimeou
 
     QCOMPARE(failCount, 1);
     QCOMPARE(successCount, 0);
+}
+
+/**
+ * A response with a message name this version does not know, e.g. from a newer core, used to cancel the request
+ * timeout and then call nothing: the handlers of the request stayed connected for the rest of the process.
+ */
+void testCoreResponseHandlers::unknownResponse_settlesTheRequest() {
+    uc::core::Api api(kTestUrl);
+
+    int successCount = 0;
+    int failCount = 0;
+
+    api.onResult(
+        7, [&]() { successCount++; },
+        [&](int code, QString message) {
+            Q_UNUSED(code)
+            Q_UNUSED(message)
+            failCount++;
+        });
+
+    QVariantMap response;
+    response.insert(QStringLiteral("kind"), QStringLiteral("resp"));
+    response.insert(QStringLiteral("req_id"), 7);
+    response.insert(QStringLiteral("msg"), QStringLiteral("message_of_a_future_core"));
+    response.insert(QStringLiteral("code"), 200);
+    api.processResponseMessage(response);
+
+    QCOMPARE(successCount, 1);
+    QCOMPARE(failCount, 0);
+
+    // settled: a second answer is ignored
+    api.processResponseMessage(response);
+    QCOMPARE(successCount, 1);
+}
+
+void testCoreResponseHandlers::unknownResponse_withErrorCode_failsTheRequest() {
+    uc::core::Api api(kTestUrl);
+
+    int successCount = 0;
+    int failCode = 0;
+
+    api.onResponseWithErrorResult(
+        8, &uc::core::Api::respProfile,
+        [&](uc::core::Profile profile) {
+            Q_UNUSED(profile)
+            successCount++;
+        },
+        [&](int code, QString message) {
+            Q_UNUSED(message)
+            failCode = code;
+        });
+
+    QVariantMap response;
+    response.insert(QStringLiteral("kind"), QStringLiteral("resp"));
+    response.insert(QStringLiteral("req_id"), 8);
+    response.insert(QStringLiteral("msg"), QStringLiteral("message_of_a_future_core"));
+    response.insert(QStringLiteral("code"), 500);
+    api.processResponseMessage(response);
+
+    QCOMPARE(successCount, 0);
+    QCOMPARE(failCode, 500);
 }
 
 QTEST_GUILESS_MAIN(testCoreResponseHandlers)

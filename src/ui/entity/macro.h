@@ -13,7 +13,8 @@ namespace entity {
 class MacroFeatures : public QObject {
     Q_GADGET
  public:
-    enum Enum { Run };
+    // the core sends run and stop (the Core-API document names the feature start)
+    enum Enum { Run, Stop, Start };
     Q_ENUM(Enum)
 };
 

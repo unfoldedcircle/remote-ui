@@ -176,8 +176,7 @@ int Api::addProfile(const QString& name, bool restricted) {
     return sendRequest(RequestTypes::add_profile, msgData);
 }
 
-int Api::updateProfile(const QString& profileId, const QString& name, const QString& icon, int pin,
-                       const QStringList pages) {
+int Api::updateProfile(const QString& profileId, const QString& name, const QString& icon, const QStringList pages) {
     if (profileId.isEmpty()) {
         return -1;
     }
@@ -190,60 +189,45 @@ int Api::updateProfile(const QString& profileId, const QString& name, const QStr
     if (icon != "-1") {
         msgData.insert("icon", icon);
     }
-    if (pin != -1) {
-        msgData.insert("pin", pin);
-    }
     if ((pages.length() > 0 && pages[0] != "-1") || pages.isEmpty()) {
         msgData.insert("pages", pages);
     }
     return sendRequest(RequestTypes::update_profile, msgData);
 }
 
-int Api::deleteProfile(const QString& profileId, int pin) {
+int Api::deleteProfile(const QString& profileId) {
     if (profileId.isEmpty()) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("profile_id", profileId);
-    if (pin != -1) {
-        msgData.insert("pin", pin);
-    }
     return sendRequest(RequestTypes::delete_profile, msgData);
 }
 
-int Api::getPages(const QString& profileId, int pin) {
+int Api::getPages(const QString& profileId) {
     QVariantMap msgData;
     msgData.insert("profile_id", profileId);
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
     return sendRequest(RequestTypes::get_pages, msgData);
 }
 
-int Api::getPage(const QString pageId, int pin) {
+int Api::getPage(const QString pageId) {
     if (pageId.isEmpty()) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("page_id", pageId);
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
     return sendRequest(RequestTypes::get_page, msgData);
 }
 
-int Api::addPage(const QString& profileId, const QString& name, int pos, int pin) {
+int Api::addPage(const QString& profileId, const QString& name, int pos) {
     if (profileId.isEmpty() || name.isEmpty() || pos < 0) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("profile_id", profileId);
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
     msgData.insert("name", name);
     msgData.insert("pos", pos);
 
@@ -251,7 +235,7 @@ int Api::addPage(const QString& profileId, const QString& name, int pos, int pin
 }
 
 int Api::updatePage(const QString& pageId, const QString& profileId, const QString& name, const QString& image, int pos,
-                    const QVariantList& items, int pin) {
+                    const QVariantList& items) {
     if (pageId.isEmpty() || profileId.isEmpty()) {
         return -1;
     }
@@ -266,9 +250,6 @@ int Api::updatePage(const QString& pageId, const QString& profileId, const QStri
     if (image != "-1") {
         msgData.insert("image", image);
     }
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
     if ((items.length() > 0 && items[0] != "-1") || items.isEmpty()) {
         msgData.insert("items", items);
     }
@@ -280,16 +261,13 @@ int Api::updatePage(const QString& pageId, const QString& profileId, const QStri
     return sendRequest(RequestTypes::update_page, msgData);
 }
 
-int Api::deletePage(const QString& pageId, int pin) {
+int Api::deletePage(const QString& pageId) {
     if (pageId.isEmpty()) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("page_id", pageId);
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
 
     return sendRequest(RequestTypes::delete_page, msgData);
 }
@@ -495,17 +473,13 @@ int Api::deleteGroup(const QString& groupId) {
     return sendRequest(RequestTypes::delete_group, msgData);
 }
 
-int Api::getGroups(const QString& profileId, int pin) {
+int Api::getGroups(const QString& profileId) {
     if (profileId.isEmpty()) {
         return -1;
     }
 
     QVariantMap msgData;
     msgData.insert("profile_id", profileId);
-
-    if (pin != -1) {
-        msgData.insert("pin", QString::number(pin));
-    }
 
     return sendRequest(RequestTypes::get_groups, msgData);
 }
@@ -1361,8 +1335,9 @@ void Api::onStateChanged(QAbstractSocket::SocketState state) {
             //            emit connected();
             break;
         case QAbstractSocket::UnconnectedState:
-            emit disconnected();
+            // the flag first: a slot of disconnected() must see the connection as gone
             m_connected = false;
+            emit disconnected();
             m_reconnectTimer->start();
             break;
         default:
@@ -1620,10 +1595,6 @@ void Api::processResponseMessage(QVariantMap map) {
             processAuthResult(reqId, code, msgData);
             break;
         }
-        case MsgResponse::pong: {
-            // TODO(marton): Implement me
-            break;
-        }
         case MsgResponse::result:
         case MsgResponse::button_cfg:
         case MsgResponse::display_cfg:
@@ -1657,24 +1628,12 @@ void Api::processResponseMessage(QVariantMap map) {
             processApiAccess(reqId, code, msgData);
             break;
         }
-        case MsgResponse::entity_types: {
-            // TODO(marton): Implement me
-            break;
-        }
         case MsgResponse::entities: {
             processResponseEntities(reqId, code, msgData);
             break;
         }
         case MsgResponse::available_entities: {
             processResponseAvailableEntities(reqId, code, msgData);
-            break;
-        }
-        case MsgResponse::entity_features: {
-            // TODO(marton): Implement me
-            break;
-        }
-        case MsgResponse::entity_commands: {
-            // TODO(marton): Implement me
             break;
         }
         case MsgResponse::entity: {
@@ -1710,10 +1669,6 @@ void Api::processResponseMessage(QVariantMap map) {
             processResponseIntegrationStatus(reqId, code, msgData);
             break;
         }
-        case MsgResponse::integration_driver_count: {
-            // TODO(marton): Implement me
-            break;
-        }
         case MsgResponse::integration_drivers: {
             processResponseIntegrationDrivers(reqId, code, msgData);
             break;
@@ -1722,16 +1677,8 @@ void Api::processResponseMessage(QVariantMap map) {
             processResponseIntegrationDriver(reqId, code, msgData);
             break;
         }
-        case MsgResponse::integration_count: {
-            // TODO(marton): Implement me
-            break;
-        }
         case MsgResponse::integrations: {
             processResponseIntegrations(reqId, code, msgData);
-            break;
-        }
-        case MsgResponse::integration: {
-            // TODO(marton): Implement me
             break;
         }
         case MsgResponse::integration_setup_info: {
@@ -1824,7 +1771,21 @@ void Api::processResponseMessage(QVariantMap map) {
             processResponseSequenceReadiness(reqId, code, msgData);
             break;
         }
+        case MsgResponse::pong:
+        case MsgResponse::entity_types:
+        case MsgResponse::entity_features:
+        case MsgResponse::entity_commands:
+        case MsgResponse::integration_driver_count:
+        case MsgResponse::integration_count:
+        case MsgResponse::integration:
         default:
+            // A response the UI does not read, or one it does not know: a newer core may answer with a message
+            // this version has never heard of. The request is settled as a plain result all the same, its
+            // handlers would otherwise wait forever, since the request timeout was cancelled above.
+            if (resp == static_cast<MsgResponse::Enum>(-1)) {
+                qCWarning(lcCore()) << "Unknown response" << map.value("msg").toString() << "for request" << reqId;
+            }
+            emit respResult(reqId, code, QString());
             break;
     }
 }
@@ -2609,7 +2570,7 @@ void Api::processResponseConfig(int reqId, int code, QVariant msgData) {
                 profile.id = map.value("id").toString();
                 profile.name = map.value("name").toString();
 
-                if (map.contains("langauge")) {
+                if (map.contains("language")) {
                     profile.language = map.value("language").toString();
                 }
 
@@ -2793,7 +2754,7 @@ void Api::processConfigChange(QVariant msgData) {
                     profile.id = map.value("id").toString();
                     profile.name = map.value("name").toString();
 
-                    if (map.contains("langauge")) {
+                    if (map.contains("language")) {
                         profile.language = map.value("language").toString();
                     }
 
@@ -2889,7 +2850,7 @@ void Api::processProfileChange(QVariant msgData) {
                 if (newPage.contains("image")) {
                     page.image = newPage.value("image").toString();
                 }
-                page.pos = newPage.value("post").toInt();
+                page.pos = newPage.value("pos").toInt();
 
                 emit pageAdded(profileId, page);
             } else if (!groupId.isEmpty()) {
@@ -2918,7 +2879,7 @@ void Api::processProfileChange(QVariant msgData) {
                 if (newPage.contains("image")) {
                     page.image = newPage.value("image").toString();
                 }
-                page.pos = newPage.value("post").toInt();
+                page.pos = newPage.value("pos").toInt();
 
                 QVariantList items = newPage.value("items").toList();
 

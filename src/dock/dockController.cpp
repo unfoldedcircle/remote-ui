@@ -321,10 +321,10 @@ void DockController::loadDocks(int limit, int page, quint64 generation,
                         m_configuredDocks.updateState(i->id, static_cast<ConfiguredDock::State>(i->state));
                     }
                 } else {
-                    m_configuredDocks.append(new ConfiguredDock(
-                        i->id, i->name, i->customWsUrl, i->active, i->model, i->revision, i->serial, i->connectionType,
-                        i->version, static_cast<ConfiguredDock::State>(i->state), i->learningActive, i->description,
-                        i->ledBrightness, this));
+                    m_configuredDocks.append(
+                        new ConfiguredDock(i->id, i->name, i->customWsUrl, i->active, i->model, i->revision, i->serial,
+                                           i->connectionType, i->version, static_cast<ConfiguredDock::State>(i->state),
+                                           i->learningActive, i->description, i->ledBrightness, this));
                     qCDebug(lcDockController()) << "Dock created:" << i->name << i->id;
                 }
             }
@@ -381,6 +381,8 @@ void DockController::startDockSetup(const QString &dockId, const QString &friend
         [=](int code, QString message) {
             // fail
             qCWarning(lcDockController()) << "Error starting dock setup:" << code << message;
+            // like a failed setup creation in setupDock(): the setup screen is waiting behind a loading screen
+            emit setupFinished(false, message);
         });
 }
 

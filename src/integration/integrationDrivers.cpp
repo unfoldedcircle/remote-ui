@@ -33,6 +33,10 @@ IntegrationDriver::IntegrationDriver(const QString &key, QVariantMap name, const
       m_instanceCount(instanceCount),
       m_language(language),
       m_selected(selected) {
+    // the driver owns its schema: a schema without a parent was leaked with every driver list reload
+    if (m_setupSchema) {
+        m_setupSchema->setParent(this);
+    }
     m_name = Util::getLanguageString(m_name_i18n, m_language);
 
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
@@ -98,7 +102,17 @@ void IntegrationDriver::setDiscovered(bool discovered) {
 }
 
 void IntegrationDriver::setSetupScehma(SetupSchema *setupSchema) {
+    if (m_setupSchema == setupSchema) {
+        return;
+    }
+    // owned by this driver: nobody else holds it, the setup pages work on copies
+    if (m_setupSchema && m_setupSchema->parent() == this) {
+        m_setupSchema->deleteLater();
+    }
     m_setupSchema = setupSchema;
+    if (m_setupSchema) {
+        m_setupSchema->setParent(this);
+    }
     emit setupSchemaChanged();
 }
 
@@ -214,6 +228,8 @@ QHash<int, QByteArray> IntegrationDrivers::roleNames() const {
 void IntegrationDrivers::append(IntegrationDriver *o) {
     //    int i = m_data.size();
     if (contains(o->getId())) {
+        // the caller created the object for this list: a rejected one would leak
+        o->deleteLater();
         return;
     }
 

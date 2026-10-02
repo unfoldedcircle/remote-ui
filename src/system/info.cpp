@@ -10,7 +10,8 @@ namespace hw {
 
 Info *Info::s_instance = nullptr;
 
-Info::Info(QObject *parnet) : QObject(parnet) {
+Info::Info(HardwareModel::Enum model, QObject *parent)
+    : QObject(parent), m_modelNumber(Util::convertEnumToString(model)) {
     Q_ASSERT(s_instance == nullptr);
     s_instance = this;
 }
@@ -19,8 +20,7 @@ Info::~Info() {
     s_instance = nullptr;
 }
 
-void Info::set(HardwareModel::Enum modelNumber, const QString &serialNumber, const QString &revision) {
-    m_modelNumber = Util::convertEnumToString(modelNumber);
+void Info::set(const QString &serialNumber, const QString &revision) {
     m_serialNumber = serialNumber;
     m_revision = revision;
 }

@@ -191,6 +191,11 @@ class Wifi : public QObject {
                     uc::hw::Security::Enum security = uc::hw::Security::AUTO, bool hidden = false);
 
     static core::WifiEnums::WifiSecurity toApiSecurity(uc::hw::Security::Enum security);
+    /**
+     * Security type of the current connection from the key management string of the wifi status
+     * ("WPA2-PSK", "SAE", "NONE", ...). Never -1: an unknown string is encrypted, an empty one or NONE is open.
+     */
+    static uc::hw::Security::Enum        securityFromKeyManagement(const QString &keyManagement);
     static uc::hw::Security::Enum        fromApiSecurity(core::WifiEnums::WifiSecurity security);
     void updateNetworkList(bool scanActive, const QList<core::AccessPointScan> &scan);
     void wifiNetworkCommand(int networkId, core::WifiEnums::WifiNetworkCmd command);

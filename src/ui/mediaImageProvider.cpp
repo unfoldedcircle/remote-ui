@@ -50,7 +50,12 @@ QString MediaImageProvider::storeImage(const QString& entityId, quint64 requestI
     const QString key = cacheKeyFor(entityId, requestId);
 
     QMutexLocker locker(&m_mutex);
+    const auto   previous = m_images.constFind(key);
+    if (previous != m_images.cend()) {
+        m_totalBytes -= previous->sizeInBytes();
+    }
     m_images.insert(key, image);
+    m_totalBytes += image.sizeInBytes();
     touchKeyLocked(key);
     pruneCacheLocked();
 
@@ -63,7 +68,11 @@ void MediaImageProvider::removeImage(const QString& key) {
     }
 
     QMutexLocker locker(&m_mutex);
-    m_images.remove(key);
+    const auto   it = m_images.constFind(key);
+    if (it != m_images.cend()) {
+        m_totalBytes -= it->sizeInBytes();
+        m_images.erase(it);
+    }
     m_order.removeAll(key);
 }
 
@@ -73,6 +82,10 @@ QImage MediaImageProvider::requestImage(const QString& id, QSize* size, const QS
     {
         QMutexLocker locker(&m_mutex);
         image = m_images.value(id);
+        if (!image.isNull()) {
+            // read again: the least recently shown artwork is the first to go
+            touchKeyLocked(id);
+        }
     }
 
     if (size) {
@@ -101,9 +114,14 @@ void MediaImageProvider::touchKeyLocked(const QString& key) {
 }
 
 void MediaImageProvider::pruneCacheLocked() {
-    while (m_order.size() > m_maxEntries) {
+    // the newest image always stays, however large
+    while (m_totalBytes > m_maxBytes && m_order.size() > 1) {
         const QString oldestKey = m_order.takeFirst();
-        m_images.remove(oldestKey);
+        const auto    it = m_images.constFind(oldestKey);
+        if (it != m_images.cend()) {
+            m_totalBytes -= it->sizeInBytes();
+            m_images.erase(it);
+        }
     }
 }
 

@@ -19,6 +19,8 @@ int PageItemList::count() const {
 void PageItemList::append(PageItem *item) {
     if (contains(item->pageItemId())) {
         qCDebug(lcPage()) << "Already exists" << item->pageItemId();
+        // the caller created the item for this list: a rejected one would leak
+        item->deleteLater();
         return;
     }
 
@@ -134,7 +136,11 @@ void PageItemList::swapData(int from, int to) {
         QModelIndex fromIdx = index(from, 0);
         QModelIndex toIdx   = index(to, 0);
 
-        beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
+        // beginMoveRows takes the row the item is inserted in front of, QList::move the index it ends up at:
+        // moving down by more than one row they differ by one
+        const int destinationRow = to > from ? to + 1 : to;
+
+        beginMoveRows(QModelIndex(), from, from, QModelIndex(), destinationRow);
         m_data.move(from, to);
         endMoveRows();
 
@@ -243,6 +249,37 @@ void Page::removeActivity(QString entityId) {
     if (m_activities->contains(entityId)) {
         m_activities->removeItem(entityId);
         qCDebug(lcPage()) << "Activity removed" << entityId << m_id;
+    }
+}
+
+void Page::updateActivities(const QStringList &running, const GroupHasEntity &groupHasEntity) {
+    QStringList shown;
+
+    for (const QString &entityId : running) {
+        for (int i = 0; i < m_items->count(); i++) {
+            const PageItem *item = m_items->getPageItem(i);
+            if (!item) {
+                continue;
+            }
+
+            const bool onPage = item->pageItemType() == PageItem::Group ? groupHasEntity(item->pageItemId(), entityId)
+                                                                        : item->pageItemId() == entityId;
+            if (onPage) {
+                shown.append(entityId);
+                break;
+            }
+        }
+    }
+
+    for (int i = m_activities->count() - 1; i >= 0; i--) {
+        const PageItem *item = m_activities->getPageItem(i);
+        if (item && !shown.contains(item->pageItemId())) {
+            removeActivity(item->pageItemId());
+        }
+    }
+
+    for (const QString &entityId : shown) {
+        addActivity(entityId);
     }
 }
 

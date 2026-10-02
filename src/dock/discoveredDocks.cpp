@@ -44,7 +44,10 @@ void DiscoveredDocks::setCount(int count) {
 }
 
 int DiscoveredDocks::rowCount(const QModelIndex &parent) const {
-    Q_UNUSED(parent)
+    // a flat list: no row has children
+    if (parent.isValid()) {
+        return 0;
+    }
     return m_data.size();
 }
 
@@ -111,16 +114,12 @@ QHash<int, QByteArray> DiscoveredDocks::roleNames() const {
 }
 
 void DiscoveredDocks::append(DiscoveredDock *o) {
-    //    int i = m_data.size();
-    emit layoutAboutToBeChanged();
-
-    beginInsertRows(QModelIndex(), 0, 0);
+    // the row is appended: the announced row has to be the last one, not the first
+    beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_data.append(o);
 
     emit countChanged(count());
     endInsertRows();
-
-    emit layoutChanged();
 }
 
 void DiscoveredDocks::clear() {

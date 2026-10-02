@@ -120,6 +120,7 @@ target_link_libraries(testIntegrationSetupInfo
 add_executable (testSetupSchema
     "test_setup_schema.cpp"
     "../../src/integration/setupSchema.cpp"
+    "../../src/integration/integrationDrivers.cpp"
     "../../src/util.cpp"
     "../../src/logging.cpp"
     "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
@@ -129,6 +130,33 @@ add_test(NAME testSetupSchema
          COMMAND testSetupSchema)
 
 target_link_libraries(testSetupSchema
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::WebSockets
+    Qt5::Test
+    )
+
+add_executable (testSoftwareUpdate
+    "test_software_update.cpp"
+    "../../src/softwareupdate/softwareUpdate.cpp"
+    "../../src/core/core.cpp"
+    # header only: contains the Q_GADGET enums moc has to process
+    "../../src/core/enums.h"
+    "../../src/ui/notification.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+# the UI version is reported by uc::SoftwareUpdate
+target_compile_definitions(testSoftwareUpdate PRIVATE APP_VERSION="test")
+
+add_test(NAME testSoftwareUpdate
+         COMMAND testSoftwareUpdate)
+
+target_link_libraries(testSoftwareUpdate
     PUBLIC
     Qt5::Core
     Qt5::Gui

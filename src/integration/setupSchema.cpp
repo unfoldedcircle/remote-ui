@@ -66,6 +66,9 @@ SettingsItemCheckbox::~SettingsItemCheckbox() {}
 SettingsItemDropdown::SettingsItemDropdown(const QString &id, QVariantMap labelI18n, SettingsEnum::Type fieldType,
                                            const QString &language, QVariantMap data, QObject *parent)
     : SettingsItem(id, labelI18n, fieldType, language, data, parent) {
+    // Core-API: the optional value is the id of the preselected item
+    m_value = data.value("dropdown").toMap().value("value").toString();
+
     QVariantList list = data.value("dropdown").toMap().value("items").toList();
 
     for (QVariantList::const_iterator i = list.cbegin(); i != list.cend(); ++i) {
@@ -92,7 +95,7 @@ SettingsItemLabel::SettingsItemLabel(const QString &id, QVariantMap labelI18n, S
 SettingsItemLabel::~SettingsItemLabel() {}
 
 SetupSchema::SetupSchema(QVariantMap title, QVariantList settings, const QString &language, QObject *parent)
-    : QObject(parent), m_title_i18n(title) {
+    : QObject(parent), m_title_i18n(title), m_settingsData(settings), m_language(language) {
     QQmlEngine::setObjectOwnership(this, QQmlEngine::CppOwnership);
 
     qCDebug(lcIntegrationDriver()) << "Schema" << settings;
@@ -154,6 +157,10 @@ SetupSchema::SetupSchema(QVariantMap title, QVariantList settings, const QString
 
 SetupSchema::~SetupSchema() {
     qCDebug(lcIntegrationDriver()) << "Schema destructor";
+}
+
+SetupSchema *SetupSchema::clone(QObject *parent) const {
+    return new SetupSchema(m_title_i18n, m_settingsData, m_language, parent);
 }
 
 }  // namespace integration

@@ -3,10 +3,15 @@
 
 #include <QtTest>
 
+#include "config/config.h"
 #include "core/core.h"
 #include "ui/entity/activity.h"
+#include "ui/entity/climate.h"
 #include "ui/entity/entityController.h"
+#include "ui/entity/light.h"
 #include "ui/entity/mediaPlayer.h"
+#include "ui/entity/sensor.h"
+#include "ui/mediaImageProvider.h"
 #include "ui/notification.h"
 
 // an unreachable address: the socket connection attempt is asynchronous and never completes during a test
@@ -48,9 +53,31 @@ class testEntityController : public QObject {
 
     void activity_onAgainAfterReconnect_isNotStartedExternally();
 
+    void config_reloadedDeviceName_isNotAnnouncedAgain();
+
+    void climate_stateInfo_usesTheUnitOfTheEntity();
+    void climate_stateInfo_followsTheUnitSystem();
+    void climate_currentTemperature_zeroIsShownAndNullIsNotAvailable();
+    void climate_modelIndex_isTheNearestTemperature();
+
+    void binarySensor_valueIsTranslatedWhenRead();
+
+    void mediaImageProvider_keepsTheArtworkOfManyPlayers();
+    void mediaPlayer_browseMedia_returnsTheRequestIdThatTheAnswerCarries();
+    void mediaImageProvider_evictsTheLeastRecentlyShownImage();
+
+    void light_brightnessText_survivesUnavailable();
+
+    void mediaPlayer_positionTimer_onlyAnnouncesAChange();
+
+    void mediaPlayer_embeddedArtwork_isDecodedOnAWorkerThread();
+    void mediaPlayer_deletedWhileArtworkIsDecoded_doesNotCrash();
+
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
     static QVariantMap      voiceStartParams(int sessionId);
+    // a small PNG as a data URL, the way an integration embeds artwork in media_image_url
+    static QString embeddedArtwork(const QColor& color);
     // the unreachable test socket warns about the connection on its own, so only the warnings of the entity
     // lookup are counted
     static int notLoadedWarnings(const QString& entityId);
@@ -133,6 +160,18 @@ void testEntityController::setEntityName_knownEntity_doesNotWarn() {
     // a loaded entity takes the regular path: the request is built and handed to the core, which is not
     // connected in a test and reports that separately - nothing warns about a missing entity
     QCOMPARE(notLoadedWarnings(entityId), 0);
+}
+
+QString testEntityController::embeddedArtwork(const QColor& color) {
+    QImage image(64, 64, QImage::Format_RGB32);
+    image.fill(color);
+
+    QByteArray png;
+    QBuffer    buffer(&png);
+    buffer.open(QIODevice::WriteOnly);
+    image.save(&buffer, "PNG");
+
+    return QStringLiteral("data:image/png;base64,") + QString::fromLatin1(png.toBase64());
 }
 
 QVariantMap testEntityController::voiceStartParams(int sessionId) {
@@ -262,6 +301,393 @@ void testEntityController::activity_onAgainAfterReconnect_isNotStartedExternally
     activity->setState(uc::ui::entity::ActivityStates::Unavailable);
     activity->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
     QCOMPARE(startedExternally.count(), 2);
+}
+
+/**
+ * The onboarding reads deviceNameChanged(true) as "the name was accepted" and moves to the next step. The
+ * configuration is loaded again after every reconnect, which must not look like that.
+ */
+void testEntityController::config_reloadedDeviceName_isNotAnnouncedAgain() {
+    uc::core::Api api(kTestUrl);
+    uc::Config    config(&api);
+
+    QSignalSpy nameChanged(&config, &uc::Config::deviceNameChanged);
+
+    uc::core::cfgDevice device;
+    device.name = QStringLiteral("Living room remote");
+
+    emit api.cfgDeviceChanged(device);
+    QCOMPARE(nameChanged.count(), 1);
+    QCOMPARE(config.getDeviceName(), device.name);
+
+    // the same configuration again
+    emit api.cfgDeviceChanged(device);
+    QCOMPARE(nameChanged.count(), 1);
+
+    device.name = QStringLiteral("Bedroom remote");
+    emit api.cfgDeviceChanged(device);
+    QCOMPARE(nameChanged.count(), 2);
+    QCOMPARE(config.getDeviceName(), device.name);
+}
+
+/**
+ * The attributes of a climate entity are applied before its temperature unit is known. The temperature in the
+ * state info, which the entity tile shows, was built with the Celsius label at that point and kept it.
+ */
+void testEntityController::climate_stateInfo_usesTheUnitOfTheEntity() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("climate.living_room");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Climate");
+    entity.options = QVariantMap({{QStringLiteral("temperature_unit"), QStringLiteral("FAHRENHEIT")}});
+    entity.attributes = QVariantMap({{QStringLiteral("current_temperature"), 72}});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entityId));
+    QVERIFY(climate);
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("72°F")), qPrintable(climate->getStateInfo()));
+}
+
+void testEntityController::climate_stateInfo_followsTheUnitSystem() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    // no temperature_unit option: the entity follows the unit system of the remote
+    const QString    entityId = QStringLiteral("climate.bedroom");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Climate");
+    entity.attributes = QVariantMap({{QStringLiteral("current_temperature"), 21}});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entityId));
+    QVERIFY(climate);
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("21°C")), qPrintable(climate->getStateInfo()));
+
+    QSignalSpy stateInfoChanged(climate, &uc::ui::entity::Base::stateInfoChanged);
+    climate->onUnitSystemChanged(uc::Config::UnitSystems::Us);
+
+    // the value is the one the integration reported, only the label follows the unit
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("21°F")), qPrintable(climate->getStateInfo()));
+    QCOMPARE(stateInfoChanged.count(), 1);
+}
+
+/**
+ * An integration that reconnects reports its lights as unavailable for a moment. A light that comes back on with
+ * the brightness it had before must still show the percentage on its tile.
+ */
+void testEntityController::light_brightnessText_survivesUnavailable() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("light.desk");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Light");
+    controller.onEntityAdded(entity);
+
+    auto light = qobject_cast<uc::ui::entity::Light*>(controller.get(entityId));
+    QVERIFY(light);
+
+    light->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
+    light->updateAttribute(QStringLiteral("Brightness"), 128);
+    QVERIFY2(light->getStateInfo().contains(QStringLiteral("50%")), qPrintable(light->getStateInfo()));
+
+    light->updateAttribute(QStringLiteral("State"), QStringLiteral("UNAVAILABLE"));
+    QVERIFY2(!light->getStateInfo().contains(QStringLiteral("%")), qPrintable(light->getStateInfo()));
+
+    light->updateAttribute(QStringLiteral("State"), QStringLiteral("ON"));
+    light->updateAttribute(QStringLiteral("Brightness"), 128);
+    QVERIFY2(light->getStateInfo().contains(QStringLiteral("50%")), qPrintable(light->getStateInfo()));
+}
+
+/**
+ * The position of a playing media player is counted up once a second. Live content has no duration and the
+ * position stands still, as it does at the end of the media: that is not a change to announce every second.
+ */
+void testEntityController::mediaPlayer_positionTimer_onlyAnnouncesAChange() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("media_player.tv");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Media_player");
+    controller.onEntityAdded(entity);
+
+    auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+    QVERIFY(mediaPlayer);
+
+    QSignalSpy positionChanged(mediaPlayer, &uc::ui::entity::MediaPlayer::mediaPositionChanged);
+
+    // no duration
+    QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
+    QCOMPARE(positionChanged.count(), 0);
+    QCOMPARE(mediaPlayer->getMediaPosition(), 0);
+
+    mediaPlayer->updateAttribute(QStringLiteral("Media_duration"), 3);
+    mediaPlayer->updateAttribute(QStringLiteral("Media_position"), 1);
+    positionChanged.clear();
+
+    QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
+    QCOMPARE(mediaPlayer->getMediaPosition(), 2);
+    QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
+    QCOMPARE(mediaPlayer->getMediaPosition(), 3);
+    QCOMPARE(positionChanged.count(), 2);
+
+    // the end of the media
+    QVERIFY(QMetaObject::invokeMethod(mediaPlayer, "onPositionTimerTimeout"));
+    QCOMPARE(mediaPlayer->getMediaPosition(), 3);
+    QCOMPARE(positionChanged.count(), 2);
+}
+
+/**
+ * The artwork is decoded and its average colour computed on a thread of the global pool; the result is applied
+ * on the GUI thread, where the media player lives.
+ */
+void testEntityController::mediaPlayer_embeddedArtwork_isDecodedOnAWorkerThread() {
+    uc::core::Api              api(kTestUrl);
+    uc::ui::EntityController   controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+    uc::ui::MediaImageProvider provider;
+
+    const QString    entityId = QStringLiteral("media_player.art");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Media_player");
+    controller.onEntityAdded(entity);
+
+    auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+    QVERIFY(mediaPlayer);
+
+    QSignalSpy imageChanged(mediaPlayer, &uc::ui::entity::MediaPlayer::mediaImageChanged);
+    mediaPlayer->updateAttribute(QStringLiteral("Media_image_url"), embeddedArtwork(QColor(200, 30, 30)));
+
+    QVERIFY(imageChanged.wait(5000));
+    QVERIFY(mediaPlayer->getMediaImage().startsWith(QStringLiteral("image://media-art/")));
+    // the artwork is red: so is its average colour
+    QVERIFY(mediaPlayer->getMediaImageColor().red() > mediaPlayer->getMediaImageColor().blue());
+}
+
+/**
+ * An entity can be removed while its artwork is still being decoded, e.g. by the reload after a reconnect. The
+ * worker used to check and dereference a QPointer from its own thread, which races with the deletion on the GUI
+ * thread; it now only reads a shared counter and the result is dropped on the GUI thread.
+ */
+void testEntityController::mediaPlayer_deletedWhileArtworkIsDecoded_doesNotCrash() {
+    uc::core::Api              api(kTestUrl);
+    uc::ui::EntityController   controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+    uc::ui::MediaImageProvider provider;
+
+    for (int round = 0; round < 20; round++) {
+        const QString    entityId = QStringLiteral("media_player.art%1").arg(round);
+        uc::core::Entity entity = makeEntity(entityId);
+        entity.type = QStringLiteral("Media_player");
+        controller.onEntityAdded(entity);
+
+        auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+        QVERIFY(mediaPlayer);
+
+        mediaPlayer->updateAttribute(QStringLiteral("Media_image_url"), embeddedArtwork(QColor(30, 30, 200)));
+        // the entity is removed right away: the controller deletes it 100 ms later, while the decoding is still
+        // running or about to deliver its result
+        controller.onEntityDeleted(entityId);
+        QTest::qWait(round % 2 == 0 ? 110 : 10);
+    }
+
+    QThreadPool::globalInstance()->waitForDone(5000);
+    // the queued results of the deleted players are delivered and dropped
+    QTest::qWait(200);
+}
+
+/**
+ * 0 is a temperature like any other and is shown. A device that measures the temperature but has none to report
+ * (null) shows "--" instead, like the cover does for an unknown position.
+ */
+void testEntityController::climate_currentTemperature_zeroIsShownAndNullIsNotAvailable() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("climate.freezer");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Climate");
+    entity.features = QStringList({QStringLiteral("Current_temperature")});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entityId));
+    QVERIFY(climate);
+
+    // nothing reported yet
+    QVERIFY(!climate->isCurrentTemperatureAvailable());
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("--")), qPrintable(climate->getStateInfo()));
+
+    climate->updateAttribute(QStringLiteral("Current_temperature"), 0);
+    QVERIFY(climate->isCurrentTemperatureAvailable());
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("0°C")), qPrintable(climate->getStateInfo()));
+
+    climate->updateAttribute(QStringLiteral("Current_temperature"), QVariant());
+    QVERIFY(!climate->isCurrentTemperatureAvailable());
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("--")), qPrintable(climate->getStateInfo()));
+    QVERIFY2(!climate->getStateInfo().contains(QStringLiteral("°C")), qPrintable(climate->getStateInfo()));
+
+    climate->updateAttribute(QStringLiteral("Current_temperature"), -18.5);
+    QVERIFY(climate->isCurrentTemperatureAvailable());
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("-18.5°C")), qPrintable(climate->getStateInfo()));
+
+    // a device that does not measure the temperature shows no temperature part at all
+    const QString    heaterId = QStringLiteral("climate.heater");
+    uc::core::Entity heater = makeEntity(heaterId);
+    heater.type = QStringLiteral("Climate");
+    controller.onEntityAdded(heater);
+    auto heaterObj = qobject_cast<uc::ui::entity::Climate*>(controller.get(heaterId));
+    QVERIFY(heaterObj);
+    QVERIFY2(!heaterObj->getStateInfo().contains(QStringLiteral("--")), qPrintable(heaterObj->getStateInfo()));
+}
+
+/**
+ * A binary sensor reports on/off, the UI shows a text for its device class. The text is produced when the value
+ * is read, so that it follows a language change and a device class that arrives after the value.
+ */
+void testEntityController::binarySensor_valueIsTranslatedWhenRead() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("sensor.front_door");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Sensor");
+    entity.deviceClass = QStringLiteral("Binary");
+    controller.onEntityAdded(entity);
+
+    auto sensor = qobject_cast<uc::ui::entity::Sensor*>(controller.get(entityId));
+    QVERIFY(sensor);
+    // no value yet: nothing, not "off"
+    QCOMPARE(sensor->getValue(), QString());
+
+    QSignalSpy valueChanged(sensor, &uc::ui::entity::Sensor::valueChanged);
+
+    sensor->updateAttribute(QStringLiteral("Value"), QStringLiteral("on"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("On"));
+
+    // the device class arrives after the value: the text follows it
+    sensor->updateAttribute(QStringLiteral("Unit"), QStringLiteral("door"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("Opened"));
+    QCOMPARE(sensor->getStateInfo(), QStringLiteral("Opened"));
+    QCOMPARE(valueChanged.count(), 2);
+
+    sensor->updateAttribute(QStringLiteral("Value"), QStringLiteral("off"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("Closed"));
+}
+
+/**
+ * A remote has dozens of media players, each with one artwork in the provider's cache. The cache used to hold 12
+ * images of any size: the 13th player lost its artwork while its tile still pointed at the cache.
+ */
+void testEntityController::mediaImageProvider_keepsTheArtworkOfManyPlayers() {
+    uc::ui::MediaImageProvider provider;
+
+    // typical artwork: 500x500, about 1 MiB
+    QImage artwork(500, 500, QImage::Format_ARGB32);
+    artwork.fill(Qt::darkCyan);
+
+    QStringList keys;
+    for (int i = 0; i < 41; i++) {
+        keys.append(provider.storeImage(QStringLiteral("media_player.%1").arg(i), 1, artwork));
+    }
+
+    for (const QString& key : qAsConst(keys)) {
+        QSize size;
+        QVERIFY2(!provider.requestImage(key, &size, QSize()).isNull(), qPrintable(key));
+    }
+}
+
+void testEntityController::mediaImageProvider_evictsTheLeastRecentlyShownImage() {
+    uc::ui::MediaImageProvider provider;
+
+    // the largest artwork the entity keeps: 1024x1024, 4 MiB, twelve of them fill the 48 MiB budget
+    QImage artwork(1024, 1024, QImage::Format_ARGB32);
+    artwork.fill(Qt::darkRed);
+
+    QStringList keys;
+    for (int i = 0; i < 12; i++) {
+        keys.append(provider.storeImage(QStringLiteral("media_player.%1").arg(i), 1, artwork));
+    }
+
+    // the first one is shown again: it is no longer the one to go
+    QSize size;
+    QVERIFY(!provider.requestImage(keys.first(), &size, QSize()).isNull());
+
+    const QString thirteenth = provider.storeImage(QStringLiteral("media_player.12"), 1, artwork);
+
+    QVERIFY(!provider.requestImage(keys.first(), &size, QSize()).isNull());
+    QVERIFY(provider.requestImage(keys.at(1), &size, QSize()).isNull());
+    QVERIFY(!provider.requestImage(thirteenth, &size, QSize()).isNull());
+}
+
+/**
+ * The media browser keeps the id of the request each of its pages waits for, so that a late answer lands on the
+ * page that asked, or nowhere when that page was left. browseMedia() returns the id the controller assigned, and
+ * the result and error signals carry it.
+ */
+void testEntityController::mediaPlayer_browseMedia_returnsTheRequestIdThatTheAnswerCarries() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("media_player.browser");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Media_player");
+    controller.onEntityAdded(entity);
+
+    auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+    QVERIFY(mediaPlayer);
+
+    QSignalSpy errors(mediaPlayer, &uc::ui::entity::MediaPlayer::mediaBrowseError);
+    QSignalSpy results(mediaPlayer, &uc::ui::entity::MediaPlayer::browseMediaResult);
+
+    // not connected to a core: the request cannot be sent, which is reported with the same id, -1
+    const int requestId = mediaPlayer->browseMedia(QStringLiteral("folder"), QStringLiteral("directory"), 10, 1);
+    QCOMPARE(requestId, -1);
+    QCOMPARE(errors.count(), 1);
+    QCOMPARE(errors.at(0).at(0).toInt(), -1);
+    QCOMPARE(errors.at(0).at(1).toInt(), 503);
+
+    // an answer names its request
+    uc::core::BrowseMediaItem item;
+    item.title = QStringLiteral("Folder");
+    mediaPlayer->onBrowseMediaResult(42, item, uc::core::Pagination());
+    QCOMPARE(results.count(), 1);
+    QCOMPARE(results.at(0).at(0).toInt(), 42);
+    QCOMPARE(results.at(0).at(1).toMap().value(QStringLiteral("title")).toString(), QStringLiteral("Folder"));
+}
+
+/**
+ * The climate screen positions its temperature list on the target temperature and sends the entry of the
+ * list the user moves to. A target that is not on the step grid, or outside the range, gave index -1: the next
+ * key press then sent NaN, or the highest temperature of the list.
+ */
+void testEntityController::climate_modelIndex_isTheNearestTemperature() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    const QString    entityId = QStringLiteral("climate.thermostat");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Climate");
+    entity.options = QVariantMap({{QStringLiteral("min_temperature"), 10},
+                                  {QStringLiteral("max_temperature"), 30},
+                                  {QStringLiteral("target_temperature_step"), 0.5}});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entityId));
+    QVERIFY(climate);
+
+    const QVariantList model = climate->getModel();
+    QVERIFY(!model.isEmpty());
+    auto valueAt = [&model](int index) { return model.at(index).toFloat(); };
+
+    // on the grid
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(21.5f)), 21.5f);
+    // off the grid: the nearest step
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(21.3f)), 21.5f);
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(21.2f)), 21.0f);
+    // outside the range: the end of the list
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(35.0f)), 30.0f);
+    QCOMPARE(valueAt(climate->getModelIndexFromTemperature(-5.0f)), 10.0f);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

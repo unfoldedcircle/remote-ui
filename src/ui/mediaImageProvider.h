@@ -34,10 +34,15 @@ class MediaImageProvider : public QQuickImageProvider {
 
     static MediaImageProvider* s_instance;
 
-    mutable QMutex    m_mutex;
+    mutable QMutex         m_mutex;
     QHash<QString, QImage> m_images;
-    QStringList       m_order;
-    int               m_maxEntries = 12;
+    // least recently used first: storing and reading an image moves its key to the back
+    QStringList m_order;
+    // The cache is bounded by memory, not by a number of images: an artwork is up to 1024x1024 (4 MiB), typical
+    // artwork a quarter of that, and a remote has dozens of media players. 12 images of any size used to be the
+    // limit, which lost the artwork of the 13th player while its tile still pointed at the cache.
+    qint64 m_maxBytes = 48 * 1024 * 1024;
+    qint64 m_totalBytes = 0;
 };
 
 }  // namespace ui

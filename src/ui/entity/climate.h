@@ -91,6 +91,9 @@ class Climate : public Base {
     Q_OBJECT
 
     Q_PROPERTY(float currentTemperature READ getCurrentTemperature NOTIFY currentTemperatureChanged)
+    // false until the device reported a current temperature, and when it reports none (null): the screens show
+    // "--" then, like the cover does for an unknown position. 0 is a temperature like any other.
+    Q_PROPERTY(bool currentTemperatureAvailable READ isCurrentTemperatureAvailable NOTIFY currentTemperatureChanged)
     Q_PROPERTY(float targetTemperature READ getTargetTemperature NOTIFY targetTemperatureChanged)
     Q_PROPERTY(float targetTemperatureHigh READ getTargetTemperatureHigh NOTIFY targetTemperatureHighChanged)
     Q_PROPERTY(float targetTemperatureLow READ getTargetTemperatureLow NOTIFY targetTemperatureLowChanged)
@@ -113,6 +116,7 @@ class Climate : public Base {
     ~Climate();
 
     float getCurrentTemperature() { return m_currentTemperature; }
+    bool  isCurrentTemperatureAvailable() { return m_currentTemperatureAvailable; }
     float getTargetTemperature() { return m_targetTemperature; }
     float getTargetTemperatureHigh() { return m_targetTemperatureHigh; }
     float getTargetTemperatureLow() { return m_targetTemperatureLow; }
@@ -157,6 +161,8 @@ class Climate : public Base {
 
  private:
     void updateTemperaturUnitValues();
+    // builds the temperature part of the state info, with the unit label that is current
+    void updateCurrentTemperatureInfo();
 
  private:
     TemperatureUnit::Enum m_temperatureUnit;
@@ -165,11 +171,12 @@ class Climate : public Base {
     float m_targetTemperature;
     float m_targetTemperatureHigh;
     float m_targetTemperatureLow;
-    int   m_fanMode;
+    int   m_fanMode = -1;
 
     // TODO(marton) use better names, what is info1 & 2?
     QString m_stateInfo1;
     QString m_stateInfo2;
+    bool    m_currentTemperatureAvailable = false;
 
     // options
     QVariantMap m_options;

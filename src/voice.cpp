@@ -22,10 +22,7 @@ Voice::Voice(core::Api *core, QObject *parent) : QObject(parent), m_core(core) {
     QObject::connect(m_core, &core::Api::assistantEventFinished, this, &Voice::onAssistantEventFinished);
     QObject::connect(m_core, &core::Api::assistantEventError, this, &Voice::onAssistantEventError);
 
-    QObject::connect(&m_process, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-                     this, [=]{
-                         emit assistantAudioSpeechResponseEnd();
-                     });
+    setPlayer(QStringLiteral("/usr/bin/ffplay"), {"-nodisp", "-autoexit", "-"});
 
     qmlRegisterSingletonType<Voice>("Voice", 1, 0, "Voice", &Voice::qmlInstance);
 }
@@ -40,19 +37,20 @@ int Voice::getSessionId()
     return m_sessionId;
 }
 
-void Voice::playSpeechResponse(const QString &url, const QString &mimeType)
-{
+void Voice::setPlayer(const QString &program, const QStringList &arguments) {
+    m_playerProgram = program;
+    m_playerArguments = arguments;
+}
+
+void Voice::playSpeechResponse(const QString &url, const QString &mimeType) {
     static const QSet<QString> allowedMimes = {
-        QStringLiteral("audio/mpeg"),
-        QStringLiteral("audio/mp3"),
-        QStringLiteral("audio/wav"),
-        QStringLiteral("audio/x-wav"),
-        QStringLiteral("audio/ogg"),
-        QStringLiteral("audio/opus"),
-        QStringLiteral("audio/webm"),
-        QStringLiteral("audio/flac"),
-        QStringLiteral("audio/aac")
-    };
+        QStringLiteral("audio/mpeg"),  QStringLiteral("audio/mp3"),  QStringLiteral("audio/wav"),
+        QStringLiteral("audio/x-wav"), QStringLiteral("audio/ogg"),  QStringLiteral("audio/opus"),
+        QStringLiteral("audio/webm"),  QStringLiteral("audio/flac"), QStringLiteral("audio/aac")};
+
+    // A new answer replaces the one that is still playing. Its download fed the new player and its end, reported
+    // when it was killed, closed the voice overlay of the new answer.
+    stopSpeechResponse();
 
     if (!allowedMimes.contains(mimeType)) {
         qCWarning(lcVoice()) << "Refusing to play unsupported MIME type:" << mimeType;
@@ -60,53 +58,100 @@ void Voice::playSpeechResponse(const QString &url, const QString &mimeType)
         return;
     }
 
-    if (m_process.state() != QProcess::NotRunning) {
-        m_process.kill();
-        // don't block the UI thread for the default 30s if the process cannot be reaped
-        if (!m_process.waitForFinished(3000)) {
-            qCWarning(lcVoice()) << "Timed out waiting for previous playback process to finish";
+    qCDebug(lcVoice()) << "Speech response: playing" << mimeType;
+
+    auto player = new QProcess(this);
+    m_player = player;
+
+    QObject::connect(player, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this,
+                     [this, player](int exitCode, QProcess::ExitStatus exitStatus) {
+                         player->deleteLater();
+                         if (player != m_player) {
+                             return;
+                         }
+                         qCDebug(lcVoice()) << "Speech response: playback finished" << exitCode << exitStatus;
+                         m_player = nullptr;
+                         emit assistantAudioSpeechResponseEnd();
+                     });
+
+    QObject::connect(player, &QProcess::errorOccurred, this, [this, player](QProcess::ProcessError error) {
+        // the other errors end with finished(), which reports the end
+        if (error != QProcess::FailedToStart || player != m_player) {
+            return;
+        }
+        qCWarning(lcVoice()) << "Failed to start the speech player" << m_playerProgram << player->errorString();
+        player->deleteLater();
+        stopSpeechResponse();
+        emit assistantAudioSpeechResponseEnd();
+    });
+
+    // the answer is streamed into the player once it runs
+    QObject::connect(player, &QProcess::started, this, [this, player, url]() {
+        if (player != m_player) {
+            // replaced while it was starting: it would wait for input forever
+            player->kill();
+            return;
+        }
+
+        QNetworkRequest request(url);
+        request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
+        request.setTransferTimeout(IMAGE_REQUEST_TIMEOUT_MS);
+
+        // Create SSL configuration that ignores certificate errors
+        QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
+        sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
+        request.setSslConfiguration(sslConfig);
+
+        QNetworkReply *reply = m_networkManager.get(request);
+        m_speechReply = reply;
+
+        QObject::connect(reply, &QNetworkReply::readyRead, this, [this, reply, player]() {
+            const QByteArray chunk = reply->readAll();
+            if (reply != m_speechReply || player != m_player || chunk.isEmpty()) {
+                return;
+            }
+            player->write(chunk);
+        });
+
+        QObject::connect(reply, &QNetworkReply::finished, this, [this, reply, player]() {
+            reply->deleteLater();
+            if (reply != m_speechReply) {
+                return;
+            }
+            m_speechReply = nullptr;
+            if (reply->error() != QNetworkReply::NoError) {
+                qCWarning(lcVoice()) << "Speech response download failed:" << reply->errorString();
+            }
+            // the player ends once it has played what it got
+            if (player == m_player) {
+                player->closeWriteChannel();
+            }
+        });
+    });
+
+    player->start(m_playerProgram, m_playerArguments);
+}
+
+void Voice::stopSpeechResponse() {
+    if (m_speechReply) {
+        QNetworkReply *reply = m_speechReply;
+        m_speechReply = nullptr;
+        reply->disconnect(this);
+        reply->abort();
+        reply->deleteLater();
+    }
+
+    if (m_player) {
+        QProcess *player = m_player;
+        m_player = nullptr;
+        qCDebug(lcVoice()) << "Speech response: stopping the previous playback";
+        // its finished() no longer reports an end, see the handlers in playSpeechResponse(); deleted once it exited
+        if (player->state() == QProcess::NotRunning) {
+            player->deleteLater();
+        } else {
+            player->kill();
         }
     }
-
-    QStringList args;
-    args
-        << "-nodisp"
-        << "-autoexit"
-        << "-";
-
-    m_process.start(QStringLiteral("/usr/bin/ffplay"), args);
-
-    if (!m_process.waitForStarted(5000)) {
-        qCWarning(lcVoice()) << "Failed to start ffplay";
-        emit assistantAudioSpeechResponseEnd();
-        return;
-    }
-
-    auto nam   = new QNetworkAccessManager(this);
-
-    QNetworkRequest request(url);
-    request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, true);
-    request.setTransferTimeout(IMAGE_REQUEST_TIMEOUT_MS);
-
-    // Create SSL configuration that ignores certificate errors
-    QSslConfiguration sslConfig = QSslConfiguration::defaultConfiguration();
-    sslConfig.setPeerVerifyMode(QSslSocket::VerifyNone);
-
-    request.setSslConfiguration(sslConfig);
-
-    auto reply = nam->get(request);
-
-    connect(reply, &QNetworkReply::readyRead, this, [this, reply]() {
-        QByteArray chunk = reply->readAll();
-        if (!chunk.isEmpty())
-            m_process.write(chunk);
-    });
-
-    connect(reply, &QNetworkReply::finished, this, [this, reply, nam]() {
-        reply->deleteLater();
-        nam->deleteLater();
-        m_process.closeWriteChannel();
-    });
 }
 
 QObject *Voice::qmlInstance(QQmlEngine *engine, QJSEngine *scriptEngine) {

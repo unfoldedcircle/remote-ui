@@ -45,7 +45,10 @@ Light::Light(const QString &id, QVariantMap nameI18n, const QString &language, c
         m_colorTempSteps = options.value("color_temperature_steps").toInt();
     }
 
-    qmlRegisterType<LightColorWheel>("Entity.Light", 1, 0, "ColorWheel");
+    // Registered once: a type registration is never released, and every light entity ran this line.
+    // It stays here so that the type is registered before the first light screen can be loaded, as before.
+    static const int colorWheelTypeId = qmlRegisterType<LightColorWheel>("Entity.Light", 1, 0, "ColorWheel");
+    Q_UNUSED(colorWheelTypeId)
 }
 
 Light::~Light() {
@@ -116,9 +119,10 @@ bool Light::updateAttribute(const QString &attribute, QVariant data) {
                     emit brightnessChanged();
 
                     m_stateInfo2 = "";
-                } else if (m_state == LightStates::Unavailable || m_state == LightStates::Unknown) {
-                    m_stateInfo2 = "";
                 }
+                // Unavailable and Unknown keep the brightness and its text: getStateInfo() only shows the text
+                // while the light is on, and it is only built again when the brightness value changes. Clearing
+                // it here lost the percentage of a light that came back on with the brightness it had before.
                 ok = true;
                 emit stateChanged(m_id, m_state);
 

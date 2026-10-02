@@ -18,6 +18,8 @@ int GroupItemList::count() const {
 
 void GroupItemList::append(GroupItem *item) {
     if (contains(item->groupItemId())) {
+        // the caller created the item for this list: a rejected one would leak
+        item->deleteLater();
         return;
     }
 
@@ -133,7 +135,11 @@ void GroupItemList::swapData(int from, int to) {
         QModelIndex fromIdx = index(from, 0);
         QModelIndex toIdx = index(to, 0);
 
-        beginMoveRows(QModelIndex(), from, from, QModelIndex(), to);
+        // beginMoveRows takes the row the item is inserted in front of, QList::move the index it ends up at:
+        // moving down by more than one row they differ by one
+        const int destinationRow = to > from ? to + 1 : to;
+
+        beginMoveRows(QModelIndex(), from, from, QModelIndex(), destinationRow);
         m_data.move(from, to);
         endMoveRows();
 

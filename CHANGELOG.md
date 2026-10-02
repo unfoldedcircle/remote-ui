@@ -47,6 +47,75 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The activity bar of a page follows changes to the page and its groups. A running activity or playing media player
+  that was removed from a page stayed in that page's activity bar, and one that was added to a page, also through a
+  group or with a new page, was missing from it, until the activity was stopped or started again.
+- In builds with the free icon font, macro, select, switch and IR emitter entities, artists, tracks, playlists, apps,
+  channels and web links in the media browser, integrations without an icon, the default activity group, and the
+  home, play/pause and record buttons of remotes show an icon instead of a question mark. The core assigns these
+  icons on its own, and the free icon font lacks them.
+- An icon that the icon font does not have is no longer drawn with an unrelated symbol of another installed font.
+  With the free icon font, any system font that happened to have a character at the same position was used
+  instead of the icon's replacement, for example a digit or a math symbol in place of a media or remote icon.
+- A new voice question stops the spoken answer to the previous one. When the voice screen was closed while an
+  answer was still playing, the answer was recorded with the next question, and its end closed the voice screen of
+  the next question.
+- A spoken answer of the voice assistant that arrives while the previous one is still playing replaces it cleanly:
+  the rest of the previous answer was played into the new one, the voice screen closed before the new answer had
+  finished, and the remote did not react for up to eight seconds while the previous answer was stopped.
+- The climate screen starts on the nearest temperature of its list when the target temperature of the device is
+  not one of its steps, or outside its range. Pressing up or down then sent an invalid temperature, or the
+  highest one of the list.
+- A software update download that fails is shown as failed on the software update page. The page kept showing
+  "Downloading" with the button disabled, and the keys went to the hidden installation screen.
+- The power off menu can be opened again after a software update whose end the remote missed while it was
+  reconnecting to its core.
+- The media browser no longer shows the content of a folder that was left before it finished loading in place of
+  the folder shown.
+- A dropdown in the setup of an integration starts on the option the integration preselects instead of the first
+  option.
+- The artwork of a media player no longer disappears when more than twelve media players show artwork.
+- The "Select all" button of an entity list is shown again when a search, a filter or more loaded entities bring
+  in entities that are not selected. It kept reading "Clear" and did nothing when pressed.
+- The connection status of the integrations no longer lists a driver as failing that recovered while the remote
+  was reconnecting to its core, or that was deleted in the meantime.
+- Stopping the app during the first seconds after its start no longer leaves it running until the system kills
+  it, which made the device fall back to the factory UI and reboot.
+- The WiFi connection details show the key management as reported (`WPA2-PSK`, not `WPA2_PSK`), and a WPA3
+  connection is recognised as such instead of as an unknown security type.
+- The on/off text of a binary sensor (opened/closed, detected/clear, ...) follows a language change right away,
+  and a device class that arrives after the value.
+- A climate device shows a current temperature of 0, and `--` while it has no temperature to report. 0 was never
+  shown, and a missing temperature was shown as 0.
+- Removing a media player entity, or reloading the entities after a reconnect, while its artwork is still being
+  decoded can no longer crash the app.
+- The log of a desktop simulator run as Remote 3 no longer repeats the missing touch slider warning every second.
+- Settings that are changed right before the remote shuts down are written to disk.
+- Names of integrations and entities loaded before the language of the remote is known are shown in English
+  instead of the alphabetically first translation.
+- A language whose translation file cannot be loaded no longer leaves the interface half translated: the language
+  shown so far stays in place.
+- A response of a newer core that this version doesn't know no longer leaves the request waiting forever.
+- An integration driver that goes from reconnecting to connecting shows that state.
+- A light that comes back from unavailable, for example when its integration reconnects, shows its brightness
+  percentage again.
+- The climate tile shows the temperature with the unit of the entity right away. A Fahrenheit entity showed its
+  temperature with °C until the temperature changed.
+- Links in the legal documents of the About settings open the linked document on every platform, not only when
+  the app runs from the root directory, and the images of the linked document are shown. Only documents of the
+  legal directory are opened: no link leads to the network.
+- Dragging a page, or an entity of a page or group, over more than one position no longer shows another item in
+  the dragged tile.
+- The onboarding no longer skips the step for naming the remote when the connection to the core is re-established
+  while that step is shown.
+- A forgotten WiFi network appears in the list of available networks again right away, instead of only after a
+  later scan found a change.
+- A dock setup that cannot be started is reported as failed right away. The setup screen used to stay behind the
+  loading screen for three minutes.
+- An integration that is connected is no longer shown as not connected after it was renamed or otherwise changed
+  in the web configurator. The new name also appears in the integration list right away.
+- Settings no longer show arbitrary values, and haptic feedback no longer fires although it is disabled, in the
+  moment between the start of the app and the first configuration received from the core.
 - The charging screen no longer appears on the charger when the app reconnects to the core, for example after a
   restart of the core. It is still shown when the remote wakes up on the charger, as intended.
 - An activity that was already running is no longer reported as started from another device after the app
