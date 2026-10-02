@@ -909,8 +909,9 @@ void Controller::onActivity(QString entityId, bool remove) {
             continue;
         }
 
+        // an empty page has nothing to update, the pages after it do
         if (page->m_items->count() == 0) {
-            return;
+            continue;
         }
 
         for (int j = 0; j < page->m_items->count(); j++) {

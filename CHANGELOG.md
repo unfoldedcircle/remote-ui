@@ -47,6 +47,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- Setting up an integration driver found on the network now sends the address and the access token entered for
+  it. They were left out of the request, so such a driver could not be configured.
+- A change of an integration driver, for example a new version or name after an update, is shown right away
+  instead of only after the next reconnect.
+- The running activity indicator of a page is also updated on the pages that come after an empty page.
+- The description of a dock is shown after loading the docks, not only after the dock was changed.
+- Removing the last entity of a group is saved. The group kept its entities, because an empty list was not sent.
 - The app no longer crashes when a group is changed or deleted from another client, for example the web
   configurator, while the remote is still loading the groups of a profile, which it does after every reconnect.
 - The app no longer crashes when the language is changed after an integration was set up and the list of available

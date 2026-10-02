@@ -462,7 +462,7 @@ int Api::addGroup(const QString& profileId, const QString& name, const QString& 
 }
 
 int Api::updateGroup(const QString& groupId, const QString& profileId, const QString& name, const QString& icon,
-                     const QStringList& entities) {
+                     const QStringList& entities, bool setEntities) {
     if (groupId.isEmpty() || profileId.isEmpty()) {
         return -1;
     }
@@ -478,7 +478,7 @@ int Api::updateGroup(const QString& groupId, const QString& profileId, const QSt
         msgData.insert("icon", icon);
     }
 
-    if (entities.length() > 0) {
+    if (setEntities) {
         msgData.insert("entities", entities);
     }
 
@@ -639,16 +639,15 @@ int Api::integrationGetDiscoveredDriverMetadata(const QString& driverId, const Q
     msgData.insert("driver_id", driverId);
     msgData.insert("timeout", timeOut);
 
-    QVariantMap connection;
+    // The core reads driver_url and token from the top level of msg_data (GetDiscoveredIntgDriverMetadataMsgData),
+    // not from a connection object as the Core-API document shows: a connection object is ignored.
     if (!driverUrl.isEmpty()) {
-        connection.insert("driver_url", driverUrl);
+        msgData.insert("driver_url", driverUrl);
     }
 
     if (!token.isEmpty()) {
-        connection.insert("token", token);
+        msgData.insert("token", token);
     }
-
-    msgData.insert("connection", connection);
 
     return sendRequest(RequestTypes::get_discovered_integration_driver_metadata, msgData);
 }
@@ -706,13 +705,14 @@ int Api::integrationConfigureDiscoveredDriver(const QString& driverId, QVariantM
     msgData.insert("driver_id", driverId);
     msgData.insert("name", name);
 
-    QVariantMap connection;
+    // driver_url and token are top level fields of msg_data (Core-API ConfigureDiscoveredIntegrationDriverMsg, and
+    // the core's IntegrationDriverSetupParam), not a connection object
     if (!driverUrl.isEmpty()) {
-        connection.insert("driver_url", driverUrl);
+        msgData.insert("driver_url", driverUrl);
     }
 
     if (!token.isEmpty()) {
-        connection.insert("token", token);
+        msgData.insert("token", token);
     }
 
     return sendRequest(RequestTypes::configure_discovered_integration_driver, msgData);
@@ -3103,7 +3103,7 @@ void Api::processResponseDocks(int reqId, int code, QVariant msgData) {
             dock.version = map.value("version").toString();
             dock.state = Util::convertStringToEnum<DockEnums::DockState>(map.value("state").toString());
             dock.learningActive = map.value("learning_active").toBool();
-            dock.description = map.value("descriptions").toString();
+            dock.description = map.value("description").toString();
             if (map.contains("led_brightness")) {
                 dock.ledBrightness = map.value("led_brightness").toInt();
             }
@@ -3134,7 +3134,7 @@ void Api::processResponseDock(int reqId, int code, QVariant msgData) {
     dock.version = map.value("version").toString();
     dock.state = Util::convertStringToEnum<DockEnums::DockState>(map.value("state").toString());
     dock.learningActive = map.value("learning_active").toBool();
-    dock.description = map.value("descriptions").toString();
+    dock.description = map.value("description").toString();
     if (map.contains("led_brightness")) {
         dock.ledBrightness = map.value("led_brightness").toInt();
     }

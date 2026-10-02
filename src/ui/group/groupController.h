@@ -25,8 +25,13 @@ class GroupController : public QObject {
 
     Q_INVOKABLE int addGroup(const QString& profileId, const QString& name,
                              const QStringList& entities = QStringList());
-    Q_INVOKABLE int updateGroup(const QString& groupId, const QString& profileId, const QString& name = QString(),
-                                const QStringList& entities = QStringList());
+    /**
+     * @param name the new name, an empty name keeps the current one
+     * @param entities the new entity list, which replaces the current one: an empty list removes the last entity.
+     *                 Left out (an invalid QVariant), the entities are not touched, which is what a rename passes.
+     */
+    Q_INVOKABLE int updateGroup(const QString& groupId, const QString& profileId, const QString& name,
+                                const QVariant& entities = QVariant());
     Q_INVOKABLE int deleteGroup(const QString& groupId);
 
     void setProfileId(const QString& profileId);

@@ -1091,28 +1091,37 @@ void IntegrationController::onDriverAdded(QString driverId, core::IntegrationDri
 }
 
 void IntegrationController::onDriverChanged(QString driverId, core::IntegrationDriver integrationDriver) {
-    if (!m_integrationDrivers.contains(integrationDriver.id)) {
-        auto obj = m_integrationDrivers.get(driverId);
-
-        if (obj) {
-            obj->setNameI18n(integrationDriver.name);
-            obj->setDriverUrl(integrationDriver.driverUrl);
-            obj->setVersion(integrationDriver.version);
-            obj->setIcon(integrationDriver.icon);
-            obj->setEnabled(integrationDriver.enabled);
-            obj->setState(Util::convertEnumToString(integrationDriver.state));
-            obj->setDescription(integrationDriver.description);
-            obj->setDeveloperName(integrationDriver.developer.name);
-            obj->setHomePage(integrationDriver.homePage);
-            obj->setReleaseDate(integrationDriver.releaseDate);
-            obj->setDiscovered(integrationDriver.deviceDiscovery);
-            obj->setSetupScehma(new SetupSchema(integrationDriver.settingsPage.title,
-                                                integrationDriver.settingsPage.settings, m_language));
-            obj->setInstanceCount(integrationDriver.instanceCount);
-            obj->updateLanguage(m_language);
-        }
-        qCDebug(lcIntegrationController()) << "Changed integration driver:" << driverId;
+    auto obj = m_integrationDrivers.get(driverId);
+    if (!obj) {
+        return;
     }
+
+    obj->setNameI18n(integrationDriver.name);
+    obj->setDriverUrl(integrationDriver.driverUrl);
+    obj->setVersion(integrationDriver.version);
+    obj->setIcon(integrationDriver.icon);
+    obj->setEnabled(integrationDriver.enabled);
+    obj->setDescription(integrationDriver.description);
+    obj->setDeveloperName(integrationDriver.developer.name);
+    obj->setHomePage(integrationDriver.homePage);
+    obj->setReleaseDate(integrationDriver.releaseDate);
+    // The previous schema is not deleted: a setup in progress may still show it as a configuration page.
+    obj->setSetupScehma(
+        new SetupSchema(integrationDriver.settingsPage.title, integrationDriver.settingsPage.settings, m_language));
+    obj->setInstanceCount(integrationDriver.instanceCount);
+    obj->updateLanguage(m_language);
+
+    // the list views read the driver through the model roles
+    const QModelIndex modelIndex = m_integrationDrivers.getModelIndexByKey(driverId);
+    emit              m_integrationDrivers.dataChanged(modelIndex, modelIndex);
+
+    // The state goes through the state handler, which keeps the lower case form the UI compares against and the
+    // list of drivers in error. A change event without a known driver state leaves the state alone.
+    if (static_cast<int>(integrationDriver.state) >= 0) {
+        onIntegrationDriverStateChanged(driverId, Util::convertEnumToString(integrationDriver.state));
+    }
+
+    qCDebug(lcIntegrationController()) << "Changed integration driver:" << driverId;
 }
 
 void IntegrationController::onDriverDeleted(QString driverId) {

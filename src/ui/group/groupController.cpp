@@ -47,8 +47,10 @@ int GroupController::addGroup(const QString &profileId, const QString &name, con
 }
 
 int GroupController::updateGroup(const QString &groupId, const QString &profileId, const QString &name,
-                                 const QStringList &entities) {
-    int id = m_core->updateGroup(groupId, profileId, name, QString(), entities);
+                                 const QVariant &entities) {
+    // a QStringList from C++, a JS array of ids from QML; nothing at all for a rename
+    const bool setEntities = entities.isValid();
+    int        id = m_core->updateGroup(groupId, profileId, name, QString(), entities.toStringList(), setEntities);
 
     m_core->onResponseWithErrorResult(
         id, &core::Api::respGroup,

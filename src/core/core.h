@@ -117,8 +117,13 @@ class Api : public QObject {
     int getGroup(const QString &groupId);
     int addGroup(const QString &profileId, const QString &name, const QString &icon = QString(),
                  const QStringList &entities = QStringList());
+    /**
+     * @param setEntities replace the entities of the group with `entities`. An empty list removes all of them, so
+     * it cannot stand for "leave the entities alone": a rename passes false.
+     */
     int updateGroup(const QString &groupId, const QString &profileId, const QString &name,
-                    const QString &icon = QString(), const QStringList &entities = QStringList());
+                    const QString &icon = QString(), const QStringList &entities = QStringList(),
+                    bool setEntities = true);
     int deleteGroup(const QString &groupId);
     int getGroups(const QString &profileId, int pin = -1);
 
