@@ -6,12 +6,11 @@
 #include <QDir>
 #include <QFile>
 #include <QFont>
-#include <QFontMetrics>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QObject>
 #include <QQmlEngine>
-#include <QScopedPointer>
+#include <QRawFont>
 
 namespace uc {
 namespace ui {
@@ -57,7 +56,8 @@ class Resources : public QObject {
     QJsonObject m_iconFallback;
     QString     m_iconPlaceholder;
 
-    QScopedPointer<QFontMetrics> m_iconMetrics;
+    // the icon font alone, without Qt's fallback fonts; invalid until setIconFont()
+    QRawFont m_iconFont;
 
     /**
      * @brief Returns the icon glyph for a mapped icon name, or an empty string.

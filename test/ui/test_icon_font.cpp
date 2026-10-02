@@ -3,6 +3,10 @@
 
 #include <QFile>
 #include <QFontDatabase>
+#include <QFontMetrics>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QRawFont>
 #include <QTemporaryDir>
 #include <QtTest>
 
@@ -30,6 +34,7 @@ class testIconFont : public QObject {
     void unknownIconReturnsEmpty();
     void iconMissingFromTheFontUsesItsFallback();
     void iconMissingFromTheFontWithoutFallbackUsesThePlaceholder();
+    void iconMissingFromTheFontIsNotTakenFromAnotherFont();
     void iconListOnlyOffersIconsTheFontCanDraw();
     void withoutAFontEveryMappedIconIsReturned();
 
@@ -115,6 +120,36 @@ void testIconFont::iconMissingFromTheFontWithoutFallbackUsesThePlaceholder() {
     resources->setIconFont(m_family);
 
     QCOMPARE(resources->getIcon("uc:" + m_proOnlyIcon), resources->getIcon("uc:" + m_placeholder));
+}
+
+void testIconFont::iconMissingFromTheFontIsNotTakenFromAnotherFont() {
+    // Qt draws a code point the icon font lacks with any installed font that has it (OpenSymbol and DejaVu have
+    // glyphs at Font Awesome code points). Such an icon is missing all the same: it gets its fallback or the
+    // placeholder, never the other font's unrelated glyph. Find one on this system: QFontMetrics answers for the
+    // fallback fonts too, the font file only for itself.
+    QFile mappingFile(":icon-mapping.json");
+    QVERIFY(mappingFile.open(QIODevice::ReadOnly));
+    const QJsonObject mapping = QJsonDocument::fromJson(mappingFile.readAll()).object();
+
+    const QRawFont     iconFont(QStringLiteral(":icon-font.ttf"), 16);
+    const QFontMetrics withFallbacks{QFont(m_family)};
+    QString            name;
+
+    for (auto i = mapping.constBegin(); i != mapping.constEnd() && name.isEmpty(); ++i) {
+        const uint codePoint = i.value().toString().toUcs4().value(0);
+        if (!iconFont.supportsCharacter(codePoint) && withFallbacks.inFontUcs4(codePoint)) {
+            name = i.key();
+        }
+    }
+    if (name.isEmpty()) {
+        QSKIP("no font on this system has a glyph at a code point the icon font lacks");
+    }
+
+    QScopedPointer<uc::ui::Resources> resources(createResources());
+    resources->setIconFont(m_family);
+
+    QVERIFY2(resources->getIcon("uc:" + name) != mapping.value(name).toString(), qPrintable(name));
+    QVERIFY2(!resources->getIconList().contains("uc:" + name), qPrintable(name));
 }
 
 void testIconFont::iconListOnlyOffersIconsTheFontCanDraw() {

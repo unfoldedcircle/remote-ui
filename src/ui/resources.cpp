@@ -47,8 +47,13 @@ Resources::Resources(const QString& resourcePath, const QString& legalPath, QObj
 Resources::~Resources() {}
 
 void Resources::setIconFont(const QString& family) {
-    QFont font(family);
-    m_iconMetrics.reset(new QFontMetrics(font));
+    // The physical font itself: QFontMetrics::inFontUcs4() also answers for Qt's fallback fonts, so a code point
+    // that any installed font happens to have would count as drawable and be drawn with that font's glyph.
+    m_iconFont = QRawFont::fromFont(QFont(family));
+
+    if (m_iconFont.familyName() != family) {
+        qCWarning(lcResources()) << "Icon font family" << family << "resolves to" << m_iconFont.familyName();
+    }
 
     qCDebug(lcResources()) << "Icon font family:" << family;
 }
@@ -59,11 +64,11 @@ bool Resources::canRenderGlyph(const QString& glyph) const {
     }
 
     // Without a font the icons are rendered by whatever QML picks: don't second-guess it.
-    if (m_iconMetrics.isNull()) {
+    if (!m_iconFont.isValid()) {
         return true;
     }
 
-    return m_iconMetrics->inFontUcs4(glyph.toUcs4().first());
+    return m_iconFont.supportsCharacter(glyph.toUcs4().first());
 }
 
 QString Resources::getIconGlyph(const QString& name) {

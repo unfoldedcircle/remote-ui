@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- An icon that the icon font does not have is no longer drawn with an unrelated symbol of another installed font.
+  With the free icon font, any system font that happened to have a character at the same position was used
+  instead of the icon's replacement, for example a digit or a math symbol in place of a media or remote icon.
 - A new voice question stops the spoken answer to the previous one. When the voice screen was closed while an
   answer was still playing, the answer was recorded with the next question, and its end closed the voice screen of
   the next question.
