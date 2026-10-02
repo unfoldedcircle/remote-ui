@@ -97,7 +97,8 @@ Settings.Page {
 
                 if (content.followLinks) {
                     content.followLinks = false;
-                    content.text = resource.getLinkContent(content.baseUrl, link);
+                    // the linked document arrives through onAboutInfo; getLinkContent() returns nothing
+                    resource.getLinkContent(content.baseUrl, link);
                 }
             }
 
