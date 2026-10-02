@@ -47,6 +47,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- In builds with the free icon font, macro, select, switch and IR emitter entities, artists, tracks, playlists, apps,
+  channels and web links in the media browser, integrations without an icon, the default activity group, and the
+  home, play/pause and record buttons of remotes show an icon instead of a question mark. The core assigns these
+  icons on its own, and the free icon font lacks them.
 - An icon that the icon font does not have is no longer drawn with an unrelated symbol of another installed font.
   With the free icon font, any system font that happened to have a character at the same position was used
   instead of the icon's replacement, for example a digit or a math symbol in place of a media or remote icon.
