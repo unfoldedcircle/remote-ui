@@ -10,7 +10,8 @@ MAKEFLAGS += --no-print-directory
 .DEFAULT_GOAL := help
 
 # Overridable on the command line, e.g. `make linux QT_VERSION=5.15.2` or `make linux-static QTDIR_STATIC=/opt/qt-static`,
-# or from the environment: `. scripts/env/qt-version.sh [version]` exports QTDIR and QT_VERSION for the shell.
+# or from the environment: `. scripts/env/qt-version.sh [version]` exports QTDIR and QT_VERSION for the shell, and
+# QTDIR_STATIC as well when it selected a static Qt.
 # QT_VERSION defaults to the version of an exported QTDIR, else to the newest Qt in ~/Qt (docs/install.md).
 qt_version_of  = $(filter 5.%,$(notdir $(patsubst %/,%,$(dir $(1)))))
 # The Qt directory name inside ~/Qt/<version>/ follows aqtinstall: gcc_64 on Linux, clang_64 on macOS.
@@ -99,6 +100,9 @@ windows-x64: ## Cross-compile the experimental static Windows simulator in the D
 	@echo "Copy remote-ui.exe to a Windows machine and start it with scripts\\env\\windows.cmd, see docs/static-compile-windows.md"
 
 test: ## Build and run the unit tests (CMake, dynamic Qt)
+	@grep -qE '^CONFIG \+=.*\bshared\b' "$(QTDIR)/mkspecs/qconfig.pri" 2>/dev/null || { \
+	    echo "error: $(QTDIR) is not a shared Qt build (see CONFIG in mkspecs/qconfig.pri)."; \
+	    echo "       Set QTDIR=<path> or install Qt as described in docs/install.md"; exit 1; }
 	mkdir -p "$(ROOT)/test/build"
 	@grep -qs 'Qt5_DIR:PATH=$(QTDIR)/' "$(ROOT)/test/build/CMakeCache.txt" || rm -rf "$(ROOT)/test/build"/*
 	cd "$(ROOT)/test/build" && cmake -D CMAKE_PREFIX_PATH="$(QTDIR)" .. && cmake --build . -j$(JOBS)

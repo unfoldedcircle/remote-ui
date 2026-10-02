@@ -174,7 +174,8 @@ serves the desktop UI app and must not be relied on for anything exposed to a ne
 
 Qt has no standard mechanism for selecting one of several installations (Debian's `qtchooser` only redirects the
 command line tools, not the libraries, headers and CMake config). The repository provides
-`scripts/env/qt-version.sh` instead. Source it (don't execute it) to point the current shell at one installation:
+`scripts/env/qt-version.sh` instead. Source it (don't execute it, bash or zsh) to point the current shell at one
+installation:
 
 ```bash
 cd ~/projects/remote-ui
@@ -187,7 +188,11 @@ cd ~/projects/remote-ui
 It exports `QTDIR`, `QT_ROOT_DIR` (the name the GitHub workflow uses), `QT_VERSION`, `Qt5_DIR` and prepends
 `$QTDIR/bin` to `PATH` and `$QTDIR` to `CMAKE_PREFIX_PATH`; entries of a previously selected Qt are removed from
 `PATH`, `CMAKE_PREFIX_PATH`, `LD_LIBRARY_PATH` and `QT_PLUGIN_PATH` first, so it can be sourced as often as needed.
-`QT_ROOT` selects a directory other than `~/Qt`. For a permanent default put one line in `~/.bashrc`:
+`QT_ROOT` selects a directory other than `~/Qt`. A shared Qt always has priority: a version that has only the static
+Qt of [static-compile-debian-13.md](static-compile-debian-13.md) is selected as `gcc_64-static`, and without a
+version the newest `gcc_64-static` is taken only when there is no shared Qt at all. A static Qt, also one given by
+path, is exported as `QTDIR_STATIC` too: `make linux-static` builds with it, `make linux` and `make test` refuse it,
+they need a shared Qt. For a permanent default put one line in `~/.bashrc`:
 
 ```bash
 . ~/projects/remote-ui/scripts/env/qt-version.sh 5.15.19   # or without version: the newest installed Qt

@@ -116,8 +116,10 @@ time (only for files that were unmodified before).
 Which static Qt is used: `QTDIR_STATIC` defaults to `~/Qt/$(QT_VERSION)/gcc_64-static`, where `QT_VERSION` is the
 version of an exported `QTDIR` (see `scripts/env/qt-version.sh` in
 [install-debian-13.md](install-debian-13.md#3-environment-and-switching-between-qt-versions)), else the newest Qt in
-`~/Qt`. `make linux-static QT_VERSION=5.15.2` or `make linux-static QTDIR_STATIC=<path>` selects another one
-(`QTDIR` itself is ignored on purpose, it points to the dynamic Qt), and a Qt that is not a static build is refused.
+`~/Qt`. When `qt-version.sh` selects a static Qt, because the version has no shared one or because its path was
+given, it exports that Qt as `QTDIR_STATIC`. `make linux-static QT_VERSION=5.15.2` or
+`make linux-static QTDIR_STATIC=<path>` selects another one (`QTDIR` itself is ignored on purpose, it points to the
+dynamic Qt), and a Qt that is not a static build is refused.
 `make clean-static` starts from scratch, `JOBS=N` limits the parallelism.
 
 What `CONFIG+=static` changes in `remote-ui.pro`: `QT += svg` and `QTPLUGIN += qtvirtualkeyboardplugin` are added,

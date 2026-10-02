@@ -27,8 +27,9 @@ Adding a target: copy the closest guide, name it `install-<distribution>-<versio
 
 After Qt is installed, build with `make linux` (or `make linux-static`) and start the UI app with `make run-linux`;
 `make` without a target lists everything. Several Qt versions can be installed side by side in `~/Qt/<version>/`:
-`. scripts/env/qt-version.sh [version]` selects one for the current shell and the Makefile defaults to the newest
-one (`make linux QT_VERSION=5.15.2` overrides). Qt Creator users open `remote-ui.pro` with a kit for the installed Qt.
+`. scripts/env/qt-version.sh [version]` selects one for the current shell (the shared Qt, else the static one) and the
+Makefile defaults to the newest one (`make linux QT_VERSION=5.15.2` overrides). Qt Creator users open `remote-ui.pro`
+with a kit for the installed Qt.
 See the [README](../README.md) for the environment variables the app reads.
 
 ## Fonts

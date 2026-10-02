@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- `. scripts/env/qt-version.sh` finds a Qt that is installed only as static `clang_64-static` or `gcc_64-static`,
+  like the Qt of the macOS guide, and without a version it also works in zsh, the default shell on macOS.
 - `make test` works on Apple Silicon Macs with the Qt compiled from source: the unit tests are built for the Mac's own
   architecture, like that Qt, instead of always for x86_64.
 - The activity bar of a page follows changes to the page and its groups. A running activity or playing media player

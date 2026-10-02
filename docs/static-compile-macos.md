@@ -143,6 +143,12 @@ churn that `lupdate` produces at qmake time (only for files that were unmodified
 `make macos-static QTDIR_STATIC=<path>` selects another static Qt, a Qt that is not a static build is refused.
 `make clean-macos-static` starts from scratch, `JOBS=N` limits the parallelism.
 
+`. scripts/env/qt-version.sh [version]` (bash or zsh) selects a Qt for the whole shell, for `qmake`, `cmake` and a
+Qt Creator started from it: the shared `~/Qt/<version>/clang_64` of step 5a when it is installed, otherwise
+`clang_64-static`. Without a version it takes the newest shared Qt, or the newest static one when there is no shared
+Qt. A static Qt is exported as `QTDIR_STATIC` too: `make macos-static` builds with it, `make macos` and `make test`
+refuse it, they need the shared Qt.
+
 What `CONFIG+=static` changes in `remote-ui.pro`: `QT += svg` and `QTPLUGIN += qtvirtualkeyboardplugin` are added,
 and the intermediate files go to `build/osx-x86_64/release-static/`, so static and dynamic builds never share object
 files.
