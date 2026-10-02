@@ -43,7 +43,15 @@ class testUiModels : public QObject {
     void pageItems_swapData_viewAndDataAgree();
     void groupItems_swapData_viewAndDataAgree();
 
+    void page_activities_showRunningEntitiesOfThePageAndItsGroups();
+    void page_activities_followThePageItems();
+    void page_activities_followTheGroupItems();
+    void page_activities_keepTheirPosition();
+
  private:
+    // the entity ids the activity bar of a page shows, in its order
+    static QStringList activities(uc::ui::Page* page);
+
     // what a view makes of a rowsMoved signal: the row is taken out and inserted in front of the destination
     static void applyRowsMoved(QStringList* viewOrder, const QList<QVariant>& rowsMovedArguments);
 };
@@ -323,6 +331,93 @@ void testUiModels::groupItems_swapData_viewAndDataAgree() {
             QCOMPARE(viewOrder, expected);
         }
     }
+}
+
+QStringList testUiModels::activities(uc::ui::Page* page) {
+    QStringList ids;
+    for (int i = 0; i < page->pageActivities()->count(); i++) {
+        ids.append(page->pageActivities()->getPageItem(i)->pageItemId());
+    }
+    return ids;
+}
+
+void testUiModels::page_activities_showRunningEntitiesOfThePageAndItsGroups() {
+    uc::ui::Page page("page-1", "Page 1");
+    page.addEntity("activity.tv");
+    page.addEntity("light.kitchen");
+    page.addGroup("group.living");
+
+    const QHash<QString, QStringList> groups = {{"group.living", {"media_player.speaker"}}};
+    const auto                        groupHasEntity = [&groups](const QString& groupId, const QString& entityId) {
+        return groups.value(groupId).contains(entityId);
+    };
+
+    // in the order they started: the activity of another page is not shown
+    page.updateActivities({"media_player.speaker", "activity.other_page", "activity.tv"}, groupHasEntity);
+
+    QCOMPARE(activities(&page), QStringList({"media_player.speaker", "activity.tv"}));
+
+    page.updateActivities({}, groupHasEntity);
+
+    QCOMPARE(activities(&page), QStringList());
+}
+
+void testUiModels::page_activities_followThePageItems() {
+    uc::ui::Page page("page-1", "Page 1");
+    page.addEntity("activity.tv");
+    const auto        noGroups = [](const QString&, const QString&) { return false; };
+    const QStringList running = {"activity.tv", "activity.music"};
+
+    page.updateActivities(running, noGroups);
+    QCOMPARE(activities(&page), QStringList({"activity.tv"}));
+
+    // a page change event: the items are replaced while both activities keep running
+    page.removeEntities();
+    page.addEntity("activity.music");
+    page.updateActivities(running, noGroups);
+
+    QCOMPARE(activities(&page), QStringList({"activity.music"}));
+}
+
+void testUiModels::page_activities_followTheGroupItems() {
+    uc::ui::Page page("page-1", "Page 1");
+    page.addGroup("group.living");
+    QHash<QString, QStringList> groups = {{"group.living", {"activity.tv"}}};
+    const auto                  groupHasEntity = [&groups](const QString& groupId, const QString& entityId) {
+        return groups.value(groupId).contains(entityId);
+    };
+    const QStringList running = {"activity.tv"};
+
+    page.updateActivities(running, groupHasEntity);
+    QCOMPARE(activities(&page), QStringList({"activity.tv"}));
+
+    // the activity is taken out of the group while it runs
+    groups["group.living"].clear();
+    page.updateActivities(running, groupHasEntity);
+    QCOMPARE(activities(&page), QStringList());
+
+    // and put back
+    groups["group.living"].append("activity.tv");
+    page.updateActivities(running, groupHasEntity);
+    QCOMPARE(activities(&page), QStringList({"activity.tv"}));
+}
+
+void testUiModels::page_activities_keepTheirPosition() {
+    uc::ui::Page page("page-1", "Page 1");
+    page.addEntity("activity.a");
+    page.addEntity("activity.b");
+    page.addEntity("activity.c");
+    const auto noGroups = [](const QString&, const QString&) { return false; };
+
+    page.updateActivities({"activity.b", "activity.a"}, noGroups);
+    QCOMPARE(activities(&page), QStringList({"activity.b", "activity.a"}));
+
+    // a newly started one is appended, the ones shown keep their place
+    page.updateActivities({"activity.b", "activity.a", "activity.c"}, noGroups);
+    QCOMPARE(activities(&page), QStringList({"activity.b", "activity.a", "activity.c"}));
+
+    page.updateActivities({"activity.b", "activity.c"}, noGroups);
+    QCOMPARE(activities(&page), QStringList({"activity.b", "activity.c"}));
 }
 
 QTEST_GUILESS_MAIN(testUiModels)

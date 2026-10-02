@@ -213,6 +213,9 @@ class Controller : public QObject {
     void onActivityAdded(QString entityId);
     void onActivityRemoved(QString entityId);
 
+    // the activity bar of every page: the running activities and playing media players on the page or in its groups
+    void updatePageActivities();
+
  private:
     QQmlApplicationEngine* m_engine;
     Config*                m_config;
@@ -251,8 +254,6 @@ class Controller : public QObject {
     static QString factoryResetNotStartedMsg() {
         return tr("The factory reset could not be started. Please try again.");
     }
-
-    void onActivity(QString entityId, bool remove = false);
 
  private:
     /**

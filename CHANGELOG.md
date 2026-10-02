@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The activity bar of a page follows changes to the page and its groups. A running activity or playing media player
+  that was removed from a page stayed in that page's activity bar, and one that was added to a page, also through a
+  group or with a new page, was missing from it, until the activity was stopped or started again.
 - In builds with the free icon font, macro, select, switch and IR emitter entities, artists, tracks, playlists, apps,
   channels and web links in the media browser, integrations without an icon, the default activity group, and the
   home, play/pause and record buttons of remotes show an icon instead of a question mark. The core assigns these

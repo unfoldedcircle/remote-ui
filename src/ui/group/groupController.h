@@ -43,6 +43,9 @@ class GroupController : public QObject {
     void groupUpdated(QString groupId, bool success);
     void groupAlreadyExists();
 
+    // a group was loaded or added, or the entities of a group changed
+    void groupItemsChanged();
+
  public slots:
     void onEntityDeleted(QString entityId);
 

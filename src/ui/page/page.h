@@ -5,6 +5,7 @@
 
 #include <QAbstractListModel>
 #include <QObject>
+#include <functional>
 
 #include "../../core/core.h"
 #include "pageItem.h"
@@ -110,6 +111,18 @@ class Page : public QObject {
 
     void addActivity(QString entityId);
     void removeActivity(QString entityId);
+
+    // whether a group contains an entity
+    using GroupHasEntity = std::function<bool(const QString& groupId, const QString& entityId)>;
+
+    /**
+     * @brief Shows in the activity bar of this page the entities of `running` that are on the page.
+     *
+     * `running` are the running activities and playing media players in the order they started. An entity is on
+     * the page when the page shows it directly or in one of its groups; `groupHasEntity` answers for a group. The
+     * bar keeps the position of an entity it already shows and drops every entity that is no longer on the page.
+     */
+    void updateActivities(const QStringList& running, const GroupHasEntity& groupHasEntity);
 
  private:
     QString m_id;

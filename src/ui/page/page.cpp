@@ -252,5 +252,36 @@ void Page::removeActivity(QString entityId) {
     }
 }
 
+void Page::updateActivities(const QStringList &running, const GroupHasEntity &groupHasEntity) {
+    QStringList shown;
+
+    for (const QString &entityId : running) {
+        for (int i = 0; i < m_items->count(); i++) {
+            const PageItem *item = m_items->getPageItem(i);
+            if (!item) {
+                continue;
+            }
+
+            const bool onPage = item->pageItemType() == PageItem::Group ? groupHasEntity(item->pageItemId(), entityId)
+                                                                        : item->pageItemId() == entityId;
+            if (onPage) {
+                shown.append(entityId);
+                break;
+            }
+        }
+    }
+
+    for (int i = m_activities->count() - 1; i >= 0; i--) {
+        const PageItem *item = m_activities->getPageItem(i);
+        if (item && !shown.contains(item->pageItemId())) {
+            removeActivity(item->pageItemId());
+        }
+    }
+
+    for (const QString &entityId : shown) {
+        addActivity(entityId);
+    }
+}
+
 }  // namespace ui
 }  // namespace uc

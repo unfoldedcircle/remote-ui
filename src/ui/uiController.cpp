@@ -141,6 +141,7 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
 
     QObject::connect(m_entityController, &EntityController::activityAdded, this, &Controller::onActivityAdded);
     QObject::connect(m_entityController, &EntityController::activityRemoved, this, &Controller::onActivityRemoved);
+    QObject::connect(m_groupController, &GroupController::groupItemsChanged, this, &Controller::updatePageActivities);
 }
 
 Controller::~Controller() {}
@@ -665,12 +666,7 @@ void Controller::loadPages(const QString &profileId) {
             emit configLoaded();
             qCDebug(lcUi()).noquote() << pages.count() << "pages added";
 
-            QStringList activities = m_entityController->getActivities();
-            if (activities.length() > 0) {
-                for (QStringList::iterator i = activities.begin(); i != activities.end(); i++) {
-                    onActivityAdded(*i);
-                }
-            }
+            updatePageActivities();
         },
         [=](int code, QString message) {
             // fail
@@ -822,6 +818,7 @@ void Controller::onPageAdded(QString profileId, core::Page page) {
         auto pageObj = new Page(page.id, page.name, page.image, this);
         pageObj->init(page.items);
         m_pages.append(pageObj);
+        updatePageActivities();
     }
 }
 
@@ -855,6 +852,7 @@ void Controller::onPageChanged(QString profileId, core::Page page) {
                 }
             }
         }
+        updatePageActivities();
     }
 }
 
@@ -867,6 +865,7 @@ void Controller::onPageDeleted(QString profileId, QString pageId) {
 
 void Controller::onEntityDeleted(QString entityId) {
     m_pages.onEntityDeleted(entityId);
+    updatePageActivities();
 }
 
 void Controller::onGroupDeleted(QString profileId, QString groupId) {
@@ -874,6 +873,7 @@ void Controller::onGroupDeleted(QString profileId, QString groupId) {
         return;
     }
     m_pages.onGroupDeleted(groupId);
+    updatePageActivities();
 }
 
 void Controller::onIntegrationDeleted(QString integrationId) {
@@ -886,16 +886,32 @@ void Controller::onIntegrationDeleted(QString integrationId) {
         m_groupController->onEntityDeleted(*i);
         m_entityController->onEntityDeleted(*i);
     }
+    updatePageActivities();
 }
 
 void Controller::onActivityAdded(QString entityId) {
-    onActivity(entityId);
+    Q_UNUSED(entityId)
+    updatePageActivities();
 }
 
 void Controller::onActivityRemoved(QString entityId) {
-    onActivity(entityId, true);
+    Q_UNUSED(entityId)
+    updatePageActivities();
 }
 
+void Controller::updatePageActivities() {
+    const QStringList running = m_entityController->getActivities();
+    const auto        groupHasEntity = [this](const QString &groupId, const QString &entityId) {
+        Group *group = m_groupController->getGroup(groupId);
+        return group && group->m_items->contains(entityId);
+    };
+
+    for (int i = 0; i < m_pages.count(); i++) {
+        if (Page *page = m_pages.getPage(i)) {
+            page->updateActivities(running, groupHasEntity);
+        }
+    }
+}
 
 //============================================================================================================================================//
 // Private
@@ -908,54 +924,6 @@ bool Controller::loadFont(const QString &path) {
     }
 
     return success;
-}
-
-void Controller::onActivity(QString entityId, bool remove) {
-    if (m_pages.count() == 0) {
-        return;
-    }
-
-    for (int i = 0; i < m_pages.count(); i++) {
-        auto page = m_pages.getPage(i);
-
-        if (!page) {
-            continue;
-        }
-
-        // an empty page has nothing to update, the pages after it do
-        if (page->m_items->count() == 0) {
-            continue;
-        }
-
-        for (int j = 0; j < page->m_items->count(); j++) {
-            auto pageItem = page->m_items->getPageItem(j);
-
-            if (!pageItem) {
-                continue;
-            }
-
-            if (pageItem->pageItemType() == PageItem::Type::Group) {
-                auto group = m_groupController->getGroup(pageItem->pageItemId());
-                if (group) {
-                    if (group->m_items->contains(entityId)) {
-                        if (remove) {
-                            page->removeActivity(entityId);
-                        } else {
-                            page->addActivity(entityId);
-                        }
-                    }
-                }
-            } else {
-                if (pageItem->pageItemId() == entityId) {
-                    if (remove) {
-                        page->removeActivity(entityId);
-                    } else {
-                        page->addActivity(entityId);
-                    }
-                }
-            }
-        }
-    }
 }
 
 QObject *Controller::getQMLObject(QList<QObject *> nodes, const QString &name) {

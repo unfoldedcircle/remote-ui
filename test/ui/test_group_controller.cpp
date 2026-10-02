@@ -25,6 +25,7 @@ class testGroupController : public QObject {
     void groupDeleted_unknownGroup_doesNotCrash();
     void groupDeleted_twice_doesNotCrash();
     void groupChanged_knownGroup_isApplied();
+    void groupItemsChanged_onLoadChangeAndEntityDeletion();
 
     void updateGroup_fromQml_entitiesArgumentIsOptional();
 
@@ -84,6 +85,34 @@ void testGroupController::groupChanged_knownGroup_isApplied() {
     auto group = controller.getGroup(groupId);
     QVERIFY(group);
     QCOMPARE(group->property("name").toString(), QStringLiteral("All lights"));
+}
+
+/**
+ * The activity bar of the pages is recomputed on this signal: it has to come whenever the entities of a group
+ * can have changed, and not for an entity that is in no group.
+ */
+void testGroupController::groupItemsChanged_onLoadChangeAndEntityDeletion() {
+    uc::core::Api           api(kTestUrl);
+    uc::ui::GroupController controller(&api);
+    QSignalSpy              itemsChanged(&controller, &uc::ui::GroupController::groupItemsChanged);
+
+    const QString   groupId = QStringLiteral("group.living");
+    uc::core::Group group = makeGroup(groupId, QStringLiteral("Living room"));
+    group.entities = QStringList({QStringLiteral("activity.tv")});
+
+    emit api.groupAdded(QString(), group);
+    QCOMPARE(itemsChanged.count(), 1);
+
+    group.entities = QStringList({QStringLiteral("activity.tv"), QStringLiteral("light.lamp")});
+    emit api.groupChanged(QString(), group);
+    QCOMPARE(itemsChanged.count(), 2);
+
+    emit api.entityDeleted(QStringLiteral("light.lamp"));
+    QCOMPARE(itemsChanged.count(), 3);
+    QVERIFY(!controller.getGroup(groupId)->m_items->contains(QStringLiteral("light.lamp")));
+
+    emit api.entityDeleted(QStringLiteral("switch.in_no_group"));
+    QCOMPARE(itemsChanged.count(), 3);
 }
 
 /**
