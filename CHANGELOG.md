@@ -128,8 +128,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with more than 100 drivers only the first 100 were loaded.
 - Docks are brought up to date after a reconnect: a dock that was removed or changed in the meantime no longer
   keeps its old entry until the remote is restarted.
-- Setting up an integration driver found on the network now sends the address and the access token entered for
-  it. They were left out of the request, so such a driver could not be configured.
+- Setting up an integration driver found on the network works. Its address was not sent where the core reads it,
+  so such a driver could not be configured.
 - A change of an integration driver, for example a new version or name after an update, is shown right away
   instead of only after the next reconnect.
 - The running activity indicator of a page is also updated on the pages that come after an empty page.
