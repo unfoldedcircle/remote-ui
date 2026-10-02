@@ -183,7 +183,7 @@ bool Light::updateAttribute(const QString &attribute, QVariant data) {
 
 void Light::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = LightStates::getTranslatedString(static_cast<LightStates::Enum>(m_state));
         emit stateAsStringChanged();
 

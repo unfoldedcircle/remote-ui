@@ -116,3 +116,23 @@ target_link_libraries(testIntegrationSetupInfo
     Qt5::WebSockets
     Qt5::Test
     )
+
+add_executable (testSetupSchema
+    "test_setup_schema.cpp"
+    "../../src/integration/setupSchema.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testSetupSchema
+         COMMAND testSetupSchema)
+
+target_link_libraries(testSetupSchema
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::WebSockets
+    Qt5::Test
+    )

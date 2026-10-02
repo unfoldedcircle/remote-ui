@@ -300,7 +300,7 @@ bool Climate::updateAttribute(const QString &attribute, QVariant data) {
 
 void Climate::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = ClimateStates::getTranslatedString(static_cast<ClimateStates::Enum>(m_state));
         emit stateAsStringChanged();
 

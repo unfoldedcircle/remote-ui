@@ -138,7 +138,7 @@ QString Select::getStateInfoText() const {
 
 void Select::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = SelectStates::getTranslatedString(static_cast<SelectStates::Enum>(m_state));
         emit stateAsStringChanged();
 

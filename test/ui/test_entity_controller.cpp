@@ -5,6 +5,7 @@
 
 #include "core/core.h"
 #include "ui/entity/entityController.h"
+#include "ui/entity/mediaPlayer.h"
 #include "ui/notification.h"
 
 // an unreachable address: the socket connection attempt is asynchronous and never completes during a test
@@ -41,6 +42,8 @@ class testEntityController : public QObject {
 
     void voiceEnd_droppedPendingStart_reportsUnavailable();
     void voiceEnd_nothingPending_reportsNothing();
+
+    void mediaPlayerRepeat_invalidAttribute_keepsModeAndSendsValidCommand();
 
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
@@ -180,6 +183,43 @@ void testEntityController::voiceEnd_nothingPending_reportsNothing() {
     controller.onEntityCommand(QStringLiteral("uc.main:voice"), QStringLiteral("voice_end"), QVariantMap());
 
     QCOMPARE(errors.count(), 0);
+}
+
+/**
+ * An unknown repeat value converts to -1, which is no repeat mode. Stored as the current mode it made repeat()
+ * fall through its switch and send a variable that was never assigned.
+ */
+void testEntityController::mediaPlayerRepeat_invalidAttribute_keepsModeAndSendsValidCommand() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+    // the core is not connected in a test: the failed command goes to the "not responding" notification, which
+    // needs the notification singleton
+    uc::ui::Notification notification;
+
+    const QString    entityId = QStringLiteral("media_player.living_room");
+    uc::core::Entity entity = makeEntity(entityId);
+    entity.type = QStringLiteral("Media_player");
+    controller.onEntityAdded(entity);
+
+    auto mediaPlayer = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entityId));
+    QVERIFY(mediaPlayer);
+    QCOMPARE(mediaPlayer->getRepeat(), static_cast<int>(uc::ui::entity::MediaPlayerRepeatMode::OFF));
+
+    mediaPlayer->updateAttribute(QStringLiteral("Repeat"), QStringLiteral("SOMETIMES"));
+    QCOMPARE(mediaPlayer->getRepeat(), static_cast<int>(uc::ui::entity::MediaPlayerRepeatMode::OFF));
+
+    mediaPlayer->updateAttribute(QStringLiteral("Repeat"), QVariant());
+    QCOMPARE(mediaPlayer->getRepeat(), static_cast<int>(uc::ui::entity::MediaPlayerRepeatMode::OFF));
+
+    // the core API documents upper case values, an integration sending lower case is understood as well
+    mediaPlayer->updateAttribute(QStringLiteral("Repeat"), QStringLiteral("all"));
+    QCOMPARE(mediaPlayer->getRepeat(), static_cast<int>(uc::ui::entity::MediaPlayerRepeatMode::ALL));
+
+    QSignalSpy commands(mediaPlayer, &uc::ui::entity::Base::command);
+    mediaPlayer->repeat();
+
+    QCOMPARE(commands.count(), 1);
+    QCOMPARE(commands.at(0).at(2).toMap().value(QStringLiteral("repeat")).toString(), QStringLiteral("OFF"));
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

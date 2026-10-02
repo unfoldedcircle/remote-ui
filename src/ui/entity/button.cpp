@@ -88,7 +88,7 @@ bool Button::updateAttribute(const QString &attribute, QVariant data) {
 
 void Button::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = ButtonStates::getTranslatedString(static_cast<ButtonStates::Enum>(m_state));
         emit stateAsStringChanged();
 

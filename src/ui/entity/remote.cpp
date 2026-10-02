@@ -116,7 +116,7 @@ bool Remote::updateOptions(QVariant data) {
 
 void Remote::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = RemoteStates::getTranslatedString(static_cast<RemoteStates::Enum>(m_state));
         emit stateAsStringChanged();
 

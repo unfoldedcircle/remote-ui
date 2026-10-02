@@ -300,7 +300,8 @@ void MediaPlayer::unmute() {
 }
 
 void MediaPlayer::repeat() {
-    MediaPlayerRepeatMode::Enum newRepeatMode;
+    // OFF also for a mode the switch does not know, so that no indeterminate value is ever sent
+    MediaPlayerRepeatMode::Enum newRepeatMode = MediaPlayerRepeatMode::Enum::OFF;
 
     switch (m_repeat) {
         case MediaPlayerRepeatMode::Enum::OFF:
@@ -310,6 +311,7 @@ void MediaPlayer::repeat() {
             newRepeatMode = MediaPlayerRepeatMode::Enum::ALL;
             break;
         case MediaPlayerRepeatMode::Enum::ALL:
+        default:
             newRepeatMode = MediaPlayerRepeatMode::Enum::OFF;
             break;
     }
@@ -950,8 +952,14 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
             break;
         }
         case MediaPlayerAttributes::Repeat: {
+            bool                        repeatOk = false;
             MediaPlayerRepeatMode::Enum newRepeat =
-                Util::convertStringToEnum<MediaPlayerRepeatMode::Enum>(data.toString());
+                Util::convertStringToEnum<MediaPlayerRepeatMode::Enum>(data.toString().toUpper(), &repeatOk);
+            if (!repeatOk) {
+                // an unknown value converts to -1, which is no repeat mode: keep the current one
+                qCWarning(lcMediaPlayer()) << "Ignoring invalid repeat mode" << data << "of entity" << m_id;
+                break;
+            }
             if (m_repeat != newRepeat) {
                 m_repeat = newRepeat;
                 ok = true;
@@ -1028,7 +1036,7 @@ bool MediaPlayer::updateAttribute(const QString &attribute, QVariant data) {
 
 void MediaPlayer::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = MediaPlayerStates::getTranslatedString(static_cast<MediaPlayerStates::Enum>(m_state));
         emit stateAsStringChanged();
     });

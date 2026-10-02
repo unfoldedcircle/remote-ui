@@ -47,6 +47,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The app no longer crashes when a group is changed or deleted from another client, for example the web
+  configurator, while the remote is still loading the groups of a profile, which it does after every reconnect.
+- The app no longer crashes when the language is changed after an integration was set up and the list of available
+  integrations was opened again.
+- Removing an entity while its media browser is still loading, or right after a language change, can no longer
+  crash the app.
+- The repeat button of a media player always sends a valid repeat mode. A player reporting a repeat mode the remote
+  doesn't know showed repeat as active and sent a random value when the button was pressed.
+- A setting without a field type in the setup of an integration is skipped instead of being shown as a random
+  input field.
 - Loading all entities at startup no longer runs forever on Apple Silicon builds. The number of pages was derived
   from the `limit` field of the core's response, which holds the number of items in that page (0 for a page past
   the end); a division by zero converted to an integer gave an endless page count on arm64. The page size of the

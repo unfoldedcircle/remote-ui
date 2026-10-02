@@ -163,7 +163,7 @@ bool Cover::updateAttribute(const QString &attribute, QVariant data) {
 
 void Cover::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = CoverStates::getTranslatedString(static_cast<CoverStates::Enum>(m_state));
         emit stateAsStringChanged();
 

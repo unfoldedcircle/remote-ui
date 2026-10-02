@@ -99,7 +99,7 @@ bool Switch::updateAttribute(const QString &attribute, QVariant data) {
 
 void Switch::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = SwitchStates::getTranslatedString(static_cast<SwitchStates::Enum>(m_state));
         emit stateAsStringChanged();
 

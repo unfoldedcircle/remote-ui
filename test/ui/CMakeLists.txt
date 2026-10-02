@@ -290,3 +290,29 @@ target_link_libraries(testEntityScreens
     Qt5::WebSockets
     Qt5::Test
     )
+
+add_executable (testGroupController
+    "test_group_controller.cpp"
+    "../../src/ui/group/groupController.cpp"
+    "../../src/ui/group/group.cpp"
+    "../../src/ui/group/groupItem.cpp"
+    "../../src/ui/notification.cpp"
+    "../../src/core/core.cpp"
+    # header only: contains the Q_GADGET enums moc has to process
+    "../../src/core/enums.h"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testGroupController
+         COMMAND testGroupController)
+
+target_link_libraries(testGroupController
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::WebSockets
+    Qt5::Test
+    )

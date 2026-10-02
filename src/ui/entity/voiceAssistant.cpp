@@ -130,7 +130,7 @@ bool VoiceAssistant::updateOptions(QVariant data)
 
 void VoiceAssistant::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = VoiceAssistantStates::getTranslatedString(static_cast<VoiceAssistantStates::Enum>(m_state));
         m_stateInfo = getStateAsString();
 

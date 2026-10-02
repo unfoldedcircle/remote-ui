@@ -5,6 +5,7 @@
 
 #include <QJSEngine>
 #include <QObject>
+#include <QPointer>
 #include <QQmlEngine>
 #include <QRegularExpression>
 #include <QSortFilterProxyModel>
@@ -62,7 +63,7 @@ class IntegrationController : public QObject {
     QSortFilterProxyModel* getDriversModel() { return &m_integrationDriversFilter; }
     QStringList            getDriversError() { return m_integrationDriversError; }
     QAbstractListModel*    getDiscoveredIntegrationDrivers() { return &m_discoveredIntegrationDrivers; }
-    QObject*               getIntegrationDriverTosetup() { return m_integrationDriverToSetup; }
+    QObject*               getIntegrationDriverTosetup() { return m_integrationDriverToSetup.data(); }
     QList<QObject*>        getConfigPages() { return m_configPages; }
     bool                   getSetupSessionActive() { return !m_integrationDriverSetupId.isEmpty(); }
     bool                   getSetupLimitActive() { return m_setupLimitActive; }
@@ -163,7 +164,9 @@ class IntegrationController : public QObject {
     int                   m_integrationDriversLoaded = 0;
 
     IntegrationDrivers m_discoveredIntegrationDrivers;
-    IntegrationDriver* m_integrationDriverToSetup;
+    // an item of m_discoveredIntegrationDrivers, which deletes its items whenever a discovery is started: guarded,
+    // so that a deleted driver reads as "no driver" instead of a dangling pointer
+    QPointer<IntegrationDriver> m_integrationDriverToSetup;
     // driver id of the setup session started by this UI, empty if none is running
     QString         m_integrationDriverSetupId;
     QList<QObject*> m_configPages;

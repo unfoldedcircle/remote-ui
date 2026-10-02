@@ -9,6 +9,7 @@
 #include <QGuiApplication>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QPointer>
 #include <QRegularExpression>
 #include <QTimer>
 #include <QUuid>
@@ -608,12 +609,21 @@ void EntityController::connectLazySignals(entity::Base* obj) {
                         mediaPlayer->onMediaBrowseError(503, QString());
                         return;
                     }
+                    // The response handlers have no context object and outlive the entity if it is deleted
+                    // while the request is on its way: guard the pointer.
+                    const QPointer<entity::MediaPlayer> guard(mediaPlayer);
                     m_core->onResponseWithErrorResult(
                         id, &core::Api::respMediaBrowse,
-                        [mediaPlayer](core::BrowseMediaItem media, core::Pagination pagination) {
-                            mediaPlayer->onBrowseMediaResult(media, pagination);
+                        [guard](core::BrowseMediaItem media, core::Pagination pagination) {
+                            if (guard) {
+                                guard->onBrowseMediaResult(media, pagination);
+                            }
                         },
-                        [mediaPlayer](int code, QString message) { mediaPlayer->onMediaBrowseError(code, message); });
+                        [guard](int code, QString message) {
+                            if (guard) {
+                                guard->onMediaBrowseError(code, message);
+                            }
+                        });
                 });
 
             QObject::connect(
@@ -627,13 +637,18 @@ void EntityController::connectLazySignals(entity::Base* obj) {
                         mediaPlayer->onSearchMediaError(id, 503, QString());
                         return;
                     }
+                    const QPointer<entity::MediaPlayer> guard(mediaPlayer);
                     m_core->onResponseWithErrorResult(
                         id, &core::Api::respMediaSearch,
-                        [mediaPlayer, id](QList<core::BrowseMediaItem> items, core::Pagination pagination) {
-                            mediaPlayer->onSearchMediaResult(id, items, pagination);
+                        [guard, id](QList<core::BrowseMediaItem> items, core::Pagination pagination) {
+                            if (guard) {
+                                guard->onSearchMediaResult(id, items, pagination);
+                            }
                         },
-                        [mediaPlayer, id](int code, QString message) {
-                            mediaPlayer->onSearchMediaError(id, code, message);
+                        [guard, id](int code, QString message) {
+                            if (guard) {
+                                guard->onSearchMediaError(id, code, message);
+                            }
                         });
                 });
         }

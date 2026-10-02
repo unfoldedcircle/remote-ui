@@ -287,7 +287,7 @@ bool Activity::updateOptions(QVariant data) {
 
 void Activity::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         const QString newStateAsString = ActivityStates::getTranslatedString(static_cast<ActivityStates::Enum>(m_state));
         if (m_stateAsString != newStateAsString) {
             m_stateAsString = newStateAsString;

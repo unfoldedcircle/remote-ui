@@ -147,7 +147,7 @@ bool Sensor::updateAttribute(const QString &attribute, QVariant data) {
 
 void Sensor::onLanguageChangedTypeSpecific()
 {
-    QTimer::singleShot(500, [=]() {
+    QTimer::singleShot(500, this, [=]() {
         m_stateAsString = SensorStates::getTranslatedString(static_cast<SensorStates::Enum>(m_state));
         emit stateAsStringChanged();
     });

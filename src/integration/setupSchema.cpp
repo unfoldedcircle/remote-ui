@@ -104,7 +104,8 @@ SetupSchema::SetupSchema(QVariantMap title, QVariantList settings, const QString
         QVariantMap label = i->toMap().value("label").toMap();
         QVariantMap data = i->toMap().value("field").toMap();
 
-        SettingsEnum::Type type;
+        // -1 is what an unknown field name converts to: a setting without a field object is skipped the same way
+        SettingsEnum::Type type = static_cast<SettingsEnum::Type>(-1);
 
         for (QVariantMap::const_iterator iter = data.cbegin(); iter != data.cend(); ++iter) {
             type = Util::convertStringToEnum<SettingsEnum::Type>(Util::FirstToUpper(iter.key()));
@@ -135,6 +136,9 @@ SetupSchema::SetupSchema(QVariantMap title, QVariantList settings, const QString
                 break;
             case SettingsEnum::Type::Label:
                 settingsItem = new SettingsItemLabel(id, label, type, language, data, this);
+                break;
+            default:
+                qCWarning(lcIntegrationDriver()) << "Ignoring setting without a known field type:" << id;
                 break;
         }
 

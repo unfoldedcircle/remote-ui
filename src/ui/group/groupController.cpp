@@ -55,8 +55,11 @@ int GroupController::updateGroup(const QString &groupId, const QString &profileI
         [=](core::Group group) {
             // success
             qCDebug(lcGroupController()) << "Group updated successfully" << group.id << group.name;
-            m_groups.value(group.id)->setItemName(group.name);
-            m_groups.value(group.id)->setItemIcon(group.icon);
+            // the groups are dropped while a profile is (re)loaded: the group may be gone by now
+            if (auto groupObj = m_groups.value(group.id)) {
+                groupObj->setItemName(group.name);
+                groupObj->setItemIcon(group.icon);
+            }
             emit groupUpdated(group.id, true);
         },
         [=](int code, QString message) {
@@ -146,7 +149,13 @@ void GroupController::onGroupChanged(QString profileId, core::Group group) {
         return;
     }
 
+    // QHash::value() hands out a null pointer for a group that is not loaded: the groups are dropped while a
+    // profile is (re)loaded, and the group load that follows delivers the changed group anyway
     auto groupObj = m_groups.value(group.id);
+    if (!groupObj) {
+        qCWarning(lcGroupController()) << "Ignoring change of a group that is not loaded:" << group.id;
+        return;
+    }
 
     if (!group.name.isEmpty()) {
         groupObj->setItemName(group.name);
@@ -165,10 +174,11 @@ void GroupController::onGroupDeleted(QString profileId, QString groupId) {
         return;
     }
 
-    m_groups.value(groupId)->deleteLater();
-    m_groups.remove(groupId);
+    // take() returns a null pointer for a group that is not loaded, e.g. while a profile is (re)loaded
+    if (auto groupObj = m_groups.take(groupId)) {
+        groupObj->deleteLater();
+    }
 }
-
 
 void GroupController::onEntityDeleted(QString entityId) {
     for (QHash<QString, Group *>::iterator i = m_groups.begin(); i != m_groups.end(); ++i) {

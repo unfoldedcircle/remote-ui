@@ -261,6 +261,11 @@ void IntegrationController::deleteIntegrationDriver(const QString &driverId) {
 
 void IntegrationController::startDriverDiscovery() {
     qCDebug(lcIntegrationController()) << "START DISCOVERY";
+    // the driver selected for setup is an item of the list that is deleted now
+    if (m_integrationDriverToSetup) {
+        m_integrationDriverToSetup = nullptr;
+        emit integrationDriverToSetupChanged();
+    }
     m_discoveredIntegrationDrivers.clear();
 
     // first we get all the integration drivers again
