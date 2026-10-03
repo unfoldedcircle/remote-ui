@@ -11,7 +11,8 @@ namespace hw {
 
 Power *Power::s_instance = nullptr;
 
-Power::Power(core::Api *core, QObject *parent) : QObject(parent), m_core(core) {
+Power::Power(core::Api *core, bool hideWindowWhenDisplayOff, QObject *parent)
+    : QObject(parent), m_core(core), m_hideWindowWhenDisplayOff(hideWindowWhenDisplayOff) {
     Q_ASSERT(s_instance == nullptr);
     s_instance = this;
 
@@ -97,9 +98,15 @@ void Power::setPowerMode(PowerMode powerMode) {
         return;
     }
 
-    auto oldPowerMode = m_powerMode;
+    const bool windowWasShown = isWindowShown();
+    auto       oldPowerMode = m_powerMode;
     m_powerMode = powerMode;
     emit powerModeChanged(oldPowerMode, m_powerMode);
+
+    if (isWindowShown() != windowWasShown) {
+        qCDebug(lcHw()) << "UI window" << (isWindowShown() ? "shown" : "hidden") << "in power mode" << m_powerMode;
+        emit windowShownChanged();
+    }
 }
 
 }  // namespace hw

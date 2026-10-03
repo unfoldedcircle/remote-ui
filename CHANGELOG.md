@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The user interface stops drawing whenever the display is off. When it was started while the display was off, or the
+  display was turned off through the API, it kept drawing and used battery until the remote was woken up. Dimming
+  the display through the API no longer leaves it black.
 - `. scripts/env/qt-version.sh` finds a Qt that is installed only as static `clang_64-static` or `gcc_64-static`,
   like the Qt of the macOS guide, and without a version it also works in zsh, the default shell on macOS.
 - `make test` works on Apple Silicon Macs with the Qt compiled from source: the unit tests are built for the Mac's own

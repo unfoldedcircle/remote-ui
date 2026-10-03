@@ -25,7 +25,8 @@ ApplicationWindow {
     id: applicationWindow
     objectName : "applicationWindow"
     title: "Remote Two simulator"
-    visible: true
+    // hidden while the display is off, so that nothing is rendered (on a remote only)
+    visible: Power.windowShown
 
     minimumWidth: ui.width * ui.ratio
     maximumWidth: minimumWidth
@@ -259,23 +260,6 @@ ApplicationWindow {
         }
 
         step();
-    }
-
-    Connections {
-        target: Power
-        ignoreUnknownSignals: true
-
-        function onPowerModeChanged(fromPowerMode, toPowerMode) {
-            if (toPowerMode == PowerModes.Low_power && fromPowerMode == PowerModes.Idle) {
-                applicationWindow.visible = false;
-            }
-
-            if (toPowerMode == PowerModes.Normal) {
-                if (!applicationWindow.visible) {
-                    applicationWindow.visible = true;
-                }
-            }
-        }
     }
 
     Connections {

@@ -62,6 +62,34 @@ target_link_libraries(testBattery
     Qt5::Test
     )
 
+add_executable (testPower
+    "test_power.cpp"
+    "../../src/system/power.cpp"
+    "../../src/core/core.cpp"
+    # header only: contains the Q_GADGET enums moc has to process
+    "../../src/core/enums.h"
+    "../../src/ui/notification.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+# the core response handler templates use generic lambdas
+set_property(TARGET testPower PROPERTY CXX_STANDARD 17)
+set_property(TARGET testPower PROPERTY CXX_STANDARD_REQUIRED ON)
+
+add_test(NAME testPower
+         COMMAND testPower)
+
+target_link_libraries(testPower
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::WebSockets
+    Qt5::Test
+    )
+
 add_executable (testWifi
     "test_wifi.cpp"
     "../../src/system/wifi.cpp"
