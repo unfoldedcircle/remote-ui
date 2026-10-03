@@ -17,8 +17,9 @@ import "qrc:/components" as Components
 Item {
     width: parent.width; height: 40
 
-    property int contentY: containerMain.item.currentPage ? containerMain.item.currentPage.contentY : 0
-    property int atYBeginning: containerMain.item.currentPage ? containerMain.item.currentPage.atYBeginning : 0
+    // the main container is loaded asynchronously, also while the window is hidden at a start with the display off
+    property int contentY: containerMain.item && containerMain.item.currentPage ? containerMain.item.currentPage.contentY : 0
+    property int atYBeginning: containerMain.item && containerMain.item.currentPage ? containerMain.item.currentPage.atYBeginning : 0
     property int pageNameOffset: 100
     property int scrollDiff:0
     property bool movementStarted: false
@@ -32,7 +33,7 @@ Item {
     }
 
     Connections {
-        target: ui.pages.count > 0 ? containerMain.item.currentPage : null
+        target: ui.pages.count > 0 && containerMain.item ? containerMain.item.currentPage : null
         ignoreUnknownSignals: true
         enabled: !ui.editMode
 
