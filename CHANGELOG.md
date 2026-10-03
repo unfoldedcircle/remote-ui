@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The user interface no longer redraws the screen continuously while nothing on it changes, which used CPU time and
+  battery whenever the display was on. The hidden "connecting" indicator of the status bar was animated all the time,
+  also when no integration was connecting.
 - The user interface stops drawing whenever the display is off. When it was started while the display was off, or the
   display was turned off through the API, it kept drawing and used battery until the remote was woken up. Dimming
   the display through the API no longer leaves it black.

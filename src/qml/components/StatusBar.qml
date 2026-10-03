@@ -209,7 +209,9 @@ Item {
 
             SequentialAnimation {
                 id: integrationLoadinganimation
-                running: show
+                // qualified: an unqualified `show` is not found on this item but resolves to ApplicationWindow.show(),
+                // a function and so always true, which kept the hidden animation running and the display redrawing
+                running: integrationLoadingIndicator.show
                 loops: Animation.Infinite
 
                 ParallelAnimation {
