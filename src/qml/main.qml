@@ -919,8 +919,11 @@ ApplicationWindow {
         layer.enabled: true
         z: 4000
 
+        // not an OpacityAnimator: an animator runs on the render thread and cannot finish while the window is hidden
+        // with the display off, and until it does Qt wakes the main thread at the display refresh rate. The brightness
+        // is set at start-up, also when the UI starts with the display off.
         Behavior on opacity {
-            OpacityAnimator { duration: 300 }
+            NumberAnimation { duration: 300 }
         }
     }
 

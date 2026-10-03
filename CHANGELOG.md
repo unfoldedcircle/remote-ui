@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `DEV`, `UCR2` and `UCR3`.
 
 ### Fixed
+- The Remote Two no longer keeps its processor busy with the display off after the display brightness changed while
+  the display was off, for example in the web configurator or when the user interface started with the display off.
+  The fade to the new brightness could only finish once the display was on again.
 - The user interface no longer redraws the screen continuously while nothing on it changes, which used CPU time and
   battery whenever the display was on. The hidden "connecting" indicator of the status bar was animated all the time,
   also when no integration was connecting.
