@@ -444,7 +444,6 @@ class Config : public QObject {
     QString m_bluetoothMac;
 
     bool    m_webConfiguratorEnabled = false;
-    QString m_webConfiguratorAddress = "http://192.168.100.35:8080/configurator";
     QString m_webConfiguratorPin = "••••";
 
     QString generateRandomPin();

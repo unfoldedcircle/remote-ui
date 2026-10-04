@@ -182,18 +182,18 @@ void testIconFont::defaultIconOfTheCoreIsDrawable_data() {
     // The icons remote-core assigns on its own, which the UI shows without naming them in its sources, so
     // `tools/icon-font.py check-mapping` cannot see them. Extend the list when the core adds a default.
     const QList<QPair<const char*, QStringList>> defaults = {
-        // default icon per entity type (crates/core/src/entity/mod.rs, default_icon())
+        // the core's default icon per entity type
         {"entity",
          {"activity", "blind", "button", "button-brightness", "climate", "light", "list-dropdown", "macro",
           "mediaplayer", "microphone", "remote", "sensor", "switch"}},
-        // media browser thumbnails without an image, sent as icon://uc:... (actors/entity/entity_actor.rs)
+        // media browser thumbnails without an image, which the core sends as icon://uc:...
         {"media",
          {"browser", "compact-disc", "file-music", "film", "folder", "gamepad", "globe-wifi", "image", "list-music",
           "masks-theater", "music", "photo-film", "podcast", "radio", "tv-retro", "user-music", "video"}},
-        // button pages of IR remotes (actors/ir/remote/ui/mapping.rs)
+        // the button pages the core generates for IR remotes
         {"ir",
          {"bw", "ff", "next", "pause", "play", "play-pause", "playlist", "prev", "rec", "repeat", "shuffle", "stop"}},
-        // button pages of Bluetooth peripherals (resources/bt/peripherals)
+        // the button pages the core generates for Bluetooth peripherals
         {"bt",
          {"back", "bw", "ff", "home", "menu", "next", "pause", "play", "play-pause", "prev", "rec", "stop", "system",
           "tv"}},
