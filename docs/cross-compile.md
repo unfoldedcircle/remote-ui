@@ -16,11 +16,11 @@ scratch; `make` without a target lists all targets.
 Doing it by hand:
 
 ```bash
-docker pull unfoldedcircle/r2-toolchain-qt-5.15.8-static:latest
+docker pull unfoldedcircle/r2-toolchain-qt-5.15.19-static:latest
 docker run --rm  \
     --user=$(id -u):$(id -g) \
     -v $(pwd):/sources \
-    unfoldedcircle/r2-toolchain-qt-5.15.8-static:latest
+    unfoldedcircle/r2-toolchain-qt-5.15.19-static:latest
 ```
 
 The container runs `qmake CONFIG+=static CONFIG+=release` and `make`; the binary lands in the default output path of
@@ -33,12 +33,14 @@ The output binary is stored in `binaries/linux-arm64/release/` on the host.
 
 ## Install custom version on Remote Two/3
 
-☢️ VOIDS WARRANTY ☢️
+⚠️ **Before you install a custom build:**
 
-⚠️ **Warning:**
-- **Installing a custom remote-ui version on the Remote Two/3 devices will void your warranty!**
-- Only intended for developers and power users
-- Do not install custom binaries from untrusted sources!    
+- **No support:** we can't support a Remote running a custom or modified remote-ui build.
+- **Warranty:** faults caused by a modified build aren't covered by the warranty, for example a haptic motor worn
+  out by running it around the clock. Your statutory rights on the hardware are unaffected.
+- **Recorded on the device:** the installation asks you to confirm this (`void_warranty=yes`, the parameter's name
+  in the Core-API). The Remote stores the confirmation permanently; it can't be undone.
+- **For developers and power users only.** Don't install builds from untrusted sources.
 
 ### Installation Archive
 
@@ -56,7 +58,7 @@ Custom archive requirements:
 ### Installation
 
 ```console
-curl --location 'http://$IP/api/system/install/ui?void_warranty=$CONFIRMATION' \
+curl --location 'http://$IP/api/system/install/ui?void_warranty=yes' \
 --form 'file=@"$INSTALL_ARCHIVE"' \
 -u 'web-configurator:$PIN'
 ```

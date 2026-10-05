@@ -14,8 +14,8 @@ There are two ways to get Qt 5.15, and they can be installed side by side in `~/
 Background: the official binary packages (Qt online installer, `aqtinstall`) stop at 5.15.2. Every later 5.15 patch
 release was commercial-only for a year and then published as *source only* on
 [download.qt.io/archive/qt/5.15](https://download.qt.io/archive/qt/5.15/); 5.15.19 (May 2025, open source since
-May 2026) is the final Qt 5.15 release. The Remote Two/3 devices run a 5.15.8 built from source by the
-[cross-compile toolchain](cross-compile.md). Within 5.15 the API and ABI are stable, so either option builds the
+May 2026) is the patch release the device and desktop builds use; the Remote Two/3 devices run it built from source
+by the [cross-compile toolchain](cross-compile.md). Within 5.15 the API and ABI are stable, so either option builds the
 project; only the 5.15.2 binaries need the workarounds of 2020-era Qt on a 2025 distribution.
 
 Don't use the distro Qt (see [Alternatives](#alternatives)).

@@ -9,8 +9,8 @@ runtime environment.
 ## Qt
 
 The remote-ui app is a Qt 5.15 application: 5.15.2 is the version of the GitHub workflow (the last one with official
-binary packages), 5.15.19 is the final Qt 5.15 release and the recommended one for development. The Remote Two/3
-devices run a 5.15.8 built by the [cross-compile toolchain](cross-compile.md). Installing Qt with the system's package
+binary packages), and 5.15.19 is the patch release of the device and desktop builds and the recommended one for
+development; the [cross-compile toolchain](cross-compile.md) builds it for the Remote Two/3. Installing Qt with the system's package
 manager usually doesn't work (wrong version); the guides below build Qt 5.15.19 from source or install the official
 5.15.2 binaries with [aqtinstall](https://github.com/miurahr/aqtinstall). Pick the guide for your system:
 

@@ -56,8 +56,6 @@ directory: never run qmake in the repository root, it would overwrite the Makefi
 
 For local development, start the Remote-Core Simulator and run the remote-ui app from Qt Creator.
 
-
-
 1. Start Core Simulator docker-compose runtime
 2. The application requires environment variables to pass configuration parameters:
   - `UC_TOKEN_PATH`: path to the token file containing the WebSocket Core-API access token for the Core / Simulator.
@@ -80,9 +78,9 @@ scripts\env\windows.cmd                                                # Windows
 
 | Variable              | Description                              | Default                |
 | --------------------- | ---------------------------------------- | ---------------------- |
-| UC_MODEL              | The model of the hardware: `DEV` (desktop simulator), `UCR2` or `UCR3`; any other value starts `DEV` | DEV |
-| UC_DISPLAY_WIDTH      | Width of the display                     | 480                    |
-| UC_DISPLAY_HEIGHT     | Height of the display                    | 850                    |
+| UC_MODEL              | The model of the hardware: `DEV` (desktop simulator), `UCR2` or `UCR3`; any other value starts `DEV`. On a desktop use `DEV`: `UCR2`/`UCR3` there open an unsupported full-screen window | DEV |
+| UC_DISPLAY_WIDTH      | Width of the display (other values for testing only, the layout is not responsive) | 480 |
+| UC_DISPLAY_HEIGHT     | Height of the display (other values for testing only, the layout is not responsive) | 850 |
 | UC_DISPLAY_SCALE      | Scale factor for the display             | 0.5 on macOS (2x Retina displays), 1 on Linux and Windows |
 | UC_SOCKET_URL         | Websocket url of the core                | ws://127.0.0.1:8080/ws |
 | UC_TOKEN_PATH         | Location of the token file from the core | None                   |
@@ -97,8 +95,16 @@ A custom version of the remote-ui app can be installed on the Remote-Two/3 devic
 This requires a static Qt build, since the device doesn't contain any Qt libraries. See [Cross-Compile & Installation](docs/cross-compile.md) documentation.
 `make ucr2` runs the cross-compile toolchain container (Docker required).
 
-Please be aware, that **installing a custom remote-ui version on the Remote Two/3 devices will void your warranty!**
- 
+**Please note:** we can't support a Remote running a custom remote-ui build, and faults caused by a modified
+build aren't covered by the warranty, for example a haptic motor worn out by running it around the clock. Your
+statutory rights on the hardware are unaffected. Read
+[Install a custom version](docs/cross-compile.md#install-custom-version-on-remote-two3) before installing one.
+
+## Security
+
+Please don't report security vulnerabilities in public issues. [SECURITY.md](SECURITY.md) describes how to report
+them privately and what to expect from us.
+
 ## Contributing
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on how to contribute and submit pull requests to us.

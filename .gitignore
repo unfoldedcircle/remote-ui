@@ -91,3 +91,14 @@ qt-creator-license-template
 /build
 /build-static
 /test/build
+
+# Claude Code: worktrees and the generated OpenSpec commands/skills.
+/.claude
+
+# OpenSpec commands and skills generated for an AI coding tool; every developer generates them for
+# the tool they use: npx @fission-ai/openspec@latest init --tools <tool>  (see `--help` for the list)
+**/commands/opsx*
+**/command/opsx*
+**/prompts/opsx*
+**/workflows/opsx*
+**/skills/openspec-*/

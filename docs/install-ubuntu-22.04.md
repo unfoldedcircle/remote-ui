@@ -35,7 +35,7 @@ Notes:
 - Most Qt modules are already included in the default installation and therefore not included in the module parameter.
 - See [aqtinstall docs](https://aqtinstall.readthedocs.io/en/latest/getting_started.html) for further information.
 - Ubuntu 22.04 ships GCC 11, which needs the `<limits>` header patch described in
-  [install-debian-13.md, step 3](install-debian-13.md#3-header-patch-for-gcc--11).
+  [install-debian-13.md, step 2B.2](install-debian-13.md#2b2-header-patch-for-gcc--11).
 
 ## Configure Environment
 

@@ -1,0 +1,53 @@
+# Checks internal Markdown links and heading anchors across the maintained docs.
+# Offline only — external URLs are not requested (no network flakiness); this catches
+# broken doc-to-doc links, wrong paths, and dead anchors. Exclusions live in .lycheeignore
+# and via --exclude-path: the vendored schema (openspec/schemas/) and archived changes.
+---
+name: "Docs links"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.md"
+      - ".lycheeignore"
+      - ".github/workflows/docs-links.yml"
+  pull_request:
+    branches:
+      - main
+    types: [opened, synchronize, reopened]
+    paths:
+      - "**/*.md"
+      - ".lycheeignore"
+      - ".github/workflows/docs-links.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  markdown-links:
+    name: Check Markdown links
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          args: >-
+            --offline
+            --include-fragments
+            --no-progress
+            --exclude-path openspec/schemas
+            --exclude-path openspec/changes/archive
+            'docs/**/*.md' 'openspec/**/*.md' 'README.md' 'AGENTS.md' 'CONTRIBUTING.md'
+          fail: true

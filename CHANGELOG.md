@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
+- A written specification of the app: non-trivial changes are planned with [OpenSpec](https://openspec.dev), the
+  living specs in `openspec/specs/` describe what the app does, and architecture decision records in `docs/adr/`
+  explain why it is built the way it is. See `docs/workflow.md`.
+- A security policy, `SECURITY.md`, describes how to report a vulnerability privately and what to expect from us.
 - macOS desktop simulator: `make macos-static` builds a self-contained `Remote UI.app` with a static Qt 5.15.19
   compiled from source, on Intel and Apple Silicon Macs, for macOS 11 and newer; `make macos` builds it with a
   dynamic Qt for development. The rewritten
@@ -28,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and macOS only; the Windows build is not verified for releases.
 
 ### Changed
+- Updated contributor guidelines and documentation: `CONTRIBUTING.md` with pull request practices and a policy for
+  AI-assisted contributions, code guidelines in `docs/code_guidelines.md`, `AGENTS.md` for coding agents, and a
+  clearer note on what a custom UI build means for support and warranty.
 - The icon set is updated from Font Awesome 6.5.1 to 6.7.2. Fourteen icons are new (`carpool`, `chart-diagram`,
   `chart-fft`, `chart-sine`, `circles-overlap-3`, `comment-nodes`, `css`, `file-fragment`, `file-half-dashed`,
   `files-pinwheel`, `hexagon-nodes`, `hexagon-nodes-bolt`, `square-binary`, `square-bluesky`), no icon was removed

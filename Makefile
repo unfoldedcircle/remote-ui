@@ -27,7 +27,7 @@ QTDIR        ?= $(HOME)/Qt/$(QT_VERSION)/$(QT_SPEC)
 QTDIR_STATIC ?= $(HOME)/Qt/$(QT_VERSION)/$(QT_SPEC)-static
 JOBS         ?= $(shell nproc 2>/dev/null || sysctl -n hw.ncpu)
 # Docker toolchain images (docs/cross-compile.md, docs/static-compile.md). `docker pull <image>` to update one.
-TOOLCHAIN_IMAGE ?= unfoldedcircle/r2-toolchain-qt-5.15.8-static:latest
+TOOLCHAIN_IMAGE ?= unfoldedcircle/r2-toolchain-qt-5.15.19-static:latest
 DESKTOP_IMAGE   ?= unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-x64:latest
 WINDOWS_IMAGE   ?= unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-windows-x64:latest
 

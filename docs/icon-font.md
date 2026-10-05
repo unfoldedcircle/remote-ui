@@ -28,7 +28,8 @@ Font Awesome. The web-configurator has the same split, with the same rules.
    (`Icon ... not in the icon font`).
 5. **The icon selector** (Settings) offers only the names the loaded font can draw (`Resources::getIconList`), so a
    user of a Free build cannot pick an icon that would show as the placeholder. The web-configurator has its own
-   list; the two must agree on names, which they do as long as both follow Font Awesome's names.
+   list, deliberately kept as a separate copy for simplicity; the two agree on names as long as both follow Font
+   Awesome's canonical names.
 
 The names are the contract between the clients and the stored configuration: a name must never change meaning, and a
 name that was ever offered must stay in the mapping, because it may be stored in a user's configuration.
@@ -79,7 +80,7 @@ font, and that every Pro-only name the sources use has a fallback entry.
 | Where    | `resources/icons/icon-font.ttf`, compiled into `remote-ui`     | a file on the device, named in `UC_ICON_FONT_PATH`       |
 
 - **The Pro font must never be committed**, and it is never built into the binary either. The device build,
-  the desktop build and a build from the public sources are one and the same binary.
+  the desktop build and a build from the public sources all carry the same Free font.
 - The tracked font is the Free edition, and CI fails if that changes.
 
 ### How the app picks the font at start-up
@@ -104,7 +105,8 @@ Free rendering, which is also what CI and the unit tests use.
 
 - **Emoji code points are unmapped.**  
   Font Awesome maps several hundred emoji code points to icon glyphs, so any text containing an emoji would render as
-  icons and conflict with the included Emoji font in the device firmware.
+  icons instead of the emoji. Every emoji is drawn by Google's Noto Color Emoji font, which the device firmware
+  installs; the icon font never draws one (ADR 0010).
 - **The font is renamed** to the family `UC Icons`.  
   Font Awesome Free is SIL OFL 1.1 with the reserved font name "Font Awesome", which a modified version must not carry.
   Renaming both editions to the same family also keeps the QML free of edition-specific names.  
@@ -185,7 +187,7 @@ The code-guidelines workflow runs `tools/icon-font.py check --require-free` and 
 - if the provenance says the Pro edition.
 - if the font still carries the Font Awesome family name.
 
-The build workflow needs neither a subscription token nor `fonttools`: every job builds the same binary
+The build workflow needs neither a subscription token nor `fonttools`: every job builds a binary
 with the embedded Free font. Whether the firmware that ships actually installed the licensed font is
 checked by the firmware build, which is where the two are brought together.
 

@@ -1,0 +1,96 @@
+schema: spec-driven-with-adr
+
+# Project context — injected into every artifact so authors (human or agent) share it.
+context: |
+  Remote-UI — the Qt 5.15 / QML user interface of the Unfolded Circle Remote Two and Remote 3.
+  C++17, qmake (`remote-ui.pro`) for the app, CMake under `test/` for the QtTest unit tests only.
+  License GPL-3.0-or-later; the source of every release is published, so everything tracked must be
+  redistributable (docs/adr/0004).
+
+  Target: battery-powered handheld remotes running a custom Buildroot Linux (no window manager,
+  Qt eglfs on OpenGL ES 2, journald logging), aarch64, one *static* binary — the device ships no Qt
+  libraries, everything the app needs (Qt modules, QML, images, icon font, translations) is
+  compiled into `remote-ui`; only firmware-provided files are read from disk (token, custom icons,
+  legal texts, sound effects, the Poppins / Space Mono text fonts and the Noto Color Emoji font, the licensed icon font named in
+  `UC_ICON_FONT_PATH`). Cross-compiled with the public Docker toolchain image
+  (`unfoldedcircle/r2-toolchain-qt-<patch release>-static`, currently 5.15.19, docs/cross-compile.md, ADR 0002),
+  running in a systemd sandbox that maps in only what the UI needs (ADR 0003). Qt stays on 5.15 LTS;
+  Qt 6 APIs are not available (docs/adr/0002).
+  Screens: Remote Two 480x854 (panel is landscape, the UI is rotated — `ui.rotateScreen`),
+  Remote 3 480x800; roughly 40x70 mm, viewed at arm's length. Input is touch plus the physical
+  buttons; every screen must be fully usable with the d-pad alone (docs/key-navigation.md).
+  The UI must stay lean in CPU and memory: it shares the device with remote-core and the
+  integration drivers and every cycle costs battery. Budgets (platform-constraints capability):
+  never assume all CPU cores (a firmware release can limit them); idle with the display off
+  below 5 % of one core (short bursts
+  are fine), animations and rendering stopped while the display is off (Core-API events still
+  processed), and no periodic work the visible content does not need; resident memory at most 1 GB,
+  target below 512 MB, and never assume the device's full memory (a firmware release can limit
+  it); start-up not slower than
+  the previous release; 60 fps, never below 50 fps; at most 20 ms from touch or key press to the
+  WebSocket request; static binary below 100 MB.
+  Supported models: Remote Two and Remote 3 with feature parity, except hardware only one of them
+  has (touch slider); YIO1 is unsupported (docs/adr/0008). UI and core ship together in one
+  firmware release, so no compatibility with older cores is needed (docs/adr/0005).
+
+  Backend: remote-core over the WebSocket Core-API only (`UC_SOCKET_URL`), authenticated with a
+  token the core writes to a file (`UC_TOKEN_PATH`). Most behaviour is verifiable against the
+  Remote-Core Simulator (docker); haptics, touch slider, WiFi, power/standby, battery, the
+  admin PIN and the physical buttons need a real device (docs/adr/0003).
+  Desktop == simulator, selected by `UC_MODEL` (DEV | UCR2 | UCR3). The DEV button-simulator
+  window must never take the window focus (`Qt.WindowDoesNotAcceptFocus`), otherwise focus-chain
+  navigation looks dead; when in doubt verify d-pad navigation single-window (`UC_MODEL=UCR2`) or
+  on the device (docs/key-navigation.md §8).
+
+  Conventions: every new `.cpp`/`.h` goes into `remote-ui.pro`, every new `.qml` into the matching
+  `resources/qrc/*.qrc` (QML, images and translations are compiled in); `en_US.ts` is the only
+  translation file ever edited, and every user-visible string carries a `//:` translator comment
+  unless its meaning is obvious (docs/adr/0006); logging only through the categories in
+  `src/logging.h`, and never log secrets (tokens, passwords, PINs, API keys, setup values,
+  credentials in URLs), redact them; titles are single-line, other variable text wraps once and is
+  then truncated, other line limits only as specified in the design system; text sizes, colours
+  and the selection look follow the design system once accepted (proposed in `docs/design-system.md`,
+  not merged yet);
+  `CHANGELOG.md` entry for every user-visible change, in the same commit; code style, coding
+  conventions and commit messages as in docs/code_guidelines.md.
+  Durable architecture decisions live in docs/adr/ (immutable — supersede, never edit).
+  The living capability specs under openspec/specs/ are the behavioural source of truth; a
+  change that alters shipped behaviour carries a MODIFIED delta for the affected capability.
+
+# Per-artifact rules — appended to the matching artifact's instructions.
+rules:
+  proposal:
+    - Name the affected hardware models; a feature works on both the Remote Two and the Remote 3
+      unless it needs hardware only one of them has (docs/adr/0008).
+    - Name the remote-core / Core-API messages the change depends on. UI and core ship in the
+      same firmware release, so no fallback for older cores is needed (docs/adr/0005).
+    - Name every new third-party library or asset with its license; it must be compatible with Qt
+      under GPL-3.0 and approved by the lead developer before it is added (docs/adr/0004).
+  design:
+    - Open with a Current State Analysis (CSA) measured against a named commit — concrete
+      counts and `file:line` references for what exists today, not estimates.
+    - If the change touches a risky surface (input ownership / keyboard focus, the Core-API
+      connection or event handling, activity sequences, power modes / standby / resume, the static
+      build or the qmake/qrc registration), include a Failure Mode Analysis under Risks /
+      Trade-offs, one line per mode in `[Risk] → Mitigation` form.
+    - State the resource impact (CPU, memory, binary size, battery, frame rate, input-to-command
+      latency) of anything that adds timers, polling, animations, image caches, send delays or new
+      Qt modules, check it against the budgets in the project context, and say how it was
+      measured or why it is negligible. A budget the design cannot meet is an Open Question.
+    - State the verification target (simulator, desktop `UC_MODEL=UCR2`, or a real device) and
+      why, under Migration Plan; a d-pad navigation change is verified with the keypad, not only
+      by touch.
+  specs:
+    - Requirements describe behaviour a user or the core can observe (screens, key presses,
+      messages, timings); implementation detail and file paths stay in docs/ and design.md.
+    - A requirement that applies to one hardware model only says so; the default is both models.
+    - For an internal refactor with no new user-facing behaviour, scenarios may assert a
+      developer-observable outcome. Keep them terse.
+  tasks:
+    - Order phases by dependency and make them file-disjoint where possible, so independent
+      phases can be dispatched to parallel git-worktree agents. Call out cross-phase
+      dependencies explicitly.
+    - Include the registration tasks a new file needs (`remote-ui.pro`, the `.qrc`, the test
+      CMakeLists) and the `CHANGELOG.md` entry as explicit checkboxes.
+    - Include unit tests for new logic where a test is meaningful, and for a bug fix a unit test
+      that fails without the fix (docs/adr/0009).

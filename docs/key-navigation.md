@@ -139,7 +139,7 @@ keyboard focus by itself; a `ListView` scrolls to its `currentIndex` on its own.
   inside the Flickable, i.e. a settings row with its title and description, a slider with its
   title — as long as that section fits into the viewport, and only the control itself otherwise (a
   `ListView` delegate, a drawer). Keep that structure (`Flickable > ColumnLayout > section`) for a
-  page whose rows carry a description, or the description stays cut off (#582).
+  page whose rows carry a description, or the description stays cut off (`1847c5f9`).
 - `scrollBy(delta)` scrolls the target by `delta` pixels, clamped, and reports whether it moved.
   `Settings.Page` (and the dock/integration detail popups) use it from `Keys.onDownPressed` /
   `Keys.onUpPressed` on the page root: a key that reaches the root was accepted by no control and
@@ -296,8 +296,10 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
 - `UC_MODEL=DEV` opens a 480x850 window plus the button simulator window. The simulator window
   is created with `Qt.WindowDoesNotAcceptFocus`; the main window must be the active window for
   path 2 to work (`Window.activeFocusItem` is null in an inactive window).
-- `UC_MODEL=UCR2` on a desktop uses the screen geometry and rotates the UI (the device panel is
-  landscape) — not useful for layout checks.
+- `UC_MODEL=UCR2` or `UCR3` on a desktop is not supported: it uses the screen geometry and, for
+  `UCR2`, rotates the UI (the device panel is landscape). Use `DEV`.
+- The button simulator sends one press and one release per click, no auto-repeat; check repeat
+  handlers with a held key of the computer keyboard or on a device.
 - macOS blocks synthetic keystrokes (`osascript`) without Accessibility permission for the
   terminal. For scripted walks a temporary hook in `main.cpp` that reads key names from a file
   and calls `InputController::emitKey()` (which sends a real `QKeyEvent` to the window, so both
@@ -306,8 +308,6 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
 - Watch the QML log for `Unable to assign a function`, `Binding loop detected`,
   `ReferenceError`; each of these hid a real breakage during this work. `uc.ui.input` at info
   level logs every owner change (`ACTIVE CONTROL -> …`), at debug level every key with its owner.
-- The core simulator does not answer the admin-PIN request; the PIN step cannot be passed there
-  without forcing `OnboardingController.setPinOk(true)`.
 
 ## 9. Checklist for a new keypad-navigable screen
 

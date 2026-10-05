@@ -18,7 +18,7 @@ up and debug.
 - System libraries (libc, OpenGL, X11, fontconfig, audio) stay dynamic, on every platform. The binary is therefore
   self-contained with respect to Qt, but not portable to arbitrary machines.
 - Qt 5.15.2 is a 2020 release; newer compilers and libraries need a few source patches, which the target documents
-  list. Qt 5.15.19, the final 5.15 release, builds as-is on current toolchains and is what the Linux guide uses.
+  list. Qt 5.15.19, the patch release the builds use, builds as-is on current toolchains and is what the Linux guide uses.
 
 ## Targets
 
