@@ -153,7 +153,7 @@ jobs:
         shell: bash
         run: |
           UCR2='{ "name": "UCR2 aarch64", "artifact": "UCR2", "build": "static", "output": "linux-arm64/release",
-                  "build-image": "unfoldedcircle/r2-toolchain-qt-5.15.8-static", "changelog": true }'
+                  "build-image": "unfoldedcircle/r2-toolchain-qt-5.15.19-static", "changelog": true }'
           LINUX_X64='{ "name": "Linux x64 desktop", "artifact": "Linux-x64", "build": "static", "output": "linux-x64/release",
                        "build-image": "unfoldedcircle/remote-ui-toolchain-qt-5.15.19-static-x64", "changelog": false }'
           if [[ "$GITHUB_REF" == "refs/heads/main" || "$GITHUB_REF" == refs/tags/v* ]]; then
