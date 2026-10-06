@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.83.0 - 2026-10-06
 ### Added
 - A written specification of the app: non-trivial changes are planned with [OpenSpec](https://openspec.dev), the
   living specs in `openspec/specs/` describe what the app does, and architecture decision records in `docs/adr/`
@@ -47,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The default display scale of the desktop simulator (`UC_DISPLAY_SCALE`) is now 1 on Linux and Windows; it stays
   0.5 on macOS, where the desktop is a 2x Retina display. Previously 0.5 everywhere, which drew the UI at half size
   on a regular Linux display.
+- Renamed the icon font, using the correct .ttf file extension, and added icon font documentation.
 
 ### Removed
 - The desktop simulator no longer knows the `YIO1` model of the first YIO remote, which is no longer supported.
@@ -238,10 +243,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   for every typed character. The list is refreshed from the integration when it is opened, and searching, filtering
   and scrolling use the entities the remote already has, which makes typing noticeably quicker with a slow or large
   integration.
-
-### Changed
-- Optional overlay of Font Awesome Pro at build time. CI checks that the font in the repository is the Free edition.
-- Renamed the icon font, using the correct .ttf file extension, and added icon font documentation.
 
 ---
 
