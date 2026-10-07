@@ -37,23 +37,23 @@ Popup {
     Text {
         width: parent.width - 40
         wrapMode: Text.WordWrap
-        color: colors.offwhite
+        color: colors.textPrimary
         text: qsTr("Do not operate the device disassembled.")
         horizontalAlignment: Text.AlignHCenter
         anchors { horizontalCenter: parent.horizontalCenter; top: warning.bottom; topMargin: 60 }
-        font: fonts.secondaryFont(24)
+        font: fonts.prose()
+        lineHeight: fonts.proseLineHeight
     }
 
     Text {
         width: parent.width - 40
         wrapMode: Text.WordWrap
-        color: colors.offwhite
-        opacity: 0.6
+        color: colors.textSecondary
         //: \n and %1 must be included
         text: qsTr("The remote will turn off\nin %1 seconds.").arg(countdown)
         horizontalAlignment: Text.AlignHCenter
         anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 20 }
-        font: fonts.secondaryFont(24)
+        font: fonts.help()
     }
 
     Timer {

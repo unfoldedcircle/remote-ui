@@ -193,7 +193,7 @@ Popup {
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignRight
                 color: colors.offwhite
-                font: fonts.secondaryFont(26, "Bold")
+                font: fonts.button()
                 anchors { right: parent.right; rightMargin: 20; bottom: parent.bottom; bottomMargin: 30}
 
                 Rectangle {
@@ -223,7 +223,7 @@ Popup {
                 wrapMode: Text.WordWrap
                 verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignLeft
                 color: colors.offwhite
-                font: fonts.secondaryFont(26, "Bold")
+                font: fonts.button()
                 anchors { left: parent.left; leftMargin: 20; bottom: parent.bottom; bottomMargin: 30}
 
                 Rectangle {
@@ -247,12 +247,11 @@ Popup {
             Text {
                 id: actionableNotificationMessage
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                color: colors.offwhite
-                opacity: 0.7
+                color: colors.textPrimary
                 text: notificationObj.itemMessage()
                 anchors { left: parent.left; leftMargin: 20; right: parent.right; rightMargin: 20; bottom: actionableNotificationAction.top; bottomMargin: 40  }
-                font: fonts.secondaryFont(24)
-                lineHeight: 0.8
+                font: fonts.prose()
+                lineHeight: fonts.proseLineHeight
             }
 
             Text {

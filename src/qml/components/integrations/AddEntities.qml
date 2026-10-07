@@ -67,12 +67,11 @@ Item {
     Text {
         id: descriptionText
         width: parent.width - 20
-        color: colors.offwhite
-        opacity: 0.6
+        color: colors.textSecondary
         text: qsTr("Select entities to control with the remote")
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
-        font: fonts.secondaryFont(24)
+        font: fonts.help()
         anchors { top: parent.top; topMargin: 10; horizontalCenter: parent.horizontalCenter }
     }
 

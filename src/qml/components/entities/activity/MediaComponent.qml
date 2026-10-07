@@ -263,7 +263,7 @@ Rectangle {
         id: mediaArtist
         text: entityObj.mediaArtist
         color: colors.offwhite
-        font: fonts.secondaryFont(mediaComponent.baseFontSize * 0.8)
+        font: fonts.secondaryFont(Math.max(22, mediaComponent.baseFontSize * 0.8))
         width: mediaTitle.width
         elide: Text.ElideRight
         maximumLineCount: 1
@@ -287,7 +287,7 @@ Rectangle {
             text: mediaComponent.formatTime(entityObj.mediaPosition)
             color: colors.offwhite
             horizontalAlignment: Text.AlignLeft
-            font: fonts.secondaryFont(20)
+            font: fonts.secondaryFont(22)
             anchors { top: parent.top; left: parent.left }
         }
 
@@ -295,7 +295,7 @@ Rectangle {
             text: "-" + mediaComponent.formatTime(entityObj.mediaDuration-entityObj.mediaPosition)
             color: colors.offwhite
             horizontalAlignment: Text.AlignRight
-            font: fonts.secondaryFont(20)
+            font: fonts.secondaryFont(22)
             anchors { top: parent.top; right: parent.right }
         }
 
@@ -419,7 +419,7 @@ Rectangle {
                     }
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    font: fonts.secondaryFontCapitalized(16)
+                    font: fonts.caption()
                     anchors.centerIn: parent
                 }
             }

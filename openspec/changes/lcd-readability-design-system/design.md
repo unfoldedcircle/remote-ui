@@ -94,8 +94,10 @@ selection rectangles are replaced. On a fill, a delegate switches its secondary 
 
 ### 3. Type roles: role functions on `Fonts`
 
-`Fonts` gains `title()`, `label()`, `menuRow()`, `prose()`, `help()`, `caption()`, `value()`,
-`button()` and `display(size)`, returning the sizes and faces of the design system's type roles.
+`Fonts` gains `title()`, `heading()`, `label()`, `menuRow()`, `prose()`, `help()`, `caption()`,
+`value()`, `button()` and `display(size)`, returning the sizes and faces of the design system's type
+roles, plus `proseLineHeight`. `heading()` covers the table's section heading, which the first list
+missed. A role sets face and size only; the colour stays with the text.
 `primaryFont` and `secondaryFont` stay until no screen calls them with a pixel size. A unit test
 asserts that every role is at least 22 px.
 
@@ -144,7 +146,8 @@ profiling.
 
 1. **Tokens.** Verification: desktop simulator for the screens, then both remotes in a lit room for
    the readability of secondary text, because the LCD effect does not show on a desktop monitor.
-2. **Selection.** Verification: keypad walk on the desktop with `UC_MODEL=UCR2` (single window),
+2. **Selection.** Verification: keypad walk on the desktop with `UC_MODEL=DEV` (`UCR2` is not
+   supported on a desktop, `docs/key-navigation.md` section 8),
    then both remotes, which also answers Q-3.
 3. **Type roles.** Verification: desktop simulator in German and French, then both remotes.
 4. **Structure,** per screen family. Verification: keypad walk of each family on the desktop and a
@@ -158,8 +161,9 @@ happens after the migration is merged to `main`.
 
 ## Open Questions
 
-- Q-1 to Q-4: in `docs/design-system.md`, section 11 (fill or ring beyond the mockups, ring colour,
-  the provisional fill on devices, black bottom sheets).
+- Q-1 to Q-4 and Q-8: in `docs/design-system.md`, section 11 (fill or ring beyond the mockups, ring
+  colour, the provisional fill on devices, black bottom sheets, subtitle and timestamp sizes of the
+  mockups).
 - Q-5: the look of a held element while it is reordered (page tiles, group rows, page selector),
   today a 2 px border that turns `highlight` when held. Proposed: the ring marks the held element,
   the fill marks the selection, so a held tile is the one exception that shows both while it moves.

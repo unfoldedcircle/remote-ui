@@ -208,9 +208,9 @@ Popup {
         }
     }
 
-    // the letter-spaced variants of the secondary font, for the kicker and the "stops here" rule
-    function spacedFont(size, spacing) {
-        let font = fonts.secondaryFont(size);
+    // the letter-spaced caption, for the kicker and the "stops here" rule
+    function spacedFont(spacing) {
+        let font = fonts.caption();
         font.letterSpacing = spacing;
         return font;
     }
@@ -233,7 +233,7 @@ Popup {
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignLeft
             color: colors.offwhite
-            font: fonts.secondaryFont(26, "Bold")
+            font: fonts.button()
             anchors { left: parent.left; verticalCenter: parent.verticalCenter }
 
             Rectangle {
@@ -260,7 +260,7 @@ Popup {
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignRight
             color: colors.offwhite
-            font: fonts.secondaryFont(26, "Bold")
+            font: fonts.button()
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
 
             Rectangle {
@@ -406,7 +406,7 @@ Popup {
                         maximumLineCount: 1
                         elide: Text.ElideRight
                         color: colors.light
-                        font: readinessCheck.spacedFont(24, 2)
+                        font: readinessCheck.spacedFont(2)
                         bottomPadding: 12
                     }
 
@@ -436,8 +436,8 @@ Popup {
                               //: The activity runs to its end, but some devices will not react.
                               : qsTr("Some devices will not respond.")
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        color: colors.light
-                        font: fonts.secondaryFont(28)
+                        color: colors.textSecondary
+                        font: fonts.help()
                         topPadding: 8
                         bottomPadding: 24
                     }
@@ -456,7 +456,7 @@ Popup {
                             //: Row on the readiness check screen that opens the list of steps.
                             text: qsTr("What is wrong")
                             color: colors.offwhite
-                            font: fonts.secondaryFont(26, "Bold")
+                            font: fonts.label()
                             anchors { left: parent.left; leftMargin: 4; verticalCenter: parent.verticalCenter }
                         }
 
@@ -520,8 +520,8 @@ Popup {
                     text: qsTr("%1 · %n step(s)", "", reportItem.summary.stepCount).arg(reportItem.summary.name)
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    color: colors.light
-                    font: fonts.secondaryFont(22)
+                    color: colors.textSecondary
+                    font: fonts.help()
                     anchors { top: detailTitle.bottom; topMargin: 4; left: parent.left; leftMargin: 20; right: parent.right; rightMargin: 20 }
                 }
 
@@ -562,8 +562,8 @@ Popup {
                                 id: rowLabel
                                 width: 26
                                 text: modelData.label
-                                color: colors.inactiveText
-                                font: fonts.secondaryFont(22)
+                                color: colors.textSecondary
+                                font: fonts.caption()
                                 anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
                             }
 
@@ -590,7 +590,7 @@ Popup {
                                     maximumLineCount: 1
                                     elide: Text.ElideRight
                                     color: colors.offwhite
-                                    font: planRow.isDelay ? fonts.secondaryFont(25) : fonts.primaryFont(27)
+                                    font: planRow.isDelay ? fonts.value() : fonts.primaryFont(27)
                                 }
 
                                 Text {
@@ -600,7 +600,7 @@ Popup {
                                     maximumLineCount: 1
                                     elide: Text.ElideRight
                                     color: readinessCheck.markerColor(modelData)
-                                    font: fonts.secondaryFont(23)
+                                    font: fonts.help()
                                 }
                             }
 
@@ -637,7 +637,7 @@ Popup {
                                 //: Marks the step an activity would stop at. Upper case.
                                 text: qsTr("STOPS HERE")
                                 color: colors.red
-                                font: readinessCheck.spacedFont(20, 2)
+                                font: readinessCheck.spacedFont(2)
                                 anchors.centerIn: parent
                             }
 

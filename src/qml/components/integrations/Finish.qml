@@ -85,9 +85,9 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.light
+            color: colors.textSecondary
             text: qsTr("The integration has been added successfully.")
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         Item {
@@ -201,9 +201,9 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.light
+            color: colors.textSecondary
             text: qsTr("Something went wrong while setting up the integration.")
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         Text {
@@ -215,9 +215,9 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.offwhite
+            color: colors.textSecondary
             text: qsTr("ERROR:")
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         Text {
@@ -230,7 +230,7 @@ Item {
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
             color: colors.red
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         Item {

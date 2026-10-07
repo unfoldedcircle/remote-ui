@@ -64,8 +64,8 @@ Popup {
             color: colors.offwhite
             verticalAlignment: Text.AlignVCenter
             anchors { left: parent.left; leftMargin: 20; right: parent.right; rightMargin: 20; verticalCenter: parent.verticalCenter }
-            font: fonts.primaryFont(20)
-            lineHeight: 0.8
+            font: fonts.prose()
+            lineHeight: fonts.proseLineHeight
         }
     }
 

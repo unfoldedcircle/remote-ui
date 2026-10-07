@@ -182,9 +182,9 @@ OnboardingComponents.Page {
                       : ""
                 width: parent.width - 40
                 elide: Text.ElideRight
-                color: colors.light
+                color: colors.textSecondary
                 anchors { left: countryText.left; top: countryText.bottom; topMargin: 10 }
-                font: fonts.secondaryFont(26)
+                font: fonts.help()
             }
         }
 
@@ -216,9 +216,9 @@ OnboardingComponents.Page {
             Text {
                 id: chooseOtherText
                 text: qsTr("Choose another timezone")
-                color: colors.light
+                color: colors.textPrimary
                 anchors.centerIn: parent
-                font: fonts.secondaryFont(26)
+                font: fonts.button()
             }
 
             Rectangle {

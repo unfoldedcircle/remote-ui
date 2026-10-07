@@ -194,8 +194,8 @@ OnboardingComponents.Page {
                 text: qsTr("Wi-Fi address")
                 wrapMode: Text.NoWrap
                 elide: Text.ElideNone
-                color: colors.offwhite
-                font: fonts.primaryFont(20)
+                color: colors.textSecondary
+                font: fonts.help()
             }
 
             Text {
@@ -205,9 +205,8 @@ OnboardingComponents.Page {
                 wrapMode: Text.NoWrap
                 elide: Text.ElideRight
                 horizontalAlignment: Text.AlignRight
-                color: colors.offwhite
-                opacity: 0.7
-                font: fonts.secondaryFont(20)
+                color: colors.textPrimary
+                font: fonts.value()
             }
         }
 
@@ -273,11 +272,12 @@ OnboardingComponents.Page {
             id: description
             width: parent.width
             wrapMode: Text.WordWrap
-            color: colors.light
+            color: colors.textPrimary
             horizontalAlignment: Text.AlignHCenter
             text: qsTr("Failed to connect to the WiFi network. You can try again or proceed without setting up a WiFi network. You can set up your WiFi network later in Settings. If you skip this step, dock and integration setup won't be possible now.")
             anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-            font: fonts.secondaryFont(24)
+            font: fonts.prose()
+            lineHeight: fonts.proseLineHeight
         }
 
         Components.Button {

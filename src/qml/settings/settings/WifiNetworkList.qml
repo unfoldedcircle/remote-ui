@@ -314,10 +314,10 @@ ListView {
                 id: headerTitleText
                 wrapMode: Text.WordWrap
                 maximumLineCount: 2
-                color: colors.light
+                color: colors.textPrimary
                 text: headerTitle
                 anchors { left: parent.left; bottom: parent.bottom; bottomMargin: 10 }
-                font: fonts.secondaryFont(24)
+                font: fonts.heading()
             }
 
             Image {
@@ -408,7 +408,7 @@ ListView {
         Components.HapticMouseArea {
             id: networkDelegate
             width: ListView.view.width
-            height: currentNetworkSSID.height + 40
+            height: currentNetworkSSID.height + networkSubline.height + 10
 
             property var network: modelData
             property alias loadingAnimation: joinLoadingAnimation
@@ -443,9 +443,10 @@ ListView {
             }
 
             Text {
-                color: colors.offwhite
+                id: networkSubline
+                color: colors.textSecondary
                 text: (wifiNetworkList.knownNetworks ? (modelData.identifier === Wifi.currentNetwork.identifier ? (Wifi.currentNetwork.frequency < 5000 ? "2.4 GHz - " : "5 GHz - ") : "") : (modelData.frequency < 5000 ? "2.4 GHz" : "5 GHz")) + (wifiNetworkList.knownNetworks ? (modelData.enabled ? "Enabled" : "Disabled") : "")
-                font: fonts.secondaryFont(18)
+                font: fonts.help()
                 anchors { top: currentNetworkSSID.bottom; left: currentNetworkSSID.left }
             }
 

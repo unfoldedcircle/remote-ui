@@ -86,9 +86,10 @@ Settings.Page {
             id: content
             width: parent.width
             wrapMode: Text.WordWrap
-            color: colors.light
+            color: colors.textPrimary
             textFormat: aboutPageContent.type === ResourceTypes.Licenses ? Text.MarkdownText : Text.RichText
-            font: fonts.secondaryFont(24)
+            font: fonts.prose()
+            lineHeight: fonts.proseLineHeight
             x: 10
             onLinkActivated: {
                 if (link.includes("http")) {

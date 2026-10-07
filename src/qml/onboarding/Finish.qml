@@ -75,10 +75,11 @@ OnboardingComponents.Page {
                 width: parent.width - 40
 
                 wrapMode: Text.WordWrap
-                color: colors.light
+                color: colors.textPrimary
                 horizontalAlignment: Text.AlignHCenter
                 text: qsTr("You can add integrations or change configuration via the Web configurator.")
-                font: fonts.secondaryFont(24)
+                font: fonts.prose()
+                lineHeight: fonts.proseLineHeight
             }
 
             Rectangle {
@@ -109,9 +110,9 @@ OnboardingComponents.Page {
 
                             wrapMode: Text.WordWrap
                             verticalAlignment: Text.AlignVCenter
-                            color: colors.light
+                            color: colors.textSecondary
                             text: Config.webConfiguratorEnabled ? qsTr("Web configurator enabled") : qsTr("Web configurator disabled")
-                            font: fonts.secondaryFont(22)
+                            font: fonts.help()
                         }
 
                         Components.Switch {
@@ -137,9 +138,9 @@ OnboardingComponents.Page {
 
                         visible: Config.webConfiguratorEnabled && Config.webConfiguratorAddress != ""
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        color: colors.light
+                        color: colors.textPrimary
                         text: ("http://%1/configurator").arg(webConfiguratorAddress.showIp ? Wifi.ipAddress : Config.webConfiguratorAddress)
-                        font: fonts.secondaryFont(22)
+                        font: fonts.value()
 
                         Components.HapticMouseArea {
                             anchors.fill: parent
@@ -180,7 +181,7 @@ OnboardingComponents.Page {
                                         color: colors.offwhite
                                         verticalAlignment: Text.AlignVCenter
                                         horizontalAlignment: Text.AlignHCenter
-                                        font: fonts.primaryFont(36, "Light")
+                                        font: fonts.value()
                                         anchors.centerIn: parent
                                     }
                                 }

@@ -138,9 +138,9 @@ Rectangle {
 
                                 wrapMode: Text.WordWrap
                                 verticalAlignment: Text.AlignVCenter
-                                color: colors.light
+                                color: colors.textSecondary
                                 text: Config.webConfiguratorEnabled ? qsTr("Web configurator enabled") : qsTr("Web configurator disabled")
-                                font: fonts.secondaryFont(22)
+                                font: fonts.help()
                             }
 
                             Components.Switch {
@@ -165,11 +165,11 @@ Rectangle {
                                 Layout.fillWidth: true
                                 Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
-                                wrapMode: Text.WordWrap
+                                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                                 verticalAlignment: Text.AlignVCenter
-                                color: colors.light
+                                color: colors.textPrimary
                                 text: ("http://%1/configurator").arg(webConfiguratorAddress.showIp ? Wifi.ipAddress : Config.webConfiguratorAddress)
-                                font: fonts.secondaryFont(22)
+                                font: fonts.value()
 
                                 Components.HapticMouseArea {
                                     anchors.fill: parent
@@ -222,7 +222,7 @@ Rectangle {
                                     color: colors.offwhite
                                     verticalAlignment: Text.AlignVCenter
                                     horizontalAlignment: Text.AlignHCenter
-                                    font: fonts.primaryFont(36, "Light")
+                                    font: fonts.value()
                                     anchors.centerIn: parent
                                 }
                             }
@@ -239,7 +239,7 @@ Rectangle {
                                     color: colors.offwhite
                                     verticalAlignment: Text.AlignVCenter
                                     horizontalAlignment: Text.AlignHCenter
-                                    font: fonts.primaryFont(36, "Light")
+                                    font: fonts.value()
                                     anchors.centerIn: parent
                                 }
                             }
@@ -256,7 +256,7 @@ Rectangle {
                                     color: colors.offwhite
                                     verticalAlignment: Text.AlignVCenter
                                     horizontalAlignment: Text.AlignHCenter
-                                    font: fonts.primaryFont(36, "Light")
+                                    font: fonts.value()
                                     anchors.centerIn: parent
                                 }
                             }
@@ -273,7 +273,7 @@ Rectangle {
                                     color: colors.offwhite
                                     verticalAlignment: Text.AlignVCenter
                                     horizontalAlignment: Text.AlignHCenter
-                                    font: fonts.primaryFont(36, "Light")
+                                    font: fonts.value()
                                     anchors.centerIn: parent
                                 }
                             }
@@ -323,12 +323,11 @@ Rectangle {
                     }
 
                     Text {
-                        color: colors.offwhite
-                        opacity: 0.6
+                        color: colors.textSecondary
                         //: Text explaining that the profile has restricted access
                         text: qsTr("Restricted")
                         anchors { left: lockIcon.right; leftMargin: 10; verticalCenter: lockIcon.verticalCenter }
-                        font: fonts.secondaryFont(24)
+                        font: fonts.help()
                     }
                 }
             }

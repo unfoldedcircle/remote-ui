@@ -174,8 +174,8 @@ Slider {
 
     Text {
         id: lowValueText
-        color: colors.offwhite
-        font: fonts.secondaryFont(20)
+        color: colors.textSecondary
+        font: fonts.caption()
         anchors { left: parent.left; top: sliderBG.bottom; topMargin: slider.pressed ? 20 : 5 }
         visible: lowValueText.text != ""
 
@@ -186,8 +186,8 @@ Slider {
 
     Text {
         id: highValueText
-        color: colors.offwhite
-        font: fonts.secondaryFont(20)
+        color: colors.textSecondary
+        font: fonts.caption()
         anchors { right: parent.right; top: sliderBG.bottom; topMargin: slider.pressed ? 20 : 5 }
         visible: highValueText.text != ""
 

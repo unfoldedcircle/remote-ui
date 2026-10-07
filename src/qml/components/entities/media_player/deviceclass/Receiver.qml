@@ -453,7 +453,7 @@ EntityComponents.BaseDetail {
                         text: entityObj.mediaDuration === 0 ? qsTr("Live") : mediaPlayerBase.formatTime(entityObj.mediaPosition)
                         color: colors.offwhite
                         horizontalAlignment: Text.AlignLeft
-                        font: fonts.secondaryFont(20)
+                        font: fonts.secondaryFont(22)
                         anchors { top: parent.top; left: entityObj.mediaDuration === 0 ? undefined : parent.left; horizontalCenter: entityObj.mediaDuration === 0 ? parent.horizontalCenter : undefined }
                     }
 
@@ -461,7 +461,7 @@ EntityComponents.BaseDetail {
                         text: "-" + mediaPlayerBase.formatTime(entityObj.mediaDuration-entityObj.mediaPosition)
                         color: colors.offwhite
                         horizontalAlignment: Text.AlignRight
-                        font: fonts.secondaryFont(20)
+                        font: fonts.secondaryFont(22)
                         anchors { top: parent.top; right: parent.right }
                     }
 
@@ -588,7 +588,7 @@ EntityComponents.BaseDetail {
                                 }
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
-                                font: fonts.secondaryFontCapitalized(16)
+                                font: fonts.caption()
                                 anchors.centerIn: parent
                             }
                         }

@@ -146,11 +146,11 @@ Popup {
                 }
 
                 Text {
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Press and hold")
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                     anchors { top: powerOffText.bottom; horizontalCenter: parent.horizontalCenter }
                 }
             }
@@ -204,11 +204,11 @@ Popup {
                 }
 
                 Text {
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Press and hold")
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignVCenter
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                     anchors { top: rebootText.bottom; horizontalCenter: parent.horizontalCenter }
                 }
             }
@@ -231,7 +231,7 @@ Popup {
                 text: qsTr("Cancel")
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font: fonts.secondaryFont(30)
+                font: fonts.button()
             }
         }
     }

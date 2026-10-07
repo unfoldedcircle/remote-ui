@@ -173,9 +173,9 @@ Item {
                 wrapMode: Text.WordWrap
                 elide: Text.ElideRight
                 maximumLineCount: 2
-                color: bottomSheetContainer.state == "closed" ? colors.light : colors.offwhite
+                color: bottomSheetContainer.state == "closed" ? colors.textSecondary : colors.textPrimary
                 anchors { left: parent.left; leftMargin: 20; right: footerIcon.left; rightMargin: 10; verticalCenter: parent.verticalCenter }
-                font: fonts.secondaryFont(28)
+                font: fonts.heading()
             }
 
             Components.Icon {

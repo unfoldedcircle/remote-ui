@@ -32,8 +32,8 @@ Item {
         id: bodyText
         anchors { top: titleText.bottom; topMargin: 20; left: parent.left; leftMargin: 20; right: parent.right; rightMargin: 20 }
         wrapMode: Text.WordWrap
-        color: colors.light
-        font: fonts.secondaryFont(24)
+        color: colors.textSecondary
+        font: fonts.help()
         visible: text !== ""
     }
 }

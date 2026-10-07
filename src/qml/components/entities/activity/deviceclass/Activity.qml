@@ -456,8 +456,10 @@ EntityComponents.BaseDetail {
             height: childrenRect.height
             anchors { left: iconOpen.right; leftMargin: 10; verticalCenter: parent.verticalCenter; }
 
+            // both texts take the width of the container, otherwise they do not elide and run under the icons
             Text {
                 id: titleOpen
+                width: parent.width
                 text: entityObj.name
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 elide: Text.ElideRight
@@ -471,6 +473,7 @@ EntityComponents.BaseDetail {
                 id: titleDesc
                 //: Tap to close menu, tap to see more or, after a failed run, tap to fix the state
                 text: activityMenu.opened ? qsTr("Tap to close") : (title.alert ? qsTr("Tap to fix") : qsTr("Tap for more"))
+                width: parent.width
                 height: visible ? implicitHeight : 0
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 elide: Text.ElideRight
@@ -479,7 +482,7 @@ EntityComponents.BaseDetail {
                 color: title.alert ? colors.offwhite : colors.light
                 opacity: iconOpen.opacity
                 anchors { left: parent.left; top: titleOpen.bottom; topMargin: -5 }
-                font: fonts.secondaryFont(20, "Medium")
+                font: fonts.caption()
             }
         }
 

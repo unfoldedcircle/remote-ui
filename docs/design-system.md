@@ -85,8 +85,10 @@ Rules:
 
 Rules:
 
-- Use the role functions on `fonts` (to be added: `fonts.title()`, `label()`, `menuRow()`, `prose()`,
-  `help()`, `caption()`, `value()`, `button()`, `display(size)`). Do not pass pixel sizes from QML.
+- Use the role functions on `fonts`: `fonts.title()`, `heading()`, `label()`, `menuRow()`, `prose()`,
+  `help()`, `caption()`, `value()`, `button()`, `display(size)`. Do not pass pixel sizes from QML. A
+  role sets the face and size only: take the colour from the table, and give prose
+  `lineHeight: fonts.proseLineHeight`.
 - Light weight only at 56 px and above. No Thin. No `lineHeight` below 1.2.
 - Nothing below 22 px, and 22 px never in a colour weaker than `textSecondary`.
 - Sentence case for every label ("24-hour time", "Known networks"). Every string through `qsTr`.
@@ -182,8 +184,9 @@ Use these; do not re-implement their look inline.
 6. Buttons through the three variants; Cancel preselected on destructive confirmations.
 7. Long German and French strings checked: nothing pushed off screen, nothing elided that matters.
    Vertical fit checked at the Remote 3 height of 800 px.
-8. Walked with the keypad on hardware (or `UC_MODEL=UCR2` on the desktop) after opening by key
-   and by touch; QML log free of binding loops and TypeErrors.
+8. Walked with the keypad on hardware (or `UC_MODEL=DEV` on the desktop, see
+   [key-navigation.md](key-navigation.md) section 8) after opening by key and by touch; QML log free
+   of binding loops and TypeErrors.
 9. Then the key-navigation checklist in [key-navigation.md](key-navigation.md) section 9.
 
 ## 9. Implementation
@@ -217,3 +220,4 @@ Close row instead of a secondary button. The page menu sheet is black with a div
 | Q-2 | Focus ring colour: the revised screens use #D0D0D0, once at 92 % opacity; the token sheet still shows #C8C8C8 | Opaque #D0D0D0, the same value as `textPrimary` |
 | Q-3 | Is the provisional #595959 fill right on the devices? It replaces the designer's #333333 so the selection is easy to judge on a Remote 3 in a lit room | Check both remotes in phase 2. Darken it towards #333333 if it looks too heavy; text on it stays readable down to that value |
 | Q-4 | Do all bottom sheets become black with a divider edge, or only popup menus on the main UI? | All bottom sheets, one rule: WifiInfo, WifiJoin, DropDownMenu and the delete drawers too |
+| Q-8 | The mockups draw tile and list subtitles in Poppins 24 and the release-notes date in Space Mono 22; the type table has no such sizes | Subtitles and states use the help role (Poppins 26), timestamps the caption role (Poppins 22). Implemented that way in phase 3 |

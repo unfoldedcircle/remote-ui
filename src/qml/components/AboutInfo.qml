@@ -44,8 +44,8 @@ ColumnLayout {
 
             elide: Text.ElideRight
             maximumLineCount: 1
-            color: colors.light
-            font: fonts.secondaryFont(24)
+            color: colors.textSecondary
+            font: fonts.help()
             visible: text
         }
 
@@ -57,8 +57,8 @@ ColumnLayout {
             horizontalAlignment: Text.AlignRight
             elide: Text.ElideRight
             maximumLineCount: 1
-            color: colors.offwhite
-            font: fonts.primaryFont(24)
+            color: colors.textPrimary
+            font: fonts.value()
             visible: !multiline
         }
     }
@@ -69,8 +69,8 @@ ColumnLayout {
 
         text: value.text
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-        color: colors.offwhite
-        font: fonts.primaryFont(24)
+        color: colors.textPrimary
+        font: fonts.value()
         visible: multiline
 
     }

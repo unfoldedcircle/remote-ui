@@ -91,9 +91,9 @@ Settings.Page {
                 Layout.alignment: Qt.AlignCenter
                 Layout.preferredWidth: content.width - 20
                 wrapMode: Text.WordWrap
-                color: colors.light
+                color: colors.textSecondary
                 text: qsTr("When off, the touch slider is disabled everywhere and swiping it does nothing.")
-                font: fonts.primaryFont(24)
+                font: fonts.help()
             }
 
             Rectangle {
@@ -106,9 +106,9 @@ Settings.Page {
                 Layout.alignment: Qt.AlignCenter
                 Layout.preferredWidth: content.width - 20
                 wrapMode: Text.WordWrap
-                color: colors.light
+                color: colors.textSecondary
                 text: qsTr("Adjust how far the touch slider moves a value for a full-length swipe. Higher is more sensitive; 1.0 means one full swipe covers the whole range.")
-                font: fonts.primaryFont(24)
+                font: fonts.help()
             }
 
             /** TEST HINT **/
@@ -116,9 +116,9 @@ Settings.Page {
                 Layout.alignment: Qt.AlignCenter
                 Layout.preferredWidth: content.width - 20
                 wrapMode: Text.WordWrap
-                color: colors.offwhite
+                color: colors.textSecondary
                 text: qsTr("Slide the hardware slider to test the highlighted setting.")
-                font: fonts.primaryFont(24)
+                font: fonts.help()
             }
 
             /** VOLUME **/

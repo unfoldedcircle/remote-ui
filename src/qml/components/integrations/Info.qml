@@ -176,8 +176,8 @@ Flickable {
 
             text: integrationDriverObj.external ? qsTr("External integration") : qsTr("Local integration")
             maximumLineCount: 1
-            color: colors.light
-            font: fonts.secondaryFont(24)
+            color: colors.textSecondary
+            font: fonts.help()
         }
 
         Item {
@@ -306,7 +306,7 @@ Flickable {
                         text: EntityController.configuredEntitiesCount
                         maximumLineCount: 1
                         color: colors.offwhite
-                        font: fonts.primaryFont(120, "Thin")
+                        font: fonts.display(120)
                         anchors { left: parent.left; leftMargin: 20; top: manageEntitiesText.top; topMargin: 20  }
                     }
 
@@ -369,8 +369,8 @@ Flickable {
                     text: connectedSwitch.checked ? qsTr("Connected") : qsTr("Disconnected")
                     elide: Text.ElideRight
                     maximumLineCount: 1
-                    color: colors.light
-                    font: fonts.secondaryFont(24)
+                    color: colors.textSecondary
+                    font: fonts.help()
                 }
 
                 Components.Switch {
@@ -632,7 +632,7 @@ Flickable {
                         elide: Text.ElideRight
                         maximumLineCount: 1
                         color: colors.offwhite
-                        font: fonts.secondaryFont(28)
+                        font: fonts.heading()
                     }
 
                     Components.Icon {
@@ -677,8 +677,9 @@ Flickable {
 
                     text: qsTr("Are you sure you want to delete the %1 integration?").arg(integrationObj.name)
                     wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    font: fonts.secondaryFont(24)
+                    color: colors.textPrimary
+                    font: fonts.prose()
+                    lineHeight: fonts.proseLineHeight
                 }
 
                 RowLayout {
@@ -708,7 +709,7 @@ Flickable {
                                 color: deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
                             }
                         }
-                        font: fonts.secondaryFont(26, "Bold")
+                        font: fonts.button()
 
                         Components.HapticMouseArea {
                             width: parent.width + 40
@@ -738,7 +739,7 @@ Flickable {
                                 color: !deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
                             }
                         }
-                        font: fonts.secondaryFont(26, "Bold")
+                        font: fonts.button()
 
                         Components.HapticMouseArea {
                             width: parent.width + 40
