@@ -128,11 +128,11 @@ Settings.Page {
             id: menuItemBg
             width: ui.width
             height: 80
-            color: ListView.isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
-            radius: ui.cornerRadiusSmall
-            border {
-                color: Qt.lighter(menuItemBg.color, 1.3)
-                width: 1
+            color: colors.transparent
+
+            Components.Selectable {
+                selected: menuItemBg.ListView.isCurrentItem
+                anchors { leftMargin: 4; rightMargin: 4 }
             }
 
             Components.Icon {

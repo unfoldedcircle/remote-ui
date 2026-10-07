@@ -47,6 +47,8 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 - `key-navigation`: "Keypad-active state and selection rendering" describes the two selection
   styles; "Developer contract for a new keypad-navigable screen" requires the style of the screen's
   layer.
+- `activities`: "Activity menu and included entities" draws its selection in the fill style and
+  follows the keypad-active state instead of a flag of its own (phase 2).
 - Phase 5 makes controls reachable on screens owned by other capabilities (pages, profiles, docks,
   integrations, notifications). Their deltas are written with that phase, when the exact behaviour
   per screen is settled.

@@ -404,18 +404,17 @@ Settings.Page {
             id: selectorBg
             width: parent.width
             height: 60
-            color: highlight && ui.keyNavigationActive ? colors.dark : colors.transparent
-            radius: ui.cornerRadiusSmall
-            border {
-                color: Qt.lighter(selectorBg.color, 1.3)
-                width: 1
-            }
+            color: colors.transparent
 
             property string title
             property alias value: valueText.text
             property alias mouseArea: mouseArea
             property bool highlight: false
             property var trigger
+
+            Components.Selectable {
+                selected: selectorBg.highlight
+            }
 
             Text {
                 id: titleText

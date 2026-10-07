@@ -22,6 +22,8 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
 
+import "qrc:/components" as Components
+
 Slider {
     id: slider
     live: false
@@ -49,12 +51,14 @@ Slider {
         implicitWidth: slider.width; implicitHeight: slider.height
         width: slider.availableWidth; height: implicitHeight
 
-        Rectangle {
-            width: bg.width + 4
-            height: bg.height + 4
-            radius: bg.radius
-            color: highlight ? colors.highlight : colors.transparent
+        // the ring around the track, 1 px clear of it
+        Components.Selectable {
+            selected: slider.highlight
+            anchors.fill: undefined
             anchors.centerIn: bg
+            width: bg.width + 8
+            height: bg.height + 8
+            radius: bg.radius + 4
         }
 
         Rectangle {

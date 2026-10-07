@@ -91,7 +91,11 @@ Item {
         background: Rectangle {
             radius: buttonContainer.height / 2
             color: colors.medium
-            border { width: 2; color: highlight ? colors.highlight : colors.transparent }
+
+            Components.Selectable {
+                selected: buttonContainer.highlight
+                radius: parent.radius
+            }
         }
     }
 }
