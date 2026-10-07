@@ -5,6 +5,8 @@ import QtQuick 2.15
 import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
+import "qrc:/components" as Components
+
 Item {
     id: root
 
@@ -25,11 +27,11 @@ Item {
         id: title
 
         width: parent.width - 40
-        color: colors.offwhite
+        color: colors.textPrimary
         maximumLineCount: 2
         wrapMode: Text.WordWrap
         elide: Text.ElideRight
-        font: fonts.primaryFont(30)
+        font: fonts.title()
         anchors { top: parent.top; topMargin: 20; horizontalCenter: parent.horizontalCenter }
     }
 
@@ -41,14 +43,15 @@ Item {
         contentWidth: content.width; contentHeight: content.height
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
-        anchors { top: title.bottom; topMargin: 40; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+        anchors { top: title.bottom; topMargin: 20; bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
 
         KeyNavigation.down: root.navExit
 
         Keys.onDownPressed: {
             const maxContentY = Math.max(0, contentFlickable.contentHeight - contentFlickable.height);
             if (contentFlickable.contentY < maxContentY) {
-                contentFlickable.contentY = Math.min(contentFlickable.contentY + 200, maxContentY);
+                // half the viewport per press (docs/design-system.md section 6)
+                contentFlickable.contentY = Math.min(contentFlickable.contentY + Math.round(contentFlickable.height / 2), maxContentY);
                 event.accepted = true;
             } else {
                 event.accepted = false;
@@ -57,15 +60,16 @@ Item {
 
         Keys.onUpPressed: {
             if (contentFlickable.contentY > 0) {
-                contentFlickable.contentY = Math.max(0, contentFlickable.contentY - 200);
+                contentFlickable.contentY = Math.max(0, contentFlickable.contentY - Math.round(contentFlickable.height / 2));
                 event.accepted = true;
             } else {
                 event.accepted = false;
             }
         }
 
-        ScrollBar.vertical: ScrollBar {
-            opacity: 0.5
+        Components.ScrollIndicator {
+            parent: contentFlickable
+            parentObj: contentFlickable
         }
 
         ColumnLayout {

@@ -740,18 +740,11 @@ ListView {
             property int toVal: 0
             property string itemId: pageItemId
 
-            // the tile's own selection colour is off in the edit mode: outline the selected tile,
-            // stronger while it is picked up
-            Rectangle {
-                anchors.fill: parent
+            // the tile's own fill marks the selection; the ring marks the tile while it is held for reordering,
+            // the one element that shows both (docs/design-system.md section 6, Q-5)
+            Components.Selectable {
                 z: 3000
-                radius: ui.cornerRadiusSmall
-                color: colors.transparent
-                border {
-                    width: 2
-                    color: dragArea.isCurrentItem && ui.editMode && ui.keyNavigationActive
-                           ? (page.heldIndex === index ? colors.highlight : colors.medium) : colors.transparent
-                }
+                selected: dragArea.isCurrentItem && ui.editMode && page.heldIndex === index
             }
 
             drag.target: held ? delegate : undefined

@@ -24,8 +24,8 @@ Settings.Page {
     // writing a timezone id into the language, country and unit system settings.
     property var popupSelectionHandler: null
 
-    function loadList(title, list, showSearch = true, selectedItem = 0, closeOnSelected = true, sectionRole = "") {
-        popupListLoader.setSource("qrc:/components/PopupList.qml", { title: title, listModel: list, showSearch: showSearch, initialSelected: selectedItem, closeOnSelected: closeOnSelected, sectionRole: sectionRole });
+    function loadList(title, list, showSearch = true, selectedItem = 0, closeOnSelected = true, sectionRole = "", currentValue = undefined) {
+        popupListLoader.setSource("qrc:/components/PopupList.qml", { title: title, listModel: list, showSearch: showSearch, initialSelected: selectedItem, closeOnSelected: closeOnSelected, sectionRole: sectionRole, currentValue: currentValue });
     }
 
     // fills listModel with the timezones of the configured country, or all timezones when the
@@ -116,7 +116,7 @@ Settings.Page {
                             }
                         }
 
-                        loadList(qsTr("Select language"), listModel, false, currentLanguageItem);
+                        loadList(qsTr("Select language"), listModel, false, currentLanguageItem, true, "", Config.language);
                     }
                 }
 
@@ -218,7 +218,7 @@ Settings.Page {
                                 }
                             }
 
-                            loadList(qsTr("Select country"), listModel, true, currentCountryIndex, true, "section");
+                            loadList(qsTr("Select country"), listModel, true, currentCountryIndex, true, "section", Config.country);
                         }
                     }
                 }
@@ -271,7 +271,7 @@ Settings.Page {
 
                         // the list stays open when "All timezones…" swaps the model, so the popup
                         // is closed manually on a real selection
-                        loadList(qsTr("Select timezone"), listModel, true, buildTimeZoneModel(false), false);
+                        loadList(qsTr("Select timezone"), listModel, true, buildTimeZoneModel(false), false, "", Config.timezone);
                     }
                 }
 
@@ -311,7 +311,7 @@ Settings.Page {
                     z: item.z + 1
                     icon: "uc:check"
                     checked: Config.clock24h
-                    anchors { right: parent.right; verticalCenter: parent.verticalCenter }
+                    anchors { right: parent.right; rightMargin: 20; verticalCenter: parent.verticalCenter }
                     trigger: function() {
                         Config.clock24h = !Config.clock24h;
                     }
@@ -352,7 +352,7 @@ Settings.Page {
                         listModel.append({'name': "Uk", 'value': "Uk"})
                         listModel.append({'name': "Us", 'value': "Us"})
 
-                        loadList(qsTr("Select unit system"), listModel, false);
+                        loadList(qsTr("Select unit system"), listModel, false, 0, true, "", Config.unitSystem);
                     }
                 }
 
@@ -402,50 +402,20 @@ Settings.Page {
     Component {
         id: selector
 
-        Rectangle {
-            id: selectorBg
-            width: parent.width
-            height: 120
-            color: colors.transparent
-
+        // a picker row opens a list and shows the current value; the 24-hour row carries a switch instead
+        Components.MenuRow {
             property string title
-            property alias value: valueText.text
-            property alias mouseArea: mouseArea
             property bool highlight: false
             property var trigger
 
-            Components.Selectable {
-                selected: selectorBg.highlight
-            }
+            text: qsTr(title)
+            chevron: value !== ""
+            selected: highlight
 
-            Text {
-                id: titleText
-                text: qsTr(title)
-                width: parent.width/2
-                wrapMode: Text.WordWrap
-                color: colors.offwhite
-                anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter }
-                font: fonts.primaryFont(30)
-            }
-
-            Text {
-                id: valueText
-                width: parent.width/2
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignRight
-                color: colors.textSecondary
-                anchors { right: parent.right; rightMargin: 10; baseline: titleText.baseline }
-                font: fonts.help()
-            }
-
-            Components.HapticMouseArea {
-                id: mouseArea
-                enabled: valueText.text != ""
-                anchors.fill: parent
-                onClicked: {
+            onClicked: {
+                if (value !== "" && trigger) {
                     trigger();
                 }
-
             }
         }
     }

@@ -100,61 +100,53 @@ Rectangle {
         anchors.fill: parent
     }
 
-    Item {
-        id: renamePageContainerTitle
-        width: parent.width; height: 60
-        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-
-        Text {
-            id: renamePageContainerTitleText
-            color: colors.offwhite
-            text: qsTr("Rename page")
-            anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
-            font: fonts.primaryFont(26)
-        }
-    }
-
-    Components.InputField {
-        id: inputFieldContainer
-        width: parent.width; height: 80
-        anchors { top: renamePageContainerTitle.bottom; horizontalCenter: parent.horizontalCenter }
-
-        inputField.text: currentPage
-        inputField.onAccepted: {
-            rename();
-        }
-        moveInput: false
-
-        navDown: cancelButton
-    }
-
-    Components.Button {
-        id: cancelButton
-        text: qsTr("Cancel")
-        width: parent.width / 2 - 10
-        color: colors.secondaryButton
-        anchors { left: inputFieldContainer.left; top: inputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            inputFieldContainer.inputField.clear();
-            renamePageContainer.state = "hidden";
-            keyboard.hide();
+    Components.FormDialog {
+        id: dialog
+        title: qsTr("Rename page")
+        goBack: function() {
+            cancelButton.activate();
         }
 
-        KeyNavigation.up: inputFieldContainer.inputField
-        KeyNavigation.right: actionButton
-    }
+        Components.InputField {
+            id: inputFieldContainer
+            width: parent.width; height: 80
 
-    Components.Button {
-        id: actionButton
-        //: Label for button that will execute the action and rename the page
-        text: qsTr("Rename")
-        width: parent.width / 2 - 10
-        anchors { right: inputFieldContainer.right; top: inputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            rename();
+            inputField.text: currentPage
+            inputField.onAccepted: {
+                rename();
+            }
+            moveInput: false
+
+            navDown: cancelButton
         }
 
-        KeyNavigation.up: inputFieldContainer.inputField
-        KeyNavigation.left: cancelButton
+        buttons: [
+            Components.Button {
+                id: cancelButton
+                text: qsTr("Cancel")
+                width: dialog.buttonWidth
+                variant: "secondary"
+                trigger: function() {
+                    inputFieldContainer.inputField.clear();
+                    renamePageContainer.state = "hidden";
+                    keyboard.hide();
+                }
+
+                KeyNavigation.up: inputFieldContainer.inputField
+                KeyNavigation.right: actionButton
+            },
+            Components.Button {
+                id: actionButton
+                //: Label for button that will execute the action and rename the page
+                text: qsTr("Rename")
+                width: dialog.buttonWidth
+                trigger: function() {
+                    rename();
+                }
+
+                KeyNavigation.up: inputFieldContainer.inputField
+                KeyNavigation.left: cancelButton
+            }
+        ]
     }
 }

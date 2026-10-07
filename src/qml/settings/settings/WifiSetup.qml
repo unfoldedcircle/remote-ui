@@ -172,75 +172,70 @@ Popup {
                 }
             }
 
-            Text {
-                id: wifiSetupContainerTitleText
-                color: colors.offwhite
-                text: qsTr("Enter SSID")
-                horizontalAlignment: Text.AlignHCenter
-                width: parent.width
-                wrapMode: Text.WordWrap
-                anchors { top: parent.top; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-                font: fonts.primaryFont(26)
-            }
-
-            Components.InputField {
-                id: ssidInputFieldContainer
-                width: parent.width; height: 80
-                anchors { top: wifiSetupContainerTitleText.bottom; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-
-                inputField.placeholderText: qsTr("Wifi network")
-                inputField.onAccepted: {
-                    ssidStep.submitSsid();
-                }
-                inputField.inputMethodHints: Qt.ImhNoAutoUppercase
-                moveInput: false
-                keyboardFollowsFocus: true
-                // skipped by the chain while it is hidden (dock networks)
-                navDown: hiddenNetworkCheck
-            }
-
-            Components.Checkbox {
-                id: hiddenNetworkCheck
-                //: Checkbox to add a WiFi network which doesn't broadcast its name
-                text: qsTr("Hidden network")
-                // the dock configuration doesn't support hidden networks
-                visible: !wifiSetup.dockNetworkSelection
-                width: parent.width - 20
-                height: visible ? implicitHeight : 0
-                anchors { left: ssidInputFieldContainer.left; leftMargin: 10; top: ssidInputFieldContainer.bottom; topMargin: visible ? 20 : 0 }
-
-                KeyNavigation.up: ssidInputFieldContainer.inputField
-                KeyNavigation.down: ssidCancelButton
-            }
-
-            Components.Button {
-                id: ssidNextButton
-                text: qsTr("Next")
-                width: parent.width / 2 - 10
-                anchors { right: ssidInputFieldContainer.right; top: hiddenNetworkCheck.bottom; topMargin: 40 }
-                trigger: function() {
-                    ssidStep.submitSsid();
+            Components.FormDialog {
+                id: ssidDialog
+                title: qsTr("Enter SSID")
+                goBack: function() {
+                    ssidCancelButton.activate();
                 }
 
-                KeyNavigation.up: hiddenNetworkCheck
-                KeyNavigation.left: ssidCancelButton
-            }
+                Components.InputField {
+                    id: ssidInputFieldContainer
+                    width: parent.width; height: 80
 
-            Components.Button {
-                id: ssidCancelButton
-                text: qsTr("Cancel")
-                width: parent.width / 2 - 10
-                color: colors.secondaryButton
-                anchors { left: ssidInputFieldContainer.left; top: hiddenNetworkCheck.bottom; topMargin: 40 }
-                trigger: function() {
-                    ssidInputFieldContainer.inputField.clear();
-                    wifiSetup.close();
-                    keyboard.hide();
+                    inputField.placeholderText: qsTr("Wifi network")
+                    inputField.onAccepted: {
+                        ssidStep.submitSsid();
+                    }
+                    inputField.inputMethodHints: Qt.ImhNoAutoUppercase
+                    moveInput: false
+                    keyboardFollowsFocus: true
+                    // skipped by the chain while it is hidden (dock networks)
+                    navDown: hiddenNetworkCheck
                 }
 
-                KeyNavigation.up: hiddenNetworkCheck
-                KeyNavigation.right: ssidNextButton
+                Components.Checkbox {
+                    id: hiddenNetworkCheck
+                    //: Checkbox to add a WiFi network which doesn't broadcast its name
+                    text: qsTr("Hidden network")
+                    // the dock configuration doesn't support hidden networks
+                    visible: !wifiSetup.dockNetworkSelection
+                    width: parent.width
+                    height: visible ? implicitHeight : 0
+
+                    KeyNavigation.up: ssidInputFieldContainer.inputField
+                    KeyNavigation.down: ssidCancelButton
+                }
+
+                buttons: [
+                    Components.Button {
+                        id: ssidCancelButton
+                        text: qsTr("Cancel")
+                        width: ssidDialog.buttonWidth
+                        variant: "secondary"
+                        trigger: function() {
+                            ssidInputFieldContainer.inputField.clear();
+                            wifiSetup.close();
+                            keyboard.hide();
+                        }
+
+                        KeyNavigation.up: hiddenNetworkCheck
+                        KeyNavigation.right: ssidNextButton
+                    },
+                    Components.Button {
+                        id: ssidNextButton
+                        text: qsTr("Next")
+                        width: ssidDialog.buttonWidth
+                        trigger: function() {
+                            ssidStep.submitSsid();
+                        }
+
+                        KeyNavigation.up: hiddenNetworkCheck
+                        KeyNavigation.left: ssidCancelButton
+                    }
+                ]
             }
+
         }
 
         // security
@@ -263,124 +258,119 @@ Popup {
                 return item ? item.securityCheckbox : null;
             }
 
-            Text {
-                id: wifiSecurityContainerTitleText
-                color: colors.offwhite
-                text: qsTr("Choose WiFi security for\n%1").arg(wifiSetup.ssid)
-                horizontalAlignment: Text.AlignHCenter
-                width: parent.width
-                wrapMode: Text.WordWrap
-                anchors { top: parent.top; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-                font: fonts.primaryFont(26)
-            }
+            Components.FormDialog {
+                id: securityDialog
+                // the name of the network can be long: the text goes under the title bar
+                description: qsTr("Choose WiFi security for\n%1").arg(wifiSetup.ssid)
+                goBack: function() {
+                    securityCancelButton.activate();
+                }
 
-            ButtonGroup {
-                id: securityGroup
+                ColumnLayout {
+                    id: securitySelector
+                    spacing: 20
+                    width: parent.width
 
-            }
+                    Repeater {
+                        id: securityRepeater
+                        model: wifiSetup.securityOptions
 
-            ColumnLayout {
-                id: securitySelector
-                spacing: 20
-                width: parent.width
-                anchors { top: wifiSecurityContainerTitleText.bottom; topMargin: 20 }
+                        onItemAdded: securityStep.optionsVersion++
 
-                Repeater {
-                    id: securityRepeater
-                    model: wifiSetup.securityOptions
+                        delegate: Column {
+                            Layout.fillWidth: true
+                            spacing: 20
 
-                    onItemAdded: securityStep.optionsVersion++
+                            property alias securityCheckbox: securityCheck
 
-                    delegate: Column {
-                        Layout.fillWidth: true
-                        spacing: 20
+                            // separates the open network from the secured ones
+                            Rectangle {
+                                width: parent.width; height: 2
+                                color: colors.divider
+                                visible: modelData.security === Security.AUTO
+                            }
 
-                        property alias securityCheckbox: securityCheck
+                            Components.Checkbox {
+                                id: securityCheck
+                                width: parent.width
+                                text: modelData.name
+                                checked: modelData.security === Security.AUTO
+                                ButtonGroup.group: securityGroup
 
-                        // separates the open network from the secured ones
-                        Rectangle {
-                            width: ui.width - 20; height: 2
-                            color: colors.medium
-                            visible: modelData.security === Security.AUTO
-                        }
+                                property int security: modelData.security
 
-                        Components.Checkbox {
-                            id: securityCheck
-                            width: parent.width
-                            text: modelData.name
-                            checked: modelData.security === Security.AUTO
-                            ButtonGroup.group: securityGroup
+                                /** KEYBOARD NAVIGATION **/
+                                KeyNavigation.up: index > 0 ? securityStep.optionAt(index - 1, securityStep.optionsVersion) : null
+                                KeyNavigation.down: index < securityRepeater.count - 1
+                                                    ? securityStep.optionAt(index + 1, securityStep.optionsVersion)
+                                                    : securityCancelButton
 
-                            property int security: modelData.security
-
-                            /** KEYBOARD NAVIGATION **/
-                            KeyNavigation.up: index > 0 ? securityStep.optionAt(index - 1, securityStep.optionsVersion) : null
-                            KeyNavigation.down: index < securityRepeater.count - 1
-                                                ? securityStep.optionAt(index + 1, securityStep.optionsVersion)
-                                                : securityCancelButton
-
-                            // OK selects the option; the plain toggle of the checkbox would clear the
-                            // selected one and leave the group without a choice
-                            Keys.onReturnPressed: {
-                                securityCheck.checked = true;
-                                event.accepted = true;
+                                // OK selects the option; the plain toggle of the checkbox would clear the
+                                // selected one and leave the group without a choice
+                                Keys.onReturnPressed: {
+                                    securityCheck.checked = true;
+                                    event.accepted = true;
+                                }
                             }
                         }
                     }
                 }
-            }
 
-            Components.Button {
-                id: securityJoinButton
-                //: Join wifi network
-                text: securityStep.openNetworkSelected ? qsTr("Join") : qsTr("Next")
-                width: parent.width / 2 - 10
-                anchors { right: parent.right; top: securitySelector.bottom; topMargin: 40 }
+                buttons: [
+                    Components.Button {
+                        id: securityCancelButton
+                        text: qsTr("Cancel")
+                        width: securityDialog.buttonWidth
+                        variant: "secondary"
 
-                KeyNavigation.up: securityStep.lastOption
-                KeyNavigation.left: securityCancelButton
+                        KeyNavigation.up: securityStep.lastOption
+                        KeyNavigation.right: securityJoinButton
 
-                trigger: function() {
-                    if (securityGroup.checkedButton === null) {
-                        ui.createActionableNotification(qsTr("Select a security option"), qsTr("Please select a security option"))
-                        return;
-                    }
-
-                    wifiSetup.security = securityGroup.checkedButton.security;
-
-                    if (!securityStep.openNetworkSelected) {
-                        // the step change focuses the password field, which brings the keyboard up
-                        setupContainer.incrementCurrentIndex();
-                        return;
-                    }
-
-                    if (wifiSetup.dockNetworkSelection) {
-                        wifiSetup.wifiNetworkSelected(wifiSetup.ssid, "");
-                    } else {
-                        if (!Wifi.isConnected) {
-                            loading.start();
+                        trigger: function() {
+                            ssidInputFieldContainer.inputField.clear();
+                            wifiSetup.close();
+                            keyboard.hide();
                         }
-                        Wifi.connect(wifiSetup.ssid, "", "", wifiSetup.security, wifiSetup.hidden);
+                    },
+                    Components.Button {
+                        id: securityJoinButton
+                        //: Join wifi network
+                        text: securityStep.openNetworkSelected ? qsTr("Join") : qsTr("Next")
+                        width: securityDialog.buttonWidth
+
+                        KeyNavigation.up: securityStep.lastOption
+                        KeyNavigation.left: securityCancelButton
+
+                        trigger: function() {
+                            if (securityGroup.checkedButton === null) {
+                                ui.createActionableNotification(qsTr("Select a security option"), qsTr("Please select a security option"))
+                                return;
+                            }
+
+                            wifiSetup.security = securityGroup.checkedButton.security;
+
+                            if (!securityStep.openNetworkSelected) {
+                                // the step change focuses the password field, which brings the keyboard up
+                                setupContainer.incrementCurrentIndex();
+                                return;
+                            }
+
+                            if (wifiSetup.dockNetworkSelection) {
+                                wifiSetup.wifiNetworkSelected(wifiSetup.ssid, "");
+                            } else {
+                                if (!Wifi.isConnected) {
+                                    loading.start();
+                                }
+                                Wifi.connect(wifiSetup.ssid, "", "", wifiSetup.security, wifiSetup.hidden);
+                            }
+                            wifiSetup.close();
+                        }
                     }
-                    wifiSetup.close();
-                }
+                ]
             }
 
-            Components.Button {
-                id: securityCancelButton
-                text: qsTr("Cancel")
-                width: parent.width / 2 - 10
-                color: colors.secondaryButton
-                anchors { left: parent.left; top: securitySelector.bottom; topMargin: 40 }
-
-                KeyNavigation.up: securityStep.lastOption
-                KeyNavigation.right: securityJoinButton
-
-                trigger: function() {
-                    ssidInputFieldContainer.inputField.clear();
-                    wifiSetup.close();
-                    keyboard.hide();
-                }
+            ButtonGroup {
+                id: securityGroup
             }
         }
 
@@ -408,63 +398,59 @@ Popup {
                 }
             }
 
-            Text {
-                id: wifiPasswordContainerTitleText
-                color: colors.offwhite
-                text: qsTr("Enter WiFi password for\n%1").arg(wifiSetup.ssid)
-                horizontalAlignment: Text.AlignHCenter
-                width: parent.width
-                wrapMode: Text.WordWrap
-                anchors { top: parent.top; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-                font: fonts.primaryFont(26)
-            }
-
-            Components.InputField {
-                id: passwordInputFieldContainer
-                width: parent.width; height: 80
-                anchors { top: wifiPasswordContainerTitleText.bottom; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-
-                //: Placeholder text for password
-                inputField.placeholderText: qsTr("Super secret")
-                inputField.onAccepted: {
-                    passwordStep.join();
-                }
-                inputField.inputMethodHints: Qt.ImhNoAutoUppercase
-                inputField.echoMode: TextInput.Password
-                inputField.passwordMaskDelay: 1000
-                moveInput: false
-                keyboardFollowsFocus: true
-                navDown: passwordCancelButton
-            }
-
-            Components.Button {
-                id: passwordJoinButton
-                //: Join wifi network
-                text: qsTr("Join")
-                width: parent.width / 2 - 10
-                anchors { right: passwordInputFieldContainer.right; top: passwordInputFieldContainer.bottom; topMargin: 40 }
-                trigger: function() {
-                    passwordStep.join();
+            Components.FormDialog {
+                id: passwordDialog
+                // the name of the network can be long: the text goes under the title bar
+                description: qsTr("Enter WiFi password for\n%1").arg(wifiSetup.ssid)
+                goBack: function() {
+                    passwordCancelButton.activate();
                 }
 
-                KeyNavigation.up: passwordInputFieldContainer.inputField
-                KeyNavigation.left: passwordCancelButton
-            }
+                Components.InputField {
+                    id: passwordInputFieldContainer
+                    width: parent.width; height: 80
 
-            Components.Button {
-                id: passwordCancelButton
-                text: qsTr("Cancel")
-                width: parent.width / 2 - 10
-                color: colors.secondaryButton
-                anchors { left: passwordInputFieldContainer.left; top: passwordInputFieldContainer.bottom; topMargin: 40 }
-                trigger: function() {
-                    ssidInputFieldContainer.inputField.clear();
-                    wifiSetup.close();
-                    keyboard.hide();
+                    //: Placeholder text for password
+                    inputField.placeholderText: qsTr("Super secret")
+                    inputField.onAccepted: {
+                        passwordStep.join();
+                    }
+                    inputField.inputMethodHints: Qt.ImhNoAutoUppercase
+                    inputField.echoMode: TextInput.Password
+                    inputField.passwordMaskDelay: 1000
+                    moveInput: false
+                    keyboardFollowsFocus: true
+                    navDown: passwordCancelButton
                 }
 
-                KeyNavigation.up: passwordInputFieldContainer.inputField
-                KeyNavigation.right: passwordJoinButton
+                buttons: [
+                    Components.Button {
+                        id: passwordCancelButton
+                        text: qsTr("Cancel")
+                        width: passwordDialog.buttonWidth
+                        variant: "secondary"
+                        trigger: function() {
+                            ssidInputFieldContainer.inputField.clear();
+                            wifiSetup.close();
+                            keyboard.hide();
+                        }
+
+                        KeyNavigation.up: passwordInputFieldContainer.inputField
+                        KeyNavigation.right: passwordJoinButton
+                    },
+                    Components.Button {
+                        id: passwordJoinButton
+                        //: Join wifi network
+                        text: qsTr("Join")
+                        width: passwordDialog.buttonWidth
+                        trigger: function() {
+                            passwordStep.join();
+                        }
+
+                        KeyNavigation.up: passwordInputFieldContainer.inputField
+                        KeyNavigation.left: passwordCancelButton
+                    }
+                ]
             }
         }
     }

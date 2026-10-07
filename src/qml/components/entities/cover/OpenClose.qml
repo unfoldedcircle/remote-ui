@@ -46,7 +46,7 @@ ColumnLayout {
         Layout.fillHeight: true
 
         text: qsTr("Close")
-        color: colors.medium
+        variant: "secondary"
         trigger: function() {
             entityObj.close();
         }
@@ -59,7 +59,7 @@ ColumnLayout {
         Layout.fillHeight: true
 
         text: qsTr("Open")
-        color: colors.medium
+        variant: "secondary"
         trigger: function() {
             entityObj.open();
         }

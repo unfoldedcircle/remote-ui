@@ -263,7 +263,7 @@ KeyboardStyle {
                 fontSizeMode: Text.HorizontalFit
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                color: "#80c342"
+                color: colors.textPrimary
                 font {
                     family: fontFamily
                     weight: Font.Normal
@@ -435,7 +435,7 @@ KeyboardStyle {
         Rectangle {
             id: spaceKeyBackground
             radius: 5
-            color: "#35322f"
+            color: colors.surfaceRaised
             anchors.fill: spaceKeyPanel
             anchors.margins: keyBackgroundMargin
             Text {
@@ -538,13 +538,13 @@ KeyboardStyle {
         Rectangle {
             id: modeKeyBackground
             radius: 5
-            color: "#1e1b18"
+            color: colors.surface
             anchors.fill: modeKeyPanel
             anchors.margins: keyBackgroundMargin
             Text {
                 id: modeKeyText
                 text: control.displayText
-                color: "white"
+                color: colors.textPrimary
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
                 anchors.fill: parent
@@ -565,7 +565,7 @@ KeyboardStyle {
                 anchors.leftMargin: parent.width * 0.4
                 anchors.rightMargin: parent.width * 0.4
                 anchors.bottomMargin: parent.height * 0.12
-                color: "#80c342"
+                color: colors.textPrimary
                 radius: 3
                 visible: control.mode
             }
@@ -608,7 +608,7 @@ KeyboardStyle {
         Rectangle {
             id: hwrKeyBackground
             radius: 5
-            color: "#35322f"
+            color: colors.surfaceRaised
             anchors.fill: handwritingKeyPanel
             anchors.margins: keyBackgroundMargin
             Image {
@@ -706,17 +706,17 @@ KeyboardStyle {
             when: alternateKeysListItem.ListView.isCurrentItem
             PropertyChanges {
                 target: listItemText
-                color: "white"
+                color: colors.textPrimary
             }
         }
     }
     alternateKeysListHighlight: Rectangle {
-        color: colors.highlight
-        radius: 5
+        color: colors.surfaceSelected
+        radius: ui.cornerRadiusSmall
     }
     alternateKeysListBackground: Rectangle {
-        color: colors.medium
-        radius: 5
+        color: colors.surfaceRaised
+        radius: ui.cornerRadiusSmall
     }
 
     selectionListHeight: 85 * scaleHint
@@ -729,7 +729,7 @@ KeyboardStyle {
             anchors.leftMargin: Math.round((compactSelectionList ? 50 : 140) * scaleHint)
             anchors.verticalCenter: parent.verticalCenter
             text: decorateText(display, wordCompletionLength)
-            color: "#80c342"
+            color: colors.textSecondary
             font {
                 family: fontFamily
                 weight: Font.Normal
@@ -747,7 +747,7 @@ KeyboardStyle {
             width: 4 * scaleHint
             height: 36 * scaleHint
             radius: 2
-            color: "#35322f"
+            color: colors.surfaceRaised
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.left
         }
@@ -756,12 +756,12 @@ KeyboardStyle {
             when: selectionListItem.ListView.isCurrentItem
             PropertyChanges {
                 target: selectionListLabel
-                color: "white"
+                color: colors.textPrimary
             }
         }
     }
     selectionListBackground: Rectangle {
-        color: "#1e1b18"
+        color: colors.surface
     }
     selectionListAdd: Transition {
         NumberAnimation { property: "y"; from: wordCandidateView.height; duration: 200 }
@@ -773,9 +773,10 @@ KeyboardStyle {
     }
 
     navigationHighlight: Rectangle {
-        color: "transparent"
-        border.color: "yellow"
-        border.width: 5
+        color: colors.transparent
+        radius: ui.cornerRadiusSmall
+        border.color: colors.focusRing
+        border.width: 3
     }
 
     traceInputKeyPanelDelegate: TraceInputKeyPanel {
@@ -784,7 +785,7 @@ KeyboardStyle {
         Rectangle {
             id: traceInputKeyPanelBackground
             radius: 5
-            color: "#35322f"
+            color: colors.surfaceRaised
             anchors.fill: traceInputKeyPanel
             anchors.margins: keyBackgroundMargin
             Text {
@@ -818,7 +819,7 @@ KeyboardStyle {
                         return "Abc"
                     }
                 }
-                color: "white"
+                color: colors.textPrimary
                 anchors.left: parent.left
                 anchors.top: parent.top
                 anchors.margins: keyContentMargin
@@ -918,7 +919,7 @@ KeyboardStyle {
             anchors.leftMargin: popupListLabel.height / 2
             anchors.topMargin: popupListLabel.height / 3
             text: decorateText(display, wordCompletionLength)
-            color: "#5CAA15"
+            color: colors.textSecondary
             font {
                 family: fontFamily
                 weight: Font.Normal
@@ -936,7 +937,7 @@ KeyboardStyle {
             when: popupListItem.ListView.isCurrentItem
             PropertyChanges {
                 target: popupListLabel
-                color: "black"
+                color: colors.textPrimary
             }
         }
     }
@@ -945,10 +946,10 @@ KeyboardStyle {
         Rectangle {
             width: parent.width
             height: parent.height
-            color: "white"
+            color: colors.surfaceRaised
             border {
-                width: 1
-                color: "#929495"
+                width: 2
+                color: colors.divider
             }
         }
     }

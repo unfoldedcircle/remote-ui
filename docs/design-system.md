@@ -100,7 +100,10 @@ Rules:
 - **Selectable rows and tiles** span from 8 px to width-8 so the selection never touches the bezel;
   their content keeps the 20 px gutter (12 px inner padding).
 - **Title bar 80 px:** 80 x 80 back or close target at the edge, title centred. One component for
-  pages, sheets and dialogs; onboarding uses it without the back target.
+  pages, sheets and dialogs; onboarding uses it without the back target. A title too long to centre
+  between the targets starts after the target and elides; without a target it centres within the
+  gutters. A screen whose end action is not Close (the page selector's edit mode) puts its own icon
+  on the end target.
 - **Row heights** 80 (one line), 110 (two lines), 130 (tiles). Setting sections with help text size
   to content with 14 px vertical padding. Reorder rows with a handle may be 150.
 - **Dividers** 2 px `divider`, inset 20, between sections and between rows that are not cards.
@@ -138,6 +141,9 @@ the proposed mapping and still need confirmation (section 11, Q-1).
   readable on it: 3.0:1 against black on the OLED and about 2.4:1 on the LCD estimate. The
   designer's revision used #333333 (1.66:1 and about 1.5:1). #595959 is the provisional value for the
   hardware check and may be darkened afterwards (section 11, Q-3).
+- **Held while reordering** (page tiles, group rows, page selector rows): the ring marks the held
+  element and the fill marks the selection, so a held element shows both while it moves. This is
+  the one exception to "never both" (decided 2026-10-07, Q-5 of the change).
 - **Text on the fill.** Everything on a selected fill is drawn in `textPrimary` (4.5:1 on #595959),
   including text that is `textSecondary` at rest, such as a tile's state line: `textSecondary` would
   drop to 2.7:1.
@@ -163,14 +169,17 @@ Use these; do not re-implement their look inline.
 | Component                     | Replaces                                                                                     |
 | ----------------------------- | -------------------------------------------------------------------------------------------- |
 | `Components.Selectable`       | `RowHighlight` and every inline selection rectangle. Draws the fill or the ring style (section 6), chosen by the host |
-| `Components.TitleBar`         | `Settings.TopNavigation`, the SettingsNew / WebConfig header, Setup wrappers, dialog title bars |
+| `Components.TitleBar`         | `Settings.TopNavigation`, the SettingsNew / WebConfig header, Setup wrappers, dialog title bars, the page selector and profile switcher headers |
 | `Components.SettingRow`       | The copied label + control + help blocks on the settings pages                               |
 | `Components.MenuRow`          | The delegates of Settings, SettingsNew, Profile, About, PopupMenu, including the Close row   |
-| `Components.KeyValueRow`      | `AboutInfo` and the hand-rolled key/value rows in About, SoftwareUpdate, WifiInfo            |
+| `Components.KeyValueRow`      | `AboutInfo` and the hand-rolled key/value rows in About, SoftwareUpdate, WifiInfo, the dock and integration info pages |
 | `Components.Button` `variant` | `primary` / `secondary` / `destructive`; retires bare text actions and mini buttons          |
-| `Components.FormDialog`       | The rename / password dialogs                                                                |
-| `Components.Sheet`            | PopupMenu, WifiInfo, WifiJoin, DropDownMenu, delete drawers                                  |
-| `Components.Prose`            | ReleaseNotes, AboutPage, LicensePage, UserAction and Label bodies                            |
+| `Components.FormDialog`       | The rename / password dialogs. Its spacing tightens while the on-screen keyboard is up, so the buttons stay above it |
+| `Components.Sheet`            | PopupMenu, WifiInfo, WifiJoin, DropDownMenu, delete drawers, the entity filter               |
+| `Components.Dim`              | The 0.85 black behind a sheet or popup                                                       |
+| `Components.Divider`          | The 2 px separators, inset 20                                                                |
+| `Components.ScrollIndicator`  | `ScrollBar` and the "more below" arrows: the one indicator of a scrolling page or list      |
+| `Components.Prose`            | The scrolling bodies of ReleaseNotes and AboutPage. LicensePage and the UserAction body keep their own containers and use the prose role |
 
 ## 8. Checklist for a new screen
 
@@ -219,5 +228,5 @@ Close row instead of a secondary button. The page menu sheet is black with a div
 | Q-1 | Which screens beyond the mockups use the fill style and which the ring style? | The mapping in section 6: the fill for tiles, popup menus, page selector and profile switcher; the ring for everything else |
 | Q-2 | Focus ring colour: the revised screens use #D0D0D0, once at 92 % opacity; the token sheet still shows #C8C8C8 | Opaque #D0D0D0, the same value as `textPrimary` |
 | Q-3 | Is the provisional #595959 fill right on the devices? It replaces the designer's #333333 so the selection is easy to judge on a Remote 3 in a lit room | Check both remotes in phase 2. Darken it towards #333333 if it looks too heavy; text on it stays readable down to that value |
-| Q-4 | Do all bottom sheets become black with a divider edge, or only popup menus on the main UI? | All bottom sheets, one rule: WifiInfo, WifiJoin, DropDownMenu and the delete drawers too |
+| Q-4 | Do all bottom sheets become black with a divider edge, or only popup menus on the main UI? | Decided 2026-10-07 by the designer: all bottom sheets, one rule: WifiInfo, WifiJoin, DropDownMenu and the delete drawers too |
 | Q-8 | The mockups draw tile and list subtitles in Poppins 24 and the release-notes date in Space Mono 22; the type table has no such sizes | Subtitles and states use the help role (Poppins 26), timestamps the caption role (Poppins 22). Implemented that way in phase 3 |

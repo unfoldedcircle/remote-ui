@@ -97,63 +97,55 @@ Rectangle {
         anchors.fill: parent
     }
 
-    Item {
-        id: addPageContainerTitle
-        width: parent.width; height: 60
-        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-
-        Text {
-            id: addPageContainerTitleText
-            color: colors.offwhite
-            //: Title for the page selector menu
-            text: qsTr("Name your page")
-            anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
-            font: fonts.primaryFont(26)
-        }
-    }
-
-    Components.InputField {
-        id: inputFieldContainer
-        width: parent.width; height: 80
-        anchors { top: addPageContainerTitle.bottom; horizontalCenter: parent.horizontalCenter }
-
-        //: Placeholder example for a page name
-        inputField.placeholderText: qsTr("Living room")
-        inputField.onAccepted: {
-            add();
-        }
-        moveInput: false
-
-        navDown: cancelButton
-    }
-
-    Components.Button {
-        id: cancelButton
-        text: qsTr("Cancel")
-        width: parent.width / 2 - 10
-        color: colors.secondaryButton
-        anchors { left: inputFieldContainer.left; top: inputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            inputFieldContainer.inputField.clear();
-            addPageContainer.state = "hidden";
-            keyboard.hide();
+    Components.FormDialog {
+        id: dialog
+        //: Title for the page selector menu
+        title: qsTr("Name your page")
+        goBack: function() {
+            cancelButton.activate();
         }
 
-        KeyNavigation.up: inputFieldContainer.inputField
-        KeyNavigation.right: actionButton
-    }
+        Components.InputField {
+            id: inputFieldContainer
+            width: parent.width; height: 80
 
-    Components.Button {
-        id: actionButton
-        //: Label of button that will add a page defined here
-        text: qsTr("Add")
-        width: parent.width / 2 - 10
-        anchors { right: inputFieldContainer.right; top: inputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            add();
+            //: Placeholder example for a page name
+            inputField.placeholderText: qsTr("Living room")
+            inputField.onAccepted: {
+                add();
+            }
+            moveInput: false
+
+            navDown: cancelButton
         }
 
-        KeyNavigation.up: inputFieldContainer.inputField
-        KeyNavigation.left: cancelButton
+        buttons: [
+            Components.Button {
+                id: cancelButton
+                text: qsTr("Cancel")
+                width: dialog.buttonWidth
+                variant: "secondary"
+                trigger: function() {
+                    inputFieldContainer.inputField.clear();
+                    addPageContainer.state = "hidden";
+                    keyboard.hide();
+                }
+
+                KeyNavigation.up: inputFieldContainer.inputField
+                KeyNavigation.right: actionButton
+            },
+            Components.Button {
+                id: actionButton
+                //: Label of button that will add a page defined here
+                text: qsTr("Add")
+                width: dialog.buttonWidth
+                trigger: function() {
+                    add();
+                }
+
+                KeyNavigation.up: inputFieldContainer.inputField
+                KeyNavigation.left: cancelButton
+            }
+        ]
     }
 }

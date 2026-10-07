@@ -36,25 +36,13 @@ Settings.Page {
 
         ColumnLayout {
             id: content
-            spacing: 20
+            spacing: 0
             width: parent.width
             anchors.horizontalCenter: parent.horizontalCenter
 
             /** SOUND EFFECTS **/
-            RowLayout {
-                Layout.alignment: Qt.AlignCenter
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                spacing: 10
-
-                Text {
-                    id: soundEffectsText
-                    Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    text: qsTr("Sound effects")
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                title: qsTr("Sound effects")
 
                 Components.Switch {
                     id: soundEffectsSwitch
@@ -70,27 +58,10 @@ Settings.Page {
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
-            }
-
             /** SOUND EFFECTS VOLUME **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20
-                height: childrenRect.height
-
-                Text {
-                    id: soundEffectsVolumeText
-                    width: parent.width - 80
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    text: qsTr("Sound effects volume")
-                    anchors { left: parent.left; top:parent.top }
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                title: qsTr("Sound effects volume")
+                controlBelow: true
 
                 Components.Slider {
                     id: soundEffectsVolumeSlider
@@ -100,7 +71,6 @@ Settings.Page {
                     stepSize: 1
                     value: Config.soundVolume
                     live: true
-                    anchors { top: soundEffectsVolumeText.bottom; topMargin: 10 }
 
                     onUserInteractionEnded: {
                         Config.soundVolume = value;
@@ -114,27 +84,10 @@ Settings.Page {
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
-            }
-
             /** HAPTIC FEEDBACK **/
-            RowLayout {
-                Layout.alignment: Qt.AlignCenter
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                spacing: 10
-
-                Text {
-                    id: hapticFeedbackText
-                    Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    text: qsTr("Haptic feedback")
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                showDivider: false
+                title: qsTr("Haptic feedback")
 
                 Components.Switch {
                     id: buttonBacklightSwitch

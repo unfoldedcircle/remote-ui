@@ -52,27 +52,15 @@ Settings.Page {
 
         ColumnLayout {
             id: content
-            spacing: 20
+            spacing: 0
             width: flickable.width
             anchors.horizontalCenter: parent.horizontalCenter
 
             /** MASTER ENABLE SWITCH **/
-            RowLayout {
-                Layout.alignment: Qt.AlignCenter
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                Layout.topMargin: 10
-                Layout.preferredWidth: content.width - 20
-                spacing: 10
-
-                Text {
-                    Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    //: Name of the touch-sensitive strip on the side of the remote.
-                    text: qsTr("Touch slider")
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                //: Name of the touch-sensitive strip on the side of the remote.
+                title: qsTr("Touch slider")
+                help: qsTr("When off, the touch slider is disabled everywhere and swiping it does nothing.")
 
                 Components.Switch {
                     id: enabledSwitch
@@ -87,24 +75,12 @@ Settings.Page {
                 }
             }
 
+            /** SENSITIVITY **/
             Text {
-                Layout.alignment: Qt.AlignCenter
-                Layout.preferredWidth: content.width - 20
-                wrapMode: Text.WordWrap
-                color: colors.textSecondary
-                text: qsTr("When off, the touch slider is disabled everywhere and swiping it does nothing.")
-                font: fonts.help()
-            }
-
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: content.width - 20; height: 2
-                color: colors.medium
-            }
-
-            Text {
-                Layout.alignment: Qt.AlignCenter
-                Layout.preferredWidth: content.width - 20
+                Layout.fillWidth: true
+                Layout.leftMargin: 20
+                Layout.rightMargin: 20
+                Layout.topMargin: 14
                 wrapMode: Text.WordWrap
                 color: colors.textSecondary
                 text: qsTr("Adjust how far the touch slider moves a value for a full-length swipe. Higher is more sensitive; 1.0 means one full swipe covers the whole range.")
@@ -113,8 +89,10 @@ Settings.Page {
 
             /** TEST HINT **/
             Text {
-                Layout.alignment: Qt.AlignCenter
-                Layout.preferredWidth: content.width - 20
+                Layout.fillWidth: true
+                Layout.leftMargin: 20
+                Layout.rightMargin: 20
+                Layout.topMargin: 10
                 wrapMode: Text.WordWrap
                 color: colors.textSecondary
                 text: qsTr("Slide the hardware slider to test the highlighted setting.")
@@ -122,27 +100,10 @@ Settings.Page {
             }
 
             /** VOLUME **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: content.width - 20
-                height: childrenRect.height
-
-                Text {
-                    id: volumeLabel
-                    width: parent.width - 100
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    text: qsTr("Volume")
-                    anchors { left: parent.left; top: parent.top }
-                    font: fonts.primaryFont(30)
-                }
-
-                Text {
-                    color: colors.offwhite
-                    text: volumeSlider.value.toFixed(1) + "x"
-                    anchors { right: parent.right; verticalCenter: volumeLabel.verticalCenter }
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                title: qsTr("Volume")
+                value: volumeSlider.value.toFixed(1) + "x"
+                controlBelow: true
 
                 Components.Slider {
                     id: volumeSlider
@@ -152,7 +113,6 @@ Settings.Page {
                     stepSize: 0.1
                     live: true
                     showLiveValue: false
-                    anchors { top: volumeLabel.bottom; topMargin: 10 }
 
                     Component.onCompleted: value = Config.touchSliderGainVolume
                     onActiveFocusChanged: if (activeFocus) touchSliderPageContent.selectTest(value, qsTr("Volume"), "uc:volume")
@@ -171,28 +131,11 @@ Settings.Page {
             }
 
             /** BRIGHTNESS **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: content.width - 20
-                height: childrenRect.height
-
-                Text {
-                    id: brightnessLabel
-                    width: parent.width - 100
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    //: Touch-slider function: change a light's brightness.
-                    text: qsTr("Brightness")
-                    anchors { left: parent.left; top: parent.top }
-                    font: fonts.primaryFont(30)
-                }
-
-                Text {
-                    color: colors.offwhite
-                    text: brightnessSlider.value.toFixed(1) + "x"
-                    anchors { right: parent.right; verticalCenter: brightnessLabel.verticalCenter }
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                //: Touch-slider function: change a light's brightness.
+                title: qsTr("Brightness")
+                value: brightnessSlider.value.toFixed(1) + "x"
+                controlBelow: true
 
                 Components.Slider {
                     id: brightnessSlider
@@ -202,7 +145,6 @@ Settings.Page {
                     stepSize: 0.1
                     live: true
                     showLiveValue: false
-                    anchors { top: brightnessLabel.bottom; topMargin: 10 }
 
                     Component.onCompleted: value = Config.touchSliderGainBrightness
                     onActiveFocusChanged: if (activeFocus) touchSliderPageContent.selectTest(value, qsTr("Brightness"), "uc:brightness")
@@ -221,28 +163,11 @@ Settings.Page {
             }
 
             /** COVER POSITION **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: content.width - 20
-                height: childrenRect.height
-
-                Text {
-                    id: positionLabel
-                    width: parent.width - 100
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    //: Touch-slider function: change how far a blind or shade is open.
-                    text: qsTr("Cover position")
-                    anchors { left: parent.left; top: parent.top }
-                    font: fonts.primaryFont(30)
-                }
-
-                Text {
-                    color: colors.offwhite
-                    text: positionSlider.value.toFixed(1) + "x"
-                    anchors { right: parent.right; verticalCenter: positionLabel.verticalCenter }
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                //: Touch-slider function: change how far a blind or shade is open.
+                title: qsTr("Cover position")
+                value: positionSlider.value.toFixed(1) + "x"
+                controlBelow: true
 
                 Components.Slider {
                     id: positionSlider
@@ -252,7 +177,6 @@ Settings.Page {
                     stepSize: 0.1
                     live: true
                     showLiveValue: false
-                    anchors { top: positionLabel.bottom; topMargin: 10 }
 
                     Component.onCompleted: value = Config.touchSliderGainPosition
                     onActiveFocusChanged: if (activeFocus) touchSliderPageContent.selectTest(value, qsTr("Cover position"), "uc:blind")
@@ -271,29 +195,12 @@ Settings.Page {
             }
 
             /** SEEK **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: content.width - 20
-                height: childrenRect.height
-                Layout.bottomMargin: 20
-
-                Text {
-                    id: seekLabel
-                    width: parent.width - 100
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    //: Touch-slider function: scrub forward and back through the playing media.
-                    text: qsTr("Seek")
-                    anchors { left: parent.left; top: parent.top }
-                    font: fonts.primaryFont(30)
-                }
-
-                Text {
-                    color: colors.offwhite
-                    text: seekSlider.value.toFixed(1) + "x"
-                    anchors { right: parent.right; verticalCenter: seekLabel.verticalCenter }
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                showDivider: false
+                //: Touch-slider function: scrub forward and back through the playing media.
+                title: qsTr("Seek")
+                value: seekSlider.value.toFixed(1) + "x"
+                controlBelow: true
 
                 Components.Slider {
                     id: seekSlider
@@ -303,7 +210,6 @@ Settings.Page {
                     stepSize: 0.1
                     live: true
                     showLiveValue: false
-                    anchors { top: seekLabel.bottom; topMargin: 10 }
 
                     Component.onCompleted: value = Config.touchSliderGainSeek
                     onActiveFocusChanged: if (activeFocus) touchSliderPageContent.selectTest(value, qsTr("Seek"), "uc:forward")
@@ -410,7 +316,7 @@ Settings.Page {
             start: Qt.point(0, 0)
             end: Qt.point(0, parent.height)
             gradient: Gradient {
-                GradientStop { position: 0.0; color: "#00000000" }
+                GradientStop { position: 0.0; color: colors.transparent }
                 GradientStop { position: 0.5; color: colors.black }
                 GradientStop { position: 1.0; color: colors.black }
             }
@@ -424,8 +330,8 @@ Settings.Page {
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             maximumLineCount: 1
             elide: Text.ElideRight
-            color: colors.white
-            font: fonts.primaryFont(30)
+            color: colors.textPrimary
+            font: fonts.label()
             anchors { bottom: testBar.top; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         }
 
@@ -434,7 +340,7 @@ Settings.Page {
             width: parent.width - 20
             height: 100
             color: colors.transparent
-            border { width: 1; color: Qt.hsla(colors.white.hslHue, colors.white.hslSaturation, colors.white.hslLightness, 0.3) }
+            border { width: 2; color: colors.divider }
             radius: height / 2
             anchors { bottom: parent.bottom; bottomMargin: 10; horizontalCenter: parent.horizontalCenter }
 
@@ -445,7 +351,7 @@ Settings.Page {
                 anchors { left: parent.left }
 
                 Components.Icon {
-                    color: colors.white
+                    color: colors.textPrimary
                     anchors.centerIn: parent
                     icon: touchSliderPageContent.testIcon
                     size: 80
@@ -455,8 +361,8 @@ Settings.Page {
             Rectangle {
                 id: testBarVisual
                 color: colors.transparent
-                border { width: 1; color: colors.white }
-                radius: 6
+                border { width: 2; color: colors.textPrimary }
+                radius: height / 2
                 height: 12
                 anchors { verticalCenter: parent.verticalCenter; left: testBarIcon.right; right: testBarValue.left }
 
@@ -471,7 +377,7 @@ Settings.Page {
                 }
 
                 Rectangle {
-                    color: colors.white
+                    color: colors.textPrimary
                     x: 0
                     width: testBarVisual.width * testArea.testValue / 100
                     height: 12
@@ -494,7 +400,7 @@ Settings.Page {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.NoWrap
                     maximumLineCount: 1
-                    color: colors.white
+                    color: colors.textPrimary
                     font: fonts.primaryFont(40)
                     anchors.fill: parent
                 }

@@ -25,20 +25,11 @@ OnboardingComponents.Page {
                                              });
     }
 
-    Item {
+    Components.TitleBar {
         id: title
-        width: parent.width
-        height: 60
-
-        Text {
-            text: qsTr("You're all set")
-            width: parent.width
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
-        }
+        // onboarding steps have no back target: BACK goes to the previous step
+        action: ""
+        text: qsTr("You're all set")
     }
 
     // translations of the description run well past the English text: the page scrolls, so the
@@ -89,7 +80,7 @@ OnboardingComponents.Page {
                 height: webConfiguratorContent.height + 40
 
                 color: colors.transparent
-                border { color: colors.medium; width: 2 }
+                border { color: colors.divider; width: 2 }
                 radius: ui.cornerRadiusSmall
                 visible: !ui.profile.restricted
 
@@ -172,8 +163,8 @@ OnboardingComponents.Page {
                                 Rectangle {
                                     width: pinContainer.containerWidth
                                     height: pinContainer.containerHeight
-                                    color: colors.black
-                                    border { color: colors.medium; width: 2 }
+                                    color: colors.bg
+                                    border { color: colors.divider; width: 2 }
                                     radius: ui.cornerRadiusSmall
 
                                     Text {
@@ -208,13 +199,13 @@ OnboardingComponents.Page {
                                 event.accepted = true;
                             }
 
-                            onPressed: generateQrCodeIcon.color = colors.highlight
-                            onReleased: generateQrCodeIcon.color = colors.light
+                            onPressed: generateQrCodeIcon.color = colors.textPrimary
+                            onReleased: generateQrCodeIcon.color = colors.textSecondary
 
                             Components.Icon {
                                 id: generateQrCodeIcon
                                 icon: "uc:arrow-rotate-left"
-                                color: colors.light
+                                color: colors.textSecondary
                                 size: 60
                                 anchors.centerIn: parent
 
@@ -223,11 +214,8 @@ OnboardingComponents.Page {
                                 }
                             }
 
-                            Rectangle {
-                                anchors.fill: parent
-                                radius: ui.cornerRadiusSmall
-                                color: colors.transparent
-                                border { width: 2; color: generateNewPin.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent }
+                            Components.Selectable {
+                                selected: generateNewPin.activeFocus
                             }
                         }
                     }

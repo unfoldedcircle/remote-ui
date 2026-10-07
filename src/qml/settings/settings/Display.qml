@@ -35,75 +35,32 @@ Settings.Page {
 
         ColumnLayout {
             id: content
-            spacing: 20
+            spacing: 0
             width: parent.width
-            anchors.horizontalCenter: parent.horizontalCenter
 
+            Components.SettingRow {
+                //: Title for indication of auto brightness functionality
+                title: qsTr("Auto brightness")
+                help: qsTr("Automatically adjust the display brightness based on ambient lighting conditions.")
 
-            /** AUTO BRIGHTNESS **/
-            ColumnLayout {
-                Layout.alignment: Qt.AlignCenter
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                spacing: 10
-
-                RowLayout {
-                    spacing: 10
-
-                    Text {
-                        id: autoBrightnessText
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: colors.offwhite
-                        //: Title for indication of auto brightness functionality
-                        text: qsTr("Auto brightness")
-                        font: fonts.primaryFont(30)
+                Components.Switch {
+                    id: displayAutoBrightnessSwitch
+                    icon: "uc:check"
+                    checked: Config.displayAutoBrightness
+                    trigger: function() {
+                        Config.displayAutoBrightness = !Config.displayAutoBrightness;
                     }
 
-                    Components.Switch {
-                        id: displayAutoBrightnessSwitch
-                        icon: "uc:check"
-                        checked: Config.displayAutoBrightness
-                        trigger: function() {
-                            Config.displayAutoBrightness = !Config.displayAutoBrightness;
-                        }
-
-                        /** KEYBOARD NAVIGATION **/
-                        KeyNavigation.down: displayBrightnessSlider
-                        highlight: activeFocus && ui.keyNavigationActive
-                    }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                    color: colors.textSecondary
-                    text: qsTr("Automatically adjust the display brightness based on ambient lighting conditions.")
-                    font: fonts.help()
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.down: displayBrightnessSlider
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
-            }
-
-            /** DISPLAY BRIGHTNESS **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20
-                height: childrenRect.height
-
-                Text {
-                    id: displayBrightnessText
-                    width: parent.width - 80
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    text: qsTr("Display brightness")
-                    anchors { left: parent.left; top:parent.top }
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                title: qsTr("Display brightness")
+                value: Math.round(displayBrightnessSlider.value) + "%"
+                controlBelow: true
 
                 Components.Slider {
                     id: displayBrightnessSlider
@@ -113,7 +70,6 @@ Settings.Page {
                     stepSize: 1
                     value: Config.displayBrightness
                     live: true
-                    anchors { top: displayBrightnessText.bottom; topMargin: 10 }
 
                     onValueChanged: {
                         Config.displayBrightness = value;
@@ -130,77 +86,31 @@ Settings.Page {
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
-            }
+            Components.SettingRow {
+                //: Title for button backlight functionality
+                title: qsTr("Button backlight")
+                help: qsTr("When on, button backlight will automatically turn on in a dark room.")
 
-            /** BUTTON BACKLIGHT **/
-            ColumnLayout {
-                Layout.alignment: Qt.AlignCenter
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                spacing: 10
-
-                RowLayout {
-                    spacing: 10
-
-                    Text {
-                        id: buttonBacklightText
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: colors.offwhite
-                        //: Title for button backlight functionality
-                        text: qsTr("Button backlight")
-                        font: fonts.primaryFont(30)
+                Components.Switch {
+                    id: buttonBacklightSwitch
+                    icon: "uc:check"
+                    checked: Config.buttonAutoBirghtness
+                    trigger: function() {
+                        Config.buttonAutoBirghtness = !Config.buttonAutoBirghtness;
                     }
 
-                    Components.Switch {
-                        id: buttonBacklightSwitch
-                        icon: "uc:check"
-                        checked: Config.buttonAutoBirghtness
-                        trigger: function() {
-                            Config.buttonAutoBirghtness = !Config.buttonAutoBirghtness;
-                        }
-
-                        /** KEYBOARD NAVIGATION **/
-                        KeyNavigation.up: displayBrightnessSlider
-                        KeyNavigation.down: buttonBrightnessSlider
-                        highlight: activeFocus && ui.keyNavigationActive
-                    }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                    color: colors.textSecondary
-                    text: qsTr("When on, button backlight will automatically turn on in a dark room.")
-                    font: fonts.help()
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.up: displayBrightnessSlider
+                    KeyNavigation.down: buttonBrightnessSlider
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
-            }
-
-            /** BUTTON BRIGHTNESS **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20
-                height: childrenRect.height
-
-                Text {
-                    id: buttonBrightnessText
-                    width: parent.width - 80
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    text: qsTr("Button backlight brightness")
-                    anchors { left: parent.left; top:parent.top }
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                title: qsTr("Button backlight brightness")
+                value: Math.round(buttonBrightnessSlider.value) + "%"
+                controlBelow: true
+                showDivider: false
 
                 Components.Slider {
                     id: buttonBrightnessSlider
@@ -210,7 +120,6 @@ Settings.Page {
                     stepSize: 1
                     value: Config.buttonBrightness
                     live: true
-                    anchors { top: buttonBrightnessText.bottom; topMargin: 10 }
 
                     onValueChanged: {
                         Config.buttonBrightness = value;

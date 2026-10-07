@@ -66,7 +66,7 @@ Item {
 
     Text {
         id: descriptionText
-        width: parent.width - 20
+        width: parent.width - 40
         color: colors.textSecondary
         text: qsTr("Select entities to control with the remote")
         horizontalAlignment: Text.AlignHCenter

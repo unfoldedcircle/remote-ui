@@ -24,8 +24,10 @@ and controls read as a list, apart.
 - **Settings and set-up flows, and buttons everywhere:** the selected element gets a 3 px ring and
   no fill — around a row that is activated as a whole, on the control of a setting that holds a
   switch, slider or field.
-- An element never shows both styles. The current value of a choice is a check mark, never a
-  selection style.
+- An element never shows both styles, with one exception: an element held for reordering (page
+  tiles, group rows, page selector rows) gets the ring for "held" on top of the fill for
+  "selected" while it moves. The current value of a choice is a check mark, never a selection
+  style.
 - One shared, render-only component draws both styles; the selection still shows only while the
   keypad is active (ADR 0007 is unchanged).
 

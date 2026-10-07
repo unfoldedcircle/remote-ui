@@ -48,85 +48,37 @@ Settings.Page {
 
         ColumnLayout {
             id: content
-            spacing: 20
+            spacing: 0
             width: parent.width
             anchors.horizontalCenter: parent.horizontalCenter
 
             //** WAKE ON WLAN **/
-            ColumnLayout {
-                Layout.alignment: Qt.AlignCenter
-                Layout.leftMargin: 10
-                Layout.rightMargin: 10
-                spacing: 10
+            Components.SettingRow {
                 visible: HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled
+                //: Title for indication of wifi always on functionality
+                title: qsTr("Keep WiFi connected in standby")
+                help: qsTr("Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.")
 
-                RowLayout {
-                    spacing: 10
-
-                    Text {
-                        id: wowlanText
-                        Layout.fillWidth: true
-                        wrapMode: Text.WordWrap
-                        color: colors.offwhite
-                        //: Title for indication of wifi always on functionality
-                        text: qsTr("Keep WiFi connected in standby")
-                        font: fonts.primaryFont(30)
+                Components.Switch {
+                    id: wowlanSwitch
+                    icon: "uc:check"
+                    checked: Config.wowlanEnabled
+                    trigger: function() {
+                        Config.wowlanEnabled = !Config.wowlanEnabled;
                     }
 
-                    Components.Switch {
-                        id: wowlanSwitch
-                        icon: "uc:check"
-                        checked: Config.wowlanEnabled
-                        trigger: function() {
-                            Config.wowlanEnabled = !Config.wowlanEnabled;
-                        }
-
-                        /** KEYBOARD NAVIGATION **/
-                        KeyNavigation.down: resumeTimeoutValueSlider
-                        highlight: activeFocus && ui.keyNavigationActive
-                    }
+                    /** KEYBOARD NAVIGATION **/
+                    KeyNavigation.down: resumeTimeoutValueSlider
+                    highlight: activeFocus && ui.keyNavigationActive
                 }
-
-                Text {
-                    Layout.fillWidth: true
-                    wrapMode: Text.WordWrap
-                    color: colors.textSecondary
-                    text: qsTr("Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.")
-                    font: fonts.help()
-                }
-            }
-
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
             }
 
             /** RESUME TIMEOUT WINDOW **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20
-                height: childrenRect.height + 40
-
-                Text {
-                    id: resumeTimeoutValueText
-                    width: parent.width - 80
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    text: qsTr("Retry commands after wakeup")
-                    anchors { left: parent.left; top:parent.top }
-                    font: fonts.primaryFont(30)
-                }
-
-                Text {
-                    id: resumeTimeoutValueSmallText
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    color: colors.textSecondary
-                    text: qsTr("Retry commands within %1 second(s) after wakeup.").arg(Config.resumeTimeoutWindowSec)
-                    anchors { left: parent.left; top:resumeTimeoutValueText.bottom; topMargin: 5 }
-                    font: fonts.help()
-                }
+            Components.SettingRow {
+                title: qsTr("Retry commands after wakeup")
+                help: qsTr("Retry commands within %1 second(s) after wakeup.").arg(Config.resumeTimeoutWindowSec)
+                controlBelow: true
+                controlBottomSpace: 40
 
                 Components.Slider {
                     id: resumeTimeoutValueSlider
@@ -139,7 +91,6 @@ Settings.Page {
                     lowValueText: qsTr("Disabled")
                     highValueText: qsTr("%1 seconds").arg(to)
                     live: true
-                    anchors { top: resumeTimeoutValueSmallText.bottom; topMargin: 10 }
 
                     onValueChanged: {
                         Config.resumeTimeoutWindowSec = value;
@@ -156,39 +107,13 @@ Settings.Page {
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
-                visible: HwInfo.modelNumber == "UCR2" ? true : Wifi.wowlanEnabled
-            }
-
             /** WAKEUP SENSITIVITY **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20
-                height: childrenRect.height + 40
-
-                Text {
-                    id: wakeupSensitivityText
-                    width: parent.width - 80
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    //: Movement the remote reacts to wake up
-                    text: qsTr("Wakeup sensitivity")
-                    anchors { left: parent.left; top:parent.top }
-                    font: fonts.primaryFont(30)
-                }
-
-                Text {
-                    id: wakeupSensitivitySmallText
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    color: colors.textSecondary
-                    text: qsTr("Amount of movement needed to wake up the remote.")
-                    anchors { left: parent.left; top:wakeupSensitivityText.bottom; topMargin: 5 }
-                    font: fonts.help()
-                }
+            Components.SettingRow {
+                //: Movement the remote reacts to wake up
+                title: qsTr("Wakeup sensitivity")
+                help: qsTr("Amount of movement needed to wake up the remote.")
+                controlBelow: true
+                controlBottomSpace: 40
 
                 Components.Slider {
                     id: wakeupSensitivitySlider
@@ -203,7 +128,6 @@ Settings.Page {
                     lowValueText: qsTr("Off")
                     //: More sensitive wakeup setting, as in the remote will be more sensitive to movement
                     highValueText: qsTr("Sensitivity")
-                    anchors { top: wakeupSensitivitySmallText.bottom; topMargin: 10 }
 
                     onUserInteractionEnded: {
                         Config.wakeupSensitivity = value;
@@ -217,35 +141,13 @@ Settings.Page {
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
-            }
-
             /** DISPLAY TIMEOUT **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20
-                height: childrenRect.height + 40
-
-                Text {
-                    id: displayTimeoutText
-                    width: parent.width - 80
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    //: How much time the display will turn off after
-                    text: qsTr("Display off timeout")
-                    anchors { left: parent.left; top:parent.top }
-                    font: fonts.primaryFont(30)
-                }
-
-                Text {
-                    color: colors.textPrimary
-                    text: Config.displayTimeout + "s"
-                    anchors { right: parent.right; baseline: displayTimeoutText.baseline }
-                    font: fonts.value()
-                }
+            Components.SettingRow {
+                //: How much time the display will turn off after
+                title: qsTr("Display off timeout")
+                value: Config.displayTimeout + "s"
+                controlBelow: true
+                controlBottomSpace: 40
 
                 Components.Slider {
                     id: displayoffTimeoutSlider
@@ -257,7 +159,6 @@ Settings.Page {
                     value: Config.displayTimeout
                     lowValueText: qsTr("%1 seconds").arg(from)
                     highValueText: qsTr("%1 seconds").arg(to)
-                    anchors { top: displayTimeoutText.bottom; topMargin: 10 }
 
                     onValueChanged: {
                         valueDisplayText = value + "s"
@@ -274,35 +175,14 @@ Settings.Page {
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20; height: 2
-                color: colors.medium
-            }
-
             /** SLEEP TIMEOUT **/
-            Item {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width - 20
-                height: childrenRect.height + 40
-
-                Text {
-                    id: sleepTimeoutText
-                    width: parent.width - 80
-                    wrapMode: Text.WordWrap
-                    color: colors.offwhite
-                    //: How much time the remote will enter sleep mode after
-                    text: qsTr("Sleep timeout")
-                    anchors { left: parent.left; top:parent.top }
-                    font: fonts.primaryFont(30)
-                }
-
-                Text {
-                    color: colors.textPrimary
-                    text:  secondsToTime(Config.sleepTimeout)
-                    anchors { right: parent.right; baseline: sleepTimeoutText.baseline }
-                    font: fonts.value()
-                }
+            Components.SettingRow {
+                showDivider: false
+                //: How much time the remote will enter sleep mode after
+                title: qsTr("Sleep timeout")
+                value: secondsToTime(Config.sleepTimeout)
+                controlBelow: true
+                controlBottomSpace: 40
 
                 Components.Slider {
                     id: sleepTimeoutSlider
@@ -314,7 +194,6 @@ Settings.Page {
                     value: Config.sleepTimeout
                     lowValueText: qsTr("%1 seconds").arg(from)
                     highValueText: qsTr("%1 minutes").arg(5)
-                    anchors { top: sleepTimeoutText.bottom; topMargin: 10 }
 
                     onValueChanged: {
                         valueDisplayText = secondsToTime(value);

@@ -117,19 +117,20 @@ Popup {
             }
 
             background: Rectangle {
-                color: colors.dark
+                color: colors.surface
                 radius: ui.cornerRadiusSmall
-                border {
-                    width: 1
-                    color: poweroffContainer.currentSelection === powerOffButton ? Qt.lighter(colors.medium, 1.3) : colors.transparent
-                }
 
+                // the hold progress, then the ring of the keypad selection on top (buttons everywhere: ring)
                 Rectangle {
                     width: powerOffButton.progress * parent.width
                     height: parent.height
-                    color: colors.medium
+                    color: colors.buttonPrimary
                     radius: ui.cornerRadiusSmall
                     anchors { left: parent.left }
+                }
+
+                Components.Selectable {
+                    selected: poweroffContainer.currentSelection === powerOffButton
                 }
             }
 
@@ -175,19 +176,20 @@ Popup {
             }
 
             background: Rectangle {
-                color: colors.dark
+                color: colors.surface
                 radius: ui.cornerRadiusSmall
-                border {
-                    width: 1
-                    color: poweroffContainer.currentSelection === rebootButton ? Qt.lighter(colors.medium, 1.3) : colors.transparent
-                }
 
+                // the hold progress, then the ring of the keypad selection on top (buttons everywhere: ring)
                 Rectangle {
                     width: rebootButton.progress * parent.width
                     height: parent.height
-                    color: colors.medium
+                    color: colors.buttonPrimary
                     radius: ui.cornerRadiusSmall
                     anchors { left: parent.left }
+                }
+
+                Components.Selectable {
+                    selected: poweroffContainer.currentSelection === rebootButton
                 }
             }
 
@@ -214,24 +216,17 @@ Popup {
             }
         }
 
-        Components.HapticMouseArea {
+        // a secondary button with the ring when selected, not a text that changes colour (I-09)
+        Components.Button {
             id: cancelButton
             Layout.fillWidth: true
-            Layout.preferredHeight: 80
             Layout.bottomMargin: 20
-
-            onClicked: {
+            //: Caption for button to cancel the power off menu
+            text: qsTr("Cancel")
+            variant: "secondary"
+            highlight: poweroffContainer.currentSelection === cancelButton && ui.keyNavigationActive
+            trigger: function() {
                 poweroffContainer.close();
-            }
-
-            Text {
-                anchors.fill: parent
-                color: poweroffContainer.currentSelection === cancelButton ? colors.offwhite : colors.light
-                //: Caption for button to cancel the power off menu
-                text: qsTr("Cancel")
-                horizontalAlignment: Text.AlignHCenter
-                verticalAlignment: Text.AlignVCenter
-                font: fonts.button()
             }
         }
     }

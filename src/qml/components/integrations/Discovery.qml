@@ -173,7 +173,7 @@ ListView {
 
             Text {
                 id: footerItemText
-                width: parent.width - 20
+                width: parent.width - 40
                 color: colors.textSecondary
                 text: qsTr("Integrations may require the Web Configurator for setup.")
                 horizontalAlignment: Text.AlignHCenter
@@ -195,44 +195,45 @@ ListView {
             readonly property bool selected: ListView.isCurrentItem && integrationList.keypadSelected
                                              && ui.keyNavigationActive
 
-            x: 10
-            width: ListView.view.width - 20
+            // a selectable card spans 8 px to width - 8, its content keeps the 20 px gutter
+            x: 8
+            width: ListView.view.width - 16
             height: childrenRect.height
-            color: ListView.isCurrentItem ? colors.black : colors.transparent
+            color: colors.transparent
             radius: ui.cornerRadiusSmall
             // the selection ring of Components.Selectable, drawn as the border: the card is sized by its children,
             // and a child that fills it would be a binding loop
             border {
-                width: integrationItemContainer.selected ? 3 : 1
-                color: integrationItemContainer.selected ? colors.focusRing : colors.medium
+                width: integrationItemContainer.selected ? 3 : 2
+                color: integrationItemContainer.selected ? colors.focusRing : colors.divider
             }
 
             Components.Icon {
                 icon: "uc:globe"
                 size: 40
-                color: colors.light
-                anchors { top: parent.top; topMargin: 10; right: parent.right; rightMargin: 10 }
+                color: colors.textSecondary
+                anchors { top: parent.top; topMargin: 10; right: parent.right; rightMargin: 12 }
                 visible: driverExternal
             }
 
             RowLayout {
-                width: parent.width - 60
+                width: parent.width - 24
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 20
 
                 Rectangle {
                     Layout.preferredWidth: 60
                     Layout.preferredHeight: 60
-                    Layout.topMargin: 30
-                    Layout.bottomMargin: 30
+                    Layout.topMargin: 20
+                    Layout.bottomMargin: 20
 
                     radius: 30
-                    color: colors.offwhite
+                    color: colors.textPrimary
 
                     Components.Icon {
                         icon: driverIcon
                         size: 60
-                        color: colors.black
+                        color: colors.bg
                         anchors.centerIn: parent
                     }
                 }
@@ -244,7 +245,7 @@ ListView {
                     Text {
                         Layout.fillWidth: true
 
-                        color: colors.offwhite
+                        color: colors.textPrimary
                         text: driverName
                         maximumLineCount: 1
                         elide: Text.ElideRight
