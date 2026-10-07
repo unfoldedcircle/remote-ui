@@ -93,6 +93,7 @@
         <file alias="components/entities/Base.qml">../../src/qml/components/entities/Base.qml</file>
         <file alias="components/entities/BaseDetail.qml">../../src/qml/components/entities/BaseDetail.qml</file>
         <file alias="components/entities/BaseTitle.qml">../../src/qml/components/entities/BaseTitle.qml</file>
+        <file alias="components/entities/TitleStatus.qml">../../src/qml/components/entities/TitleStatus.qml</file>
         <file alias="components/entities/BaseOnOffButton.qml">../../src/qml/components/entities/BaseOnOffButton.qml</file>
         <file alias="components/entities/BaseUpDownButton.qml">../../src/qml/components/entities/BaseUpDownButton.qml</file>
         <file alias="components/entities/BasePlayPauseButton.qml">../../src/qml/components/entities/BasePlayPauseButton.qml</file>
