@@ -307,17 +307,17 @@ Rectangle {
             id: listItemBg
             width: ui.width
             height: hasSecondary ? 110 : 80
-            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
-            radius: ui.cornerRadiusSmall
-            border {
-                color: Qt.lighter(listItemBg.color, 1.3)
-                width: 1
-            }
+            color: colors.transparent
 
             property bool isCurrentItem: ListView.isCurrentItem
             // optional roles: access via model.<role> so models without them keep working
             property bool hasSecondary: model.secondary !== undefined && model.secondary !== ""
             property bool hasRightText: model.rightText !== undefined && model.rightText !== ""
+
+            Components.Selectable {
+                selected: listItemBg.isCurrentItem
+                anchors { leftMargin: 4; rightMargin: 4 }
+            }
 
             Text {
                 id: listItemText

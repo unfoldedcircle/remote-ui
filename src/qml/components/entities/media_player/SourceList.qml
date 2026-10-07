@@ -133,9 +133,10 @@ Popup {
                     anchors.centerIn: parent
                     color: colors.dark
                     radius: ui.cornerRadiusSmall
-                    border {
-                        width: 2
-                        color: currentItem ? Qt.lighter(colors.dark, 2) : colors.transparent
+
+                    Components.Selectable {
+                        style: "fill"
+                        selected: currentItem
                     }
 
                     Text {

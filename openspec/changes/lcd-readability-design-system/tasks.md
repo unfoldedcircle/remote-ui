@@ -26,21 +26,27 @@ this change after the migration is merged to `main`, not in a phase pull request
 
 ## 2. Selection
 
-- [ ] 2.1 `src/qml/components/Selectable.qml` with the `fill` and `ring` styles, registered in
+- [x] 2.1 `src/qml/components/Selectable.qml` with the `fill` and `ring` styles, registered in
       `resources/qrc/main.qrc`
-- [ ] 2.2 Main UI in fill style: entity and group tiles (`entities/Base.qml`, `group/Base.qml`),
+- [x] 2.2 Main UI in fill style: entity and group tiles (`entities/Base.qml`, `group/Base.qml`),
       `PopupMenu`, `PageSelector`, `ProfileSwitch`; secondary text on the fill in `textPrimary`
-- [ ] 2.3 Settings in ring style: `Settings.qml`, `SettingsNew.qml`, `About.qml`, `Profile.qml`,
+- [x] 2.3 Settings in ring style: `Settings.qml`, `SettingsNew.qml`, `About.qml`, `Profile.qml`,
       `PopupList`, the localisation and Wi-Fi selectors, `EntityList`, the dock and integration lists
-- [ ] 2.4 Controls in ring style: `Button`, `Switch`, `Checkbox`, `Slider`, `InputField`,
+- [x] 2.4 Controls in ring style: `Button`, `Switch`, `Checkbox`, `Slider`, `InputField`,
       `SearchField`, `Dropdown`; replace `RowHighlight` and remove it once unused
-- [ ] 2.5 Bind the always-on selections (tiles, group tiles, `SourceList`, `MediaBrowser`) and
+- [x] 2.5 Bind the always-on selections (tiles, group tiles, `SourceList`, `MediaBrowser`) and
       `Activity.qml`'s own flag to `ui.keyNavigationActive`
 - [ ] 2.6 Q-3: check the `#595959` fill on both remotes; record the outcome in the design system
-- [ ] 2.7 `docs/key-navigation.md` section 5: the selection component and the two styles
-- [ ] 2.8 `CHANGELOG.md`: the d-pad selection is visible on every screen
-- [ ] 2.9 Keypad walk of every touched screen, opened by touch and by key, with `UC_MODEL=UCR2` on the
-      desktop and on both remotes
+- [x] 2.7 `docs/key-navigation.md` section 5: the selection component and the two styles
+- [x] 2.8 `CHANGELOG.md`: the d-pad selection is visible on every screen
+- [x] 2.9 Keypad walk on the desktop (`UC_MODEL=DEV`), opened by touch and by key: main page tiles,
+      open and closed group, page menu, page selector, profile switcher, activity menu, add-entities
+      list, settings and profile menus, software update, display, Wi-Fi, localisation with its
+      language picker, integrations, docks, about. Not reached on the desktop: `SourceList` and
+      `MediaBrowser` (no media player in the simulator), the integration and dock set-up forms
+- [ ] 2.10 The same walk on both remotes, together with 2.6
+- [x] 2.11 `activities` spec delta: the activity menu draws the fill and follows the keypad-active
+      state
 
 ## 3. Type roles
 
@@ -63,6 +69,12 @@ this change after the migration is merged to `main`, not in a phase pull request
 - [ ] 4.6 Remove the copies the components replace
 - [ ] 4.7 `CHANGELOG.md`: consistent layout of settings, onboarding, docks and integrations
 - [ ] 4.8 Keypad walk per screen family on the desktop and both remotes
+- [ ] 4.9 The 2 px `colors.highlight` outlines phase 2 left in place move to `Selectable` with the
+      screens that own them: onboarding, keypad keys, the on-screen keyboard style, notifications,
+      bottom sheet, dock and integration info and configure pages, readiness check, web
+      configurator, icon selector, Wi-Fi network list, software update, the profile header (PIN
+      and QR code rows), the entity list filter, `ButtonAdd`. The held states of `Page.qml`,
+      `GroupEdit.qml` and `PageSelector.qml` wait for Q-5
 
 ## 5. Reachability
 

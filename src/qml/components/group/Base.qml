@@ -12,7 +12,7 @@ import "qrc:/components" as Components
 Rectangle {
     id: container
     width: ui.width - 20; height: groups.count * 140 + title.height
-    border { color: isSelected ? colors.medium : colors.transparent; width: 1 }
+    border { color: colors.divider; width: 1 }
     radius: ui.cornerRadiusSmall
     clip: true
 
@@ -28,7 +28,7 @@ Rectangle {
         State {
             name: "closed"
             PropertyChanges {target: groups; opacity: 0 }
-            PropertyChanges {target: container; height: 130; color: isSelected ? Qt.darker(colors.medium) : colors.black }
+            PropertyChanges {target: container; height: 130; color: colors.black }
             PropertyChanges {target: titleContainer; height: 130 }
         }
     ]
@@ -151,6 +151,13 @@ Rectangle {
         }
     }
 
+    // the closed group is a tile of the main UI; an open group shows the selection on its entities
+    Components.Selectable {
+        id: selection
+        style: "fill"
+        selected: container.isSelected && container.state == "closed"
+    }
+
     Rectangle {
         anchors.fill: parent
         color: Qt.darker(colors.dark, 2)
@@ -229,7 +236,8 @@ Rectangle {
             //: Tap and hold down to edit a group
             text: groups.count === 1 ? qsTr("%1 entity").arg(1) : qsTr("%1 entities").arg(groups.count)
             color: colors.offwhite
-            opacity: 0.6
+            // on the selection fill everything is drawn in the primary text colour
+            opacity: selection.shown ? 1 : 0.6
             anchors { left: title.left; top: title.bottom }
             font: fonts.secondaryFont(22, "Medium")
             lineHeight: 0.8

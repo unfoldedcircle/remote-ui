@@ -202,9 +202,11 @@ ListView {
             height: childrenRect.height
             color: ListView.isCurrentItem ? colors.black : colors.transparent
             radius: ui.cornerRadiusSmall
+            // the selection ring of Components.Selectable, drawn as the border: the card is sized by its children,
+            // and a child that fills it would be a binding loop
             border {
-                width: integrationItemContainer.selected ? 2 : 1
-                color: integrationItemContainer.selected ? colors.highlight : colors.medium
+                width: integrationItemContainer.selected ? 3 : 1
+                color: integrationItemContainer.selected ? colors.focusRing : colors.medium
             }
 
             Components.Icon {

@@ -560,10 +560,15 @@ Rectangle {
                     }
                 }
 
+                Components.Selectable {
+                    style: "fill"
+                    selected: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected
+                }
+
+                // the page held for reordering (open question Q-5 in the design system change)
                 Rectangle {
                     anchors.fill: parent
-                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected
-                           && ui.keyNavigationActive ? colors.dark : colors.transparent
+                    color: colors.transparent
                     radius: ui.cornerRadiusSmall
                     border {
                         width: 2
@@ -592,7 +597,7 @@ Rectangle {
 
                 Components.Icon {
                     id: moveIcon
-                    color: colors.light
+                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected && ui.keyNavigationActive ? colors.textPrimary : colors.light
                     opacity: editMode ? 1 : 0
                     icon: "uc:bars"
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
@@ -604,7 +609,7 @@ Rectangle {
                 }
 
                 Components.Icon {
-                    color: colors.light
+                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected && ui.keyNavigationActive ? colors.textPrimary : colors.light
                     visible: !deleteOpen
                     opacity: editMode ? deleteOpen ? 0 : 1 : 0
                     icon: "uc:pen-to-square"
@@ -649,14 +654,10 @@ Rectangle {
             width: ui.width; height: editMode ? 150 : 0
             visible: editMode
 
-            Rectangle {
-                anchors { fill: parent; margins: 20 }
-                radius: ui.cornerRadiusSmall
-                color: colors.transparent
-                border {
-                    width: 2
-                    color: roomSelector.footerSelected && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                }
+            Components.Selectable {
+                style: "fill"
+                selected: roomSelector.footerSelected
+                anchors.margins: 20
             }
 
             Item {
