@@ -21,7 +21,11 @@ Item {
     property string integrationId
     property alias entityListSwipeView: entityListSwipeView
 
+    // the keypad selection is on the tab bar (above the list's filter button)
+    property bool tabsSelected: false
+
     function open() {
+        manageEntities.tabsSelected = false;
         buttonNavigation.takeControl();
         entitySelectionList.open();
         configfuredEntitySelectionList.open();
@@ -46,17 +50,27 @@ Item {
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {
+                    if (manageEntities.tabsSelected) {
+                        manageEntities.tabsSelected = false;
+                        return;
+                    }
+
                     manageEntities.currentList().moveSelection(1);
                 }
             },
             "DPAD_UP": {
                 "pressed": function() {
-                    manageEntities.currentList().moveSelection(-1);
+                    if (!manageEntities.tabsSelected && !manageEntities.currentList().moveSelection(-1)) {
+                        // above the list's filter button
+                        manageEntities.tabsSelected = true;
+                    }
                 }
             },
             "DPAD_MIDDLE": {
                 "pressed": function() {
-                    manageEntities.currentList().activateSelection();
+                    if (!manageEntities.tabsSelected) {
+                        manageEntities.currentList().activateSelection();
+                    }
                 }
             },
             // LEFT / RIGHT switch the footer buttons while the selection is on them, the tabs otherwise
@@ -127,6 +141,11 @@ Item {
             background: Rectangle {
                 color: tabBar.currentIndex == 0 ? colors.buttonPrimary : colors.transparent
                 radius: ui.cornerRadiusLarge
+
+                Components.Selectable {
+                    selected: manageEntities.tabsSelected && tabBar.currentIndex == 0
+                    radius: parent.radius
+                }
             }
         }
 
@@ -148,6 +167,11 @@ Item {
             background: Rectangle {
                 color: tabBar.currentIndex == 1 ? colors.buttonPrimary : colors.transparent
                 radius: ui.cornerRadiusLarge
+
+                Components.Selectable {
+                    selected: manageEntities.tabsSelected && tabBar.currentIndex == 1
+                    radius: parent.radius
+                }
             }
         }
     }
@@ -167,7 +191,7 @@ Item {
             entityDescriptionIntegration: false
             closeListOnTrigger: false
             integrationId: manageEntities.integrationId
-            keypadSelected: entityListSwipeView.currentIndex === 0
+            keypadSelected: entityListSwipeView.currentIndex === 0 && !manageEntities.tabsSelected
 
             okTrigger: function() {
                 let selectedEntities = EntityController.availableEntities.getSelected();
@@ -178,7 +202,7 @@ Item {
                     EntityController.availableEntities.clearSelected();
                     manageEntities.close();
                 } else {
-                    ui.createActionableNotification(qsTr("Select entities"), qsTr("Please select entities to add by tapping in the list."));
+                    ui.createActionableNotification(qsTr("Select entities"), qsTr("Please select the entities to add in the list."));
                 }
             }
         }
@@ -189,7 +213,7 @@ Item {
             entityDescriptionIntegration: false
             closeListOnTrigger: false
             integrationId: manageEntities.integrationId
-            keypadSelected: entityListSwipeView.currentIndex === 1
+            keypadSelected: entityListSwipeView.currentIndex === 1 && !manageEntities.tabsSelected
 
             okTrigger: function() {
                 let selectedEntities = EntityController.configuredEntities.getSelected();
@@ -200,7 +224,7 @@ Item {
                     EntityController.configuredEntities.clearSelected();
                     manageEntities.close();
                 } else {
-                    ui.createActionableNotification(qsTr("Select entities"), qsTr("Please select entities to remove by tapping in the list."));
+                    ui.createActionableNotification(qsTr("Select entities"), qsTr("Please select the entities to remove in the list."));
                 }
             }
             okText: qsTr("Remove")

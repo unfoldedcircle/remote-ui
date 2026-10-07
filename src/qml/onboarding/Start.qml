@@ -66,7 +66,8 @@ OnboardingComponents.Page {
 
     Text {
         color: colors.textSecondary
-        text: qsTr("Tap the screen to begin")
+        //: Hint on the first onboarding screen; OK is the middle button of the d-pad
+        text: qsTr("Press OK or touch the screen to begin")
         width: parent.width
         wrapMode: Text.WordWrap
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter

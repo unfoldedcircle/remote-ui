@@ -33,6 +33,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   buttons now, and a destructive confirmation starts on Cancel. Lists of choices, such as language, country, time
   zone and Wi-Fi band, mark the current choice with a check mark. While a page tile, group entry or page is held to
   reorder it, it shows the frame on top of its selected background.
+- Everything except typing can be done with the d-pad. Holding HOME opens the page menu, which now leads to the
+  profile page with the profile list, the web configurator and the settings, also for a restricted profile, which
+  used to get a "Profile is restricted" message. Without any page, OK adds the first page and holding HOME opens the
+  same menu. The web configurator screen, the web configurator address in the onboarding, the Clear and Done buttons
+  of the entity filter, the tabs of "Manage entities" and the connection status list can be reached as well. Empty
+  lists of docks, integrations, Wi-Fi networks and entities select their "Add" or "Join other" button instead of
+  nothing, and the help tips show their Close button selected. Hints no longer ask to tap, links in driver
+  instructions and legal texts are no longer dark blue, and the dock details no longer show a "Change WiFi
+  settings" row that did nothing.
+
+### Fixed
+- When no profile exists, the "Profile name" dialog can no longer be cancelled into an empty screen.
 
 ### Fixed
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.

@@ -20,14 +20,16 @@ Settings.Page {
         dockDetailPopup.open();
     }
 
-    // the "add a new dock" sheet sits below the list: DPAD_DOWN past the last dock selects it
+    // the "add a new dock" sheet sits below the list: DPAD_DOWN past the last dock selects it.
+    // Without an entry the sheet is the only thing to select, so it is selected while the list is empty.
     property bool addSheetSelected: false
+    readonly property bool sheetSelected: addSheetSelected || itemList.count === 0
 
     Component.onCompleted: {
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
-                                                         if (docksPage.addSheetSelected) {
+                                                         if (docksPage.sheetSelected) {
                                                              return;
                                                          }
 
@@ -51,7 +53,7 @@ Settings.Page {
                                                  },
                                                  "DPAD_MIDDLE": {
                                                      "pressed": function() {
-                                                         if (docksPage.addSheetSelected) {
+                                                         if (docksPage.sheetSelected) {
                                                              addDockSheet.state = "opened";
                                                              return;
                                                          }
@@ -100,7 +102,7 @@ Settings.Page {
         titleOpened: qsTr("Add a new dock")
         titleClosed: qsTr("Add a new dock")
         openItemSource: "qrc:/components/docks/Discovery.qml"
-        highlight: docksPage.addSheetSelected
+        highlight: docksPage.sheetSelected
 
         onClosed: {
             DockController.stopDiscovery();
@@ -289,7 +291,7 @@ Settings.Page {
 
             Components.Selectable {
                 anchors { leftMargin: 8; rightMargin: 8 }
-                selected: dockListItem.isCurrentItem && !docksPage.addSheetSelected
+                selected: dockListItem.isCurrentItem && !docksPage.sheetSelected
             }
 
             Components.HapticMouseArea {
@@ -408,6 +410,7 @@ Settings.Page {
 
                         text: dockName
                         textFormat: Text.RichText
+                        linkColor: colors.textPrimary
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         elide: Text.ElideRight
                         maximumLineCount: 2

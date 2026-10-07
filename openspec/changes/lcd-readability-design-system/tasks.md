@@ -96,13 +96,30 @@ this change after the migration is merged to `main`, not in a phase pull request
 
 ## 5. Reachability
 
-- [ ] 5.1 Make the controls of audit finding N-01 reachable, each in the idiom of its screen
-- [ ] 5.2 Give the reachable controls without a visible selection (N-02) the ring
-- [ ] 5.3 Reword touch-only hints (N-04) in `en_US.ts`; hide the unimplemented dock row (N-09)
-- [ ] 5.4 Spec deltas for the capabilities whose screens change (pages, profiles, docks,
-      integrations, notifications)
-- [ ] 5.5 `CHANGELOG.md`: every screen works with the d-pad
-- [ ] 5.6 Verify each newly reachable control on a device
+- [x] 5.1 Make the controls of audit finding N-01 reachable, each in the idiom of its screen: the page
+      menu (HOME long press) opens the profile page, also for a restricted profile; the no-page
+      screen takes OK and a HOME long press; the web configurator screen walks its rows; the
+      onboarding Finish address joins the chain; the entity filter sheet's Clear and Done, the
+      Manage entities tabs; the connection status list scrolls. BACK is the recorded equivalent of
+      the close icons and the PIN Cancel. `NotificationDrawer.qml` was unused and is removed;
+      `NoProfile.qml` was already gone. Touch only by design: typing in text and search fields (the
+      keypad does not operate the on-screen keyboard) and links inside legal texts. The entity detail
+      screens (activity menu opener, media browse, sources, shuffle, repeat) follow with them (D-7)
+- [x] 5.2 Give the reachable controls without a visible selection (N-02) the ring: the help overlay's
+      Close, a scrolling driver text, the tabs; empty docks, integrations, Wi-Fi and entity lists
+      select their only target instead of nothing. Already fixed before this phase: the activity
+      loading screen and the power-off Cancel
+- [x] 5.3 Reword touch-only hints (N-04) in the code and `en_US.ts`; hide the unimplemented dock row
+      (N-09). The activity header hints ("Tap for more") stay with the entity detail screens
+- [x] 5.4 Spec deltas for the capabilities whose screens change: pages, profiles, docks,
+      integrations, entity-management, groups, notifications, help-overlay, onboarding,
+      settings-menu, core-connection
+- [x] 5.5 `CHANGELOG.md`: every screen works with the d-pad
+- [ ] 5.6 Verify each newly reachable control on a device. Desktop done at 800 px
+      (`UC_MODEL=DEV`): page menu and profile page, web configurator, no-page screen with its menu
+      and dialog, tips, Wi-Fi with empty lists, docks and integrations lists, Manage entities tabs and
+      filter header, onboarding Start, Terms and Finish. Not reachable in the simulator: a restricted
+      profile, the first-profile dialog, the connection status list, a dock's details
 
 ## 6. Guardrails
 

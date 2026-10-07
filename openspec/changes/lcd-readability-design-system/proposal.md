@@ -49,9 +49,20 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
   layer.
 - `activities`: "Activity menu and included entities" draws its selection in the fill style and
   follows the keypad-active state instead of a flag of its own (phase 2).
-- Phase 5 makes controls reachable on screens owned by other capabilities (pages, profiles, docks,
-  integrations, notifications). Their deltas are written with that phase, when the exact behaviour
-  per screen is settled.
+- Phase 5 makes controls reachable on screens owned by other capabilities and rewords their
+  touch-only hints:
+  - `pages`: the page menu (HOME long press) leads to the profile page, also for a restricted
+    profile; the no-page screen takes OK and a HOME long press.
+  - `profiles`: the web configurator screen walks its rows; the first-profile dialog cannot be
+    cancelled into an empty screen.
+  - `settings-menu`: the settings open from the page menu; the WiFi page skips empty lists.
+  - `docks`, `integrations`: empty lists select the "Add" sheet; the unimplemented dock row is
+    hidden; the entity manager's tabs and a scrolling driver text show the selection.
+  - `entity-management`: the filter sheet's Clear and Done are reachable; an empty list selects the
+    filter button.
+  - `onboarding`, `help-overlay`, `core-connection`: the Finish address, the tips' Close and the
+    connection status list; reworded hints.
+  - `groups`, `notifications`: the reworded "Select entities" text.
 
 ## Impact
 

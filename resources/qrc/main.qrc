@@ -37,7 +37,6 @@
         <file alias="components/ProfileAdd.qml">../../src/qml/components/ProfileAdd.qml</file>
         <file alias="components/ProfileRename.qml">../../src/qml/components/ProfileRename.qml</file>
         <file alias="components/Notification.qml">../../src/qml/components/Notification.qml</file>
-        <file alias="components/NotificationDrawer.qml">../../src/qml/components/NotificationDrawer.qml</file>
         <file alias="components/ActionableNotification.qml">../../src/qml/components/ActionableNotification.qml</file>
         <file alias="components/ReadinessCheck.qml">../../src/qml/components/ReadinessCheck.qml</file>
         <file alias="components/VoiceOverlay.qml">../../src/qml/components/VoiceOverlay.qml</file>

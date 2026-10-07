@@ -12,6 +12,7 @@ FieldBase {
         text: root.value
         color: colors.textPrimary
         textFormat: Text.MarkdownText
+        linkColor: colors.textPrimary
         wrapMode: Text.WordWrap
         font: fonts.prose()
         lineHeight: fonts.proseLineHeight

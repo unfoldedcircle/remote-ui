@@ -167,6 +167,13 @@ the proposed mapping and still need confirmation (section 11, Q-1).
 - Destructive confirmations start on Cancel. Cancel is the secondary button variant.
 - Every tappable element is reachable by d-pad, or has a d-pad equivalent on the same screen.
   Hints say "Press OK to ..." or name the action; never "Tap".
+  - Recorded equivalents: BACK for a close icon and for the Cancel of the PIN pad; the page menu
+    (HOME long press) for the profile icon in the status bar, the page title and the pull-down
+    menu.
+  - Touch only by design: typing in text and search fields, as the keypad does not operate the
+    on-screen keyboard; links inside legal texts.
+  - An empty list selects the only target it has (its "Add" sheet, "Join other", the filter
+    button), never nothing.
 
 ## 7. Components
 

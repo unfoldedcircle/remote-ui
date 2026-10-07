@@ -40,9 +40,66 @@ Rectangle {
         closed();
     }
 
+    /** KEYPAD SELECTION **/
+    // The rows are walked like the header rows of the profile page: DPAD_UP / DOWN move over the
+    // switch, the address and the PIN regenerate button, DPAD_MIDDLE activates the selected one.
+    // Driven through the button navigation, no control has the focus.
+    property int selection: 0
+
+    function rows() {
+        let list = [configuratorSwitch];
+
+        if (Config.webConfiguratorEnabled && Config.webConfiguratorAddress != "") {
+            list.push(addressRow);
+        }
+        if (Config.webConfiguratorEnabled) {
+            list.push(pinRegenerateRow);
+        }
+
+        return list;
+    }
+
+    readonly property Item selectedRow: {
+        const list = rows();
+        return ui.profile.restricted ? null : list[Math.min(selection, list.length - 1)];
+    }
+
+    function activateRow() {
+        const row = profileRoot.selectedRow;
+        if (!row) {
+            return;
+        }
+
+        Haptic.play(Haptic.Click);
+        if (row === configuratorSwitch) {
+            configuratorSwitch.activate();
+        } else if (row === addressRow) {
+            if (Wifi.ipAddress) {
+                webConfiguratorAddress.showIp = !webConfiguratorAddress.showIp;
+            }
+        } else if (row === pinRegenerateRow) {
+            Config.generateNewWebConfigPin();
+        }
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
+            "DPAD_DOWN": {
+                "pressed": function() {
+                    profileRoot.selection = Math.min(profileRoot.selection + 1, profileRoot.rows().length - 1);
+                }
+            },
+            "DPAD_UP": {
+                "pressed": function() {
+                    profileRoot.selection = Math.max(0, Math.min(profileRoot.selection, profileRoot.rows().length - 1) - 1);
+                }
+            },
+            "DPAD_MIDDLE": {
+                "pressed": function() {
+                    profileRoot.activateRow();
+                }
+            },
             "BACK": {
                 "pressed": function() {
                     if (profileRoot.state == "showLargeQr") {
@@ -123,6 +180,7 @@ Rectangle {
                             }
 
                             Components.Switch {
+                                id: configuratorSwitch
                                 Layout.alignment: Qt.AlignRight | Qt.AlignVCenter
 
                                 icon: "uc:check"
@@ -130,10 +188,12 @@ Rectangle {
                                 trigger: function() {
                                     Config.webConfiguratorEnabled = !Config.webConfiguratorEnabled
                                 }
+                                highlight: profileRoot.selectedRow === configuratorSwitch && ui.keyNavigationActive
                             }
                         }
 
                         RowLayout {
+                            id: addressRow
                             visible: Config.webConfiguratorEnabled && Config.webConfiguratorAddress != ""
 
                             Text {
@@ -156,6 +216,11 @@ Rectangle {
                                         if (Wifi.ipAddress) {
                                             webConfiguratorAddress.showIp = !webConfiguratorAddress.showIp;
                                         }
+                                    }
+
+                                    Components.Selectable {
+                                        selected: profileRoot.selectedRow === addressRow
+                                        anchors { leftMargin: -10; rightMargin: -10 }
                                     }
                                 }
                             }
@@ -259,12 +324,17 @@ Rectangle {
                         }
 
                         Components.HapticMouseArea {
+                            id: pinRegenerateRow
                             Layout.preferredWidth: pinContainer.height
                             Layout.preferredHeight: pinContainer.height
                             Layout.alignment: Qt.AlignVCenter
 
                             onClicked: {
                                 Config.generateNewWebConfigPin();
+                            }
+
+                            Components.Selectable {
+                                selected: profileRoot.selectedRow === pinRegenerateRow
                             }
 
                             onPressed: generateQrCodeIcon.color = colors.textPrimary

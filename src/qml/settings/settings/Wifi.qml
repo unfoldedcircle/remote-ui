@@ -182,7 +182,8 @@ Settings.Page {
 
                 /** KEYBOARD NAVIGATION **/
                 KeyNavigation.up: wifiScanIntervalValueSlider
-                KeyNavigation.down: knownNetworkList
+                // an empty known-networks list has nothing to select: skip it
+                KeyNavigation.down: knownNetworkList.count > 0 ? knownNetworkList : otherNetworkList
 
                 Keys.onReturnPressed: {
                     bandSelector.openList();
@@ -213,7 +214,7 @@ Settings.Page {
                     model: Wifi.networkList
 
                     /** KEYBOARD NAVIGATION **/
-                    KeyNavigation.up: knownNetworkList
+                    KeyNavigation.up: knownNetworkList.count > 0 ? knownNetworkList : bandSelector
                     KeyNavigation.down: deleteAllNetworksButton
                 }
             }

@@ -24,8 +24,10 @@ HelpComponents.Base {
         }
 
         HelpComponents.Tip {
-            //: Tip pointing at the round button in the top right corner of the main screen
-            title: qsTr("Tap here to open settings")
+            //: Tip title pointing at the round profile button in the top right corner of the main screen
+            title: qsTr("Profile & settings")
+            //: Tip text below "Profile & settings": the round button opens them, and so does the page menu of a long HOME press
+            text: qsTr("Open them with this button, or hold HOME and choose Profile & settings.")
             titleAlignment: Text.AlignRight
             titleRightMargin: 60
 
@@ -42,7 +44,8 @@ HelpComponents.Base {
             title: qsTr("Status bar")
             text: qsTr("Battery level, WiFi connection problem, software update indicator and the page title may appear here.")
                   + "\n\n"
-                  + qsTr("You can also tap the status bar to scroll to the top of a page.")
+                  //: Last paragraph of the status bar tip
+                  + qsTr("Press HOME, or touch the status bar, to scroll to the top of a page.")
             topMargin: 60
 
             // the status bar spans the top of the main screen
