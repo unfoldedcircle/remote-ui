@@ -286,7 +286,7 @@ Rectangle {
 
     ListView {
         id: profileList
-        width: parent.width; height: parent.height-60
+        width: parent.width; height: parent.height - titleBar.height
         anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
 
         maximumFlickVelocity: 6000
@@ -299,8 +299,9 @@ Rectangle {
 
         footer: ui.isOnboarding ? null : footerItem
 
-        ScrollBar.vertical: ScrollBar {
-            opacity: 0.5
+        Components.ScrollIndicator {
+            parent: profileList
+            parentObj: profileList
         }
 
         remove: Transition {
@@ -318,36 +319,15 @@ Rectangle {
     }
 
 
-    Rectangle {
-        width: ui.width; height: 60
-        color: colors.black
-        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-
-        Text {
-            id: titleText
-            color: colors.offwhite
-            //: User profiles
-            text: qsTr("Profiles")
-            anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
-            font: fonts.primaryFont(26)
-        }
-
-        Components.Icon {
-            id: closeIcon
-            color: colors.offwhite
-            icon: "uc:arrow-left"
-            anchors { verticalCenter: titleText.verticalCenter; left: parent.left }
-            size: 80
-            visible: !profileSelector.noProfile
-        }
-
-        Components.HapticMouseArea {
-            width: 120; height: 120
-            anchors.centerIn: closeIcon
-            onClicked: {
-                profileSelector.state = "hidden";
-            }
-            enabled: closeIcon.visible
+    Components.TitleBar {
+        id: titleBar
+        anchors.top: parent.top
+        //: User profiles
+        text: qsTr("Profiles")
+        // without a profile there is nothing to go back to
+        action: profileSelector.noProfile ? "" : "back"
+        goBack: function() {
+            profileSelector.state = "hidden";
         }
     }
 

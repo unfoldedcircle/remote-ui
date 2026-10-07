@@ -316,7 +316,7 @@ ListView {
                 maximumLineCount: 2
                 color: colors.textPrimary
                 text: headerTitle
-                anchors { left: parent.left; bottom: parent.bottom; bottomMargin: 10 }
+                anchors { left: parent.left; leftMargin: 20; bottom: parent.bottom; bottomMargin: 10 }
                 font: fonts.heading()
             }
 
@@ -336,9 +336,9 @@ ListView {
             }
 
             Components.Icon {
-                color: colors.offwhite
+                color: colors.textPrimary
                 icon: "uc:arrow-up"
-                anchors { right: parent.right; verticalCenter: headerTitleText.verticalCenter; }
+                anchors { right: parent.right; rightMargin: 20; verticalCenter: headerTitleText.verticalCenter; }
                 size: 60
                 rotation: wifiNetworkList.state === "open" ? 0 : 180
                 visible: !wifiNetworkList.knownNetworks
@@ -364,9 +364,7 @@ ListView {
                 }
             }
 
-            Rectangle {
-                width: parent.width; height: 2
-                color: colors.medium
+            Components.Divider {
                 anchors.bottom: parent.bottom
                 visible: wifiNetworkList.state === "open"
             }
@@ -382,15 +380,16 @@ ListView {
 
             Text {
                 text: qsTr("No networks found")
-                color: colors.offwhite
-                anchors { top: parent.top; topMargin: 20; left: parent.left }
-                font: fonts.primaryFont(30)
+                color: colors.textPrimary
+                anchors { top: parent.top; topMargin: 20; left: parent.left; leftMargin: 20 }
+                font: fonts.label()
                 visible: wifiNetworkList.count === 0
             }
 
             Components.Button {
                 id: joinOtherButton
-                width: parent.width
+                width: parent.width - 40
+                x: 20
                 //: Join other wifi network
                 text: qsTr("Join other")
                 highlight: wifiNetworkList.otherSelected && ui.keyNavigationActive
@@ -408,7 +407,7 @@ ListView {
         Components.HapticMouseArea {
             id: networkDelegate
             width: ListView.view.width
-            height: currentNetworkSSID.height + networkSubline.height + 10
+            height: currentNetworkSSID.height + networkSubline.height + 28
 
             property var network: modelData
             property alias loadingAnimation: joinLoadingAnimation
@@ -418,17 +417,11 @@ ListView {
                 wifiNetworkList.selectNetwork(modelData, joinLoadingAnimation);
             }
 
-            Rectangle {
-                anchors { fill: parent; margins: 2 }
-                radius: ui.cornerRadiusSmall
-                color: colors.transparent
-                border {
-                    width: 2
-                    color: networkDelegate.ListView.isCurrentItem
-                           && (wifiNetworkList.activeFocus || wifiNetworkList.keypadSelected)
-                           && !wifiNetworkList.otherSelected
-                           && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                }
+            Components.Selectable {
+                anchors { leftMargin: 8; rightMargin: 8 }
+                selected: networkDelegate.ListView.isCurrentItem
+                          && (wifiNetworkList.activeFocus || wifiNetworkList.keypadSelected)
+                          && !wifiNetworkList.otherSelected
             }
 
             Text {
@@ -438,7 +431,7 @@ ListView {
                 elide: Text.ElideRight
                 color: colors.offwhite
                 text: modelData.ssid
-                anchors { left: currentNetworkStrenght.right; leftMargin: 10; right: currentNetworkSecurity.left; top: parent.top; topMargin: 5 }
+                anchors { left: currentNetworkStrenght.right; leftMargin: 10; right: currentNetworkSecurity.left; top: parent.top; topMargin: 14 }
                 font: fonts.primaryFont(30)
             }
 
@@ -458,8 +451,8 @@ ListView {
 
             Components.Icon {
                 icon: "uc:wifi"
-                opacity: 0.3
-                anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                color: colors.divider
+                anchors { left: parent.left; leftMargin: 20; verticalCenter: parent.verticalCenter }
                 size: 60
             }
 
@@ -482,7 +475,7 @@ ListView {
                 }
                 opacity: icon === "" ? 0 : 1
                 size: 60
-                anchors { left: parent.left; verticalCenter: parent.verticalCenter }
+                anchors { left: parent.left; leftMargin: 20; verticalCenter: parent.verticalCenter }
             }
 
             Rectangle {
@@ -550,20 +543,14 @@ ListView {
                 id: currentNetworkSecurity
                 icon: "uc:lock"
                 size: 40
-                anchors { right: parent.right; verticalCenter: currentNetworkStrenght.verticalCenter }
+                anchors { right: parent.right; rightMargin: 20; verticalCenter: currentNetworkStrenght.verticalCenter }
                 visible: modelData.encrypted
             }
 
-            Rectangle {
-                width: parent.width; height: 2
-                color: colors.medium
+            Components.Divider {
                 anchors.bottom: parent.bottom
             }
         }
-    }
-    Components.ScrollIndicator {
-        hideOverride: wifiNetworkList.count === 0 || wifiNetworkList.state === "closed"
-        anchors { right: parent.right; rightMargin: 20; bottom: parent.bottom; bottomMargin: 20 + (parent.headerItem ? parent.headerItem.height : 0) }
     }
 
     WifiJoin {

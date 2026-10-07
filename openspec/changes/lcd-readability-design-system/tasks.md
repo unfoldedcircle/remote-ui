@@ -67,22 +67,32 @@ this change after the migration is merged to `main`, not in a phase pull request
 
 ## 4. Structure
 
-- [ ] 4.1 `TitleBar`, `SettingRow`, `MenuRow`, `KeyValueRow`, `FormDialog`, `Sheet`, `Prose`, each
-      registered in `resources/qrc/main.qrc`; `Button` gains `variant`
-- [ ] 4.2 Settings pages on the shared components, 20 px gutter, row heights, dividers, radii, icons
-- [ ] 4.3 Onboarding on the shared components
-- [ ] 4.4 Docks on the shared components
-- [ ] 4.5 Integrations on the shared components
-- [ ] 4.6 Remove the copies the components replace
-- [ ] 4.7 `CHANGELOG.md`: consistent layout of settings, onboarding, docks and integrations
-- [ ] 4.8 Keypad walk per screen family on the desktop and both remotes. Known from phase 3: with
-      Bluetooth off, the add-dock sheet scrolls at 800 px before its Discover button is fully visible
-- [ ] 4.9 The 2 px `colors.highlight` outlines phase 2 left in place move to `Selectable` with the
+- [x] 4.1 `TitleBar`, `SettingRow`, `MenuRow`, `KeyValueRow`, `FormDialog`, `Sheet`, `Prose`, each
+      registered in `resources/qrc/main.qrc`; `Button` gains `variant`. Also `Divider`, `Dim`, and
+      `ScrollIndicator` redrawn as the one track-and-thumb indicator
+- [x] 4.2 Settings pages on the shared components, 20 px gutter, row heights, dividers, radii, icons.
+      Pickers mark the current value with a check mark. The Colors page stays as it is
+- [x] 4.3 Onboarding on the shared components
+- [x] 4.4 Docks on the shared components
+- [x] 4.5 Integrations on the shared components. Every bottom sheet is black with a divider edge (Q-4):
+      page menu, activity menu, Wi-Fi info and join, delete drawers, entity filter
+- [x] 4.6 Remove the copies the components replace: `AboutInfo.qml`, `settings/TopNavigation.qml`
+- [x] 4.7 `CHANGELOG.md`: consistent layout of settings, onboarding, docks and integrations
+- [ ] 4.8 Keypad walk per screen family on the desktop and both remotes. Desktop done at 800 px in
+      English and German (`UC_MODEL=DEV`): profile and settings menus, every settings page and picker,
+      software update, about, page menu, page selector with edit and held states, page add dialog,
+      profile switcher, notification, power off, activity menu, integrations list, info, delete
+      drawer, manage entities and filter sheet, docks, onboarding steps, Wi-Fi join and security
+      steps. Still open on the devices; points to look at: with Bluetooth off the dock start screen
+      scrolls at 800 px before Discover is fully visible (it now shows a scroll indicator); in German
+      the terms QR code shrinks to about 110 px to stay clear of the text; with the keyboard up the
+      Wi-Fi join buttons show their labels but their lower edge stays under the keyboard at 800 px
+- [x] 4.9 The 2 px `colors.highlight` outlines phase 2 left in place move to `Selectable` with the
       screens that own them: onboarding, keypad keys, the on-screen keyboard style, notifications,
       bottom sheet, dock and integration info and configure pages, readiness check, web
       configurator, icon selector, Wi-Fi network list, software update, the profile header (PIN
       and QR code rows), the entity list filter, `ButtonAdd`. The held states of `Page.qml`,
-      `GroupEdit.qml` and `PageSelector.qml` wait for Q-5
+      `GroupEdit.qml` and `PageSelector.qml` show the ring on top of the fill (Q-5)
 
 ## 5. Reachability
 

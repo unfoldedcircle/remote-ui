@@ -89,46 +89,25 @@ Popup {
         }
     }
 
-    background: Item {
-        Rectangle {
-            id: bg
-            width: parent.width
-            height: infoContainer.height + 40
-            color: colors.black
-            anchors.bottom: parent.bottom
-        }
-
-        Item {
-            id: gradient
-            width: parent.width; height: parent.height - bg.height
-            anchors { bottom: bg.top; horizontalCenter: parent.horizontalCenter }
-
-            LinearGradient {
-                anchors.fill: parent
-                start: Qt.point(0, 0)
-                end: Qt.point(0, parent.height)
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: colors.transparent }
-                    GradientStop { position: 1.0; color: colors.black }
-                }
-            }
-        }
-    }
+    background: Components.Dim {}
 
     MouseArea {
         anchors { top: parent.top; bottom: infoContainer.top; left: parent.left; right: parent.right }
         onClicked: wifiJoin.close();
     }
 
-    Rectangle {
+    Item {
         id: infoContainer
         width: ui.width
-        height: childrenRect.height
-        color: colors.dark
-        radius: ui.cornerRadiusSmall
+        height: joinColumn.height
         anchors.bottom: parent.bottom
 
+        Components.Sheet {
+            anchors.fill: parent
+        }
+
         ColumnLayout {
+            id: joinColumn
             spacing: 20
             width: parent.width - 40
             anchors.horizontalCenter: parent.horizontalCenter
@@ -142,15 +121,13 @@ Popup {
                 width: parent.width
                 maximumLineCount: 1
                 elide: Text.ElideRight
-                color: colors.offwhite
+                color: colors.textPrimary
                 text: qsTr("Join WiFi network?")
-                font: fonts.primaryFont(30)
+                font: fonts.title()
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width; height: 2
-                color: colors.medium
+            Components.Divider {
+                inset: 0
             }
 
             Item {
@@ -167,7 +144,7 @@ Popup {
                     width: parent.width - 80
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: wifiJoin.wifiNetwork.ssid
                     anchors { left: parent.left; verticalCenter: currentNetworkStrenght.verticalCenter; right: currentNetworkStrenght.left }
                     font: fonts.primaryFont(30)
@@ -175,7 +152,8 @@ Popup {
 
                 Components.Icon {
                     icon: "uc:wifi"
-                    opacity: 1
+                    color: colors.divider
+                    size: 60
                     anchors { right: parent.right; verticalCenter: currentNetworkSSID.verticalCenter }
                 }
 
@@ -242,7 +220,7 @@ Popup {
                     id: cancelButton
                     text: qsTr("Cancel")
                     width: parent.width / 2 - 10
-                    color: colors.secondaryButton
+                    variant: "secondary"
                     anchors { left: parent.left; bottom: parent.bottom }
 
                     /** KEYBOARD NAVIGATION **/

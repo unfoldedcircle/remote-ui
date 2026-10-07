@@ -141,7 +141,7 @@ Popup {
             width: parent.width - 20
             height: 4
             radius: ui.cornerRadiusSmall
-            color: notificationList.currentItem ? (notificationList.currentItem.notificationObj.itemWarning() ? colors.red : colors.highlight) : colors.highlight
+            color: notificationList.currentItem && notificationList.currentItem.notificationObj.itemWarning() ? colors.red : colors.textPrimary
             anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom }
         }
     }
@@ -183,64 +183,31 @@ Popup {
             
             onClicked: notificationComponentContent.close()
 
-            // the two labels share the width so long translations wrap instead of running into
-            // each other
-            Text {
+            // Cancel and the action are buttons, Cancel first (docs/design-system.md, I-09); a notification
+            // without an action label has neither and is dismissed with a tap
+            Components.Button {
                 id: actionableNotificationAction
                 text: notificationObj.itemActionLabel()
-                width: parent.width / 2 - 30
-                height: text === "" ? 0 : implicitHeight
-                wrapMode: Text.WordWrap
-                verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignRight
-                color: colors.offwhite
-                font: fonts.button()
-                anchors { right: parent.right; rightMargin: 20; bottom: parent.bottom; bottomMargin: 30}
-
-                Rectangle {
-                    anchors { fill: parent; margins: -8 }
-                    radius: ui.cornerRadiusSmall
-                    color: colors.transparent
-                    border { width: 2; color: !actionableNotification.cancelSelected && ui.keyNavigationActive
-                                              ? colors.highlight : colors.transparent }
-                }
-
-                Components.HapticMouseArea {
-                    width: parent.width + 40
-                    height: parent.width + 40
-                    anchors.centerIn: parent
-                    onClicked: {
-                        notificationObj.action();
-                        notificationComponentContent.close()
-                    }
+                visible: text !== ""
+                width: (parent.width - 60) / 2
+                height: visible ? 80 : 0
+                anchors { right: parent.right; rightMargin: 20; bottom: parent.bottom; bottomMargin: 30 }
+                highlight: !actionableNotification.cancelSelected && ui.keyNavigationActive
+                trigger: function() {
+                    notificationObj.action();
+                    notificationComponentContent.close();
                 }
             }
 
-            Text {
+            Components.Button {
                 text: qsTr("Cancel")
-                width: parent.width / 2 - 30
-                height: actionableNotificationAction.text === "" ? 0 : implicitHeight
-                visible: height !== 0
-                wrapMode: Text.WordWrap
-                verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignLeft
-                color: colors.offwhite
-                font: fonts.button()
-                anchors { left: parent.left; leftMargin: 20; bottom: parent.bottom; bottomMargin: 30}
-
-                Rectangle {
-                    anchors { fill: parent; margins: -8 }
-                    radius: ui.cornerRadiusSmall
-                    color: colors.transparent
-                    border { width: 2; color: actionableNotification.cancelSelected && ui.keyNavigationActive
-                                              ? colors.highlight : colors.transparent }
-                }
-
-                Components.HapticMouseArea {
-                    width: parent.width + 40
-                    height: parent.width + 40
-                    anchors.centerIn: parent
-                    onClicked: {
-                        notificationComponentContent.close()
-                    }
+                variant: "secondary"
+                visible: actionableNotificationAction.visible
+                width: (parent.width - 60) / 2
+                anchors { left: parent.left; leftMargin: 20; bottom: parent.bottom; bottomMargin: 30 }
+                highlight: actionableNotification.cancelSelected && ui.keyNavigationActive
+                trigger: function() {
+                    notificationComponentContent.close();
                 }
             }
 

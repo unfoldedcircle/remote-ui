@@ -63,6 +63,7 @@ OnboardingComponents.Page {
 
     Components.PopupList {
         id: selectList
+        currentValue: Config.language
         title: qsTr("Select language")
         showSearch: true
         hideClose: true

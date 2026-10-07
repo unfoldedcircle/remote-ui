@@ -118,47 +118,27 @@ Settings.Page {
             ]
 
             delegate: menuItem
+
+            Components.ScrollIndicator {
+                parent: menu
+                parentObj: menu
+            }
         }
     }
 
     Component {
         id: menuItem
 
-        Rectangle {
-            id: menuItemBg
-            width: ui.width
-            height: 80
-            color: colors.transparent
+        Components.MenuRow {
+            width: ListView.view.width
+            icon: menu.model[index].icon
+            text: qsTr(menu.model[index].itemTitle)
+            chevron: true
+            selected: ListView.isCurrentItem
 
-            Components.Selectable {
-                selected: menuItemBg.ListView.isCurrentItem
-                anchors { leftMargin: 4; rightMargin: 4 }
-            }
-
-            Components.Icon {
-                id: icon
-                color: colors.offwhite
-                icon: menu.model[index].icon
-                anchors { left: parent.left; verticalCenter: parent.verticalCenter; }
-                size: 60
-            }
-
-            Text {
-                id: menuItemText
-                width: parent.width - 80
-                elide: Text.ElideRight
-                color: colors.offwhite
-                text: qsTr(menu.model[index].itemTitle)
-                anchors { left: icon.right; leftMargin: 20; verticalCenter: parent.verticalCenter; }
-                font: fonts.primaryFont(30)
-            }
-
-            Components.HapticMouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    menu.currentIndex = index;
-                    loadPage(index);
-                }
+            onClicked: {
+                menu.currentIndex = index;
+                loadPage(index);
             }
         }
     }

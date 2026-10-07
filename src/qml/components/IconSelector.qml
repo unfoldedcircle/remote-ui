@@ -182,17 +182,13 @@ Popup {
 
             TabBar {
                 id: tabBar
-                width: parent.width - 20
+                width: parent.width - 40
                 implicitHeight: 60
                 anchors { horizontalCenter: parent.horizontalCenter; top: parent.top }
 
                 background: Rectangle {
-                    color: colors.dark
+                    color: colors.surfaceRaised
                     radius: ui.cornerRadiusLarge
-                    border {
-                        color: colors.medium
-                        width: 1
-                    }
                 }
 
                 TabButton {
@@ -211,12 +207,12 @@ Popup {
                     }
 
                     background: Rectangle {
-                        color: tabBar.currentIndex == 0 ? colors.primaryButton : colors.transparent
+                        color: tabBar.currentIndex == 0 ? colors.buttonPrimary : colors.transparent
                         radius: ui.cornerRadiusLarge
-                        border {
-                            width: 2
-                            color: tabBar.currentIndex == 0 && iconSelectorPopup.zone === IconSelector.Zone.Tabs
-                                   && ui.keyNavigationActive ? colors.highlight : colors.transparent
+
+                        Components.Selectable {
+                            radius: parent.radius
+                            selected: tabBar.currentIndex == 0 && iconSelectorPopup.zone === IconSelector.Zone.Tabs
                         }
                     }
                 }
@@ -237,12 +233,12 @@ Popup {
                     }
 
                     background: Rectangle {
-                        color: tabBar.currentIndex == 1 ? colors.primaryButton : colors.transparent
+                        color: tabBar.currentIndex == 1 ? colors.buttonPrimary : colors.transparent
                         radius: ui.cornerRadiusLarge
-                        border {
-                            width: 2
-                            color: tabBar.currentIndex == 1 && iconSelectorPopup.zone === IconSelector.Zone.Tabs
-                                   && ui.keyNavigationActive ? colors.highlight : colors.transparent
+
+                        Components.Selectable {
+                            radius: parent.radius
+                            selected: tabBar.currentIndex == 1 && iconSelectorPopup.zone === IconSelector.Zone.Tabs
                         }
                     }
                 }

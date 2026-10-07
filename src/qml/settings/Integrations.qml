@@ -96,7 +96,6 @@ Settings.Page {
 
     Components.ScrollIndicator {
         parentObj: itemList
-        hideOverride: itemList.atYEnd
     }
 
     Components.BottomSheet {
@@ -284,6 +283,7 @@ Settings.Page {
             property bool selected: selected
 
             Components.Selectable {
+                anchors { leftMargin: 8; rightMargin: 8 }
                 selected: parent.isCurrentItem && !integrationsPage.addSheetSelected
             }
 
@@ -370,7 +370,7 @@ Settings.Page {
                     Components.Icon {
                         icon: "uc:globe"
                         size: 40
-                        color: colors.light
+                        color: colors.textSecondary
                         visible: IntegrationController.getDriversModelItem(driverId).external
                     }
 
@@ -389,7 +389,7 @@ Settings.Page {
                             }
                         }
                         enabled: integrationState == "connected" || integrationState == "disconnected" || integrationState == "error"
-                        opacity: enabled ? 1 : 0.3
+                        opacity: enabled ? 1 : 0.4
                     }
                 }
             }

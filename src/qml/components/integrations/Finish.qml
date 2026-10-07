@@ -73,8 +73,8 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.offwhite
-            font: fonts.primaryFont(30)
+            color: colors.textPrimary
+            font: fonts.title()
         }
 
         Text {
@@ -106,12 +106,12 @@ Item {
                 Layout.preferredHeight: 60
 
                 radius: 30
-                color: colors.offwhite
+                color: colors.textPrimary
 
                 Components.Icon {
                     icon: IntegrationController.integrationDriverTosetup.icon
                     size: 60
-                    color: colors.black
+                    color: colors.bg
                     anchors.centerIn: parent
                 }
             }
@@ -124,39 +124,34 @@ Item {
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 verticalAlignment: Text.AlignVCenter
-                font: fonts.primaryFont(30)
+                font: fonts.label()
             }
         }
 
-        Components.AboutInfo {
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
+        Components.Divider {
+            Layout.topMargin: 14
+        }
 
+        Components.KeyValueRow {
             key: qsTr("Version")
             value: IntegrationController.integrationDriverTosetup.version
-            lineTop: true
         }
 
-        Components.AboutInfo {
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
-
+        Components.KeyValueRow {
             key: qsTr("Developer")
             value: IntegrationController.integrationDriverTosetup.developerName
-            multiline: true
-            lineBottom: IntegrationController.integrationDriverTosetup.homepage !== ""
+            stacked: true
+            showDivider: IntegrationController.integrationDriverTosetup.homepage !== ""
         }
 
-        Components.AboutInfo {
-            Layout.leftMargin: 20
-            Layout.rightMargin: 20
+        Components.KeyValueRow {
             Layout.bottomMargin: 20
 
             visible: IntegrationController.integrationDriverTosetup.homepage !== ""
             key: qsTr("Website")
             value: IntegrationController.integrationDriverTosetup.homepage
-            multiline: true
-            lineBottom: false
+            stacked: true
+            showDivider: false
         }
 
         Components.Button {
@@ -190,7 +185,7 @@ Item {
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
             color: colors.red
-            font: fonts.primaryFont(30)
+            font: fonts.title()
         }
 
         Text {

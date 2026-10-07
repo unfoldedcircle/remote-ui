@@ -275,7 +275,7 @@ Rectangle {
 
     ListView {
         id: roomList
-        width: parent.width; height: parent.height-60
+        width: parent.width; height: parent.height - titleBar.height
         anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
 
         maximumFlickVelocity: 6000
@@ -287,8 +287,9 @@ Rectangle {
 
         footer: footerItem
 
-        ScrollBar.vertical: ScrollBar {
-            opacity: 0.5
+        Components.ScrollIndicator {
+            parent: roomList
+            parentObj: roomList
         }
 
         remove: Transition {
@@ -309,35 +310,20 @@ Rectangle {
         id: pageListGroup
     }
 
-    Rectangle {
-        width: ui.width; height: 60
-        color: colors.black
-        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-
-        Text {
-            id: titleText
-            color: colors.offwhite
-            //: Title for the page selector menu
-            text: editMode ? qsTr("Edit pages")  : qsTr("Select page")
-            anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
-            font: fonts.primaryFont(26)
-        }
-
-        Components.Icon {
-            visible: !ui.profile.restricted
-            color: editMode ? colors.offwhite : colors.light
-            icon: "uc:pen-to-square"
-            anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-            size: 60
-
-            Components.HapticMouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    editMode = !editMode;
-                    if (!editMode) {
-                        editModeOff();
-                    }
-                }
+    // the edit-mode toggle takes the end target of the title bar; it is lit while edit mode is on
+    Components.TitleBar {
+        id: titleBar
+        anchors.top: parent.top
+        //: Title for the page selector menu
+        text: editMode ? qsTr("Edit pages")  : qsTr("Select page")
+        action: ui.profile.restricted ? "" : "close"
+        icon: "uc:pen-to-square"
+        iconSize: 60
+        iconColor: editMode ? colors.textPrimary : colors.textSecondary
+        onActionTriggered: {
+            editMode = !editMode;
+            if (!editMode) {
+                editModeOff();
             }
         }
     }
@@ -358,7 +344,8 @@ Rectangle {
         MouseArea {
             id: dragArea
             width: ui.width
-            height: 150
+            // one-line rows, taller only while the rows can be reordered (docs/design-system.md section 5)
+            height: roomSelector.editMode ? 150 : 80
             enabled: editMode
             pressAndHoldInterval: 200
 
@@ -474,8 +461,8 @@ Rectangle {
             Rectangle {
                 id: content
                 width: ui.width
-                height: 150
-                color: colors.black
+                height: dragArea.height
+                color: colors.bg
                 radius: ui.cornerRadiusSmall
 
                 Drag.active: dragArea.held
@@ -565,31 +552,26 @@ Rectangle {
                     selected: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected
                 }
 
-                // the page held for reordering (open question Q-5 in the design system change)
-                Rectangle {
-                    anchors.fill: parent
-                    color: colors.transparent
-                    radius: ui.cornerRadiusSmall
-                    border {
-                        width: 2
-                        color: dragArea.keypadHeld && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                    }
+                // the ring marks the page held for reordering, on top of the fill of the selection (Q-5)
+                Components.Selectable {
+                    selected: dragArea.keypadHeld
                 }
 
+                // rows are left-aligned in the label role like every other list (docs/design-system.md, I-20)
                 Text {
                     id: titleText
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: pageName
-                    width: parent.width - (editMode ? 160 : 20)
+                    width: parent.width - (editMode ? 180 : 40)
                     wrapMode: Text.WordWrap
                     elide: Text.ElideRight
-                    maximumLineCount: 2
-                    verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-                    anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter; horizontalCenterOffset: deleteOpen ? -80 : 0 }
-                    font: fonts.primaryFont(50)
-                    lineHeight: 0.8
+                    maximumLineCount: roomSelector.editMode ? 2 : 1
+                    verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignLeft
+                    // after the rename icon of the edit mode
+                    anchors { verticalCenter: parent.verticalCenter; left: parent.left; leftMargin: (roomSelector.editMode ? 100 : 20) - (deleteOpen ? 80 : 0) }
+                    font: fonts.label()
 
-                    Behavior on anchors.horizontalCenterOffset {
+                    Behavior on anchors.leftMargin {
                         NumberAnimation { easing.type: Easing.OutExpo; duration: 300 }
                     }
 
@@ -597,7 +579,7 @@ Rectangle {
 
                 Components.Icon {
                     id: moveIcon
-                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected && ui.keyNavigationActive ? colors.textPrimary : colors.light
+                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected && ui.keyNavigationActive ? colors.textPrimary : colors.textSecondary
                     opacity: editMode ? 1 : 0
                     icon: "uc:bars"
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
@@ -609,7 +591,7 @@ Rectangle {
                 }
 
                 Components.Icon {
-                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected && ui.keyNavigationActive ? colors.textPrimary : colors.light
+                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected && ui.keyNavigationActive ? colors.textPrimary : colors.textSecondary
                     visible: !deleteOpen
                     opacity: editMode ? deleteOpen ? 0 : 1 : 0
                     icon: "uc:pen-to-square"
@@ -635,7 +617,7 @@ Rectangle {
 
             DropArea {
                 width: parent.width
-                height: 150
+                height: dragArea.height
 
                 onEntered: {
                     let from = drag.source.DelegateModel.itemsIndex;

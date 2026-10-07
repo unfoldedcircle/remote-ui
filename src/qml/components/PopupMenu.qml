@@ -130,28 +130,22 @@ Popup {
         onClicked: popupMenu.close()
     }
 
-    Item {
-        id: gradient
-        width: parent.width; height: parent.height
-        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+    Components.Dim {
+        anchors.fill: parent
+    }
 
-        LinearGradient {
-            anchors.fill: parent
-            start: Qt.point(0, 0)
-            end: Qt.point(0, parent.height)
-            gradient: Gradient {
-                GradientStop { position: 0.0; color: "#00000000" }
-                GradientStop { position: 0.5; color: colors.black }
-                GradientStop { position: 1.0; color: colors.black }
-            }
-        }
+    // a bottom sheet (docs/design-system.md section 5): black with a divider edge
+    Components.Sheet {
+        width: parent.width
+        height: menuItemsListView.height + 20
+        anchors.bottom: parent.bottom
     }
 
     ListView {
         id: menuItemsListView
         width: parent.width
         height: contentHeight
-        anchors { bottom: parent.bottom }
+        anchors { bottom: parent.bottom; bottomMargin: 10 }
 
         maximumFlickVelocity: 6000
         flickDeceleration: 1000
@@ -169,22 +163,20 @@ Popup {
     Component {
         id: headerItem
 
-        Rectangle {
+        Item {
             width: parent.width
             height: 80
-            color: colors.black
 
             Text {
                 id: title
-                width: parent.width
-                color: colors.offwhite
+                width: parent.width - 40
+                color: colors.textPrimary
                 text: popupMenu.title
                 horizontalAlignment: Text.AlignHCenter
                 elide: Text.ElideRight
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                maximumLineCount: 2
+                maximumLineCount: 1
                 anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-                font: fonts.primaryFont(24, "Bold")
+                font: fonts.title()
             }
         }
     }
@@ -192,89 +184,37 @@ Popup {
     Component {
         id: menuItem
 
-        Rectangle {
+        Components.MenuRow {
             id: menuRow
-            width: parent.width - 20
-            height: title.lineCount == 1 ? 80 : 120
-            color: colors.black
-            anchors.horizontalCenter: parent.horizontalCenter
-
-            Components.Selectable {
-                style: "fill"
-                selected: menuRow.ListView.isCurrentItem && !footerSelected
-            }
+            width: ListView.view.width
+            popup: true
+            selectionStyle: "fill"
+            icon: menuItems[index].icon
+            text: menuItems[index].title
+            selected: ListView.isCurrentItem && !footerSelected
 
             function callBack() {
                 closeCallback = function() { menuItems[index].callback(); };
                 close();
             }
 
-            Components.Icon {
-                id: icon
-                color: colors.offwhite
-                icon: menuItems[index].icon
-                anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter; }
-                size: 60
-            }
-
-            Text {
-                id: title
-                width: parent.width - icon.width - 40;
-                color: colors.offwhite
-                text: menuItems[index].title
-                elide: Text.ElideRight
-                wrapMode: Text.WordWrap
-                maximumLineCount: 2
-                anchors { left: icon.right; leftMargin: 10; verticalCenter: parent.verticalCenter }
-                font: fonts.primaryFont(28)
-            }
-
-            Components.HapticMouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    callBack();
-                }
-            }
+            onClicked: callBack()
         }
     }
 
+    // the menu ends with a Close row styled like every other row (docs/design-system.md section 5)
     Component {
         id: footerItem
 
-        Rectangle {
-            width: parent.width - 20
-            height: 80
-            color: colors.black
-            anchors.horizontalCenter: parent.horizontalCenter
+        Components.MenuRow {
+            width: ListView.view.width
+            popup: true
+            selectionStyle: "fill"
+            icon: popupMenu.footerIcon
+            text: popupMenu.footerTitle
+            selected: footerSelected
 
-            Components.Selectable {
-                style: "fill"
-                selected: footerSelected
-            }
-
-            Components.Icon {
-                id: icon
-                color: colors.offwhite
-                icon: popupMenu.footerIcon
-                anchors { left: parent.left; leftMargin: 10; verticalCenter: parent.verticalCenter; }
-                size: 60
-            }
-
-            Text {
-                id: title
-                color: colors.offwhite
-                text: popupMenu.footerTitle
-                anchors { left: icon.right; leftMargin: 10; verticalCenter: parent.verticalCenter }
-                font: fonts.primaryFont(30)
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    Haptic.play(Haptic.Click);
-                    activateFooter();
-                }
-            }
+            onClicked: activateFooter()
         }
     }
 }

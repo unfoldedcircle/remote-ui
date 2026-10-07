@@ -119,11 +119,12 @@ Item {
         ColumnLayout {
             id: content
             spacing: 0
-            x: 10
-            width: dockInfoFlickable.width - 20
+            width: dockInfoFlickable.width
 
             Item {
                 Layout.fillWidth: true
+                Layout.leftMargin: 20
+                Layout.rightMargin: 20
                 Layout.preferredHeight: childrenRect.height
 
                 Image {
@@ -220,13 +221,13 @@ Item {
 
                                 width: 30
                                 height: width
-                                color: colors.offwhite
+                                color: colors.textPrimary
                                 radius: width / 2
 
                                 Components.Icon {
                                     icon: dockInfoContainer.dockObj.state === DockStates.ERROR ? "uc:xmark" : "uc:check"
                                     size: 26
-                                    color: colors.black
+                                    color: colors.bg
                                     anchors.centerIn: parent
                                 }
                             }
@@ -243,14 +244,9 @@ Item {
                                 color: colors.offwhite
                                 font: fonts.primaryFont(30)
 
-                                Rectangle {
-                                    anchors { fill: parent; margins: -6 }
-                                    radius: ui.cornerRadiusSmall
-                                    color: colors.transparent
-                                    border {
-                                        width: 2
-                                        color: nameRow.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                                    }
+                                Components.Selectable {
+                                    anchors.margins: -6
+                                    selected: nameRow.activeFocus
                                 }
 
                                 Components.HapticMouseArea {
@@ -322,8 +318,7 @@ Item {
                         Layout.alignment: Qt.AlignRight
 
                         text: qsTr("Identify")
-                        height: 50
-                        color: colors.medium
+                        variant: "secondary"
                         visible: dockInfoContainer.dockEditable
                         trigger: function() {
                             DockController.identify(dockInfoContainer.dockObj.id);
@@ -337,8 +332,7 @@ Item {
                     Components.Button {
                         id: connectButton
                         text: qsTr("Connect")
-                        height: 50
-                        color: colors.medium
+                        variant: "secondary"
                         visible: dockInfoContainer.dockObj.state === DockStates.ERROR
                         trigger: function() {
                             DockController.connect(dockInfoContainer.dockObj.id);
@@ -352,9 +346,8 @@ Item {
 
             }
 
-            Components.AboutInfo {
+            Components.KeyValueRow {
                 Layout.topMargin: 20
-                Layout.bottomMargin: 10
 
                 key: qsTr("State")
                 value: {
@@ -374,36 +367,27 @@ Item {
                 }
             }
 
-            Components.AboutInfo {
-                Layout.bottomMargin: 10
-
+            Components.KeyValueRow {
                 key: qsTr("Connection type")
                 value: dockObj.connectionType ? dockObj.connectionType : qsTranslate("Abbreviation for not available", "N/A")
             }
 
-            Components.AboutInfo {
-                Layout.bottomMargin: 10
-
+            Components.KeyValueRow {
                 key: qsTr("Service name")
                 value: dockObj.id
-                multiline: true
+                stacked: true
             }
 
-            Components.AboutInfo {
-                Layout.bottomMargin: 10
-
+            Components.KeyValueRow {
                 key: qsTr("Custom IP or URL")
                 value: dockObj.customWsUrl ? dockObj.customWsUrl : qsTr("Not set")
-                multiline: true
+                stacked: true
             }
 
 
-            Components.AboutInfo {
-                Layout.bottomMargin: 10
-
+            Components.KeyValueRow {
                 key: qsTr("Firmware version")
                 value: dockObj.version ? dockObj.version : qsTranslate("Abbreviation for not available", "N/A")
-//                lineBottom: false
             }
 
 //            Components.Button {
@@ -417,23 +401,13 @@ Item {
 
             // TODO(marton): add firmware update section
 
-            ColumnLayout {
-                Layout.fillWidth: true
-                Layout.topMargin: 20
-                Layout.bottomMargin: 20
-
-                opacity: dockInfoContainer.dockEditable ? 1 : 0.3
-                enabled: opacity === 1
-
-                Text {
-                    Layout.fillWidth: true
-
-                    text: qsTr("Led brightness")
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                    color: colors.offwhite
-                    font: fonts.primaryFont(30)
-                }
+            Components.SettingRow {
+                // the whole setting is disabled (0.4) while the dock cannot be edited
+                opacity: dockInfoContainer.dockEditable ? 1 : 0.4
+                enabled: dockInfoContainer.dockEditable
+                title: qsTr("Led brightness")
+                value: Math.round(ledSlider.value) + "%"
+                controlBelow: true
 
                 Components.Slider {
                     id: ledSlider
@@ -462,114 +436,46 @@ Item {
                 }
             }
 
-            Components.HapticMouseArea {
+            Components.MenuRow {
                 id: passwordRow
-                Layout.fillWidth: true
-                Layout.preferredHeight: 100
-
-                opacity: dockInfoContainer.dockEditable ? 1 : 0.3
-                enabled: opacity === 1
+                opacity: dockInfoContainer.dockEditable ? 1 : 0.4
+                enabled: dockInfoContainer.dockEditable
+                text: qsTr("Change password")
+                chevron: true
+                selected: activeFocus
                 keypadActivatable: true
                 KeyNavigation.up: ledSlider
                 KeyNavigation.down: wifiRow
                 onClicked: {
                     passwordChangeContainter.open(dockInfoContainer.dockObj.id);
                 }
-
-                Components.Selectable {
-
-                    selected: parent.activeFocus
-
-                    anchors { leftMargin: -10; rightMargin: -10 }
-
-                }
-
-                Text {
-                    width: parent.width
-                    anchors.centerIn: parent
-
-                    text: qsTr("Change password")
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                    color: colors.offwhite
-                    font: fonts.primaryFont(30)
-                }
-
-                Rectangle {
-                    width: parent.width
-                    height: 1
-                    color: colors.medium
-                    anchors.top: parent.top
-                }
-
-                Rectangle {
-                    width: parent.width
-                    height: 1
-                    color: colors.medium
-                    anchors.bottom: parent.bottom
-                }
             }
 
-            Components.HapticMouseArea {
+            Components.MenuRow {
                 id: wifiRow
-                Layout.fillWidth: true
-                Layout.preferredHeight: 100
-
-                opacity: dockInfoContainer.dockEditable ? 1 : 0.3
-                enabled: opacity === 1
+                opacity: dockInfoContainer.dockEditable ? 1 : 0.4
+                enabled: dockInfoContainer.dockEditable
+                text: qsTr("Change WiFi settings")
+                chevron: true
+                selected: activeFocus
                 keypadActivatable: true
                 KeyNavigation.up: passwordRow
                 KeyNavigation.down: resetRow
                 onClicked: {
                     ui.createNotification("Not implemented yet");
                 }
-
-                Components.Selectable {
-
-                    selected: parent.activeFocus
-
-                    anchors { leftMargin: -10; rightMargin: -10 }
-
-                }
-
-                Text {
-                    width: parent.width
-                    anchors.centerIn: parent
-
-                    text: qsTr("Change WiFi settings")
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                    color: colors.offwhite
-                    font: fonts.primaryFont(30)
-                }
-
-                Rectangle {
-                    width: parent.width
-                    height: 1
-                    color: colors.medium
-                    anchors.bottom: parent.bottom
-                }
             }
 
-            Components.HapticMouseArea {
+            Components.MenuRow {
                 id: resetRow
-                Layout.fillWidth: true
-                Layout.preferredHeight: 100
-
-                opacity: dockInfoContainer.dockEditable ? 1 : 0.3
-                enabled: opacity === 1
+                opacity: dockInfoContainer.dockEditable ? 1 : 0.4
+                enabled: dockInfoContainer.dockEditable
+                text: qsTr("Factory reset")
+                chevron: true
+                selected: activeFocus
                 keypadActivatable: true
                 KeyNavigation.up: wifiRow
                 KeyNavigation.down: deleteRow
-
-                Components.Selectable {
-
-                    selected: parent.activeFocus
-
-                    anchors { leftMargin: -10; rightMargin: -10 }
-
-                }
-
                 onClicked: {
                     ui.createActionableWarningNotification(qsTr("Factory reset"),
                                                            qsTr("Are you sure you want to factory reset %1?").arg(dockObj.name),
@@ -579,17 +485,6 @@ Item {
                                                                dockInfoContainer.reset();
                                                                popup.close();
                                                            }, qsTr("Reset"));
-                }
-
-                Text {
-                    width: parent.width
-                    anchors.centerIn: parent
-
-                    text: qsTr("Factory reset")
-                    elide: Text.ElideRight
-                    maximumLineCount: 1
-                    color: colors.offwhite
-                    font: fonts.primaryFont(30)
                 }
             }
 
@@ -686,7 +581,7 @@ Item {
                     PropertyChanges { target: openIcon; opacity: 0 }
                     PropertyChanges { target: deleteConfirmText; opacity: 1 }
                     PropertyChanges { target: deleteConfirmButtons; opacity: 1 }
-                    PropertyChanges { target: blockOutOverlay; opacity: 0.8 }
+                    PropertyChanges { target: blockOutOverlay; opacity: 0.85 }
                     PropertyChanges { target: dockInfoFlickable; interactive: false }
                 }
             ]
@@ -724,7 +619,7 @@ Item {
 
                 width: parent.width
                 height: ui.height - deleteContainerContent.height + ui.cornerRadiusLarge
-                color: colors.black
+                color: colors.bg
                 anchors.bottom: deleteContainerContent.top
                 enabled: opacity != 0
 
@@ -740,14 +635,18 @@ Item {
                 }
             }
 
-            Rectangle {
+            // a bottom sheet like every other (docs/design-system.md section 5, Q-4): black with a divider edge
+            Item {
                 id: deleteContainerContent
                 width: parent.width
-                height: childrenRect.height + ui.cornerRadiusLarge
-                color: Qt.darker(colors.red, 1.3)
-                radius: ui.cornerRadiusLarge
+                height: deleteColumn.height + ui.cornerRadiusLarge
+
+                Components.Sheet {
+                    anchors.fill: parent
+                }
 
                 ColumnLayout {
+                    id: deleteColumn
                     width: parent.width
                     spacing: 0
 
@@ -761,7 +660,7 @@ Item {
                             text: qsTr("Delete dock")
                             elide: Text.ElideRight
                             maximumLineCount: 1
-                            color: colors.offwhite
+                            color: colors.red
                             font: fonts.heading()
                         }
 
@@ -770,18 +669,13 @@ Item {
 
                             Layout.alignment: Qt.AlignRight
 
-                            icon: "uc:xmark"
+                            icon: "uc:trash"
                             size: 100
-                            color: colors.offwhite
+                            color: colors.red
 
-                            Rectangle {
-                                anchors { fill: parent; margins: 10 }
-                                radius: ui.cornerRadiusSmall
-                                color: colors.transparent
-                                border {
-                                    width: 2
-                                    color: deleteRow.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                                }
+                            Components.Selectable {
+                                anchors.margins: 10
+                                selected: deleteRow.activeFocus
                             }
 
                             Components.HapticMouseArea {
@@ -812,6 +706,7 @@ Item {
                         lineHeight: fonts.proseLineHeight
                     }
 
+                    // Cancel and Delete are buttons, Cancel first and preselected (docs/design-system.md section 6)
                     RowLayout {
                         id: deleteConfirmButtons
 
@@ -820,64 +715,27 @@ Item {
                         Layout.leftMargin: 20
                         Layout.rightMargin: 20
                         Layout.bottomMargin: 20
+                        spacing: 20
 
-                        Text {
+                        Components.Button {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: implicitHeight
-
+                            Layout.preferredWidth: 1
                             text: qsTr("Cancel")
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignLeft
-                            color: colors.offwhite
-
-                            Rectangle {
-                                anchors { fill: parent; margins: -10 }
-                                radius: ui.cornerRadiusSmall
-                                color: colors.transparent
-                                border {
-                                    width: 2
-                                    color: deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
-                                }
-                            }
-                            font: fonts.button()
-
-                            Components.HapticMouseArea {
-                                width: parent.width + 40
-                                height: parent.width + 40
-                                anchors.centerIn: parent
-                                onClicked: {
-                                    deleteContainer.state = "closed";
-                                }
+                            variant: "secondary"
+                            highlight: deleteContainer.cancelSelected && ui.keyNavigationActive
+                            trigger: function() {
+                                deleteContainer.state = "closed";
                             }
                         }
 
-                        Text {
+                        Components.Button {
                             Layout.fillWidth: true
-                            Layout.preferredHeight: implicitHeight
-
+                            Layout.preferredWidth: 1
                             text: qsTr("Delete")
-                            verticalAlignment: Text.AlignVCenter
-                            horizontalAlignment: Text.AlignRight
-                            color: colors.offwhite
-
-                            Rectangle {
-                                anchors { fill: parent; margins: -10 }
-                                radius: ui.cornerRadiusSmall
-                                color: colors.transparent
-                                border {
-                                    width: 2
-                                    color: !deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
-                                }
-                            }
-                            font: fonts.button()
-
-                            Components.HapticMouseArea {
-                                width: parent.width + 40
-                                height: parent.width + 40
-                                anchors.centerIn: parent
-                                onClicked: {
-                                    deleteContainer.deleteDock();
-                                }
+                            variant: "destructive"
+                            highlight: !deleteContainer.cancelSelected && ui.keyNavigationActive
+                            trigger: function() {
+                                deleteContainer.deleteDock();
                             }
                         }
                     }

@@ -52,10 +52,17 @@ Item {
     property alias topNavigationText: topNavigation.text
     property alias buttonNavigation: buttonNavigation
 
-    Settings.TopNavigation {
+    Components.TitleBar {
         id: topNavigation
         anchors.top: parent.top
         goBack: profileRoot.goBack
+    }
+
+    // the one scroll indicator of a scrolling page (docs/design-system.md section 5), for the page's scrollTarget
+    Components.ScrollIndicator {
+        z: 1
+        parentObj: settingsPageBase.scrollTarget ? settingsPageBase.scrollTarget : settingsPageBase
+        hideOverride: !settingsPageBase.scrollTarget
     }
 
     Components.ButtonNavigation {

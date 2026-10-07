@@ -141,20 +141,11 @@ OnboardingComponents.Page {
         anchors.fill: parent
         visible: timezoneStep.confirmMode
 
-        Item {
+        Components.TitleBar {
             id: title
-            width: parent.width
-            height: 60
-
-            Text {
-                text: qsTr("Confirm timezone")
-                width: parent.width
-                elide: Text.ElideRight
-                color: colors.offwhite
-                verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-                anchors.centerIn: parent
-                font: fonts.primaryFont(30)
-            }
+            // onboarding steps have no back target: BACK goes to the previous step
+            action: ""
+            text: qsTr("Confirm timezone")
         }
 
         Rectangle {
@@ -162,7 +153,7 @@ OnboardingComponents.Page {
             width: parent.width - 40
             height: 160
             radius: ui.cornerRadiusSmall
-            color: colors.dark
+            color: colors.surface
             anchors { horizontalCenter: parent.horizontalCenter; top: title.bottom; topMargin: 60 }
 
             Text {
@@ -170,9 +161,9 @@ OnboardingComponents.Page {
                 text: Config.countryName
                 width: parent.width - 40
                 elide: Text.ElideRight
-                color: colors.offwhite
+                color: colors.textPrimary
                 anchors { left: parent.left; leftMargin: 20; top: parent.top; topMargin: 30 }
-                font: fonts.primaryFont(30)
+                font: fonts.label()
             }
 
             Text {
@@ -201,41 +192,16 @@ OnboardingComponents.Page {
             }
         }
 
-        Item {
+        // the alternative to confirming: a secondary button, not a bare text action
+        Components.Button {
             id: chooseOther
-            width: chooseOtherText.implicitWidth + 40
-            height: 80
+            text: qsTr("Choose another timezone")
+            variant: "secondary"
+            width: parent.width - 40
             anchors { horizontalCenter: parent.horizontalCenter; top: buttonConfirm.bottom; topMargin: 20 }
             KeyNavigation.up: buttonConfirm
-
-            Keys.onReturnPressed: {
+            trigger: function() {
                 timezoneStep.openWorldList();
-                event.accepted = true;
-            }
-
-            Text {
-                id: chooseOtherText
-                text: qsTr("Choose another timezone")
-                color: colors.textPrimary
-                anchors.centerIn: parent
-                font: fonts.button()
-            }
-
-            Rectangle {
-                anchors.fill: parent
-                radius: ui.cornerRadiusSmall
-                color: colors.transparent
-                border {
-                    width: 2
-                    color: chooseOther.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                }
-            }
-
-            Components.HapticMouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    timezoneStep.openWorldList();
-                }
             }
         }
     }
@@ -244,6 +210,7 @@ OnboardingComponents.Page {
 
     Components.PopupList {
         id: selectList
+        currentValue: Config.timezone
         title: qsTr("Select timezone")
         showSearch: true
         hideClose: true
