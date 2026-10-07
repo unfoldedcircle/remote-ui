@@ -34,11 +34,8 @@ void Colors::generateColorPalette(QColor primaryColor) {
     m_inactive = QColor("#7A7A7A");  // textDisabled
     emit inactiveChanged();
 
-    m_primaryButton.setHsv(m_baseColor.hsvHue(), m_baseColor.hslSaturation() / 2, 90);
+    m_primaryButton.setHsv(m_baseColor.hsvHue(), m_baseColor.hslSaturation() / 2, 90);  // buttonPrimary
     emit primaryButtonChanged();
-
-    m_secondaryButton.setHsv(m_baseColor.hsvHue(), m_baseColor.hslSaturation() / 2, 30);
-    emit secondaryButtonChanged();
 }
 
 }  // namespace ui

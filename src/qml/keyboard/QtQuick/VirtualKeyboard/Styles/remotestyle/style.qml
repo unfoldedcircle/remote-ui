@@ -380,7 +380,7 @@ KeyboardStyle {
                     when: InputContext.capsLock
                     PropertyChanges {
                         target: shiftKeyBackground
-                        color: colors.primaryButton
+                        color: colors.buttonPrimary
                     }
                     PropertyChanges {
                         target: shiftKeyIcon
@@ -662,7 +662,7 @@ KeyboardStyle {
             id: characterPreviewBackground
             width: parent.width+20
             height: parent.height+20
-            color: colors.primaryButton
+            color: colors.buttonPrimary
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
             radius: 5
@@ -844,7 +844,7 @@ KeyboardStyle {
             onPaint: {
                 var ctx = getContext("2d")
                 ctx.lineWidth = 1
-                ctx.strokeStyle = Qt.rgba(0xFF, 0xFF, 0xFF)
+                ctx.strokeStyle = colors.textPrimary
                 ctx.clearRect(0, 0, width, height)
                 var i
                 var margin = Math.round(30 * scaleHint)
@@ -894,10 +894,10 @@ KeyboardStyle {
             var ctx = getContext("2d")
             if (parent.canvasType === "fullscreen") {
                 ctx.lineWidth = 10
-                ctx.strokeStyle = Qt.rgba(0, 0, 0)
+                ctx.strokeStyle = colors.bg
             } else {
                 ctx.lineWidth = 10 * scaleHint
-                ctx.strokeStyle = Qt.rgba(0xFF, 0xFF, 0xFF)
+                ctx.strokeStyle = colors.textPrimary
             }
             ctx.lineCap = "round"
             ctx.fillStyle = ctx.strokeStyle
@@ -979,7 +979,7 @@ KeyboardStyle {
             font {
                 family: fontFamily
                 weight: Font.Normal
-                pixelSize: 20 //44 * scaleHint
+                pixelSize: 26  // the size of the value role: no text below 22 px (docs/design-system.md section 4)
                 capitalization: Font.Capitalize
             }
         }
@@ -988,7 +988,7 @@ KeyboardStyle {
             font {
                 family: fontFamily
                 weight: Font.Normal
-                pixelSize: 20 //44 * scaleHint
+                pixelSize: 26  // the size of the value role: no text below 22 px (docs/design-system.md section 4)
             }
             text: "X"
         }
@@ -997,7 +997,7 @@ KeyboardStyle {
             font {
                 family: fontFamily
                 weight: Font.Normal
-                pixelSize: 20 //44 * scaleHint
+                pixelSize: 26  // the size of the value role: no text below 22 px (docs/design-system.md section 4)
             }
             elide: Text.ElideRight
             elideWidth: languageListItem.width - languageListLabel.anchors.leftMargin - languageListLabel.anchors.rightMargin

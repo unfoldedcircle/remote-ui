@@ -59,7 +59,7 @@ the behaviour change reviewable next to the code.
 - Complete the artifacts, then **apply** — work the `tasks.md` checklist (`/opsx:apply`). Each
   phase is an independently reviewable PR that names its files, so file-disjoint phases can run as
   parallel git-worktree agents. Every PR passes the gates: it builds (desktop and, for anything
-  touching QML or hardware paths, the `make ucr2` static cross-build), `./cpplint.sh`, the unit
+  touching QML or hardware paths, the `make ucr2` static cross-build), `./cpplint.sh`, `./design-check.sh`, the unit
   tests (`make test`), and a verification on the stated target — a d-pad navigation change is
   walked with the keypad, not only tapped.
 - Deviations found while implementing are fed **back into the change's artifacts** in the same PR,

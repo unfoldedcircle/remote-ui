@@ -47,9 +47,10 @@ a change — fix it, add the `CHANGELOG.md` entry, open the PR.
    [code guidelines](docs/code_guidelines.md#file-header).
 
 3. Follow the [code guidelines](docs/code_guidelines.md): format the lines you changed with clang-format and make
-   the lints pass with [cpplint](https://github.com/cpplint/cpplint):
+   the lints pass with [cpplint](https://github.com/cpplint/cpplint) and the design system check for QML:
     ```shell
     ./cpplint.sh
+    ./design-check.sh
     ```
 
 4. Make sure your changes build and the unit tests pass (`make test`, see [Testing](AGENTS.md#testing)).

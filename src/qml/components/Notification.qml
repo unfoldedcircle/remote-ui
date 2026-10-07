@@ -25,7 +25,7 @@ Popup {
 
         function onNotificationCreated(message, warning) {
             notificationMessage.text = message;
-            notificationBg.color = warning ? colors.red : colors.primaryButton
+            notificationBg.color = warning ? colors.red : colors.buttonPrimary
             notification.open();
         }
     }
