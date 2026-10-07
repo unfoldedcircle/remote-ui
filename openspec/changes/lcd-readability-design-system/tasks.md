@@ -146,11 +146,20 @@ this change after the migration is merged to `main`, not in a phase pull request
 
 ## 6. Guardrails
 
-- [ ] 6.1 A check next to `cpplint.sh` that fails on pixel font sizes below 22, literal colours and
-      `Qt.lighter` / `Qt.darker` in `src/qml`, with an allow-list for the entity detail screens
-- [ ] 6.2 Run the check from the code-guidelines workflow (Q-7, workflow change approved
-      2026-10-07)
-- [ ] 6.3 `docs/key-navigation.md` section 9 and `docs/design-system.md` section 8: the checklist
-      names the check
-- [ ] 6.4 Remove the old token names that no screen uses any more
-- [ ] 6.5 Verify: the check fails on a seeded violation and passes on the tree
+- [x] 6.1 A check next to `cpplint.sh` that fails on pixel font sizes below 22, literal colours and
+      `Qt.lighter` / `Qt.darker` in `src/qml`, with an allow-list for the entity detail screens:
+      `./design-check.sh` runs `tools/design-check.py` (standard library only); the allow-list
+      `tools/design-check-allow.txt` names the entity detail screens, the Colors page and the
+      debugging outline, each with its reason. The literals it found outside the allow-list moved to
+      tokens, and the keyboard's language list went from 20 to 26 px
+- [x] 6.2 Run the check from the code-guidelines workflow (Q-7, workflow change approved
+      2026-10-07), with its self-test first and the QML sources and the check in the path filters
+- [x] 6.3 `docs/key-navigation.md` section 9 and `docs/design-system.md` section 8: the checklist
+      names the check; so do `docs/code_guidelines.md`, `docs/workflow.md`, `CONTRIBUTING.md` and
+      `AGENTS.md`
+- [x] 6.4 Remove the old token names that no screen uses any more: `secondaryButton`, and
+      `inactiveText` and `primaryButton` after their last uses moved to `textDisabled` and
+      `buttonPrimary`. The other old names still have uses and stay as aliases
+- [x] 6.5 Verify: the check fails on a seeded violation and passes on the tree. `--self-test` seeds
+      every rule; a copy of `MenuRow.qml` with three violations fails with three findings; a path
+      without QML fails; the tree passes

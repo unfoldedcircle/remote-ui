@@ -17,7 +17,7 @@ is corrected.
   ([docs/workflow.md](docs/workflow.md)); a change that alters behaviour updates the living spec.
 - Follow [docs/code_guidelines.md](docs/code_guidelines.md) and match the existing code style.
 - Register every new file in the project and resource lists (see "Registering New Files").
-- Build, run `./cpplint.sh` and the unit tests before opening a pull request.
+- Build, run `./cpplint.sh`, `./design-check.sh` and the unit tests before opening a pull request.
 - Add a `CHANGELOG.md` entry for every user-visible change, in the same commit.
 - Write commit messages as described in the code guidelines, with the AI attribution trailer.
 
@@ -89,10 +89,10 @@ folder; the non-functional rules (resource budgets, sandbox, logging, licensing,
 - `openspec/`: living specs, changes (active and archived), the workflow schema and
   `config.yaml`, the project context injected into every artifact.
 - `docs/`: guides and the ADRs.
-- `tools/`: the icon font generator. `scripts/`: environment scripts (`scripts/env/`) and the Qt
+- `tools/`: the icon font generator and the design system check (`design-check.py`, its allow-list). `scripts/`: environment scripts (`scripts/env/`) and the Qt
   build helpers (`scripts/qt/`).
 - Repository root: `remote-ui.pro` (the app build), `Makefile` (entry point for all builds),
-  `cpplint.sh`, `.clang-format`, `CHANGELOG.md`.
+  `cpplint.sh`, `design-check.sh`, `.clang-format`, `CHANGELOG.md`.
 
 ### Registering New Files
 
@@ -210,6 +210,7 @@ Format only the lines you changed, then run the lint as CI does
 ```shell
 git add -u && git clang-format && git add -u
 ./cpplint.sh
+./design-check.sh
 ```
 
 ---

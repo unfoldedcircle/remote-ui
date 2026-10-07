@@ -63,6 +63,8 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
 Rules:
 
 - Only tokens in QML. No literal hex, no `Qt.lighter` / `Qt.darker`, no `colors.white` for text.
+- The old names in the "Replaces" column read the same colour as their token and stay until no
+  screen uses them; `inactiveText`, `primaryButton` and `secondaryButton` are gone.
 - The palette is generated for the default black base colour. The only screen that changes the base
   colour, the Colors settings page, is not in the menu; a tinted palette is not part of the design
   system.
@@ -198,7 +200,8 @@ Use these; do not re-implement their look inline.
 
 1. Title bar from `Components.TitleBar`, 20 px gutter, 2 px dividers.
 2. Every text through a type role; no pixel sizes, nothing below 22 px, no opacity on text.
-3. Every colour a token; no literals, no `Qt.lighter` / `Qt.darker`.
+3. Every colour a token; no literals, no `Qt.lighter` / `Qt.darker`. `./design-check.sh` finds the
+   breaches of items 2 and 3 that a script can see, and CI runs it.
 4. Every selectable element drawn by `Components.Selectable` (or a component built on it), bound
    to `ui.keyNavigationActive`, in the style of the screen's layer (section 6).
 5. Every tappable element reachable by key; `initialFocusItem` or selection reset on entry;

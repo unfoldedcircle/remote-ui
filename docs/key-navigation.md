@@ -357,3 +357,5 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
    screen can open — including a drawer or sheet that opens inside the page.
 8. A form whose text field has the focus gets no `DPAD_MIDDLE` handler.
 9. Run it, read the QML log, and walk it with the keypad — both after opening by touch and by key.
+10. Run `./design-check.sh` (text sizes and colour tokens, `docs/design-system.md` section 8); CI runs
+    it on every pull request that touches QML.

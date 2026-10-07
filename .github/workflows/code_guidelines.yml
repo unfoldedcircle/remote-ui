@@ -1,4 +1,5 @@
-# GitHub Action that verifies C++ source compliance with cpplint
+# GitHub Action that verifies C++ source compliance with cpplint, the icon font, and the QML sources
+# against the design system rules (tools/design-check.py)
 
 name: Code Guidelines
 on:
@@ -10,15 +11,21 @@ on:
       - .github/workflows/code_guidelines.yml
       - src/**.cpp
       - src/**.h
+      - src/qml/**
       - resources/icons/**
       - tools/icon-font.py
+      - tools/design-check.py
+      - tools/design-check-allow.txt
   pull_request:
     paths:
       - .github/workflows/code_guidelines.yml
       - src/**.cpp
       - src/**.h
+      - src/qml/**
       - resources/icons/**
       - tools/icon-font.py
+      - tools/design-check.py
+      - tools/design-check-allow.txt
   # Allow a manual run from the Actions tab. Path filters don't apply to a manual run.
   workflow_dispatch:
 
@@ -53,6 +60,14 @@ jobs:
       # every uc: name the sources use must be in it, and every fallback must be drawable.
       - name: Verify the icon mapping
         run: python tools/icon-font.py check-mapping
+
+      # The QML sources keep the rules of the design system (docs/design-system.md section 8): no text
+      # below 22 px, only colour tokens, no Qt.lighter / Qt.darker. The self-test first proves that
+      # every rule still catches a seeded violation.
+      - name: Design system check
+        run: |
+          python tools/design-check.py --self-test
+          python tools/design-check.py
 
       - name: cpplint
         shell: python

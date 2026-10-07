@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- A design system for the interface, `docs/design-system.md`, with a check that keeps the QML sources on it:
+  `./design-check.sh` finds text below 22 pixels and colours written as literals instead of the colour tokens, and
+  the code guidelines workflow runs it on every pull request that touches QML.
+
 ### Changed
 - Desktop simulator: holding a button in the button simulator now repeats it like a held button of the remote, after
   600 ms and then every 150 ms. Scrolling through a list or changing the volume by holding a button can be tried
@@ -25,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Help texts, release notes, legal texts and driver instructions are easier to read: they use the same typeface as
   the rest of the interface instead of a typewriter font, in a larger size and with more line spacing. The typewriter
   font is kept for values such as versions, addresses, times and the web configurator PIN and URL. No text is smaller
-  than 22 pixels anymore.
+  than 22 pixels anymore, including the language list of the on-screen keyboard.
 - Settings, onboarding, docks and integrations share one layout: the same title bar with its back or close button,
   the same margins, row heights and dividers, and one kind of scroll indicator. Bottom sheets such as the page menu,
   the activity menu, the Wi-Fi details and the delete confirmations are black with a light edge. Buttons come in
