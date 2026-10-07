@@ -343,7 +343,8 @@ Item {
             maximumLineCount: 2
             horizontalAlignment: Text.AlignHCenter
             color: colors.textSecondary
-            text: qsTr("Tap to close")
+            //: Hint below the full-screen QR code of the web configurator
+            text: qsTr("Press BACK to close")
             font: fonts.help()
             anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         }

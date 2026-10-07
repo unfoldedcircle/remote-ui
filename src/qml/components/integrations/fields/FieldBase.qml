@@ -35,6 +35,7 @@ Column {
         width: parent.width
         color: colors.offwhite
         textFormat: Text.RichText
+        linkColor: colors.textPrimary
         wrapMode: Text.WordWrap
         font: fonts.label()
         visible: label.text !== ""

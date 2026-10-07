@@ -28,9 +28,28 @@ Popup {
         buttonNavigation.releaseControl();
     }
 
+    // the list only informs: DPAD_UP / DOWN scroll it by half its height when it is longer than the
+    // popup, BACK / HOME close the popup like its close button
+    function scrollList(direction) {
+        const minContentY = itemList.originY;
+        const maxContentY = Math.max(minContentY, itemList.originY + itemList.contentHeight - itemList.height);
+        const step = Math.round(itemList.height / 2);
+        itemList.contentY = Math.max(minContentY, Math.min(maxContentY, itemList.contentY + direction * step));
+    }
+
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
+            "DPAD_DOWN": {
+                "pressed": function() {
+                    connectionStateRoot.scrollList(1);
+                }
+            },
+            "DPAD_UP": {
+                "pressed": function() {
+                    connectionStateRoot.scrollList(-1);
+                }
+            },
             "BACK": {
                 "pressed": function() {
                     connectionStateRoot.close();

@@ -97,6 +97,7 @@ Settings.Page {
             baseUrl: aboutPageContent.baseDir
             text: model.modelData
             textFormat: aboutPageContent.isMarkdown ? Text.MarkdownText : Text.RichText
+            linkColor: colors.textPrimary
             font: fonts.prose()
             lineHeight: fonts.proseLineHeight
             onLinkActivated: {
