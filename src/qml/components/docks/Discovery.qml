@@ -190,7 +190,7 @@ ListView {
                         color: colors.red
                         text: qsTr("Bluetooth is disabled. Discovery limited to network only.")
                         wrapMode: Text.WordWrap
-                        font: fonts.secondaryFont(22)
+                        font: fonts.help()
                     }
 
                     RowLayout {
@@ -221,11 +221,11 @@ ListView {
                 Text {
                     Layout.fillWidth: true
 
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.")
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
-                    font: fonts.secondaryFont(22)
+                    font: fonts.help()
                 }
 
                 Item {
@@ -270,13 +270,12 @@ ListView {
                 Text {
                     id: headerTitle
 
-                    color: colors.offwhite
-                    opacity: 0.6
+                    color: colors.textSecondary
                     //: Title for searching for integrations to setup
                     text: qsTr("Discovering")
                     verticalAlignment: Text.AlignVCenter
                     anchors { left: scanLoading.right; leftMargin: 20; verticalCenter: parent.verticalCenter }
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
 
                 Image {
@@ -376,11 +375,11 @@ ListView {
                     Text {
                         Layout.fillWidth: true
 
-                        color: colors.light
+                        color: colors.textPrimary
                         text: itemAddress
                         maximumLineCount: 1
                         elide: Text.ElideRight
-                        font: fonts.secondaryFont(22)
+                        font: fonts.value()
                     }
                 }
             }

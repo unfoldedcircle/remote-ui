@@ -10,10 +10,11 @@ FieldBase {
     Text {
         width: parent.width
         text: root.value
-        color: colors.light
+        color: colors.textPrimary
         textFormat: Text.MarkdownText
         wrapMode: Text.WordWrap
-        font: fonts.secondaryFont(24)
+        font: fonts.prose()
+        lineHeight: fonts.proseLineHeight
         visible: root.value !== ""
     }
 }

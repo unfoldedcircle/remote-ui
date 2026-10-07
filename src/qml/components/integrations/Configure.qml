@@ -206,12 +206,12 @@ Item {
                 Text {
                     Layout.fillWidth: true
 
-                    color: colors.light
+                    color: colors.textSecondary
                     //: Integration driver developer name
                     text: qsTr("By %1").arg(IntegrationController.integrationDriverTosetup.developerName)
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    font: fonts.secondaryFont(22)
+                    font: fonts.help()
                 }
             }
         }
@@ -298,7 +298,7 @@ Item {
             maximumLineCount: 3
             elide: Text.ElideRight
             color: colors.red
-            font: fonts.secondaryFont(20)
+            font: fonts.help()
         }
     }
 

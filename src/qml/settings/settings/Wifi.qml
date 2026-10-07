@@ -186,9 +186,9 @@ Settings.Page {
                     id: wifiScanIntervalValueText
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Actively scan for nearby WiFi networks in the configured interval: %1 seconds").arg(Config.scanIntervalSec)
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
 
                 Components.Slider {
@@ -431,9 +431,9 @@ Settings.Page {
                 width: parent.width/2
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignRight
-                color: colors.offwhite
+                color: colors.textSecondary
                 anchors { right: parent.right; rightMargin: 10; baseline: titleText.baseline }
-                font: fonts.primaryFont(20, "Bold")
+                font: fonts.help()
             }
 
             Components.HapticMouseArea {

@@ -11,7 +11,6 @@
  - color
  - text
  - textColor
- - fontSize
  - highlight
  - trigger
 **/
@@ -33,7 +32,6 @@ Rectangle {
 
     property alias text: title.text
     property alias textColor: title.color
-    property int fontSize: 26
     property bool highlight: activeFocus && ui.keyNavigationActive
     property var trigger
 
@@ -97,7 +95,7 @@ Rectangle {
         color: colors.offwhite
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         anchors.centerIn: button
-        font: fonts.secondaryFont(button.fontSize)
+        font: fonts.button()
     }
 
     Components.HapticMouseArea {

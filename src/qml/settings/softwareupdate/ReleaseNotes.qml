@@ -56,10 +56,11 @@ Settings.Page {
             id: content
             width: parent.width
             wrapMode: Text.WordWrap
-            color: colors.light
+            color: colors.textPrimary
             textFormat: Text.MarkdownText
             text: SoftwareUpdate.releaseNotes
-            font: fonts.secondaryFont(24)
+            font: fonts.prose()
+            lineHeight: fonts.proseLineHeight
             x: 10
         }
 

@@ -14,6 +14,7 @@ class Fonts : public QObject {
 
     Q_PROPERTY(QFont statusbarClock READ statusbarClock CONSTANT)
     Q_PROPERTY(QString iconFamily READ iconFamily NOTIFY iconFamilyChanged)
+    Q_PROPERTY(qreal proseLineHeight READ proseLineHeight CONSTANT)
 
  public:
     explicit Fonts(QObject* parent = nullptr) : QObject(parent) {}
@@ -75,6 +76,38 @@ class Fonts : public QObject {
         font.setCapitalization(QFont::AllUppercase);
         return font;
     }
+
+    /**
+     * Type roles of the design system (docs/design-system.md section 4). New and reworked text uses a role
+     * instead of a pixel size. No role is smaller than minimumPixelSize, and the light weight only exists
+     * from minimumDisplaySize on. Poppins is for reading, Space Mono only for values.
+     */
+    static constexpr int minimumPixelSize = 22;
+    static constexpr int minimumDisplaySize = 56;
+
+    /// Title bar of pages, sheets and dialogs.
+    Q_INVOKABLE QFont title() { return primaryFont(28, "Medium"); }
+    /// Section heading inside a page ("Known networks"), drawer title.
+    Q_INVOKABLE QFont heading() { return primaryFont(26, "Medium"); }
+    /// Menu rows, setting labels, tile names, list rows.
+    Q_INVOKABLE QFont label() { return primaryFont(30); }
+    /// Rows of a popup menu, including its Close row.
+    Q_INVOKABLE QFont menuRow() { return primaryFont(28); }
+    /// Release notes, legal texts, driver instructions, dialog text. The Text sets lineHeight: fonts.proseLineHeight.
+    Q_INVOKABLE QFont prose() { return primaryFont(26); }
+    /// Description under a setting, states, subtitles, the key of a key/value row. Drawn in textSecondary.
+    Q_INVOKABLE QFont help() { return primaryFont(26); }
+    /// Timestamps, badges, tab labels: the smallest text there is, never weaker than textSecondary.
+    Q_INVOKABLE QFont caption() { return primaryFont(minimumPixelSize); }
+    /// Versions, IP and MAC addresses, times, units, PIN digits, URLs.
+    Q_INVOKABLE QFont value() { return secondaryFont(26); }
+    /// Button labels.
+    Q_INVOKABLE QFont button() { return primaryFont(26, "Medium"); }
+    /// Large numbers and states: sensor values, entity states, volume. Light weight, at least minimumDisplaySize.
+    Q_INVOKABLE QFont display(int size = 90) { return primaryFont(qMax(size, minimumDisplaySize), "Light"); }
+
+    /// Line height of the prose role.
+    qreal proseLineHeight() const { return 1.3; }
 
  signals:
     void iconFamilyChanged();

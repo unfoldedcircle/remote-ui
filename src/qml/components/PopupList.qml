@@ -336,21 +336,21 @@ Rectangle {
             Text {
                 id: secondaryText
                 visible: listItemBg.hasSecondary
-                color: colors.light
+                color: colors.textSecondary
                 text: listItemBg.hasSecondary ? model.secondary : ""
                 width: listItemText.width
                 elide: Text.ElideRight
                 anchors { left: listItemText.left; top: listItemText.bottom }
-                font: fonts.secondaryFont(24)
+                font: fonts.help()
             }
 
             Text {
                 id: rightTextItem
                 visible: listItemBg.hasRightText
-                color: colors.light
+                color: colors.textPrimary
                 text: listItemBg.hasRightText ? model.rightText : ""
                 anchors { right: parent.right; rightMargin: 20; verticalCenter: parent.verticalCenter }
-                font: fonts.secondaryFont(26)
+                font: fonts.value()
             }
 
             Components.HapticMouseArea {
@@ -376,11 +376,11 @@ Rectangle {
 
             Text {
                 text: section.toUpperCase()
-                color: colors.light
+                color: colors.textPrimary
                 width: parent.width - 40
                 elide: Text.ElideRight
                 anchors { left: parent.left; leftMargin: 20; bottom: parent.bottom; bottomMargin: 10 }
-                font: fonts.secondaryFont(24, "Bold")
+                font: fonts.heading()
             }
         }
     }

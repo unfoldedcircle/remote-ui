@@ -382,11 +382,11 @@ Item {
 
             Text {
                 color: colors.black
-                text: ui.profile.name.substring(0,1);
+                text: ui.profile.name.substring(0,1).toUpperCase();
                 verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
 
                 anchors.centerIn: parent
-                font: fonts.primaryFontCapitalized(18)
+                font: fonts.caption()
             }
         }
     }

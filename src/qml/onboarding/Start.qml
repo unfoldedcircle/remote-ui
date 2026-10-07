@@ -65,13 +65,13 @@ OnboardingComponents.Page {
     }
 
     Text {
-        color: colors.light
+        color: colors.textSecondary
         text: qsTr("Tap the screen to begin")
         width: parent.width
         wrapMode: Text.WordWrap
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         anchors { horizontalCenter: parent.horizontalCenter; top: greetText.bottom }
-        font: fonts.secondaryFont(28)
+        font: fonts.help()
     }
 
     Components.HapticMouseArea {

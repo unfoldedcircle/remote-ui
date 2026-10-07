@@ -87,9 +87,9 @@ ColumnLayout {
             text: ""
             maximumLineCount: 1
             elide: Text.ElideRight
-            color: colors.light
+            color: colors.textSecondary
             verticalAlignment: Text.AlignVCenter
-            font: fonts.primaryFont(24)
+            font: fonts.help()
         }
 
         Item { Layout.fillWidth: true }

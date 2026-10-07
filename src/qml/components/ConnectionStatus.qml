@@ -134,8 +134,8 @@ Popup {
                 horizontalAlignment: Text.AlignHCenter
                 maximumLineCount: 1
                 elide: Text.ElideRight
-                color: colors.light
-                font: fonts.secondaryFont(20)
+                color: colors.textSecondary
+                font: fonts.help()
                 anchors { top: itemList.top; topMargin: 20; horizontalCenter: itemList.horizontalCenter }
                 visible: itemList.count === 0
             }
@@ -146,7 +146,7 @@ Popup {
         id: listItem
 
         Item {
-            width: itemList.width; height: 80
+            width: itemList.width; height: Math.max(80, integrationTitle.implicitHeight + 20)
 
             property QtObject integrationObj: IntegrationController.getDriversModelItem(modelData)
             property bool isLast: index + 1 < itemList.count ? false : true
@@ -167,16 +167,16 @@ Popup {
                 maximumLineCount: 2
                 color: colors.offwhite
                 anchors { left: icon.right; leftMargin: 10; right: integrationStateText.left; rightMargin: 10; verticalCenter: parent.verticalCenter; }
-                font: fonts.primaryFont(20)
+                font: fonts.label()
             }
 
             Text {
                 id: integrationStateText
                 text: integrationObj.state
                 maximumLineCount: 1
-                color: colors.light
+                color: colors.textSecondary
                 anchors { right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter; }
-                font: fonts.secondaryFont(20)
+                font: fonts.help()
             }
 
             Rectangle {

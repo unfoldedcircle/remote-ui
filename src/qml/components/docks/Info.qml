@@ -289,8 +289,8 @@ Item {
                         text: qsTr("Tap to edit name")
                         elide: Text.ElideRight
                         maximumLineCount: 1
-                        color: colors.light
-                        font: fonts.secondaryFont(20)
+                        color: colors.textSecondary
+                        font: fonts.help()
                         visible: dockInfoContainer.dockEditable
 
                         Components.HapticMouseArea {
@@ -308,7 +308,7 @@ Item {
                         elide: Text.ElideRight
                         maximumLineCount: 1
                         color: colors.red
-                        font: fonts.secondaryFont(20)
+                        font: fonts.help()
                         visible: dockInfoContainer.dockObj.state === DockStates.ERROR
                     }
 
@@ -322,7 +322,6 @@ Item {
                         Layout.alignment: Qt.AlignRight
 
                         text: qsTr("Identify")
-                        fontSize: 20
                         height: 50
                         color: colors.medium
                         visible: dockInfoContainer.dockEditable
@@ -338,7 +337,6 @@ Item {
                     Components.Button {
                         id: connectButton
                         text: qsTr("Connect")
-                        fontSize: 20
                         height: 50
                         color: colors.medium
                         visible: dockInfoContainer.dockObj.state === DockStates.ERROR
@@ -764,7 +762,7 @@ Item {
                             elide: Text.ElideRight
                             maximumLineCount: 1
                             color: colors.offwhite
-                            font: fonts.secondaryFont(28)
+                            font: fonts.heading()
                         }
 
                         Components.Icon {
@@ -809,8 +807,9 @@ Item {
 
                         text: qsTr("Are you sure you want to delete %1?").arg(dockObj.name)
                         wrapMode: Text.WordWrap
-                        color: colors.offwhite
-                        font: fonts.secondaryFont(24)
+                        color: colors.textPrimary
+                        font: fonts.prose()
+                        lineHeight: fonts.proseLineHeight
                     }
 
                     RowLayout {
@@ -840,7 +839,7 @@ Item {
                                     color: deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
                                 }
                             }
-                            font: fonts.secondaryFont(26, "Bold")
+                            font: fonts.button()
 
                             Components.HapticMouseArea {
                                 width: parent.width + 40
@@ -870,7 +869,7 @@ Item {
                                     color: !deleteContainer.cancelSelected && ui.keyNavigationActive ? colors.offwhite : colors.transparent
                                 }
                             }
-                            font: fonts.secondaryFont(26, "Bold")
+                            font: fonts.button()
 
                             Components.HapticMouseArea {
                                 width: parent.width + 40

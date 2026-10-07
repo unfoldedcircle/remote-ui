@@ -75,9 +75,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Inverts button functions on the main screen: short press to open the control screen, long press to quick toggle.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -124,9 +124,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Always show the battery percentage next to the icon.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -173,9 +173,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Shows the battery level indicator on all pages and activities.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -222,9 +222,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Show the running activities and playing media players in the page header.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -271,9 +271,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -320,9 +320,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Zoom & crop artwork in media player widgets instead of scaling to fit.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -368,9 +368,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Use coverflow as the default view when opening the media browser.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
         }

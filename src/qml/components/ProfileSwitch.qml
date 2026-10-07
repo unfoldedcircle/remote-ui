@@ -413,11 +413,11 @@ Rectangle {
                 id: description
                 width: parent.width
                 wrapMode: Text.WordWrap
-                color: colors.light
+                color: colors.textSecondary
                 horizontalAlignment: Text.AlignHCenter
                 text: qsTr("Please enter the administrator PIN.")
                 anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 20 }
-                font: fonts.secondaryFont(24)
+                font: fonts.help()
             }
 
             Keypad.KeyPad {
@@ -529,7 +529,7 @@ Rectangle {
                     wrapMode: Text.NoWrap
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    font: fonts.primaryFont(40, "Light")
+                    font: fonts.primaryFont(40)
                     fontSizeMode: Text.Fit
                     minimumPixelSize: 30
                 }

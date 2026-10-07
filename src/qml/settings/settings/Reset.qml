@@ -47,9 +47,10 @@ Settings.Page {
                     id: descriptionText
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textPrimary
                     text: qsTr("Resetting will delete all settings, configuration and any information saved on the remote. Data cannot be recovered. Continue?")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.prose()
+                    lineHeight: fonts.proseLineHeight
                 }
 
                 Components.Button {
@@ -145,8 +146,8 @@ Settings.Page {
                 color: colors.offwhite
                 text: qsTr("Confirming factory reset will erase all configuration and data. Data cannot be recovered.")
                 anchors { left: parent.left; leftMargin: 10; right: parent.right; rightMargin: 10; top: title.bottom; topMargin: 20 }
-                font: fonts.secondaryFont(24)
-                lineHeight: 0.8
+                font: fonts.prose()
+                lineHeight: fonts.proseLineHeight
             }
 
             Components.Button {

@@ -562,9 +562,9 @@ Rectangle {
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 // on the selection fill everything is drawn in the primary text colour
-                color: selection.shown ? colors.textPrimary : colors.light
+                color: selection.shown ? colors.textPrimary : colors.textSecondary
                 verticalAlignment: Text.AlignVCenter
-                font: fonts.secondaryFont(24)
+                font: fonts.help()
                 visible: currentEntityObj.stateInfo !== ""
             }
         }

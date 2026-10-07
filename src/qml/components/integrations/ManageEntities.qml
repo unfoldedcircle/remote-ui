@@ -147,7 +147,7 @@ Item {
 
             contentItem: Text {
                 text: availableTabButton.text
-                font: fonts.secondaryFont(22)
+                font: fonts.caption()
                 color: colors.offwhite
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
@@ -168,7 +168,7 @@ Item {
 
             contentItem: Text {
                 text: configuredTabButton.text
-                font: fonts.secondaryFont(22)
+                font: fonts.caption()
                 color: colors.offwhite
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter

@@ -75,9 +75,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Disabling the microphone will completely turn it off.  You won’t be able to use voice assistants.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -149,8 +149,8 @@ Settings.Page {
                         id: voiceAssistanProfiletName
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
-                        color: colors.light
-                        font: fonts.primaryFont(22)
+                        color: colors.textSecondary
+                        font: fonts.help()
                     }
                 }
 
@@ -166,8 +166,8 @@ Settings.Page {
                         text: qsTr("Use the Web Configurator to edit voice assistants.")
                         Layout.fillWidth: true
                         wrapMode: Text.WordWrap
-                        color: colors.light
-                        font: fonts.primaryFont(20)
+                        color: colors.textSecondary
+                        font: fonts.help()
                     }
                 }
             }
@@ -208,9 +208,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Play speech response from Voice Assistant when supported.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
         }

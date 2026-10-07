@@ -586,7 +586,7 @@ Rectangle {
                     maximumLineCount: 2
                     verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
                     anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter; horizontalCenterOffset: deleteOpen ? -80 : 0 }
-                    font: fonts.primaryFont(50, "Light")
+                    font: fonts.primaryFont(50)
                     lineHeight: 0.8
 
                     Behavior on anchors.horizontalCenterOffset {

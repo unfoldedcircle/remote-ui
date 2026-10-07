@@ -433,9 +433,9 @@ Settings.Page {
                 width: parent.width/2
                 wrapMode: Text.WordWrap
                 horizontalAlignment: Text.AlignRight
-                color: colors.offwhite
+                color: colors.textSecondary
                 anchors { right: parent.right; rightMargin: 10; baseline: titleText.baseline }
-                font: fonts.primaryFont(20, "Bold")
+                font: fonts.help()
             }
 
             Components.HapticMouseArea {

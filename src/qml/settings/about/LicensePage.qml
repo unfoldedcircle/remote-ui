@@ -114,11 +114,12 @@ Settings.Page {
             width: ListView.view.width
             height: content.implicitHeight
             wrapMode: Text.WordWrap
-            color: colors.light
+            color: colors.textPrimary
             baseUrl: aboutPageContent.baseDir
             text: model.modelData
             textFormat: aboutPageContent.isMarkdown ? Text.MarkdownText : Text.RichText
-            font: fonts.secondaryFont(24)
+            font: fonts.prose()
+            lineHeight: fonts.proseLineHeight
             onLinkActivated: {
                 if (link.includes("http")) {
                     return;
