@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Display and brightness, current</title>
+  <style>
+    body { margin: 0; background: #000000; }
+    a { color: #C8C8C8; } a:hover { color: #FFFFFF; }
+    * { box-sizing: border-box; }
+    .label-lcd { display: none; }
+    html.lcd .label-lcd { display: inline; }
+    html.lcd .label-oled { display: none; }
+    html.lcd .panel { filter: contrast(0.86) brightness(1.02); }
+  </style>
+  <script>if (/[?&]lcd\b/.test(location.search)) document.documentElement.classList.add('lcd');</script>
+</head>
+<body>
+<div style="width: 480px; display: flex; flex-direction: column; gap: 0; background: #000000;">
+  <div style="height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #0B0B0B; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; color: #9A9A9A;">
+    <span style="font-weight: 500; color: #D0D0D0;">Display &amp; Brightness · current (Display.qml)</span>
+    <span class="label-oled">OLED (Remote Two): true black</span><span class="label-lcd">LCD simulation (Remote 3): raised black, softer white</span>
+  </div>
+  <div class="panel" style="background: #000000;">
+<div style="width: 480px; height: 850px; position: relative; overflow: hidden; background: #000000; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; color: #D0D0D0; display: flex; flex-direction: column;">
+<div style="height: 60px; flex: none; display: flex; align-items: center; position: relative;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M19 12H5"></path>
+<path d="M12 19l-7-7 7-7"></path>
+</svg>
+</div>
+<div style="position: absolute; left: 0; right: 0; text-align: center; font-size: 24px; color: #D0D0D0;">Display &amp; Brightness</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 20px; padding-top: 0;">
+<div style="padding: 0 10px; display: flex; flex-direction: column;">
+<div style="display: flex; align-items: center; gap: 10px;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 400; color: #D0D0D0; line-height: 1.25; flex: 1;">Auto brightness</div>
+<div style="width: 90px; height: 60px; flex: none; border-radius: 30px; background: #232323; border: 2px solid #C8C8C8; position: relative;">
+<div style="position: absolute; top: 7px; left: 38px; width: 45px; height: 45px; border-radius: 50%; background: #D0D0D0; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12l5 5L20 7"></path>
+</svg>
+</div>
+</div>
+</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 24px; font-weight: 400; color: #787878; line-height: 1.25; margin-top: 10px;">Automatically adjust the display brightness based on ambient lighting conditions.</div>
+</div>
+<div style="height: 2px; margin: 0 10px; background: #232323; flex: none;">
+</div>
+<div style="padding: 0 10px; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 400; color: #D0D0D0; line-height: 1.25; width: 380px;">Display brightness</div>
+<div style="margin-top: 10px;">
+<div style="height: 60px; display: flex; align-items: center;">
+<div style="width: 100%; height: 34px; border-radius: 17px; background: transparent; padding: 2px;">
+<div style="width: 100%; height: 30px; border-radius: 15px; background: #161616; overflow: hidden;">
+<div style="width: 65%; height: 30px; border-radius: 15px; background: #D0D0D0;">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div style="height: 2px; margin: 0 10px; background: #232323; flex: none;">
+</div>
+<div style="padding: 0 10px; display: flex; flex-direction: column;">
+<div style="display: flex; align-items: center; gap: 10px;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 400; color: #D0D0D0; line-height: 1.25; flex: 1;">Button backlight</div>
+<div style="width: 90px; height: 60px; flex: none; border-radius: 30px; background: #232323; border: 2px solid transparent; position: relative;">
+<div style="position: absolute; top: 13px; left: 11px; width: 34px; height: 34px; border-radius: 50%; background: #787878;">
+</div>
+</div>
+</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 24px; font-weight: 400; color: #787878; line-height: 1.25; margin-top: 10px;">When on, button backlight will automatically turn on in a dark room.</div>
+</div>
+<div style="height: 2px; margin: 0 10px; background: #232323; flex: none;">
+</div>
+<div style="padding: 0 10px; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 400; color: #D0D0D0; line-height: 1.25; width: 380px;">Button backlight brightness</div>
+<div style="margin-top: 10px;">
+<div style="height: 60px; display: flex; align-items: center;">
+<div style="width: 100%; height: 34px; border-radius: 17px; background: transparent; padding: 2px;">
+<div style="width: 100%; height: 30px; border-radius: 15px; background: #161616; overflow: hidden;">
+<div style="width: 40%; height: 30px; border-radius: 15px; background: #D0D0D0;">
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+</body>
+</html>

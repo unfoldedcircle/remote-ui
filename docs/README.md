@@ -45,6 +45,7 @@ The index of project documentation. **New here? Start with the
   memory, start-up, frame rate, latency and binary size numbers on a device, matching the `platform-constraints`
   budgets; the [results](measurement-results.md) so far.
 - [Key navigation](key-navigation.md): how d-pad / button presses reach the UI, input and focus ownership, the idioms a screen must follow, and the traps.
+- [Design system](design-system.md): colour tokens, type roles, layout rules and the d-pad selection contract for both panels (v2: decisions accepted, open questions listed). The [audit](design-system/audit.md) and the [mockups](design-system/mockups/README.md) behind it are in `design-system/`.
 
 ## Resources
 

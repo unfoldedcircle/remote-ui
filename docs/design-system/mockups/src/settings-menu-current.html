@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Settings menu, current</title>
+  <style>
+    body { margin: 0; background: #000000; }
+    a { color: #C8C8C8; } a:hover { color: #FFFFFF; }
+    * { box-sizing: border-box; }
+    .label-lcd { display: none; }
+    html.lcd .label-lcd { display: inline; }
+    html.lcd .label-oled { display: none; }
+    html.lcd .panel { filter: contrast(0.86) brightness(1.02); }
+  </style>
+  <script>if (/[?&]lcd\b/.test(location.search)) document.documentElement.classList.add('lcd');</script>
+</head>
+<body>
+<div style="width: 480px; display: flex; flex-direction: column; gap: 0; background: #000000;">
+  <div style="height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #0B0B0B; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; color: #9A9A9A;">
+    <span style="font-weight: 500; color: #D0D0D0;">Settings menu · current (Settings.qml)</span>
+    <span class="label-oled">OLED (Remote Two): true black</span><span class="label-lcd">LCD simulation (Remote 3): raised black, softer white</span>
+  </div>
+  <div class="panel" style="background: #000000;">
+<div style="width: 480px; height: 850px; position: relative; overflow: hidden; background: #000000; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; color: #D0D0D0; display: flex; flex-direction: column;">
+<div style="height: 60px; flex: none; display: flex; align-items: center; position: relative;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M19 12H5"></path>
+<path d="M12 19l-7-7 7-7"></path>
+</svg>
+</div>
+<div style="position: absolute; left: 0; right: 0; text-align: center; font-size: 24px; color: #D0D0D0;">Settings</div>
+</div>
+<div style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<rect x="3" y="5" width="18" height="12" rx="2"></rect>
+<path d="M8 21h8"></path>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Display &amp; Brightness</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: #161616; border: 1px solid #1D1D1D;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M8 6h13M8 12h13M8 18h13"></path>
+<path d="M3 6h.01M3 12h.01M3 18h.01"></path>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">User interface</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M4 6h10M18 6h2M4 12h2M10 12h10M4 18h10M18 18h2"></path>
+<circle cx="16" cy="6" r="2"></circle>
+<circle cx="8" cy="12" r="2"></circle>
+<circle cx="16" cy="18" r="2"></circle>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Touch Slider</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+<path d="M15.5 8.5a5 5 0 010 7M19 6a9 9 0 010 12"></path>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Sound &amp; Haptic</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<rect x="9" y="2" width="6" height="12" rx="3"></rect>
+<path d="M5 10a7 7 0 0014 0M12 17v4M8 21h8"></path>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Voice Control</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<rect x="2" y="7" width="18" height="10" rx="2"></rect>
+<path d="M22 11v2"></path>
+<path d="M6 11v2M10 11v2M14 11v2"></path>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Power Saving</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0"></path>
+<circle cx="12" cy="19.5" r="1"></circle>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Wifi &amp; Bluetooth</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<circle cx="12" cy="12" r="9"></circle>
+<path d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"></path>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Localisation</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<rect x="4" y="11" width="16" height="10" rx="2"></rect>
+<path d="M8 11V7a4 4 0 018 0v4"></path>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Administrator PIN</div>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 20px; border-radius: 8px; background: transparent; border: 1px solid transparent;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M12 3l10 18H2z"></path>
+<path d="M12 10v4M12 17h.01"></path>
+</svg>
+</div>
+<div style="font-size: 30px; color: #D0D0D0;">Factory reset</div>
+</div>
+</div>
+</div>
+  </div>
+</div>
+</body>
+</html>

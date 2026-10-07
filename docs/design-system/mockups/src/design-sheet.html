@@ -1,0 +1,584 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Design system sheet</title>
+  <style>
+    body { margin: 0; background: #000000; }
+    a { color: #C8C8C8; } a:hover { color: #FFFFFF; }
+    * { box-sizing: border-box; }
+    .label-lcd { display: none; }
+    html.lcd .label-lcd { display: inline; }
+    html.lcd .label-oled { display: none; }
+    html.lcd .panel { filter: contrast(0.86) brightness(1.02); }
+  </style>
+  <script>if (/[?&]lcd\b/.test(location.search)) document.documentElement.classList.add('lcd');</script>
+</head>
+<body>
+<div style="width: 1600px; display: flex; flex-direction: column; gap: 0; background: #000000;">
+  <div style="height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #0B0B0B; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; color: #9A9A9A;">
+    <span style="font-weight: 500; color: #D0D0D0;">Design system sheet</span>
+    <span class="label-oled">OLED (Remote Two): true black</span><span class="label-lcd">LCD simulation (Remote 3): raised black, softer white</span>
+  </div>
+  <div class="panel" style="background: #000000;">
+<div style="width: 1600px; padding: 40px 48px 56px; background: #000000; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; color: #D0D0D0; display: flex; flex-direction: column">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 34px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Remote UI design tokens and focus contract</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">Version 2 for Remote Two (OLED) and Remote 3 (LCD): decisions accepted on 2026-10-07 with the designer's revision. The selected fill #595959 is provisional until it is checked on both remotes. Contrast ratios are WCAG 2 on true black; the LCD tweak above approximates a raised black level. Values in the Today column are what src/ui/colors.cpp produces for the default base colour.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 500; color: #D0D0D0; line-height: 1.25; margin: 36px 0 12px;">Colour tokens</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; padding: 0 0 6px; border-bottom: 2px solid #3A3A3A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">Token</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">New</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">Value</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">Today</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">Replaces</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">Use</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">bg</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #000000; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#000000</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">1.0:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #000000; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.black</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#000000  1.0:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Page background and bottom sheets. Stays true black for the OLED.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">textPrimary</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #D0D0D0; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#D0D0D0</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">13.6:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #D0D0D0; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.offwhite</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#D0D0D0  13.6:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Labels, body, values. Unchanged.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">textSecondary</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #A0A0A0; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#A0A0A0</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">8.0:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #787878; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.light</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#787878  4.8:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Help text, captions, states. Replaces colors.light everywhere.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">textDisabled</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #7A7A7A; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#7A7A7A</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">4.9:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #606060; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.inactiveText</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#606060  3.3:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Disabled labels only. Never for information.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">surface</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #1E1E1E; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#1E1E1E</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">1.3:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #161616; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.dark</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#161616  1.2:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Cards, fields, tracks.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">surfaceRaised</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #2C2C2C; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#2C2C2C</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">1.5:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #232323; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.medium</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#232323  1.3:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Popups over dim, tab bars, switch tracks.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">surfaceSelected</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #595959; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#595959</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">3.0:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">(none)</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">-</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Fill of the selected tile or menu row on the main UI. Never with a ring. Text on it is textPrimary.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">divider</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #3A3A3A; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#3A3A3A</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">1.8:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #232323; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.medium</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#232323  1.3:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">2px separators and outlines of secondary buttons and sheets.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">focusRing</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #D0D0D0; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#D0D0D0</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">13.6:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #C8C8C8; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.highlight</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#C8C8C8  12.6:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">3px ring on the selected settings row or control, and on buttons. No fill with it.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">buttonPrimary</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #5A5A5A; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#5A5A5A</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">3.0:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #5A5A5A; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.primaryButton</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#5A5A5A  3.0:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Primary button fill. Label switches to white.</div>
+</div>
+<div style="display: grid; grid-template-columns: 170px 60px 110px 60px 170px minmax(0, 1fr); gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 18px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">red</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #FF3E54; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">#FF3E54</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">6.1:1 on black</div>
+</div>
+<div style="width: 44px; height: 44px; border-radius: 8px; background: #FF3E54; box-shadow: 0 0 0 1px #3A3A3A inset;">
+</div>
+<div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">colors.red</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">#FF3E54  6.1:1</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Destructive and error. Unchanged. Pressed destructive: #FF0D2A.</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 500; color: #D0D0D0; line-height: 1.25; margin: 36px 0 12px;">Type roles</div>
+<div style="display: grid; grid-template-columns: 200px 220px 190px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Title</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Poppins 28 Medium</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">textPrimary</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 28px; font-weight: 500; color: #D0D0D0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Title bar of every page and sheet</div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 220px 190px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Row label / body</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Poppins 30 Regular</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">textPrimary</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 30px; font-weight: 400; color: #D0D0D0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Menu rows, setting labels, tile names, prose</div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 220px 190px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Popup menu row</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Poppins 28 Regular</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">textPrimary</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 28px; font-weight: 400; color: #D0D0D0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rows of a popup menu, including its Close row</div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 220px 190px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Help / secondary</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Poppins 26 Regular</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">textSecondary</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #A0A0A0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Descriptions under a setting, states, subtitles</div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 220px 190px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Caption</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Poppins 22 Regular</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">textSecondary</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 400; color: #A0A0A0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Timestamps, badges. Smallest size allowed.</div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 220px 190px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Value</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Space Mono 26 Regular</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">textPrimary</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 26px; font-weight: 400; color: #D0D0D0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Versions, addresses, times, units, codes</div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 220px 190px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Button label</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Poppins 26 Medium</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">textOnButton / textPrimary</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 500; color: #D0D0D0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">All buttons</div>
+</div>
+<div style="display: grid; grid-template-columns: 200px 220px 190px minmax(0, 1fr); gap: 16px; align-items: center; padding: 10px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Display</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Poppins 56 / 180 Light</div>
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 15px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">textPrimary</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 40px; font-weight: 300; color: #D0D0D0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sensor values, giant entity states. Unchanged.</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 500; color: #D0D0D0; line-height: 1.25; margin: 36px 0 12px;">Selection and state contract</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Two selection styles, one per layer. Main UI (tiles, popup menus, page selector, profile switcher): surfaceSelected fill, no ring. Settings and set-up flows (menus, rows, controls, picker lists, onboarding) and buttons everywhere: 3px focusRing, no fill.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• The ring goes on the element OK activates: around a list row, on the control of a setting with a switch, slider or field. The label and help text are not marked.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Selection is bound to ui.keyNavigationActive: invisible after a touch, visible from the first key press.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Entering a screen with a key preselects the first actionable element; entering by touch preselects nothing.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• The selected element is kept inside the middle 70 percent of the viewport while scrolling.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Pressed inverts the element: textPrimary fill with black labels and icons. A pressed destructive button is #FF0D2A with a white label.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Every tappable element is reachable by d-pad, or it is a touch-only enhancement that has a d-pad equivalent on the same screen.</div>
+</div>
+<div style="display: grid; grid-template-columns: 180px repeat(4, minmax(0, 1fr)); gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Main UI tile / menu row</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">rest</div>
+<div style="width: 300px; height: 80px; border-radius: 8px; background: transparent; box-shadow: none; opacity: 1; display: flex; align-items: center; gap: 12px; padding: 0 12px;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0">
+</path>
+<circle cx="12" cy="19.5" r="1">
+</circle>
+</svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Wifi &amp; Bluetooth</div>
+</div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6">
+</path>
+</svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">selected</div>
+<div style="width: 300px; height: 80px; border-radius: 8px; background: #595959; box-shadow: none; opacity: 1; display: flex; align-items: center; gap: 12px; padding: 0 12px">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0">
+</path>
+<circle cx="12" cy="19.5" r="1">
+</circle>
+</svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Wifi &amp; Bluetooth</div>
+</div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6">
+</path>
+</svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">pressed</div>
+<div style="width: 300px; height: 80px; border-radius: 8px; box-shadow: none; opacity: 1; display: flex; align-items: center; gap: 12px; padding: 0 12px; background-color: #D0D0D0">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0" stroke="#000000">
+</path>
+<circle cx="12" cy="19.5" r="1" stroke="#000000">
+</circle>
+</svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #000000; line-height: 1.25">Wifi &amp; Bluetooth</div>
+</div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6" stroke="#000000">
+</path>
+</svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">disabled</div>
+<div style="width: 300px; height: 80px; border-radius: 8px; background: transparent; box-shadow: none; opacity: 0.4; display: flex; align-items: center; gap: 12px; padding: 0 12px;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0">
+</path>
+<circle cx="12" cy="19.5" r="1">
+</circle>
+</svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Wifi &amp; Bluetooth</div>
+</div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6">
+</path>
+</svg>
+</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 180px repeat(4, minmax(0, 1fr)); gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Settings list row</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">rest</div>
+<div style="width: 300px; height: 80px; border-radius: 8px; background: transparent; box-shadow: none; opacity: 1; display: flex; align-items: center; gap: 12px; padding: 0 12px;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0">
+</path>
+<circle cx="12" cy="19.5" r="1">
+</circle>
+</svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Wifi &amp; Bluetooth</div>
+</div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6">
+</path>
+</svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">selected</div>
+<div style="width: 300px; height: 80px; border-radius: 8px; box-shadow: 0 0 0 3px #D0D0D0 inset; opacity: 1; display: flex; align-items: center; gap: 12px; padding: 0 12px">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0">
+</path>
+<circle cx="12" cy="19.5" r="1">
+</circle>
+</svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Wifi &amp; Bluetooth</div>
+</div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6">
+</path>
+</svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">pressed</div>
+<div style="width: 300px; height: 80px; border-radius: 8px; box-shadow: none; opacity: 1; display: flex; align-items: center; gap: 12px; padding: 0 12px; background-color: #D0D0D0">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0" stroke="#000000">
+</path>
+<circle cx="12" cy="19.5" r="1" stroke="#000000">
+</circle>
+</svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #000000; line-height: 1.25">Wifi &amp; Bluetooth</div>
+</div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6" stroke="#000000">
+</path>
+</svg>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">disabled</div>
+<div style="width: 300px; height: 80px; border-radius: 8px; background: transparent; box-shadow: none; opacity: 0.4; display: flex; align-items: center; gap: 12px; padding: 0 12px;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12.5a10 10 0 0114 0M8.5 16a5 5 0 017 0M2 9a14 14 0 0120 0">
+</path>
+<circle cx="12" cy="19.5" r="1">
+</circle>
+</svg>
+</div>
+<div style="flex: 1; display: flex; flex-direction: column;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Wifi &amp; Bluetooth</div>
+</div>
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6">
+</path>
+</svg>
+</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 180px repeat(4, minmax(0, 1fr)); gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Primary button</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">rest</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #5A5A5A; border: 2px solid transparent; box-shadow: none; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #FFFFFF;">Save</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">selected</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #5A5A5A; border: 2px solid transparent; box-shadow: 0 0 0 3px #D0D0D0; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #FFFFFF;">Save</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">pressed</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; border: 2px solid transparent; box-shadow: none; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #000000; background-color: #D0D0D0">Save</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">disabled</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #5A5A5A; border: 2px solid transparent; box-shadow: none; opacity: 0.4; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #FFFFFF;">Save</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 180px repeat(4, minmax(0, 1fr)); gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Secondary button</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">rest</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #1E1E1E; border: 2px solid #3A3A3A; box-shadow: none; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #D0D0D0;">Cancel</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">selected</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #1E1E1E; border: 2px solid #3A3A3A; box-shadow: 0 0 0 3px #D0D0D0; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #D0D0D0;">Cancel</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">pressed</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; border: 2px solid #3A3A3A; box-shadow: none; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #000000; background-color: #D0D0D0">Cancel</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">disabled</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #1E1E1E; border: 2px solid #3A3A3A; box-shadow: none; opacity: 0.4; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #D0D0D0;">Cancel</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 180px repeat(4, minmax(0, 1fr)); gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Destructive button</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">rest</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #FF3E54; border: 2px solid transparent; box-shadow: none; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #FFFFFF;">Delete</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">selected</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #FF3E54; border: 2px solid transparent; box-shadow: 0 0 0 3px #D0D0D0; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #FFFFFF;">Delete</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">pressed</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; border: 2px solid transparent; box-shadow: none; opacity: 1; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #FFFFFF; background-color: #FF0D2A">Delete</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">disabled</div>
+<div style="width: 200px; height: 80px; border-radius: 8px; background: #FF3E54; border: 2px solid transparent; box-shadow: none; opacity: 0.4; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 500; color: #FFFFFF;">Delete</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 180px repeat(4, minmax(0, 1fr)); gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Switch</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">rest</div>
+<div style="width: 90px; height: 60px; flex: none; border-radius: 30px; background: #2C2C2C; border: 3px solid transparent; position: relative;">
+<div style="position: absolute; top: 7px; left: 40px; width: 42px; height: 42px; border-radius: 50%; background: #D0D0D0; display: flex; align-items: center; justify-content: center;">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12l5 5L20 7">
+</path>
+</svg>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">selected</div>
+<div style="width: 90px; height: 60px; flex: none; border-radius: 30px; background: #2C2C2C; border: 3px solid #D0D0D0; position: relative;">
+<div style="position: absolute; top: 7px; left: 40px; width: 42px; height: 42px; border-radius: 50%; background: #D0D0D0; display: flex; align-items: center; justify-content: center;">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12l5 5L20 7">
+</path>
+</svg>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">pressed</div>
+<div style="width: 90px; height: 60px; flex: none; border-radius: 30px; background: #2C2C2C; border: 3px solid transparent; position: relative;">
+<div style="position: absolute; top: 7px; left: 40px; width: 42px; height: 42px; border-radius: 50%; background: #D0D0D0; display: flex; align-items: center; justify-content: center;">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12l5 5L20 7">
+</path>
+</svg>
+</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">disabled</div>
+<div style="width: 90px; height: 60px; flex: none; border-radius: 30px; background: #2C2C2C; border: 3px solid transparent; position: relative; opacity: 0.4">
+<div style="position: absolute; top: 7px; left: 40px; width: 42px; height: 42px; border-radius: 50%; background: #D0D0D0; display: flex; align-items: center; justify-content: center;">
+<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M5 12l5 5L20 7">
+</path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: 180px repeat(4, minmax(0, 1fr)); gap: 16px; align-items: center; padding: 14px 0; border-bottom: 1px solid #2A2A2A;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 500; color: #D0D0D0; line-height: 1.25; ">Text field</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">rest</div>
+<div style="width: 300px; height: 80px; border-radius: 22px; background: #1E1E1E; box-shadow: none; display: flex; align-items: center; padding: 0 24px;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 30px; font-weight: 400; color: #A0A0A0; line-height: 1.25; ">Name</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">selected</div>
+<div style="width: 300px; height: 80px; border-radius: 22px; background: #1E1E1E; box-shadow: 0 0 0 3px #D0D0D0; display: flex; align-items: center; padding: 0 24px;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 30px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Living room</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">pressed</div>
+<div style="width: 300px; height: 80px; border-radius: 22px; background: #1E1E1E; box-shadow: none; display: flex; align-items: center; padding: 0 24px;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 30px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Living room</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px; align-items: flex-start;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; font-weight: 500; color: #A0A0A0; line-height: 1.25; letter-spacing: 0.06em; text-transform: uppercase;">disabled</div>
+<div style="width: 300px; height: 80px; border-radius: 22px; background: #1E1E1E; box-shadow: none; display: flex; align-items: center; padding: 0 24px; opacity: 0.4">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; font-size: 30px; font-weight: 400; color: #D0D0D0; line-height: 1.25; ">Living room</div>
+</div>
+</div>
+</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 26px; font-weight: 500; color: #D0D0D0; line-height: 1.25; margin: 36px 0 12px;">Layout rules</div>
+<div style="display: flex; flex-direction: column; gap: 6px;">
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Page gutter 20px. Content, dividers and buttons align to it. No 0, 10, 30 or 40px variants.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Selectable rows and tiles are drawn 8px from the screen edge so the selection never touches the bezel; their content keeps the 20px gutter.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Row heights: 80px single line, 110px with a secondary line, 130px tiles. Title bar 80px.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Dividers 2px divider colour, inset 20px. Never 1px, never a hairline in surface colour.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Corner radius 8px on rows, tiles, buttons; 22px on sheets, fields and popups. No literals.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Hit targets at least 60x60. Icons in three sizes: 60 (rows), 80 (title bar, close), 100 (tiles), glyph half the box.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Opacity is for overlays (0.85 black) and disabled controls (0.4). Never to de-emphasise text.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Bottom sheets are black with a 22px top radius and a 2px divider edge over a 0.85 dim.</div>
+<div style="font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 16px; font-weight: 400; color: #A0A0A0; line-height: 1.25; max-width: 820px; line-height: 1.45;">• Popup menus end with a Close row styled like the other rows, not a button.</div>
+</div>
+</div>
+  </div>
+</div>
+</body>
+</html>
