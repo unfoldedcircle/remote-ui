@@ -18,19 +18,20 @@ void Colors::generateColorPalette(QColor primaryColor) {
 
     m_normalisedBaseColor.setHsv(m_baseColor.hsvHue(), 70, 200);
 
-    m_dark.setHsv(m_baseColor.hsvHue(), 200, 22);
+    // the values give the design system tokens for the default black base colour (docs/design-system.md)
+    m_dark.setHsv(m_baseColor.hsvHue(), 200, 30);  // surface #1E1E1E
     emit darkChanged();
 
-    m_medium.setHsv(m_baseColor.hsvHue(), 200, 35);
+    m_medium.setHsv(m_baseColor.hsvHue(), 200, 44);  // surfaceRaised #2C2C2C
     emit mediumChanged();
 
-    m_light.setHsv(m_baseColor.hsvHue(), 40, 120);
+    m_light.setHsv(m_baseColor.hsvHue(), 40, 160);  // textSecondary #A0A0A0
     emit lightChanged();
 
-    m_highlight.setHsv(m_baseColor.hsvHue(), 160, 200);
+    m_highlight.setHsv(m_baseColor.hsvHue(), 160, 208);  // focusRing #D0D0D0
     emit highlightChanged();
 
-    m_inactive = QColor("#606060");
+    m_inactive = QColor("#7A7A7A");  // textDisabled
     emit inactiveChanged();
 
     m_primaryButton.setHsv(m_baseColor.hsvHue(), m_baseColor.hslSaturation() / 2, 90);

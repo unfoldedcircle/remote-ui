@@ -422,3 +422,19 @@ target_link_libraries(testInputController
     Qt5::Quick
     Qt5::Test
     )
+
+# The colour tokens of the design system: values, the old names as aliases and the contrast pairs.
+add_executable (testDesignTokens
+    "test_design_tokens.cpp"
+    "../../src/ui/colors.cpp"
+    )
+
+add_test(NAME testDesignTokens
+         COMMAND testDesignTokens)
+
+target_link_libraries(testDesignTokens
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Test
+    )
