@@ -9,9 +9,6 @@ import Entity.Activity 1.0
 import Entity.MediaPlayer 1.0
 import Entity.Controller 1.0
 import Config 1.0
-import Wifi 1.0
-import Wifi.SignalStrength 1.0
-import Battery 1.0
 import Power 1.0
 import Power.Modes 1.0
 
@@ -452,7 +449,8 @@ EntityComponents.BaseDetail {
         }
 
         Item {
-            width: parent.width - 200
+            // up to the status row, which grows with the icons it shows
+            width: Math.min(parent.width - 200, titleStatus.x - x - 10)
             height: childrenRect.height
             anchors { left: iconOpen.right; leftMargin: 10; verticalCenter: parent.verticalCenter; }
 
@@ -497,88 +495,11 @@ EntityComponents.BaseDetail {
             }
         }
 
-        Components.Icon {
-            icon: "uc:wifi"
-            color: colors.offwhite
-            opacity: 0.5
-            size: 60
+        // the status row of every entity screen title: integration, wifi and battery icons side by side
+        EntityComponents.TitleStatus {
+            id: titleStatus
             anchors { right: parent.right; rightMargin: 60; verticalCenter: parent.verticalCenter }
-            visible: !Wifi.isConnected || Wifi.currentNetwork.signalStrength === SignalStrength.NONE ||  Wifi.currentNetwork.signalStrength === SignalStrength.WEAK
-
-            Components.Icon {
-                size: 60
-                icon: {
-                    switch (Wifi.currentNetwork.signalStrength) {
-                    case SignalStrength.NONE:
-                        return "";
-                    case SignalStrength.WEAK:
-                        return "uc:wifi-weak";
-                    default:
-                        return "";
-                    }
-                }
-                opacity: icon === "" ? 0 : 1
-                anchors.centerIn: parent
-            }
-
-            Rectangle {
-                width: 30
-                height: 2
-                color: colors.red
-                rotation: -45
-                transformOrigin: Item.Center
-                anchors.centerIn: parent
-                visible: !Wifi.isConnected
-            }
-        }
-
-        Row {
-            anchors { right: parent.right; rightMargin: 60; verticalCenter: parent.verticalCenter }
-            spacing: 5
-            visible: Config.showBatteryEveryWhere
-
-            Text {
-                anchors.verticalCenter: parent.verticalCenter
-                color: colors.offwhite
-                text: Battery.level
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                font: fonts.primaryFontCapitalized(22)
-                visible: Battery.isCharging || Config.showBatteryPercentage
-            }
-
-            Components.Icon {
-                icon: "uc:bolt"
-                color: colors.offwhite
-                size: 40
-                visible: Battery.isCharging
-            }
-
-            Item {
-                width: 16
-                height: 30
-                anchors.verticalCenter: parent.verticalCenter
-                visible: !Battery.isCharging
-
-                Rectangle {
-                    width: parent.width
-                    height: (parent.height * Battery.level / 100) + (Battery.level < 10 ? 2 : 0)
-                    radius: 4
-                    color: Battery.low ? colors.red : colors.offwhite
-                    opacity: 0.8
-                    anchors { horizontalCenter: activityBatteryBg.horizontalCenter; bottom: activityBatteryBg.bottom; bottomMargin: 1 }
-                }
-
-                Rectangle {
-                    id: activityBatteryBg
-                    width: parent.width
-                    height: parent.height
-                    radius: 4
-                    color: colors.offwhite
-                    opacity: 0.3
-                    anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom }
-                }
-            }
+            integrationDisconnected: activityBase.integrationDisconnected
         }
     }
 
