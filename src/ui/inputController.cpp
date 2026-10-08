@@ -250,6 +250,19 @@ bool InputController::eventFilter(QObject* obj, QEvent* event) {
         }
     }
 
+    // desktop simulator: Escape of the computer keyboard is the BACK button on both input paths
+    if (m_model == hw::HardwareModel::DEV &&
+        (event->type() == QEvent::ShortcutOverride || event->type() == QEvent::KeyPress ||
+         event->type() == QEvent::KeyRelease) &&
+        static_cast<QKeyEvent*>(event)->key() == Qt::Key_Escape) {
+        if (event->type() != QEvent::ShortcutOverride) {
+            sendKeyEvent(event->type(), Qt::Key_Exit, static_cast<QKeyEvent*>(event)->isAutoRepeat());
+        }
+        // an accepted ShortcutOverride keeps the Escape shortcut of a popup from firing
+        event->accept();
+        return true;
+    }
+
     switch (event->type()) {
         case QEvent::KeyPress: {
             keyEvent = static_cast<QKeyEvent*>(event);

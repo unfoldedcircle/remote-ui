@@ -72,10 +72,45 @@ struct Fixture {
     }
 };
 
+// The main window of the keyboard tests: records the key events that get past the event filter of the controller.
+// An event filter installed after the controller's would run before it and also see the events the controller drops.
+class KeyTarget : public QObject {
+ public:
+    QStringList received;
+
+ protected:
+    bool event(QEvent* event) override {
+        if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease) {
+            auto* keyEvent = static_cast<QKeyEvent*>(event);
+            received.append(KeyEventRecorder::describe({event->type(), keyEvent->key(), keyEvent->isAutoRepeat(), 0}));
+        }
+        return QObject::event(event);
+    }
+};
+
+struct KeyboardFixture {
+    KeyTarget       window;
+    InputController controller;
+    QSignalSpy      pressed{&controller, &InputController::keyPressed};
+    QSignalSpy      released{&controller, &InputController::keyReleased};
+
+    explicit KeyboardFixture(uc::hw::HardwareModel::Enum model) : controller(model) { controller.setSource(&window); }
+
+    // Sends a key event of the computer keyboard to the main window and returns whether it was accepted.
+    bool send(QEvent::Type type, Qt::Key key, bool autoRepeat = false) {
+        QKeyEvent event(type, key, Qt::NoModifier, QString(), autoRepeat);
+        QCoreApplication::sendEvent(&window, &event);
+        return event.isAccepted();
+    }
+};
+
 /**
  * A held button of the button simulator sends the key events of a held device key: one press, presses flagged as
  * auto-repeat after 600 ms and then every 150 ms with no release in between, and one plain release. A slow machine
  * fires the timer late, so the timing checks only rely on the repeats never coming early.
+ *
+ * On the desktop model DEV, the Escape key of the computer keyboard is the BACK button: the window gets the key
+ * events of BACK instead, and an Escape shortcut, such as the one of a popup closing on Escape, does not fire.
  */
 class testInputController : public QObject {
     Q_OBJECT
@@ -87,6 +122,12 @@ class testInputController : public QObject {
     void releaseOfAKeyNotHeld_sendsNothing();
     void pressOfAnotherKey_releasesTheHeldKey();
     void emitKey_sendsOnePlainEvent();
+
+    void escape_isBack();
+    void escapeShortcutOverride_isAccepted();
+    void heldEscape_repeatsAsBack();
+    void blockedInput_dropsEscape();
+    void escapeOnADeviceModel_isNotTranslated();
 };
 
 void testInputController::shortHold_sendsNoAutoRepeat() {
@@ -194,6 +235,70 @@ void testInputController::emitKey_sendsOnePlainEvent() {
     QCOMPARE(f.recorder.sequence(), QStringList({"press Down", "release Down"}));
     QCOMPARE(f.pressed.count(), 1);
     QCOMPARE(f.released.count(), 1);
+}
+
+void testInputController::escape_isBack() {
+    KeyboardFixture f(uc::hw::HardwareModel::DEV);
+
+    f.send(QEvent::KeyPress, Qt::Key_Escape);
+    f.send(QEvent::KeyRelease, Qt::Key_Escape);
+
+    QCOMPARE(f.window.received, QStringList({"press Exit", "release Exit"}));
+    QCOMPARE(f.pressed.count(), 1);
+    QCOMPARE(f.pressed.at(0).at(0).toString(), QStringLiteral("BACK"));
+    QCOMPARE(f.released.count(), 1);
+    QCOMPARE(f.released.at(0).at(0).toString(), QStringLiteral("BACK"));
+}
+
+void testInputController::escapeShortcutOverride_isAccepted() {
+    KeyboardFixture f(uc::hw::HardwareModel::DEV);
+
+    QVERIFY(f.send(QEvent::ShortcutOverride, Qt::Key_Escape));
+    // other keys still reach the shortcuts
+    QVERIFY(!f.send(QEvent::ShortcutOverride, Qt::Key_Down));
+    QVERIFY(f.window.received.isEmpty());
+}
+
+void testInputController::heldEscape_repeatsAsBack() {
+    KeyboardFixture f(uc::hw::HardwareModel::DEV);
+
+    // a held key of the desktop keyboard repeats as release/press pairs flagged as auto-repeat
+    f.send(QEvent::KeyPress, Qt::Key_Escape);
+    f.send(QEvent::KeyRelease, Qt::Key_Escape, true);
+    f.send(QEvent::KeyPress, Qt::Key_Escape, true);
+    f.send(QEvent::KeyRelease, Qt::Key_Escape, true);
+
+    QCOMPARE(f.window.received, QStringList({"press Exit", "auto-repeat release Exit", "auto-repeat press Exit",
+                                             "auto-repeat release Exit"}));
+    QCOMPARE(f.pressed.count(), 2);
+    // the auto-repeat flagged release at the end of the hold is deferred, as for every button
+    QCOMPARE(f.released.count(), 0);
+    QTRY_COMPARE_WITH_TIMEOUT(f.released.count(), 1, 1000);
+    QCOMPARE(f.released.at(0).at(0).toString(), QStringLiteral("BACK"));
+}
+
+void testInputController::blockedInput_dropsEscape() {
+    KeyboardFixture f(uc::hw::HardwareModel::DEV);
+    f.controller.blockInput(true);
+
+    f.send(QEvent::KeyPress, Qt::Key_Escape);
+    f.send(QEvent::KeyRelease, Qt::Key_Escape);
+
+    QVERIFY(f.window.received.isEmpty());
+    QCOMPARE(f.pressed.count(), 0);
+    QCOMPARE(f.released.count(), 0);
+}
+
+void testInputController::escapeOnADeviceModel_isNotTranslated() {
+    KeyboardFixture f(uc::hw::HardwareModel::UCR3);
+
+    QVERIFY(!f.send(QEvent::ShortcutOverride, Qt::Key_Escape));
+    f.send(QEvent::KeyPress, Qt::Key_Escape);
+    f.send(QEvent::KeyRelease, Qt::Key_Escape);
+
+    QCOMPARE(f.window.received, QStringList({"press Esc", "release Esc"}));
+    QCOMPARE(f.pressed.count(), 0);
+    QCOMPARE(f.released.count(), 0);
 }
 
 QTEST_GUILESS_MAIN(testInputController)

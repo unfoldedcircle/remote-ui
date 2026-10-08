@@ -301,6 +301,9 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
 - A held button simulator area repeats like the device keypad: one press, auto-repeat presses
   after 600 ms and then every 150 ms, one release. A held key of the computer keyboard repeats
   too, but with the desktop's own delay and rate, and as release/press pairs.
+- In `DEV`, Escape is BACK: `InputController` replaces every Escape key event with the `Key_Exit`
+  event of the BACK button, so both paths see BACK as on the device, and a popup that would close
+  on Escape does not. Backspace and the keypad Enter act as no button.
 - macOS blocks synthetic keystrokes (`osascript`) without Accessibility permission for the
   terminal. For scripted walks a temporary hook in `main.cpp` that reads key names from a file
   and calls `InputController::emitKey()` (which sends a real `QKeyEvent` to the window, so both

@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop simulator: holding a button in the button simulator now repeats it like a held button of the remote, after
   600 ms and then every 150 ms. Scrolling through a list or changing the volume by holding a button can be tried
   without the computer keyboard.
+- Desktop simulator: the Escape key of the computer keyboard now acts as the BACK button, so a screen can be walked
+  with the keyboard alone, without clicking BACK in the button simulator.
 
 ---
 
