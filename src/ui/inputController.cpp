@@ -8,6 +8,10 @@
 namespace uc {
 namespace ui {
 
+// auto-repeat of a held device key as set by the firmware: first repeat after the delay, then every period
+static constexpr int SIMULATOR_REPEAT_DELAY_MS = 600;
+static constexpr int SIMULATOR_REPEAT_PERIOD_MS = 150;
+
 static bool isActuallyVisible(QQuickItem* it) {
     if (!it) return false;
     if (!it->window()) return false;
@@ -38,6 +42,13 @@ InputController::InputController(hw::HardwareModel::Enum model) : m_model(model)
         m_globalPowerLongPressTriggered = true;
         emit globalPowerLongPressed();
     });
+
+    m_simulatorRepeatTimer.setSingleShot(true);
+    connect(&m_simulatorRepeatTimer, &QTimer::timeout, this, [this]() {
+        // restart first: a handler of the press may release the key and stop the timer
+        m_simulatorRepeatTimer.start(SIMULATOR_REPEAT_PERIOD_MS);
+        sendKeyEvent(QEvent::Type::KeyPress, m_simulatorKey, true);
+    });
 }
 
 InputController::~InputController() {
@@ -67,9 +78,36 @@ void InputController::setSource(QObject* source) {
 }
 
 void InputController::emitKey(Qt::Key key, bool release) {
-    QKeyEvent keyPressEvent = QKeyEvent(release ? QEvent::Type::KeyRelease : QEvent::Type::KeyPress, key,
-                                        Qt::NoModifier, QKeySequence(key).toString());
-    QCoreApplication::sendEvent(m_source, &keyPressEvent);
+    sendKeyEvent(release ? QEvent::Type::KeyRelease : QEvent::Type::KeyPress, key, false);
+}
+
+// Sends the events of a held device key: one press, auto-repeat presses without releases in between, and one plain
+// release in releaseSimulatorKey().
+void InputController::pressSimulatorKey(Qt::Key key) {
+    // one mouse holds one area at a time, but a key that is still held is released first
+    if (m_simulatorKey != Qt::Key_unknown && m_simulatorKey != key) {
+        releaseSimulatorKey(m_simulatorKey);
+    }
+
+    // the key is held before the press is sent: a handler of the press may release it again
+    m_simulatorKey = key;
+    m_simulatorRepeatTimer.start(SIMULATOR_REPEAT_DELAY_MS);
+    sendKeyEvent(QEvent::Type::KeyPress, key, false);
+}
+
+void InputController::releaseSimulatorKey(Qt::Key key) {
+    if (m_simulatorKey == Qt::Key_unknown || key != m_simulatorKey) {
+        return;
+    }
+
+    m_simulatorRepeatTimer.stop();
+    m_simulatorKey = Qt::Key_unknown;
+    sendKeyEvent(QEvent::Type::KeyRelease, key, false);
+}
+
+void InputController::sendKeyEvent(QEvent::Type type, Qt::Key key, bool autoRepeat) {
+    QKeyEvent keyEvent = QKeyEvent(type, key, Qt::NoModifier, QKeySequence(key).toString(), autoRepeat);
+    QCoreApplication::sendEvent(m_source, &keyEvent);
 }
 
 void InputController::blockInput(bool value) {

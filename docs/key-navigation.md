@@ -298,8 +298,9 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
   path 2 to work (`Window.activeFocusItem` is null in an inactive window).
 - `UC_MODEL=UCR2` or `UCR3` on a desktop is not supported: it uses the screen geometry and, for
   `UCR2`, rotates the UI (the device panel is landscape). Use `DEV`.
-- The button simulator sends one press and one release per click, no auto-repeat; check repeat
-  handlers with a held key of the computer keyboard or on a device.
+- A held button simulator area repeats like the device keypad: one press, auto-repeat presses
+  after 600 ms and then every 150 ms, one release. A held key of the computer keyboard repeats
+  too, but with the desktop's own delay and rate, and as release/press pairs.
 - macOS blocks synthetic keystrokes (`osascript`) without Accessibility permission for the
   terminal. For scripted walks a temporary hook in `main.cpp` that reads key names from a file
   and calls `InputController::emitKey()` (which sends a real `QKeyEvent` to the window, so both

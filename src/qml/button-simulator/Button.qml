@@ -28,7 +28,11 @@ Rectangle {
     MouseArea {
         id: mouseArea
         anchors.fill: button
-        onPressed: ui.inputController.emitKey(key);
-        onReleased: ui.inputController.emitKey(key, true);
+        onPressed: ui.inputController.pressSimulatorKey(key);
+        onReleased: ui.inputController.releaseSimulatorKey(key);
+        onCanceled: ui.inputController.releaseSimulatorKey(key);
     }
+
+    // the window unloads its buttons when it is hidden; a key that is not held is ignored
+    Component.onDestruction: ui.inputController.releaseSimulatorKey(key);
 }

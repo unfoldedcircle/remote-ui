@@ -65,6 +65,9 @@ class InputController : public QQuickItem {
 
     Q_INVOKABLE void setSource(QObject* source);
     Q_INVOKABLE void emitKey(Qt::Key key, bool release = false);
+    // Button simulator: a held key auto-repeats like a held device key until it is released.
+    Q_INVOKABLE void pressSimulatorKey(Qt::Key key);
+    Q_INVOKABLE void releaseSimulatorKey(Qt::Key key);
     Q_INVOKABLE void blockInput(bool value);
 
     Q_INVOKABLE void setBaseOwner(QObject* obj);
@@ -95,6 +98,7 @@ class InputController : public QQuickItem {
  private:
     static InputController* s_instance;
 
+    void sendKeyEvent(QEvent::Type type, Qt::Key key, bool autoRepeat);
     void cleanupStack();
     bool updateActive();
     void notifyActiveChanged(bool changed);
@@ -148,6 +152,9 @@ class InputController : public QQuickItem {
     QTimer m_globalPowerHoldTimer;
     bool   m_globalPowerPressed = false;
     bool   m_globalPowerLongPressTriggered = false;
+
+    QTimer  m_simulatorRepeatTimer;
+    Qt::Key m_simulatorKey = Qt::Key_unknown;
 
     int m_repeatCount = 4;
 };

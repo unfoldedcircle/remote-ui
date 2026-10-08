@@ -379,3 +379,25 @@ target_link_libraries(testVoice
     Qt5::WebSockets
     Qt5::Test
     )
+
+# uc::ui::InputController is a QML item (QQuickItem)
+add_executable (testInputController
+    "test_input_controller.cpp"
+    "../../src/ui/inputController.cpp"
+    # header only: contains the Q_GADGET enums moc has to process
+    "../../src/core/enums.h"
+    # header only: contains the Q_OBJECT class moc has to process
+    "../../src/hardware/hardwareModel.h"
+    "../../src/logging.cpp"
+    )
+
+add_test(NAME testInputController
+         COMMAND testInputController)
+
+target_link_libraries(testInputController
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Quick
+    Qt5::Test
+    )

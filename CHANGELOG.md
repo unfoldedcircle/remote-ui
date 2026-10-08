@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Changed
+- Desktop simulator: holding a button in the button simulator now repeats it like a held button of the remote, after
+  600 ms and then every 150 ms. Scrolling through a list or changing the volume by holding a button can be tried
+  without the computer keyboard.
 
 ---
 
