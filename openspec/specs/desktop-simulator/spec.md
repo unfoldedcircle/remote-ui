@@ -46,7 +46,7 @@ On the desktop model `DEV`, the only model that does not show regulatory informa
 - **THEN** only the main window is shown
 
 ### Requirement: Emulated buttons and their key events
-The button simulator SHALL offer exactly 21 click areas laid over the keypad picture, in a 480 px wide layout: top row BACK (96 x 90), HOME (288 x 90), VOICE (96 x 90); a middle block of 280 px with VOLUME_UP and VOLUME_DOWN stacked on the left (90 x 140 each), a 3 x 3 grid of 96 x 93 areas GREEN, DPAD_UP, YELLOW / DPAD_LEFT, DPAD_MIDDLE, DPAD_RIGHT / RED, DPAD_DOWN, BLUE, and CHANNEL_UP and CHANNEL_DOWN stacked on the right; bottom row MUTE, PREV, PLAY, NEXT, POWER (96 x 90 each). Pressing an area SHALL send the key press event of that physical button to the main window and releasing the mouse button SHALL send the matching key release, so the event takes the same paths as a hardware key (see `key-navigation`). A pressed area SHALL be tinted off-white, fading over 300 ms. The Remote 3 buttons STOP, RECORD and MENU SHALL NOT be emulated. The areas SHALL line up with the picture only while the window is 480 logical pixels wide, i.e. at scale 1, which is the default on Linux and Windows.
+The button simulator SHALL offer exactly 21 click areas laid over the keypad picture, in a 480 px wide layout: top row BACK (96 x 90), HOME (288 x 90), VOICE (96 x 90); a middle block of 280 px with VOLUME_UP and VOLUME_DOWN stacked on the left (90 x 140 each), a 3 x 3 grid of 96 x 93 areas GREEN, DPAD_UP, YELLOW / DPAD_LEFT, DPAD_MIDDLE, DPAD_RIGHT / RED, DPAD_DOWN, BLUE, and CHANNEL_UP and CHANNEL_DOWN stacked on the right; bottom row MUTE, PREV, PLAY, NEXT, POWER (96 x 90 each). Pressing an area SHALL send the key press event of that physical button to the main window and releasing the mouse button SHALL send the matching key release, so the event takes the same paths as a hardware key (see `key-navigation`). When the window system cancels the press (the area loses the mouse grab), the simulator SHALL send the release at that moment. A pressed area SHALL be tinted off-white, fading over 300 ms. The Remote 3 buttons STOP, RECORD and MENU SHALL NOT be emulated. The areas SHALL line up with the picture only while the window is 480 logical pixels wide, i.e. at scale 1, which is the default on Linux and Windows.
 
 #### Scenario: Clicking a d-pad button
 - **WHEN** the user clicks DPAD_DOWN in the button simulator
@@ -55,6 +55,10 @@ The button simulator SHALL offer exactly 21 click areas laid over the keypad pic
 #### Scenario: Release outside the area
 - **WHEN** the user presses HOME, drags the mouse off the area and releases it
 - **THEN** the HOME release is still sent
+
+#### Scenario: Cancelled press
+- **WHEN** the window system cancels the press of a held simulator button
+- **THEN** the release of that button is sent and no further press follows
 
 #### Scenario: Remote 3 only button
 - **WHEN** a developer needs STOP or RECORD on desktop
@@ -68,31 +72,51 @@ The button simulator SHALL offer exactly 21 click areas laid over the keypad pic
 - **WHEN** the simulator runs at scale 0.5 on a 1x display
 - **THEN** the click areas are laid out for a 960 px wide window and no longer match the keypad picture
 
-### Requirement: Press and hold in the button simulator is limited
-The button simulator is deliberately minimal: a simulator button SHALL send one key press when the mouse button goes down and one key release when it goes up, and nothing in between. This is a restriction of the simulator, not the device behaviour: on a device a held key auto-repeats — the keypad keeps sending presses flagged as auto-repeat until the key is released (see `key-navigation`, "Short press, repeat, long press and release semantics" and "Key release routing and deferred auto-repeat release"). Holding a simulator button therefore triggers the time-based long press (800 ms long-press handlers, the 3 s POWER hold) but never a repeat handler. Repeat behaviour SHALL be checked with a held key of the computer keyboard, which auto-repeats, or on a device. Emitting auto-repeat from the button simulator, with the delay and rate of the device keypad (600 ms, then every 150 ms on a Remote 3 with firmware 2.11, see `platform-constraints`), is a possible improvement.
+### Requirement: Press and hold in the button simulator auto-repeats
+A held simulator button SHALL send the key events of a held device key: one press when the mouse button goes down; while it stays down, a press flagged as auto-repeat 600 ms after the first press and then every 150 ms, with no release in between; and one release, not flagged as auto-repeat, when the mouse button goes up. 600 ms and 150 ms are the auto-repeat delay and rate the firmware sets for the device keypad (see `platform-constraints`). Every emulated button SHALL repeat. A release before 600 ms SHALL send no auto-repeat press. The repeat presses therefore take the device paths of `key-navigation` ("Short press, repeat, long press and release semantics"): `pressed_repeat` (or `pressed`) runs for each of them, while a key with a `long_press` handler ignores them and still runs `long_press` after 800 ms.
+
+#### Scenario: Short click
+- **WHEN** the user clicks DPAD_DOWN and releases it after 300 ms
+- **THEN** one press and one release are sent and no auto-repeat press
+
+#### Scenario: Holding a d-pad button
+- **WHEN** the user holds the DPAD_DOWN area for 2 s on a list that supports repeat
+- **THEN** the selection keeps moving, as on a device: one press, auto-repeat presses at 600 ms, 750 ms, 900 ms and so on, and one release when the mouse button goes up
+
+#### Scenario: Release at the end of a hold
+- **WHEN** the user releases a held DPAD_DOWN area after auto-repeat presses were sent
+- **THEN** the release is delivered at once, not deferred, and any `released` handler runs
 
 #### Scenario: Long press
 - **WHEN** the user holds the HOME area for 1 s
 - **THEN** the HOME long-press action runs once and the short-press action does not run
-
-#### Scenario: Holding a d-pad button
-- **WHEN** the user holds the DPAD_DOWN area for 2 s on a list
-- **THEN** the selection moves by one entry only, while on a device, and with the held Down arrow key, it keeps moving
 
 #### Scenario: Power menu
 - **WHEN** the user holds the POWER area for 3 s while no software update is running
 - **THEN** the power off menu opens
 
 ### Requirement: Desktop keyboard as keypad
-When the UI runs on a desktop (any model), key events from the computer keyboard SHALL be handled like physical buttons whenever their key code belongs to the button map: the arrow keys act as DPAD_UP / DPAD_DOWN / DPAD_LEFT / DPAD_RIGHT, Return as DPAD_MIDDLE, Home as HOME, F3 as VOICE and F4 as MENU. Escape, Backspace and the numeric keypad Enter SHALL NOT act as any button. A held keyboard key auto-repeats like a held hardware key. Any other key only reaches the focused control (e.g. typing into a text field).
+When the UI runs on a desktop (any model), key events from the computer keyboard SHALL be handled like physical buttons whenever their key code belongs to the button map: the arrow keys act as DPAD_UP / DPAD_DOWN / DPAD_LEFT / DPAD_RIGHT, Return as DPAD_MIDDLE, Home as HOME, F3 as VOICE and F4 as MENU. On the desktop model `DEV`, Escape SHALL act as BACK: every Escape key press and release SHALL be replaced by the key event of the BACK button, with the same press or release and auto-repeat flag, so that the button-navigation handlers and the focused control receive BACK exactly as from a device, and no control SHALL receive the Escape event, including a popup that would close on Escape. Backspace and the numeric keypad Enter SHALL NOT act as any button. A held keyboard key auto-repeats like a held hardware key. Any other key only reaches the focused control (e.g. typing into a text field).
 
 #### Scenario: Arrow keys
 - **WHEN** the user presses the Down arrow key on the desktop keyboard
 - **THEN** the UI reacts as to DPAD_DOWN and the keypad selection highlights become visible
 
 #### Scenario: Escape
-- **WHEN** the user presses Escape on a settings page
-- **THEN** the page is not left; BACK has to be clicked in the button simulator
+- **WHEN** the user presses Escape on a settings page in `DEV`
+- **THEN** the UI reacts as to BACK and the page is left
+
+#### Scenario: Escape on a popup that closes on Escape
+- **WHEN** the user presses Escape in `DEV` while a popup is open whose close policy includes closing on Escape
+- **THEN** the popup does not close because of Escape; it reacts to BACK as on a device
+
+#### Scenario: Held Escape
+- **WHEN** the user holds Escape in `DEV`
+- **THEN** the UI reacts as to a held BACK button: auto-repeat presses until the key is released, then one BACK release
+
+#### Scenario: Backspace
+- **WHEN** the user presses Backspace on a settings page
+- **THEN** the page is not left
 
 #### Scenario: Held arrow key
 - **WHEN** the user holds the Down arrow key on a list that supports repeat
@@ -151,11 +175,11 @@ On desktop the UI SHALL obtain all configuration, entities and state from a remo
 - **THEN** the UI never becomes authenticated and the startup screen stays
 
 ### Requirement: Desktop verification limits
-A desktop run SHALL NOT be treated as verification of behaviour that needs device hardware or core functions the Remote-Core Simulator does not provide: haptics, the touch slider, battery and charging, power modes and suspend/resume, WiFi and Bluetooth hardware, the physical keypad (only the Remote Two keys are emulated, without auto-repeat), mDNS discovery of docks and integrations, and installing custom integrations. Everything else runs the same code as on the device and behaves the same against the Remote-Core Simulator.
+A desktop run SHALL NOT be treated as verification of behaviour that needs device hardware or core functions the Remote-Core Simulator does not provide: haptics, the touch slider, battery and charging, power modes and suspend/resume, WiFi and Bluetooth hardware, the physical keypad (only the Remote Two keys are emulated), mDNS discovery of docks and integrations, and installing custom integrations. Everything else runs the same code as on the device and behaves the same against the Remote-Core Simulator.
 
 #### Scenario: Keypad verification
 - **WHEN** a change affects d-pad navigation
-- **THEN** it is walked with the keypad on a device, or with the computer keyboard in `DEV`, not only by clicking the button simulator
+- **THEN** it is walked with the keypad on a device, or with the computer keyboard or a held simulator button in `DEV`, not only by clicking the button simulator
 
 ### Requirement: Developer environment scripts
 The recommended way to build, run, test and clean a desktop build SHALL be `make` in the repository root with a target (`make linux`, `make run-linux`, `make test`, `make clean`, …); `make` without a target SHALL print the list of all targets with a one-line description each. The run targets source the matching environment script. The environment scripts SHALL export each variable only when it is not already set, so a value set before sourcing wins. `scripts/env/linux.sh` SHALL set `QTDIR` to an exported `QTDIR`, else to `$HOME/Qt/<QT_VERSION>/gcc_64`, else to the newest `$HOME/Qt/5.*/gcc_64`, derive `QT_VERSION` from it, prepend `$QTDIR/bin` to `PATH` and `$QTDIR/lib` to `LD_LIBRARY_PATH`, set `QT_PLUGIN_PATH` to `$QTDIR/plugins`, `QT_QPA_PLATFORM` xcb, `UC_MODEL` DEV, `UC_DISPLAY_WIDTH` 480, `UC_DISPLAY_HEIGHT` 850, `UC_DISPLAY_SCALE` 1 and `UC_TOKEN_PATH` `$HOME/projects/core-simulator/docker/ui-env/ws-token`. `scripts/env/linux-static.sh` SHALL set the same without any Qt library or plugin paths. `scripts/env/macos.sh` SHALL set only the app variables, with `UC_DISPLAY_SCALE` 0.5 and no platform plugin; it needs no Qt paths, because the static app bundle contains Qt and the shared one finds the Qt frameworks of the installation it was built with by itself. `scripts/env/windows.cmd` SHALL set the same app variables with `UC_DISPLAY_SCALE` 1, additionally `UC_SOCKET_URL` `ws://127.0.0.1:8080/ws`, print what it set, and start the Windows executable, by default the one in the cross-compile output directory or the one named as its first argument. No script other than `scripts/env/windows.cmd` SHALL set `UC_SOCKET_URL`, and no script SHALL set `UC_RESOURCE_PATH`, `UC_LEGAL_PATH`, `UC_SOUND_EFFECTS_PATH` or `UC_ONBOARDING_PATH`. On macOS `make run-macos` and `make run-macos-static` SHALL source `scripts/env/macos.sh` and start the executable inside the app bundle of the matching build, and fail with a hint to the build target when that bundle does not exist yet.
