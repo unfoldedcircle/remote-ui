@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Desktop simulator: the Escape key of the computer keyboard now acts as the BACK button, so a screen can be walked
   with the keyboard alone, without clicking BACK in the button simulator.
 
+### Fixed
+- The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
+  They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
+  current state of the switch, as it already does for a light.
+
 ---
 
 ## v0.83.0 - 2026-10-06

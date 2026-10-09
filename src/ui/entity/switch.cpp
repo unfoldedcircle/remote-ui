@@ -58,7 +58,14 @@ void Switch::turnOff() {
 }
 
 void Switch::toggle() {
-    sendCommand(SwitchCommands::Toggle);
+    // Core-API: without the toggle feature the remote sends on or off from the current state, as for a light
+    if (hasFeature(SwitchFeatures::Toggle)) {
+        sendCommand(SwitchCommands::Toggle);
+    } else if (m_state == SwitchStates::On) {
+        turnOff();
+    } else {
+        turnOn();
+    }
 }
 
 void Switch::sendCommand(SwitchCommands::Enum cmd, QVariantMap params) {

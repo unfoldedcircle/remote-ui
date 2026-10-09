@@ -42,6 +42,27 @@ target_link_libraries(testCoverEntity
     Qt5::Test
     )
 
+add_executable (testSwitchEntity
+    "test_switch_entity.cpp"
+    "../../src/ui/entity/switch.cpp"
+    "../../src/ui/entity/entityScreens.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testSwitchEntity
+         COMMAND testSwitchEntity)
+
+target_link_libraries(testSwitchEntity
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Test
+    )
+
 add_executable (testUiModels
     "test_models.cpp"
     "../../src/ui/page/pages.cpp"
