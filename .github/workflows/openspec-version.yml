@@ -1,0 +1,54 @@
+# Checks the pinned OpenSpec CLI version (openspec/README.md, "Keeping the workflow schema in step
+# with OpenSpec"). Every pull request and push to main that touches the docs or this check verifies
+# that all commands name the same version. Once a week, and on a manual run, it also fails when
+# OpenSpec has released a newer version; the job summary then lists the steps to adopt it.
+---
+name: "OpenSpec version"
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "**/*.md"
+      - ".gitignore"
+      - "tools/openspec-version.py"
+      - ".github/workflows/openspec-version.yml"
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "**/*.md"
+      - ".gitignore"
+      - "tools/openspec-version.py"
+      - ".github/workflows/openspec-version.yml"
+  schedule:
+    # Mondays, 05:17 UTC
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  openspec-version:
+    name: Check the OpenSpec CLI version
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Every command names the pinned version
+        run: python3 tools/openspec-version.py
+
+      # Only on the schedule and on a manual run: a new OpenSpec release must not fail unrelated
+      # pull requests. A failure explains in the job summary how to adopt the release.
+      - name: The pinned version is the latest OpenSpec release
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        run: python3 tools/openspec-version.py --latest
