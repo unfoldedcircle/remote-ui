@@ -53,8 +53,12 @@ project by itself: updating the CLI or regenerating the `/opsx:*` commands does 
 because the commands fetch their instructions from the copy. Only the validation follows the CLI.
 
 The CLI is pinned: every command in this repository names the same version, 1.14.1, so a new
-OpenSpec release changes nothing until it is adopted on purpose. To adopt one, read its release
-notes, compare the copy with its built-in `spec-driven` schema, and then change the version:
+OpenSpec release changes nothing until it is adopted on purpose. The "OpenSpec version" workflow
+checks on every pull request that all commands name the same version, and fails once a week while
+OpenSpec has a newer release, with these steps in its job summary
+(`python3 tools/openspec-version.py --latest` runs the same check locally). To adopt a release, read
+its release notes, compare the copy with its built-in `spec-driven` schema, and then change the
+version:
 
 1. `npx @fission-ai/openspec@<new version> schema which spec-driven` prints where the built-in
    schema of that release is. Compare its `schema.yaml` and `templates/` with the copy. The copy has
@@ -65,8 +69,8 @@ notes, compare the copy with its built-in `spec-driven` schema, and then change 
 3. Check the community schema for changes to the `adr` step as well.
 4. Keep the local edit: ADRs live in `docs/adr/`, where the community schema writes `<repo>/adr/`.
    The `README.md` in the schema folder is the community's text and still says `adr/`.
-5. Change the version in every command that names it (`git grep '@fission-ai/openspec@'`), so
-   the docs, the generated `/opsx:*` commands and CI use the same release.
+5. Change the version in every command: `python3 tools/openspec-version.py --set <new version>`.
+   Regenerate your local `/opsx:*` commands with the new version as well.
 6. Check the result with the new version: `schema validate spec-driven-with-adr` passes;
    `openspec instructions <artifact> --change <change>` shows the expected text and no "could not
    parse" warning for `config.yaml` (a `config.yaml` the CLI cannot parse is ignored with nothing
