@@ -32,6 +32,8 @@ One phase per fix, then the verification. Each fix commit carries its `CHANGELOG
 - [x] 5.2 Test: a code block and inline code.
 - [x] 5.3 A text table in a code block keeps one line per row, without its borders: the Mesa license in the
       operating system licenses of the firmware. Test with a table of two rows.
+- [x] 5.4 Code in blocks of about 2000 characters, split where a paragraph ends (also at a Debian "." line) or
+      at a line in a longer paragraph, after the measurement on a Remote 3 (6.5). Tests for both splits.
 
 ## 6. Verification
 
@@ -43,3 +45,4 @@ One phase per fix, then the verification. Each fix commit carries its `CHANGELOG
 - [x] 6.4 `openspec validate license-documents --strict`.
 - [ ] 6.5 On a device: the firmware's license files, and scrolling through the largest one, measured with a
       custom build: the time to prepare the blocks and the longest frame while the largest block comes into view.
+      First run on a Remote 3: 2.8 s for the 138 kB block (5.4 splits it); the run with 5.4 is open.
