@@ -145,13 +145,17 @@ Popup {
             Components.Divider {}
 
             Components.KeyValueRow {
-                key: qsTr("MAC address")
+                //: Key of the remote's WiFi MAC address in the network details. Keep it short: the address goes on the same line when both fit
+                key: qsTr("MAC")
                 value: wifiInfo.macAddress
+                // an address is read in full: under the key when it does not fit next to it
+                fullValue: true
             }
 
             Components.KeyValueRow {
                 key: qsTr("IP address")
                 value: wifiInfo.ipAddress
+                fullValue: true
             }
 
             Components.KeyValueRow {
