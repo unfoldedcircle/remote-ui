@@ -168,3 +168,8 @@ this change after the migration is merged to `main`, not in a phase pull request
       selection styles, `platform-constraints` legibility floors, `entity-management` filter sheet
       and empty list, `pages` no-page screen keypad and menu). Verified with
       `openspec validate lcd-readability-design-system --strict`
+- [x] 6.7 The spec deltas record what phases 3 and 4 changed on the legal pages and in the tips: the
+      prose role and half-page key steps of the legal pages (`ui-resources` "Legal documents" and
+      "Licenses document", `settings-menu` "About page", the example in `key-navigation` "Scroll the
+      focused control into view") and the tip text in the help role (`help-overlay` "Overlay
+      presentation")
