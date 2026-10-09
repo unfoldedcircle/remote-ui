@@ -43,6 +43,8 @@ One phase per fix, then the verification. Each fix commit carries its `CHANGELOG
       core-simulator's license files: overview, crate licenses, a heading link, code as text, BACK and the back
       arrow; no QML error or binding loop in the log.
 - [x] 6.4 `openspec validate license-documents --strict`.
-- [ ] 6.5 On a device: the firmware's license files, and scrolling through the largest one, measured with a
-      custom build: the time to prepare the blocks and the longest frame while the largest block comes into view.
-      First run on a Remote 3: 2.8 s for the 138 kB block (5.4 splits it); the run with 5.4 is open.
+- [x] 6.5 On a Remote 3 with the firmware's license files, measured with a custom build: the time to prepare
+      the blocks and the longest frame while the largest blocks come into view. First run: 2.8 s for the 138 kB
+      block, which 5.4 splits; with 5.4 no step takes more than 387 ms (opening the operating system licenses), a
+      jump to a large block at most 198 ms.
+- [ ] 6.6 On both remotes: the license overview and a license read through with the d-pad and by touch.

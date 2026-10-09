@@ -94,8 +94,10 @@ ADR 0012 leaves to QML.
 
 A code block is split into blocks of about 2000 characters where a paragraph ends, at a blank line or a Debian
 "." line, and at a line when a paragraph grows to twice that size. The largest block of the files the overview
-reaches is then 4.5 kB, about 90 ms on a Remote 3. A split inside a paragraph starts a new line; only paragraphs
-longer than 4000 characters have one.
+reaches is then 4.5 kB. A split inside a paragraph starts a new line; only paragraphs longer than 4000 characters
+have one. Measured again on a Remote 3: a jump to one of the largest blocks takes 67 to 198 ms (before 0.9 to
+2.8 s), scrolling to the largest one 94 and 156 ms (before 2.3 and 1.3 s), a d-pad step 20 to 91 ms. Opening the
+operating system licenses takes 387 ms and preparing them 259 ms, the same as with 106 blocks instead of 888.
 
 - *Alternative: one block per line, as before this change.* A Markdown table or list would fall apart. Rejected.
 
@@ -130,5 +132,4 @@ on a Remote 3; the files the overview reaches give about 3500 blocks, 900 of the
 
 ## Open Questions
 
-- Does scrolling through the operating system licenses stay smooth on a Remote 3 with blocks of about 2000
-  characters (D9)? To be measured with the custom build again.
+None.
