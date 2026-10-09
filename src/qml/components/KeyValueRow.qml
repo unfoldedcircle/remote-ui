@@ -10,7 +10,8 @@ import "qrc:/components" as Components
 // role, a divider below. On one line the key keeps its width and the value takes the rest and elides; a long value
 // (stacked) goes under the key and wraps. A value that has to be read in full (fullValue), such as a MAC or IP
 // address, stays on the line while it fits next to the key and goes under the key otherwise, so it is never cut
-// off in any language. 14 px vertical padding, 20 px gutter.
+// off in any language. 8 px vertical padding, denser than the selectable rows: a key/value row is read, not
+// selected, and the About page fits its information and its first entry on the Remote 3. 20 px gutter.
 Item {
     id: keyValueRow
     width: parent ? parent.width : 0
@@ -27,7 +28,7 @@ Item {
     property bool showDivider: true
 
     readonly property int gutter: 20
-    readonly property int padding: 14
+    readonly property int padding: 8
     readonly property int spacing: 20
 
     // measured with the fonts of the two roles, not with the Text items, whose size depends on the layout
