@@ -39,7 +39,8 @@ Item {
             connectSignalSlot(DockController.gotDock, function(success, dockIdFromCore) {
                 dockObj = DockController.getConfiguredDock(dockIdFromCore);
                 if (!success) {
-                    ui.createNotification("There was an error while getting the latest dock data", true);
+                    //: Notification: the details of a dock could not be loaded
+                    ui.createNotification(qsTr("There was an error while getting the latest dock data"), true);
                 }
             });
         } else {

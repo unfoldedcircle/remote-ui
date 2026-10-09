@@ -25,7 +25,8 @@ OnboardingComponents.Page {
     Components.ProfileAdd {
         id: profileAdd
         state: "hidden"
-        inputField.placeholderText: "Default"
+        //: Placeholder of the name field when the first profile is created
+        inputField.placeholderText: qsTr("Default")
         onClosed: profileSwitch.state = "visible"
     }
 

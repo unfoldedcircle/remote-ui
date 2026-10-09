@@ -108,7 +108,8 @@ OnboardingComponents.Page {
                 keypadOne.pinToCheck = "";
                 keypadTwo.pinToCheck = "";
                 keypadOne.showError();
-                ui.createNotification("The pin doesn't match. Try again.", true);
+                //: Notification: the PIN entered a second time differs from the first one
+                ui.createNotification(qsTr("The PIN doesn't match. Try again."), true);
             }
         }
     }

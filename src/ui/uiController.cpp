@@ -284,10 +284,10 @@ int Controller::addProfile(const QString &name, bool restricted) {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error adding profile: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
+            qCWarning(lcUi()) << "Error adding profile:" << code << message;
             if (code != 422) {
-                m_notification.createNotification(errorMsg, true);
+                //: Notification: a profile could not be created. %1 is the core's error message
+                m_notification.createNotification(tr("Error adding profile: %1").arg(message), true);
             }
             emit profileAdded(false, code);
         });
@@ -308,7 +308,7 @@ int Controller::deleteProfile(const QString &profileId) {
         m_notification.createActionableWarningNotification(
             tr("Error"),
             tr("Deleting a current profile is not permitted. Please switch to another profile and try again."),
-            "warning");
+            "uc:warning");
         return -1;
     }
 
@@ -322,9 +322,9 @@ int Controller::deleteProfile(const QString &profileId) {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error deleting profile: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
-            m_notification.createNotification(errorMsg, true);
+            qCWarning(lcUi()) << "Error deleting profile:" << code << message;
+            //: Notification: a profile could not be deleted. %1 is the core's error message
+            m_notification.createNotification(tr("Error deleting profile: %1").arg(message), true);
         });
 
     return id;
@@ -342,9 +342,9 @@ int Controller::addPage(const QString &name) {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error adding page: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
-            m_notification.createNotification(errorMsg, true);
+            qCWarning(lcUi()) << "Error adding page:" << code << message;
+            //: Notification: a page could not be created. %1 is the core's error message
+            m_notification.createNotification(tr("Error adding page: %1").arg(message), true);
 
             syncWithCore();
         });
@@ -365,9 +365,9 @@ int Controller::renamePage(const QString &pageId, const QString &name) {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error renaming page: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
-            m_notification.createNotification(errorMsg, true);
+            qCWarning(lcUi()) << "Error renaming page:" << code << message;
+            //: Notification: a page could not be renamed. %1 is the core's error message
+            m_notification.createNotification(tr("Error renaming page: %1").arg(message), true);
             syncWithCore();
         });
 
@@ -384,9 +384,9 @@ int Controller::deletePage(const QString &pageId) {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error deleting page: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
-            m_notification.createNotification(errorMsg, true);
+            qCWarning(lcUi()) << "Error deleting page:" << code << message;
+            //: Notification: a page could not be deleted. %1 is the core's error message
+            m_notification.createNotification(tr("Error deleting page: %1").arg(message), true);
         });
 
     return id;
@@ -483,9 +483,9 @@ void Controller::factoryReset() {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error factory reset: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
-            m_notification.createNotification(errorMsg, true);
+            qCWarning(lcUi()) << "Error factory reset:" << code << message;
+            //: Notification: the factory reset failed. %1 is the core's error message
+            m_notification.createNotification(tr("Error during factory reset: %1").arg(message), true);
         });
 }
 
@@ -597,8 +597,7 @@ void Controller::loadProfile(const QString &profileId) {
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error loading profile: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
+            qCWarning(lcUi()) << "Error loading profile:" << code << message;
             emit isNoProfileChanged();
         });
 }
@@ -689,9 +688,9 @@ int Controller::updatePage(const QString &pageId, const QString &name, const QSt
         },
         [=](int code, QString message) {
             // fail
-            QString errorMsg = "Error updating page: " + message;
-            qCWarning(lcUi()) << code << errorMsg;
-            m_notification.createNotification(errorMsg, true);
+            qCWarning(lcUi()) << "Error updating page:" << code << message;
+            //: Notification: a change to a page could not be saved. %1 is the core's error message
+            m_notification.createNotification(tr("Error updating page: %1").arg(message), true);
             syncWithCore();
         });
 
