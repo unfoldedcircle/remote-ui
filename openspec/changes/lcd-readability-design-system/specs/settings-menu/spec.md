@@ -1,5 +1,19 @@
 ## MODIFIED Requirements
 
+### Requirement: Settings submenu
+"Settings" SHALL list, in order: "Display & Brightness", "User interface", "Touch Slider", "Sound & Haptic", "Voice Control", "Power Saving", "Wifi & Bluetooth", "Localization", "Administrator PIN", "Factory reset". Opening it re-requests the configuration from the core. The list scrolls when it overflows, keeping the selection between 15% and 85% of its height.
+
+#### Scenario: Entry chosen
+- **WHEN** an entry is chosen
+- **THEN** its page loads on the third level
+
+### Requirement: User interface page
+The page SHALL offer switches: "Inverted button behavior" (short press opens the control screen, long press toggles); "Show battery percentage"; "Show battery indicator everywhere"; "Activities on pages" (activity bar in the page header); "Open activities started with the API"; "Zoom media image" (crop artwork instead of fit); "Coverflow in media browser".
+
+#### Scenario: Activity bar toggled
+- **WHEN** "Activities on pages" is switched
+- **THEN** the page headers on the main screen resize immediately
+
 ### Requirement: Opening the settings
 The settings overlay SHALL open from the gear icon of the pull-down menu (pull the current page down past its header plus 100 px) and, as the profile page variant with header rows, by tapping the profile icon in the status bar or by choosing "Profile & settings" in the page menu (a long press on HOME, see `pages`), which is the way in with the keypad. The overlay fades in over 200 ms and takes the input while it is open.
 

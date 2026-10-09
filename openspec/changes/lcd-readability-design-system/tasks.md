@@ -139,6 +139,10 @@ this change after the migration is merged to `main`, not in a phase pull request
       a render at 480 x 800 with Poppins and Space Mono: the information ends at 562 of 720 px below
       the title bar, Regulatory at 662, and part of the next entry shows; the device check is part
       of 5.6
+- [x] 5.10 American English: "Localisation" and "Inverted button behaviour" become "Localization" and
+      "Inverted button behavior", with translator comments; no other text on screen has a British
+      spelling (every source text of `en_US.ts` and every string literal in `src` checked). The
+      requirements that quote the two texts follow.
 
 ## 6. Guardrails
 

@@ -3533,17 +3533,22 @@ no return</translation>
         <translation>WiFi &amp; Bluetooth</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="104"/>
-        <source>Localisation</source>
+        <location filename="../../src/qml/settings/Settings.qml" line="105"/>
+        <source>Localization</source>
+        <extracomment>Settings page for the language, country, time zone, units and clock format of the remote.</extracomment>
         <translation>Localization</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="109"/>
+        <source>Localisation</source>
+        <translation type="vanished">Localization</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/Settings.qml" line="110"/>
         <source>Administrator PIN</source>
         <translation>Administrator PIN</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/Settings.qml" line="114"/>
+        <location filename="../../src/qml/settings/Settings.qml" line="115"/>
         <source>Factory reset</source>
         <translation>Factory reset</translation>
     </message>
@@ -4106,72 +4111,77 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>Ui</name>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="43"/>
         <source>Inverted button behaviour</source>
-        <translation>Inverted button behavior</translation>
+        <translation type="vanished">Inverted button behavior</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/Ui.qml" line="44"/>
+        <source>Inverted button behavior</source>
+        <extracomment>Switch in the user interface settings: swaps what a short and a long press do on the main screen.</extracomment>
+        <translation>Inverted button behavior</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="45"/>
         <source>Inverts button functions on the main screen: short press to open the control screen, long press to quick toggle.</source>
         <translation>Inverts button functions on the main screen: short press to open the control screen, long press to quick toggle.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="62"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="63"/>
         <source>Show battery percentage</source>
         <translation>Show battery percentage</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="63"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="64"/>
         <source>Always show the battery percentage next to the icon.</source>
         <translation>Always show the battery percentage next to the icon.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="82"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="83"/>
         <source>Show battery indicator everywhere</source>
         <translation>Show battery indicator everywhere</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="83"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="84"/>
         <source>Shows the battery level indicator on all pages and activities.</source>
         <translation>Shows the battery level indicator on all pages and activities.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="102"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="103"/>
         <source>Activities on pages</source>
         <translation>Activities on pages</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="103"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="104"/>
         <source>Show the running activities and playing media players in the page header.</source>
         <translation>Show the running activities and playing media players in the page header.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="122"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="123"/>
         <source>Open activities started with the API</source>
         <translation>Open activities started with the API</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="123"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="124"/>
         <source>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</source>
         <translation>Open the activity screen when an activity is started outside of the remote, replacing whatever is on screen.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="142"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="143"/>
         <source>Zoom media image</source>
         <translation>Zoom media image</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="143"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="144"/>
         <source>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</source>
         <translation>Zoom &amp; crop artwork in media player widgets instead of scaling to fit.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="163"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="164"/>
         <source>Coverflow in media browser</source>
         <translation>Coverflow in media browser</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/Ui.qml" line="164"/>
+        <location filename="../../src/qml/settings/settings/Ui.qml" line="165"/>
         <source>Use coverflow as the default view when opening the media browser.</source>
         <translation>Use coverflow as the default view when opening the media browser.</translation>
     </message>

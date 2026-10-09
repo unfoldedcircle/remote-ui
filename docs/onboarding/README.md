@@ -78,5 +78,5 @@ Typical interaction cost after this change: a Swiss user goes from
 *3 × scroll-through-hundreds* to **3 key presses + 2 short scrolls** (language,
 country row 3 of the suggestions, confirm timezone).
 
-The same data fixes apply to *Settings → Localisation*
+The same data fixes apply to *Settings → Localization*
 (`src/qml/settings/settings/Localisation.qml`), which reuses the identical helpers.

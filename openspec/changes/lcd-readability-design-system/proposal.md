@@ -72,6 +72,10 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
   - `settings-menu`: the About page shows the Wi-Fi and Bluetooth addresses in full, fits its
     information and its first entry on the screen, and scrolls back to its information when the
     keypad selection returns to the first entry.
+- American English for the two settings texts in British spelling, "Localization" and "Inverted
+  button behavior": `settings-menu` "Settings submenu" and "User interface page", `groups` "Group
+  tile by d-pad", `pages` "Tile selection by d-pad", `device-configuration` "Local UI preferences"
+  and `entity-detail-controls` "Inverted button behaviour setting" quote them.
 
 ## Impact
 
