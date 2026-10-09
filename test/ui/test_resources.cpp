@@ -35,6 +35,7 @@ class testResources : public QObject {
     void licenseBlocks_documentLinks_areAnchors();
     void licenseAnchorBlock_findsHeading();
     void licenseBlocks_code_isText();
+    void licenseBlocks_textTable_keepsItsRows();
 
  private:
     static void writeFile(const QString& path, const QByteArray& content);
@@ -279,6 +280,19 @@ void testResources::licenseBlocks_code_isText() {
 
     QCOMPARE(blocks, QStringList({"#### License\n\nCopyright \\(c\\) 2015 \\*Me\\*\n\nSee http\\:\\/\\/x\\.org",
                                   "#### Next\nBase image is debian\\:bookworm\\-slim."}));
+}
+
+// The Mesa license in the operating system licenses holds a text table in its code block: flowing into a
+// paragraph, its rows ran into one another. Every row keeps its line, the borders are left out.
+void testResources::licenseBlocks_textTable_keepsItsRows() {
+    const QStringList blocks = uc::ui::Resources(QString(), m_legalPath)
+                                   .licenseBlocks(
+                                       "#### License\n```\nterms:\n+------+-----+\n| Main | MIT |\n"
+                                       "+======+=====+\n| GLX  | SGI |\n+------+-----+\n\nIn general.\n```",
+                                       true, false);
+
+    QCOMPARE(blocks, QStringList({"#### License\n\nterms\\:\n\n\\| Main \\| MIT \\|  \n\\| GLX \\| SGI \\|  \n\n"
+                                  "In general\\."}));
 }
 
 QTEST_GUILESS_MAIN(testResources)
