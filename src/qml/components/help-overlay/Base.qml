@@ -79,6 +79,8 @@ MouseArea {
             Layout.alignment: Qt.AlignHCenter
 
             text: qsTr("Close")
+            // OK always closes the tips, so Close is the keypad selection whenever the keypad is in use
+            highlight: ui.keyNavigationActive
             trigger: function() {
                 showHelpBase.close();
             }

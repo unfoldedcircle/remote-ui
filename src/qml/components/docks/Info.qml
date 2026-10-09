@@ -238,6 +238,7 @@ Item {
 
                                 text: dockInfoContainer.dockObj.name
                                 textFormat: Text.RichText
+                                linkColor: colors.textPrimary
                                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                                 elide: Text.ElideRight
                                 maximumLineCount: 2
@@ -282,7 +283,8 @@ Item {
                         Layout.topMargin: -10
                         Layout.fillWidth: true
 
-                        text: qsTr("Tap to edit name")
+                        //: Hint under the dock name: selecting the name (touch or OK) opens the rename dialog
+                        text: qsTr("Select to edit the name")
                         elide: Text.ElideRight
                         maximumLineCount: 1
                         color: colors.textSecondary
@@ -445,14 +447,17 @@ Item {
                 selected: activeFocus
                 keypadActivatable: true
                 KeyNavigation.up: ledSlider
-                KeyNavigation.down: wifiRow
+                KeyNavigation.down: resetRow
                 onClicked: {
                     passwordChangeContainter.open(dockInfoContainer.dockObj.id);
                 }
             }
 
+            // hidden until changing the dock's WiFi is implemented: a row that does nothing is a dead
+            // end for the keypad (audit N-09); the chain goes from password to reset directly
             Components.MenuRow {
                 id: wifiRow
+                visible: false
                 opacity: dockInfoContainer.dockEditable ? 1 : 0.4
                 enabled: dockInfoContainer.dockEditable
                 text: qsTr("Change WiFi settings")
@@ -474,7 +479,7 @@ Item {
                 chevron: true
                 selected: activeFocus
                 keypadActivatable: true
-                KeyNavigation.up: wifiRow
+                KeyNavigation.up: passwordRow
                 KeyNavigation.down: deleteRow
                 onClicked: {
                     ui.createActionableWarningNotification(qsTr("Factory reset"),

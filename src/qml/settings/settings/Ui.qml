@@ -40,7 +40,8 @@ Settings.Page {
 
             /** INVERTED BUTTON BEHAVIOUR **/
             Components.SettingRow {
-                title: qsTr("Inverted button behaviour")
+                //: Switch in the user interface settings: swaps what a short and a long press do on the main screen.
+                title: qsTr("Inverted button behavior")
                 help: qsTr("Inverts button functions on the main screen: short press to open the control screen, long press to quick toggle.")
 
                 Components.Switch {

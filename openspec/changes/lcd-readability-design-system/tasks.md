@@ -96,13 +96,53 @@ this change after the migration is merged to `main`, not in a phase pull request
 
 ## 5. Reachability
 
-- [ ] 5.1 Make the controls of audit finding N-01 reachable, each in the idiom of its screen
-- [ ] 5.2 Give the reachable controls without a visible selection (N-02) the ring
-- [ ] 5.3 Reword touch-only hints (N-04) in `en_US.ts`; hide the unimplemented dock row (N-09)
-- [ ] 5.4 Spec deltas for the capabilities whose screens change (pages, profiles, docks,
-      integrations, notifications)
-- [ ] 5.5 `CHANGELOG.md`: every screen works with the d-pad
-- [ ] 5.6 Verify each newly reachable control on a device
+- [x] 5.1 Make the controls of audit finding N-01 reachable, each in the idiom of its screen: the page
+      menu (HOME long press) opens the profile page, also for a restricted profile; the no-page
+      screen takes OK and a HOME long press; the web configurator screen walks its rows; the
+      onboarding Finish address joins the chain; the entity filter sheet's Clear and Done, the
+      Manage entities tabs; the connection status list scrolls. BACK is the recorded equivalent of
+      the close icons and the PIN Cancel. `NotificationDrawer.qml` was unused and is removed;
+      `NoProfile.qml` was already gone. Touch only by design: typing in text and search fields (the
+      keypad does not operate the on-screen keyboard) and links inside legal texts. The entity detail
+      screens (activity menu opener, media browse, sources, shuffle, repeat) follow with them (D-7)
+- [x] 5.2 Give the reachable controls without a visible selection (N-02) the ring: the help overlay's
+      Close, a scrolling driver text, the tabs; empty docks, integrations, Wi-Fi and entity lists
+      select their only target instead of nothing. Already fixed before this phase: the activity
+      loading screen and the power-off Cancel
+- [x] 5.3 Reword touch-only hints (N-04) in the code and `en_US.ts`; hide the unimplemented dock row
+      (N-09). The activity header hints ("Tap for more") stay with the entity detail screens
+- [x] 5.4 Spec deltas for the capabilities whose screens change: pages, profiles, docks,
+      integrations, entity-management, groups, notifications, help-overlay, onboarding,
+      settings-menu, core-connection. The `notifications` delta also records the presentation
+      phases 3 and 4 gave the actionable notification (buttons, prose message, bar colour)
+- [x] 5.5 `CHANGELOG.md`: every screen works with the d-pad
+- [ ] 5.6 Verify each newly reachable control on a device. Desktop done at 800 px
+      (`UC_MODEL=DEV`): page menu and profile page, web configurator, no-page screen with its menu
+      and dialog, tips, Wi-Fi with empty lists, docks and integrations lists, Manage entities tabs and
+      filter header, onboarding Start, Terms and Finish. Not reachable in the simulator: a restricted
+      profile, the first-profile dialog, the connection status list, a dock's details. Also on a
+      device: the About page shows Regulatory in full below its information and scrolls back to the
+      top when the selection returns to Regulatory
+- [x] 5.7 Addresses in full (phase 4, found on the device): `KeyValueRow` takes `fullValue` for a
+      value that has to be read in full, on the line of its key while both fit, otherwise under it,
+      measured with the fonts of the two roles; the About page's Wi-Fi and Bluetooth addresses and the
+      WiFi details' MAC and IP addresses use it, and the WiFi details call the key "MAC". `wifi` and
+      `settings-menu` spec deltas, `docs/design-system.md` section 5. Verified with a render of the
+      rows at 480 px with Poppins and Space Mono: the addresses are shown in full, "MAC" stays on one
+      line, a German key moves the address under it, and the QML log has no binding loop
+- [x] 5.8 The About page scrolls back to its information (phase 5, found on the device): the first
+      entry, reached with the keypad or pressed with DPAD_UP, scrolls the page up as far as the entry
+      stays visible. `settings-menu` spec delta; the device check is part of 5.6
+- [x] 5.9 The About page shows its first entry (phase 4, found on the device): a key/value row takes
+      8 px vertical padding instead of 14, so the About page's information and Regulatory fit on the
+      Remote 3 together. `settings-menu` spec delta, `docs/design-system.md` section 5. Verified with
+      a render at 480 x 800 with Poppins and Space Mono: the information ends at 562 of 720 px below
+      the title bar, Regulatory at 662, and part of the next entry shows; the device check is part
+      of 5.6
+- [x] 5.10 American English: "Localisation" and "Inverted button behaviour" become "Localization" and
+      "Inverted button behavior", with translator comments; no other text on screen has a British
+      spelling (every source text of `en_US.ts` and every string literal in `src` checked). The
+      requirements that quote the two texts follow.
 
 ## 6. Guardrails
 

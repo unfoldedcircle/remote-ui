@@ -197,7 +197,12 @@ two footer buttons (`zone`), LEFT/RIGHT move between the footer buttons and are 
 the host (tabs in `ManageEntities`). `group/GroupEdit.qml` walks header / rows / Done the same way and
 adds a held row for reordering (`heldIndex`); a `long_press` on `DPAD_MIDDLE` is the key equivalent
 of swipe-to-delete. The page menu (`HOME` long press, `MainContainer.openPageEditMenu()`) carries the
-edit menu of the selected tile — the tile's own long press is taken by open / toggle.
+edit menu of the selected tile — the tile's own long press is taken by open / toggle. It is also the
+keypad's way to everything the main screen opens by touch only: the page selector (page title) and
+the profile page (status bar profile icon, pull-down menu), which leads on to the profile list, the
+web configurator and the settings. A restricted profile gets a short menu with those two and the
+tips. `NoPage.qml` has no page to carry the menu: it takes the input itself (base owner), OK adds the
+first page and a `HOME` long press opens the same profile entry.
 `Page.qml` clamps its `currentIndex` on every count and index change: saving the page after a
 reorder rewrites the item list and a removed tile shrinks it, and both left the index past the end
 with every main-container key handler throwing on the missing current tile. A touch user taps a

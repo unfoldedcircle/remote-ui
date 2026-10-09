@@ -223,7 +223,8 @@ ListView {
                     Layout.fillWidth: true
 
                     color: colors.textSecondary
-                    text: qsTr("Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.")
+                    //: Dock discovery start screen; "Discover" is the button below this text
+                    text: qsTr("Select Discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.")
                     wrapMode: Text.WordWrap
                     horizontalAlignment: Text.AlignHCenter
                     font: fonts.help()

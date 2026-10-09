@@ -49,9 +49,33 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
   layer.
 - `activities`: "Activity menu and included entities" draws its selection in the fill style and
   follows the keypad-active state instead of a flag of its own (phase 2).
-- Phase 5 makes controls reachable on screens owned by other capabilities (pages, profiles, docks,
-  integrations, notifications). Their deltas are written with that phase, when the exact behaviour
-  per screen is settled.
+- Phase 5 makes controls reachable on screens owned by other capabilities and rewords their
+  touch-only hints:
+  - `pages`: the page menu (HOME long press) leads to the profile page, also for a restricted
+    profile; the no-page screen takes OK and a HOME long press.
+  - `profiles`: the web configurator screen walks its rows; the first-profile dialog cannot be
+    cancelled into an empty screen.
+  - `settings-menu`: the settings open from the page menu; the WiFi page skips empty lists.
+  - `docks`, `integrations`: empty lists select the "Add" sheet; the unimplemented dock row is
+    hidden; the entity manager's tabs and a scrolling driver text show the selection.
+  - `entity-management`: the filter sheet's Clear and Done are reachable; an empty list selects the
+    filter button.
+  - `onboarding`, `help-overlay`, `core-connection`: the Finish address, the tips' Close and the
+    connection status list; reworded hints.
+  - `groups`, `notifications`: the reworded "Select entities" text.
+- `notifications`: "Actionable notification presentation" also records the look phases 3 and 4 gave
+  the actionable notification: the action and "Cancel" as buttons, the message in the prose role and
+  the primary text colour, and the bar of a neutral notification in the primary text colour.
+- Found on the device after phases 4 and 5:
+  - `wifi`: the details of the current network call the MAC key "MAC" and show the MAC and IP
+    addresses in full.
+  - `settings-menu`: the About page shows the Wi-Fi and Bluetooth addresses in full, fits its
+    information and its first entry on the screen, and scrolls back to its information when the
+    keypad selection returns to the first entry.
+- American English for the two settings texts in British spelling, "Localization" and "Inverted
+  button behavior": `settings-menu` "Settings submenu" and "User interface page", `groups` "Group
+  tile by d-pad", `pages` "Tile selection by d-pad", `device-configuration` "Local UI preferences"
+  and `entity-detail-controls` "Inverted button behaviour setting" quote them.
 
 ## Impact
 
