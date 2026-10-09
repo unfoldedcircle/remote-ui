@@ -22,6 +22,21 @@ A new screen SHALL: choose one idiom per key; take the input when in front and r
 - **WHEN** a new settings page is walked with the keypad after opening it by touch and by key
 - **THEN** every control is reachable, the selection appears only after the first key press and is drawn as a ring, and BACK/HOME leave every popup the page can open
 
+### Requirement: Scroll the focused control into view
+A page MAY point `scrollTarget` at its Flickable. Whenever the window focus changes, the button navigation SHALL reveal the focused control with a 40 px margin: the control's section (the direct child of the top-level layout inside the Flickable, e.g. a row with title and description) when the section plus margins fits into the viewport, otherwise the control itself. `scrollBy(delta)` SHALL scroll the target by `delta` pixels clamped to its content and report whether it moved. `Settings.Page` SHALL, on DPAD_UP/DOWN that no control or KeyNavigation link accepted (path 2 only, while a control of the page has the focus), scroll by half the viewport height in that direction and accept the key only if something moved.
+
+#### Scenario: Selecting a row with a description
+- **WHEN** DPAD_DOWN focuses a settings row whose description is below the viewport
+- **THEN** the page scrolls so the row's title and description are both on screen
+
+#### Scenario: End of the focus chain
+- **WHEN** the last control of a settings page has the focus and DPAD_DOWN is pressed
+- **THEN** the page scrolls on by half its height so trailing text can be read, and stops scrolling once at the end
+
+#### Scenario: Idiom-b page with scrollTarget
+- **WHEN** a page keeps the focus on itself and scrolls through button-navigation handlers (e.g. the About/legal pages scrolling by half the page per press)
+- **THEN** the chain-end handler is skipped so a press scrolls only once
+
 ## ADDED Requirements
 
 ### Requirement: Selection fill on the main UI
