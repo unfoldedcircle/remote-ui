@@ -69,8 +69,9 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 - Found on the device after phases 4 and 5:
   - `wifi`: the details of the current network call the MAC key "MAC" and show the MAC and IP
     addresses in full.
-  - `settings-menu`: the About page shows the Wi-Fi and Bluetooth addresses in full and scrolls back
-    to its information when the keypad selection returns to the first entry.
+  - `settings-menu`: the About page shows the Wi-Fi and Bluetooth addresses in full, fits its
+    information and its first entry on the screen, and scrolls back to its information when the
+    keypad selection returns to the first entry.
 
 ## Impact
 

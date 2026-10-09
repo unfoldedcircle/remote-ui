@@ -121,7 +121,8 @@ this change after the migration is merged to `main`, not in a phase pull request
       and dialog, tips, Wi-Fi with empty lists, docks and integrations lists, Manage entities tabs and
       filter header, onboarding Start, Terms and Finish. Not reachable in the simulator: a restricted
       profile, the first-profile dialog, the connection status list, a dock's details. Also on a
-      device: the About page scrolls back to its information when the selection returns to Regulatory
+      device: the About page shows Regulatory in full below its information and scrolls back to the
+      top when the selection returns to Regulatory
 - [x] 5.7 Addresses in full (phase 4, found on the device): `KeyValueRow` takes `fullValue` for a
       value that has to be read in full, on the line of its key while both fit, otherwise under it,
       measured with the fonts of the two roles; the About page's Wi-Fi and Bluetooth addresses and the
@@ -132,6 +133,12 @@ this change after the migration is merged to `main`, not in a phase pull request
 - [x] 5.8 The About page scrolls back to its information (phase 5, found on the device): the first
       entry, reached with the keypad or pressed with DPAD_UP, scrolls the page up as far as the entry
       stays visible. `settings-menu` spec delta; the device check is part of 5.6
+- [x] 5.9 The About page shows its first entry (phase 4, found on the device): a key/value row takes
+      8 px vertical padding instead of 14, so the About page's information and Regulatory fit on the
+      Remote 3 together. `settings-menu` spec delta, `docs/design-system.md` section 5. Verified with
+      a render at 480 x 800 with Poppins and Space Mono: the information ends at 562 of 720 px below
+      the title bar, Regulatory at 662, and part of the next entry shows; the device check is part
+      of 5.6
 
 ## 6. Guardrails
 
