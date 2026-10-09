@@ -330,6 +330,10 @@ QStringList Resources::licenseBlocks(const QString& content, bool markdown, bool
     // Qt sizes a heading from about twice the text ("#") down to below it ("######"); level 4 is the text size
     static const QRegularExpression headingLevel(QStringLiteral("^#{1,6}(?=\\s)"));
     static const QRegularExpression textTableBorder(QStringLiteral("^\\+[-=+]+$"));
+    // A Remote 3 lays out a block when it comes into view, about 20 ms per 1000 characters: 2.8 s for the 138 kB
+    // license text block of the operating system licenses. Code is split into blocks of this size where a paragraph
+    // ends, and at a line when a paragraph is twice as long.
+    constexpr int codeBlockSize = 2000;
 
     QStringList blocks;
     QString     block;
@@ -344,10 +348,21 @@ QStringList Resources::licenseBlocks(const QString& content, bool markdown, bool
             inTextTable = false;
             line.clear();
         } else if (inCodeBlock) {
-            // a text table, such as the one in the Mesa license, keeps one line per row, without its borders
             const QString text = line.trimmed();
-            const bool    border = textTableBorder.match(text).hasMatch();
-            if (border || text.startsWith('|')) {
+            // a Debian copyright file ends its paragraphs with a "." line
+            const bool paragraphEnd = text.isEmpty() || text == QStringLiteral(".");
+            if (((paragraphEnd && block.size() > codeBlockSize) || block.size() > 2 * codeBlockSize) &&
+                !block.trimmed().isEmpty()) {
+                blocks.append(block.trimmed());
+                block.clear();
+            }
+
+            // a text table, such as the one in the Mesa license, keeps one line per row, without its borders
+            const bool border = textTableBorder.match(text).hasMatch();
+            if (paragraphEnd) {
+                inTextTable = false;
+                line.clear();
+            } else if (border || text.startsWith('|')) {
                 if (!inTextTable && !block.isEmpty() && !block.endsWith(QStringLiteral("\n\n"))) {
                     block += '\n';
                 }
