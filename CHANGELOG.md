@@ -90,6 +90,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as text as well, and a table inside a license text keeps one line per row.
 - The licenses can be opened with the d-pad: DOWN and UP select the links of the overview and of a license one after
   the other, OK opens the selected one, and BACK returns to it. They could only be opened by touch.
+- The web configurator address on the profile page, in the web configurator view and in the onboarding no longer
+  reads "http:///configurator" while the remote has no IP address: it shows the host name until an IP address is
+  known.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.
