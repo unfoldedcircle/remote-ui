@@ -24,6 +24,9 @@ One phase per fix, then the verification. Each fix commit carries its `CHANGELOG
       text with their address, autolinks and bare addresses as text; `Resources::licenseAnchorBlock()`.
 - [x] 4.2 `LicensePage.qml`: a heading link shows its block.
 - [x] 4.3 Tests: web and mail links, autolinks, bare addresses, an odd backtick, anchors, heading lookup.
+- [x] 4.4 The d-pad walks the links: `Resources::licenseLinks()` and `Resources::licenseBlockWithSelection()`
+      with tests; `LicensePage.qml` selects with DPAD_DOWN / DPAD_UP, opens with OK and selects the link again
+      on the way back. A label with a plain "&" is an anchor as well.
 
 ## 5. Code as text
 
