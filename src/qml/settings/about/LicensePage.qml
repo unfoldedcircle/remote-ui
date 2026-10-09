@@ -47,31 +47,8 @@ Settings.Page {
 
         function onAboutInfo(res, baseDir) {
             aboutPageContent.baseDir = "file:" + baseDir + "/";
-
-            const lines = res.split("\n");
-            if (!aboutPageContent.isMarkdown) {
-                aboutPageContent.stringList = lines;
-                return;
-            }
-
-            const parts = [];
-            let currentPart = "";
-
-            for (const line of lines) {
-                if (/^##\s/.test(line)) {
-                    if (currentPart !== "") {
-                        parts.push(currentPart.trim());
-                        currentPart = '';
-                    }
-                }
-                currentPart += line + "\n";
-            }
-
-            if (currentPart !== "") {
-                parts.push(currentPart.trim());
-            }
-
-            aboutPageContent.stringList = parts;
+            aboutPageContent.stringList = resource.licenseBlocks(res, aboutPageContent.isMarkdown,
+                                                                 aboutPageContent.followLinks);
         }
     }
 
@@ -92,11 +69,12 @@ Settings.Page {
             x: 20
             width: ListView.view.width - 40
             height: content.implicitHeight
-            wrapMode: Text.WordWrap
+            // a word or table cell wider than the screen breaks anywhere instead of being cut off
+            wrapMode: Text.Wrap
             color: colors.textPrimary
             baseUrl: aboutPageContent.baseDir
             text: model.modelData
-            textFormat: aboutPageContent.isMarkdown ? Text.MarkdownText : Text.RichText
+            textFormat: aboutPageContent.isMarkdown ? Text.MarkdownText : Text.PlainText
             linkColor: colors.textPrimary
             font: fonts.prose()
             lineHeight: fonts.proseLineHeight
@@ -107,7 +85,7 @@ Settings.Page {
 
                 if (aboutPageContent.followLinks) {
                     aboutPageContent.followLinks = false;
-                    aboutPageContent.isMarkdown = false;
+                    aboutPageContent.isMarkdown = resource.isMarkdownFile(link);
                     resource.getLinkContent(content.baseUrl, link);
                 }
             }

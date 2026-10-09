@@ -35,6 +35,20 @@ class Resources : public QObject {
     Q_INVOKABLE void    getAboutInfo(int type);
     Q_INVOKABLE void    getLinkContent(const QString& baseDir, const QString& path);
 
+    /**
+     * @brief Whether the Licenses page shows a linked file as Markdown: its name ends in ".md".
+     */
+    Q_INVOKABLE bool isMarkdownFile(const QString& link) const;
+
+    /**
+     * @brief The blocks the Licenses page shows of a document, one text item each.
+     *
+     * Markdown is split outside code blocks at its "## " headings for the overview and at every heading for a
+     * linked document, which can be hundreds of kB, and prepared for the screen: every heading at the size of the
+     * text. Any other text gives one block per line.
+     */
+    Q_INVOKABLE QStringList licenseBlocks(const QString& content, bool markdown, bool overview) const;
+
     Q_INVOKABLE QStringList getIconList();
     Q_INVOKABLE QStringList getCustomIconList();
 
