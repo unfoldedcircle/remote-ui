@@ -27,10 +27,9 @@ None.
 
 ### Modified Capabilities
 
-- `entity-detail-controls`: "Tile quick action" lets a switch toggle as described under the
-  switch control screen, and "Switch control screen" sends `switch.toggle` only with the `toggle`
-  feature, otherwise `switch.off` / `switch.on` by state; the "Switch with only on_off" scenario
-  changes accordingly.
+- `entity-detail-controls`: a new requirement "Switch toggle command" states the rule;
+  "Tile quick action" and "Switch control screen" refer to it instead of naming `switch.toggle`,
+  and the "Switch with only on_off" scenario sends `switch.off`.
 - `entity-commands`: the "Switch toggled from its tile" scenario of "Entity command request"
   applies to a switch with the `toggle` feature.
 

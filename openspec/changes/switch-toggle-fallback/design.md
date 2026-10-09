@@ -74,6 +74,16 @@ command anyway.
 - *Alternative: send nothing while the state is unknown.* A switch that has not reported a state
   yet could then never be switched on from its tile or screen. Rejected.
 
+### D3 — The rule is a requirement of its own
+
+The spec states the rule once, as the new requirement "Switch toggle command", and "Tile quick
+action" and "Switch control screen" refer to it. One behaviour per requirement, as the `specs`
+rule asks: the rule is checked against the 500-character limit as an ADDED requirement, and the two
+existing requirements, both longer than that already, do not grow by the rule's text.
+
+- *Alternative: write the rule into "Switch control screen" and let the tile refer to it there.*
+  Lengthens an existing long requirement with a new behaviour. Rejected.
+
 ## Risks / Trade-offs
 
 - [The last reported state is stale, e.g. the integration missed an event] → the remote sends
