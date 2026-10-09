@@ -384,19 +384,12 @@ Rectangle {
             property var itemData: modelData
             readonly property string itemName: delegate.item && delegate.item.entityObj ? delegate.item.entityObj.name : groupItemId
 
-            // keypad selection outline; stronger while the row is picked up for reordering
-            Rectangle {
-                anchors { fill: parent; margins: 2 }
+            // the row's own fill marks the selection; the ring marks the row while it is held for reordering,
+            // the one element that shows both (docs/design-system.md section 6, Q-5)
+            Components.Selectable {
                 z: 2000
-                radius: ui.cornerRadiusSmall
-                color: colors.transparent
-                border {
-                    width: 2
-                    color: dragArea.isCurrentItem && editGroupContainer.zone === GroupEdit.Zone.List
-                           && ui.keyNavigationActive
-                           ? (dragArea.DelegateModel.itemsIndex === editGroupContainer.heldIndex ? colors.highlight : colors.medium)
-                           : colors.transparent
-                }
+                selected: dragArea.isCurrentItem && editGroupContainer.zone === GroupEdit.Zone.List
+                          && dragArea.DelegateModel.itemsIndex === editGroupContainer.heldIndex
             }
 
             drag.target: held ? delegate : undefined
@@ -556,7 +549,8 @@ Rectangle {
                     ParentChange { target: delegate; parent: entityList }
                 }
 
-                property bool isCurrentItem: isCurrentItem
+                // read by the entity tile: it draws its own selection fill
+                property bool isCurrentItem: dragArea.isCurrentItem && editGroupContainer.zone === GroupEdit.Zone.List
                 property bool editMode: editMode
 
                 onEditModeChanged: {
@@ -593,7 +587,7 @@ Rectangle {
                 Components.Icon {
                     id: moveIcon
                     z: delegate.item ? delegate.item.z + 100 : 100
-                    color: colors.light
+                    color: delegate.isCurrentItem && ui.keyNavigationActive ? colors.textPrimary : colors.textSecondary
                     opacity: editMode ? 1 : 0
                     icon: "uc:bars"
                     anchors { right: delegate.right; rightMargin: 20; top: delegate.top; topMargin: 35 }

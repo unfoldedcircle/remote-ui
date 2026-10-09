@@ -4383,9 +4383,14 @@ Tap the QR code to show it on the screen.</translation>
 <context>
     <name>WifiInfo</name>
     <message>
-        <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="183"/>
         <source>MAC address</source>
-        <translation>MAC address</translation>
+        <translation type="vanished">MAC address</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="149"/>
+        <source>MAC</source>
+        <extracomment>Key of the remote&apos;s WiFi MAC address in the network details. Keep it short: the address goes on the same line when both fit</extracomment>
+        <translation>MAC</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/WifiInfo.qml" line="212"/>

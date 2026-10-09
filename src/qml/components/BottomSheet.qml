@@ -69,7 +69,7 @@ Item {
         State {
             name: "opened"
             PropertyChanges { target: bottomSheetContainerContent; y: -bottomSheetContainerContent.height + bottomSheetContainer.height + ui.cornerRadiusLarge; height: ui.height - topNavigation.height + ui.cornerRadiusLarge }
-            PropertyChanges { target: blockOutOverlay; opacity: 0.8 }
+            PropertyChanges { target: blockOutOverlay; opacity: 0.85 }
         }
     ]
 
@@ -140,7 +140,7 @@ Item {
 
         width: parent.width
         height: ui.height - bottomSheetContainerContent.height + ui.cornerRadiusLarge
-        color: colors.black
+        color: colors.bg
         anchors.bottom: bottomSheetContainerContent.top
         enabled: opacity != 0
 
@@ -150,15 +150,18 @@ Item {
         }
     }
 
+    // a bottom sheet is black with a divider edge (docs/design-system.md section 5); while it is the closed,
+    // selected entry of the page the edge becomes the selection ring
     Rectangle {
         id: bottomSheetContainerContent
         width: parent.width
-        color: Qt.darker(colors.dark, 1.5)
+        color: colors.bg
         radius: ui.cornerRadiusLarge
+        readonly property bool selected: bottomSheetContainer.highlight && bottomSheetContainer.state == "closed"
+                                         && ui.keyNavigationActive
         border {
-            width: 2
-            color: bottomSheetContainer.highlight && bottomSheetContainer.state == "closed"
-                   && ui.keyNavigationActive ? colors.highlight : colors.transparent
+            width: selected ? 3 : 2
+            color: selected ? colors.focusRing : colors.divider
         }
 
         Item {
@@ -182,7 +185,7 @@ Item {
                 id: footerIcon
                 icon: "uc:plus"
                 size: 100
-                color: colors.light
+                color: colors.textSecondary
                 anchors { verticalCenter: parent.verticalCenter; right: parent.right }
 
                 transformOrigin: Item.Center

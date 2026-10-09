@@ -24,9 +24,8 @@ import "qrc:/components" as Components
 Rectangle {
     id: button
     width: title.implicitWidth + 40; height: 60
-    color: colors.black
+    color: colors.bg
     radius: ui.cornerRadiusSmall
-    border { width: 2; color: button.highlight ? colors.highlight : colors.transparent }
 
     property alias text: title.text
     property int fontSize: 30
@@ -38,7 +37,7 @@ Rectangle {
         when: mouseArea.pressed
         PropertyChanges {
             target: button
-            color: colors.offwhite
+            color: colors.textPrimary
         }
     }
 
@@ -49,6 +48,14 @@ Rectangle {
                 properties: "color"; duration: 300 }
         }]
 
+    Components.Selectable {
+        selected: button.highlight
+        radius: button.radius
+    }
+
+    // pressed inverts the button: plus and label turn black on the light fill
+    readonly property color contentColor: mouseArea.pressed ? colors.bg : colors.textPrimary
+
     Item {
         id: plusIcon
         width: 100; height: 100
@@ -57,21 +64,21 @@ Rectangle {
         Rectangle {
             width: 60
             height: 2
-            color: colors.offwhite
+            color: button.contentColor
             anchors.centerIn: parent
         }
 
         Rectangle {
             width: 2
             height: 60
-            color: colors.offwhite
+            color: button.contentColor
             anchors.centerIn: parent
         }
     }
 
     Text {
         id: title
-        color: colors.offwhite
+        color: button.contentColor
         width: button.width - 120
         wrapMode: Text.WordWrap
         elide: Text.ElideRight

@@ -89,7 +89,6 @@ Rectangle {
         }
     ]
 
-
     Components.ButtonNavigation {
         id: buttonNavigation
         defaultConfig: {
@@ -110,62 +109,54 @@ Rectangle {
         anchors.fill: parent
     }
 
-    Item {
-        id: renameEntityContainerTitle
-        width: parent.width; height: 60
-        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-
-        Text {
-            id: renameEntityContainerTitleText
-            color: colors.offwhite
-            text: qsTr("Rename entity")
-            anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
-            font: fonts.primaryFont(26)
-        }
-    }
-
-    Components.InputField {
-        id: inputFieldContainer
-        width: parent.width; height: 80
-        anchors { top: renameEntityContainerTitle.bottom; horizontalCenter: parent.horizontalCenter }
-
-        inputField.text: entityName
-        inputField.onAccepted: {
-            rename();
-        }
-        moveInput: false
-
-        /** KEYBOARD NAVIGATION **/
-        // DPAD_MIDDLE on the field is its Return key and submits through onAccepted; the buttons
-        // below are reached with DPAD_DOWN
-        navDown: cancelButton
-    }
-
-    Components.Button {
-        id: cancelButton
-        text: qsTr("Cancel")
-        width: parent.width / 2 - 10
-        color: colors.secondaryButton
-        anchors { left: inputFieldContainer.left; top: inputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            cancel();
+    Components.FormDialog {
+        id: dialog
+        title: qsTr("Rename entity")
+        goBack: function() {
+            cancelButton.activate();
         }
 
-        KeyNavigation.up: inputFieldContainer.inputField
-        KeyNavigation.right: actionButton
-    }
+        Components.InputField {
+            id: inputFieldContainer
+            width: parent.width; height: 80
 
-    Components.Button {
-        id: actionButton
-        //: Label for button that will execute the action and rename the entity
-        text: qsTr("Rename")
-        width: parent.width / 2 - 10
-        anchors { right: inputFieldContainer.right; top: inputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            rename();
+            inputField.text: entityName
+            inputField.onAccepted: {
+                rename();
+            }
+            moveInput: false
+
+            /** KEYBOARD NAVIGATION **/
+            // DPAD_MIDDLE on the field is its Return key and submits through onAccepted; the buttons
+            // below are reached with DPAD_DOWN
+            navDown: cancelButton
         }
 
-        KeyNavigation.up: inputFieldContainer.inputField
-        KeyNavigation.left: cancelButton
+        buttons: [
+            Components.Button {
+                id: cancelButton
+                text: qsTr("Cancel")
+                width: dialog.buttonWidth
+                variant: "secondary"
+                trigger: function() {
+                    cancel();
+                }
+
+                KeyNavigation.up: inputFieldContainer.inputField
+                KeyNavigation.right: actionButton
+            },
+            Components.Button {
+                id: actionButton
+                //: Label for button that will execute the action and rename the entity
+                text: qsTr("Rename")
+                width: dialog.buttonWidth
+                trigger: function() {
+                    rename();
+                }
+
+                KeyNavigation.up: inputFieldContainer.inputField
+                KeyNavigation.left: cancelButton
+            }
+        ]
     }
 }

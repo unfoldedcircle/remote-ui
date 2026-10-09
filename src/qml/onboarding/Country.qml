@@ -128,6 +128,7 @@ OnboardingComponents.Page {
 
     Components.PopupList {
         id: selectList
+        currentValue: Config.country
         title: qsTr("Select country")
         showSearch: true
         hideClose: true

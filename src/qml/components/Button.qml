@@ -4,13 +4,15 @@
 /**
  BUTTON COMPONENT
 
+ The one button of the UI (docs/design-system.md sections 5 to 7): 80 px tall, the button type role, and
+ one of three variants. Do not set `color` from the outside, pick a variant instead.
+
  ********************************************************************
  CONFIGURABLE PROPERTIES AND OVERRIDES:
  ********************************************************************
  - width
- - color
+ - variant: "primary" (default), "secondary" (Cancel, Skip and other alternatives) or "destructive"
  - text
- - textColor
  - highlight
  - trigger
 **/
@@ -24,14 +26,35 @@ import "qrc:/components" as Components
 Rectangle {
     id: button
     width: title.implicitWidth + 40; height: 80
-    color: colors.primaryButton
     radius: ui.cornerRadiusSmall
-    border { width: 2; color: Qt.lighter(button.color, 1.3) }
+    // disabled: the whole control at 0.4, it stays reachable so the screen can say why it is off
+    opacity: enabled ? 1 : 0.4
+
+    // pressed inverts the button; a pressed destructive button only gets the stronger red
+    color: {
+        if (mouseArea.pressed) {
+            return variant === "destructive" ? colors.redPressed : colors.textPrimary;
+        }
+
+        switch (variant) {
+        case "secondary":
+            return colors.surface;
+        case "destructive":
+            return colors.red;
+        default:
+            return colors.buttonPrimary;
+        }
+    }
+    border { width: variant === "secondary" ? 2 : 0; color: colors.divider }
+
+    Behavior on color {
+        ColorAnimation { duration: 150 }
+    }
 
     signal triggered()
 
+    property string variant: "primary"
     property alias text: title.text
-    property alias textColor: title.color
     property bool highlight: activeFocus && ui.keyNavigationActive
     property var trigger
 
@@ -65,22 +88,6 @@ Rectangle {
         event.accepted = true;
     }
 
-    states: State {
-        name: "pressed"
-        when: mouseArea.pressed
-        PropertyChanges {
-            target: button
-            color: colors.offwhite
-        }
-    }
-
-    transitions: [
-        Transition {
-            from: ""; to: "pressed"; reversible: true
-            PropertyAnimation { target: button
-                properties: "color"; duration: 300 }
-        }]
-
     Components.Selectable {
         selected: button.highlight
         radius: button.radius
@@ -88,11 +95,13 @@ Rectangle {
 
     Text {
         id: title
-        width: button.width
+        width: button.width - 20
         wrapMode: Text.WordWrap
         elide: Text.ElideRight
         maximumLineCount: 2
-        color: colors.offwhite
+        color: mouseArea.pressed && button.variant !== "destructive" ? colors.bg
+                                                                      : button.variant === "secondary" ? colors.textPrimary
+                                                                                                       : colors.textOnButton
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         anchors.centerIn: button
         font: fonts.button()
@@ -102,7 +111,9 @@ Rectangle {
         id: mouseArea
         anchors.fill: button
         onClicked: {
-            button.trigger();
+            if (button.trigger) {
+                button.trigger();
+            }
             button.triggered();
         }
     }

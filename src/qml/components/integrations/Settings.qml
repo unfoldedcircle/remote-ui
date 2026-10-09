@@ -136,11 +136,11 @@ Item {
 
         width: parent.width - 40
         height: visible ? undefined : 0
-        color: colors.offwhite
+        color: colors.textPrimary
         maximumLineCount: 2
         wrapMode: Text.WordWrap
         elide: Text.ElideRight
-        font: fonts.primaryFont(30)
+        font: fonts.title()
         anchors { top: parent.top; topMargin: title.visible ? 20 : 0; horizontalCenter: parent.horizontalCenter }
         visible: title.text !== ""
     }
@@ -160,16 +160,17 @@ Item {
                               ? Math.max(0, root.mapToItem(null, 0, root.height).y - keyboard.visibleY)
                               : 0
 
-        ScrollBar.vertical: ScrollBar {
-            opacity: 0.5
-        }
-
         ColumnLayout {
             id: content
-            spacing: 60
+            // room for the error line a field draws under itself
+            spacing: 40
             width: parent.width
             anchors.horizontalCenter: parent.horizontalCenter
         }
+    }
+
+    Components.ScrollIndicator {
+        parentObj: contentFlickable
     }
 
     Connections {

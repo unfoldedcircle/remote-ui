@@ -13,28 +13,6 @@ Settings.Page {
     id: aboutPageContent
 
     property int type
-    property int scrollCounter: 1
-
-    function scrollDown() {
-        // content shorter than the screen has nothing to scroll: without the lower bound the page
-        // would scroll to a negative offset and push the text off the top
-        const maxContentY = Math.max(0, flickable.contentHeight - flickable.height);
-
-        flickable.contentY += 100 * scrollCounter;
-        if (flickable.contentY > maxContentY) {
-            flickable.contentY = maxContentY;
-        }
-    }
-
-    function scrollUp() {
-        if (flickable.contentY == 0) {
-            return;
-        }
-        flickable.contentY -= 100 * scrollCounter;
-        if (flickable.contentY < 0) {
-            flickable.contentY = 0;
-        }
-    }
 
     Component.onCompleted: {
         resource.getAboutInfo(type);
@@ -42,18 +20,12 @@ Settings.Page {
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
-                                                         aboutPageContent.scrollDown();
-                                                     },
-                                                     "released": function() {
-                                                         scrollCounter = 1;
+                                                         flickable.scrollStep(1);
                                                      }
                                                  },
                                                  "DPAD_UP": {
                                                      "pressed": function() {
-                                                         aboutPageContent.scrollUp();
-                                                     },
-                                                     "released": function() {
-                                                         scrollCounter = 1;
+                                                         flickable.scrollStep(-1);
                                                      }
                                                  }
                                              });
@@ -64,54 +36,29 @@ Settings.Page {
         ignoreUnknownSignals: true
 
         function onAboutInfo(res, baseDir) {
-            content.baseUrl = "file:" + baseDir + "/";
-            content.text = res;
+            flickable.baseUrl = "file:" + baseDir + "/";
+            flickable.text = res;
         }
     }
 
-    Flickable {
+    Components.Prose {
         id: flickable
         width: parent.width
-        height: parent.height - topNavigation.height
-        anchors { top: topNavigation.bottom; horizontalCenter: parent.horizontalCenter }
-        contentWidth: parent.width - 20; contentHeight: content.implicitHeight
-        clip: true
-        flickableDirection: Flickable.VerticalFlick
+        anchors { top: topNavigation.bottom; bottom: parent.bottom }
+        textFormat: aboutPageContent.type === ResourceTypes.Licenses ? Text.MarkdownText : Text.RichText
 
-        Behavior on contentY {
-            NumberAnimation { easing.type: scrollCounter === 1 ? Easing.OutExpo : Easing.Linear; duration: 500 }
-        }
+        property bool followLinks: true
 
-        Text {
-            id: content
-            width: parent.width
-            wrapMode: Text.WordWrap
-            color: colors.textPrimary
-            textFormat: aboutPageContent.type === ResourceTypes.Licenses ? Text.MarkdownText : Text.RichText
-            font: fonts.prose()
-            lineHeight: fonts.proseLineHeight
-            x: 10
-            onLinkActivated: {
-                if (link.includes("http")) {
-                    return;
-                }
-
-                if (content.followLinks) {
-                    content.followLinks = false;
-                    // the linked document arrives through onAboutInfo; getLinkContent() returns nothing
-                    resource.getLinkContent(content.baseUrl, link);
-                }
+        onLinkActivated: {
+            if (link.includes("http")) {
+                return;
             }
 
-            property bool followLinks: true
+            if (followLinks) {
+                followLinks = false;
+                // the linked document arrives through onAboutInfo; getLinkContent() returns nothing
+                resource.getLinkContent(flickable.baseUrl, link);
+            }
         }
-
-        ScrollBar.vertical: ScrollBar {
-            opacity: 0.5
-        }
-    }
-
-    Components.ScrollIndicator {
-        parentObj: flickable
     }
 }

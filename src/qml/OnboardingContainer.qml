@@ -37,14 +37,14 @@ Item {
     Rectangle {
         width: parent.width
         height: 6
-        color: colors.medium
+        color: colors.surfaceRaised
         anchors.top: parent.top
     }
 
     Rectangle {
         width: parent.width * (swipeView.currentIndex + ( OnboardingController.currentStep == OnboardingController.Start ? 0 : 1 ))/swipeView.count
         height: 6
-        color: colors.offwhite
+        color: colors.textPrimary
         anchors.top: parent.top
 
         Behavior on width {

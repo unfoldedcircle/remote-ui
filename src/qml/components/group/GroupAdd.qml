@@ -258,7 +258,7 @@ Rectangle {
                 id: cancelButton
                 text: qsTr("Cancel")
                 width: parent.width / 2 - 10
-                color: colors.secondaryButton
+                variant: "secondary"
                 anchors { left: inputFieldContainer.left; top: inputFieldContainer.bottom; topMargin: 40 }
                 trigger: function() {
                     addGroupContainer.state = "hidden";

@@ -160,7 +160,8 @@ Rectangle {
 
     Rectangle {
         anchors.fill: parent
-        color: Qt.darker(colors.dark, 2)
+        // the open group is a card
+        color: colors.surface
         radius: ui.cornerRadiusSmall
         opacity: container.state == "open" ? 1 : 0
 

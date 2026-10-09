@@ -164,9 +164,11 @@ happens after the migration is merged to `main`.
 - Q-1 to Q-4 and Q-8: in `docs/design-system.md`, section 11 (fill or ring beyond the mockups, ring
   colour, the provisional fill on devices, black bottom sheets, subtitle and timestamp sizes of the
   mockups).
-- Q-5: the look of a held element while it is reordered (page tiles, group rows, page selector),
-  today a 2 px border that turns `highlight` when held. Proposed: the ring marks the held element,
-  the fill marks the selection, so a held tile is the one exception that shows both while it moves.
+- Q-5, decided 2026-10-07 by the designer as proposed: the look of a held element while it is
+  reordered (page tiles, group rows, page selector), today a 2 px border that turns `highlight`
+  when held. The ring marks the held element, the fill marks the selection, so a held element is the
+  one exception that shows both while it moves. ADR 0020, the design system (section 6) and the
+  `key-navigation` delta name the exception.
 - Q-6, decided 2026-10-07: the maintainer approved the change of the `platform-constraints`
   "Legibility" requirement, which AGENTS.md lists under "Ask First".
 - Q-7, decided 2026-10-07: the phase 6 check runs in CI, from the existing code-guidelines workflow,

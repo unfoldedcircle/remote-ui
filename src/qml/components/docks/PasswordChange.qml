@@ -119,65 +119,57 @@ Rectangle {
         anchors.fill: parent
     }
 
-    Item {
-        id: dockPasswordContainerTitle
-        width: parent.width; height: 60
-        anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-
-        Text {
-            id: dockPasswordContainerTitleText
-            color: colors.offwhite
-            text: qsTr("Change password")
-            anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
-            font: fonts.primaryFont(26)
-        }
-    }
-
-    Components.InputField {
-        id: inputFieldContainer
-        width: parent.width; height: 80
-        anchors { top: dockPasswordContainerTitle.bottom; horizontalCenter: parent.horizontalCenter }
-
-        inputField.inputMethodHints: Qt.ImhNoAutoUppercase
-        inputField.echoMode: TextInput.Password
-        inputField.passwordMaskDelay: 1000
-        inputField.onAccepted: {
-            rename();
-        }
-        moveInput: false
-
-        /** KEYBOARD NAVIGATION **/
-        // DPAD_MIDDLE on the field is its Return key and submits through onAccepted; the buttons
-        // below are reached with DPAD_DOWN
-        navDown: cancelButton
-    }
-
-    Components.Button {
-        id: cancelButton
-        text: qsTr("Cancel")
-        width: parent.width / 2 - 10
-        color: colors.secondaryButton
-        anchors { left: inputFieldContainer.left; top: inputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            inputFieldContainer.inputField.clear();
-            dockPasswordContainer.state = "hidden";
-            keyboard.hide();
+    Components.FormDialog {
+        id: dialog
+        title: qsTr("Change password")
+        goBack: function() {
+            cancelButton.activate();
         }
 
-        KeyNavigation.up: inputFieldContainer.inputField
-        KeyNavigation.right: actionButton
-    }
+        Components.InputField {
+            id: inputFieldContainer
+            width: parent.width; height: 80
 
-    Components.Button {
-        id: actionButton
-        text: qsTr("Change")
-        width: parent.width / 2 - 10
-        anchors { right: inputFieldContainer.right; top: inputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            rename();
+            inputField.inputMethodHints: Qt.ImhNoAutoUppercase
+            inputField.echoMode: TextInput.Password
+            inputField.passwordMaskDelay: 1000
+            inputField.onAccepted: {
+                rename();
+            }
+            moveInput: false
+
+            /** KEYBOARD NAVIGATION **/
+            // DPAD_MIDDLE on the field is its Return key and submits through onAccepted; the buttons
+            // below are reached with DPAD_DOWN
+            navDown: cancelButton
         }
 
-        KeyNavigation.up: inputFieldContainer.inputField
-        KeyNavigation.left: cancelButton
+        buttons: [
+            Components.Button {
+                id: cancelButton
+                text: qsTr("Cancel")
+                width: dialog.buttonWidth
+                variant: "secondary"
+                trigger: function() {
+                    inputFieldContainer.inputField.clear();
+                    dockPasswordContainer.state = "hidden";
+                    keyboard.hide();
+                }
+
+                KeyNavigation.up: inputFieldContainer.inputField
+                KeyNavigation.right: actionButton
+            },
+            Components.Button {
+                id: actionButton
+                text: qsTr("Change")
+                width: dialog.buttonWidth
+                trigger: function() {
+                    rename();
+                }
+
+                KeyNavigation.up: inputFieldContainer.inputField
+                KeyNavigation.left: cancelButton
+            }
+        ]
     }
 }

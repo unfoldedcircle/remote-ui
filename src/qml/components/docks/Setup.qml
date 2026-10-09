@@ -39,20 +39,13 @@ ColumnLayout {
         }
     }
 
-    Item {
+    // the close target does what BACK does: cancel the running setup
+    Components.TitleBar {
         id: setupTitle
-
-        Layout.fillWidth: true
-        Layout.preferredHeight: 60
-
-        Text {
-            text: qsTr("Dock setup")
-            width: parent.width - 20
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
+        action: "close"
+        text: qsTr("Dock setup")
+        goBack: function() {
+            dockSetupContainer.cancel();
         }
     }
 

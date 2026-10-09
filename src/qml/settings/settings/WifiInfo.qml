@@ -85,176 +85,91 @@ Popup {
         }
     }
 
-    background: Item {
-        Rectangle {
-            id: bg
-            width: parent.width
-            height: infoContainer.height + 40
-            color: colors.black
-            anchors.bottom: parent.bottom
-        }
-
-        Item {
-            id: gradient
-            width: parent.width; height: parent.height - bg.height
-            anchors { bottom: bg.top; horizontalCenter: parent.horizontalCenter }
-
-            LinearGradient {
-                anchors.fill: parent
-                start: Qt.point(0, 0)
-                end: Qt.point(0, parent.height)
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: colors.transparent }
-                    GradientStop { position: 1.0; color: colors.black }
-                }
-            }
-        }
-    }
+    background: Components.Dim {}
 
     MouseArea {
         anchors { top: parent.top; bottom: infoContainer.top; left: parent.left; right: parent.right }
         onClicked: wifiInfo.close();
     }
 
-    Rectangle {
+    Item {
         id: infoContainer
         width: ui.width
-        height: childrenRect.height
-        color: colors.dark
-        radius: ui.cornerRadiusSmall
+        height: infoColumn.height + 20
         anchors.bottom: parent.bottom
 
-        ColumnLayout {
-            spacing: 20
-            width: parent.width - 40
-            anchors.horizontalCenter: parent.horizontalCenter
+        Components.Sheet {
+            anchors.fill: parent
+        }
 
-            Item {
-                height: 1
-            }
+        ColumnLayout {
+            id: infoColumn
+            spacing: 0
+            width: parent.width
+            y: 20
 
             Text {
                 id: currentNetworkSSID
-                Layout.alignment: Qt.AlignLeft
-                width: parent.width
+                Layout.fillWidth: true
+                Layout.leftMargin: 20
+                Layout.rightMargin: 20
                 maximumLineCount: 1
                 elide: Text.ElideRight
-                color: colors.offwhite
+                color: colors.textPrimary
                 text: wifiInfo.ssid == "" ? Wifi.currentNetwork.id : wifiInfo.ssid
-                font: fonts.primaryFont(30)
+                font: fonts.label()
             }
 
-            Item {
-                Layout.topMargin: -20
-                Layout.leftMargin: -10
-                Layout.preferredHeight: 30
+            RowLayout {
+                Layout.fillWidth: true
+                Layout.leftMargin: 20
+                Layout.rightMargin: 20
+                Layout.bottomMargin: 6
+                spacing: 4
 
                 Components.Icon {
                     id: currentNetworkConnectedIcon
                     icon: Wifi.isConnected ? "uc:check" : "uc:xmark"
-                    size: 60
-                    anchors.verticalCenter: parent.verticalCenter
+                    color: colors.textPrimary
+                    size: 40
                 }
 
                 Text {
-                    width: parent.width
+                    Layout.fillWidth: true
                     color: colors.textPrimary
                     text: Wifi.currentNetwork.frequency < 5000 ? "2.4 GHz" : "5 GHz"
                     font: fonts.value()
-                    anchors { left: currentNetworkConnectedIcon.right; verticalCenter: currentNetworkConnectedIcon.verticalCenter }
                 }
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width; height: 2
-                color: colors.medium
+            Components.Divider {}
+
+            Components.KeyValueRow {
+                //: Key of the remote's WiFi MAC address in the network details. Keep it short: the address goes on the same line when both fit
+                key: qsTr("MAC")
+                value: wifiInfo.macAddress
+                // an address is read in full: under the key when it does not fit next to it
+                fullValue: true
             }
 
-            Item {
-                width: parent.width
-                height: childrenRect.height
-
-                Text {
-                    id: macAddressLabel
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    color: colors.textSecondary
-                    text: qsTr("MAC address")
-                    font: fonts.help()
-                }
-
-                Text {
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    color: colors.textPrimary
-                    text: wifiInfo.macAddress
-                    font: fonts.value()
-                    anchors { top: macAddressLabel.bottom }
-                }
+            Components.KeyValueRow {
+                key: qsTr("IP address")
+                value: wifiInfo.ipAddress
+                fullValue: true
             }
 
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width; height: 2
-                color: colors.medium
-            }
-
-            Item {
-                width: parent.width
-                height: childrenRect.height
-
-                Text {
-                    id: ipAddressLabel
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    color: colors.textSecondary
-                    text: qsTr("IP address")
-                    font: fonts.help()
-                }
-
-                Text {
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    color: colors.textPrimary
-                    text: wifiInfo.ipAddress
-                    font: fonts.value()
-                    anchors { top: ipAddressLabel.bottom }
-                }
-            }
-
-            Rectangle {
-                Layout.alignment: Qt.AlignCenter
-                width: parent.width; height: 2
-                color: colors.medium
-            }
-
-            Item {
-                width: parent.width
-                height: childrenRect.height
-
-                Text {
-                    id: keyManagementLabel
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    color: colors.textSecondary
-                    text: qsTr("Key management")
-                    font: fonts.help()
-                }
-
-                Text {
-                    width: parent.width
-                    wrapMode: Text.WordWrap
-                    color: colors.textPrimary
-                    text: Wifi.currentNetwork.keyManagement
-                    font: fonts.value()
-                    anchors { top: keyManagementLabel.bottom }
-                }
+            Components.KeyValueRow {
+                key: qsTr("Key management")
+                value: Wifi.currentNetwork.keyManagement
+                showDivider: false
             }
 
             Components.Button {
                 id: connectButton
-                width: parent.width
+                Layout.fillWidth: true
+                Layout.leftMargin: 20
+                Layout.rightMargin: 20
+                Layout.topMargin: 10
                 text: Wifi.isConnected ? qsTr("Disconnect") : qsTr("Connect")
 
                 /** KEYBOARD NAVIGATION **/
@@ -274,9 +189,12 @@ Popup {
 
             Components.Button {
                 id: deleteButton
-                width: parent.width
+                Layout.fillWidth: true
+                Layout.leftMargin: 20
+                Layout.rightMargin: 20
+                Layout.topMargin: 20
                 text: qsTr("Delete")
-                color: colors.red
+                variant: "destructive"
 
                 /** KEYBOARD NAVIGATION **/
                 KeyNavigation.up: connectButton
@@ -291,17 +209,17 @@ Popup {
 
             Components.Button {
                 id: closeButton
-                width: parent.width
+                Layout.fillWidth: true
+                Layout.leftMargin: 20
+                Layout.rightMargin: 20
+                Layout.topMargin: 20
                 text: qsTr("Close")
+                variant: "secondary"
 
                 /** KEYBOARD NAVIGATION **/
                 KeyNavigation.up: deleteButton
 
                 trigger: function() { wifiInfo.close(); }
-            }
-
-            Item {
-                height: 1
             }
         }
     }

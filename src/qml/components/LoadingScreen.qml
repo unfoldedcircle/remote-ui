@@ -359,7 +359,7 @@ Popup {
         anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         visible: loadingScreenBase.cancelable
         opacity: visible ? 1 : 0
-        color: colors.secondaryButton
+        variant: "secondary"
         text: qsTr("Cancel")
         trigger: function() {
             loadingScreenBase.cancel();

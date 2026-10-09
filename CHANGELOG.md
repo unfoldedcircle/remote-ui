@@ -26,6 +26,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the rest of the interface instead of a typewriter font, in a larger size and with more line spacing. The typewriter
   font is kept for values such as versions, addresses, times and the web configurator PIN and URL. No text is smaller
   than 22 pixels anymore.
+- Settings, onboarding, docks and integrations share one layout: the same title bar with its back or close button,
+  the same margins, row heights and dividers, and one kind of scroll indicator. Bottom sheets such as the page menu,
+  the activity menu, the Wi-Fi details and the delete confirmations are black with a light edge. Buttons come in
+  three kinds: primary, secondary and destructive; actions that were plain text, such as Cancel, Clear and Done, are
+  buttons now, and a destructive confirmation starts on Cancel. Lists of choices, such as language, country, time
+  zone and Wi-Fi band, mark the current choice with a check mark. While a page tile, group entry or page is held to
+  reorder it, it shows the frame on top of its selected background.
 
 ### Fixed
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.

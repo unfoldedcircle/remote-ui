@@ -51,7 +51,7 @@ Settings.Page {
         width: parent.width
         height: parent.height - topNavigation.height
         anchors { top: topNavigation.bottom }
-        contentWidth: width; contentHeight: aboutFlow.implicitHeight
+        contentWidth: width; contentHeight: aboutColumn.implicitHeight
         clip: true
 
         maximumFlickVelocity: 6000
@@ -62,83 +62,62 @@ Settings.Page {
             NumberAnimation { duration: 300 }
         }
 
-        Flow {
-            id: aboutFlow
+        Column {
+            id: aboutColumn
             width: parent.width
 
-            Loader {
-                sourceComponent: aboutInfo
-                onLoaded: {
-                    item.title = qsTr("Model number");
-                    item.value = HwInfo.modelNumber
-                }
+            Components.KeyValueRow {
+                key: qsTr("Model number")
+                value: HwInfo.modelNumber
             }
 
-            Loader {
-                sourceComponent: aboutInfo
-                onLoaded: {
-                    item.title = qsTr("Serial number");
-                    item.value = HwInfo.serialNumber
-                }
+            Components.KeyValueRow {
+                key: qsTr("Serial number")
+                value: HwInfo.serialNumber
             }
 
-            Loader {
-                sourceComponent: aboutInfo
-                onLoaded: {
-                    item.title = qsTr("Revision");
-                    item.value = HwInfo.revision
-                }
+            Components.KeyValueRow {
+                key: qsTr("Revision")
+                value: HwInfo.revision
             }
 
-            Loader {
-                sourceComponent: aboutInfo
-                onLoaded: {
-                    item.title = qsTr("Wi-Fi address");
-                    item.value = Wifi.macAddress
-                }
+            Components.KeyValueRow {
+                key: qsTr("Wi-Fi address")
+                value: Wifi.macAddress
+                // an address is read in full: under the key when it does not fit next to it
+                fullValue: true
             }
 
-            Loader {
-                sourceComponent: aboutInfo
-                onLoaded: {
-                    item.title = qsTr("Bluetooth address");
-                    item.value = Config.bluetoothMac;
-                }
+            Components.KeyValueRow {
+                key: qsTr("Bluetooth address")
+                value: Config.bluetoothMac
+                fullValue: true
             }
 
-            Loader {
-                sourceComponent: aboutInfo
-                onLoaded: {
-                    item.title = qsTr("UI version")
-                    item.value = SoftwareUpdate.uiVersion
-                }
+            Components.KeyValueRow {
+                key: qsTr("UI version")
+                value: SoftwareUpdate.uiVersion
             }
 
-            Loader {
-                sourceComponent: aboutInfo
-                onLoaded: {
-                    item.title = qsTr("Core version")
-                    item.value = SoftwareUpdate.coreVersion
-                }
+            Components.KeyValueRow {
+                key: qsTr("Core version")
+                value: SoftwareUpdate.coreVersion
             }
 
-            Loader {
-                sourceComponent: aboutInfo
-                onLoaded: {
-                    item.title = qsTr("System version")
-                    item.value = SoftwareUpdate.currentVersion
-                    item.bottomLine.visible = false;
-                }
+            Components.KeyValueRow {
+                key: qsTr("System version")
+                value: SoftwareUpdate.currentVersion
+                showDivider: false
             }
 
             Item {
-                width: ui.width
-                height: 40
+                width: parent.width
+                height: 20
             }
 
             ListView {
                 id: menu
-                width: parent.width; height: childrenRect.height
+                width: parent.width; height: contentHeight
 
                 interactive: false
                 highlightMoveDuration: 200
@@ -167,86 +146,16 @@ Settings.Page {
                     }
                 ]
 
-                delegate: menuItem
-            }
-        }
-    }
+                delegate: Components.MenuRow {
+                    width: ListView.view.width
+                    text: modelData.itemTitle
+                    chevron: true
+                    selected: ListView.isCurrentItem
 
-    Component {
-        id: aboutInfo
-
-        ColumnLayout {
-            width: ui.width - 20
-            spacing: 10
-            x: 10
-
-            property alias title: title.text
-            property alias value: value.text
-            property alias bottomLine: bottomLine
-
-            RowLayout {
-                Layout.topMargin: 10
-                width: parent.width
-                spacing: 20
-
-                // the key keeps its width, the value takes the rest and elides
-                Text {
-                    id: title
-                    Layout.alignment: Qt.AlignLeft
-                    wrapMode: Text.NoWrap
-                    elide: Text.ElideNone
-                    color: colors.textSecondary
-                    font: fonts.help()
-                }
-
-                Text {
-                    id: value
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignRight
-                    wrapMode: Text.NoWrap
-                    elide: Text.ElideRight
-                    horizontalAlignment: Text.AlignRight
-                    color: colors.textPrimary
-                    font: fonts.value()
-                }
-            }
-
-            Rectangle {
-                id: bottomLine
-                Layout.fillWidth: true
-                Layout.preferredHeight: 1
-                color: colors.medium
-            }
-        }
-    }
-
-    Component {
-        id: menuItem
-
-        Rectangle {
-            id: aboutMenuItem
-            width: ui.width
-            height: 80
-            color: colors.transparent
-
-            Components.Selectable {
-                selected: aboutMenuItem.ListView.isCurrentItem
-                anchors { leftMargin: 4; rightMargin: 4 }
-            }
-
-            Text {
-                id: menuItemText
-                color: colors.offwhite
-                text: modelData.itemTitle
-                anchors { left: parent.left; leftMargin: 10; right: parent.right; rightMargin: 10; verticalCenter: parent.verticalCenter; }
-                font: fonts.primaryFont(30)
-            }
-
-            Components.HapticMouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    menu.currentIndex = index;
-                    loadPage(index);
+                    onClicked: {
+                        menu.currentIndex = index;
+                        loadPage(index);
+                    }
                 }
             }
         }

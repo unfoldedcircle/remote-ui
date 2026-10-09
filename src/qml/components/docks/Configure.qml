@@ -173,12 +173,12 @@ Item {
 
         width: parent.width - 40
         height: childrenRect.height
-        color: colors.dark
+        color: colors.surface
         anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
         radius: ui.cornerRadiusSmall
         border {
-            color: colors.medium
-            width: 1
+            color: colors.divider
+            width: 2
         }
 
         Behavior on anchors.topMargin {
@@ -186,23 +186,23 @@ Item {
         }
 
         RowLayout {
-            width: parent.width - 60
+            width: parent.width - 40
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 20
 
             Rectangle {
                 Layout.preferredWidth: 60
                 Layout.preferredHeight: 60
-                Layout.topMargin: 30
-                Layout.bottomMargin: 30
+                Layout.topMargin: 20
+                Layout.bottomMargin: 20
 
                 radius: 30
-                color: colors.offwhite
+                color: colors.textPrimary
 
                 Components.Icon {
                     icon: dockConfigureContainer.needsWifi ? "uc:bluetooth" : "uc:ethernet"
                     size: 60
-                    color: colors.black
+                    color: colors.bg
                     anchors.centerIn: parent
                 }
             }
@@ -252,11 +252,11 @@ Item {
                 Text {
                     Layout.fillWidth: true
 
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: qsTr("Name")
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    font: fonts.primaryFont(26)
+                    font: fonts.label()
                 }
 
                 Components.InputField {
@@ -277,11 +277,11 @@ Item {
                     Layout.fillWidth: true
                     Layout.topMargin: 20
 
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: qsTr("Password")
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    font: fonts.primaryFont(26)
+                    font: fonts.label()
                 }
 
                 Components.InputField {
@@ -315,11 +315,8 @@ Item {
                     }
 
                     Components.Selectable {
-
                         selected: parent.activeFocus
-
-                        anchors { leftMargin: -10; rightMargin: -10 }
-
+                        anchors { leftMargin: -12; rightMargin: -12 }
                     }
 
                     ColumnLayout {
@@ -342,17 +339,17 @@ Item {
                             Text {
                                 Layout.fillWidth: true
 
-                                color: colors.offwhite
+                                color: colors.textPrimary
                                 text: qsTr("Add WiFi network")
                                 maximumLineCount: 1
                                 elide: Text.ElideRight
-                                font: fonts.primaryFont(26)
+                                font: fonts.label()
                             }
 
                             Components.Icon {
-                                icon: "uc:arrow-right"
-                                size: 60
-                                color: colors.offwhite
+                                icon: "uc:chevron-right"
+                                size: 40
+                                color: colors.textSecondary
                             }
                         }
                     }
@@ -374,11 +371,8 @@ Item {
                     }
 
                     Components.Selectable {
-
                         selected: parent.activeFocus
-
-                        anchors { leftMargin: -10; rightMargin: -10 }
-
+                        anchors { leftMargin: -12; rightMargin: -12 }
                     }
 
                     ColumnLayout {
@@ -401,17 +395,17 @@ Item {
                             Components.Icon {
                                 icon: "uc:pen-to-square"
                                 size: 60
-                                color: colors.offwhite
+                                color: colors.textPrimary
                             }
 
                             Text {
                                 Layout.fillWidth: true
 
-                                color: colors.offwhite
+                                color: colors.textPrimary
                                 text: dockConfigureContainer.wifiSsid
                                 maximumLineCount: 1
                                 elide: Text.ElideRight
-                                font: fonts.primaryFont(26)
+                                font: fonts.label()
                             }
 
                             Components.Icon {
@@ -426,16 +420,10 @@ Item {
                             Components.Icon {
                                 icon: "uc:xmark"
                                 size: 60
-                                color: colors.offwhite
+                                color: colors.textPrimary
 
-                                Rectangle {
-                                    anchors { fill: parent; margins: 4 }
-                                    radius: ui.cornerRadiusSmall
-                                    color: colors.transparent
-                                    border {
-                                        width: 2
-                                        color: clearWifiButton.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                                    }
+                                Components.Selectable {
+                                    selected: clearWifiButton.activeFocus
                                 }
 
                                 Components.HapticMouseArea {
@@ -469,9 +457,10 @@ Item {
 
                     Components.Button {
                         id: cancelButton
-                        Layout.preferredWidth: parent.width / 2 - 10
+                        Layout.fillWidth: true
+                        Layout.preferredWidth: 1
                         text: qsTr("Cancel")
-                        color: colors.secondaryButton
+                        variant: "secondary"
                         trigger: function() {
                             dockConfigureContainer.cancelSetup();
                         }
@@ -483,8 +472,8 @@ Item {
                     Components.Button {
                         id: nextButton
                         Layout.fillWidth: true
+                        Layout.preferredWidth: 1
                         text: qsTr("Next")
-                        opacity: enabled ? 1 : 0.3
                         enabled: dockConfigureContainer.wifiSet || !dockConfigureContainer.needsWifi
                         trigger: function() {
                             dockConfigureContainer.startDockSetup();
@@ -510,16 +499,10 @@ Item {
                     Components.Icon {
                         icon: "uc:arrow-left"
                         size: 60
-                        color: colors.offwhite
+                        color: colors.textPrimary
 
-                        Rectangle {
-                            anchors { fill: parent; margins: 4 }
-                            radius: ui.cornerRadiusSmall
-                            color: colors.transparent
-                            border {
-                                width: 2
-                                color: wifiBackButton.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                            }
+                        Components.Selectable {
+                            selected: wifiBackButton.activeFocus
                         }
 
                         Components.HapticMouseArea {
@@ -536,11 +519,11 @@ Item {
                     Text {
                         Layout.fillWidth: true
 
-                        color: colors.offwhite
+                        color: colors.textPrimary
                         text: qsTr("Select WiFi network")
                         maximumLineCount: 1
                         elide: Text.ElideRight
-                        font: fonts.primaryFont(26)
+                        font: fonts.title()
                     }
                 }
 

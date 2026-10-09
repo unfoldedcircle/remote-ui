@@ -8,6 +8,7 @@ import QtQuick.Controls 2.15
 import Onboarding 1.0
 import Config 1.0
 
+import "qrc:/components" as Components
 import "qrc:/keypad" as Keypad
 import "qrc:/onboarding" as OnboardingComponents
 
@@ -48,25 +49,16 @@ OnboardingComponents.Page {
                                              });
     }
 
-    Item {
+    Components.TitleBar {
         id: title
-        width: parent.width
-        height: 60
-
-        Text {
-            text: qsTr("Administrator PIN")
-            width: parent.width
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
-        }
+        // onboarding steps have no back target: BACK goes to the previous step
+        action: ""
+        text: qsTr("Administrator PIN")
     }
 
     Text {
         id: description
-        width: parent.width
+        width: parent.width - 40
         wrapMode: Text.WordWrap
         color: colors.textPrimary
         horizontalAlignment: Text.AlignHCenter

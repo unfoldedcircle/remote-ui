@@ -55,37 +55,13 @@ ColumnLayout {
         }
     }
 
-    Item {
+    // the close target only exists on the step that can be left that way: it skips to the result
+    Components.TitleBar {
         id: setupTitle
-
-        Layout.fillWidth: true
-        Layout.preferredHeight: 60
-
-        Text {
-            text: qsTr("Integration setup")
-            width: parent.width - 20
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
-        }
-
-        Components.Icon {
-            id: closeIcon
-            color: colors.offwhite
-            icon: "uc:xmark"
-            anchors { verticalCenter: parent.verticalCenter; right: parent.right }
-            size: 60
-            visible: integrationSetupSwipeView.currentIndex == 1;
-
-            Components.HapticMouseArea {
-                width: parent.width + 20; height: width
-                anchors.centerIn: parent
-                onClicked: {
-                    integrationSetupSwipeView.currentIndex = 2;
-                }
-            }
+        action: integrationSetupSwipeView.currentIndex == 1 ? "close" : ""
+        text: qsTr("Integration setup")
+        goBack: function() {
+            integrationSetupSwipeView.currentIndex = 2;
         }
     }
 

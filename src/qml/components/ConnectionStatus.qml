@@ -62,10 +62,8 @@ Popup {
     background: MouseArea {
         onClicked: connectionStateRoot.close()
 
-        Rectangle {
+        Components.Dim {
             anchors.fill: parent
-            color: colors.black
-            opacity: 0.5
         }
     }
 
@@ -73,7 +71,8 @@ Popup {
         Rectangle {
             width: parent.width - 40
             height: iconClose.height + itemList.height + 20 + (itemList.count === 0 ? 60 : 0)
-            color: colors.medium
+            // a popup card over the dim (docs/design-system.md section 5)
+            color: colors.surfaceRaised
             radius: ui.cornerRadiusLarge
             anchors { top: parent.top; topMargin: 40; horizontalCenter: parent.horizontalCenter }
 
@@ -181,7 +180,7 @@ Popup {
 
             Rectangle {
                 width: parent.width; height: 2
-                color: colors.dark
+                color: colors.divider
                 anchors { bottom: parent.bottom }
                 visible: !isLast
             }

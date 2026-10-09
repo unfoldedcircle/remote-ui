@@ -93,7 +93,6 @@ Settings.Page {
 
     Components.ScrollIndicator {
         parentObj: itemList
-        hideOverride: itemList.atYEnd
     }
 
     Components.BottomSheet {
@@ -271,22 +270,25 @@ Settings.Page {
     Component {
         id: listItem
 
-        Rectangle {
+        Item {
             id: dockListItem
             width: ListView.view.width
             height: 300
-            color: colors.transparent
-            radius: ui.cornerRadiusSmall
-            border {
-                color: colors.medium
-                width: 1
-            }
 
             property bool isCurrentItem: ListView.isCurrentItem
             property string key: dockId
             property alias identifyAnimation: identifyAnimation
 
+            // the card spans 8 px to width - 8 like every selectable row, its content keeps the 20 px gutter
+            Rectangle {
+                anchors { fill: parent; leftMargin: 8; rightMargin: 8 }
+                color: colors.transparent
+                radius: ui.cornerRadiusSmall
+                border { color: colors.divider; width: 2 }
+            }
+
             Components.Selectable {
+                anchors { leftMargin: 8; rightMargin: 8 }
                 selected: dockListItem.isCurrentItem && !docksPage.addSheetSelected
             }
 
@@ -376,7 +378,7 @@ Settings.Page {
 
             ColumnLayout {
                 id: mainColumnLayout
-                anchors { top: parent.top; topMargin: 30; bottom: parent.bottom; bottomMargin: 30; left: parent.left; leftMargin: 30; right: parent.right; rightMargin: 30 }
+                anchors { top: parent.top; topMargin: 20; bottom: parent.bottom; bottomMargin: 20; left: parent.left; leftMargin: 20; right: parent.right; rightMargin: 20 }
                 spacing: 0
 
                 RowLayout {
@@ -389,13 +391,13 @@ Settings.Page {
 
                         width: 30
                         height: width
-                        color: colors.offwhite
+                        color: colors.textPrimary
                         radius: width / 2
 
                         Components.Icon {
                             icon: dockState === DockStates.ERROR ? "uc:xmark" : "uc:check"
                             size: 26
-                            color: colors.black
+                            color: colors.bg
                             anchors.centerIn: parent
                         }
                     }
@@ -459,8 +461,7 @@ Settings.Page {
                 // the dock details, where both actions are reachable with the keypad.
                 Components.Button {
                     text: qsTr("Identify")
-                    height: 50
-                    color: colors.medium
+                    variant: "secondary"
                     visible: dockState === DockStates.ACTIVE || dockState === DockStates.IDLE
                     trigger: function() {
                         DockController.identify(dockId);
@@ -470,8 +471,7 @@ Settings.Page {
 
                 Components.Button {
                     text: qsTr("Connect")
-                    height: 50
-                    color: colors.medium
+                    variant: "secondary"
                     visible: dockState === DockStates.ERROR
                     trigger: function() {
                         DockController.connect(dockId);

@@ -326,12 +326,13 @@ Rectangle {
                 Layout.preferredHeight: entitySearch.height
                 Layout.preferredWidth: entitySearch.height
 
-                color: entityList.model.filtered ? colors.highlight : colors.transparent
+                // a light fill while a filter is active; the ring is the keypad selection
+                color: entityList.model.filtered ? colors.textPrimary : colors.transparent
                 radius: ui.cornerRadiusSmall
-                border {
-                    width: 2
-                    color: entityList.keypadSelected && entityList.zone === EntityList.Zone.Header
-                           && ui.keyNavigationActive ? colors.highlight : colors.transparent
+
+                Components.Selectable {
+                    radius: parent.radius
+                    selected: entityList.keypadSelected && entityList.zone === EntityList.Zone.Header
                 }
 
                 Behavior on color {
@@ -340,7 +341,7 @@ Rectangle {
 
                 Components.Icon {
                     icon: "uc:filter"
-                    color: entityList.model.filtered ? colors.black : colors.offwhite
+                    color: entityList.model.filtered ? colors.bg : colors.textPrimary
                     size: 80
                     anchors.centerIn: parent
 
@@ -410,7 +411,7 @@ Rectangle {
                     },
                     "DPAD_LEFT": {
                         "pressed": function() {
-                            clearFiltersButton.clicked(null);
+                            clearFiltersButton.activate();
                         }
                     },
                     "BACK": {
@@ -426,9 +427,7 @@ Rectangle {
                 }
             }
 
-            background: Rectangle {
-                color: colors.black; opacity: 0.6
-
+            background: Components.Dim {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: entityFilterPopup.close()
@@ -436,13 +435,16 @@ Rectangle {
             }
 
             contentItem: Item {
-                Rectangle {
+                // a bottom sheet (docs/design-system.md section 5): black with a divider edge
+                Item {
                     id: entityFilterContainer
                     width: parent.width
                     height: entityFilterContainerContent.height + ui.cornerRadiusLarge
-                    radius: ui.cornerRadiusLarge
-                    color: colors.dark
                     anchors.bottom: parent.bottom
+
+                    Components.Sheet {
+                        anchors.fill: parent
+                    }
 
                     MouseArea {
                         anchors.fill: parent
@@ -459,27 +461,18 @@ Rectangle {
                             Layout.leftMargin: 20
                             Layout.rightMargin: 20
 
-                            Components.HapticMouseArea {
+                            // Clear and Done are buttons, not text actions (docs/design-system.md, I-09)
+                            Components.Button {
                                 id: clearFiltersButton
-                                Layout.preferredHeight: 80
-                                Layout.preferredWidth: parent.width / 3
-
-                                onClicked: {
+                                //: Button that clears the active filters in the entity list.
+                                text: qsTr("Clear")
+                                variant: "secondary"
+                                trigger: function() {
                                     entityList.model.cleanEntityTypes();
 
                                     for (let i = 0; i < filterTypesListView.count; i++) {
                                         filterTypesListView.model.get(i).typeChecked = false;
                                     }
-                                }
-
-                                Text {
-                                    anchors.fill: parent
-                                    //: Button that clears the active filters in the entity list.
-                                    text: qsTr("Clear")
-                                    verticalAlignment: Text.AlignVCenter
-                                    maximumLineCount: 1
-                                    color: colors.textPrimary
-                                    font: fonts.button()
                                 }
                             }
 
@@ -490,38 +483,20 @@ Rectangle {
                                 horizontalAlignment: Text.AlignHCenter
                                 verticalAlignment: Text.AlignVCenter
                                 maximumLineCount: 1
-                                color: colors.offwhite
-                                font: fonts.primaryFont(26)
+                                elide: Text.ElideRight
+                                color: colors.textPrimary
+                                font: fonts.title()
                             }
 
-                            Components.HapticMouseArea {
-                                Layout.preferredHeight: 80
-                                Layout.preferredWidth: parent.width / 3
-
-                                onClicked: {
+                            Components.Button {
+                                text: qsTr("Done")
+                                trigger: function() {
                                     entityFilterPopup.close();
                                 }
-
-                                Text {
-                                    anchors.fill: parent
-                                    text: qsTr("Done")
-                                    horizontalAlignment: Text.AlignRight
-                                    verticalAlignment: Text.AlignVCenter
-                                    maximumLineCount: 1
-                                    color: colors.textPrimary
-                                    font: fonts.button()
-                                }
                             }
                         }
 
-                        Rectangle {
-                            Layout.fillWidth: true
-                            Layout.preferredHeight: 1
-                            Layout.topMargin: -10
-                            Layout.leftMargin: 20
-                            Layout.rightMargin: 20
-                            color: Qt.lighter(colors.medium, 1.3)
-                        }
+                        Components.Divider {}
 
                         ListView {
                             id: filterTypesListView
@@ -582,11 +557,10 @@ Rectangle {
                                 }
                             }
 
-                            delegate: RowLayout {
+                            delegate: Item {
                                 id: filterListViewDelegate
                                 width: ListView.view.width
                                 height: 60
-                                spacing: 20
 
                                 property bool checked: entityList.model.containsEntityType(typeValue)
                                 Component.onCompleted: typeChecked = false// entityList.model.containsEntityType(typeValue)
@@ -600,54 +574,64 @@ Rectangle {
                                     typeChecked = entityList.model.containsEntityType(typeValue);
                                 }
 
-                                Components.Icon {
-                                    size: 60
-                                    color: colors.offwhite
-                                    icon: typeIcon
+                                // the ring around the selected type, inside the list's 20 px gutter
+                                Components.Selectable {
+                                    anchors { leftMargin: -12; rightMargin: -12 }
+                                    selected: filterListViewDelegate.ListView.isCurrentItem
                                 }
 
-                                Text {
-                                    Layout.fillWidth: true
-                                    Layout.preferredHeight: 60
-                                    text: typeName
-                                    color: filterListViewDelegate.ListView.isCurrentItem && ui.keyNavigationActive
-                                           ? colors.highlight : colors.offwhite
-                                    verticalAlignment: Text.AlignVCenter
-                                    font: fonts.primaryFont(28)
-                                }
+                                RowLayout {
+                                    anchors.fill: parent
+                                    spacing: 20
 
-                                Components.HapticMouseArea {
-                                    Layout.preferredWidth: 60
-                                    Layout.preferredHeight: 60
-                                    Layout.alignment: Qt.AlignRight
-
-                                    onClicked: {
-                                        filterListViewDelegate.toggle();
+                                    Components.Icon {
+                                        size: 60
+                                        color: colors.textPrimary
+                                        icon: typeIcon
                                     }
 
-                                    Rectangle {
-                                        width: 30
-                                        height: width
-                                        anchors.centerIn: parent
-                                        color: typeChecked ? colors.white : colors.transparent
-                                        radius: width / 2
-                                        border {
-                                            width: 1
-                                            color: colors.light
+                                    Text {
+                                        Layout.fillWidth: true
+                                        Layout.preferredHeight: 60
+                                        text: typeName
+                                        color: colors.textPrimary
+                                        verticalAlignment: Text.AlignVCenter
+                                        font: fonts.label()
+                                    }
+
+                                    Components.HapticMouseArea {
+                                        Layout.preferredWidth: 60
+                                        Layout.preferredHeight: 60
+                                        Layout.alignment: Qt.AlignRight
+
+                                        onClicked: {
+                                            filterListViewDelegate.toggle();
                                         }
 
-                                        Behavior on color {
-                                            ColorAnimation { duration: 300 }
-                                        }
+                                        Rectangle {
+                                            width: 30
+                                            height: width
+                                            anchors.centerIn: parent
+                                            color: typeChecked ? colors.white : colors.transparent
+                                            radius: width / 2
+                                            border {
+                                                width: 1
+                                                color: colors.light
+                                            }
 
-                                        Components.Icon {
-                                            size: parent.width
-                                            color: colors.black
-                                            icon: "uc:check"
-                                            opacity: typeChecked ? 1 : 0
+                                            Behavior on color {
+                                                ColorAnimation { duration: 300 }
+                                            }
 
-                                            Behavior on opacity {
-                                                NumberAnimation { duration: 300 }
+                                            Components.Icon {
+                                                size: parent.width
+                                                color: colors.black
+                                                icon: "uc:check"
+                                                opacity: typeChecked ? 1 : 0
+
+                                                Behavior on opacity {
+                                                    NumberAnimation { duration: 300 }
+                                                }
                                             }
                                         }
                                     }
@@ -775,7 +759,7 @@ Rectangle {
             id: selectAllButton
             text: entityList.model.allSelected ? qsTr("Clear") : qsTr("Select all")
             width: (parent.width - 20 ) / 2
-            color: colors.secondaryButton
+            variant: "secondary"
             anchors { left: parent.left; bottom: parent.bottom }
             highlight: entityList.keypadSelected && entityList.zone === EntityList.Zone.Footer
                        && entityList.footerIndex === 0 && ui.keyNavigationActive

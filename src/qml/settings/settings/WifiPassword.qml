@@ -111,65 +111,61 @@ Popup {
 
     background: Rectangle {
         anchors.fill: parent
-        color: colors.black
+        color: colors.bg
     }
 
-    Text {
-        id: wifiPasswordContainerTitleText
-        color: colors.offwhite
-        text: qsTr("Enter WiFi password for\n%1").arg(wifiPassword.wifiNetwork.ssid)
-        horizontalAlignment: Text.AlignHCenter
-        width: parent.width
-        wrapMode: Text.WordWrap
-        anchors { top: parent.top; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-        font: fonts.primaryFont(26)
-    }
-
-    Components.InputField {
-        id: passwordInputFieldContainer
-        width: parent.width; height: 80
-        anchors { top: wifiPasswordContainerTitleText.bottom; topMargin: 10; horizontalCenter: parent.horizontalCenter }
-
-        //: Placeholder text for password
-        inputField.placeholderText: qsTr("Super secret")
-        inputField.onAccepted: {
-            join();
-        }
-        inputField.inputMethodHints: Qt.ImhNoAutoUppercase
-        inputField.echoMode: TextInput.Password
-        inputField.passwordMaskDelay: 1000
-        moveInput: false
-        keyboardFollowsFocus: true
-        navDown: cancelButton
-    }
-
-    Components.Button {
-        id: joinButton
-        //: Join wifi network
-        text: qsTr("Join")
-        width: parent.width / 2 - 10
-        anchors { right: passwordInputFieldContainer.right; top: passwordInputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            join();
+    Components.FormDialog {
+        id: dialog
+        // the name of the network can be long: the text goes under the title bar, not into it
+        description: qsTr("Enter WiFi password for\n%1").arg(wifiPassword.wifiNetwork.ssid)
+        goBack: function() {
+            cancelButton.activate();
         }
 
-        KeyNavigation.up: passwordInputFieldContainer.inputField
-        KeyNavigation.left: cancelButton
-    }
+        Components.InputField {
+            id: passwordInputFieldContainer
+            width: parent.width; height: 80
 
-    Components.Button {
-        id: cancelButton
-        text: qsTr("Cancel")
-        width: parent.width / 2 - 10
-        color: colors.secondaryButton
-        anchors { left: passwordInputFieldContainer.left; top: passwordInputFieldContainer.bottom; topMargin: 40 }
-        trigger: function() {
-            passwordInputFieldContainer.inputField.clear();
-            wifiPassword.close();
-            keyboard.hide();
+            //: Placeholder text for password
+            inputField.placeholderText: qsTr("Super secret")
+            inputField.onAccepted: {
+                join();
+            }
+            inputField.inputMethodHints: Qt.ImhNoAutoUppercase
+            inputField.echoMode: TextInput.Password
+            inputField.passwordMaskDelay: 1000
+            moveInput: false
+            keyboardFollowsFocus: true
+            navDown: cancelButton
         }
 
-        KeyNavigation.up: passwordInputFieldContainer.inputField
-        KeyNavigation.right: joinButton
+        buttons: [
+            Components.Button {
+                id: cancelButton
+                text: qsTr("Cancel")
+                width: dialog.buttonWidth
+                variant: "secondary"
+                trigger: function() {
+                    passwordInputFieldContainer.inputField.clear();
+                    wifiPassword.close();
+                    keyboard.hide();
+                }
+
+                KeyNavigation.up: passwordInputFieldContainer.inputField
+                KeyNavigation.right: joinButton
+            },
+            Components.Button {
+                id: joinButton
+                //: Join wifi network
+                text: qsTr("Join")
+                width: dialog.buttonWidth
+                trigger: function() {
+                    join();
+                }
+
+                KeyNavigation.up: passwordInputFieldContainer.inputField
+                KeyNavigation.left: cancelButton
+            }
+        ]
     }
 }

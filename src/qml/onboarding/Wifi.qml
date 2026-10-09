@@ -161,25 +161,16 @@ OnboardingComponents.Page {
         }
     }
 
-    Item {
+    Components.TitleBar {
         id: title
-        width: parent.width
-        height: 60
-
-        Text {
-            text: qsTr("Select your WiFi network")
-            width: parent.width
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
-        }
+        // onboarding steps have no back target: BACK goes to the previous step
+        action: ""
+        text: qsTr("Select your WiFi network")
     }
 
     Item {
         id: macAddressContainer
-        width: parent.width - 20
+        width: parent.width - 40
         height: 60
         anchors { top: title.bottom; horizontalCenter: parent.horizontalCenter }
 
@@ -214,7 +205,7 @@ OnboardingComponents.Page {
 
     Settings.WifiNetworkList {
         id: wifiNetworkList
-        width: parent.width - 20
+        width: parent.width
         anchors { top: macAddressContainer.bottom; bottom: skipStepButton.top; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         popupParent: onboardingWifiPage
         interactive: true
@@ -225,11 +216,17 @@ OnboardingComponents.Page {
         otherSelected: onboardingWifiPage.otherSelected && !wifiFailed.visible
     }
 
+    Components.ScrollIndicator {
+        parentObj: wifiNetworkList
+    }
+
+    // Skip is the alternative to joining a network: the secondary variant, full width in the gutter
     Components.Button {
         id: skipStepButton
-        width: parent.width - 20
+        width: parent.width - 40
         text: qsTr("Skip")
-        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+        variant: "secondary"
+        anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         highlight: onboardingWifiPage.skipSelected && !wifiFailed.visible && ui.keyNavigationActive
         trigger: function() {
             OnboardingController.nextStep();
@@ -238,7 +235,7 @@ OnboardingComponents.Page {
 
     Rectangle {
         id: wifiFailed
-        color: colors.black
+        color: colors.bg
         anchors.fill: parent
         opacity: 0
         visible: opacity > 0
@@ -251,26 +248,16 @@ OnboardingComponents.Page {
         // the failure screen always opens on "Try again"
         onVisibleChanged: onboardingWifiPage.setUpLaterSelected = false
 
-        Item {
+        Components.TitleBar {
             id: failedTitle
-            width: parent.width
-            height: 60
-
-            Text {
-                //: Failed to connect to a wifi network
-                text: qsTr("Failed to connect")
-                width: parent.width
-                elide: Text.ElideRight
-                color: colors.offwhite
-                verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-                anchors.centerIn: parent
-                font: fonts.primaryFont(24)
-            }
+            action: ""
+            //: Failed to connect to a wifi network
+            text: qsTr("Failed to connect")
         }
 
         Text {
             id: description
-            width: parent.width
+            width: parent.width - 40
             wrapMode: Text.WordWrap
             color: colors.textPrimary
             horizontalAlignment: Text.AlignHCenter
@@ -283,8 +270,8 @@ OnboardingComponents.Page {
         Components.Button {
             id: skipButton
             text: qsTr("Set up later")
-            width: parent.width / 2 - 10
-            anchors { right: parent.right; bottom: parent.bottom }
+            width: (parent.width - 60) / 2
+            anchors { right: parent.right; rightMargin: 20; bottom: parent.bottom; bottomMargin: 20 }
             highlight: wifiFailed.visible && onboardingWifiPage.setUpLaterSelected && ui.keyNavigationActive
             trigger: function() {
                 OnboardingController.nextStep();
@@ -296,9 +283,9 @@ OnboardingComponents.Page {
         Components.Button {
             id: tryAgainButton
             text: qsTr("Try again")
-            width: parent.width / 2 - 10
-            color: colors.secondaryButton
-            anchors { left: parent.left; bottom: parent.bottom }
+            width: (parent.width - 60) / 2
+            variant: "secondary"
+            anchors { left: parent.left; leftMargin: 20; bottom: parent.bottom; bottomMargin: 20 }
             highlight: wifiFailed.visible && !onboardingWifiPage.setUpLaterSelected && ui.keyNavigationActive
             trigger: function() {
                 wifiFailed.opacity = 0;

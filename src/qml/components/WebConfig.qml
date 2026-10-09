@@ -72,43 +72,22 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
-        Item {
-            Layout.fillWidth: true
-            Layout.preferredHeight: childrenRect.height
-
-            Text {
-                text: qsTr("Web Configurator")
-                color: colors.offwhite
-                verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-                anchors { horizontalCenter: parent.horizontalCenter; verticalCenter: parent.verticalCenter }
-                font: fonts.primaryFont(26)
-            }
-
-            Components.Icon {
-                id: closeIcon
-
-                color: colors.offwhite
-                icon: "uc:arrow-left"
-                size: 80
-
-                anchors.left: parent.left
-
-                Components.HapticMouseArea {
-                    width: 120; height: 120
-                    anchors.centerIn: parent
-                    onClicked: {
-                        close();
-                    }
-                }
+        Components.TitleBar {
+            text: qsTr("Web Configurator")
+            goBack: function() {
+                close();
             }
         }
+
         Rectangle {
             Layout.fillWidth: true
             Layout.preferredHeight: childrenRect.height
+            Layout.leftMargin: 20
+            Layout.rightMargin: 20
             Layout.bottomMargin: 20
 
             color: colors.transparent
-            border { color: colors.medium; width: 2 }
+            border { color: colors.divider; width: 2 }
             radius: ui.cornerRadiusSmall
 
             ColumnLayout {
@@ -214,7 +193,7 @@ Rectangle {
                                 width: pinContainer.containerWidth
                                 height: pinContainer.containerHeight
                                 color: colors.black
-                                border { color: colors.medium; width: 2 }
+                                border { color: colors.divider; width: 2 }
                                 radius: ui.cornerRadiusSmall
 
                                 Text {
@@ -231,7 +210,7 @@ Rectangle {
                                 width: pinContainer.containerWidth
                                 height: pinContainer.containerHeight
                                 color: colors.black
-                                border { color: colors.medium; width: 2 }
+                                border { color: colors.divider; width: 2 }
                                 radius: ui.cornerRadiusSmall
 
                                 Text {
@@ -248,7 +227,7 @@ Rectangle {
                                 width: pinContainer.containerWidth
                                 height: pinContainer.containerHeight
                                 color: colors.black
-                                border { color: colors.medium; width: 2 }
+                                border { color: colors.divider; width: 2 }
                                 radius: ui.cornerRadiusSmall
 
                                 Text {
@@ -265,7 +244,7 @@ Rectangle {
                                 width: pinContainer.containerWidth
                                 height: pinContainer.containerHeight
                                 color: colors.black
-                                border { color: colors.medium; width: 2 }
+                                border { color: colors.divider; width: 2 }
                                 radius: ui.cornerRadiusSmall
 
                                 Text {
@@ -288,13 +267,13 @@ Rectangle {
                                 Config.generateNewWebConfigPin();
                             }
 
-                            onPressed: generateQrCodeIcon.color = colors.highlight
-                            onReleased: generateQrCodeIcon.color = colors.light
+                            onPressed: generateQrCodeIcon.color = colors.textPrimary
+                            onReleased: generateQrCodeIcon.color = colors.textSecondary
 
                             Components.Icon {
                                 id: generateQrCodeIcon
                                 icon: "uc:arrow-rotate-right"
-                                color: colors.light
+                                color: colors.textSecondary
                                 size: 60
                                 anchors.centerIn: parent
 
@@ -316,8 +295,7 @@ Rectangle {
                     Components.Icon {
                         id: lockIcon
                         icon: "uc:lock"
-                        color: colors.offwhite
-                        opacity: 0.6
+                        color: colors.textSecondary
                         anchors { left: parent.left }
                         size: 30
                     }
