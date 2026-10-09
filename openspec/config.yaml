@@ -86,14 +86,8 @@ rules:
     - A requirement that applies to one hardware model only says so; the default is both models.
     - For an internal refactor with no new user-facing behaviour, scenarios may assert a
       developer-observable outcome. Keep them terse.
-    - Keep each requirement's description (the text between `### Requirement:` and its first
-      scenario) within 500 characters; `openspec validate --strict` fails on a longer ADDED
-      requirement. State one behaviour per requirement and put examples and edge cases into
-      scenarios. Add new behaviour as its own ADDED requirement instead of lengthening a MODIFIED
-      one. Under MODIFIED, keep the existing text whole; an existing longer requirement is split
-      only in a change made for that purpose, which keeps its header and every scenario, cuts its
-      description to one behaviour without changing its meaning, and adds each removed behaviour
-      as an ADDED requirement with its own scenarios.
+    - Add new behaviour as its own ADDED requirement instead of lengthening a MODIFIED one, so it
+      is checked against the 500-character limit the `specs` instruction of the schema describes.
   tasks:
     - Order phases by dependency and make them file-disjoint where possible, so independent
       phases can be dispatched to parallel git-worktree agents. Call out cross-phase

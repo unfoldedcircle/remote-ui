@@ -96,7 +96,7 @@ qt-creator-license-template
 /.claude
 
 # OpenSpec commands and skills generated for an AI coding tool; every developer generates them for
-# the tool they use: npx @fission-ai/openspec@latest init --tools <tool>  (see `--help` for the list)
+# the tool they use: npx @fission-ai/openspec@1.14.1 init --tools <tool>  (see `--help` for the list)
 **/commands/opsx*
 **/command/opsx*
 **/prompts/opsx*

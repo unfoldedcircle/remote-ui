@@ -92,7 +92,7 @@ the maintainer in its Open Questions instead of inventing a number.
 ## Tooling
 
 **Reading needs nothing** — it is all Markdown. **Authoring** needs Node 20.19+ and the OpenSpec
-CLI (`npx @fission-ai/openspec@latest`). OpenSpec works with many AI coding tools — Claude Code,
+CLI (`npx @fission-ai/openspec@1.14.1`). OpenSpec works with many AI coding tools — Claude Code,
 Cursor, GitHub Copilot, Codex, Gemini CLI and others — and without any: `openspec init --tools
 <tool>` generates the `/opsx:*` commands and skills for the tool you use (`openspec init --help`
 lists them). The generated files are not tracked. See [openspec/README.md](../openspec/README.md),

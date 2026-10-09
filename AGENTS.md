@@ -240,6 +240,6 @@ Qt on Apple Silicon takes `-D CMAKE_OSX_ARCHITECTURES=x86_64` on the command lin
 - Code guidelines: [docs/code_guidelines.md](docs/code_guidelines.md)
 - Development workflow (OpenSpec and ADRs): [docs/workflow.md](docs/workflow.md),
   [openspec/README.md](openspec/README.md); the OpenSpec commands are generated per tool and not
-  tracked: `npx @fission-ai/openspec@latest init --tools <tool>`
+  tracked: `npx @fission-ai/openspec@1.14.1 init --tools <tool>`
 - Architecture Decision Records: [docs/adr/](docs/adr/README.md)
 - All other guides (build, install, key navigation, icon font, start-up): [docs/README.md](docs/README.md)
