@@ -29,13 +29,23 @@ when both fit, otherwise on their own line under the key. They SHALL NOT be cut 
 - **WHEN** the About page is shown on the 480 px wide screen of a Remote 3
 - **THEN** both addresses are shown in full, each on its own line under its key
 
+### Requirement: The About page shows its first entry
+On both remotes the information of the About page and its first entry SHALL fit on the screen together, so the
+page shows without scrolling that entries follow the information, and returning to the first entry shows the
+information from the top.
+
+#### Scenario: About page on a Remote 3
+- **WHEN** the About page opens on the 800 px high screen of a Remote 3
+- **THEN** "Regulatory" is shown in full below the information, without scrolling
+
 ### Requirement: The About page scrolls back to its information
 When the keypad selection reaches the first entry of the About page, or DPAD_UP is pressed on it, the page SHALL
 scroll up as far as the selected entry stays visible, so the information above the entries is shown again.
 
 #### Scenario: Back up with the keypad
 - **WHEN** the selection is moved down to "Licenses" and back up to "Regulatory"
-- **THEN** the page scrolls up as far as "Regulatory" stays visible, showing the information above it
+- **THEN** the page scrolls up as far as "Regulatory" stays visible, which is the top of the page with the model
+  number
 
 #### Scenario: After scrolling by touch
 - **WHEN** the page was scrolled down by touch and DPAD_UP is pressed while "Regulatory" is selected
