@@ -207,7 +207,7 @@ Rectangle {
                                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                                 verticalAlignment: Text.AlignVCenter
                                 color: colors.textPrimary
-                                text: ("http://%1/configurator").arg(webConfiguratorAddress.showIp ? Wifi.ipAddress : Config.webConfiguratorAddress)
+                                text: Config.webConfiguratorUrl(Wifi.ipAddress, webConfiguratorAddress.showIp)
                                 font: fonts.value()
 
                                 Components.HapticMouseArea {
@@ -402,7 +402,7 @@ Rectangle {
                     anchors.margins: 10
                     fillMode: Image.PreserveAspectFit
                     antialiasing: false
-                    source: "data:image/png;base64," + ui.createQrCode(("http://%1/configurator").arg(Config.webConfiguratorAddress))
+                    source: "data:image/png;base64," + ui.createQrCode(Config.webConfiguratorUrl("", false))
                 }
             }
         }

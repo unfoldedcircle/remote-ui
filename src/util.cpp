@@ -73,6 +73,11 @@ QString Util::getDefaultCountryLocale(const QString &locale) {
     return baseLang + "_" + baseLang.toUpper();
 }
 
+QString Util::webConfiguratorUrl(const QString &ipAddress, const QString &hostName, bool preferIp) {
+    const QString address = (preferIp && !ipAddress.isEmpty()) || hostName.isEmpty() ? ipAddress : hostName;
+    return address.isEmpty() ? QString() : QStringLiteral("http://%1/configurator").arg(address);
+}
+
 QString Util::getLanguageString(QVariantMap map, const QString &language, QString fallback) {
     // see unit tests in /test/common/test_util.cpp
     // log is too verbose with many entities
