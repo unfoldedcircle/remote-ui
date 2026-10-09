@@ -24,9 +24,9 @@ battery icons, both anchored to the same point, so these two could cover each ot
 ### Modified Capabilities
 
 - `entity-detail-controls`: "Control screen title bar" places the integration icon in the status
-  cluster and bounds the name.
-- `activities`: "Activity screen header reflects failure" shows the integration icon with the Wi-Fi
-  and battery icons in one row.
+  cluster; the new "Status cluster layout" keeps the icons side by side and bounds the name.
+- `activities`: the new "Status cluster in the activity header" shows the integration icon with the
+  Wi-Fi and battery icons in one row; "Activity screen header reflects failure" no longer lists them.
 
 ## Impact
 

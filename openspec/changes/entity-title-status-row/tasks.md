@@ -13,8 +13,10 @@ this change after it is merged to `main`.
 
 ## 2. Specs
 
-- [x] 2.1 `entity-detail-controls`: MODIFIED "Control screen title bar"
-- [x] 2.2 `activities`: MODIFIED "Activity screen header reflects failure"
+- [x] 2.1 `entity-detail-controls`: MODIFIED "Control screen title bar", ADDED "Status cluster layout"
+- [x] 2.2 `activities`: MODIFIED "Activity screen header reflects failure", ADDED "Status cluster in
+      the activity header"; the new layout is its own requirement instead of lengthening the modified
+      ones. Verified with `openspec validate entity-title-status-row --strict`
 - [x] 2.3 `adr.md` review manifest (no new ADR)
 
 ## 3. Verification
