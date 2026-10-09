@@ -95,6 +95,9 @@ the maintainer in its Open Questions instead of inventing a number.
 CLI (`npx @fission-ai/openspec@latest`). OpenSpec works with many AI coding tools — Claude Code,
 Cursor, GitHub Copilot, Codex, Gemini CLI and others — and without any: `openspec init --tools
 <tool>` generates the `/opsx:*` commands and skills for the tool you use (`openspec init --help`
-lists them). The generated files are not tracked. See [openspec/README.md](../openspec/README.md).
+lists them). The generated files are not tracked. See [openspec/README.md](../openspec/README.md),
+which also describes the [validation](../openspec/README.md#validation) a change has to pass and
+how the [workflow schema is kept in step](../openspec/README.md#keeping-the-workflow-schema-in-step-with-openspec)
+with OpenSpec: the schema is a copy, and updating the CLI does not update it.
 Every coding agent reads [AGENTS.md](../AGENTS.md) in the repository root (`CLAUDE.md` links to
 it): it lists the traps of the code base and links to the specs and ADRs that own each rule.
