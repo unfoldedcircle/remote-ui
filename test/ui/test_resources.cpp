@@ -34,6 +34,7 @@ class testResources : public QObject {
     void licenseBlocks_webAndMailLinks_areText();
     void licenseBlocks_documentLinks_areAnchors();
     void licenseAnchorBlock_findsHeading();
+    void licenseBlocks_code_isText();
 
  private:
     static void writeFile(const QString& path, const QByteArray& content);
@@ -264,6 +265,20 @@ void testResources::licenseAnchorBlock_findsHeading() {
     QCOMPARE(resources.licenseAnchorBlock(blocks, "mit"), 2);
     QCOMPARE(resources.licenseAnchorBlock(blocks, "apache-license-20"), 4);
     QCOMPARE(resources.licenseAnchorBlock(blocks, "ISC"), -1);
+}
+
+// A crate license file holds every license text as a code block, which Qt drew in the small fixed-pitch font of the
+// system in lines wrapped for a far wider screen: code is text that flows into paragraphs, nothing in it Markdown
+void testResources::licenseBlocks_code_isText() {
+    const QStringList blocks =
+        uc::ui::Resources(QString(), m_legalPath)
+            .licenseBlocks(
+                "#### License\n```\n   Copyright (c) 2015 *Me*\n\n   See http://x.org\n```\n#### Next\n"
+                "Base image is `debian:bookworm-slim`.",
+                true, false);
+
+    QCOMPARE(blocks, QStringList({"#### License\n\nCopyright \\(c\\) 2015 \\*Me\\*\n\nSee http\\:\\/\\/x\\.org",
+                                  "#### Next\nBase image is debian\\:bookworm\\-slim."}));
 }
 
 QTEST_GUILESS_MAIN(testResources)
