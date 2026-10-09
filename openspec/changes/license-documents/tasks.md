@@ -30,6 +30,8 @@ One phase per fix, then the verification. Each fix commit carries its `CHANGELOG
 - [x] 5.1 `Resources::licenseBlocks()`: code blocks and inline code as escaped text, code blocks flowing into
       paragraphs.
 - [x] 5.2 Test: a code block and inline code.
+- [x] 5.3 A text table in a code block keeps one line per row, without its borders: the Mesa license in the
+      operating system licenses of the firmware. Test with a table of two rows.
 
 ## 6. Verification
 
@@ -39,4 +41,5 @@ One phase per fix, then the verification. Each fix commit carries its `CHANGELOG
       core-simulator's license files: overview, crate licenses, a heading link, code as text, BACK and the back
       arrow; no QML error or binding loop in the log.
 - [x] 6.4 `openspec validate license-documents --strict`.
-- [ ] 6.5 On a device: the firmware's license files, and scrolling through the largest one.
+- [ ] 6.5 On a device: the firmware's license files, and scrolling through the largest one, measured with a
+      custom build: the time to prepare the blocks and the longest frame while the largest block comes into view.

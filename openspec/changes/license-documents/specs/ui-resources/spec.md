@@ -46,11 +46,15 @@ On the Licenses page BACK and the back target of the title bar SHALL reopen the 
 - **AND** BACK once more shows the About page
 
 ### Requirement: Headings and code on the Licenses page
-In the Markdown of the Licenses page every heading SHALL be bold at the size of the text, whatever its level, and code, inline or as a block, SHALL be text in the prose role: a code block flows into paragraphs, and nothing inside code is read as Markdown.
+In the Markdown of the Licenses page every heading SHALL be bold at the size of the text, whatever its level, and code, inline or as a block, SHALL be text in the prose role: a code block flows into paragraphs, and nothing inside code is read as Markdown. A row of a text table in code SHALL keep its own line, without the borders of the table.
 
 #### Scenario: License text in a code block
 - **WHEN** a crate license holds its license text in a fenced code block
 - **THEN** the text is shown at the size of the text around it, flowing into paragraphs
+
+#### Scenario: Text table in a license text
+- **WHEN** the Mesa license in the operating system licenses shows its table of components
+- **THEN** every row of the table is a line of its own, and its border lines are not shown
 
 #### Scenario: First-level heading
 - **WHEN** a license starts with a `#` heading
