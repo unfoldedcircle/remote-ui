@@ -131,7 +131,7 @@ OnboardingComponents.Page {
                         visible: Config.webConfiguratorEnabled && Config.webConfiguratorAddress != ""
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         color: colors.textPrimary
-                        text: ("http://%1/configurator").arg(webConfiguratorAddress.showIp ? Wifi.ipAddress : Config.webConfiguratorAddress)
+                        text: Config.webConfiguratorUrl(Wifi.ipAddress, webConfiguratorAddress.showIp)
                         font: fonts.value()
 
                         // OK switches between the host name and the IP address, as a tap does
@@ -242,7 +242,7 @@ OnboardingComponents.Page {
                         fillMode: Image.PreserveAspectFit
                         verticalAlignment: Image.AlignBottom
                         antialiasing: false
-                        source: "data:image/png;base64," + ui.createQrCode(("http://%1/configurator").arg(Config.webConfiguratorAddress))
+                        source: "data:image/png;base64," + ui.createQrCode(Config.webConfiguratorUrl("", false))
                         visible: Config.webConfiguratorAddress != "" && Config.webConfiguratorEnabled
                     }
                 }

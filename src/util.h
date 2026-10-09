@@ -70,6 +70,14 @@ class Util : public QObject {
      * @return the found language text or given fallback text if map is empty.
      */
     static QString getLanguageString(QVariantMap map, const QString &language, QString fallback = "");
+
+    /**
+     * @brief The web configurator address the screens show: "http://<address>/configurator".
+     *
+     * The IP address when it is preferred and known, otherwise the host name, and the IP address again when the host
+     * name is not known: never "http:///configurator". Empty while neither is known.
+     */
+    static QString webConfiguratorUrl(const QString &ipAddress, const QString &hostName, bool preferIp);
 };
 
 }  // namespace uc

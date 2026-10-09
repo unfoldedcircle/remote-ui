@@ -300,6 +300,10 @@ class Config : public QObject {
     bool    getWebConfiguratorEnabled() { return m_webConfiguratorEnabled; }
     void    setWebConfiguratorEnabled(bool value);
     QString getWebConfiguratorAddress() { return QHostInfo::localHostName(); }
+    // the address a web configurator row shows: the IP address while it is preferred and known, else the host name
+    Q_INVOKABLE QString webConfiguratorUrl(const QString& ipAddress, bool preferIp) {
+        return Util::webConfiguratorUrl(ipAddress, getWebConfiguratorAddress(), preferIp);
+    }
     QString getWebConfiguratorPin() { return m_webConfiguratorPin; }
 
     static QObject* qmlInstance(QQmlEngine* engine, QJSEngine* scriptEngine);

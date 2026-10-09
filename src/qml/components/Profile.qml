@@ -438,7 +438,7 @@ Item {
                                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                                     verticalAlignment: Text.AlignVCenter
                                     color: colors.textPrimary
-                                    text: ("http://%1/configurator").arg(webConfiguratorAddress.showIp ? Wifi.ipAddress : Config.webConfiguratorAddress)
+                                    text: Config.webConfiguratorUrl(Wifi.ipAddress, webConfiguratorAddress.showIp)
                                     font: fonts.value()
 
                                     Components.HapticMouseArea {
@@ -604,7 +604,7 @@ Item {
                                     anchors.centerIn: parent
                                     fillMode: Image.PreserveAspectFit
                                     antialiasing: false
-                                    source: "data:image/png;base64," + ui.createQrCode(("http://%1/configurator").arg(Config.webConfiguratorAddress))
+                                    source: "data:image/png;base64," + ui.createQrCode(Config.webConfiguratorUrl("", false))
                                     visible: Config.webConfiguratorAddress != ""
 
                                     Components.HapticMouseArea {
