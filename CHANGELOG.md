@@ -55,6 +55,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The settings use American English: "Localization" and "Inverted button behavior" instead of the British spelling.
 - On entity and activity screens the red icon of a disconnected integration, the Wi-Fi icon and the battery indicator
   no longer cover each other in the title: they are shown side by side, and a long entity name ends before them.
+- Two different problems no longer hide each other: notifications that share a title but report something else, like a
+  command that failed for two different devices, are now shown one after the other instead of only the first one. A
+  message that really repeats is still shown only once.
+- A short message that replaces one that is still on screen is shown for its full four seconds instead of vanishing
+  with the rest of the previous one.
+- A notification that arrives while another one is shown starts on its default button again, so the keypad acts on the
+  highlighted one.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.

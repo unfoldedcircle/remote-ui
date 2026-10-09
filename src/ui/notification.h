@@ -31,6 +31,13 @@ class NotificationItem : public QObject {
     Q_INVOKABLE QString itemActionLabel() const { return m_actionLabel; }
     Q_INVOKABLE bool    itemWarning() const { return m_warning; }
 
+    /**
+     * Two notifications are the same message when title and message match. The title alone is not
+     * enough: "Error sending the command" is raised per entity and the entity is named in the
+     * message only, so de-duplicating on the title hid every error but the first one.
+     */
+    Q_INVOKABLE bool isDuplicateOf(QObject *other) const;
+
     Q_INVOKABLE void action();
 
  private:

@@ -30,6 +30,15 @@ NotificationItem::~NotificationItem() {
     qCDebug(lcNotification()).noquote() << "Notification item destructor:" << m_id << m_title;
 }
 
+bool NotificationItem::isDuplicateOf(QObject *other) const {
+    const NotificationItem *item = qobject_cast<const NotificationItem *>(other);
+    if (item == nullptr) {
+        return false;
+    }
+
+    return m_title == item->m_title && m_message == item->m_message;
+}
+
 void NotificationItem::action() {
     if (m_action) {
         m_action(m_param);

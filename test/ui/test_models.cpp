@@ -32,6 +32,9 @@ class testUiModels : public QObject {
     void notifications_unknownKeyReturnsNull();
     void notifications_removeUnknownKeyKeepsModel();
     void notifications_removeKnownKeyRemovesRow();
+    void notifications_duplicateIsSameTitleAndMessage();
+    void notifications_sameTitleDifferentMessageIsNotDuplicate();
+    void notifications_otherObjectIsNotDuplicate();
 
     void pageItems_unknownKeyReturnsNull();
     void pageItems_removeUnknownKeyKeepsModel();
@@ -182,6 +185,47 @@ void testUiModels::notifications_removeKnownKeyRemovesRow() {
 
     QCOMPARE(notifications.count(), 0);
     QVERIFY(notifications.get(QStringLiteral("notification-1")) == nullptr);
+}
+
+/**
+ * The shown notifications are de-duplicated on what makes them the same message. Title and message
+ * together: "Error sending the command" is raised once per entity and names the entity in the
+ * message, so a title match alone hid the error of every entity but the first.
+ */
+void testUiModels::notifications_duplicateIsSameTitleAndMessage() {
+    uc::ui::NotificationItem shown("notification-1", QDateTime::currentDateTime(), "Error sending the command",
+                                   "Kitchen light is not responding. Error code: 400", QString(), nullptr, QVariant(),
+                                   QString(), true, this);
+    uc::ui::NotificationItem repeat("notification-2", QDateTime::currentDateTime(), "Error sending the command",
+                                    "Kitchen light is not responding. Error code: 400", QString(), nullptr, QVariant(),
+                                    QString(), true, this);
+
+    QVERIFY(shown.isDuplicateOf(&repeat));
+    QVERIFY(repeat.isDuplicateOf(&shown));
+}
+
+void testUiModels::notifications_sameTitleDifferentMessageIsNotDuplicate() {
+    uc::ui::NotificationItem light("notification-1", QDateTime::currentDateTime(), "Error sending the command",
+                                   "Kitchen light is not responding. Error code: 400", QString(), nullptr, QVariant(),
+                                   QString(), true, this);
+    uc::ui::NotificationItem receiver("notification-2", QDateTime::currentDateTime(), "Error sending the command",
+                                      "AV receiver is not responding. Error code: 503", QString(), nullptr, QVariant(),
+                                      QString(), true, this);
+    uc::ui::NotificationItem otherTitle("notification-3", QDateTime::currentDateTime(), "Profile update error",
+                                        "Kitchen light is not responding. Error code: 400", QString(), nullptr,
+                                        QVariant(), QString(), true, this);
+
+    QVERIFY(!light.isDuplicateOf(&receiver));
+    QVERIFY(!light.isDuplicateOf(&otherTitle));
+}
+
+void testUiModels::notifications_otherObjectIsNotDuplicate() {
+    uc::ui::NotificationItem item("notification-1", QDateTime::currentDateTime(), "Title", "Message", QString(),
+                                  nullptr, QVariant(), QString(), false, this);
+    QObject                  other(this);
+
+    QVERIFY(!item.isDuplicateOf(nullptr));
+    QVERIFY(!item.isDuplicateOf(&other));
 }
 
 void testUiModels::pageItems_unknownKeyReturnsNull() {

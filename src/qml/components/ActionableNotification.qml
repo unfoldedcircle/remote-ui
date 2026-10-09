@@ -60,14 +60,21 @@ Popup {
         ignoreUnknownSignals: true
 
         function onActionableNotificationCreated(notificationObj) {
+            // the same message is not stacked twice, but two different problems are: the title alone
+            // is shared by every entity that fails to answer a command
             for (let i = 0; i < notificationList.depth; i++) {
-                if (notificationList.get(i).notificationObj.itemTitle() == notificationObj.itemTitle()) {
+                const shown = notificationList.get(i);
+                if (shown && shown.notificationObj.isDuplicateOf(notificationObj)) {
                     return;
                 }
             }
 
             actionableNotification.open();
             notificationList.push(notificationComponent.createObject(notificationList, {notificationObj: notificationObj}));
+
+            // a notification pushed on top of an open one is a new layer taking the input: it starts
+            // on the same control as a freshly opened one, not where the selection was left
+            actionableNotification.cancelSelected = false;
         }
     }
 
