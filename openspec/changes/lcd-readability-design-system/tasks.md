@@ -120,7 +120,18 @@ this change after the migration is merged to `main`, not in a phase pull request
       (`UC_MODEL=DEV`): page menu and profile page, web configurator, no-page screen with its menu
       and dialog, tips, Wi-Fi with empty lists, docks and integrations lists, Manage entities tabs and
       filter header, onboarding Start, Terms and Finish. Not reachable in the simulator: a restricted
-      profile, the first-profile dialog, the connection status list, a dock's details
+      profile, the first-profile dialog, the connection status list, a dock's details. Also on a
+      device: the About page scrolls back to its information when the selection returns to Regulatory
+- [x] 5.7 Addresses in full (phase 4, found on the device): `KeyValueRow` takes `fullValue` for a
+      value that has to be read in full, on the line of its key while both fit, otherwise under it,
+      measured with the fonts of the two roles; the About page's Wi-Fi and Bluetooth addresses and the
+      WiFi details' MAC and IP addresses use it, and the WiFi details call the key "MAC". `wifi` and
+      `settings-menu` spec deltas, `docs/design-system.md` section 5. Verified with a render of the
+      rows at 480 px with Poppins and Space Mono: the addresses are shown in full, "MAC" stays on one
+      line, a German key moves the address under it, and the QML log has no binding loop
+- [x] 5.8 The About page scrolls back to its information (phase 5, found on the device): the first
+      entry, reached with the keypad or pressed with DPAD_UP, scrolls the page up as far as the entry
+      stays visible. `settings-menu` spec delta; the device check is part of 5.6
 
 ## 6. Guardrails
 

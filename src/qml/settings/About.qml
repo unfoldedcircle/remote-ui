@@ -35,7 +35,7 @@ Settings.Page {
                                                  },
                                                  "DPAD_UP": {
                                                      "pressed": function() {
-                                                         menu.decrementCurrentIndex();
+                                                         aboutPage.selectPrevious();
                                                      }
                                                  },
                                                  "DPAD_MIDDLE": {
@@ -125,7 +125,7 @@ Settings.Page {
 
                 // the list is laid out at full height inside the page Flickable, so it never scrolls
                 // itself - keep the keypad selection visible by scrolling the page instead
-                onCurrentIndexChanged: aboutPage.ensureVisible(menu.currentItem)
+                onCurrentIndexChanged: aboutPage.showSelection()
 
                 model: [
                     {
@@ -158,6 +158,26 @@ Settings.Page {
                     }
                 }
             }
+        }
+    }
+
+    // Keep the keypad selection on screen. The first entry also brings the information above the entries back
+    // into view, as far as the entry stays visible: DPAD_UP cannot move past it, and ensureVisible() alone only
+    // scrolls as far as the entry itself.
+    function showSelection() {
+        if (menu.currentIndex === 0 && menu.currentItem) {
+            const bottom = menu.currentItem.mapToItem(flickable.contentItem, 0, menu.currentItem.height).y;
+            flickable.contentY = Math.max(0, bottom - flickable.height);
+        } else {
+            aboutPage.ensureVisible(menu.currentItem);
+        }
+    }
+
+    function selectPrevious() {
+        if (menu.currentIndex > 0) {
+            menu.decrementCurrentIndex();
+        } else {
+            showSelection();
         }
     }
 }

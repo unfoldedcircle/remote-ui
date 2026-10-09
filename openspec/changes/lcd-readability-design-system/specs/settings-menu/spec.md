@@ -18,3 +18,25 @@ The page SHALL offer "Bluetooth" and "WiFi" switches, "Active WiFi scanning" wit
 - **WHEN** the d-pad walks the page
 - **THEN** the switches, the band row, both network lists and the buttons are all reachable in order
 - **AND** an empty "Known Networks" list is skipped, and an empty list of other networks starts on "Join other", so a press never lands where nothing is drawn
+
+## ADDED Requirements
+
+### Requirement: Addresses on the About page are shown in full
+The Wi-Fi address and the Bluetooth address on the About page SHALL be shown in full: on the line of their key
+when both fit, otherwise on their own line under the key. They SHALL NOT be cut off, in any language.
+
+#### Scenario: Addresses on a Remote 3
+- **WHEN** the About page is shown on the 480 px wide screen of a Remote 3
+- **THEN** both addresses are shown in full, each on its own line under its key
+
+### Requirement: The About page scrolls back to its information
+When the keypad selection reaches the first entry of the About page, or DPAD_UP is pressed on it, the page SHALL
+scroll up as far as the selected entry stays visible, so the information above the entries is shown again.
+
+#### Scenario: Back up with the keypad
+- **WHEN** the selection is moved down to "Licenses" and back up to "Regulatory"
+- **THEN** the page scrolls up as far as "Regulatory" stays visible, showing the information above it
+
+#### Scenario: After scrolling by touch
+- **WHEN** the page was scrolled down by touch and DPAD_UP is pressed while "Regulatory" is selected
+- **THEN** the page scrolls up the same way

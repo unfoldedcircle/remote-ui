@@ -66,6 +66,11 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 - `notifications`: "Actionable notification presentation" also records the look phases 3 and 4 gave
   the actionable notification: the action and "Cancel" as buttons, the message in the prose role and
   the primary text colour, and the bar of a neutral notification in the primary text colour.
+- Found on the device after phases 4 and 5:
+  - `wifi`: the details of the current network call the MAC key "MAC" and show the MAC and IP
+    addresses in full.
+  - `settings-menu`: the About page shows the Wi-Fi and Bluetooth addresses in full and scrolls back
+    to its information when the keypad selection returns to the first entry.
 
 ## Impact
 

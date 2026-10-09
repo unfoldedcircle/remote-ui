@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - When no profile exists, the "Profile name" dialog can no longer be cancelled into an empty screen.
+- The About settings page scrolls back up to the model, serial number and versions when the d-pad selection
+  returns to its first entry. After moving down the list and back up, they stayed out of view.
 
 ### Fixed
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
