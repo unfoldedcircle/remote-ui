@@ -82,6 +82,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - BACK and the back arrow on a license opened from the Licenses page return to the license overview, at the link
   that opened it, instead of leaving the licenses for the About page. A link inside a license can be followed as well
   and leads back the same way.
+- In the licenses, a link to another license or to a section of the same license is underlined and opens it. Web and
+  mail addresses are shown as text, after the text of their link, instead of as links that did nothing: the remote
+  opens no web pages.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.

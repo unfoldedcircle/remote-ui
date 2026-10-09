@@ -234,6 +234,72 @@ void Resources::getLinkContent(const QString& baseDir, const QString& path) {
     emit aboutInfo(ret, contentDir);
 }
 
+namespace {
+
+// An address in the text stays text: the Markdown importer turns http://, name@host and www. into links
+QString withoutAutoLinks(QString text) {
+    static const QRegularExpression www(QStringLiteral("\\b(www)\\."), QRegularExpression::CaseInsensitiveOption);
+    return text.replace(QStringLiteral("://"), QStringLiteral(":\\/\\/"))
+        .replace('@', QStringLiteral("\\@"))
+        .replace(www, QStringLiteral("\\1\\."));
+}
+
+// The links of Markdown text outside code, rewritten so that only a link the remote can open is one: a link to
+// another document or to a heading becomes an HTML anchor, which Qt underlines, while a Markdown link would look like
+// the text around it; a web or mail address is text, after the text of its link.
+QString linksForTheRemote(const QString& text) {
+    static const QRegularExpression link(QStringLiteral(R"(\[([^\]]*)\]\(\s*<?([^\s)>]+)>?(?:\s+"[^"]*")?\s*\))"));
+    static const QRegularExpression scheme(QStringLiteral("^([a-z][a-z0-9+.-]*:|//)"),
+                                           QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression autoLink(QStringLiteral(R"(<([a-z][a-z0-9+.-]*:[^\s>]*|[^\s@<>]+@[^\s@<>]+)>)"),
+                                             QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression htmlSpecial(QStringLiteral("[<>&]"));
+
+    QString result;
+    int     end = 0;
+    auto    links = link.globalMatch(text);
+    while (links.hasNext()) {
+        const QRegularExpressionMatch match = links.next();
+        const QString                 label = match.captured(1);
+        const QString                 target = match.captured(2);
+        result += text.mid(end, match.capturedStart() - end);
+        end = match.capturedEnd();
+
+        if (scheme.match(target).hasMatch()) {
+            const QString address =
+                target.startsWith(QStringLiteral("mailto:"), Qt::CaseInsensitive) ? target.mid(7) : target;
+            result += label.isEmpty() || label == address || label == target ? address : label + " (" + address + ")";
+        } else if (label.contains(htmlSpecial)) {
+            // Qt inserts an entity inside an HTML anchor out of order: such a label stays a Markdown link
+            result += match.captured(0);
+        } else {
+            result += "<a href=\"" + QString(target).replace('"', QStringLiteral("&quot;")) + "\">" +
+                      (label.isEmpty() ? target : label) + "</a>";
+        }
+    }
+    result += text.mid(end);
+
+    // <https://…> and <name@host> as they are written, without the link
+    return withoutAutoLinks(result.replace(autoLink, QStringLiteral("\\<\\1\\>")));
+}
+
+// One Markdown line outside a code block: the links of the text outside inline code
+QString markdownLine(const QString& line) {
+    const QStringList segments = line.split('`');
+    // an odd number of backticks is no inline code
+    if (segments.size() % 2 == 0) {
+        return linksForTheRemote(line);
+    }
+
+    QString result;
+    for (int i = 0; i < segments.size(); ++i) {
+        result += i % 2 == 1 ? '`' + segments[i] + '`' : linksForTheRemote(segments[i]);
+    }
+    return result;
+}
+
+}  // namespace
+
 bool Resources::isMarkdownFile(const QString& link) const {
     return link.section(QRegularExpression(QStringLiteral("[?#]")), 0, 0).endsWith(".md", Qt::CaseInsensitive);
 }
@@ -261,7 +327,7 @@ QStringList Resources::licenseBlocks(const QString& content, bool markdown, bool
                 blocks.append(block.trimmed());
                 block.clear();
             }
-            line.replace(headingLevel, QStringLiteral("####"));
+            line = markdownLine(line.replace(headingLevel, QStringLiteral("####")));
         }
         block += line + '\n';
     }
@@ -270,6 +336,24 @@ QStringList Resources::licenseBlocks(const QString& content, bool markdown, bool
         blocks.append(block.trimmed());
     }
     return blocks;
+}
+
+int Resources::licenseAnchorBlock(const QStringList& blocks, const QString& anchor) const {
+    static const QRegularExpression heading(QStringLiteral("^#{1,6}\\s+(.*)"));
+    static const QRegularExpression notInAnchor(QStringLiteral("[^\\w\\- ]"));
+    const QString                   wanted = anchor.toLower();
+
+    for (int i = 0; i < blocks.size(); ++i) {
+        const QRegularExpressionMatch match = heading.match(blocks[i].section('\n', 0, 0));
+        if (!match.hasMatch()) {
+            continue;
+        }
+        const QString title = match.captured(1).remove('\\').trimmed().toLower();
+        if (title == wanted || QString(title).remove(notInAnchor).replace(' ', '-') == wanted) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 QStringList Resources::getIconList() {
