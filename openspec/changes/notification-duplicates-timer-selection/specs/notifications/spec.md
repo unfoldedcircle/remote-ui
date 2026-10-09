@@ -9,7 +9,7 @@ Only one toast SHALL be visible at a time and toasts SHALL NOT be queued. A toas
 - **AND** the first message is not shown again
 
 ### Requirement: Actionable notifications stack and de-duplicate
-Actionable notifications SHALL be kept on a stack: a new one SHALL be shown on top of those already open, and dismissing the top one SHALL reveal the previous one; the overlay closes when the last one is dismissed. A new actionable notification whose title and message both equal those of a notification still on the stack SHALL be dropped silently; one that only shares the title SHALL be shown. A dismissed notification SHALL be discarded and SHALL NOT suppress later notifications with the same title and message.
+Actionable notifications SHALL be kept on a stack: a new one SHALL be shown on top of those already open, and dismissing the top one SHALL reveal the previous one; the overlay closes when the last one is dismissed. A new actionable notification whose title and message both equal those of a notification still on the stack SHALL be dropped silently. A dismissed notification SHALL be discarded and SHALL NOT suppress later notifications with the same title and message.
 
 #### Scenario: Second notification while one is open
 - **WHEN** "Low battery" is open and "Connection error" is created
