@@ -38,6 +38,8 @@ class testResources : public QObject {
     void licenseBlocks_textTable_keepsItsRows();
     void licenseBlocks_longCode_isSplitAtParagraphs();
     void licenseBlocks_longCodeParagraph_isSplitAtALine();
+    void licenseLinks_inReadingOrder();
+    void licenseBlockWithSelection_drawsOneLink();
 
  private:
     static void writeFile(const QString& path, const QByteArray& content);
@@ -248,13 +250,15 @@ void testResources::licenseBlocks_webAndMailLinks_areText() {
 
 // A link the remote can open is underlined: written as an HTML anchor, which Qt underlines
 void testResources::licenseBlocks_documentLinks_areAnchors() {
-    const QStringList blocks =
-        uc::ui::Resources(QString(), m_legalPath)
-            .licenseBlocks("- [Crates](remote-core_licenses.md)\n- [MIT License](#MIT) (478)\n- [a & b](b.md)", true,
-                           true);
+    const QStringList blocks = uc::ui::Resources(QString(), m_legalPath)
+                                   .licenseBlocks(
+                                       "- [Crates](remote-core_licenses.md)\n- [MIT License](#MIT) (478)\n"
+                                       "- [Bang & Olufsen](integrations/bangolufsen.md)\n- [a <b>](c.md)",
+                                       true, true);
 
     QCOMPARE(blocks, QStringList({"- <a href=\"remote-core_licenses.md\">Crates</a>\n- <a href=\"#MIT\">MIT "
-                                  "License</a> (478)\n- [a & b](b.md)"}));
+                                  "License</a> (478)\n- <a href=\"integrations/bangolufsen.md\">Bang & Olufsen</a>\n"
+                                  "- [a <b>](c.md)"}));
 }
 
 // The overview of a crate license file links its sections as "#MIT"; the files have no other anchors
@@ -323,6 +327,31 @@ void testResources::licenseBlocks_longCodeParagraph_isSplitAtALine() {
     for (const QString& block : blocks) {
         QVERIFY(block.size() <= 4 * 1000 + line.size());
     }
+}
+
+// The licenses could only be opened by touch: the d-pad walks the links in reading order
+void testResources::licenseLinks_inReadingOrder() {
+    uc::ui::Resources resources(QString(), m_legalPath);
+    const QStringList blocks = resources.licenseBlocks(
+        "# Licenses\n- [remote-ui](remote-ui/README.md)\n- [SQLite](https://www.sqlite.org/)\n## Remote 3\n"
+        "- [Android TV](integrations/androidtv.md) and [Roku](integrations/roku.md)",
+        true, true);
+
+    const QVariantList links = resources.licenseLinks(blocks);
+    QCOMPARE(links.size(), 3);
+    QCOMPARE(links[0].toMap(), QVariantMap({{"block", 0}, {"index", 0}, {"link", "remote-ui/README.md"}}));
+    QCOMPARE(links[1].toMap(), QVariantMap({{"block", 1}, {"index", 0}, {"link", "integrations/androidtv.md"}}));
+    QCOMPARE(links[2].toMap(), QVariantMap({{"block", 1}, {"index", 1}, {"link", "integrations/roku.md"}}));
+}
+
+// The selected link is drawn on the selection fill; the other links of the block stay as they are
+void testResources::licenseBlockWithSelection_drawsOneLink() {
+    uc::ui::Resources resources(QString(), m_legalPath);
+    const QString     block = "<a href=\"a.md\">A</a> and <a href=\"b.md\">B</a>";
+
+    QCOMPARE(resources.licenseBlockWithSelection(block, 1, "#595959"),
+             QString("<a href=\"a.md\">A</a> and <a href=\"b.md\" style=\"background-color: #595959\">B</a>"));
+    QCOMPARE(resources.licenseBlockWithSelection(block, 2, "#595959"), block);
 }
 
 QTEST_GUILESS_MAIN(testResources)
