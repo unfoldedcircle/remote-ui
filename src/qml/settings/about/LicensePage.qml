@@ -114,6 +114,13 @@ Settings.Page {
             font: fonts.prose()
             lineHeight: fonts.proseLineHeight
             onLinkActivated: {
+                if (link.startsWith("#")) {
+                    const block = resource.licenseAnchorBlock(aboutPageContent.stringList, link.substring(1));
+                    if (block >= 0) {
+                        flickable.positionViewAtIndex(block, ListView.Beginning);
+                    }
+                    return;
+                }
                 if (link.includes("http")) {
                     return;
                 }

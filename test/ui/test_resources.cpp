@@ -30,6 +30,10 @@ class testResources : public QObject {
     void licenseBlocks_overview_splitsAtSecondLevelHeadings();
     void licenseBlocks_linkedDocument_splitsAtEveryHeadingOutsideCode();
     void licenseBlocks_headings_atTextSize();
+    void licenseBlocks_webAndMailLinks_areText_data();
+    void licenseBlocks_webAndMailLinks_areText();
+    void licenseBlocks_documentLinks_areAnchors();
+    void licenseAnchorBlock_findsHeading();
 
  private:
     static void writeFile(const QString& path, const QByteArray& content);
@@ -209,6 +213,57 @@ void testResources::licenseBlocks_headings_atTextSize() {
         uc::ui::Resources(QString(), m_legalPath).licenseBlocks("# One\n## Two\n###### Six\n#hashtag", true, false);
 
     QCOMPARE(blocks, QStringList({"#### One", "#### Two", "#### Six\n#hashtag"}));
+}
+
+// The remote opens no web page and no mail: such links of a license are text, the address after the link text, and
+// the Markdown importer must not turn an address in the text into a link either
+void testResources::licenseBlocks_webAndMailLinks_areText_data() {
+    QTest::addColumn<QString>("markdown");
+    QTest::addColumn<QString>("shown");
+
+    QTest::newRow("web link") << "[SQLite](https://www.sqlite.org/): MIT"
+                              << "SQLite (https:\\/\\/www\\.sqlite.org/): MIT";
+    QTest::newRow("link text is the address") << "[https://example.com](https://example.com)"
+                                              << "https:\\/\\/example.com";
+    QTest::newRow("mail link") << "[Eric Young](mailto:eay@cryptsoft.com)" << "Eric Young (eay\\@cryptsoft.com)";
+    QTest::newRow("web autolink") << "<https://github.com/qt/qt5>" << "\\<https:\\/\\/github.com/qt/qt5\\>";
+    QTest::newRow("mail autolink") << "Haoqun Jiang <haoqunjiang+npm@gmail.com>"
+                                   << "Haoqun Jiang \\<haoqunjiang+npm\\@gmail.com\\>";
+    QTest::newRow("bare address") << "| axios | git+https://github.com/axios/axios.git |"
+                                  << "| axios | git+https:\\/\\/github.com/axios/axios.git |";
+    QTest::newRow("www") << "(www.openssl.org/)" << "(www\\.openssl.org/)";
+    QTest::newRow("odd backtick") << "can`t <https://x.org>" << "can`t \\<https:\\/\\/x.org\\>";
+}
+
+void testResources::licenseBlocks_webAndMailLinks_areText() {
+    QFETCH(QString, markdown);
+    QFETCH(QString, shown);
+
+    QCOMPARE(uc::ui::Resources(QString(), m_legalPath).licenseBlocks(markdown, true, false), QStringList({shown}));
+}
+
+// A link the remote can open is underlined: written as an HTML anchor, which Qt underlines
+void testResources::licenseBlocks_documentLinks_areAnchors() {
+    const QStringList blocks =
+        uc::ui::Resources(QString(), m_legalPath)
+            .licenseBlocks("- [Crates](remote-core_licenses.md)\n- [MIT License](#MIT) (478)\n- [a & b](b.md)", true,
+                           true);
+
+    QCOMPARE(blocks, QStringList({"- <a href=\"remote-core_licenses.md\">Crates</a>\n- <a href=\"#MIT\">MIT "
+                                  "License</a> (478)\n- [a & b](b.md)"}));
+}
+
+// The overview of a crate license file links its sections as "#MIT"; the files have no other anchors
+void testResources::licenseAnchorBlock_findsHeading() {
+    uc::ui::Resources resources(QString(), m_legalPath);
+    const QStringList blocks = resources.licenseBlocks(
+        "## Overview\n- [MIT License](#MIT)\n## All license text\n### MIT\nmit\n### MIT\nagain\n### Apache License 2.0",
+        true, false);
+
+    QCOMPARE(resources.licenseAnchorBlock(blocks, "MIT"), 2);
+    QCOMPARE(resources.licenseAnchorBlock(blocks, "mit"), 2);
+    QCOMPARE(resources.licenseAnchorBlock(blocks, "apache-license-20"), 4);
+    QCOMPARE(resources.licenseAnchorBlock(blocks, "ISC"), -1);
 }
 
 QTEST_GUILESS_MAIN(testResources)
