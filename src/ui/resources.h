@@ -45,8 +45,8 @@ class Resources : public QObject {
      *
      * Markdown is split outside code blocks at its "## " headings for the overview and at every heading for a
      * linked document, which can be hundreds of kB, and prepared for the screen: every heading at the size of the
-     * text, and only the links the remote can open: a link to another document or to a heading, underlined, while a
-     * web or mail address is text. Any other text gives one block per line.
+     * text, only the links the remote can open: a link to another document or to a heading, underlined, while a web
+     * or mail address is text, and code as text that flows into paragraphs. Any other text gives one block per line.
      */
     Q_INVOKABLE QStringList licenseBlocks(const QString& content, bool markdown, bool overview) const;
 

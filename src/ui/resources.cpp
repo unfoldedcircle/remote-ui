@@ -283,7 +283,22 @@ QString linksForTheRemote(const QString& text) {
     return withoutAutoLinks(result.replace(autoLink, QStringLiteral("\\<\\1\\>")));
 }
 
-// One Markdown line outside a code block: the links of the text outside inline code
+// Code reads as the text around it, as Qt draws Markdown code in the small fixed-pitch font of the system: every
+// ASCII punctuation mark is escaped, so nothing in it is Markdown
+QString literalText(const QString& text) {
+    static const QString punctuation = QStringLiteral("!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");
+    QString              result;
+    result.reserve(text.size() * 2);
+    for (const QChar c : text) {
+        if (punctuation.contains(c)) {
+            result += '\\';
+        }
+        result += c;
+    }
+    return result;
+}
+
+// One Markdown line outside a code block: its inline code as text, the links of the rest for the remote
 QString markdownLine(const QString& line) {
     const QStringList segments = line.split('`');
     // an odd number of backticks is no inline code
@@ -293,7 +308,7 @@ QString markdownLine(const QString& line) {
 
     QString result;
     for (int i = 0; i < segments.size(); ++i) {
-        result += i % 2 == 1 ? '`' + segments[i] + '`' : linksForTheRemote(segments[i]);
+        result += i % 2 == 1 ? literalText(segments[i]) : linksForTheRemote(segments[i]);
     }
     return result;
 }
@@ -321,8 +336,13 @@ QStringList Resources::licenseBlocks(const QString& content, bool markdown, bool
 
     for (QString line : lines) {
         if (line.startsWith(QStringLiteral("```"))) {
+            // a code block, in practice a license text, flows into paragraphs: its lines are wrapped for a far wider
+            // screen
             inCodeBlock = !inCodeBlock;
-        } else if (!inCodeBlock) {
+            line.clear();
+        } else if (inCodeBlock) {
+            line = literalText(line.trimmed());
+        } else {
             if ((overview ? overviewHeading : anyHeading).match(line).hasMatch() && !block.trimmed().isEmpty()) {
                 blocks.append(block.trimmed());
                 block.clear();
