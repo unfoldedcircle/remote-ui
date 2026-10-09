@@ -24,6 +24,13 @@ class testResources : public QObject {
     void linkContent_outsideLegalDirectory_isNotFollowed_data();
     void linkContent_outsideLegalDirectory_isNotFollowed();
 
+    void isMarkdownFile_data();
+    void isMarkdownFile();
+    void licenseBlocks_plainText_oneBlockPerLine();
+    void licenseBlocks_overview_splitsAtSecondLevelHeadings();
+    void licenseBlocks_linkedDocument_splitsAtEveryHeadingOutsideCode();
+    void licenseBlocks_headings_atTextSize();
+
  private:
     static void writeFile(const QString& path, const QByteArray& content);
     QString     baseUrl(const QString& subDir) const;
@@ -137,6 +144,71 @@ void testResources::linkContent_outsideLegalDirectory_isNotFollowed() {
 
     QCOMPARE(aboutInfo.count(), 1);
     QVERIFY(aboutInfo.at(0).at(0).toString().isEmpty());
+}
+
+// The Licenses page shows a linked file as Markdown only when its name ends in ".md"; it showed every linked file as
+// rich text line by line, so a Markdown license showed its markup
+void testResources::isMarkdownFile_data() {
+    QTest::addColumn<QString>("link");
+    QTest::addColumn<bool>("markdown");
+
+    QTest::newRow("markdown") << "web-configurator_licenses.md" << true;
+    QTest::newRow("upper case") << "NOTICE.MD" << true;
+    QTest::newRow("with fragment") << "texts/gpl.md#section" << true;
+    QTest::newRow("text") << "qt/LICENSE.txt" << false;
+    QTest::newRow("no extension") << "LICENSE" << false;
+    QTest::newRow("html") << "remote-core_licenses.html" << false;
+    QTest::newRow("md inside the name") << "notes.md.txt" << false;
+}
+
+void testResources::isMarkdownFile() {
+    QFETCH(QString, link);
+    QFETCH(bool, markdown);
+
+    QCOMPARE(uc::ui::Resources(QString(), m_legalPath).isMarkdownFile(link), markdown);
+}
+
+void testResources::licenseBlocks_plainText_oneBlockPerLine() {
+    const QStringList blocks =
+        uc::ui::Resources(QString(), m_legalPath).licenseBlocks("# Not a heading\n\nsecond line", false, false);
+
+    QCOMPARE(blocks, QStringList({"# Not a heading", "", "second line"}));
+}
+
+void testResources::licenseBlocks_overview_splitsAtSecondLevelHeadings() {
+    const QStringList blocks =
+        uc::ui::Resources(QString(), m_legalPath)
+            .licenseBlocks("# Licenses\nintro\n## Core\n### Crates\nlist\n## UI\nqt", true, true);
+
+    QCOMPARE(blocks.size(), 3);
+    QVERIFY(blocks[0].startsWith("#### Licenses\nintro"));
+    QVERIFY(blocks[1].startsWith("#### Core\n#### Crates"));
+    QVERIFY(blocks[2].startsWith("#### UI"));
+}
+
+// A crate license file is half a megabyte, nearly all of it in one "## " section: a linked document is split at
+// every heading, but not at a "#" line inside a code block
+void testResources::licenseBlocks_linkedDocument_splitsAtEveryHeadingOutsideCode() {
+    const QStringList blocks = uc::ui::Resources(QString(), m_legalPath)
+                                   .licenseBlocks(
+                                       "## All license text\n### MIT\n#### License\n```\n# not a heading\n```\n"
+                                       "### ISC\ntext",
+                                       true, false);
+
+    QCOMPARE(blocks.size(), 4);
+    QVERIFY(blocks[0].startsWith("#### All license text"));
+    QVERIFY(blocks[1].startsWith("#### MIT"));
+    QVERIFY(blocks[2].startsWith("#### License"));
+    QVERIFY(blocks[2].contains("not a heading"));
+    QVERIFY(blocks[3].startsWith("#### ISC"));
+}
+
+// Qt draws a "#" heading at about twice the size of the text: every level is shown at the text size
+void testResources::licenseBlocks_headings_atTextSize() {
+    const QStringList blocks =
+        uc::ui::Resources(QString(), m_legalPath).licenseBlocks("# One\n## Two\n###### Six\n#hashtag", true, false);
+
+    QCOMPARE(blocks, QStringList({"#### One", "#### Two", "#### Six\n#hashtag"}));
 }
 
 QTEST_GUILESS_MAIN(testResources)

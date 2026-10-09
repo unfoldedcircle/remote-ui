@@ -4,6 +4,7 @@
 #include "resources.h"
 
 #include <QFileInfo>
+#include <QRegularExpression>
 #include <QTextStream>
 #include <QUrl>
 
@@ -231,6 +232,44 @@ void Resources::getLinkContent(const QString& baseDir, const QString& path) {
     }
 
     emit aboutInfo(ret, contentDir);
+}
+
+bool Resources::isMarkdownFile(const QString& link) const {
+    return link.section(QRegularExpression(QStringLiteral("[?#]")), 0, 0).endsWith(".md", Qt::CaseInsensitive);
+}
+
+QStringList Resources::licenseBlocks(const QString& content, bool markdown, bool overview) const {
+    const QStringList lines = content.split('\n');
+    if (!markdown) {
+        return lines;
+    }
+
+    static const QRegularExpression anyHeading(QStringLiteral("^#{1,6}\\s"));
+    static const QRegularExpression overviewHeading(QStringLiteral("^##\\s"));
+    // Qt sizes a heading from about twice the text ("#") down to below it ("######"); level 4 is the text size
+    static const QRegularExpression headingLevel(QStringLiteral("^#{1,6}(?=\\s)"));
+
+    QStringList blocks;
+    QString     block;
+    bool        inCodeBlock = false;
+
+    for (QString line : lines) {
+        if (line.startsWith(QStringLiteral("```"))) {
+            inCodeBlock = !inCodeBlock;
+        } else if (!inCodeBlock) {
+            if ((overview ? overviewHeading : anyHeading).match(line).hasMatch() && !block.trimmed().isEmpty()) {
+                blocks.append(block.trimmed());
+                block.clear();
+            }
+            line.replace(headingLevel, QStringLiteral("####"));
+        }
+        block += line + '\n';
+    }
+
+    if (!block.trimmed().isEmpty()) {
+        blocks.append(block.trimmed());
+    }
+    return blocks;
 }
 
 QStringList Resources::getIconList() {
