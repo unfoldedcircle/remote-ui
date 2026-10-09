@@ -100,12 +100,13 @@ Settings.Page {
         return found;
     }
 
-    // the position of a link in the list, -1 while its block is not laid out
+    // the position of a link in the list, -1 while its block has no item: not laid out yet, or scrolled out of the
+    // list's cache, while its positions within the block stay known
     function linkY(i) {
         const link = aboutPageContent.links[i];
-        const positions = aboutPageContent.linkPositionsOf(link.block);
-        return positions !== null && positions[link.link] !== undefined
-                ? flickable.itemAtIndex(link.block).y + positions[link.link] : -1;
+        const item = flickable.itemAtIndex(link.block);
+        const positions = item !== null ? aboutPageContent.linkPositionsOf(link.block) : null;
+        return positions !== null && positions[link.link] !== undefined ? item.y + positions[link.link] : -1;
     }
 
     // DPAD_DOWN / DPAD_UP select the next or previous link while it is shown or one scroll step away, and scroll
@@ -133,11 +134,11 @@ Settings.Page {
         if (y >= 0 && y >= viewTop - (direction < 0 ? step : 0) && y <= viewBottom + (direction > 0 ? step : 0)) {
             aboutPageContent.selectedLink = next;
             const margin = 40;
-            const maxContentY = Math.max(0, flickable.contentHeight - flickable.height);
+            const limits = aboutPageContent.scrollLimits();
             if (y + margin > viewBottom) {
-                flickable.contentY = Math.min(maxContentY, y + margin - flickable.height);
+                flickable.contentY = Math.min(limits[1], y + margin - flickable.height);
             } else if (y - margin < viewTop) {
-                flickable.contentY = Math.max(0, y - margin);
+                flickable.contentY = Math.max(limits[0], y - margin);
             }
             return;
         }
@@ -152,10 +153,16 @@ Settings.Page {
         }
     }
 
+    // The list starts at originY, not at 0: it estimates the height of the blocks it has not laid out, and moves its
+    // origin when it lays them out.
+    function scrollLimits() {
+        return [flickable.originY, flickable.originY + Math.max(0, flickable.contentHeight - flickable.height)];
+    }
+
     // the d-pad moves by half the viewport (docs/design-system.md section 6)
     function scrollStep(direction) {
-        const maxContentY = Math.max(0, flickable.contentHeight - flickable.height);
-        flickable.contentY = Math.max(0, Math.min(maxContentY, flickable.contentY + direction * Math.round(flickable.height / 2)));
+        const limits = aboutPageContent.scrollLimits();
+        flickable.contentY = Math.max(limits[0], Math.min(limits[1], flickable.contentY + direction * Math.round(flickable.height / 2)));
         return flickable.contentY;
     }
 
@@ -195,12 +202,13 @@ Settings.Page {
         ignoreUnknownSignals: true
 
         function onAboutInfo(res, baseDir) {
+            // the selection of the document before goes first: its index means nothing in the new one
+            aboutPageContent.selectedLink = -1;
             aboutPageContent.baseDir = "file:" + baseDir + "/";
             aboutPageContent.stringList = resource.licenseBlocks(res, aboutPageContent.isMarkdown,
                                                                  aboutPageContent.openedLinks.length === 0);
             aboutPageContent.links = resource.licenseLinks(aboutPageContent.stringList);
             aboutPageContent.linkPositions = {};
-            aboutPageContent.selectedLink = -1;
         }
     }
 
@@ -226,12 +234,14 @@ Settings.Page {
             color: colors.textPrimary
             baseUrl: aboutPageContent.baseDir
             // the link the d-pad selected is drawn on the selection fill while the keypad is in use
-            text: aboutPageContent.selectedLink >= 0 && ui.keyNavigationActive
-                  && aboutPageContent.links[aboutPageContent.selectedLink].block === index
-                  ? resource.licenseBlockWithSelection(model.modelData,
-                                                       aboutPageContent.links[aboutPageContent.selectedLink].index,
-                                                       colors.surfaceSelected.toString())
-                  : model.modelData
+            text: {
+                const selected = ui.keyNavigationActive ? aboutPageContent.links[aboutPageContent.selectedLink]
+                                                        : undefined;
+                return selected !== undefined && selected.block === index
+                        ? resource.licenseBlockWithSelection(model.modelData, selected.index,
+                                                             colors.surfaceSelected.toString())
+                        : model.modelData;
+            }
             textFormat: aboutPageContent.isMarkdown ? Text.MarkdownText : Text.PlainText
             linkColor: colors.textPrimary
             font: fonts.prose()
