@@ -50,13 +50,20 @@ this change after the migration is merged to `main`, not in a phase pull request
 
 ## 3. Type roles
 
-- [ ] 3.1 `src/ui/fonts.h`: `title()`, `label()`, `menuRow()`, `prose()`, `help()`, `caption()`,
+- [x] 3.1 `src/ui/fonts.h`: `title()`, `heading()`, `label()`, `menuRow()`, `prose()`, `help()`, `caption()`,
       `value()`, `button()`, `display(size)`
-- [ ] 3.2 Unit test: every type role is at least 22 px; registered in `test/ui/CMakeLists.txt`
-- [ ] 3.3 Help texts, prose (release notes, legal texts, driver instructions), captions, values and
-      button labels move to their roles; the 64 calls below 22 px are gone
-- [ ] 3.4 `CHANGELOG.md`: help texts, release notes and legal texts are easier to read
-- [ ] 3.5 Check German and French on the desktop at 800 px height, then on both remotes
+- [x] 3.2 Unit test: every type role is at least 22 px; registered in `test/ui/CMakeLists.txt`
+- [x] 3.3 Help texts, prose (release notes, legal texts, driver instructions), captions, values and
+      button labels move to their roles; the 64 calls below 22 px are gone. Titles, row labels and
+      menu rows keep their pixel sizes until the phase 4 components; the entity detail screens only
+      get the 22 px floor (D-7); the Colors page, typed input text and the slider value bubble stay
+- [x] 3.4 `CHANGELOG.md`: help texts, release notes and legal texts are easier to read
+- [x] 3.5 German and French on the desktop at 800 px height (`UC_MODEL=DEV`): main page, group,
+      profile menu, software update, display, user interface, touch slider, voice, power, Wi-Fi,
+      localisation, reset, integrations and integration details, docks and the add-dock sheet, about,
+      add-entities list, activity header and menu. Not reachable in the simulator: onboarding,
+      release notes, legal texts (empty), driver set-up forms
+- [ ] 3.6 The same check on both remotes
 
 ## 4. Structure
 
@@ -68,7 +75,8 @@ this change after the migration is merged to `main`, not in a phase pull request
 - [ ] 4.5 Integrations on the shared components
 - [ ] 4.6 Remove the copies the components replace
 - [ ] 4.7 `CHANGELOG.md`: consistent layout of settings, onboarding, docks and integrations
-- [ ] 4.8 Keypad walk per screen family on the desktop and both remotes
+- [ ] 4.8 Keypad walk per screen family on the desktop and both remotes. Known from phase 3: with
+      Bluetooth off, the add-dock sheet scrolls at 800 px before its Discover button is fully visible
 - [ ] 4.9 The 2 px `colors.highlight` outlines phase 2 left in place move to `Selectable` with the
       screens that own them: onboarding, keypad keys, the on-screen keyboard style, notifications,
       bottom sheet, dock and integration info and configure pages, readiness check, web

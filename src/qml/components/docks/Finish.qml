@@ -86,9 +86,9 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.light
+            color: colors.textSecondary
             text: qsTr("The dock has been added successfully.")
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         Text {
@@ -99,9 +99,10 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.offwhite
+            color: colors.textPrimary
             text: qsTr("%1 is ready to blast IR codes.").arg(dockSetupFinish.dockName)
-            font: fonts.secondaryFont(24)
+            font: fonts.prose()
+            lineHeight: fonts.proseLineHeight
         }
 
         Components.Button {
@@ -146,9 +147,9 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.light
+            color: colors.textSecondary
             text: qsTr("Something went wrong while setting up the dock.")
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         Text {
@@ -160,9 +161,9 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.offwhite
+            color: colors.textSecondary
             text: qsTr("ERROR:")
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         Text {
@@ -175,7 +176,7 @@ Item {
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
             color: colors.red
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         Components.Button {

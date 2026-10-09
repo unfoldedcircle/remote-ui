@@ -279,10 +279,10 @@ Rectangle {
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
             maximumLineCount: 2
-            color: colors.light
+            color: colors.textSecondary
             horizontalAlignment: Text.AlignHCenter
             anchors { horizontalCenter: parent.horizontalCenter; top:titleText.bottom; topMargin: 5 }
-            font: fonts.secondaryFont(24)
+            font: fonts.help()
         }
 
         RowLayout {
@@ -478,8 +478,8 @@ Rectangle {
                                     text: qsTr("Clear")
                                     verticalAlignment: Text.AlignVCenter
                                     maximumLineCount: 1
-                                    color: colors.light
-                                    font: fonts.secondaryFont(24)
+                                    color: colors.textPrimary
+                                    font: fonts.button()
                                 }
                             }
 
@@ -508,8 +508,8 @@ Rectangle {
                                     horizontalAlignment: Text.AlignRight
                                     verticalAlignment: Text.AlignVCenter
                                     maximumLineCount: 1
-                                    color: colors.light
-                                    font: fonts.secondaryFont(24)
+                                    color: colors.textPrimary
+                                    font: fonts.button()
                                 }
                             }
                         }
@@ -962,10 +962,9 @@ Rectangle {
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     elide: Text.ElideRight
                     maximumLineCount: 1
-                    color: colors.light
+                    color: colors.textSecondary
                     anchors { left: parent.left; top: entityTitle.bottom; topMargin: 5 }
-                    font: fonts.secondaryFont(20)
-                    lineHeight: 0.8
+                    font: fonts.help()
                 }
             }
 

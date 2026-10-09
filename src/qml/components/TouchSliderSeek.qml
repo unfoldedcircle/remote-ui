@@ -191,7 +191,7 @@ Item {
                 color: colors.offwhite
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font: fonts.secondaryFont(20)
+                font: fonts.secondaryFont(22)
                 anchors.fill: parent
             }
         }
@@ -251,7 +251,7 @@ Item {
                 color: colors.offwhite
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                font: fonts.secondaryFont(20)
+                font: fonts.secondaryFont(22)
                 anchors.fill: parent
             }
         }

@@ -435,8 +435,8 @@ Settings.Page {
 
                     elide: Text.ElideRight
                     maximumLineCount: 1
-                    color: colors.light
-                    font: fonts.secondaryFont(20)
+                    color: colors.textSecondary
+                    font: fonts.help()
                 }
 
                 Text {
@@ -446,7 +446,7 @@ Settings.Page {
                     elide: Text.ElideRight
                     maximumLineCount: 1
                     color: colors.red
-                    font: fonts.secondaryFont(20)
+                    font: fonts.help()
                     visible: dockState === DockStates.ERROR
                 }
 
@@ -459,7 +459,6 @@ Settings.Page {
                 // the dock details, where both actions are reachable with the keypad.
                 Components.Button {
                     text: qsTr("Identify")
-                    fontSize: 20
                     height: 50
                     color: colors.medium
                     visible: dockState === DockStates.ACTIVE || dockState === DockStates.IDLE
@@ -471,7 +470,6 @@ Settings.Page {
 
                 Components.Button {
                     text: qsTr("Connect")
-                    fontSize: 20
                     height: 50
                     color: colors.medium
                     visible: dockState === DockStates.ERROR

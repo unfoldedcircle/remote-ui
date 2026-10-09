@@ -36,7 +36,7 @@ Column {
         color: colors.offwhite
         textFormat: Text.RichText
         wrapMode: Text.WordWrap
-        font: fonts.secondaryFont(30)
+        font: fonts.label()
         visible: label.text !== ""
     }
 }

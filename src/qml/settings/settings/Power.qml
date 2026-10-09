@@ -90,9 +90,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Keeps WiFi always connected, even when the device is sleeping. Allows for faster reconnect after wakeup. Please note that enabling this feature slightly decreases battery life.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -122,10 +122,10 @@ Settings.Page {
                     id: resumeTimeoutValueSmallText
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Retry commands within %1 second(s) after wakeup.").arg(Config.resumeTimeoutWindowSec)
                     anchors { left: parent.left; top:resumeTimeoutValueText.bottom; topMargin: 5 }
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
 
                 Components.Slider {
@@ -184,10 +184,10 @@ Settings.Page {
                     id: wakeupSensitivitySmallText
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Amount of movement needed to wake up the remote.")
                     anchors { left: parent.left; top:wakeupSensitivityText.bottom; topMargin: 5 }
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
 
                 Components.Slider {
@@ -241,10 +241,10 @@ Settings.Page {
                 }
 
                 Text {
-                    color: colors.light
+                    color: colors.textPrimary
                     text: Config.displayTimeout + "s"
                     anchors { right: parent.right; baseline: displayTimeoutText.baseline }
-                    font: fonts.secondaryFont(24)
+                    font: fonts.value()
                 }
 
                 Components.Slider {
@@ -298,10 +298,10 @@ Settings.Page {
                 }
 
                 Text {
-                    color: colors.light
+                    color: colors.textPrimary
                     text:  secondsToTime(Config.sleepTimeout)
                     anchors { right: parent.right; baseline: sleepTimeoutText.baseline }
-                    font: fonts.secondaryFont(24)
+                    font: fonts.value()
                 }
 
                 Components.Slider {

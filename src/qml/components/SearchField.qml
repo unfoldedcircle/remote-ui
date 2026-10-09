@@ -197,7 +197,7 @@ Rectangle {
         opacity: 0
         text: qsTr(errorMsg)
         anchors { left: inputField.left; top: inputField.bottom; bottomMargin: 5 }
-        font: fonts.secondaryFont(22)
+        font: fonts.caption()
 
         Behavior on opacity {
             NumberAnimation { duration: 300 }

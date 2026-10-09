@@ -189,14 +189,14 @@ Settings.Page {
                 width: parent.width
                 spacing: 20
 
+                // the key keeps its width, the value takes the rest and elides
                 Text {
                     id: title
-                    Layout.fillWidth: true
                     Layout.alignment: Qt.AlignLeft
                     wrapMode: Text.NoWrap
                     elide: Text.ElideNone
-                    color: colors.offwhite
-                    font: fonts.primaryFont(20)
+                    color: colors.textSecondary
+                    font: fonts.help()
                 }
 
                 Text {
@@ -206,9 +206,8 @@ Settings.Page {
                     wrapMode: Text.NoWrap
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignRight
-                    color: colors.offwhite
-                    opacity: 0.7
-                    font: fonts.secondaryFont(20)
+                    color: colors.textPrimary
+                    font: fonts.value()
                 }
             }
 

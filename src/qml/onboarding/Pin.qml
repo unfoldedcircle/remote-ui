@@ -68,11 +68,12 @@ OnboardingComponents.Page {
         id: description
         width: parent.width
         wrapMode: Text.WordWrap
-        color: colors.light
+        color: colors.textPrimary
         horizontalAlignment: Text.AlignHCenter
         text: qsTr("This PIN is the administrator PIN.")
         anchors { horizontalCenter: parent.horizontalCenter; top: title.bottom }
-        font: fonts.secondaryFont(24)
+        font: fonts.prose()
+        lineHeight: fonts.proseLineHeight
     }
 
     SwipeView {

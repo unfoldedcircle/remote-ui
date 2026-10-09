@@ -203,7 +203,7 @@ Popup {
 
                     contentItem: Text {
                         text: unfoldedTabButton.text
-                        font: fonts.secondaryFont(22)
+                        font: fonts.caption()
                         color: colors.offwhite
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
@@ -229,7 +229,7 @@ Popup {
 
                     contentItem: Text {
                         text: customTabButton.text
-                        font: fonts.secondaryFont(22)
+                        font: fonts.caption()
                         color: colors.offwhite
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter

@@ -93,10 +93,10 @@ Settings.Page {
                     Layout.alignment: Qt.AlignLeft
                     wrapMode: Text.NoWrap
                     elide: Text.ElideNone
-                    color: colors.light
+                    color: colors.textSecondary
                     //: Current software version
                     text: qsTr("Current version")
-                    font: fonts.primaryFont(20)
+                    font: fonts.help()
                 }
 
                 Text {
@@ -105,9 +105,9 @@ Settings.Page {
                     wrapMode: Text.NoWrap
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignRight
-                    color: colors.light
+                    color: colors.textPrimary
                     text: SoftwareUpdate.currentVersion
-                    font: fonts.secondaryFont(20)
+                    font: fonts.value()
                 }
             }
 
@@ -131,10 +131,10 @@ Settings.Page {
                     Layout.alignment: Qt.AlignLeft
                     wrapMode: Text.NoWrap
                     elide: Text.ElideNone
-                    color: colors.offwhite
+                    color: colors.textSecondary
                     //: New software version
                     text: qsTr("New version")
-                    font: fonts.primaryFont(20)
+                    font: fonts.help()
                 }
 
                 Text {
@@ -145,7 +145,7 @@ Settings.Page {
                     horizontalAlignment: Text.AlignRight
                     color: colors.offwhite
                     text: SoftwareUpdate.newVersion
-                    font: fonts.secondaryFont(20)
+                    font: fonts.value()
                 }
             }
 
@@ -161,7 +161,7 @@ Settings.Page {
                     Layout.alignment: Qt.AlignLeft
                     wrapMode: Text.NoWrap
                     elide: Text.ElideNone
-                    color: colors.light
+                    color: colors.textSecondary
                     //: Software update download state
                     text: {
                         switch (SoftwareUpdate.updateDownloadState) {
@@ -176,7 +176,7 @@ Settings.Page {
                         }
                     }
 
-                    font: fonts.primaryFont(20)
+                    font: fonts.help()
                 }
             }
 
@@ -214,8 +214,8 @@ Settings.Page {
                 Layout.leftMargin: 10
                 Layout.rightMargin: 10
                 horizontalAlignment: Text.AlignHCenter
-                color: colors.light
-                font: fonts.secondaryFont(20)
+                color: colors.textPrimary
+                font: fonts.value()
                 text: SoftwareUpdate.downloadProgress + "%"
                 visible: SoftwareUpdate.updateDownloadState === SoftwareUpdate.Downloading
             }
@@ -267,7 +267,7 @@ Settings.Page {
                     color: colors.offwhite
                     text: qsTr("Release notes")
                     anchors { left: parent.left }
-                    font: fonts.primaryFont(20)
+                    font: fonts.label()
                 }
 
                 Components.Icon {
@@ -341,9 +341,9 @@ Settings.Page {
                     Layout.alignment: Qt.AlignLeft
                     wrapMode: Text.NoWrap
                     elide: Text.ElideNone
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Beta updates")
-                    font: fonts.primaryFont(20)
+                    font: fonts.help()
                 }
 
                 Text {
@@ -352,9 +352,9 @@ Settings.Page {
                     wrapMode: Text.NoWrap
                     elide: Text.ElideRight
                     horizontalAlignment: Text.AlignRight
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Enabled")
-                    font: fonts.secondaryFont(20)
+                    font: fonts.help()
                 }
             }
 
@@ -402,9 +402,9 @@ Settings.Page {
                     Layout.fillWidth: true
 
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Automatically check for updates.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -457,9 +457,9 @@ Settings.Page {
                     Layout.fillWidth: true
 
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Automatically update the remote when new software is available. Updates are installed between %1 and %2").arg(Config.otaWindowStart).arg(Config.otaWindowEnd)
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 

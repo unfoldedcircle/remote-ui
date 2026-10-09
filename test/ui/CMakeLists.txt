@@ -438,3 +438,20 @@ target_link_libraries(testDesignTokens
     Qt5::Gui
     Qt5::Test
     )
+
+# The type roles of the design system: faces, sizes, the 22 px floor and the light weight only for large text.
+add_executable (testTypeRoles
+    "test_type_roles.cpp"
+    # header only: contains the Q_OBJECT class moc has to process
+    "../../src/ui/fonts.h"
+    )
+
+add_test(NAME testTypeRoles
+         COMMAND testTypeRoles)
+
+target_link_libraries(testTypeRoles
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Test
+    )

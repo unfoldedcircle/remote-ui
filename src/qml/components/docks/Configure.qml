@@ -225,11 +225,11 @@ Item {
                 Text {
                     Layout.fillWidth: true
 
-                    color: colors.light
+                    color: colors.textPrimary
                     text: dockConfigureContainer.dockObj.itemAddress()
                     maximumLineCount: 1
                     elide: Text.ElideRight
-                    font: fonts.secondaryFont(22)
+                    font: fonts.value()
                 }
             }
         }
@@ -329,11 +329,11 @@ Item {
                         Text {
                             Layout.fillWidth: true
 
-                            color: colors.light
+                            color: colors.textSecondary
                             text: dockConfigureContainer.needsWifi ? qsTr("Required") :  qsTr("Optional")
                             maximumLineCount: 1
                             elide: Text.ElideRight
-                            font: fonts.secondaryFont(22)
+                            font: fonts.help()
                         }
 
                         RowLayout {
@@ -388,11 +388,11 @@ Item {
                         Text {
                             Layout.fillWidth: true
 
-                            color: colors.light
+                            color: colors.textSecondary
                             text: qsTr("Selected WiFi network")
                             maximumLineCount: 1
                             elide: Text.ElideRight
-                            font: fonts.secondaryFont(22)
+                            font: fonts.help()
                         }
 
                         RowLayout {

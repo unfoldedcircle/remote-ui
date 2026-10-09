@@ -63,5 +63,6 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
   for the token and type-role floors.
 - **Docs:** `docs/design-system.md` stays the reference; `docs/key-navigation.md` names the
   selection component; two new ADRs (0019, 0020).
-- **Open questions:** Q-1 to Q-4 in `docs/design-system.md` section 11 and Q-5 in `design.md`. Q-3,
+- **Open questions:** Q-1 to Q-4 and Q-8 in `docs/design-system.md` section 11 and Q-5 in
+  `design.md`. Q-3,
   the provisional `#595959` fill, needs a check on both remotes during phase 2.
