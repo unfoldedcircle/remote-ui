@@ -159,7 +159,7 @@ Controls carry `KeyNavigation.up/down/left/right`, `Components.Button`/`Switch` 
 themselves, `highlight: activeFocus && ui.keyNavigationActive`. Set `initialFocusItem` on the page
 and `scrollTarget` for a scrolling page. A tappable row (`Components.HapticMouseArea`) joins the
 chain with `keypadActivatable: true` (Return runs its `clicked` handler) plus a
-`Components.RowHighlight` outline.
+`Components.Selectable { selected: <row>.activeFocus }` ring (section 5).
 
 A `ListView` in the chain (`WifiNetworkList`) must move its own selection: `keyNavigationEnabled:
 false` (the built-in handling is gated on `interactive`, and it would move a second time where it
@@ -182,8 +182,8 @@ form's `ButtonNavigation` (double submit). Reach Cancel / OK with `inputField.Ke
 
 The page's `ButtonNavigation` handles `DPAD_UP/DOWN/MIDDLE` and keeps the selection in page state:
 `currentIndex` of the list plus a flag for the button below it. Highlights are explicit
-(`highlight: page.skipSelected && ui.keyNavigationActive`, delegate border bound to
-`ListView.isCurrentItem && list.keypadSelected && ui.keyNavigationActive`). No control has the
+(`highlight: page.skipSelected && ui.keyNavigationActive`, a `Components.Selectable` in the
+delegate with `selected: ListView.isCurrentItem && list.keypadSelected`). No control has the
 keyboard focus, so path 2 is inert. `docks/Discovery.qml` and `integrations/Discovery.qml` expose
 `moveSelection()` / `selectLast()` / `activateSelection()` / `keypadSelected` for this;
 `WifiNetworkList.qml` offers `keypadSelected` / `otherSelected` / `selectCurrent()` /
@@ -253,11 +253,35 @@ Never mix a and b on one screen for the same keys (section 1).
 first physical key press and false on the next touch (mouse press / touch begin on the window).
 **Every** selection highlight binds to `ui.keyNavigationActive`, so:
 
-- a screen opened by touch shows no selection outline (no preselected button, no selected PIN
-  digit),
-- the outline appears with the first d-pad press and disappears again with the next touch.
+- a screen opened by touch shows no selection (no preselected button, no selected PIN digit),
+- the selection appears with the first d-pad press and disappears again with the next touch.
 
 Use it for any new highlight; do not use `ui.keyNavigationEnabled` for rendering.
+
+Draw the selection with `Components.Selectable`, not with a rectangle of your own. It fills its
+parent, gates itself on `ui.keyNavigationActive` and exposes `shown` for the host's text colours.
+Declare it as the first child of the selected element, so the content is drawn on top of it:
+
+```qml
+Components.Selectable {
+    selected: row.ListView.isCurrentItem   // or activeFocus in a focus chain
+    style: "fill"                          // main UI; the default "ring" for settings and set-up flows
+}
+```
+
+The style follows the screen's layer (`docs/design-system.md` section 6, ADR 0020):
+
+- **Fill** (`surfaceSelected`) on the main UI: entity and group tiles, popup menu rows, page selector
+  and profile switcher rows, the activity menu. Everything on the fill is drawn in `textPrimary`;
+  bind secondary text to `selection.shown ? colors.textPrimary : …`.
+- **Ring** (3 px `focusRing`) in settings and set-up flows and on buttons everywhere: around a row
+  that OK activates as a whole, on the control of a setting with a switch, slider or field. The
+  shared controls (`Button`, `Switch`, `Checkbox`, `Slider`, `InputField`, `SearchField`, the
+  integration `Dropdown`) draw it themselves.
+
+Never draw both on one element. A host sized from `childrenRect` cannot hold a `Selectable` (it
+fills the parent, which then grows with it, a binding loop); the discovery cards set their border
+to the same width and `focusRing` colour instead.
 
 ## 6. Onboarding specifics (`src/qml/onboarding/`)
 
@@ -318,7 +342,8 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
 1. Decide the idiom (section 4) and stick to it for every key.
 2. Take the input when the screen is in front, release it when it leaves; never assign
    `defaultConfig` on a base that already declares one — extend it.
-3. Bind every highlight to `ui.keyNavigationActive`.
+3. Draw every selection with `Components.Selectable` in the style of the screen's layer (section
+   5); a highlight of your own binds to `ui.keyNavigationActive`.
 4. Set `initialFocusItem` (focus chain) or reset the selection on entry (button navigation).
 5. Set `scrollTarget` for a page taller than the display; make sure long translations
    (German, French, Dutch) do not push the last control off screen.

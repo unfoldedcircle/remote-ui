@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Help texts, descriptions, release notes and other secondary text, as well as dividers, panels and slider tracks,
   are drawn in lighter shades. They now stay readable on the Remote 3 display, also in a lit room, and are easier to
   read on the Remote Two as well.
+- The d-pad selection is visible on every screen, also on the Remote 3. On the main pages, in popup menus, the page
+  selector, the profile switcher and the activity menu the selected entry gets a lighter background. In settings and
+  set-up screens it gets a bright frame, on a setting's switch or slider rather than around the whole setting. The
+  selection is only shown while the d-pad is in use and disappears when the screen is touched, now also on tiles,
+  in groups and in the media browser.
 
 ### Fixed
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.

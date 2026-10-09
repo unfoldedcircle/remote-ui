@@ -491,15 +491,16 @@ Rectangle {
 
         Rectangle {
             width: ui.width; height: 120
-            color: keypadCurrent ? colors.dark : colors.transparent
-            radius: ui.cornerRadiusSmall
-            border {
-                color: keypadCurrent ? colors.medium : colors.transparent
-                width: 1
-            }
+            color: colors.transparent
 
             property bool isCurrentItem: ListView.isCurrentItem
             readonly property bool keypadCurrent: isCurrentItem && !profileSelector.footerSelected && ui.keyNavigationActive
+
+            Components.Selectable {
+                style: "fill"
+                selected: parent.keypadCurrent
+                anchors { leftMargin: 4; rightMargin: 4 }
+            }
 
             RowLayout {
                 spacing: 10
@@ -576,14 +577,10 @@ Rectangle {
             width: ui.width; height: visible ? 150 : 0
             visible: !ui.profile.restricted
 
-            Rectangle {
-                anchors { fill: parent; margins: 20 }
-                radius: ui.cornerRadiusSmall
-                color: colors.transparent
-                border {
-                    width: 2
-                    color: profileSelector.footerSelected && ui.keyNavigationActive ? colors.highlight : colors.transparent
-                }
+            Components.Selectable {
+                style: "fill"
+                selected: profileSelector.footerSelected
+                anchors.margins: 20
             }
 
             Item {

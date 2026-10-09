@@ -413,12 +413,7 @@ Item {
         Rectangle {
             width: ListView.view.width
             height: visible ? 80 : 0
-            color: isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
-            border {
-                color: isCurrentItem && ui.keyNavigationActive ? colors.medium : colors.transparent
-                width: 1
-            }
-            radius: ui.cornerRadiusSmall
+            color: colors.transparent
             visible: {
                 switch (pos) {
                 case 0:
@@ -438,6 +433,11 @@ Item {
             }
 
             property bool isCurrentItem: ListView.isCurrentItem
+
+            Components.Selectable {
+                selected: parent.isCurrentItem
+                anchors { leftMargin: 4; rightMargin: 4 }
+            }
 
             Rectangle {
                 width: counterText.implicitWidth + 20

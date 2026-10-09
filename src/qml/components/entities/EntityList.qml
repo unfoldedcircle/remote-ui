@@ -917,18 +917,17 @@ Rectangle {
 
         Rectangle {
             width: ListView.view.width; height: entityInfoContainer.height + 40
-            color: keypadCurrent ? colors.dark : colors.transparent
-            radius: ui.cornerRadiusSmall
-            border {
-                color: keypadCurrent ? colors.medium : colors.transparent
-                width: 1
-            }
+            color: colors.transparent
 
             property bool isCurrentItem: ListView.isCurrentItem
             readonly property bool keypadCurrent: isCurrentItem && entityList.keypadSelected
                                                   && entityList.zone === EntityList.Zone.List && ui.keyNavigationActive
             property string key: itemKey
             property bool selected: itemSelected
+
+            Components.Selectable {
+                selected: parent.keypadCurrent
+            }
 
             Components.Icon {
                 id: entityIcon

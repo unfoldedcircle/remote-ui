@@ -972,9 +972,10 @@ Popup {
                         }
                     }
 
-                    Rectangle {
-                        anchors.fill: parent; color: colors.medium; radius: 10
-                        visible: itemDelegate.ListView.isCurrentItem
+                    Components.Selectable {
+                        id: rowSelection
+                        style: "fill"
+                        selected: itemDelegate.ListView.isCurrentItem
                     }
 
                     property bool playPending: mediaBrowser.pendingPlayMediaId !== "" &&
@@ -1026,7 +1027,9 @@ Popup {
                             text: modelData.subtitle ||
                                   (isContainerView ? (modelData.artist || "")
                                                    : (modelData.artist || modelData.album || modelData.media_class || ""))
-                            color: colors.light; font: fonts.secondaryFontCapitalizedFirst(22)
+                            // on the selection fill everything is drawn in the primary text colour
+                            color: rowSelection.shown ? colors.textPrimary : colors.light
+                            font: fonts.secondaryFontCapitalizedFirst(22)
                             elide: Text.ElideRight; width: parent.width; visible: text !== ""
                         }
                     }
@@ -1044,7 +1047,8 @@ Popup {
                                 var s = modelData.duration || 0;
                                 return Math.floor(s / 60) + ":" + (s % 60 < 10 ? "0" : "") + (s % 60);
                             }
-                            color: colors.medium; font: fonts.secondaryFont(22)
+                            color: rowSelection.shown ? colors.textPrimary : colors.light
+                            font: fonts.secondaryFont(22)
                         }
 
                         // --- container view: simple play (feature not supported) ---

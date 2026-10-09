@@ -314,7 +314,13 @@ Item {
                         dockConfigureContainer.openWifiPage();
                     }
 
-                    Components.RowHighlight { }
+                    Components.Selectable {
+
+                        selected: parent.activeFocus
+
+                        anchors { leftMargin: -10; rightMargin: -10 }
+
+                    }
 
                     ColumnLayout {
                         width: parent.width
@@ -367,7 +373,13 @@ Item {
                         dockConfigureContainer.openWifiPage();
                     }
 
-                    Components.RowHighlight { }
+                    Components.Selectable {
+
+                        selected: parent.activeFocus
+
+                        anchors { leftMargin: -10; rightMargin: -10 }
+
+                    }
 
                     ColumnLayout {
                         width: parent.width

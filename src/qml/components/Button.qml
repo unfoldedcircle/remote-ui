@@ -27,7 +27,7 @@ Rectangle {
     width: title.implicitWidth + 40; height: 80
     color: colors.primaryButton
     radius: ui.cornerRadiusSmall
-    border { width: 2; color: highlight ? colors.highlight : Qt.lighter(button.color, 1.3) }
+    border { width: 2; color: Qt.lighter(button.color, 1.3) }
 
     signal triggered()
 
@@ -82,6 +82,11 @@ Rectangle {
             PropertyAnimation { target: button
                 properties: "color"; duration: 300 }
         }]
+
+    Components.Selectable {
+        selected: button.highlight
+        radius: button.radius
+    }
 
     Text {
         id: title

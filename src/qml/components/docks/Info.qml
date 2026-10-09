@@ -478,7 +478,13 @@ Item {
                     passwordChangeContainter.open(dockInfoContainer.dockObj.id);
                 }
 
-                Components.RowHighlight { }
+                Components.Selectable {
+
+                    selected: parent.activeFocus
+
+                    anchors { leftMargin: -10; rightMargin: -10 }
+
+                }
 
                 Text {
                     width: parent.width
@@ -520,7 +526,13 @@ Item {
                     ui.createNotification("Not implemented yet");
                 }
 
-                Components.RowHighlight { }
+                Components.Selectable {
+
+                    selected: parent.activeFocus
+
+                    anchors { leftMargin: -10; rightMargin: -10 }
+
+                }
 
                 Text {
                     width: parent.width
@@ -552,7 +564,13 @@ Item {
                 KeyNavigation.up: wifiRow
                 KeyNavigation.down: deleteRow
 
-                Components.RowHighlight { }
+                Components.Selectable {
+
+                    selected: parent.activeFocus
+
+                    anchors { leftMargin: -10; rightMargin: -10 }
+
+                }
 
                 onClicked: {
                     ui.createActionableWarningNotification(qsTr("Factory reset"),

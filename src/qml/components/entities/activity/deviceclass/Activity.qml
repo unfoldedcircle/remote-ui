@@ -33,9 +33,6 @@ EntityComponents.BaseDetail {
     // The menu's ButtonNavigation owns the input while the menu is open, the popup on top of it takes over
     // while it is shown, so exactly one layer reacts to a key.
     property int menuSelected: 0
-    // true from the first d-pad press in the menu until the next touch: the selection outline is only shown then,
-    // so a menu opened by touch does not start with a preselected button
-    property bool menuKeypadActive: false
 
     function menuList() {
         return extraContent.currentIndex === 0 ? includedEntitiesList : fixedEntitiesList;
@@ -48,7 +45,6 @@ EntityComponents.BaseDetail {
 
     function openMenu() {
         showMenuPage(0);
-        activityBase.menuKeypadActive = false;
         activityMenu.open();
     }
 
@@ -59,7 +55,6 @@ EntityComponents.BaseDetail {
     }
 
     function menuMoveSelection(delta) {
-        activityBase.menuKeypadActive = true;
         const list = menuList();
         const next = Math.max(0, Math.min(list.count, activityBase.menuSelected + delta));
         activityBase.menuSelected = next;
@@ -69,7 +64,6 @@ EntityComponents.BaseDetail {
     }
 
     function menuActivateSelection() {
-        activityBase.menuKeypadActive = true;
         if (activityBase.menuSelected === 0) {
             showMenuPage(extraContent.currentIndex === 0 ? 1 : 0);
             return;
@@ -359,7 +353,6 @@ EntityComponents.BaseDetail {
             // once the screen has slid into view
             ui.setTimeOut(500, () => {
                               showMenuPage(1);
-                              activityBase.menuKeypadActive = false;
                               activityMenu.open();
                           });
         }
@@ -648,16 +641,13 @@ EntityComponents.BaseDetail {
                     height: 100
 
                     onClicked: {
-                        activityBase.menuKeypadActive = false;
                         showMenuPage(1);
                     }
 
-                    Rectangle {
-                        anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
-                        color: colors.transparent
-                        radius: ui.cornerRadiusSmall
-                        border { width: 2; color: colors.highlight }
-                        visible: activityBase.menuSelected === 0 && activityBase.menuKeypadActive
+                    Components.Selectable {
+                        style: "fill"
+                        selected: activityBase.menuSelected === 0
+                        anchors { leftMargin: 10; rightMargin: 10 }
                     }
 
                     Components.Icon {
@@ -719,16 +709,13 @@ EntityComponents.BaseDetail {
                     anchors.top: parent.top
 
                     onClicked: {
-                        activityBase.menuKeypadActive = false;
                         showMenuPage(0);
                     }
 
-                    Rectangle {
-                        anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
-                        color: colors.transparent
-                        radius: ui.cornerRadiusSmall
-                        border { width: 2; color: colors.highlight }
-                        visible: activityBase.menuSelected === 0 && activityBase.menuKeypadActive
+                    Components.Selectable {
+                        style: "fill"
+                        selected: activityBase.menuSelected === 0
+                        anchors { leftMargin: 10; rightMargin: 10 }
                     }
 
                     Components.Icon {
@@ -838,16 +825,13 @@ EntityComponents.BaseDetail {
             }
 
             onClicked: {
-                activityBase.menuKeypadActive = false;
                 activate();
             }
 
-            Rectangle {
-                anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
-                color: colors.transparent
-                radius: ui.cornerRadiusSmall
-                border { width: 2; color: colors.highlight }
-                visible: includedEntityRoot.ListView.isCurrentItem && activityBase.menuSelected > 0 && activityBase.menuKeypadActive
+            Components.Selectable {
+                style: "fill"
+                selected: includedEntityRoot.ListView.isCurrentItem && activityBase.menuSelected > 0
+                anchors { leftMargin: 10; rightMargin: 10 }
             }
 
             Components.Icon {
@@ -902,16 +886,14 @@ EntityComponents.BaseDetail {
             }
 
             onClicked: {
-                activityBase.menuKeypadActive = false;
                 activate();
             }
 
-            Rectangle {
-                anchors { fill: parent; leftMargin: 10; rightMargin: 10 }
-                color: colors.transparent
-                radius: ui.cornerRadiusSmall
-                border { width: 2; color: colors.highlight }
-                visible: fixedEntityRoot.ListView.isCurrentItem && activityBase.menuSelected > 0 && activityBase.menuKeypadActive
+            Components.Selectable {
+                id: fixedEntityRootSelection
+                style: "fill"
+                selected: fixedEntityRoot.ListView.isCurrentItem && activityBase.menuSelected > 0
+                anchors { leftMargin: 10; rightMargin: 10 }
             }
 
             Components.Icon {
@@ -946,7 +928,9 @@ EntityComponents.BaseDetail {
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     elide: Text.ElideRight
                     maximumLineCount: 1
-                    color: fixedEntityRoot.alert ? colors.red : colors.light
+                    // on the selection fill everything is drawn in the primary text colour
+                    color: fixedEntityRootSelection.shown ? colors.textPrimary
+                                                          : fixedEntityRoot.alert ? colors.red : colors.light
                     anchors { left: parent.left; top: fixedEntityItemName.bottom }
                     font: fonts.secondaryFont(22)
                 }

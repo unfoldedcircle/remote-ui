@@ -328,8 +328,9 @@ Item {
                     profileSwitch.state = "visible";
                 }
 
-                Components.RowHighlight {
-                    border.color: profileRoot.selectedHeaderRow === profileRow && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                Components.Selectable {
+                    selected: profileRoot.selectedHeaderRow === profileRow
+                    anchors { leftMargin: -10; rightMargin: -10 }
                 }
 
                 RowLayout {
@@ -456,8 +457,9 @@ Item {
                                             }
                                         }
 
-                                        Components.RowHighlight {
-                                            border.color: profileRoot.selectedHeaderRow === addressRow && ui.keyNavigationActive ? colors.highlight : colors.transparent
+                                        Components.Selectable {
+                                            selected: profileRoot.selectedHeaderRow === addressRow
+                                            anchors { leftMargin: -10; rightMargin: -10 }
                                         }
                                     }
                                 }
@@ -801,12 +803,7 @@ Item {
         Rectangle {
             width: ListView.view.width
             height: visible ? 80 : 0
-            color: isCurrentItem && profileRoot.headerSelection < 0 && ui.keyNavigationActive ? colors.dark : colors.transparent
-            border {
-                color: isCurrentItem && profileRoot.headerSelection < 0 && ui.keyNavigationActive ? colors.medium : colors.transparent
-                width: 1
-            }
-            radius: ui.cornerRadiusSmall
+            color: colors.transparent
             visible: {
                 switch (pos) {
                 case 0:
@@ -826,6 +823,11 @@ Item {
             }
 
             property bool isCurrentItem: ListView.isCurrentItem
+
+            Components.Selectable {
+                selected: parent.isCurrentItem && profileRoot.headerSelection < 0
+                anchors { leftMargin: 4; rightMargin: 4 }
+            }
 
             Rectangle {
                 width: counterText.implicitWidth + 20
