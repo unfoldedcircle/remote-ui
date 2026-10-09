@@ -99,6 +99,11 @@ Rules:
   it.
 - **Selectable rows and tiles** span from 8 px to width-8 so the selection never touches the bezel;
   their content keeps the 20 px gutter (12 px inner padding).
+- **Key/value rows:** the key left in the help role, the value right in the value role, on one line;
+  a long value elides. A value that has to be read in full, such as a MAC or IP address, goes on its
+  own line under the key when the two do not fit next to each other, in any language
+  (`KeyValueRow`, `fullValue`). Values that are long by nature (a URL, a developer name) always go
+  under the key (`stacked`).
 - **Title bar 80 px:** 80 x 80 back or close target at the edge, title centred. One component for
   pages, sheets and dialogs; onboarding uses it without the back target. A title too long to centre
   between the targets starts after the target and elides; without a target it centres within the

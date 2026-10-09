@@ -84,11 +84,14 @@ Settings.Page {
             Components.KeyValueRow {
                 key: qsTr("Wi-Fi address")
                 value: Wifi.macAddress
+                // an address is read in full: under the key when it does not fit next to it
+                fullValue: true
             }
 
             Components.KeyValueRow {
                 key: qsTr("Bluetooth address")
                 value: Config.bluetoothMac
+                fullValue: true
             }
 
             Components.KeyValueRow {

@@ -8,12 +8,14 @@ import "qrc:/components" as Components
 
 // A key and its value (docs/design-system.md sections 4 and 7): the key in the help role, the value in the value
 // role, a divider below. On one line the key keeps its width and the value takes the rest and elides; a long value
-// (stacked) goes under the key and wraps. 14 px vertical padding, 20 px gutter.
+// (stacked) goes under the key and wraps. A value that has to be read in full (fullValue), such as a MAC or IP
+// address, stays on the line while it fits next to the key and goes under the key otherwise, so it is never cut
+// off in any language. 14 px vertical padding, 20 px gutter.
 Item {
     id: keyValueRow
     width: parent ? parent.width : 0
     height: implicitHeight
-    implicitHeight: (stacked ? valueText.y + valueText.height : Math.max(keyText.height, valueText.height))
+    implicitHeight: (isStacked ? valueText.y + valueText.height : Math.max(keyText.height, valueText.height))
                     + 2 * padding + (showDivider ? divider.height : 0)
 
     Layout.fillWidth: true
@@ -21,17 +23,33 @@ Item {
     property alias key: keyText.text
     property alias value: valueText.text
     property bool stacked: false
+    property bool fullValue: false
     property bool showDivider: true
 
     readonly property int gutter: 20
     readonly property int padding: 14
+    readonly property int spacing: 20
+
+    // measured with the fonts of the two roles, not with the Text items, whose size depends on the layout
+    readonly property bool isStacked: stacked || (fullValue && width > 0 && keyMetrics.advanceWidth(key) + spacing
+                                                  + valueMetrics.advanceWidth(value) > width - 2 * gutter)
+
+    FontMetrics {
+        id: keyMetrics
+        font: fonts.help()
+    }
+
+    FontMetrics {
+        id: valueMetrics
+        font: fonts.value()
+    }
 
     Text {
         id: keyText
         x: keyValueRow.gutter
         y: keyValueRow.padding
-        width: keyValueRow.stacked ? keyValueRow.width - 2 * keyValueRow.gutter
-                                   : Math.min(implicitWidth, (keyValueRow.width - 2 * keyValueRow.gutter) * 0.6)
+        width: keyValueRow.isStacked ? keyValueRow.width - 2 * keyValueRow.gutter
+                                     : Math.min(implicitWidth, (keyValueRow.width - 2 * keyValueRow.gutter) * 0.6)
         elide: Text.ElideRight
         maximumLineCount: 1
         color: colors.textSecondary
@@ -40,14 +58,14 @@ Item {
 
     Text {
         id: valueText
-        x: keyValueRow.stacked ? keyValueRow.gutter : keyText.x + keyText.width + 20
-        y: keyValueRow.stacked ? keyText.y + keyText.height + 4 : keyValueRow.padding
-        width: keyValueRow.stacked ? keyValueRow.width - 2 * keyValueRow.gutter
-                                   : keyValueRow.width - keyValueRow.gutter - x
-        horizontalAlignment: keyValueRow.stacked ? Text.AlignLeft : Text.AlignRight
-        wrapMode: keyValueRow.stacked ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
-        elide: keyValueRow.stacked ? Text.ElideNone : Text.ElideRight
-        maximumLineCount: keyValueRow.stacked ? 6 : 1
+        x: keyValueRow.isStacked ? keyValueRow.gutter : keyText.x + keyText.width + keyValueRow.spacing
+        y: keyValueRow.isStacked ? keyText.y + keyText.height + 4 : keyValueRow.padding
+        width: keyValueRow.isStacked ? keyValueRow.width - 2 * keyValueRow.gutter
+                                     : keyValueRow.width - keyValueRow.gutter - x
+        horizontalAlignment: keyValueRow.isStacked ? Text.AlignLeft : Text.AlignRight
+        wrapMode: keyValueRow.isStacked ? Text.WrapAtWordBoundaryOrAnywhere : Text.NoWrap
+        elide: keyValueRow.isStacked ? Text.ElideNone : Text.ElideRight
+        maximumLineCount: keyValueRow.isStacked ? 6 : 1
         color: colors.textPrimary
         font: fonts.value()
     }
