@@ -329,19 +329,37 @@ QStringList Resources::licenseBlocks(const QString& content, bool markdown, bool
     static const QRegularExpression overviewHeading(QStringLiteral("^##\\s"));
     // Qt sizes a heading from about twice the text ("#") down to below it ("######"); level 4 is the text size
     static const QRegularExpression headingLevel(QStringLiteral("^#{1,6}(?=\\s)"));
+    static const QRegularExpression textTableBorder(QStringLiteral("^\\+[-=+]+$"));
 
     QStringList blocks;
     QString     block;
     bool        inCodeBlock = false;
+    bool        inTextTable = false;
 
     for (QString line : lines) {
         if (line.startsWith(QStringLiteral("```"))) {
             // a code block, in practice a license text, flows into paragraphs: its lines are wrapped for a far wider
             // screen
             inCodeBlock = !inCodeBlock;
+            inTextTable = false;
             line.clear();
         } else if (inCodeBlock) {
-            line = literalText(line.trimmed());
+            // a text table, such as the one in the Mesa license, keeps one line per row, without its borders
+            const QString text = line.trimmed();
+            const bool    border = textTableBorder.match(text).hasMatch();
+            if (border || text.startsWith('|')) {
+                if (!inTextTable && !block.isEmpty() && !block.endsWith(QStringLiteral("\n\n"))) {
+                    block += '\n';
+                }
+                inTextTable = true;
+                if (border) {
+                    continue;
+                }
+                line = literalText(text.simplified()) + QStringLiteral("  ");
+            } else {
+                inTextTable = false;
+                line = literalText(text);
+            }
         } else {
             if ((overview ? overviewHeading : anyHeading).match(line).hasMatch() && !block.trimmed().isEmpty()) {
                 blocks.append(block.trimmed());
