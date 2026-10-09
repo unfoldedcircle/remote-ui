@@ -163,3 +163,8 @@ this change after the migration is merged to `main`, not in a phase pull request
 - [x] 6.5 Verify: the check fails on a seeded violation and passes on the tree. `--self-test` seeds
       every rule; a copy of `MenuRow.qml` with three violations fails with three findings; a path
       without QML fails; the tree passes
+- [x] 6.6 The spec deltas follow the `specs` instruction of the workflow schema: behaviour that is
+      new goes into its own ADDED requirement instead of lengthening a MODIFIED one (`key-navigation`
+      selection styles, `platform-constraints` legibility floors, `entity-management` filter sheet
+      and empty list, `pages` no-page screen keypad and menu). Verified with
+      `openspec validate lcd-readability-design-system --strict`
