@@ -113,7 +113,8 @@ this change after the migration is merged to `main`, not in a phase pull request
       (N-09). The activity header hints ("Tap for more") stay with the entity detail screens
 - [x] 5.4 Spec deltas for the capabilities whose screens change: pages, profiles, docks,
       integrations, entity-management, groups, notifications, help-overlay, onboarding,
-      settings-menu, core-connection
+      settings-menu, core-connection. The `notifications` delta also records the presentation
+      phases 3 and 4 gave the actionable notification (buttons, prose message, bar colour)
 - [x] 5.5 `CHANGELOG.md`: every screen works with the d-pad
 - [ ] 5.6 Verify each newly reachable control on a device. Desktop done at 800 px
       (`UC_MODEL=DEV`): page menu and profile page, web configurator, no-page screen with its menu

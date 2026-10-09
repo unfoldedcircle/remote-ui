@@ -63,6 +63,9 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
   - `onboarding`, `help-overlay`, `core-connection`: the Finish address, the tips' Close and the
     connection status list; reworded hints.
   - `groups`, `notifications`: the reworded "Select entities" text.
+- `notifications`: "Actionable notification presentation" also records the look phases 3 and 4 gave
+  the actionable notification: the action and "Cancel" as buttons, the message in the prose role and
+  the primary text colour, and the bar of a neutral notification in the primary text colour.
 
 ## Impact
 
