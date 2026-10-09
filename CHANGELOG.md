@@ -79,6 +79,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   lists and tables, instead of showing the Markdown markup. Any other file is shown as plain text, and a long word or
   table cell wraps instead of running off the screen. Headings, also those of the licenses overview, are bold at the
   size of the text instead of up to twice as large.
+- BACK and the back arrow on a license opened from the Licenses page return to the license overview, at the link
+  that opened it, instead of leaving the licenses for the About page. A link inside a license can be followed as well
+  and leads back the same way.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.

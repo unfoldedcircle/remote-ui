@@ -15,8 +15,38 @@ Settings.Page {
     property int type
     property var stringList
     property string baseDir
-    property bool followLinks: true
     property bool isMarkdown: true
+    // the documents opened by links, the last one shown: how each was opened and the block of the document before
+    // it that held its link
+    property var openedLinks: []
+
+    topNavigation.goBack: function() {
+        aboutPageContent.goBack();
+    }
+
+    function openLink(baseUrl, link) {
+        aboutPageContent.isMarkdown = resource.isMarkdownFile(link);
+        resource.getLinkContent(baseUrl, link);
+    }
+
+    // back to the document that held the link, at the block of the link; from the overview to the About page
+    function goBack() {
+        const opened = aboutPageContent.openedLinks;
+        if (opened.length === 0) {
+            profileRoot.goBack();
+            buttonNavigation.restoreDefaultConfig();
+            return;
+        }
+
+        aboutPageContent.openedLinks = opened.slice(0, -1);
+        if (opened.length > 1) {
+            aboutPageContent.openLink(opened[opened.length - 2].baseUrl, opened[opened.length - 2].link);
+        } else {
+            aboutPageContent.isMarkdown = true;
+            resource.getAboutInfo(aboutPageContent.type);
+        }
+        flickable.positionViewAtIndex(opened[opened.length - 1].section, ListView.Beginning);
+    }
 
     // the d-pad moves by half the viewport (docs/design-system.md section 6)
     function scrollStep(direction) {
@@ -37,6 +67,11 @@ Settings.Page {
                                                      "pressed": function() {
                                                          aboutPageContent.scrollStep(-1);
                                                      }
+                                                 },
+                                                 "BACK": {
+                                                     "pressed": function() {
+                                                         aboutPageContent.goBack();
+                                                     }
                                                  }
                                              });
     }
@@ -48,7 +83,7 @@ Settings.Page {
         function onAboutInfo(res, baseDir) {
             aboutPageContent.baseDir = "file:" + baseDir + "/";
             aboutPageContent.stringList = resource.licenseBlocks(res, aboutPageContent.isMarkdown,
-                                                                 aboutPageContent.followLinks);
+                                                                 aboutPageContent.openedLinks.length === 0);
         }
     }
 
@@ -83,11 +118,10 @@ Settings.Page {
                     return;
                 }
 
-                if (aboutPageContent.followLinks) {
-                    aboutPageContent.followLinks = false;
-                    aboutPageContent.isMarkdown = resource.isMarkdownFile(link);
-                    resource.getLinkContent(content.baseUrl, link);
-                }
+                aboutPageContent.openedLinks = aboutPageContent.openedLinks.concat([{
+                    "baseUrl": content.baseUrl, "link": link, "section": index
+                }]);
+                aboutPageContent.openLink(content.baseUrl, link);
             }
         }
     }
