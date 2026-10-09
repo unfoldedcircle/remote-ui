@@ -202,7 +202,7 @@ Popup {
         case "skipped":
             return colors.yellow;
         case "notNeeded":
-            return colors.inactiveText;
+            return colors.textDisabled;
         default:
             return colors.green;
         }
@@ -342,7 +342,7 @@ Popup {
                     end: Qt.point(0, parent.height)
                     gradient: Gradient {
                         GradientStop { position: 0.0; color: colors.transparent }
-                        GradientStop { position: 0.34; color: Qt.rgba(0, 0, 0, 0.55) }
+                        GradientStop { position: 0.34; color: Qt.rgba(colors.bg.r, colors.bg.g, colors.bg.b, 0.55) }
                         GradientStop { position: 0.58; color: colors.black }
                         GradientStop { position: 1.0; color: colors.black }
                     }

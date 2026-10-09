@@ -21,3 +21,14 @@ The overlay SHALL close when "Close" is tapped, or on the press of DPAD_MIDDLE, 
 #### Scenario: HOME closes
 - **WHEN** HOME is pressed while the tips are shown
 - **THEN** the overlay closes and the current page is not scrolled or changed by that press
+
+### Requirement: Overlay presentation
+The overlay SHALL cover the whole screen, including the status bar, with a black layer at 95 % opacity so the screen behind only shimmers through, and SHALL swallow all touches meant for the screen behind. A navigation row SHALL sit 10 px above the bottom edge with a left arrow (20 px from the left), a "Close" button in the centre and a right arrow (20 px from the right). The left arrow SHALL be invisible and inert on the first tip, the right arrow on the last tip. Each tip SHALL show a title (30 px, primary font) 20 px from the top and left, an optional body text in the help role 20 px below it, and markers pointing at the UI element it describes.
+
+#### Scenario: First tip
+- **WHEN** the overlay opens
+- **THEN** only the right arrow and "Close" are visible in the navigation row
+
+#### Scenario: Tap on the dimmed area
+- **WHEN** the user taps where a page tile shimmers through
+- **THEN** the tile does not react

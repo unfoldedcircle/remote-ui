@@ -33,6 +33,17 @@ The page SHALL offer "Bluetooth" and "WiFi" switches, "Active WiFi scanning" wit
 - **THEN** the switches, the band row, both network lists and the buttons are all reachable in order
 - **AND** an empty "Known Networks" list is skipped, and an empty list of other networks starts on "Join other", so a press never lands where nothing is drawn
 
+### Requirement: About page
+The About page SHALL list "Model number", "Serial number", "Revision", "Wi-Fi address", "Bluetooth address", "UI version", "Core version" and "System version", followed by the entries "Regulatory", "Terms & conditions", "Warranty information" and "Licenses". The page scrolls as a whole so all entries are reachable on both screen sizes.
+
+#### Scenario: Document page
+- **WHEN** Regulatory, Terms & conditions or Warranty information is opened
+- **THEN** the document is shown as rich text from the legal resources; DPAD_DOWN / DPAD_UP scroll by half the page per press, clamped to the content; a relative link inside the document is followed once, http links are ignored
+
+#### Scenario: Licenses
+- **WHEN** Licenses is opened
+- **THEN** the license text is shown as Markdown split into sections at second-level headings, scrolled the same way
+
 ## ADDED Requirements
 
 ### Requirement: Addresses on the About page are shown in full

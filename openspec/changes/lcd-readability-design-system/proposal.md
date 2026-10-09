@@ -42,11 +42,12 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 
 ### Modified Capabilities
 
-- `platform-constraints`: "Legibility" points at the accepted design system and states the
-  legibility floors every screen keeps.
-- `key-navigation`: "Keypad-active state and selection rendering" describes the two selection
-  styles; "Developer contract for a new keypad-navigable screen" requires the style of the screen's
-  layer.
+- `platform-constraints`: "Legibility" points at the accepted design system with one palette for
+  both models; the new "Legibility floors" states the floors every screen keeps.
+- `key-navigation`: new requirements describe the two selection styles ("Selection fill on the
+  main UI", "Selection ring in settings and on buttons", "One selection style per element") and
+  require the style of its layer from a new screen ("Selection of a new screen"); "Keypad-active
+  state and selection rendering" and the developer contract only update their scenarios.
 - `activities`: "Activity menu and included entities" draws its selection in the fill style and
   follows the keypad-active state instead of a flag of its own (phase 2).
 - Phase 5 makes controls reachable on screens owned by other capabilities and rewords their
@@ -66,6 +67,12 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 - `notifications`: "Actionable notification presentation" also records the look phases 3 and 4 gave
   the actionable notification: the action and "Cancel" as buttons, the message in the prose role and
   the primary text colour, and the bar of a neutral notification in the primary text colour.
+- Recorded with the guardrails, what phases 3 and 4 changed on the legal pages and in the tips:
+  - `ui-resources`: "Legal documents" and "Licenses document" are set in the prose role and scroll by
+    half the page per key press.
+  - `settings-menu`: "About page", the key steps of the document pages; `key-navigation`: "Scroll the
+    focused control into view", its example of a legal page; `help-overlay`: "Overlay presentation",
+    the tip text in the help role.
 - Found on the device after phases 4 and 5:
   - `wifi`: the details of the current network call the MAC key "MAC" and show the MAC and IP
     addresses in full.

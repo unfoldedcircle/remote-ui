@@ -21,6 +21,9 @@ class testDesignTokens : public QObject {
     void oldNames_followTheirTokens_data();
     void oldNames_followTheirTokens();
 
+    void retiredNames_areGone_data();
+    void retiredNames_areGone();
+
     void contrast_meetsTheDesignSystem_data();
     void contrast_meetsTheDesignSystem();
 
@@ -73,12 +76,10 @@ void testDesignTokens::oldNames_followTheirTokens_data() {
     QTest::newRow("black") << "black" << "bg";
     QTest::newRow("offwhite") << "offwhite" << "textPrimary";
     QTest::newRow("light") << "light" << "textSecondary";
-    QTest::newRow("inactiveText") << "inactiveText" << "textDisabled";
     QTest::newRow("white") << "white" << "textOnButton";
     QTest::newRow("dark") << "dark" << "surface";
     QTest::newRow("medium") << "medium" << "surfaceRaised";
     QTest::newRow("highlight") << "highlight" << "focusRing";
-    QTest::newRow("primaryButton") << "primaryButton" << "buttonPrimary";
 }
 
 void testDesignTokens::oldNames_followTheirTokens() {
@@ -91,6 +92,22 @@ void testDesignTokens::oldNames_followTheirTokens() {
     // a regenerated palette changes both names together
     colors.generateColorPalette(QColor("#3060a0"));
     QCOMPARE(token(colors, oldName.toLatin1().constData()), token(colors, tokenName.toLatin1().constData()));
+}
+
+void testDesignTokens::retiredNames_areGone_data() {
+    QTest::addColumn<QString>("name");
+
+    // an old name no screen uses any more is removed rather than kept as an alias
+    QTest::newRow("inactiveText") << "inactiveText";
+    QTest::newRow("primaryButton") << "primaryButton";
+    QTest::newRow("secondaryButton") << "secondaryButton";
+}
+
+void testDesignTokens::retiredNames_areGone() {
+    QFETCH(QString, name);
+
+    uc::ui::Colors colors;
+    QCOMPARE(colors.metaObject()->indexOfProperty(name.toLatin1().constData()), -1);
 }
 
 void testDesignTokens::contrast_meetsTheDesignSystem_data() {

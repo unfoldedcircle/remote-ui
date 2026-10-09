@@ -8,20 +8,16 @@ DPAD_UP / DPAD_DOWN SHALL move the selection through the tiles of the current pa
 - **THEN** no command is sent and the notification "<name> is unavailable" is shown
 
 ### Requirement: No-page screen
-When the current profile has no pages the UI SHALL show a "+" with "Add your first page" and the status bar; for a restricted profile it SHALL show "No page found. Ask your administrator to setup pages." without the "+". With the keypad, DPAD_MIDDLE SHALL add the first page as a tap on the "+" does, and the "+" area is drawn with the selection ring while the keypad is active. A long press on HOME SHALL open a menu titled with the profile name with "Profile & settings" ("Profile" for a restricted profile), which opens the profile page, and "Show tips".
+When the current profile has no pages the UI SHALL show a "+" with "Add your first page" and the status bar; for a restricted profile it SHALL show "No page found. Ask your administrator to setup pages." without the "+".
 
 #### Scenario: First page added
-- **WHEN** the "+" area is tapped or DPAD_MIDDLE is pressed
+- **WHEN** the "+" area is tapped
 - **THEN** the "Name your page" dialog opens with the on-screen keyboard
 - **AND** once the page count becomes greater than zero the main screen with pages replaces the no-page screen
 
 #### Scenario: Last page removed
 - **WHEN** the page count drops to zero
 - **THEN** the no-page screen replaces the main screen
-
-#### Scenario: Profile page from the no-page screen by keypad
-- **WHEN** HOME is held on the no-page screen and "Profile & settings" is chosen
-- **THEN** the profile page opens with the profile list, the web configurator and the settings, as from the profile icon of the status bar
 
 ### Requirement: HOME key on the main screen
 A short press on HOME SHALL scroll the current page to its top, select the first tile and end the reorder mode. A long press on HOME SHALL open the page menu. The page menu is also the keypad's way to the page selector and to the profile page, which are otherwise opened by touch (page title, status bar profile icon, pull-down menu). For a restricted profile the page menu SHALL only offer "Pages", "Profile" and "Show tips".
@@ -41,3 +37,19 @@ A short press on HOME SHALL scroll the current page to its top, select the first
 #### Scenario: Reorder on an empty page
 - **WHEN** "Reorder" is chosen on a page without tiles
 - **THEN** the actionable notification "Page is empty" with "There is nothing to reorder. Try adding entities or groups first." is shown
+
+## ADDED Requirements
+
+### Requirement: No-page screen with the keypad
+With the keypad, DPAD_MIDDLE on the no-page screen SHALL add the first page as a tap on the "+" does, and the "+" area SHALL be drawn with the selection ring while the keypad is active.
+
+#### Scenario: First page by keypad
+- **WHEN** DPAD_MIDDLE is pressed on the no-page screen
+- **THEN** the "Name your page" dialog opens with the on-screen keyboard
+
+### Requirement: Menu on the no-page screen
+A long press on HOME on the no-page screen SHALL open a menu titled with the profile name, with "Profile & settings" ("Profile" for a restricted profile), which opens the profile page, and "Show tips".
+
+#### Scenario: Profile page from the no-page screen by keypad
+- **WHEN** HOME is held on the no-page screen and "Profile & settings" is chosen
+- **THEN** the profile page opens with the profile list, the web configurator and the settings, as from the profile icon of the status bar
