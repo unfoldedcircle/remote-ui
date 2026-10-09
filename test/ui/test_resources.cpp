@@ -36,6 +36,8 @@ class testResources : public QObject {
     void licenseAnchorBlock_findsHeading();
     void licenseBlocks_code_isText();
     void licenseBlocks_textTable_keepsItsRows();
+    void licenseBlocks_longCode_isSplitAtParagraphs();
+    void licenseBlocks_longCodeParagraph_isSplitAtALine();
 
  private:
     static void writeFile(const QString& path, const QByteArray& content);
@@ -293,6 +295,34 @@ void testResources::licenseBlocks_textTable_keepsItsRows() {
 
     QCOMPARE(blocks, QStringList({"#### License\n\nterms\\:\n\n\\| Main \\| MIT \\|  \n\\| GLX \\| SGI \\|  \n\n"
                                   "In general\\."}));
+}
+
+// A Remote 3 needed 2.8 s to lay out the 138 kB code block of the operating system licenses when it came into view:
+// code is split into blocks of about 2000 characters where a paragraph ends, also at the "." lines of a Debian
+// copyright file, which become paragraph breaks
+void testResources::licenseBlocks_longCode_isSplitAtParagraphs() {
+    const QString     paragraph = QString("word ").repeated(300);  // 1500 characters
+    const QStringList blocks =
+        uc::ui::Resources(QString(), m_legalPath)
+            .licenseBlocks("#### License\n```\n" + paragraph + "\n\n" + paragraph + "\n .\n" + paragraph + "\n```",
+                           true, false);
+
+    QCOMPARE(blocks.size(), 2);
+    QVERIFY(blocks[0].startsWith("#### License"));
+    QCOMPARE(blocks[0].count(paragraph.trimmed()), 2);
+    QCOMPARE(blocks[1], paragraph.trimmed());
+}
+
+// A code paragraph longer than twice the block size is split at a line
+void testResources::licenseBlocks_longCodeParagraph_isSplitAtALine() {
+    const QString     line = QString("word ").repeated(100).trimmed() + "\n";  // 500 characters
+    const QStringList blocks =
+        uc::ui::Resources(QString(), m_legalPath).licenseBlocks("```\n" + line.repeated(12) + "```", true, false);
+
+    QCOMPARE(blocks.size(), 2);
+    for (const QString& block : blocks) {
+        QVERIFY(block.size() <= 4 * 1000 + line.size());
+    }
 }
 
 QTEST_GUILESS_MAIN(testResources)
