@@ -75,6 +75,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The warning that the profile in use cannot be deleted shows its icon again.
 - A software update can be installed with exactly 50 % battery. The screen has always named 50 % as the minimum,
   but the update was refused until the battery was above it.
+- A license opened from the Licenses page in the About settings is formatted when it is a Markdown file, with its
+  lists and tables, instead of showing the Markdown markup. Any other file is shown as plain text, and a long word or
+  table cell wraps instead of running off the screen. Headings, also those of the licenses overview, are bold at the
+  size of the text instead of up to twice as large.
+- BACK and the back arrow on a license opened from the Licenses page return to the license overview, at the link
+  that opened it, instead of leaving the licenses for the About page. A link inside a license can be followed as well
+  and leads back the same way.
+- In the licenses, a link to another license or to a section of the same license is underlined and opens it. Web and
+  mail addresses are shown as text, after the text of their link, instead of as links that did nothing: the remote
+  opens no web pages.
+- The license texts themselves, which the license files hold as code, are shown at the size of the text and flow into
+  paragraphs, instead of in a small typewriter font in lines broken for a wider screen. Code inside a sentence reads
+  as text as well, and a table inside a license text keeps one line per row.
+- The licenses can be opened with the d-pad: DOWN and UP select the links of the overview and of a license one after
+  the other, OK opens the selected one, and BACK returns to it. They could only be opened by touch.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.

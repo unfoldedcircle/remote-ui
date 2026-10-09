@@ -3,6 +3,9 @@
 
 #include "uiController.h"
 
+#include <QGuiApplication>
+#include <QPalette>
+
 #include "../logging.h"
 #include "iconFont.h"
 #include "mediaImageProvider.h"
@@ -74,6 +77,10 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     // make fonts, colors and resources globally available for qml
     m_engine->rootContext()->setContextProperty("fonts", &m_fonts);
     m_engine->rootContext()->setContextProperty("colors", &m_colors);
+    // Markdown text takes the colour of its links from the application palette, not from Text.linkColor
+    QPalette palette = QGuiApplication::palette();
+    palette.setColor(QPalette::Link, m_colors.offwhite);
+    QGuiApplication::setPalette(palette);
     m_engine->rootContext()->setContextProperty("resource", &m_resources);
     MediaImageProvider::install(m_engine);
 

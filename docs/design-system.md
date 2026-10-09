@@ -173,7 +173,10 @@ the proposed mapping and still need confirmation (section 11, Q-1).
     (HOME long press) for the profile icon in the status bar, the page title and the pull-down
     menu.
   - Touch only by design: typing in text and search fields, as the keypad does not operate the
-    on-screen keyboard; links inside legal texts.
+    on-screen keyboard; links inside the Regulatory, Terms & conditions and Warranty texts.
+  - The links of the license documents are walked with DOWN and UP and opened with OK. The selected
+    link is drawn on the `surfaceSelected` fill behind its text: a ring cannot follow a link
+    through the lines of a text.
   - An empty list selects the only target it has (its "Add" sheet, "Join other", the filter
     button), never nothing.
 
