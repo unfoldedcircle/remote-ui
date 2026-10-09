@@ -88,6 +88,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The license texts themselves, which the license files hold as code, are shown at the size of the text and flow into
   paragraphs, instead of in a small typewriter font in lines broken for a wider screen. Code inside a sentence reads
   as text as well, and a table inside a license text keeps one line per row.
+- The licenses can be opened with the d-pad: DOWN and UP select the links of the overview and of a license one after
+  the other, OK opens the selected one, and BACK returns to it. They could only be opened by touch.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.

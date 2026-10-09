@@ -253,7 +253,8 @@ QString linksForTheRemote(const QString& text) {
                                            QRegularExpression::CaseInsensitiveOption);
     static const QRegularExpression autoLink(QStringLiteral(R"(<([a-z][a-z0-9+.-]*:[^\s>]*|[^\s@<>]+@[^\s@<>]+)>)"),
                                              QRegularExpression::CaseInsensitiveOption);
-    static const QRegularExpression htmlSpecial(QStringLiteral("[<>&]"));
+    // a tag or an entity in the label; a "&" on its own, as in "Bang & Olufsen", is text
+    static const QRegularExpression htmlSpecial(QStringLiteral("[<>]|&#?\\w+;"));
 
     QString result;
     int     end = 0;
@@ -407,6 +408,38 @@ int Resources::licenseAnchorBlock(const QStringList& blocks, const QString& anch
         }
     }
     return -1;
+}
+
+namespace {
+// the opening tag licenseBlocks() writes for every link the remote can open
+const QString linkStart = QStringLiteral("<a href=\"");
+}  // namespace
+
+QVariantList Resources::licenseLinks(const QStringList& blocks) const {
+    QVariantList links;
+    for (int block = 0; block < blocks.size(); ++block) {
+        int index = 0;
+        for (int at = blocks[block].indexOf(linkStart); at >= 0; at = blocks[block].indexOf(linkStart, at + 1)) {
+            const int     start = at + linkStart.size();
+            const QString link = blocks[block].mid(start, blocks[block].indexOf('"', start) - start);
+            links.append(QVariantMap{{"block", block},
+                                     {"index", index++},
+                                     {"link", QString(link).replace(QStringLiteral("&quot;"), QStringLiteral("\""))}});
+        }
+    }
+    return links;
+}
+
+QString Resources::licenseBlockWithSelection(const QString& block, int index, const QString& background) const {
+    int at = -1;
+    for (int i = 0; i <= index; ++i) {
+        at = block.indexOf(linkStart, at + 1);
+        if (at < 0) {
+            return block;
+        }
+    }
+    const int end = block.indexOf('>', at);
+    return block.left(end) + QStringLiteral(" style=\"background-color: ") + background + '"' + block.mid(end);
 }
 
 QStringList Resources::getIconList() {

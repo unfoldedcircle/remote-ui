@@ -56,6 +56,17 @@ class Resources : public QObject {
      */
     Q_INVOKABLE int licenseAnchorBlock(const QStringList& blocks, const QString& anchor) const;
 
+    /**
+     * @brief The links of the blocks licenseBlocks() made, in reading order, for the d-pad: each a map of the block,
+     * the link's index within the block and its target.
+     */
+    Q_INVOKABLE QVariantList licenseLinks(const QStringList& blocks) const;
+
+    /**
+     * @brief The block with its link at the given index drawn on the given background, the selection fill.
+     */
+    Q_INVOKABLE QString licenseBlockWithSelection(const QString& block, int index, const QString& background) const;
+
     Q_INVOKABLE QStringList getIconList();
     Q_INVOKABLE QStringList getCustomIconList();
 
