@@ -17,6 +17,8 @@ fixed-pitch font of the system.
 - Only a link the remote can open stays a link, underlined: one to another document of the legal directory or to
   a heading. Web and mail addresses are text, the address after the link text.
 - Code is text: a code block flows into paragraphs of the prose role.
+- The d-pad walks the links: DOWN and UP select them one after the other, OK opens the selected one, and BACK
+  selects it again.
 - `Resources` prepares the blocks instead of the page's QML (ADR 0012), with unit tests (ADR 0009).
 
 ## Capabilities
@@ -27,9 +29,9 @@ None.
 
 ### Modified Capabilities
 
-- `ui-resources`: "Links inside legal documents" leaves the Licenses page to four new requirements: "Linked
-  license documents", "Back from a linked license", "Headings and code on the Licenses page" and "Links on the
-  Licenses page".
+- `ui-resources`: "Links inside legal documents" leaves the Licenses page to five new requirements: "Linked
+  license documents", "Back from a linked license", "Headings and code on the Licenses page", "Links on the
+  Licenses page" and "Links of the Licenses page by d-pad".
 
 ## Impact
 

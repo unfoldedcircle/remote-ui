@@ -74,3 +74,15 @@ In the Markdown of the Licenses page only a link the remote can open SHALL be a 
 #### Scenario: Heading link
 - **WHEN** the user taps "MIT License", a link to `#MIT`, in the crate licenses
 - **THEN** the page shows the block of the first "MIT" heading
+
+### Requirement: Links of the Licenses page by d-pad
+On the Licenses page DPAD_DOWN and DPAD_UP SHALL select the next and the previous link while it is shown or one scroll step away, and scroll by half the page otherwise; OK SHALL open the selected link. The selected link SHALL be drawn on the selection fill while the keypad is in use. BACK from a document opened with OK SHALL select its link again.
+
+#### Scenario: Open a license with the d-pad
+- **WHEN** the user presses DPAD_DOWN three times on the overview and then OK
+- **THEN** the third link of the overview is selected and its document opens
+- **AND** BACK shows the overview with that link selected
+
+#### Scenario: Text without links
+- **WHEN** no link is shown or one scroll step away
+- **THEN** DPAD_DOWN scrolls the page by half its height

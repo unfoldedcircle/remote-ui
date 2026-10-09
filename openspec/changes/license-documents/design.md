@@ -101,6 +101,17 @@ operating system licenses takes 387 ms and preparing them 259 ms, the same as wi
 
 - *Alternative: one block per line, as before this change.* A Markdown table or list would fall apart. Rejected.
 
+### D10 — The d-pad walks the links
+
+`Resources::licenseLinks()` lists the links of the shown document in reading order; DPAD_DOWN and DPAD_UP select
+the next or previous one while it is shown or one scroll step away, and scroll by half the page otherwise, so a text
+without links reads as before. OK opens the selected link; the way back stores the link and selects it again.
+`Resources::licenseBlockWithSelection()` draws the selected link on the `surfaceSelected` fill behind its text; a
+ring cannot follow a link through its lines. `Text` has no API for where a link is: the page looks where
+`linkAt()` finds each link of a block, once per block, to scroll the selected link, not just its block, into view.
+
+- *Alternative: a list of the links next to the text.* It would show the overview twice. Rejected.
+
 ### D9 — A Markdown table becomes compact rows, once a license file has one
 
 Decided from mock-ups of four layouts at 480 x 800: a row becomes its first cell in bold with the version and the
@@ -116,8 +127,9 @@ built: none of the license files the firmware installs has a Markdown table, so 
   firmware's license files has a Markdown table (D9).
 - [A heading link moves within the document and is not a step of the way back] → BACK leaves the document; the
   overview of the document is one d-pad scroll away.
-- [A link label with `<`, `>` or `&`] → stays a Markdown link: Qt inserts an entity inside an HTML anchor out of
-  order. None of the license files has one.
+- [A link label with `<`, `>` or an entity] → stays a Markdown link, which the d-pad does not reach: Qt inserts an
+  entity inside an HTML anchor out of order. None of the license files has one; a plain "&", as in "Bang &
+  Olufsen", is text.
 - [An indented code block outside a fence] → its escaped addresses show a backslash. None of the license files
   has one.
 
