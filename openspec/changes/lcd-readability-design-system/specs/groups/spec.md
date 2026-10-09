@@ -1,5 +1,12 @@
 ## MODIFIED Requirements
 
+### Requirement: Group tile by d-pad
+On a closed selected group DPAD_MIDDLE SHALL toggle the group and a long press SHALL open it (swapped with "Inverted button behavior"). CHANNEL_DOWN opens and CHANNEL_UP closes the selected group. In an open group DPAD_UP / DPAD_DOWN walk the entity rows; past the first or last row the selection leaves the group to the neighbouring tile. On a selected row DPAD_MIDDLE triggers the row's quick action and a long press opens the entity screen.
+
+#### Scenario: Open group selected
+- **WHEN** a group tile becomes the selected tile
+- **THEN** its first row becomes the selected row after 100 ms
+
 ### Requirement: Adding a group
 "Add group" in the page menu SHALL open a two-step dialog. Step 1 "Name your group" (placeholder "All lights", Cancel / Next) sends `add_group` with the name; on success the group is added to the page locally and step 2 "Select entities to add" lists the configured entities with an "Add" button. Adding sends `update_group` with the selected entities, then saves the page item list with `update_page`.
 

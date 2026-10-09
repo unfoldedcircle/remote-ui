@@ -101,7 +101,8 @@ Settings.Page {
                     icon: "uc:wifi"
                 },
                 {
-                    itemTitle: QT_TR_NOOP("Localisation"),
+                    //: Settings page for the language, country, time zone, units and clock format of the remote.
+                    itemTitle: QT_TR_NOOP("Localization"),
                     page: "Localisation",
                     icon: "uc:language"
                 },
