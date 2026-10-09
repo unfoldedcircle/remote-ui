@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   without the computer keyboard.
 - Desktop simulator: the Escape key of the computer keyboard now acts as the BACK button, so a screen can be walked
   with the keyboard alone, without clicking BACK in the button simulator.
+- Help texts, descriptions, release notes and other secondary text, as well as dividers, panels and slider tracks,
+  are drawn in lighter shades. They now stay readable on the Remote 3 display, also in a lit room, and are easier to
+  read on the Remote Two as well.
 
 ### Fixed
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.

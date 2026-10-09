@@ -12,15 +12,15 @@ this change after the migration is merged to `main`, not in a phase pull request
 
 ## 1. Tokens
 
-- [ ] 1.1 `src/ui/colors.cpp`: generate `dark` `#1E1E1E`, `medium` `#2C2C2C`, `light` `#A0A0A0`,
+- [x] 1.1 `src/ui/colors.cpp`: generate `dark` `#1E1E1E`, `medium` `#2C2C2C`, `light` `#A0A0A0`,
       `highlight` `#D0D0D0` and `inactive` `#7A7A7A` for the default base colour
-- [ ] 1.2 `src/ui/colors.{h,cpp}`: add `textPrimary`, `textSecondary`, `textDisabled`, `textOnButton`,
+- [x] 1.2 `src/ui/colors.{h,cpp}`: add `bg`, `textPrimary`, `textSecondary`, `textDisabled`, `textOnButton`,
       `surface`, `surfaceRaised`, `surfaceSelected` (`#595959`), `divider`, `focusRing`, `buttonPrimary`
       and `redPressed`; an old colour under a new name reads the same member
-- [ ] 1.3 Unit test `test/ui/test_design_tokens.cpp`: the token values and the contrast pairs of the
+- [x] 1.3 Unit test `test/ui/test_design_tokens.cpp`: the token values and the contrast pairs of the
       design system (text on black, on the surfaces, on the selection fill, pressed content), registered
       in `test/ui/CMakeLists.txt` with the sources and headers it compiles
-- [ ] 1.4 `CHANGELOG.md`: secondary text, dividers and surfaces are easier to read, above all on the
+- [x] 1.4 `CHANGELOG.md`: secondary text, dividers and surfaces are easier to read, above all on the
       Remote 3
 - [ ] 1.5 Verify on the desktop simulator, then on a Remote Two and a Remote 3 in a lit room
 
