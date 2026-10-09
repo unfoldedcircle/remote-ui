@@ -27,11 +27,15 @@ Activating a link whose target contains `http` SHALL do nothing. The first other
 ## ADDED Requirements
 
 ### Requirement: Linked license documents
-On the Licenses page a linked file whose name ends in `.md` SHALL be shown as Markdown, split into blocks at every heading outside a code block, and any other file as plain text, one block per line. A word or table cell wider than the screen SHALL wrap instead of being cut off. A link of a linked document SHALL be followed like a link of the overview.
+On the Licenses page a linked file whose name ends in `.md` SHALL be shown as Markdown, split into blocks at every heading outside a code block and inside code into blocks of about 2000 characters, where a paragraph ends, and any other file as plain text, one block per line. A word or table cell wider than the screen SHALL wrap instead of being cut off. A link of a linked document SHALL be followed like a link of the overview.
 
 #### Scenario: Markdown license
 - **WHEN** the user taps the link to `web-configurator_licenses.md`
 - **THEN** its table is shown as a table, every cell within the width of the screen, and no Markdown markup is visible
+
+#### Scenario: Long license text
+- **WHEN** the operating system licenses, 1.8 MB with a license text of 138 kB in one code block, are opened
+- **THEN** no block of the page holds more than about 4000 characters
 
 #### Scenario: Text license
 - **WHEN** the user taps a link to `qt/LICENSE.txt`
@@ -46,7 +50,7 @@ On the Licenses page BACK and the back target of the title bar SHALL reopen the 
 - **AND** BACK once more shows the About page
 
 ### Requirement: Headings and code on the Licenses page
-In the Markdown of the Licenses page every heading SHALL be bold at the size of the text, whatever its level, and code, inline or as a block, SHALL be text in the prose role: a code block flows into paragraphs, and nothing inside code is read as Markdown. A row of a text table in code SHALL keep its own line, without the borders of the table.
+In the Markdown of the Licenses page every heading SHALL be bold at the size of the text, whatever its level, and code, inline or as a block, SHALL be text in the prose role: a code block flows into paragraphs, and nothing inside code is read as Markdown. A row of a text table in code SHALL keep its own line, without the borders of the table, and a code line holding only "." SHALL end a paragraph.
 
 #### Scenario: License text in a code block
 - **WHEN** a crate license holds its license text in a fenced code block

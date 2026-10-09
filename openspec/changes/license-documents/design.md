@@ -17,6 +17,10 @@
   link opens the license list of the web configurator, 522 kB without a table. The Mesa license inside the
   operating system licenses holds a text table in a code block. Split at its headings, the largest block of the
   operating system licenses is 146 kB, of the web configurator's 101 kB.
+- Measured on a Remote 3 with a custom build: the list lays out a block when it comes into the view or its cache,
+  about 20 ms per 1000 characters, ten times the desktop. The 138 kB code block of the operating system licenses
+  held the screen for 2.8 s, the 110 kB one of the web configurator for 1.6 s; once laid out, a d-pad step takes
+  about 20 ms. Preparing the 1.8 MB file in C++ takes 266 ms.
 - Qt's Markdown importer sizes a heading by its level, from +3 (`#`, about twice the text) to -2 (`######`), and
   takes the colour of a link from the application palette, ignoring `Text.linkColor`; it does not underline
   links. It draws code in the fixed-pitch font of the system at that font's size and turns bare web and mail
@@ -39,7 +43,7 @@
 
 **Non-Goals:**
 
-- A layout of Markdown tables for the narrow screen (D8): a table keeps its columns, its cells wrap.
+- A layout of Markdown tables for the narrow screen (D9): a table keeps its columns, its cells wrap.
 - The other legal pages (Regulatory, Terms & conditions, Warranty information), which show rich text.
 
 ## Decisions
@@ -86,7 +90,16 @@ notes and the integration setup texts get the link colour the design system alre
 The page keeps the documents opened by links, each with the block that held its link. It is navigation, which
 ADR 0012 leaves to QML.
 
-### D8 — A Markdown table becomes compact rows, once a license file has one
+### D8 — Code in blocks of about 2000 characters
+
+A code block is split into blocks of about 2000 characters where a paragraph ends, at a blank line or a Debian
+"." line, and at a line when a paragraph grows to twice that size. The largest block of the files the overview
+reaches is then 4.5 kB, about 90 ms on a Remote 3. A split inside a paragraph starts a new line; only paragraphs
+longer than 4000 characters have one.
+
+- *Alternative: one block per line, as before this change.* A Markdown table or list would fall apart. Rejected.
+
+### D9 — A Markdown table becomes compact rows, once a license file has one
 
 Decided from mock-ups of four layouts at 480 x 800: a row becomes its first cell in bold with the version and the
 license on its line, then the author and the address, rows separated by a divider ("compact rows"). It is not
@@ -98,7 +111,7 @@ built: none of the license files the firmware installs has a Markdown table, so 
 ## Risks / Trade-offs
 
 - [A table of five columns on 440 px has narrow columns, words break inside] → nothing is cut off; none of the
-  firmware's license files has a Markdown table (D8).
+  firmware's license files has a Markdown table (D9).
 - [A heading link moves within the document and is not a step of the way back] → BACK leaves the document; the
   overview of the document is one d-pad scroll away.
 - [A link label with `<`, `>` or `&`] → stays a Markdown link: Qt inserts an entity inside an HTML anchor out of
@@ -106,7 +119,8 @@ built: none of the license files the firmware installs has a Markdown table, so 
 - [An indented code block outside a fence] → its escaped addresses show a backslash. None of the license files
   has one.
 
-Resource impact: the blocks are prepared once per document in C++; a 519 kB file gives 247 blocks.
+Resource impact: the blocks are prepared once per document in C++, 266 ms for the 1.8 MB operating system licenses
+on a Remote 3; the files the overview reaches give about 3500 blocks, 900 of them the operating system licenses.
 
 ## Migration Plan
 
@@ -116,5 +130,5 @@ Resource impact: the blocks are prepared once per document in C++; a 519 kB file
 
 ## Open Questions
 
-- Does the largest block, 146 kB of the operating system licenses, hold up the scrolling on a device? Measured
-  with a custom build; if it does, a code block is split into one block per paragraph.
+- Does scrolling through the operating system licenses stay smooth on a Remote 3 with blocks of about 2000
+  characters (D9)? To be measured with the custom build again.
