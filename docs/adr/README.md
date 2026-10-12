@@ -46,4 +46,4 @@ what is currently in force. See [docs/workflow.md](../workflow.md) and
 | [0017](0017-the-latest-request-wins-late-answers-are-dropped.md) | The latest request wins: an answer to a superseded request is dropped | Accepted |
 | [0018](0018-the-ui-tolerates-core-api-values-it-does-not-know.md) | The UI tolerates Core-API values it does not know | Accepted |
 | [0019](0019-the-design-system-owns-colours-type-and-selection.md) | The design system owns colours, text styles and the selection look; one palette for both remotes | Accepted |
-| [0020](0020-two-selection-styles-fill-on-the-main-ui-ring-in-settings.md) | Two selection styles: a fill on the main UI, a ring in settings | Accepted |
+| [0020](0020-two-selection-styles-fill-in-menu-lists-ring-on-setting-screens.md) | Two selection styles: a fill in menu lists, a ring on setting screens | Accepted |

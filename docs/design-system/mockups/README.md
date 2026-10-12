@@ -4,8 +4,8 @@ Five screens as the remote-ui draws them today (current) and under the [design s
 (proposed), plus a sheet with the colour tokens, type roles and selection states. The current screens are drawn
 from the values in the QML sources at release v0.82.1; the [audit](../audit.md) explains the findings behind them.
 
-The proposed screens include the designer's revision of 2026-10-07. The selected fill on the main UI is the
-provisional #595959 (open question Q-3 in the design system).
+The proposed screens include the designer's revision of 2026-10-07. The selected fill is #595959,
+decided for now (Q-3 in the design system).
 
 Each mockup is a PNG for reading here and a standalone HTML file under [src/](src) for changing it. The HTML
 files need nothing but the Poppins and Space Mono fonts installed locally ([install guide](../../install.md#fonts)).

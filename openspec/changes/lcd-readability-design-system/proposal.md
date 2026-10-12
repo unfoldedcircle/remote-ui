@@ -18,12 +18,12 @@ The work runs in six phases, one pull request each, in this order:
 1. **Tokens:** the palette moves to the accepted values, chosen against a raised black, so
    secondary text, surfaces, dividers and tracks become readable on both panels at once. The new
    token names are added next to the old ones.
-2. **Selection:** one selection component replaces the seven renderings. The main UI (tiles, popup
-   menus, page selector, profile switcher), the menus of the profile page, Settings and About and
-   the picker lists mark the selection with a lighter fill; the rest of settings and the set-up
-   flows mark it with a 3 px ring around the row or on the control. Every selection follows the
-   keypad-active state, except the page selector's current page and a picker list's current value,
-   which keep the fill after a touch.
+2. **Selection:** one selection component replaces the seven renderings. Menu-like lists (tiles,
+   popup menus, page selector, profile switcher, the menus of the profile page, Settings and About,
+   the picker lists) mark the selection with a lighter fill; setting screens with switches, sliders
+   or fields and the set-up steps mark it with a 3 px ring around the row or on the control. Every
+   selection follows the keypad-active state, except the page selector's current page and a picker
+   list's current value, which keep the fill after a touch.
 3. **Type roles:** help text and prose move from Space Mono to Poppins; Space Mono stays the face
    for values. Nothing is drawn below 22 px.
 4. **Structure:** shared title bar, setting row, menu row, key/value row, form dialog, bottom sheet
@@ -63,5 +63,6 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
   for the token and type-role floors.
 - **Docs:** `docs/design-system.md` stays the reference; `docs/key-navigation.md` names the
   selection component; two new ADRs (0019, 0020).
-- **Open questions:** Q-1 to Q-4 in `docs/design-system.md` section 11 and Q-5 in `design.md`. Q-3,
-  the provisional `#595959` fill, needs a check on both remotes during phase 2.
+- **Open questions:** Q-1 to Q-4 in `docs/design-system.md` section 11 and Q-5 in `design.md`. Q-1
+  to Q-3 are decided; the `#595959` fill of Q-3 stays for now and the checks on both remotes may
+  still adjust it in the design system.

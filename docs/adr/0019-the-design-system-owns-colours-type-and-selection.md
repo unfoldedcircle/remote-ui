@@ -6,7 +6,7 @@
 | **Supersedes** | — (none)                                                                                          |
 | **Date**       | 2026-10-07                                                                                        |
 | **Deciders**   | Markus Zehnder; design review by the project designer                                             |
-| **Related**    | [docs/design-system.md](../design-system.md), [0008](0008-remote-two-and-remote-3-with-feature-parity.md), `openspec/specs/platform-constraints` "Legibility" |
+| **Related**    | [docs/design-system.md](../design-system.md), [0008](0008-remote-two-and-remote-3-with-feature-parity.md), [0020](0020-two-selection-styles-fill-in-menu-lists-ring-on-setting-screens.md), `openspec/specs/platform-constraints` "Legibility" |
 
 ## Context
 
@@ -19,9 +19,10 @@ sizes were chosen per screen: QML passes a pixel size at every font call, derive
 
 ## Decision
 
-- **`docs/design-system.md` is the authority** for colours, type roles, the selection look and the
-  layout rules of every on-device screen. A screen that needs something the design system does not
-  have adds it to the design system first, reviewed by the designer.
+- **`docs/design-system.md` is the authority** for colours, type roles, the selection look, which
+  screens take which selection style (ADR 0020), and the layout rules of every on-device screen. A
+  screen that needs something the design system does not have adds it to the design system first,
+  reviewed by the designer.
 - **`Colors` and `Fonts` expose the design system's tokens and type roles.** QML takes every colour
   and text style from them: no literal colours, no `Qt.lighter` / `Qt.darker`, no pixel sizes at
   the call site, and no opacity to de-emphasise text.

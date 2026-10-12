@@ -83,8 +83,8 @@ they touch them.
 `Components.Selectable` draws the selection of its parent: `style: "fill"` (the `surfaceSelected`
 fill, no ring) or `style: "ring"` (a 3 px `focusRing`, no fill), visible only while `selected &&
 ui.keyNavigationActive`. The host passes `selected` (`ListView.isCurrentItem`, `activeFocus` or its
-page state) and the style of its layer (ADR 0020). It handles no keys and moves no focus, so the
-idiom of every screen stays as it is (ADR 0007). `Button`, `Switch`, `Checkbox`, `Slider` and
+page state) and the style of its kind of screen (ADR 0020). It handles no keys and moves no focus,
+so the idiom of every screen stays as it is (ADR 0007). `Button`, `Switch`, `Checkbox`, `Slider` and
 `InputField` use it in ring style instead of their own borders; `RowHighlight` and the inline
 selection rectangles are replaced. On a fill, a delegate switches its secondary text to
 `textPrimary`.
@@ -127,8 +127,8 @@ Failure Mode Analysis (phases 2, 4 and 5 touch input ownership and keyboard focu
   the registration is an explicit task per phase, and every screen of the phase is opened.
 - [Lighter surfaces lower the contrast of text drawn on them] → `textPrimary` on `#1E1E1E` is
   10.8:1 and `textSecondary` on `#2C2C2C` 5.3:1; the phase 1 unit test asserts the pairs.
-- [The `#595959` fill looks too heavy, or still too weak, on a device] → Q-3: checked on both
-  remotes in phase 2 before the fill style is rolled out beyond the home page and popup menus.
+- [The `#595959` fill looks too heavy, or still too weak, on a device] → Q-3: decided for now;
+  the checks on both remotes may still adjust it in the design system.
 - [German or French text no longer fits at 26 px help text, or on the 800 px Remote 3] → phase 3
   checks the longest translations per screen at 800 px height.
 - [Old and new token names drift apart] → both names read the same member; phase 6 removes the old
@@ -145,7 +145,7 @@ profiling.
 1. **Tokens.** Verification: desktop simulator for the screens, then both remotes in a lit room for
    the readability of secondary text, because the LCD effect does not show on a desktop monitor.
 2. **Selection.** Verification: keypad walk on the desktop with `UC_MODEL=UCR2` (single window),
-   then both remotes, which also answers Q-3.
+   then both remotes, which may still adjust the fill of Q-3.
 3. **Type roles.** Verification: desktop simulator in German and French, then both remotes.
 4. **Structure,** per screen family. Verification: keypad walk of each family on the desktop and a
    pass on both remotes.
@@ -159,7 +159,7 @@ happens after the migration is merged to `main`.
 ## Open Questions
 
 - Q-1 to Q-4: in `docs/design-system.md`, section 11 (fill or ring beyond the mockups, ring colour,
-  the provisional fill on devices, black bottom sheets).
+  the fill on devices, black bottom sheets). Q-1 to Q-3 are decided.
 - Q-5: the look of a held element while it is reordered (page tiles, group rows, page selector),
   today a 2 px border that turns `highlight` when held. Proposed: the ring marks the held element,
   the fill marks the selection, so a held tile is the one exception that shows both while it moves.
