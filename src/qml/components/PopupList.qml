@@ -352,9 +352,13 @@ Rectangle {
                 onClicked: {
                     itemList.currentIndex = index;
                     itemList.positionViewAtIndex(index, ListView.Beginning);
+                    // a handler may rebuild the list ("All timezones…"), which destroys this row while
+                    // its handler still runs: take what is needed from the row before the signal
+                    const list = popupList;
+                    const close = closeOnSelected;
                     itemSelected(value);
-                    if (closeOnSelected) {
-                        popupList.state = "hidden";
+                    if (close) {
+                        list.state = "hidden";
                     }
                 }
             }
