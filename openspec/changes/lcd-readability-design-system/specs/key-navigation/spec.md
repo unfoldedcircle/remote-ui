@@ -1,11 +1,11 @@
 ## MODIFIED Requirements
 
 ### Requirement: Keypad-active state and selection rendering
-The keypad SHALL be considered active from the first mapped key press until the next touch (mouse press or touch begin) on the window. `ui.keyNavigationActive` SHALL be `keyNavigationEnabled && keypadActive`; `keyNavigationEnabled` is a per-model constant and is true for Remote Two, Remote 3, YIO1 and desktop (DEV). Every selection highlight SHALL bind to `ui.keyNavigationActive`, never to `keyNavigationEnabled`; the one exception is the current page of the page selector (`pages`).
+The keypad SHALL be considered active from the first mapped key press until the next touch (mouse press or touch begin) on the window. `ui.keyNavigationActive` SHALL be `keyNavigationEnabled && keypadActive`; `keyNavigationEnabled` is a per-model constant and is true for Remote Two, Remote 3, YIO1 and desktop (DEV). Every selection highlight SHALL bind to `ui.keyNavigationActive`, never to `keyNavigationEnabled`, except the fills of "Current choice after a touch".
 
 #### Scenario: Screen opened by touch
 - **WHEN** a screen is opened by tapping
-- **THEN** no selection is drawn, even though a control may hold the focus; only the page selector shows its current page filled
+- **THEN** no selection is drawn, even though a control may hold the focus; only a current choice is filled ("Current choice after a touch")
 
 #### Scenario: First d-pad press
 - **WHEN** any physical button is pressed
@@ -78,3 +78,14 @@ A new keypad-navigable screen SHALL draw its selection with the shared selection
 #### Scenario: Selection of a new settings page
 - **WHEN** a new settings page draws the selection of its rows and controls
 - **THEN** it uses the shared selection component with the ring style of settings
+
+### Requirement: Current choice after a touch
+While the keypad is not active, two lists SHALL keep the selection fill on their current choice, so it is seen after a touch: the page selector on the page that is shown (`pages`), and a picker list on its current value, next to its check mark. Once the keypad is active the fill SHALL follow the selection, so one row is filled at a time.
+
+#### Scenario: Picker list opened by touch
+- **WHEN** a picker list, such as the language list of the onboarding, is opened by touch
+- **THEN** the row of the current value is filled and shows its check mark
+
+#### Scenario: Picker list after a d-pad press
+- **WHEN** the d-pad moves the selection to another row of the picker list
+- **THEN** that row is filled, and the current value keeps only its check mark until the next touch

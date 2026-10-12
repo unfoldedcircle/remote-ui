@@ -203,3 +203,7 @@ this change after the migration is merged to `main`, not in a phase pull request
       "Current page in the page selector" describes
 - [x] 6.9 The `onboarding` delta adds "Finish step taller than the screen" for the scroll indicator
       of task 4.11
+- [x] 6.10 The current value of a picker list keeps the fill after a touch (task 4.12): the new
+      `key-navigation` requirement "Current choice after a touch" names both exceptions,
+      "Keypad-active state and selection rendering" points at it, and the `pages` requirement
+      "Current page in the page selector" refers to it

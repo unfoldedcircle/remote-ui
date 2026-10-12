@@ -55,7 +55,7 @@ A long press on HOME on the no-page screen SHALL open a menu titled with the pro
 - **THEN** the profile page opens with the profile list, the web configurator and the settings, as from the profile icon of the status bar
 
 ### Requirement: Current page in the page selector
-The page selector SHALL show its current page with the selection fill also when it is opened by touch, so the user sees which page is shown. It is the one selection that does not wait for the keypad.
+The page selector SHALL show its current page with the selection fill also when it is opened by touch, so the user sees which page is shown. Like the current value of a picker list, it does not wait for the keypad (`key-navigation` "Current choice after a touch").
 
 #### Scenario: Page selector opened by touch
 - **WHEN** the page title is tapped
