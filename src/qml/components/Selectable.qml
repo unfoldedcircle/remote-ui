@@ -9,13 +9,16 @@ import QtQuick 2.15
 //
 // - style "ring": a 3 px ring and no fill, for settings, set-up flows and buttons everywhere
 // - style "fill": the selection fill and no ring, for the main UI (tiles, popup menus, page selector, profile
-//   switcher); everything drawn on the fill uses colors.textPrimary
+//   switcher) and the menus of the profile page, Settings and About; everything drawn on the fill uses
+//   colors.textPrimary
 Rectangle {
     // true while the parent is the selected element; drawn only while the keypad is active
     property bool selected: false
     property string style: "ring"
+    // drawn after a touch as well; only the page selector's current page (docs/design-system.md section 6)
+    property bool shownAfterTouch: false
 
-    readonly property bool shown: selected && ui.keyNavigationActive
+    readonly property bool shown: selected && (ui.keyNavigationActive || shownAfterTouch)
 
     anchors.fill: parent
     radius: ui.cornerRadiusSmall

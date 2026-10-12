@@ -134,6 +134,7 @@ Settings.Page {
             icon: menu.model[index].icon
             text: qsTr(menu.model[index].itemTitle)
             chevron: true
+            selectionStyle: "fill"
             selected: ListView.isCurrentItem
 
             onClicked: {

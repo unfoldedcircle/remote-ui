@@ -756,6 +756,7 @@ Item {
             visible: pos === 6 || !ui.profile.restricted
             text: qsTr(name)
             chevron: true
+            selectionStyle: "fill"
             selected: ListView.isCurrentItem && profileRoot.headerSelection < 0
             badge: {
                 switch (pos) {

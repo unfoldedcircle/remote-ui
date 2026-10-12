@@ -93,6 +93,12 @@ this change after the migration is merged to `main`, not in a phase pull request
       configurator, icon selector, Wi-Fi network list, software update, the profile header (PIN
       and QR code rows), the entity list filter, `ButtonAdd`. The held states of `Page.qml`,
       `GroupEdit.qml` and `PageSelector.qml` show the ring on top of the fill (Q-5)
+- [x] 4.10 After a review of phases 2 and 4: the menus of the profile page (`Profile.qml`,
+      `SettingsNew.qml`), Settings and About take the fill. The page selector's rows are 150 px with
+      the page name centred in `fonts.display(56)`, up to two lines, in both modes, inset by 8 px;
+      its current page keeps the fill after a touch (`Selectable.shownAfterTouch`). Desktop at
+      800 px (`UC_MODEL=DEV`): the three menus by key, the page selector opened by touch, by key, in
+      the edit mode and with a held page
 
 ## 5. Reachability
 

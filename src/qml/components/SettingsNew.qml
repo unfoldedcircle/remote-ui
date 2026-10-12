@@ -363,6 +363,7 @@ Item {
             visible: pos === 6 || !ui.profile.restricted
             text: qsTr(name)
             chevron: true
+            selectionStyle: "fill"
             selected: ListView.isCurrentItem
             badgeAlert: pos === 0
             badge: {

@@ -34,7 +34,8 @@ Item {
     property bool checked: false
 
     property bool selected: false
-    // "ring" in settings and set-up flows, "fill" on the main UI (popup menus)
+    // "ring" in settings and set-up flows, "fill" on the main UI (popup menus) and in the menus of the profile page,
+    // Settings and About
     property string selectionStyle: "ring"
     // popup menu rows use the smaller menu row role
     property bool popup: false

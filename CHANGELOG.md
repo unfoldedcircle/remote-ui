@@ -18,10 +18,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are drawn in lighter shades. They now stay readable on the Remote 3 display, also in a lit room, and are easier to
   read on the Remote Two as well.
 - The d-pad selection is visible on every screen, also on the Remote 3. On the main pages, in popup menus, the page
-  selector, the profile switcher and the activity menu the selected entry gets a lighter background. In settings and
-  set-up screens it gets a bright frame, on a setting's switch or slider rather than around the whole setting. The
-  selection is only shown while the d-pad is in use and disappears when the screen is touched, now also on tiles,
-  in groups and in the media browser.
+  selector, the profile switcher, the activity menu and the menus of the profile page, Settings and About the
+  selected entry gets a lighter background. In the other settings and set-up screens it gets a bright frame, on a
+  setting's switch or slider rather than around the whole setting. The selection is only shown while the d-pad is in
+  use and disappears when the screen is touched, now also on tiles, in groups and in the media browser. The page
+  selector is the exception: it always shows the current page with the lighter background, and its page names are
+  slightly larger.
 - Help texts, release notes, legal texts and driver instructions are easier to read: they use the same typeface as
   the rest of the interface instead of a typewriter font, in a larger size and with more line spacing. The typewriter
   font is kept for values such as versions, addresses, times and the web configurator PIN and URL. No text is smaller

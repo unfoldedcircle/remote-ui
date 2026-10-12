@@ -256,6 +256,9 @@ first physical key press and false on the next touch (mouse press / touch begin 
 - a screen opened by touch shows no selection (no preselected button, no selected PIN digit),
 - the selection appears with the first d-pad press and disappears again with the next touch.
 
+The page selector is the one exception: its current page keeps the fill after a touch
+(`shownAfterTouch: true` on its `Selectable`), to mark which page is shown.
+
 Use it for any new highlight; do not use `ui.keyNavigationEnabled` for rendering.
 
 Draw the selection with `Components.Selectable`, not with a rectangle of your own. It fills its
@@ -272,8 +275,9 @@ Components.Selectable {
 The style follows the screen's layer (`docs/design-system.md` section 6, ADR 0020):
 
 - **Fill** (`surfaceSelected`) on the main UI: entity and group tiles, popup menu rows, page selector
-  and profile switcher rows, the activity menu. Everything on the fill is drawn in `textPrimary`;
-  bind secondary text to `selection.shown ? colors.textPrimary : …`.
+  and profile switcher rows, the activity menu; in settings the menus of the profile page, Settings
+  and About (`MenuRow` with `selectionStyle: "fill"`). Everything on the fill is drawn in
+  `textPrimary`; bind secondary text to `selection.shown ? colors.textPrimary : …`.
 - **Ring** (3 px `focusRing`) in settings and set-up flows and on buttons everywhere: around a row
   that OK activates as a whole, on the control of a setting with a switch, slider or field. The
   shared controls (`Button`, `Switch`, `Checkbox`, `Slider`, `InputField`, `SearchField`, the

@@ -150,6 +150,7 @@ Settings.Page {
                     width: ListView.view.width
                     text: modelData.itemTitle
                     chevron: true
+                    selectionStyle: "fill"
                     selected: ListView.isCurrentItem
 
                     onClicked: {

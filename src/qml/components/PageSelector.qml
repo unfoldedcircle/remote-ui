@@ -344,8 +344,8 @@ Rectangle {
         MouseArea {
             id: dragArea
             width: ui.width
-            // one-line rows, taller only while the rows can be reordered (docs/design-system.md section 5)
-            height: roomSelector.editMode ? 150 : 80
+            // the page name in the display role, up to two lines (docs/design-system.md section 5)
+            height: 150
             enabled: editMode
             pressAndHoldInterval: 200
 
@@ -547,17 +547,22 @@ Rectangle {
                     }
                 }
 
+                // the current page is filled after a touch as well, to mark the page that is shown
                 Components.Selectable {
+                    id: pageSelection
+                    anchors { leftMargin: 8; rightMargin: 8 }
                     style: "fill"
                     selected: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected
+                    shownAfterTouch: true
                 }
 
                 // the ring marks the page held for reordering, on top of the fill of the selection (Q-5)
                 Components.Selectable {
+                    anchors { leftMargin: 8; rightMargin: 8 }
                     selected: dragArea.keypadHeld
                 }
 
-                // rows are left-aligned in the label role like every other list (docs/design-system.md, I-20)
+                // centred in the display role, unlike other lists (docs/design-system.md, I-20)
                 Text {
                     id: titleText
                     color: colors.textPrimary
@@ -565,13 +570,13 @@ Rectangle {
                     width: parent.width - (editMode ? 180 : 40)
                     wrapMode: Text.WordWrap
                     elide: Text.ElideRight
-                    maximumLineCount: roomSelector.editMode ? 2 : 1
-                    verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignLeft
-                    // after the rename icon of the edit mode
-                    anchors { verticalCenter: parent.verticalCenter; left: parent.left; leftMargin: (roomSelector.editMode ? 100 : 20) - (deleteOpen ? 80 : 0) }
-                    font: fonts.label()
+                    maximumLineCount: 2
+                    verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
+                    anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter; horizontalCenterOffset: deleteOpen ? -80 : 0 }
+                    font: fonts.display(56)
+                    lineHeight: 0.8
 
-                    Behavior on anchors.leftMargin {
+                    Behavior on anchors.horizontalCenterOffset {
                         NumberAnimation { easing.type: Easing.OutExpo; duration: 300 }
                     }
 
@@ -579,7 +584,7 @@ Rectangle {
 
                 Components.Icon {
                     id: moveIcon
-                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected && ui.keyNavigationActive ? colors.textPrimary : colors.textSecondary
+                    color: pageSelection.shown ? colors.textPrimary : colors.textSecondary
                     opacity: editMode ? 1 : 0
                     icon: "uc:bars"
                     anchors { right: parent.right; verticalCenter: parent.verticalCenter }
@@ -591,7 +596,7 @@ Rectangle {
                 }
 
                 Components.Icon {
-                    color: index === containerMain.item.pages.currentIndex && !roomSelector.footerSelected && ui.keyNavigationActive ? colors.textPrimary : colors.textSecondary
+                    color: pageSelection.shown ? colors.textPrimary : colors.textSecondary
                     visible: !deleteOpen
                     opacity: editMode ? deleteOpen ? 0 : 1 : 0
                     icon: "uc:pen-to-square"
