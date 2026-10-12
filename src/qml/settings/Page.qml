@@ -55,7 +55,11 @@ Item {
     Components.TitleBar {
         id: topNavigation
         anchors.top: parent.top
-        goBack: profileRoot.goBack
+        // resolved when called: a page shown outside the profile page, such as the terms in the onboarding,
+        // has no profileRoot and replaces the back action
+        goBack: function() {
+            profileRoot.goBack();
+        }
     }
 
     // the one scroll indicator of a scrolling page (docs/design-system.md section 5), for the page's scrollTarget
