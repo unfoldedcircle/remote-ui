@@ -9,8 +9,8 @@ import QtQuick 2.15
 //
 // - style "ring": a 3 px ring and no fill, for settings, set-up flows and buttons everywhere
 // - style "fill": the selection fill and no ring, for the main UI (tiles, popup menus, page selector, profile
-//   switcher) and the menus of the profile page, Settings and About; everything drawn on the fill uses
-//   colors.textPrimary
+//   switcher), the menus of the profile page, Settings and About and the picker lists; everything drawn on
+//   the fill uses colors.textPrimary
 Rectangle {
     // true while the parent is the selected element; drawn only while the keypad is active
     property bool selected: false

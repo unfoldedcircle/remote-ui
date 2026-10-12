@@ -293,7 +293,9 @@ Rectangle {
             property bool hasRightText: model.rightText !== undefined && model.rightText !== ""
 
             Components.Selectable {
+                id: selection
                 selected: listItemBg.isCurrentItem
+                style: "fill"
                 anchors { leftMargin: 8; rightMargin: 8 }
             }
 
@@ -315,7 +317,7 @@ Rectangle {
             Text {
                 id: secondaryText
                 visible: listItemBg.hasSecondary
-                color: colors.textSecondary
+                color: selection.shown ? colors.textPrimary : colors.textSecondary
                 text: listItemBg.hasSecondary ? model.secondary : ""
                 width: listItemText.width
                 elide: Text.ElideRight
