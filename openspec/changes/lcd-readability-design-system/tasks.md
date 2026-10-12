@@ -196,7 +196,10 @@ this change after the migration is merged to `main`, not in a phase pull request
       focused control into view") and the tip text in the help role (`help-overlay` "Overlay
       presentation")
 - [x] 6.8 The spec deltas follow the review of task 4.10: `key-navigation` "Selection fill on the
-      main UI" adds the menus of the profile page, Settings and About, "Selection ring in settings
-      and on buttons" leaves them out and takes a picker list as its example, and "Keypad-active
-      state and selection rendering" names the page selector's exception, which the new `pages`
-      requirement "Current page in the page selector" describes
+      main UI" adds the menus of the profile page, Settings and About and the picker lists, with a
+      picker list as a second example, "Selection ring in settings and on buttons" leaves them out
+      and takes a row of the Localization page as its example, and "Keypad-active state and
+      selection rendering" names the page selector's exception, which the new `pages` requirement
+      "Current page in the page selector" describes
+- [x] 6.9 The `onboarding` delta adds "Finish step taller than the screen" for the scroll indicator
+      of task 4.11

@@ -46,13 +46,14 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 
 - `platform-constraints`: "Legibility" points at the accepted design system with one palette for
   both models; the new "Legibility floors" states the floors every screen keeps.
-- `key-navigation`: new requirements describe the two selection styles ("Selection fill on the
-  main UI", "Selection ring in settings and on buttons", "One selection style per element") and
-  require the style of its layer from a new screen ("Selection of a new screen"); "Keypad-active
-  state and selection rendering" and the developer contract only update their scenarios. After a
-  review of phases 2 and 4 the fill also covers the menus of the profile page, Settings and About,
-  and the page selector keeps its current page filled after a touch, the exception "Keypad-active
-  state and selection rendering" names (`pages`: "Current page in the page selector").
+- `key-navigation`: new requirements describe the two selection styles ("Selection fill on the main
+  UI", "Selection ring in settings and on buttons", "One selection style per element") and require
+  the style of its layer from a new screen ("Selection of a new screen"); "Keypad-active state and
+  selection rendering" and the developer contract only update their scenarios. After a review of
+  phases 2 and 4 the fill also covers the menus of the profile page, Settings and About and the
+  picker lists, and the page selector keeps its current page filled after a touch, the exception
+  "Keypad-active state and selection rendering" names (`pages`: "Current page in the page
+  selector").
 - `activities`: "Activity menu and included entities" draws its selection in the fill style and
   follows the keypad-active state instead of a flag of its own (phase 2).
 - Phase 5 makes controls reachable on screens owned by other capabilities and rewords their
@@ -67,7 +68,8 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
   - `entity-management`: the filter sheet's Clear and Done are reachable; an empty list selects the
     filter button.
   - `onboarding`, `help-overlay`, `core-connection`: the Finish address, the tips' Close and the
-    connection status list; reworded hints.
+    connection status list; reworded hints. The Finish step shows its scroll indicator when it is
+    taller than the screen (`onboarding` "Finish step taller than the screen").
   - `groups`, `notifications`: the reworded "Select entities" text.
 - `notifications`: "Actionable notification presentation" also records the look phases 3 and 4 gave
   the actionable notification: the action and "Cancel" as buttons, the message in the prose role and

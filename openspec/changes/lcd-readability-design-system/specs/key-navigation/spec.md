@@ -40,7 +40,7 @@ A page MAY point `scrollTarget` at its Flickable. Whenever the window focus chan
 ## ADDED Requirements
 
 ### Requirement: Selection fill on the main UI
-On the main UI (entity and group tiles, popup menus, the page selector, the profile switcher) and in the menus of the profile page, Settings and About, the selected tile or row SHALL be filled with the selection fill of the design system, without a ring, and everything on the fill SHALL be drawn in the primary text colour.
+On the main UI (entity and group tiles, popup menus, the page selector, the profile switcher) in the menus of the profile page, Settings and About and in the picker lists, the selected tile or row SHALL be filled with the selection fill of the design system, without a ring, and everything on the fill SHALL be drawn in the primary text colour.
 
 #### Scenario: Selected tile on the main page
 - **WHEN** the d-pad moves to an entity tile on a page
@@ -50,11 +50,15 @@ On the main UI (entity and group tiles, popup menus, the page selector, the prof
 - **WHEN** the d-pad moves to a row of the Settings menu
 - **THEN** the row is filled with the selection fill, shows no ring, and its icon, label and chevron are drawn in the primary text colour
 
-### Requirement: Selection ring in settings and on buttons
-In settings and set-up flows, apart from the menus of the profile page, Settings and About, and on buttons everywhere, the selected element SHALL get a 3 px ring in the ring colour of the design system, without a fill: around a row that is activated as a whole, on the control of a setting that holds a switch, slider or field.
-
 #### Scenario: Selected row of a picker list
-- **WHEN** the d-pad moves to a row of a picker list, such as the language list
+- **WHEN** the d-pad moves to a row of a picker list, such as the time zone list of the onboarding
+- **THEN** the row is filled with the selection fill, shows no ring, and its name, second line and check mark are drawn in the primary text colour
+
+### Requirement: Selection ring in settings and on buttons
+In settings and set-up flows, apart from the menus of the profile page, Settings and About and the picker lists, and on buttons everywhere, the selected element SHALL get a 3 px ring in the ring colour of the design system, without a fill: around a row that is activated as a whole, on the control of a setting that holds a switch, slider or field.
+
+#### Scenario: Selected row of a settings page
+- **WHEN** the d-pad moves to the Language row of the Localization page
 - **THEN** a 3 px ring is drawn around the row and the row has no fill
 
 #### Scenario: Selected setting with a switch
