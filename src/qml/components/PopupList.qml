@@ -292,9 +292,12 @@ Rectangle {
             property bool hasSecondary: model.secondary !== undefined && model.secondary !== ""
             property bool hasRightText: model.rightText !== undefined && model.rightText !== ""
 
+            // with the keypad the fill follows the selection; without it, it marks the current value next to
+            // its check mark (docs/design-system.md section 6)
             Components.Selectable {
                 id: selection
-                selected: listItemBg.isCurrentItem
+                selected: ui.keyNavigationActive ? listItemBg.isCurrentItem : checkIcon.visible
+                shownAfterTouch: true
                 style: "fill"
                 anchors { leftMargin: 8; rightMargin: 8 }
             }

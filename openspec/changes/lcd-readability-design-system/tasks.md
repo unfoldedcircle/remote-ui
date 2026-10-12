@@ -105,6 +105,10 @@ this change after the migration is merged to `main`, not in a phase pull request
       the web configurator on, its Done button is below the screen. Desktop at 800 px
       (`UC_MODEL=DEV`) in the onboarding: the indicator shows with the web configurator on and
       hides with it off
+- [x] 4.12 After a review: a picker list (`PopupList`) fills the row of its current value while the
+      keypad is not active, next to its check mark; with the keypad the fill follows the selection,
+      so one row is filled at a time. Desktop at 850 px (`UC_MODEL=DEV`): the onboarding language
+      list and the settings' timezone picker, opened by touch and by key
 
 ## 5. Reachability
 

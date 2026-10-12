@@ -15,7 +15,8 @@ Rectangle {
     // true while the parent is the selected element; drawn only while the keypad is active
     property bool selected: false
     property string style: "ring"
-    // drawn after a touch as well; only the page selector's current page (docs/design-system.md section 6)
+    // drawn after a touch as well: the page selector's current page and a picker list's current value
+    // (docs/design-system.md section 6)
     property bool shownAfterTouch: false
 
     readonly property bool shown: selected && (ui.keyNavigationActive || shownAfterTouch)

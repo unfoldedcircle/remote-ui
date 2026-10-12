@@ -256,8 +256,9 @@ first physical key press and false on the next touch (mouse press / touch begin 
 - a screen opened by touch shows no selection (no preselected button, no selected PIN digit),
 - the selection appears with the first d-pad press and disappears again with the next touch.
 
-The page selector is the one exception: its current page keeps the fill after a touch
-(`shownAfterTouch: true` on its `Selectable`), to mark which page is shown.
+Two exceptions keep the fill after a touch, to mark the current choice (`shownAfterTouch: true` on
+their `Selectable`): the page selector's current page, and the current value of a picker list
+(`PopupList`), whose fill follows the selection again once the keypad is active.
 
 Use it for any new highlight; do not use `ui.keyNavigationEnabled` for rendering.
 

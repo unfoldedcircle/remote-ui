@@ -22,8 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   choices, such as language, country and time zone, the selected entry gets a lighter background. In the other settings
   and set-up screens it gets a bright frame, on a setting's switch or slider rather than around the whole setting. The
   selection is only shown while the d-pad is in use and disappears when the screen is touched, now also on tiles, in
-  groups and in the media browser. The page selector is the exception: it always shows the current page with the lighter
-  background, and its page names are slightly larger.
+  groups and in the media browser. The page selector and the lists of choices are the exception: while the d-pad is not
+  in use they show the current page or the current choice with the lighter background, not only with a check mark. The
+  page names in the page selector are slightly larger.
 - Help texts, release notes, legal texts and driver instructions are easier to read: they use the same typeface as
   the rest of the interface instead of a typewriter font, in a larger size and with more line spacing. The typewriter
   font is kept for values such as versions, addresses, times and the web configurator PIN and URL. No text is smaller
