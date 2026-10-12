@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Profile menu, proposed</title>
+  <style>
+    body { margin: 0; background: #000000; }
+    a { color: #C8C8C8; } a:hover { color: #FFFFFF; }
+    * { box-sizing: border-box; }
+    .label-lcd { display: none; }
+    html.lcd .label-lcd { display: inline; }
+    html.lcd .label-oled { display: none; }
+    html.lcd .panel { filter: contrast(0.86) brightness(1.02); }
+  </style>
+  <script>if (/[?&]lcd\b/.test(location.search)) document.documentElement.classList.add('lcd');</script>
+</head>
+<body>
+<div style="width: 480px; display: flex; flex-direction: column; gap: 0; background: #000000;">
+  <div style="height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #0B0B0B; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; color: #9A9A9A;">
+    <span style="font-weight: 500; color: #D0D0D0;">Profile menu · proposed</span>
+    <span class="label-oled">OLED (Remote Two): true black</span><span class="label-lcd">LCD simulation (Remote 3): raised black, softer white</span>
+  </div>
+  <div class="panel" style="background: #000000;">
+<div style="width: 480px; height: 850px; position: relative; overflow: hidden; background: #000000; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; color: #D0D0D0; display: flex; flex-direction: column;">
+<div style="height: 80px; flex: none; display: flex; align-items: center; position: relative;">
+<div style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
+<div style="position: absolute; left: 80px; right: 80px; text-align: center; font-size: 28px; font-weight: 500; color: #D0D0D0;"></div>
+<div style="width: 80px; height: 80px; margin-left: auto; display: flex; align-items: center; justify-content: center;"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="2.4" stroke-linecap="round" style="flex: none; display: block;">
+<path d="M6 6l12 12M18 6L6 18"></path>
+</svg></div>
+</div>
+<div style="padding: 0 20px; font-size: 26px; color: #A0A0A0; flex: none;">Your current profile</div>
+<div style="height: 100px; flex: none; display: flex; align-items: center; gap: 24px; padding: 0 20px;">
+<div style="width: 50px; height: 50px; border-radius: 25px; background: #D0D0D0; color: #000; font-size: 30px; font-weight: 600; display: flex; align-items: center; justify-content: center;">?</div>
+<div style="font-size: 50px; color: #D0D0D0; flex: 1;">Kusi</div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6"></path>
+</svg>
+</div>
+<div style="margin: 0 20px 20px; padding: 20px; border: 2px solid #3A3A3A; border-radius: 8px; flex: none;">
+<div style="display: flex; align-items: center; gap: 16px;">
+<div style="font-size: 26px; color: #A0A0A0; flex: 1;">Web configurator enabled</div>
+<div style="width: 90px; height: 50px; border-radius: 25px; background: #2C2C2C; position: relative;">
+<div style="position: absolute; right: 5px; top: 5px; width: 40px; height: 40px; border-radius: 20px; background: #D0D0D0;"></div></div>
+</div>
+<div style="font-family: 'Space Mono', monospace; font-size: 26px; color: #D0D0D0; margin: 12px 0 16px; overflow-wrap: anywhere;">http://192.168.1.25/<wbr>configurator</div>
+<div style="display: flex; align-items: center; gap: 12px;"><div style="width: 44px; height: 60px; border: 2px solid #3A3A3A; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #D0D0D0;">•</div><div style="width: 44px; height: 60px; border: 2px solid #3A3A3A; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #D0D0D0;">•</div><div style="width: 44px; height: 60px; border: 2px solid #3A3A3A; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #D0D0D0;">•</div><div style="width: 44px; height: 60px; border: 2px solid #3A3A3A; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 26px; color: #D0D0D0;">•</div>
+<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block; margin-left: 12px;"><path d="M20 12a8 8 0 11-2.3-5.7"></path><path d="M20 4v5h-5"></path></svg>
+<div style="flex: 1;"></div>
+<div style="display: grid; grid-template-columns: repeat(10, 6px);"><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #000;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div><div style="width: 6px; height: 6px; background: #D0D0D0;"></div></div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 16px; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: #595959;">
+<div style="font-size: 30px; color: #D0D0D0;">Software update</div>
+<div style="flex: 1;"></div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6"></path>
+</svg>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 16px; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: transparent;">
+<div style="font-size: 30px; color: #D0D0D0;">Settings</div>
+<div style="flex: 1;"></div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6"></path>
+</svg>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 16px; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: transparent;">
+<div style="font-size: 30px; color: #D0D0D0;">Integrations</div><div style="min-width: 40px; height: 40px; padding: 0 10px; border-radius: 20px; background: #3A3A3A; font-size: 22px; display: flex; align-items: center; justify-content: center; color: #D0D0D0;">16</div>
+<div style="flex: 1;"></div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6"></path>
+</svg>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 16px; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: transparent;">
+<div style="font-size: 30px; color: #D0D0D0;">Docks</div><div style="min-width: 40px; height: 40px; padding: 0 10px; border-radius: 20px; background: #3A3A3A; font-size: 22px; display: flex; align-items: center; justify-content: center; color: #D0D0D0;">3</div>
+<div style="flex: 1;"></div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6"></path>
+</svg>
+</div>
+<div style="height: 80px; flex: none; display: flex; align-items: center; gap: 16px; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: transparent;">
+<div style="font-size: 30px; color: #D0D0D0;">About</div>
+<div style="flex: 1;"></div><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M9 6l6 6-6 6"></path>
+</svg>
+</div>
+</div>
+</div>
+  </div>
+</div>
+</body>
+</html>

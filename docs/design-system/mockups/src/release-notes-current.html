@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Release notes, current</title>
+  <style>
+    body { margin: 0; background: #000000; }
+    a { color: #C8C8C8; } a:hover { color: #FFFFFF; }
+    * { box-sizing: border-box; }
+    .label-lcd { display: none; }
+    html.lcd .label-lcd { display: inline; }
+    html.lcd .label-oled { display: none; }
+    html.lcd .panel { filter: contrast(0.86) brightness(1.02); }
+  </style>
+  <script>if (/[?&]lcd\b/.test(location.search)) document.documentElement.classList.add('lcd');</script>
+</head>
+<body>
+<div style="width: 480px; display: flex; flex-direction: column; gap: 0; background: #000000;">
+  <div style="height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #0B0B0B; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; color: #9A9A9A;">
+    <span style="font-weight: 500; color: #D0D0D0;">Release notes · current (ReleaseNotes.qml)</span>
+    <span class="label-oled">OLED (Remote Two): true black</span><span class="label-lcd">LCD simulation (Remote 3): raised black, softer white</span>
+  </div>
+  <div class="panel" style="background: #000000;">
+<div style="width: 480px; height: 850px; position: relative; overflow: hidden; background: #000000; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; color: #D0D0D0; display: flex; flex-direction: column;">
+<div style="height: 60px; flex: none; display: flex; align-items: center; position: relative;">
+<div style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#D0D0D0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M19 12H5"></path>
+<path d="M12 19l-7-7 7-7"></path>
+</svg>
+</div>
+<div style="position: absolute; left: 0; right: 0; text-align: center; font-size: 24px; color: #D0D0D0;">Release notes</div>
+</div>
+<div style="padding: 0 10px; flex: 1; overflow: hidden; position: relative;">
+<div style="font-family: 'Space Mono', 'Courier New', monospace; color: #787878; font-size: 24px; line-height: 1.25;">
+<div style="font-size: 32px; font-weight: 700; margin: 8px 0 12px;">v0.82.1 - 2026-09-15</div>
+<div style="font-size: 27px; font-weight: 700; margin: 0 0 10px;">Added</div>
+<ul style="margin: 0; padding-left: 28px;">
+<li style="margin: 0 0 6px 0;">An integration setup no longer has a maximum duration: the setup dialog keeps the session alive, so a driver may wait for the user as long as needed.</li>
+<li style="margin: 0 0 6px 0;">The device language is sent to the integration driver when a setup starts, so a driver can return its setup pages in the language of the remote.</li>
+<li style="margin: 0 0 6px 0;">A driver-provided error message is shown on the setup failure page instead of a generic error text.</li>
+<li style="margin: 0 0 6px 0;">While the remote runs on battery, the setup dialog shows how much time is left before the setup ends.</li>
+</ul>
+</div>
+</div>
+<div style="position: absolute; right: 2px; top: 70px; width: 8px; height: 220px; border-radius: 4px; background: #787878; opacity: 0.5;">
+</div>
+</div>
+  </div>
+</div>
+</body>
+</html>

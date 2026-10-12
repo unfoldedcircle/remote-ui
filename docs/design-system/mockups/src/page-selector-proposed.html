@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Page selector, proposed</title>
+  <style>
+    body { margin: 0; background: #000000; }
+    a { color: #C8C8C8; } a:hover { color: #FFFFFF; }
+    * { box-sizing: border-box; }
+    .label-lcd { display: none; }
+    html.lcd .label-lcd { display: inline; }
+    html.lcd .label-oled { display: none; }
+    html.lcd .panel { filter: contrast(0.86) brightness(1.02); }
+  </style>
+  <script>if (/[?&]lcd\b/.test(location.search)) document.documentElement.classList.add('lcd');</script>
+</head>
+<body>
+<div style="width: 480px; display: flex; flex-direction: column; gap: 0; background: #000000;">
+  <div style="height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; background: #0B0B0B; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; font-size: 13px; color: #9A9A9A;">
+    <span style="font-weight: 500; color: #D0D0D0;">Page selector · proposed</span>
+    <span class="label-oled">OLED (Remote Two): true black</span><span class="label-lcd">LCD simulation (Remote 3): raised black, softer white</span>
+  </div>
+  <div class="panel" style="background: #000000;">
+<div style="width: 480px; height: 850px; position: relative; overflow: hidden; background: #000000; font-family: Poppins, 'Segoe UI', Helvetica, Arial, sans-serif; color: #D0D0D0; display: flex; flex-direction: column;">
+<div style="height: 80px; flex: none; display: flex; align-items: center; position: relative;">
+<div style="width: 80px; height: 80px; display: flex; align-items: center; justify-content: center;"></div>
+<div style="position: absolute; left: 80px; right: 80px; text-align: center; font-size: 28px; font-weight: 500; color: #D0D0D0;">Select page</div>
+<div style="width: 80px; height: 80px; margin-left: auto; display: flex; align-items: center; justify-content: center;"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#A0A0A0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: none; display: block;">
+<path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+<path d="M18.5 2.5a2.1 2.1 0 013 3L12 15l-4 1 1-4z"></path>
+</svg></div>
+</div><div style="display: flex; flex-direction: column; flex: 1; overflow: hidden;"><div style="height: 150px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: transparent;">
+<div style="font-size: 56px; font-weight: 300; line-height: 1.05; text-align: center; color: #D0D0D0;">Living room</div>
+</div><div style="height: 150px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: #595959;">
+<div style="font-size: 56px; font-weight: 300; line-height: 1.05; text-align: center; color: #D0D0D0;">Kitchen</div>
+</div><div style="height: 150px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: transparent;">
+<div style="font-size: 56px; font-weight: 300; line-height: 1.05; text-align: center; color: #D0D0D0;">Bedroom</div>
+</div><div style="height: 150px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: transparent;">
+<div style="font-size: 56px; font-weight: 300; line-height: 1.05; text-align: center; color: #D0D0D0;">Movie night</div>
+</div><div style="height: 150px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 8px; margin: 0 8px; padding: 0 12px; background: transparent;">
+<div style="font-size: 56px; font-weight: 300; line-height: 1.05; text-align: center; color: #D0D0D0;">Kids room</div>
+</div></div>
+</div>
+  </div>
+</div>
+</body>
+</html>
