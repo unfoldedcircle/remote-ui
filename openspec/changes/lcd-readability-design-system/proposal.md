@@ -19,10 +19,10 @@ The work runs in six phases, one pull request each, in this order:
    secondary text, surfaces, dividers and tracks become readable on both panels at once. The new
    token names are added next to the old ones.
 2. **Selection:** one selection component replaces the seven renderings. The main UI (tiles, popup
-   menus, page selector, profile switcher) and the menus of the profile page, Settings and About
-   mark the selection with a lighter fill; the rest of settings and the set-up flows mark it with a
-   3 px ring around the row or on the control. Every selection follows the keypad-active state,
-   except the page selector's current page, which keeps the fill after a touch.
+   menus, page selector, profile switcher), the menus of the profile page, Settings and About and
+   the picker lists mark the selection with a lighter fill; the rest of settings and the set-up
+   flows mark it with a 3 px ring around the row or on the control. Every selection follows the
+   keypad-active state, except the page selector's current page, which keeps the fill after a touch.
 3. **Type roles:** help text and prose move from Space Mono to Poppins; Space Mono stays the face
    for values. Nothing is drawn below 22 px.
 4. **Structure:** shared title bar, setting row, menu row, key/value row, form dialog, bottom sheet

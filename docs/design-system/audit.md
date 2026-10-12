@@ -248,8 +248,8 @@ Every selection is bound to `ui.keyNavigationActive`. The layer a screen belongs
 
 | Style | Looks like | Used on |
 |---|---|---|
-| **Fill** | `surfaceSelected` fill on the whole tile or row; no ring, no border; everything on it in `textPrimary` | Main UI: entity and group tiles, popup menu rows (page menu and every PopupMenu), page selector, profile switcher |
-| **Ring** | 3px `focusRing` around the selected element; no fill | Settings and set-up flows: settings and profile menus, settings rows and controls, picker lists, dock and integration lists, onboarding; buttons everywhere |
+| **Fill** | `surfaceSelected` fill on the whole tile or row; no ring, no border; everything on it in `textPrimary` | Main UI: entity and group tiles, popup menu rows (page menu and every PopupMenu), page selector, profile switcher; after a review also the profile, Settings and About menus and the picker lists |
+| **Ring** | 3px `focusRing` around the selected element; no fill | Settings and set-up flows: settings rows and controls, dock and integration lists, onboarding; buttons everywhere |
 
 The tiles, rows and menus in the mockups are decided. The rest of the "Used on" column is the proposed mapping (Q-1).
 

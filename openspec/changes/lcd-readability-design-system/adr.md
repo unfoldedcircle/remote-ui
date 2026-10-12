@@ -29,9 +29,9 @@ All ADRs 0001 to 0018 are in force; none supersedes another. Relevant to this ch
 - docs/adr/0019-the-design-system-owns-colours-type-and-selection.md — the design system is the
   authority for colours, type roles and the selection look; QML takes them only from `Colors` and
   `Fonts`; one palette for both remotes.
-- docs/adr/0020-two-selection-styles-fill-on-the-main-ui-ring-in-settings.md — a fill on the main UI
-  and in the profile, Settings and About menus, a ring elsewhere in settings and on buttons, never
-  both, drawn by one render-only component.
+- docs/adr/0020-two-selection-styles-fill-on-the-main-ui-ring-in-settings.md — a fill on the main
+  UI, in the profile, Settings and About menus and in the picker lists, a ring elsewhere in settings
+  and on buttons, never both, drawn by one render-only component.
 
 ## Notes
 

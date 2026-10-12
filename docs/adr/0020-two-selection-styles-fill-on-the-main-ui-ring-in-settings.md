@@ -21,7 +21,7 @@ and controls read as a list, apart.
 - **Main UI** (entity and group tiles, popup menus, the page selector, the profile switcher): the
   selected tile or row gets the selection fill and no ring; everything on the fill is drawn in the
   primary text colour. The menus of the profile page, Settings and About, whose rows open a page,
-  take the fill as well.
+  and the picker lists, whose rows choose a value, take the fill as well.
 - **Settings and set-up flows, and buttons everywhere:** the selected element gets a 3 px ring and
   no fill — around a row that is activated as a whole, on the control of a setting that holds a
   switch, slider or field.
