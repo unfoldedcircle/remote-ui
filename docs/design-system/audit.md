@@ -263,7 +263,7 @@ The tiles, rows and menus in the mockups are decided. The rest of the "Used on" 
 
 - Disabled: opacity 0.4 on the whole control, switches and fields included; the row stays selectable so the user learns why it is off (help text), and OK does nothing.
 
-- Current value (the selected option in a list of choices) is a check mark at the end of the row in `textPrimary`, never a selection style.
+- Current value (the selected option in a list of choices) is a check mark at the end of the row in `textPrimary`; after a review, a picker list's current value also keeps the fill after a touch.
 
 - Destructive confirmations start on Cancel; Cancel is the secondary variant with a visible outline.
 

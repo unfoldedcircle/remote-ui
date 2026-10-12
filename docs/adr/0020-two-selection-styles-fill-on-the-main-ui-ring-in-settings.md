@@ -25,11 +25,10 @@ and controls read as a list, apart.
 - **Settings and set-up flows, and buttons everywhere:** the selected element gets a 3 px ring and
   no fill — around a row that is activated as a whole, on the control of a setting that holds a
   switch, slider or field.
-- An element never shows both styles. The current value of a choice is a check mark, never a
-  selection style.
+- An element never shows both styles. The current value of a choice is a check mark.
 - One shared, render-only component draws both styles; the selection still shows only while the
-  keypad is active (ADR 0007 is unchanged). The page selector is the one exception: its current page
-  keeps the fill after a touch, to mark which page is shown.
+  keypad is active (ADR 0007 is unchanged). Two exceptions keep the fill after a touch, to mark the
+  current choice: the page selector's current page and the current value of a picker list.
 
 ## Consequences
 

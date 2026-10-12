@@ -22,7 +22,8 @@ The work runs in six phases, one pull request each, in this order:
    menus, page selector, profile switcher), the menus of the profile page, Settings and About and
    the picker lists mark the selection with a lighter fill; the rest of settings and the set-up
    flows mark it with a 3 px ring around the row or on the control. Every selection follows the
-   keypad-active state, except the page selector's current page, which keeps the fill after a touch.
+   keypad-active state, except the page selector's current page and a picker list's current value,
+   which keep the fill after a touch.
 3. **Type roles:** help text and prose move from Space Mono to Poppins; Space Mono stays the face
    for values. Nothing is drawn below 22 px.
 4. **Structure:** shared title bar, setting row, menu row, key/value row, form dialog, bottom sheet

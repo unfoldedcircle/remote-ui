@@ -120,10 +120,11 @@ Rules:
 
 ## 6. Selection and state contract
 
-Every selection is bound to `ui.keyNavigationActive`: invisible after a touch, visible from the first
-key press. The one exception is the page selector: it shows its current page with the fill also after
-a touch, to mark which page is shown. There are two styles, and the layer a screen belongs to decides
-which one it uses.
+Every selection is bound to `ui.keyNavigationActive`: invisible after a touch, visible from the
+first key press. Two exceptions keep the fill after a touch, to mark the current choice: the page
+selector's current page, and the current value of a picker list. With the keypad the fill follows
+the selection again. There are two styles, and the layer a screen belongs to decides which one it
+uses.
 
 | Style | Looks like | Used on |
 | ----- | ---------- | ------- |
@@ -144,7 +145,8 @@ the proposed mapping and still need confirmation (section 11, Q-1).
   including text that is `textSecondary` at rest, such as a tile's state line: `textSecondary` would
   drop to 2.7:1.
 - Entering a screen by key preselects the first actionable element (`initialFocusItem` or a
-  selection reset). Entering by touch preselects nothing, except the page selector's current page.
+  selection reset). Entering by touch preselects nothing, except the current page or value of the
+  two exceptions.
 - The selected element stays inside the middle 70 % of the viewport. When the focus chain ends,
   the page scrolls by half its height.
 - **Pressed** inverts the element: `textPrimary` fill, and every label, icon and chevron on it in
@@ -153,7 +155,9 @@ the proposed mapping and still need confirmation (section 11, Q-1).
 - **Disabled:** opacity 0.4 on the whole control, switches and fields included. The row stays
   selectable so the help text can say why it is off; OK does nothing.
 - **Current value** (the chosen option in a list of choices) is a check mark at the end of the row
-  in `textPrimary`. It is never drawn with a selection style.
+  in `textPrimary`. In a picker list its row also has the fill while the keypad is not active, so
+  the current value is not missed; with the keypad the fill follows the selection and the current
+  value keeps its check mark.
 - Destructive confirmations start on Cancel. Cancel is the secondary button variant.
 - Every tappable element is reachable by d-pad, or has a d-pad equivalent on the same screen.
   Hints say "Press OK to ..." or name the action; never "Tap".
