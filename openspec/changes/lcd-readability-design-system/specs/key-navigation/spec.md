@@ -1,11 +1,11 @@
 ## MODIFIED Requirements
 
 ### Requirement: Keypad-active state and selection rendering
-The keypad SHALL be considered active from the first mapped key press until the next touch (mouse press or touch begin) on the window. `ui.keyNavigationActive` SHALL be `keyNavigationEnabled && keypadActive`; `keyNavigationEnabled` is a per-model constant and is true for Remote Two, Remote 3, YIO1 and desktop (DEV). Every selection highlight SHALL bind to `ui.keyNavigationActive`, never to `keyNavigationEnabled`.
+The keypad SHALL be considered active from the first mapped key press until the next touch (mouse press or touch begin) on the window. `ui.keyNavigationActive` SHALL be `keyNavigationEnabled && keypadActive`; `keyNavigationEnabled` is a per-model constant and is true for Remote Two, Remote 3, YIO1 and desktop (DEV). Every selection highlight SHALL bind to `ui.keyNavigationActive`, never to `keyNavigationEnabled`; the one exception is the current page of the page selector (`pages`).
 
 #### Scenario: Screen opened by touch
 - **WHEN** a screen is opened by tapping
-- **THEN** no selection is drawn, even though a control may hold the focus
+- **THEN** no selection is drawn, even though a control may hold the focus; only the page selector shows its current page filled
 
 #### Scenario: First d-pad press
 - **WHEN** any physical button is pressed
@@ -40,17 +40,21 @@ A page MAY point `scrollTarget` at its Flickable. Whenever the window focus chan
 ## ADDED Requirements
 
 ### Requirement: Selection fill on the main UI
-On the main UI (entity and group tiles, popup menus, the page selector, the profile switcher) the selected tile or row SHALL be filled with the selection fill of the design system, without a ring, and everything on the fill SHALL be drawn in the primary text colour.
+On the main UI (entity and group tiles, popup menus, the page selector, the profile switcher) and in the menus of the profile page, Settings and About, the selected tile or row SHALL be filled with the selection fill of the design system, without a ring, and everything on the fill SHALL be drawn in the primary text colour.
 
 #### Scenario: Selected tile on the main page
 - **WHEN** the d-pad moves to an entity tile on a page
 - **THEN** the tile is filled with the selection fill, shows no ring, and its name and state are drawn in the primary text colour
 
-### Requirement: Selection ring in settings and on buttons
-In settings and set-up flows, and on buttons everywhere, the selected element SHALL get a 3 px ring in the ring colour of the design system, without a fill: around a row that is activated as a whole, on the control of a setting that holds a switch, slider or field.
+#### Scenario: Selected row in the Settings menu
+- **WHEN** the d-pad moves to a row of the Settings menu
+- **THEN** the row is filled with the selection fill, shows no ring, and its icon, label and chevron are drawn in the primary text colour
 
-#### Scenario: Selected row in a settings menu
-- **WHEN** the d-pad moves to a row of a settings menu
+### Requirement: Selection ring in settings and on buttons
+In settings and set-up flows, apart from the menus of the profile page, Settings and About, and on buttons everywhere, the selected element SHALL get a 3 px ring in the ring colour of the design system, without a fill: around a row that is activated as a whole, on the control of a setting that holds a switch, slider or field.
+
+#### Scenario: Selected row of a picker list
+- **WHEN** the d-pad moves to a row of a picker list, such as the language list
 - **THEN** a 3 px ring is drawn around the row and the row has no fill
 
 #### Scenario: Selected setting with a switch

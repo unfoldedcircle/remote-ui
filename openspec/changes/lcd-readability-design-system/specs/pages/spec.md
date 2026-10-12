@@ -53,3 +53,10 @@ A long press on HOME on the no-page screen SHALL open a menu titled with the pro
 #### Scenario: Profile page from the no-page screen by keypad
 - **WHEN** HOME is held on the no-page screen and "Profile & settings" is chosen
 - **THEN** the profile page opens with the profile list, the web configurator and the settings, as from the profile icon of the status bar
+
+### Requirement: Current page in the page selector
+The page selector SHALL show its current page with the selection fill also when it is opened by touch, so the user sees which page is shown. It is the one selection that does not wait for the keypad.
+
+#### Scenario: Page selector opened by touch
+- **WHEN** the page title is tapped
+- **THEN** the page selector opens with the current page filled and no other row selected

@@ -195,3 +195,8 @@ this change after the migration is merged to `main`, not in a phase pull request
       "Licenses document", `settings-menu` "About page", the example in `key-navigation` "Scroll the
       focused control into view") and the tip text in the help role (`help-overlay` "Overlay
       presentation")
+- [x] 6.8 The spec deltas follow the review of task 4.10: `key-navigation` "Selection fill on the
+      main UI" adds the menus of the profile page, Settings and About, "Selection ring in settings
+      and on buttons" leaves them out and takes a picker list as its example, and "Keypad-active
+      state and selection rendering" names the page selector's exception, which the new `pages`
+      requirement "Current page in the page selector" describes
