@@ -47,6 +47,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   settings" row that did nothing.
 
 ### Fixed
+- The profile page and the settings menu of the pull-down menu, opened by touch, show the d-pad selection on their
+  first entry, Software update, with the first press of UP or DOWN. That press used to move the selection on to the
+  second entry right away.
 - When no profile exists, the "Profile name" dialog can no longer be cancelled into an empty screen.
 - The About settings page scrolls back up to the model, serial number and versions when the d-pad selection
   returns to its first entry. After moving down the list and back up, they stayed out of view.

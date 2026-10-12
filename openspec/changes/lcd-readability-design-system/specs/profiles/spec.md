@@ -66,3 +66,12 @@ Enabling the web configurator SHALL generate a random 4-digit PIN (0000–9999, 
 - **WHEN** the globe icon of the pull-down menu is tapped
 - **THEN** a "Web Configurator" screen shows the same switch, address, PIN and regenerate rows and a large QR code; BACK / HOME close it
 - **AND** with the keypad the selection starts on the switch; DPAD_UP / DPAD_DOWN walk the switch, the address and the regenerate button (each shown only while the configurator is enabled), DPAD_MIDDLE activates the selected row with a haptic click
+
+## ADDED Requirements
+
+### Requirement: First d-pad press on the profile page
+When the profile page, or the same menu opened with the gear of the pull-down menu, was opened or touched without the keypad, the first DPAD_UP or DPAD_DOWN SHALL show the selection on the row that holds it, the first entry after opening, instead of moving it. The next press moves it.
+
+#### Scenario: Profile page opened by touch
+- **WHEN** the profile page is opened with the status bar profile icon and DPAD_DOWN is pressed
+- **THEN** "Software update" is selected, and the next DPAD_DOWN selects "Settings"

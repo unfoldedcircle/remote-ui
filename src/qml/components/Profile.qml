@@ -144,6 +144,12 @@ Item {
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {
+                    // the first press after a touch shows the selection where it is, on the first entry,
+                    // instead of moving past it
+                    if (ui.inputController.pressActivatedKeypad()) {
+                        return;
+                    }
+
                     if (profileRoot.headerSelection >= 0) {
                         if (profileRoot.headerSelection < profileRoot.headerRows().length - 1) {
                             profileRoot.headerSelection++;
@@ -158,6 +164,12 @@ Item {
             },
             "DPAD_UP": {
                 "pressed": function() {
+                    // the first press after a touch shows the selection where it is, on the first entry,
+                    // instead of moving past it
+                    if (ui.inputController.pressActivatedKeypad()) {
+                        return;
+                    }
+
                     if (profileRoot.headerSelection > 0) {
                         profileRoot.headerSelection--;
                         return;

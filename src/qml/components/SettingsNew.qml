@@ -90,11 +90,23 @@ Item {
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {
+                    // the first press after a touch shows the selection where it is, on the first entry,
+                    // instead of moving past it
+                    if (ui.inputController.pressActivatedKeypad()) {
+                        return;
+                    }
+
                     menu.incrementCurrentIndex();
                 }
             },
             "DPAD_UP": {
                 "pressed": function() {
+                    // the first press after a touch shows the selection where it is, on the first entry,
+                    // instead of moving past it
+                    if (ui.inputController.pressActivatedKeypad()) {
+                        return;
+                    }
+
                     menu.decrementCurrentIndex();
                 }
             },

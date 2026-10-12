@@ -159,6 +159,12 @@ this change after the migration is merged to `main`, not in a phase pull request
       "Inverted button behavior", with translator comments; no other text on screen has a British
       spelling (every source text of `en_US.ts` and every string literal in `src` checked). The
       requirements that quote the two texts follow.
+- [x] 5.11 The first d-pad press after a touch on the profile page (found while testing the stack):
+      `InputController.pressActivatedKeypad()` tells the handlers of a key press whether it made the
+      keypad active, with a unit test; the profile page and `SettingsNew.qml` show the selection on
+      that press instead of moving it. `profiles` spec delta. Desktop at 850 px (`UC_MODEL=DEV`): the
+      profile page opened by touch shows Software update on the first DOWN and Settings on the
+      second; after a touch, UP shows the current entry
 
 ## 6. Guardrails
 
