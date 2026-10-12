@@ -36,7 +36,8 @@ this change after the migration is merged to `main`, not in a phase pull request
       `SearchField`, `Dropdown`; replace `RowHighlight` and remove it once unused
 - [x] 2.5 Bind the always-on selections (tiles, group tiles, `SourceList`, `MediaBrowser`) and
       `Activity.qml`'s own flag to `ui.keyNavigationActive`
-- [ ] 2.6 Q-3: check the `#595959` fill on both remotes; record the outcome in the design system
+- [x] 2.6 Q-3: `#595959` stays for now, decided by the maintainer and recorded in the design system;
+      the checks of 2.10 may still adjust it there
 - [x] 2.7 `docs/key-navigation.md` section 5: the selection component and the two styles
 - [x] 2.8 `CHANGELOG.md`: the d-pad selection is visible on every screen
 - [x] 2.9 Keypad walk on the desktop (`UC_MODEL=DEV`), opened by touch and by key: main page tiles,
@@ -207,3 +208,8 @@ this change after the migration is merged to `main`, not in a phase pull request
       `key-navigation` requirement "Current choice after a touch" names both exceptions,
       "Keypad-active state and selection rendering" points at it, and the `pages` requirement
       "Current page in the page selector" refers to it
+- [x] 6.11 The selection styles by kind of screen (ADR 0020 restated in the design PR): the
+      `key-navigation` requirements become "Selection fill in menu lists" and "Selection ring on
+      setting screens and buttons", "One selection style per element" and "Selection of a new
+      screen" follow the kind of screen, and `docs/key-navigation.md` says the same. Q-8 is decided
+      as implemented

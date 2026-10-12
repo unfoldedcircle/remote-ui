@@ -278,7 +278,7 @@ Components.Selectable {
 }
 ```
 
-The style follows the screen's layer (`docs/design-system.md` section 6, ADR 0020):
+The style follows the kind of screen (`docs/design-system.md` section 6, ADR 0020):
 
 - **Fill** (`surfaceSelected`) on the main UI: entity and group tiles, popup menu rows, page selector
   and profile switcher rows, the activity menu; in settings the menus of the profile page, Settings
@@ -353,7 +353,7 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
 1. Decide the idiom (section 4) and stick to it for every key.
 2. Take the input when the screen is in front, release it when it leaves; never assign
    `defaultConfig` on a base that already declares one — extend it.
-3. Draw every selection with `Components.Selectable` in the style of the screen's layer (section
+3. Draw every selection with `Components.Selectable` in the style of the screen's kind (section
    5); a highlight of your own binds to `ui.keyNavigationActive`.
 4. Set `initialFocusItem` (focus chain) or reset the selection on entry (button navigation).
 5. Set `scrollTarget` for a page taller than the display; make sure long translations

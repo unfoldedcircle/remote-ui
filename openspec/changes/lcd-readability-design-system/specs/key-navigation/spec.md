@@ -39,8 +39,8 @@ A page MAY point `scrollTarget` at its Flickable. Whenever the window focus chan
 
 ## ADDED Requirements
 
-### Requirement: Selection fill on the main UI
-On the main UI (entity and group tiles, popup menus, the page selector, the profile switcher) in the menus of the profile page, Settings and About and in the picker lists, the selected tile or row SHALL be filled with the selection fill of the design system, without a ring, and everything on the fill SHALL be drawn in the primary text colour.
+### Requirement: Selection fill in menu lists
+In menu-like lists, whose rows are chosen as a whole (the tiles of a page, popup menus, the page selector, the profile switcher, the menus of the profile page, Settings and About, and the picker lists), the selected tile or row SHALL be filled with the selection fill of the design system, without a ring, and everything on the fill SHALL be drawn in the primary text colour.
 
 #### Scenario: Selected tile on the main page
 - **WHEN** the d-pad moves to an entity tile on a page
@@ -54,8 +54,8 @@ On the main UI (entity and group tiles, popup menus, the page selector, the prof
 - **WHEN** the d-pad moves to a row of a picker list, such as the time zone list of the onboarding
 - **THEN** the row is filled with the selection fill, shows no ring, and its name, second line and check mark are drawn in the primary text colour
 
-### Requirement: Selection ring in settings and on buttons
-In settings and set-up flows, apart from the menus of the profile page, Settings and About and the picker lists, and on buttons everywhere, the selected element SHALL get a 3 px ring in the ring colour of the design system, without a fill: around a row that is activated as a whole, on the control of a setting that holds a switch, slider or field.
+### Requirement: Selection ring on setting screens and buttons
+On setting screens whose rows hold switches, sliders or fields, on set-up steps built the same way, and on buttons everywhere, the selected element SHALL get a 3 px ring in the ring colour of the design system, without a fill: around a row that is activated as a whole, on the control of a setting that holds a switch, slider or field.
 
 #### Scenario: Selected row of a settings page
 - **WHEN** the d-pad moves to the Language row of the Localization page
@@ -66,14 +66,14 @@ In settings and set-up flows, apart from the menus of the profile page, Settings
 - **THEN** the ring is drawn on the switch; the setting's label and help text are not marked
 
 ### Requirement: One selection style per element
-The selection style SHALL follow the layer the screen belongs to, and an element SHALL never show both styles, except an element held for reordering on the main UI, which SHALL show the ring for "held" on top of the fill for "selected" while it moves.
+The selection style SHALL follow the kind of screen, as the design system maps it, and an element SHALL never show both styles, except an element held for reordering on the main UI, which SHALL show the ring for "held" on top of the fill for "selected" while it moves.
 
 #### Scenario: Tile held for reordering
 - **WHEN** a tile is held in the page's edit mode and moved with the d-pad
 - **THEN** it shows the selection fill and the ring while it moves, and only the fill once it is released
 
 ### Requirement: Selection of a new screen
-A new keypad-navigable screen SHALL draw its selection with the shared selection component, in the style of its layer.
+A new keypad-navigable screen SHALL draw its selection with the shared selection component, in the style of its kind of screen.
 
 #### Scenario: Selection of a new settings page
 - **WHEN** a new settings page draws the selection of its rows and controls

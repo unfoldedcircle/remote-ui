@@ -46,13 +46,12 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 
 - `platform-constraints`: "Legibility" points at the accepted design system with one palette for
   both models; the new "Legibility floors" states the floors every screen keeps.
-- `key-navigation`: new requirements describe the two selection styles ("Selection fill on the main
-  UI", "Selection ring in settings and on buttons", "One selection style per element") and require
-  the style of its layer from a new screen ("Selection of a new screen"); "Keypad-active state and
-  selection rendering" and the developer contract only update their scenarios. After a review of
-  phases 2 and 4 the fill also covers the menus of the profile page, Settings and About and the
-  picker lists, and the page selector's current page and a picker list's current value keep the fill
-  after a touch ("Current choice after a touch"; `pages`: "Current page in the page selector").
+- `key-navigation`: new requirements describe the two selection styles by kind of screen ("Selection
+  fill in menu lists", "Selection ring on setting screens and buttons", "One selection style per
+  element") and require the style of its kind of screen from a new screen ("Selection of a new
+  screen"). "Current choice after a touch" keeps the fill on the page selector's current page and on
+  a picker list's current value (`pages`: "Current page in the page selector"); "Keypad-active state
+  and selection rendering" points at it, and the developer contract only updates its scenarios.
 - `activities`: "Activity menu and included entities" draws its selection in the fill style and
   follows the keypad-active state instead of a flag of its own (phase 2).
 - Phase 5 makes controls reachable on screens owned by other capabilities and rewords their
@@ -101,5 +100,5 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 - **Docs:** `docs/design-system.md` stays the reference; `docs/key-navigation.md` names the
   selection component; two new ADRs (0019, 0020).
 - **Open questions:** Q-1 to Q-4 and Q-8 in `docs/design-system.md` section 11 and Q-5 in
-  `design.md`. Q-1 to Q-3 are decided; the `#595959` fill of Q-3 stays for now and the checks on
+  `design.md`. All of them are decided; the `#595959` fill of Q-3 stays for now and the checks on
   both remotes may still adjust it in the design system.
