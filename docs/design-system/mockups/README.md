@@ -16,11 +16,18 @@ Remote 3 LCD with a raised black and a softer white; the approximation is a visu
 
 | Current | Proposed |
 | ------- | -------- |
-| **Settings menu**: the selected row is a #161616 fill on black. ![Settings menu, current](settings-menu-current.png) | The selected row has a 3 px ring and no fill. ![Settings menu, proposed](settings-menu-proposed.png) |
+| **Settings menu**: the selected row is a #161616 fill on black. ![Settings menu, current](settings-menu-current.png) | The selected row has the #595959 fill and no ring, as on the main UI. ![Settings menu, proposed](settings-menu-proposed.png) |
 | **Display & Brightness**: help text in grey Space Mono 24. ![Display and brightness, current](display-current.png) | The ring sits on the switch; help text in Poppins 26. ![Display and brightness, proposed](display-proposed.png) |
 | **Release notes**: the body in grey Space Mono 24. ![Release notes, current](release-notes-current.png) | Prose in Poppins 26, primary text colour. ![Release notes, proposed](release-notes-proposed.png) |
 | **Home page**: the selected tile is an always-on #111111 fill. ![Home page, current](home-current.png) | The selected tile has the #595959 fill and no ring. ![Home page, proposed](home-proposed.png) |
 | **Page menu** (HOME long press): a #161616 fill on the selected row. ![Page menu, current](page-menu-current.png) | A black sheet with a divider edge, the fill on the selected row, Close as the last row. ![Page menu, proposed](page-menu-proposed.png) |
+
+The menus of the profile page, Settings and About take the fill, and the page selector keeps its
+centred page names, in the display role at 56 px, with the current page filled also after a touch:
+
+| Profile menu | About | Page selector |
+| ------------ | ----- | ------------- |
+| ![Profile menu, proposed](profile-menu-proposed.png) | ![About, proposed](about-proposed.png) | ![Page selector, proposed](page-selector-proposed.png) |
 
 ## Design sheet
 

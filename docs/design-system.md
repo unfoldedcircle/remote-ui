@@ -34,9 +34,10 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
    palette.
 2. **Text meets AA at its size, with margin.** Secondary text at least 8:1 on black, primary 13.6:1.
    Nothing below 22 px, and 22 px only for captions.
-3. **Two selection styles, one per layer.** On the main UI the selected tile or menu row gets a
-   lighter fill. In settings the selected row or control gets a 3 px ring. Never both on one
-   element, and never a fill dark enough to vanish on the LCD.
+3. **Two selection styles, one per layer.** On the main UI, and in the menus of the profile page,
+   Settings and About, the selected tile or menu row gets a lighter fill. Elsewhere in settings the
+   selected row or control gets a 3 px ring. Never both on one element, and never a fill dark enough
+   to vanish on the LCD.
 4. **Emphasis by token, never by opacity.** Opacity is for disabled controls (0.4) and dim layers
    (0.85) only.
 5. **Sans for reading, mono for data.** Poppins for titles, labels, prose, help and buttons. Space
@@ -53,7 +54,7 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
 | `textOnButton`    | #FFFFFF | 6.9:1 on primary | offwhite label        | Primary and destructive button labels                      |
 | `surface`         | #1E1E1E | 1.26:1   | `dark` #161616, `secondaryButton` | Cards, fields, secondary buttons                       |
 | `surfaceRaised`   | #2C2C2C | 1.5:1    | `medium` #232323              | Popup cards over a dim, switch and slider tracks           |
-| `surfaceSelected` | #595959 | 3.0:1    | new                           | Fill of the selected tile or menu row on the main UI. Never with a ring. Provisional, see Q-3 |
+| `surfaceSelected` | #595959 | 3.0:1    | new                           | Fill of the selected tile or menu row on the main UI and in the profile, Settings and About menus. Never with a ring. Provisional, see Q-3 |
 | `divider`         | #3A3A3A | 1.85:1   | `medium`                      | 2 px separators, secondary button outline, sheet edge      |
 | `focusRing`       | #D0D0D0 | 13.6:1   | `highlight` #C8C8C8           | 3 px ring on the selected settings row or control, and on buttons |
 | `buttonPrimary`   | #5A5A5A | -        | `primaryButton`               | Primary button fill                                        |
@@ -81,7 +82,7 @@ Rules:
 | Caption         | Poppins 22 Regular                  | `textSecondary`              | Timestamps, badges, tab labels. Smallest size allowed       |
 | Value           | Space Mono 26 Regular               | `textPrimary`                | Versions, IP and MAC addresses, times, units, PIN, URLs     |
 | Button          | Poppins 26 Medium                   | `textOnButton` / `textPrimary` | All buttons                                               |
-| Display         | Poppins 56 / 90 / 180 Light         | `textPrimary`                | Sensor values, entity states, volume                        |
+| Display         | Poppins 56 / 90 / 180 Light         | `textPrimary`                | Sensor values, entity states, volume; page names in the page selector (56) |
 
 Rules:
 
@@ -100,7 +101,8 @@ Rules:
 - **Title bar 80 px:** 80 x 80 back or close target at the edge, title centred. One component for
   pages, sheets and dialogs; onboarding uses it without the back target.
 - **Row heights** 80 (one line), 110 (two lines), 130 (tiles). Setting sections with help text size
-  to content with 14 px vertical padding. Reorder rows with a handle may be 150.
+  to content with 14 px vertical padding. Reorder rows with a handle may be 150. The page selector's
+  rows are 150 with the page name centred in the display role at 56 px, up to two lines.
 - **Dividers** 2 px `divider`, inset 20, between sections and between rows that are not cards.
 - **Radii** `ui.cornerRadiusSmall` (8) for rows, tiles, buttons, cards; `ui.cornerRadiusLarge` (22)
   for fields, sheets, popups. No literals.
@@ -119,12 +121,14 @@ Rules:
 ## 6. Selection and state contract
 
 Every selection is bound to `ui.keyNavigationActive`: invisible after a touch, visible from the first
-key press. There are two styles, and the layer a screen belongs to decides which one it uses.
+key press. The one exception is the page selector: it shows its current page with the fill also after
+a touch, to mark which page is shown. There are two styles, and the layer a screen belongs to decides
+which one it uses.
 
 | Style | Looks like | Used on |
 | ----- | ---------- | ------- |
-| **Fill** | `surfaceSelected` fill on the whole tile or row, no ring, no border | The main UI: entity and group tiles on a page, popup menu rows (page menu and every other `PopupMenu`), page selector rows, profile switcher rows |
-| **Ring** | 3 px `focusRing` around the selected element, no fill | Settings and set-up flows: settings and profile menus, settings rows and controls, picker lists (`PopupList`: language, country, timezone, dropdowns), dock and integration lists, onboarding steps; buttons everywhere |
+| **Fill** | `surfaceSelected` fill on the whole tile or row, no ring, no border | The main UI: entity and group tiles on a page, popup menu rows (page menu and every other `PopupMenu`), page selector rows, profile switcher rows. In settings, the menus whose rows open a page with a chevron: the profile page, Settings and About |
+| **Ring** | 3 px `focusRing` around the selected element, no fill | Settings and set-up flows: settings rows and controls, picker lists (`PopupList`: language, country, timezone, dropdowns), dock and integration lists, onboarding steps; buttons everywhere |
 
 The tiles, rows and menus named in the mockups are decided. The other assignments in the table are
 the proposed mapping and still need confirmation (section 11, Q-1).
@@ -140,7 +144,7 @@ the proposed mapping and still need confirmation (section 11, Q-1).
   including text that is `textSecondary` at rest, such as a tile's state line: `textSecondary` would
   drop to 2.7:1.
 - Entering a screen by key preselects the first actionable element (`initialFocusItem` or a
-  selection reset). Entering by touch preselects nothing.
+  selection reset). Entering by touch preselects nothing, except the page selector's current page.
 - The selected element stays inside the middle 70 % of the viewport. When the focus chain ends,
   the page scrolls by half its height.
 - **Pressed** inverts the element: `textPrimary` fill, and every label, icon and chevron on it in
@@ -198,7 +202,7 @@ changes reference them. This document stays the reference for how a screen looks
 | ID  | Decision                                                           | Status |
 | --- | ------------------------------------------------------------------ | ------ |
 | D-1 | Help text and prose in Poppins; Space Mono stays the value face    | Accepted |
-| D-2 | Selection style: fill on the main UI, ring in settings, never both | Accepted, amended by the designer. Proposed: ring plus fill everywhere |
+| D-2 | Selection style: fill on the main UI and in the profile, Settings and About menus, ring elsewhere in settings, never both | Accepted, amended by the designer, then for the three menus. Proposed: ring plus fill everywhere |
 | D-3 | In settings the ring marks the control, not the whole section      | Accepted, amended by the designer. Proposed: the whole section |
 | D-4 | Title bar 80 px with Poppins 28 Medium                             | Accepted |
 | D-5 | Home tiles black at rest; a selected tile gets the `surfaceSelected` fill, no ring | Accepted, amended by the designer. Proposed: ring plus fill. Fill value provisional (Q-3) |
@@ -213,7 +217,7 @@ Close row instead of a secondary button. The page menu sheet is black with a div
 
 | ID  | Question | Proposed answer |
 | --- | -------- | --------------- |
-| Q-1 | Which screens beyond the mockups use the fill style and which the ring style? | The mapping in section 6: the fill for tiles, popup menus, page selector and profile switcher; the ring for everything else |
+| Q-1 | Which screens beyond the mockups use the fill style and which the ring style? | The mapping in section 6: the fill for tiles, popup menus, page selector, profile switcher and the profile, Settings and About menus; the ring for everything else |
 | Q-2 | Focus ring colour: the revised screens use #D0D0D0, once at 92 % opacity; the token sheet still shows #C8C8C8 | Opaque #D0D0D0, the same value as `textPrimary` |
 | Q-3 | Is the provisional #595959 fill right on the devices? It replaces the designer's #333333 so the selection is easy to judge on a Remote 3 in a lit room | Check both remotes in phase 2. Darken it towards #333333 if it looks too heavy; text on it stays readable down to that value |
 | Q-4 | Do all bottom sheets become black with a divider edge, or only popup menus on the main UI? | All bottom sheets, one rule: WifiInfo, WifiJoin, DropDownMenu and the delete drawers too |
