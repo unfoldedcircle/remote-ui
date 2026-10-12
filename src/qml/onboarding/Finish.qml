@@ -250,4 +250,9 @@ OnboardingComponents.Page {
             }
         }
     }
+
+    // with the web configurator on, Done is below the screen: show that the step scrolls
+    Components.ScrollIndicator {
+        parentObj: flickable
+    }
 }

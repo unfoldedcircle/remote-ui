@@ -101,6 +101,10 @@ this change after the migration is merged to `main`, not in a phase pull request
       (`Selectable.shownAfterTouch`). Desktop at 800 px (`UC_MODEL=DEV`): the three menus and the
       language and timezone pickers of the settings by key, the page selector opened by touch, by
       key, in the edit mode and with a held page
+- [x] 4.11 The onboarding Finish step gets the scroll indicator of every scrolling page (I-17): with
+      the web configurator on, its Done button is below the screen. Desktop at 800 px
+      (`UC_MODEL=DEV`) in the onboarding: the indicator shows with the web configurator on and
+      hides with it off
 
 ## 5. Reachability
 

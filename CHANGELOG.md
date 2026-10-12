@@ -37,6 +37,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   reorder it, it shows the frame on top of its selected background.
 
 ### Fixed
+- The last step of the first set-up, "You're all set", shows a scroll indicator. With the web configurator switched on,
+  the Done button is below the screen and nothing showed that the step scrolls to it.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.
