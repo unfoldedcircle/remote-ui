@@ -277,16 +277,15 @@ Settings.Page {
         Rectangle {
             width: ListView.view.width
             height: mainColumnLayout.height
-            color: isCurrentItem && !integrationsPage.addSheetSelected && ui.keyNavigationActive ? Qt.darker(colors.dark, 1.5) : colors.transparent
-            radius: ui.cornerRadiusSmall
-            border {
-                color: isCurrentItem && !integrationsPage.addSheetSelected && ui.keyNavigationActive ? colors.medium : colors.transparent
-                width: 1
-            }
+            color: colors.transparent
 
             property bool isCurrentItem: ListView.isCurrentItem
             property string key: integrationId
             property bool selected: selected
+
+            Components.Selectable {
+                selected: parent.isCurrentItem && !integrationsPage.addSheetSelected
+            }
 
             Components.HapticMouseArea {
                 anchors.fill: parent

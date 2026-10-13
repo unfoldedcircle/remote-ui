@@ -26,11 +26,11 @@ import "qrc:/components/entities/media_player" as MediaPlayerComponents
 Rectangle {
     id: entityBaseContainer
     width: isInGroup ? ui.width - 40 : ui.width - 20; height: 130
-    color: isSelected && !editMode ? Qt.darker(colors.medium) : colors.black
+    color: colors.black
     opacity: currentEntityObj.enabled ? 1 : 0.5
     radius: ui.cornerRadiusSmall
     border {
-        color: (isInGroup || isSelected) && !editMode ? colors.medium : colors.transparent
+        color: isInGroup && !editMode ? colors.divider : colors.transparent
         width: 1
     }
 
@@ -410,6 +410,12 @@ Rectangle {
         NumberAnimation { duration: 300 }
     }
 
+    Components.Selectable {
+        id: selection
+        style: "fill"
+        selected: entityBaseContainer.isSelected && !entityBaseContainer.editMode
+    }
+
     Connections {
         target: ui
         ignoreUnknownSignals: true
@@ -555,7 +561,8 @@ Rectangle {
                 text: currentEntityObj.stateInfo
                 maximumLineCount: 1
                 elide: Text.ElideRight
-                color: colors.light
+                // on the selection fill everything is drawn in the primary text colour
+                color: selection.shown ? colors.textPrimary : colors.light
                 verticalAlignment: Text.AlignVCenter
                 font: fonts.secondaryFont(24)
                 visible: currentEntityObj.stateInfo !== ""

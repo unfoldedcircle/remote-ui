@@ -106,6 +106,11 @@ Rectangle {
         }
     }
 
+    Components.Selectable {
+        selected: inputField.activeFocus
+        radius: inputFieldContainer.radius
+    }
+
     TextField {
         id: inputField
         cursorVisible: false

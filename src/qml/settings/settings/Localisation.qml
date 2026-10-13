@@ -315,16 +315,9 @@ Settings.Page {
                     trigger: function() {
                         Config.clock24h = !Config.clock24h;
                     }
-                    // the row itself carries the focus, like every other row on this page
+                    // the row itself carries the focus, like every other row on this page; the ring marks the
+                    // switch, not the row (ADR 0020)
                     highlight: clock24hSelector.activeFocus && ui.keyNavigationActive
-                }
-
-                onFocusChanged: {
-                    if (focus) {
-                        item.highlight = true;
-                    } else {
-                        item.highlight = false;
-                    }
                 }
 
                 /** KEYBOARD NAVIGATION **/
@@ -413,18 +406,17 @@ Settings.Page {
             id: selectorBg
             width: parent.width
             height: 120
-            color: highlight && ui.keyNavigationActive ? colors.dark : colors.transparent
-            radius: ui.cornerRadiusSmall
-            border {
-                color: Qt.lighter(selectorBg.color, 1.3)
-                width: 1
-            }
+            color: colors.transparent
 
             property string title
             property alias value: valueText.text
             property alias mouseArea: mouseArea
             property bool highlight: false
             property var trigger
+
+            Components.Selectable {
+                selected: selectorBg.highlight
+            }
 
             Text {
                 id: titleText

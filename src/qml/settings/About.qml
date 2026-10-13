@@ -225,10 +225,15 @@ Settings.Page {
         id: menuItem
 
         Rectangle {
+            id: aboutMenuItem
             width: ui.width
             height: 80
-            color: ListView.isCurrentItem && ui.keyNavigationActive ? colors.dark : colors.transparent
-            radius: ui.cornerRadiusSmall
+            color: colors.transparent
+
+            Components.Selectable {
+                selected: aboutMenuItem.ListView.isCurrentItem
+                anchors { leftMargin: 4; rightMargin: 4 }
+            }
 
             Text {
                 id: menuItemText

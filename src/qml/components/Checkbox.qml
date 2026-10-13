@@ -18,6 +18,8 @@ import QtQuick.Controls 2.15
 
 import Haptic 1.0
 
+import "qrc:/components" as Components
+
 CheckBox {
     id: control
     checked: false
@@ -55,7 +57,11 @@ CheckBox {
         y: parent.height / 2 - height / 2
         radius: size / 2
         color: backgroundColor
-        border { width: 2; color: control.highlight ? colors.highlight : colors.transparent }
+
+        Components.Selectable {
+            selected: control.highlight
+            radius: parent.radius
+        }
 
         Rectangle {
             width: size * 0.6

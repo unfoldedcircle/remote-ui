@@ -329,9 +329,11 @@ ListView {
             height: childrenRect.height
             color: ListView.isCurrentItem ? colors.black : colors.transparent
             radius: ui.cornerRadiusSmall
+            // the selection ring of Components.Selectable, drawn as the border: the card is sized by its children,
+            // and a child that fills it would be a binding loop
             border {
-                width: dockItemContainer.selected ? 2 : 1
-                color: dockItemContainer.selected ? colors.highlight : colors.medium
+                width: dockItemContainer.selected ? 3 : 1
+                color: dockItemContainer.selected ? colors.focusRing : colors.medium
             }
 
             RowLayout {

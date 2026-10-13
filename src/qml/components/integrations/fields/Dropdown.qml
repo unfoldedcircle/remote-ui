@@ -99,14 +99,9 @@ FieldBase {
             }
         }
 
-        Rectangle {
-            anchors.fill: parent
+        Components.Selectable {
+            selected: dropDownField.activeFocus
             radius: ui.cornerRadiusLarge
-            color: colors.transparent
-            border {
-                width: 2
-                color: dropDownField.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent
-            }
         }
 
         Components.HapticMouseArea {

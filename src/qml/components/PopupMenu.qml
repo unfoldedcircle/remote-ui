@@ -193,15 +193,16 @@ Popup {
         id: menuItem
 
         Rectangle {
+            id: menuRow
             width: parent.width - 20
             height: title.lineCount == 1 ? 80 : 120
-            color: ListView.isCurrentItem && !footerSelected && ui.keyNavigationActive ? colors.dark : colors.black
-            radius: ui.cornerRadiusSmall
-            border {
-                color: ListView.isCurrentItem && !footerSelected && ui.keyNavigationActive ? colors.medium : colors.transparent
-                width: 1
-            }
+            color: colors.black
             anchors.horizontalCenter: parent.horizontalCenter
+
+            Components.Selectable {
+                style: "fill"
+                selected: menuRow.ListView.isCurrentItem && !footerSelected
+            }
 
             function callBack() {
                 closeCallback = function() { menuItems[index].callback(); };
@@ -243,13 +244,13 @@ Popup {
         Rectangle {
             width: parent.width - 20
             height: 80
-            color: footerSelected && ui.keyNavigationActive ? colors.dark : colors.black
-            radius: ui.cornerRadiusSmall
-            border {
-                color: footerSelected && ui.keyNavigationActive ? colors.medium : colors.transparent
-                width: 1
-            }
+            color: colors.black
             anchors.horizontalCenter: parent.horizontalCenter
+
+            Components.Selectable {
+                style: "fill"
+                selected: footerSelected
+            }
 
             Components.Icon {
                 id: icon
