@@ -13,31 +13,15 @@ Settings.Page {
     id: aboutPageContent
 
     property int type
-    property int scrollCounter: 1
     property var stringList
     property string baseDir
     property bool followLinks: true
     property bool isMarkdown: true
 
-    function scrollDown() {
-        // content shorter than the screen has nothing to scroll: without the lower bound the page
-        // would scroll to a negative offset and push the text off the top
+    // the d-pad moves by half the viewport (docs/design-system.md section 6)
+    function scrollStep(direction) {
         const maxContentY = Math.max(0, flickable.contentHeight - flickable.height);
-
-        flickable.contentY += 100 * scrollCounter;
-        if (flickable.contentY > maxContentY) {
-            flickable.contentY = maxContentY;
-        }
-    }
-
-    function scrollUp() {
-        if (flickable.contentY == 0) {
-            return;
-        }
-        flickable.contentY -= 100 * scrollCounter;
-        if (flickable.contentY < 0) {
-            flickable.contentY = 0;
-        }
+        flickable.contentY = Math.max(0, Math.min(maxContentY, flickable.contentY + direction * Math.round(flickable.height / 2)));
     }
 
     Component.onCompleted: {
@@ -46,18 +30,12 @@ Settings.Page {
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
-                                                         aboutPageContent.scrollDown();
-                                                     },
-                                                     "released": function() {
-                                                         scrollCounter = 1;
+                                                         aboutPageContent.scrollStep(1);
                                                      }
                                                  },
                                                  "DPAD_UP": {
                                                      "pressed": function() {
-                                                         aboutPageContent.scrollUp();
-                                                     },
-                                                     "released": function() {
-                                                         scrollCounter = 1;
+                                                         aboutPageContent.scrollStep(-1);
                                                      }
                                                  }
                                              });
@@ -106,12 +84,13 @@ Settings.Page {
         model: aboutPageContent.stringList
 
         Behavior on contentY {
-            NumberAnimation { easing.type: scrollCounter === 1 ? Easing.OutExpo : Easing.Linear; duration: 500 }
+            NumberAnimation { easing.type: Easing.OutExpo; duration: 300 }
         }
 
         delegate: Text {
             id: content
-            width: ListView.view.width
+            x: 20
+            width: ListView.view.width - 40
             height: content.implicitHeight
             wrapMode: Text.WordWrap
             color: colors.textPrimary

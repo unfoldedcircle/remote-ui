@@ -74,8 +74,8 @@ Item {
             maximumLineCount: 2
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
-            color: colors.offwhite
-            font: fonts.primaryFont(30)
+            color: colors.textPrimary
+            font: fonts.title()
         }
 
         Text {
@@ -136,7 +136,7 @@ Item {
             wrapMode: Text.WordWrap
             elide: Text.ElideRight
             color: colors.red
-            font: fonts.primaryFont(30)
+            font: fonts.title()
         }
 
         Text {

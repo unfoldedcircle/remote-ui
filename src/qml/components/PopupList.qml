@@ -25,6 +25,8 @@ Rectangle {
     property bool hideClose: false
     property bool closeOnSelected: true
     property int initialSelected: 0
+    // the value of the current choice: its row ends with a check mark (docs/design-system.md section 6)
+    property var currentValue: undefined
     property bool countryList: false
     // optional: name of a string role that groups adjacent rows under a section header (e.g. "section").
     // Model rows may also carry the optional roles "secondary" (second text line), "rightText"
@@ -138,44 +140,24 @@ Rectangle {
 
     Rectangle {
         id: titleContainer
-        color: colors.black
+        color: colors.bg
         width: parent.width
         height: showSearch ? 180 : 80
         z: 200
         anchors { horizontalCenter: parent.horizontalCenter; top: parent.top }
 
-        Text {
+        Components.TitleBar {
             id: titleText
-            width: parent.width
-            elide: Text.ElideRight
-            color: colors.offwhite
-            horizontalAlignment: Text.AlignHCenter
-            anchors { horizontalCenter: parent.horizontalCenter; top: parent.top; topMargin: 10 }
-            font: fonts.primaryFont(30)
-        }
-
-        Components.Icon {
-            id: closeIcon
-            color: colors.offwhite
-            icon: "uc:xmark"
-            anchors { verticalCenter: titleText.verticalCenter; right: parent.right }
-            size: 80
-            visible: !hideClose
-        }
-
-        Components.HapticMouseArea {
-            enabled: !hideClose
-            width: 120; height: 120
-            anchors.centerIn: closeIcon
-            onClicked: {
+            action: hideClose ? "" : "close"
+            goBack: function() {
                 popupList.state = "hidden";
             }
         }
 
         Components.SearchField {
             id: searchField
-            width: parent.width
-            anchors { horizontalCenter: parent.horizontalCenter; top: titleText.bottom; topMargin: 20 }
+            width: parent.width - 40
+            anchors { horizontalCenter: parent.horizontalCenter; top: titleText.bottom; topMargin: 10 }
             visible: showSearch
 
             placeholderText: qsTr("Search")
@@ -216,10 +198,6 @@ Rectangle {
 
         section.property: popupList.sectionRole
         section.delegate: sectionHeader
-
-        ScrollBar.vertical: ScrollBar {
-            opacity: 0.5
-        }
     }
 
     Components.ScrollIndicator {
@@ -314,16 +292,22 @@ Rectangle {
             property bool hasSecondary: model.secondary !== undefined && model.secondary !== ""
             property bool hasRightText: model.rightText !== undefined && model.rightText !== ""
 
+            // with the keypad the fill follows the selection; without it, it marks the current value next to
+            // its check mark (docs/design-system.md section 6)
             Components.Selectable {
-                selected: listItemBg.isCurrentItem
-                anchors { leftMargin: 4; rightMargin: 4 }
+                id: selection
+                selected: ui.keyNavigationActive ? listItemBg.isCurrentItem : checkIcon.visible
+                shownAfterTouch: true
+                style: "fill"
+                anchors { leftMargin: 8; rightMargin: 8 }
             }
 
             Text {
                 id: listItemText
-                color: colors.offwhite
+                color: colors.textPrimary
                 text: name
                 width: parent.width - 40 - (rightTextItem.visible ? rightTextItem.width + 20 : 0)
+                       - (checkIcon.visible ? checkIcon.width + 10 : 0)
                 elide: Text.ElideRight
                 anchors {
                     left: parent.left; leftMargin: 20
@@ -336,7 +320,7 @@ Rectangle {
             Text {
                 id: secondaryText
                 visible: listItemBg.hasSecondary
-                color: colors.textSecondary
+                color: selection.shown ? colors.textPrimary : colors.textSecondary
                 text: listItemBg.hasSecondary ? model.secondary : ""
                 width: listItemText.width
                 elide: Text.ElideRight
@@ -349,8 +333,18 @@ Rectangle {
                 visible: listItemBg.hasRightText
                 color: colors.textPrimary
                 text: listItemBg.hasRightText ? model.rightText : ""
-                anchors { right: parent.right; rightMargin: 20; verticalCenter: parent.verticalCenter }
+                anchors { right: checkIcon.visible ? checkIcon.left : parent.right; rightMargin: checkIcon.visible ? 10 : 20
+                          verticalCenter: parent.verticalCenter }
                 font: fonts.value()
+            }
+
+            Components.Icon {
+                id: checkIcon
+                visible: popupList.currentValue !== undefined && value === popupList.currentValue
+                icon: "uc:check"
+                size: 60
+                color: colors.textPrimary
+                anchors { right: parent.right; rightMargin: 20; verticalCenter: parent.verticalCenter }
             }
 
             Components.HapticMouseArea {
@@ -358,9 +352,13 @@ Rectangle {
                 onClicked: {
                     itemList.currentIndex = index;
                     itemList.positionViewAtIndex(index, ListView.Beginning);
+                    // a handler may rebuild the list ("All timezones…"), which destroys this row while
+                    // its handler still runs: take what is needed from the row before the signal
+                    const list = popupList;
+                    const close = closeOnSelected;
                     itemSelected(value);
-                    if (closeOnSelected) {
-                        popupList.state = "hidden";
+                    if (close) {
+                        list.state = "hidden";
                     }
                 }
             }

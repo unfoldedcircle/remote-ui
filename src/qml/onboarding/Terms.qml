@@ -18,25 +18,16 @@ OnboardingComponents.Page {
     // the terms must be agreed to deliberately: the selection starts on Cancel
     initialFocusItem: buttonCancel
 
-    Item {
+    Components.TitleBar {
         id: title
-        width: parent.width
-        height: 60
-
-        Text {
-            text: qsTr("Terms & conditions")
-            width: parent.width
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
-        }
+        // onboarding steps have no back target: BACK goes to the previous step
+        action: ""
+        text: qsTr("Terms & conditions")
     }
 
     Text {
         id: description
-        width: parent.width
+        width: parent.width - 40
         wrapMode: Text.WordWrap
         color: colors.textPrimary
         horizontalAlignment: Text.AlignHCenter
@@ -64,20 +55,19 @@ OnboardingComponents.Page {
             event.accepted = true;
         }
 
+        // the code shrinks to the space the text leaves, so a long translation does not run under it
         Image {
-            width: 300
+            width: Math.max(0, Math.min(300, qrCode.height - 20))
             height: width
             fillMode: Image.PreserveAspectFit
             antialiasing: false
             source: "data:image/png;base64," + ui.createQrCode("https://unfoldedcircle.com/legal")
             anchors.centerIn: parent
-        }
 
-        Rectangle {
-            anchors { fill: parent; margins: -4 }
-            radius: ui.cornerRadiusSmall
-            color: colors.transparent
-            border { width: 2; color: qrCode.activeFocus && ui.keyNavigationActive ? colors.highlight : colors.transparent }
+            Components.Selectable {
+                anchors.margins: -4
+                selected: qrCode.activeFocus
+            }
         }
 
         MouseArea {
@@ -91,16 +81,16 @@ OnboardingComponents.Page {
 
     Rectangle {
         id: buttons
-        width: parent.width
+        width: parent.width - 40
         height: 80
-        color: colors.black
-        anchors.bottom: parent.bottom
+        color: colors.bg
+        anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
 
         Components.Button {
             id: buttonCancel
             text: qsTr("Cancel")
-            color: colors.secondaryButton
-            width: (parent.width - 30 ) / 2
+            variant: "secondary"
+            width: (parent.width - 20) / 2
             anchors { left: parent.left; verticalCenter: parent.verticalCenter }
             KeyNavigation.up: qrCode
             KeyNavigation.right: buttonAgree
@@ -113,7 +103,7 @@ OnboardingComponents.Page {
             id: buttonAgree
             //: Agree to terms and conditions
             text: qsTr("Agree")
-            width: (parent.width - 30 ) / 2
+            width: (parent.width - 20) / 2
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
             KeyNavigation.up: qrCode
             KeyNavigation.left: buttonCancel
@@ -144,35 +134,15 @@ OnboardingComponents.Page {
         }
 
         background: Rectangle {
-            color: colors.black
+            color: colors.bg
         }
 
-        Item {
-            width: parent.width
-            height: 60
-
-            Text {
-                text: qsTr("Terms & conditions")
-                width: parent.width
-                elide: Text.ElideRight
-                color: colors.offwhite
-                verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-                anchors.centerIn: parent
-                font: fonts.primaryFont(24)
-            }
-
-            Components.Icon {
-                color: colors.offwhite
-                icon: "uc:xmark"
-                anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-
-                Components.HapticMouseArea {
-                    width: parent.width + 20; height: parent.height + 20
-                    anchors.centerIn: parent
-                    enabled: termsPopup.opened
-                    onClicked: {
-                        termsPopup.close();
-                    }
+        Components.TitleBar {
+            action: "close"
+            text: qsTr("Terms & conditions")
+            goBack: function() {
+                if (termsPopup.opened) {
+                    termsPopup.close();
                 }
             }
         }

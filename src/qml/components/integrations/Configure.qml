@@ -151,40 +151,40 @@ Item {
 
         width: parent.width - 40
         height: childrenRect.height
-        color: colors.dark
+        color: colors.surface
         anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
         radius: ui.cornerRadiusSmall
         border {
-            color: colors.medium
-            width: 1
+            color: colors.divider
+            width: 2
         }
 
         Components.Icon {
             icon: "uc:globe"
             size: 30
-            color: colors.light
+            color: colors.textSecondary
             anchors { top: parent.top; topMargin: 5; right: parent.right; rightMargin: 5 }
             visible: IntegrationController.integrationDriverTosetup.external
         }
 
         RowLayout {
-            width: parent.width - 60
+            width: parent.width - 40
             anchors.horizontalCenter: parent.horizontalCenter
             spacing: 20
 
             Rectangle {
                 Layout.preferredWidth: 60
                 Layout.preferredHeight: 60
-                Layout.topMargin: 30
-                Layout.bottomMargin: 30
+                Layout.topMargin: 20
+                Layout.bottomMargin: 20
 
                 radius: 30
-                color: colors.offwhite
+                color: colors.textPrimary
 
                 Components.Icon {
                     icon: IntegrationController.integrationDriverTosetup.icon
                     size: 60
-                    color: colors.black
+                    color: colors.bg
                     anchors.centerIn: parent
                 }
             }
@@ -196,7 +196,7 @@ Item {
                 Text {
                     Layout.fillWidth: true
 
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: IntegrationController.integrationDriverTosetup.name
                     maximumLineCount: 1
                     elide: Text.ElideRight
@@ -263,9 +263,8 @@ Item {
                 wrapMode: Text.WordWrap
                 maximumLineCount: 2
                 elide: Text.ElideRight
-                color: colors.offwhite
-                font: fonts.primaryFont(22)
-                lineHeight: 0.9
+                color: colors.textOnButton
+                font: fonts.caption()
                 text: IntegrationController.setupLimitLowBattery
                       //: %1 is a countdown in minutes:seconds
                       ? qsTr("Low battery: the setup ends in %1").arg(setupLimitBanner.formatted)
@@ -305,9 +304,10 @@ Item {
     Item {
         id: footer
 
-        width: parent.width
+        // the button pair inside the 20 px gutter
+        width: parent.width - 40
         height: 80
-        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+        anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
 
         Components.Button {
             id: buttonNext
@@ -343,7 +343,7 @@ Item {
 
             text: qsTr("Cancel")
             width: (parent.width - 20 ) / 2
-            color: colors.secondaryButton
+            variant: "secondary"
             anchors { left: parent.left; bottom: parent.bottom }
 
             KeyNavigation.up: integrationConfigureContainer.currentPage ? integrationConfigureContainer.currentPage.lastFocusItem : null

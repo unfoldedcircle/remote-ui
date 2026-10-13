@@ -82,8 +82,8 @@ FieldBase {
 
             background: Rectangle {
                 width: parent.width; height: 80
-                color: colors.dark
-                border { color: colors.medium; width: 0 }
+                color: colors.surface
+                border { color: colors.divider; width: 0 }
                 radius: ui.cornerRadiusLarge
             }
 
@@ -121,6 +121,7 @@ FieldBase {
             listModel: optionsModel
             showSearch: optionsModel.count > 8
             initialSelected: Math.max(0, dropDown.currentIndex)
+            currentValue: dropDown.currentValue
 
             onItemSelected: {
                 dropDown.currentIndex = dropDown.indexOfValue(value);

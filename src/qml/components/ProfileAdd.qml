@@ -175,62 +175,55 @@ Rectangle {
     MouseArea {
         anchors.fill: parent
 
-        Item {
-            id: addProfileContainerTitle
-            width: parent.width; height: 60
-            anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-
-            Text {
-                id: addProfileContainerTitleText
-                color: colors.offwhite
-                text: qsTr("Profile name")
-                anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
-                font: fonts.primaryFont(26)
+        Components.FormDialog {
+            id: dialog
+            title: qsTr("Profile name")
+            goBack: function() {
+                cancelButton.activate();
             }
-        }
+            closable: cancelButton.visible
 
+            Components.InputField {
+                id: inputFieldContainer
+                width: parent.width; height: 80
 
-        Components.InputField {
-            id: inputFieldContainer
-            width: parent.width; height: 80
-            anchors { top: addProfileContainerTitle.bottom; horizontalCenter: parent.horizontalCenter }
+                //: Example for profile name
+                inputField.placeholderText: qsTr("John")
+                inputField.onAccepted: addProfileContainer.submitForm()
+                moveInput: false
 
-            //: Example for profile name
-            inputField.placeholderText: qsTr("John")
-            inputField.onAccepted: addProfileContainer.submitForm()
-            moveInput: false
-
-            /** KEYBOARD NAVIGATION **/
-            navDown: cancelButton.visible ? cancelButton : addButton
-        }
-
-        Components.Button {
-            id: cancelButton
-            text: qsTr("Cancel")
-            width: parent.width / 2 - 10
-            color: colors.secondaryButton
-            anchors { left: inputFieldContainer.left; top: inputFieldContainer.bottom; topMargin: 40 }
-            trigger: function() {
-                addProfileContainer.cancelForm();
-            }
-            visible: !ui.isOnboarding || addProfileContainer.noProfile
-
-            KeyNavigation.up: inputFieldContainer.inputField
-            KeyNavigation.right: addButton
-        }
-
-        Components.Button {
-            id: addButton
-            //: Label for button that add a profile
-            text: qsTr("Add")
-            width: ui.isOnboarding || addProfileContainer.noProfile ? parent.width : parent.width / 2 - 10
-            anchors { right: inputFieldContainer.right; top: inputFieldContainer.bottom; topMargin: 40 }
-            trigger: function() {
-                addProfileContainer.submitForm();
+                /** KEYBOARD NAVIGATION **/
+                navDown: cancelButton.visible ? cancelButton : addButton
             }
 
-            KeyNavigation.up: inputFieldContainer.inputField
-            KeyNavigation.left: cancelButton
+            buttons: [
+                Components.Button {
+                    id: cancelButton
+                    text: qsTr("Cancel")
+                    width: dialog.buttonWidth
+                    variant: "secondary"
+                    trigger: function() {
+                        addProfileContainer.cancelForm();
+                    }
+                    visible: !ui.isOnboarding || addProfileContainer.noProfile
+
+                    KeyNavigation.up: inputFieldContainer.inputField
+                    KeyNavigation.right: addButton
+                },
+                Components.Button {
+                    id: addButton
+                    //: Label for button that add a profile
+                    text: qsTr("Add")
+                    // alone when there is nothing to cancel
+                    width: cancelButton.visible ? dialog.buttonWidth : parent.width
+                    trigger: function() {
+                        addProfileContainer.submitForm();
+                    }
+
+                    KeyNavigation.up: inputFieldContainer.inputField
+                    KeyNavigation.left: cancelButton
+                }
+            ]
         }
     }
 }

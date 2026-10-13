@@ -87,56 +87,26 @@ Item {
         }
     }
 
-    Item {
+    Components.TitleBar {
         id: titleContainer
-        width: parent.width
-        height: 60
-        anchors { horizontalCenter: parent.horizontalCenter; top: parent.top }
-
-        Text {
-            id: titleText
-            text: qsTr("Manage entities")
-            width: parent.width - 40
-            wrapMode: Text.NoWrap
-            elide: Text.ElideRight
-            maximumLineCount: 1
-            color: colors.offwhite
-            horizontalAlignment: Text.AlignHCenter
-            verticalAlignment: Text.AlignVCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(30)
-        }
-
-        Components.Icon {
-            color: colors.offwhite
-            icon: "uc:xmark"
-            anchors { verticalCenter: parent.verticalCenter; right: parent.right }
-            size: 60
-
-            Components.HapticMouseArea {
-                width: parent.width + 20; height: width
-                anchors.centerIn: parent
-                onClicked: {
-                    manageEntities.close();
-                }
-            }
+        anchors.top: parent.top
+        action: "close"
+        text: qsTr("Manage entities")
+        goBack: function() {
+            manageEntities.close();
         }
     }
 
     TabBar {
         id: tabBar
-        width: parent.width - 20
+        width: parent.width - 40
         implicitHeight: 60
 
         anchors { horizontalCenter: parent.horizontalCenter; top: titleContainer.bottom; topMargin: 20 }
 
         background: Rectangle {
-            color: colors.dark
+            color: colors.surfaceRaised
             radius: ui.cornerRadiusLarge
-            border {
-                color: colors.medium
-                width: 1
-            }
         }
 
         TabButton {
@@ -155,7 +125,7 @@ Item {
             }
 
             background: Rectangle {
-                color: tabBar.currentIndex == 0 ? colors.primaryButton : colors.transparent
+                color: tabBar.currentIndex == 0 ? colors.buttonPrimary : colors.transparent
                 radius: ui.cornerRadiusLarge
             }
         }
@@ -176,7 +146,7 @@ Item {
             }
 
             background: Rectangle {
-                color: tabBar.currentIndex == 1 ? colors.primaryButton : colors.transparent
+                color: tabBar.currentIndex == 1 ? colors.buttonPrimary : colors.transparent
                 radius: ui.cornerRadiusLarge
             }
         }

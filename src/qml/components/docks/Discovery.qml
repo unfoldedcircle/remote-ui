@@ -147,7 +147,7 @@ ListView {
     Rectangle {
         id: startMessageContainer
         anchors.fill: parent
-        color: ui.isOnboarding ? colors.black : Qt.darker(colors.dark, 1.5)
+        color: colors.bg
         visible: opacity > 0
         enabled: opacity === 1
 
@@ -176,7 +176,8 @@ ListView {
                 id: startMessageContainerContent
                 width: parent.width - 40
                 anchors.horizontalCenter: parent.horizontalCenter
-                spacing: 40
+                // section spacing of the design system (docs/design-system.md, I-22)
+                spacing: 20
 
                 ColumnLayout {
                     id: bluetoothContainer
@@ -199,10 +200,10 @@ ListView {
                         Text {
                             Layout.fillWidth: true
 
-                            color: colors.offwhite
+                            color: colors.textPrimary
                             text: qsTr("Bluetooth")
                             wrapMode: Text.WordWrap
-                            font: fonts.primaryFont(30)
+                            font: fonts.label()
                         }
 
                         Components.Switch {
@@ -248,6 +249,11 @@ ListView {
                     }
                 }
             }
+        }
+
+        // a long translation pushes Discover below the fold: show that the start screen scrolls
+        Components.ScrollIndicator {
+            parentObj: startFlickable
         }
     }
 
@@ -323,36 +329,37 @@ ListView {
             readonly property bool selected: ListView.isCurrentItem && dockList.keypadSelected
                                              && !startMessageContainer.visible && ui.keyNavigationActive
 
-            x: 10
-            width: ListView.view.width - 20
+            // a selectable card spans 8 px to width - 8, its content keeps the 20 px gutter
+            x: 8
+            width: ListView.view.width - 16
             height: childrenRect.height
-            color: ListView.isCurrentItem ? colors.black : colors.transparent
+            color: colors.transparent
             radius: ui.cornerRadiusSmall
             // the selection ring of Components.Selectable, drawn as the border: the card is sized by its children,
             // and a child that fills it would be a binding loop
             border {
-                width: dockItemContainer.selected ? 3 : 1
-                color: dockItemContainer.selected ? colors.focusRing : colors.medium
+                width: dockItemContainer.selected ? 3 : 2
+                color: dockItemContainer.selected ? colors.focusRing : colors.divider
             }
 
             RowLayout {
-                width: parent.width - 60
+                width: parent.width - 24
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 20
 
                 Rectangle {
                     Layout.preferredWidth: 60
                     Layout.preferredHeight: 60
-                    Layout.topMargin: 30
-                    Layout.bottomMargin: 30
+                    Layout.topMargin: 20
+                    Layout.bottomMargin: 20
 
                     radius: 30
-                    color: colors.offwhite
+                    color: colors.textPrimary
 
                     Components.Icon {
                         icon: itemDiscoveryType === "NET" ? "uc:ethernet" : "uc:bluetooth"
                         size: 60
-                        color: colors.black
+                        color: colors.bg
                         anchors.centerIn: parent
                     }
                 }
@@ -365,7 +372,7 @@ ListView {
                     Text {
                         Layout.fillWidth: true
 
-                        color: colors.offwhite
+                        color: colors.textPrimary
                         text: itemDiscoveryType === "NET" ? itemFriendlyName : itemId
                         maximumLineCount: 1
                         elide: Text.ElideRight

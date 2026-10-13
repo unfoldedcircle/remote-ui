@@ -691,57 +691,29 @@ Popup {
             Layout.bottomMargin: 30
             Layout.alignment: Qt.AlignHCenter
 
-            Text {
+            // Close and Try again are buttons (docs/design-system.md, I-09)
+            Components.Button {
                 id: closeButton
                 //: Button on the failed activity screen: dismiss it.
                 text: qsTr("Close")
-                width: parent.width / 2 - 10
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignLeft
-                color: colors.offwhite
-                font: fonts.secondaryFont(26, "Bold")
+                variant: "secondary"
+                width: (parent.width - 20) / 2
                 anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-
-                Rectangle {
-                    anchors { fill: parent; margins: -8 }
-                    radius: ui.cornerRadiusSmall
-                    color: colors.transparent
-                    border { width: 2; color: !activityLoading.retrySelected && ui.keyNavigationActive
-                                              ? colors.highlight : colors.transparent }
-                }
-
-                Components.HapticMouseArea {
-                    width: parent.width + 40
-                    height: parent.height + 40
-                    anchors.centerIn: parent
-                    onClicked: activityLoading.close()
+                highlight: !activityLoading.retrySelected && ui.keyNavigationActive
+                trigger: function() {
+                    activityLoading.close();
                 }
             }
 
-            Text {
+            Components.Button {
                 id: retryButton
                 //: Button on the failed activity screen: run the activity again.
                 text: qsTr("Try again")
-                width: parent.width / 2 - 10
-                wrapMode: Text.WordWrap
-                horizontalAlignment: Text.AlignRight
-                color: colors.offwhite
-                font: fonts.secondaryFont(26, "Bold")
+                width: (parent.width - 20) / 2
                 anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-
-                Rectangle {
-                    anchors { fill: parent; margins: -8 }
-                    radius: ui.cornerRadiusSmall
-                    color: colors.transparent
-                    border { width: 2; color: activityLoading.retrySelected && ui.keyNavigationActive
-                                              ? colors.highlight : colors.transparent }
-                }
-
-                Components.HapticMouseArea {
-                    width: parent.width + 40
-                    height: parent.height + 40
-                    anchors.centerIn: parent
-                    onClicked: activityLoading.retry()
+                highlight: activityLoading.retrySelected && ui.keyNavigationActive
+                trigger: function() {
+                    activityLoading.retry();
                 }
             }
         }

@@ -87,7 +87,7 @@ Drawer {
             id: notificationsSeparatorLine
             width: parent.width
             height: 2
-            color: colors.medium
+            color: colors.divider
             anchors { top: displayBrightnessSlider.bottom; topMargin: 20 }
         }
 
@@ -104,7 +104,7 @@ Drawer {
             delegate: Rectangle {
                 width: notifications.width - 20
                 height: 120
-                color: colors.dark
+                color: colors.surface
                 radius: ui.cornerRadiusSmall
 
                 Components.Icon {

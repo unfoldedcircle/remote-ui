@@ -115,75 +115,66 @@ Rectangle {
     Item {
         width: parent.width; height: parent.height
 
-        Item {
-            id: renameProfileContainerTitle
-            width: parent.width; height: 60
-            anchors { top: parent.top; horizontalCenter: parent.horizontalCenter }
-
-            Text {
-                id: renameProfileContainerTitleText
-                color: colors.offwhite
-                text: qsTr("Rename profile")
-                anchors { verticalCenter: parent.verticalCenter; horizontalCenter: parent.horizontalCenter }
-                font: fonts.primaryFont(26)
+        Components.FormDialog {
+            id: dialog
+            title: qsTr("Rename profile")
+            goBack: function() {
+                cancelButton.activate();
             }
-        }
 
+            Components.InputField {
+                id: inputFieldContainer
+                width: parent.width; height: 80
 
-        Components.InputField {
-            id: inputFieldContainer
-            width: parent.width; height: 80
-            anchors { top: renameProfileContainerTitle.bottom; horizontalCenter: parent.horizontalCenter }
-
-            //: Example name for a profile
-            inputField.placeholderText: qsTr("John")
-            inputField.onAccepted: {
-                if (!inputFieldContainer.isEmpty()) {
-                    name = inputFieldContainer.inputField.text;
-                    keyboard.hide();
-                    add();
-                } else {
-                    inputFieldContainer.showError();
+                //: Example name for a profile
+                inputField.placeholderText: qsTr("John")
+                inputField.onAccepted: {
+                    if (!inputFieldContainer.isEmpty()) {
+                        name = inputFieldContainer.inputField.text;
+                        keyboard.hide();
+                        add();
+                    } else {
+                        inputFieldContainer.showError();
+                    }
                 }
-            }
-            moveInput: false
+                moveInput: false
 
-            navDown: cancelButton
-        }
-
-        Components.Button {
-            id: cancelButton
-            text: qsTr("Cancel")
-            width: parent.width / 2 - 10
-            color: colors.secondaryButton
-            anchors { left: inputFieldContainer.left; top: inputFieldContainer.bottom; topMargin: 40 }
-            trigger: function() {
-                resetForm();
-                keyboard.hide();
+                navDown: cancelButton
             }
 
-            KeyNavigation.up: inputFieldContainer.inputField
-            KeyNavigation.right: actionButton
-        }
+            buttons: [
+                Components.Button {
+                    id: cancelButton
+                    text: qsTr("Cancel")
+                    width: dialog.buttonWidth
+                    variant: "secondary"
+                    trigger: function() {
+                        resetForm();
+                        keyboard.hide();
+                    }
 
-        Components.Button {
-            id: actionButton
-            //: Button caption to execute the profile rename
-            text: qsTr("Rename")
-            width: parent.width / 2 - 10
-            anchors { right: inputFieldContainer.right; top: inputFieldContainer.bottom; topMargin: 40 }
-            trigger: function() {
-                if (!inputFieldContainer.isEmpty()) {
-                    name = inputFieldContainer.inputField.text;
-                    keyboard.hide();
-                    add();
-                } else {
-                    inputFieldContainer.showError();
+                    KeyNavigation.up: inputFieldContainer.inputField
+                    KeyNavigation.right: actionButton
+                },
+                Components.Button {
+                    id: actionButton
+                    //: Button caption to execute the profile rename
+                    text: qsTr("Rename")
+                    width: dialog.buttonWidth
+                    trigger: function() {
+                        if (!inputFieldContainer.isEmpty()) {
+                            name = inputFieldContainer.inputField.text;
+                            keyboard.hide();
+                            add();
+                        } else {
+                            inputFieldContainer.showError();
+                        }
+                    }
+
+                    KeyNavigation.up: inputFieldContainer.inputField
+                    KeyNavigation.left: cancelButton
                 }
-            }
-
-            KeyNavigation.up: inputFieldContainer.inputField
-            KeyNavigation.left: cancelButton
+            ]
         }
     }
 }

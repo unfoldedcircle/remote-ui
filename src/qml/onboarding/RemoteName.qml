@@ -43,25 +43,16 @@ OnboardingComponents.Page {
         }
     }
 
-    Item {
+    Components.TitleBar {
         id: title
-        width: parent.width
-        height: 60
-
-        Text {
-            text: qsTr("Name your remote")
-            width: parent.width
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
-        }
+        // onboarding steps have no back target: BACK goes to the previous step
+        action: ""
+        text: qsTr("Name your remote")
     }
 
     Components.InputField {
         id: inputFieldContainer
-        width: parent.width; height: 80
+        width: parent.width - 40; height: 80
         anchors { top: title.bottom; horizontalCenter: parent.horizontalCenter }
 
         inputField.text: HwInfo.modelNumber == "UCR3" ? "Remote 3" : "Remote Two"
@@ -78,7 +69,7 @@ OnboardingComponents.Page {
 
     Components.Button {
         text: qsTr("Next")
-        width: parent.width
+        width: parent.width - 40
         anchors { left: inputFieldContainer.left; top: inputFieldContainer.bottom; topMargin: 40 }
         trigger: function() {
             remoteNameStep.next();

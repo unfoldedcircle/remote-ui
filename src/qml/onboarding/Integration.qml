@@ -65,20 +65,11 @@ OnboardingComponents.Page {
                                              });
     }
 
-    Item {
+    Components.TitleBar {
         id: integrationSetupTitle
-        width: parent.width
-        height: 60
-
-        Text {
-            text: qsTr("Integration setup")
-            width: parent.width - 20
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
-        }
+        // onboarding steps have no back target: BACK goes to the previous step
+        action: ""
+        text: qsTr("Integration setup")
     }
 
     Integrations.Discovery {
@@ -92,7 +83,9 @@ OnboardingComponents.Page {
         id: skipButton
         width: parent.width - 40
         text: integrationSetup.integrationHasBeenSetup ? qsTr("Next") : qsTr("Skip")
-        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+        // Skip is the alternative to setting up an integration, Next the way on
+        variant: integrationSetup.integrationHasBeenSetup ? "primary" : "secondary"
+        anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         highlight: integrationSetup.skipSelected && ui.keyNavigationActive
         trigger: function() {
             OnboardingController.nextStep();

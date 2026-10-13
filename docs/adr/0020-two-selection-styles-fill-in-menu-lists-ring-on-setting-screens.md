@@ -27,7 +27,9 @@ while setting screens read as a list of labelled controls.
 - **The design system maps the screens** to the two styles (`docs/design-system.md` section 6), and
   which style a screen takes is the designer's decision. Moving a screen from one style to the
   other, such as a menu-like settings screen to the fill, changes that mapping, not this decision.
-- An element never shows both styles. The current value of a choice is a check mark.
+- An element never shows both styles, with one exception: an element held for reordering (page
+  tiles, group rows, page selector rows) gets the ring for "held" on top of the fill for
+  "selected" while it moves. The current value of a choice is a check mark.
 - One shared, render-only component draws both styles; the selection still shows only while the
   keypad is active (ADR 0007 is unchanged). Two exceptions keep the fill after a touch, to mark the
   current choice: the page selector's current page and the current value of a picker list.

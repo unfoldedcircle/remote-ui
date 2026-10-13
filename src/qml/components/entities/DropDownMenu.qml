@@ -11,8 +11,13 @@ Rectangle {
     height: parent.height - title.height
     y: ui.height
     clip: true
-    color: colors.dark
-    radius: ui.cornerRadiusSmall
+    color: colors.transparent
+
+    // a bottom sheet like every other (docs/design-system.md section 5, Q-4): black with a divider edge
+    Components.Sheet {
+        anchors.fill: parent
+        z: -1
+    }
 
     property bool opened: y != ui.height
 

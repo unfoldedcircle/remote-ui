@@ -413,7 +413,8 @@ Rectangle {
     Components.Selectable {
         id: selection
         style: "fill"
-        selected: entityBaseContainer.isSelected && !entityBaseContainer.editMode
+        // in the edit mode too: the fill marks the selection, the page adds the ring while a tile is held (Q-5)
+        selected: entityBaseContainer.isSelected
     }
 
     Connections {

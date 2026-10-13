@@ -62,22 +62,12 @@ OnboardingComponents.Page {
                                              });
     }
 
-    Item {
+    Components.TitleBar {
         id: title
-        width: parent.width
-        height: 60
-
-        Text {
-            id: titleText
-            //: Smart charging dock
-            text: qsTr("Dock setup")
-            width: parent.width
-            elide: Text.ElideRight
-            color: colors.offwhite
-            verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
-            anchors.centerIn: parent
-            font: fonts.primaryFont(24)
-        }
+        // onboarding steps have no back target: BACK goes to the previous step
+        action: ""
+        //: Smart charging dock
+        text: qsTr("Dock setup")
     }
 
     Docks.Discovery {
@@ -97,10 +87,10 @@ OnboardingComponents.Page {
 
     Components.Button {
         id: skipButton
-        width: parent.width - 20
+        width: parent.width - 40
         text: qsTr("Skip")
-        color: colors.secondaryButton
-        anchors { bottom: parent.bottom; horizontalCenter: parent.horizontalCenter }
+        variant: "secondary"
+        anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         highlight: dockStep.skipSelected && ui.keyNavigationActive
         trigger: function() {
             OnboardingController.nextStep();

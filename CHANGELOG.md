@@ -18,16 +18,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   are drawn in lighter shades. They now stay readable on the Remote 3 display, also in a lit room, and are easier to
   read on the Remote Two as well.
 - The d-pad selection is visible on every screen, also on the Remote 3. On the main pages, in popup menus, the page
-  selector, the profile switcher and the activity menu the selected entry gets a lighter background. In settings and
-  set-up screens it gets a bright frame, on a setting's switch or slider rather than around the whole setting. The
-  selection is only shown while the d-pad is in use and disappears when the screen is touched, now also on tiles,
-  in groups and in the media browser.
+  selector, the profile switcher, the activity menu, the menus of the profile page, Settings and About and the lists of
+  choices, such as language, country and time zone, the selected entry gets a lighter background. In the other settings
+  and set-up screens it gets a bright frame, on a setting's switch or slider rather than around the whole setting. The
+  selection is only shown while the d-pad is in use and disappears when the screen is touched, now also on tiles, in
+  groups and in the media browser. The page selector and the lists of choices are the exception: while the d-pad is not
+  in use they show the current page or the current choice with the lighter background, not only with a check mark. The
+  page names in the page selector are slightly larger.
 - Help texts, release notes, legal texts and driver instructions are easier to read: they use the same typeface as
   the rest of the interface instead of a typewriter font, in a larger size and with more line spacing. The typewriter
   font is kept for values such as versions, addresses, times and the web configurator PIN and URL. No text is smaller
   than 22 pixels anymore.
+- Settings, onboarding, docks and integrations share one layout: the same title bar with its back or close button,
+  the same margins, row heights and dividers, and one kind of scroll indicator. Bottom sheets such as the page menu,
+  the activity menu, the Wi-Fi details and the delete confirmations are black with a light edge. Buttons come in
+  three kinds: primary, secondary and destructive; actions that were plain text, such as Cancel, Clear and Done, are
+  buttons now, and a destructive confirmation starts on Cancel. Lists of choices, such as language, country, time
+  zone and Wi-Fi band, mark the current choice with a check mark. While a page tile, group entry or page is held to
+  reorder it, it shows the frame on top of its selected background.
 
 ### Fixed
+- The last step of the first set-up, "You're all set", shows a scroll indicator. With the web configurator switched on,
+  the Done button is below the screen and nothing showed that the step scrolls to it.
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.
   They sent a toggle command, which such an integration may reject; the remote now sends On or Off depending on the
   current state of the switch, as it already does for a light.

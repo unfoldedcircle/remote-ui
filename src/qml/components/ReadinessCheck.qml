@@ -225,57 +225,29 @@ Popup {
 
         height: proceedButton.height
 
-        Text {
+        // Cancel and Proceed are buttons, Cancel first (docs/design-system.md, I-09)
+        Components.Button {
             id: cancelButton
             //: Button on the readiness check screens: do not run the activity.
             text: qsTr("Cancel")
-            width: parent.width / 2 - 10
-            wrapMode: Text.WordWrap
-            horizontalAlignment: Text.AlignLeft
-            color: colors.offwhite
-            font: fonts.button()
+            variant: "secondary"
+            width: (parent.width - 20) / 2
             anchors { left: parent.left; verticalCenter: parent.verticalCenter }
-
-            Rectangle {
-                anchors { fill: parent; margins: -8 }
-                radius: ui.cornerRadiusSmall
-                color: colors.transparent
-                border { width: 2; color: decisionButtons.selection === 1 && ui.keyNavigationActive
-                                          ? colors.highlight : colors.transparent }
-            }
-
-            Components.HapticMouseArea {
-                width: parent.width + 40
-                height: parent.height + 40
-                anchors.centerIn: parent
-                onClicked: decisionButtons.cancelled()
+            highlight: decisionButtons.selection === 1 && ui.keyNavigationActive
+            trigger: function() {
+                decisionButtons.cancelled();
             }
         }
 
-        Text {
+        Components.Button {
             id: proceedButton
             //: Button on the readiness check screens: run the activity although devices are not ready.
             text: qsTr("Proceed")
-            width: parent.width / 2 - 10
-            wrapMode: Text.WordWrap
-            horizontalAlignment: Text.AlignRight
-            color: colors.offwhite
-            font: fonts.button()
+            width: (parent.width - 20) / 2
             anchors { right: parent.right; verticalCenter: parent.verticalCenter }
-
-            Rectangle {
-                anchors { fill: parent; margins: -8 }
-                radius: ui.cornerRadiusSmall
-                color: colors.transparent
-                border { width: 2; color: decisionButtons.selection === 2 && ui.keyNavigationActive
-                                          ? colors.highlight : colors.transparent }
-            }
-
-            Components.HapticMouseArea {
-                width: parent.width + 40
-                height: parent.height + 40
-                anchors.centerIn: parent
-                onClicked: decisionButtons.proceeded()
+            highlight: decisionButtons.selection === 2 && ui.keyNavigationActive
+            trigger: function() {
+                decisionButtons.proceeded();
             }
         }
     }
@@ -462,17 +434,14 @@ Popup {
 
                         Components.Icon {
                             icon: "uc:chevron-right"
-                            size: 28
-                            color: colors.offwhite
+                            size: 40
+                            color: colors.textSecondary
                             anchors { right: parent.right; rightMargin: 4; verticalCenter: parent.verticalCenter }
                         }
 
-                        Rectangle {
-                            anchors { fill: parent; leftMargin: -8; rightMargin: -8 }
-                            radius: ui.cornerRadiusSmall
-                            color: colors.transparent
-                            border { width: 2; color: reportItem.selection === 0 && ui.keyNavigationActive
-                                                      ? colors.highlight : colors.transparent }
+                        Components.Selectable {
+                            anchors { leftMargin: -12; rightMargin: -12 }
+                            selected: reportItem.selection === 0
                         }
 
                         Components.HapticMouseArea {
@@ -609,7 +578,7 @@ Popup {
                             Rectangle {
                                 width: 3
                                 radius: 1.5
-                                color: colors.highlight
+                                color: colors.textPrimary
                                 visible: planRow.isCurrent && ui.keyNavigationActive
                                 anchors { left: parent.left; top: parent.top; bottom: parent.bottom
                                           topMargin: 10; bottomMargin: 10 }
