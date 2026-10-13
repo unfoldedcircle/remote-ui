@@ -25,11 +25,11 @@ A toast SHALL appear at the top of the screen, 10 px from the top edge, as wide 
 - **THEN** it is shown on a red background and fades out 4 s after it appeared
 
 ### Requirement: Toasts replace each other without a queue
-Only one toast SHALL be visible at a time and toasts SHALL NOT be queued. A toast created while another is visible SHALL replace the visible message text and colour in place, without a new entry animation and without restarting the 4000 ms timer, so the newer message disappears 4000 ms after the first toast opened.
+Only one toast SHALL be visible at a time and toasts SHALL NOT be queued. A toast created while another is visible SHALL replace the visible message text and colour in place, without a new entry animation, and SHALL restart the 4000 ms timer, so the newer message is shown for the full 4000 ms. A toast created while the toast is still fading in SHALL get its 4000 ms from the moment it is fully shown.
 
 #### Scenario: Two errors in quick succession
 - **WHEN** a warning toast opens and a neutral toast is created 3 s later
-- **THEN** the neutral message replaces the warning text and colour and the toast closes about 1 s later
+- **THEN** the neutral message replaces the warning text and colour and the toast closes 4 s later
 - **AND** the first message is not shown again
 
 ### Requirement: Toast dismissal and input
@@ -44,18 +44,18 @@ A toast SHALL close when the user presses anywhere outside it, and that press SH
 - **THEN** the screen below handles the key and the toast stays until its timer ends
 
 ### Requirement: Actionable notification presentation
-An actionable notification SHALL cover the whole screen with a gradient from transparent at the top to black from 60 % of the height downwards, and SHALL show, from the bottom up: the action label (bold 26 px, right half) and "Cancel" (bold 26 px, left half) 30 px above the bottom edge, both only when an action label is given; the message (24 px, 70 % opacity) 40 px above them; the title (40 px) 20 px above the message; and a 140 px icon above the title, which SHALL be a warning triangle when no icon is given. A 4 px bar along the bottom edge SHALL pulse (1000 ms fade out, 1000 ms fade in, 2000 ms pause, repeated). Warning notifications SHALL draw the icon and the bar in red; neutral ones draw the icon in off-white and the bar in the highlight colour. The notification SHALL fade in over 300 ms and out over 200 ms, and SHALL stay until the user dismisses it; it never closes on a timer.
+An actionable notification SHALL cover the whole screen with a gradient from transparent at the top to black from 60 % of the height downwards, and SHALL show, from the bottom up: the action as a primary button on the right and "Cancel" as a secondary button on the left, side by side, 80 px high and 30 px above the bottom edge, both only when an action label is given; the message in the prose role (26 px, line height 1.3) and the primary text colour 40 px above them; the title (40 px) 20 px above the message; and a 140 px icon above the title, which SHALL be a warning triangle when no icon is given. A 4 px bar along the bottom edge SHALL pulse (1000 ms fade out, 1000 ms fade in, 2000 ms pause, repeated). Warning notifications SHALL draw the icon and the bar in red; neutral ones draw the icon in off-white and the bar in the primary text colour. The notification SHALL fade in over 300 ms and out over 200 ms, and SHALL stay until the user dismisses it; it never closes on a timer.
 
 #### Scenario: Warning with an action
 - **WHEN** "Delete all networks" is requested in the WiFi settings
-- **THEN** a notification with a red warning icon, "Delete all networks", "Are you sure you want to delete all WiFi networks?", "Cancel" on the left and "Delete all" on the right is shown with a pulsing red bar
+- **THEN** a notification with a red warning icon, "Delete all networks", "Are you sure you want to delete all WiFi networks?", "Cancel" as a secondary button on the left and "Delete all" as a primary button on the right is shown with a pulsing red bar
 
 #### Scenario: Neutral notification without an action
-- **WHEN** "Select entities" / "Please select entities to add by tapping in the list." is shown
-- **THEN** no action label and no "Cancel" are shown and the notification stays until dismissed
+- **WHEN** "Select entities" / "Please select the entities to add in the list." is shown
+- **THEN** no buttons are shown, the bar pulses in the primary text colour, and the notification stays until dismissed
 
 ### Requirement: Actionable notifications stack and de-duplicate
-Actionable notifications SHALL be kept on a stack: a new one SHALL be shown on top of those already open, and dismissing the top one SHALL reveal the previous one; the overlay closes when the last one is dismissed. A new actionable notification whose title equals the title of any notification still on the stack SHALL be dropped silently. A dismissed notification SHALL be discarded and SHALL NOT suppress later notifications with the same title.
+Actionable notifications SHALL be kept on a stack: a new one SHALL be shown on top of those already open, and dismissing the top one SHALL reveal the previous one; the overlay closes when the last one is dismissed. A new actionable notification whose title and message both equal those of a notification still on the stack SHALL be dropped silently. A dismissed notification SHALL be discarded and SHALL NOT suppress later notifications with the same title and message.
 
 #### Scenario: Second notification while one is open
 - **WHEN** "Low battery" is open and "Connection error" is created
@@ -65,12 +65,18 @@ Actionable notifications SHALL be kept on a stack: a new one SHALL be shown on t
 - **WHEN** "Kitchen TV is not responding" is open and another command to the same device times out
 - **THEN** no second notification is added
 
+#### Scenario: Same title, different message
+- **WHEN** "Error sending the command" / "Kitchen TV is not responding. Error code: 400" is open and a command to
+  "Living room light" fails with 400
+- **THEN** "Error sending the command" / "Living room light is not responding. Error code: 400" is shown on top;
+  dismissing it shows the one for "Kitchen TV"
+
 #### Scenario: Same title after dismissal
 - **WHEN** the "Try again" notification of a device was dismissed and a later command to that device times out
 - **THEN** a new "is not responding" notification is shown
 
 ### Requirement: Actionable notification touch interaction
-Tapping the action label SHALL run the action once and dismiss the top notification. Tapping "Cancel" SHALL dismiss it without running the action. Tapping anywhere else on the notification SHALL dismiss it without running the action. The touch areas of the action label and of "Cancel" SHALL be squares as tall as they are wide (label width + 40 px) centred on the label, so they extend well above the labels over the lower part of the message.
+Tapping the action label SHALL run the action once and dismiss the top notification. Tapping "Cancel" SHALL dismiss it without running the action. Tapping anywhere else on the notification SHALL dismiss it without running the action. The touch area of the action and of "Cancel" SHALL be exactly their button, so a tap on the message dismisses the notification and never runs or cancels the action.
 
 #### Scenario: Try again by touch
 - **WHEN** the user taps "Try again" on "<device> is not responding"
@@ -80,8 +86,12 @@ Tapping the action label SHALL run the action once and dismiss the top notificat
 - **WHEN** the user taps the icon of a confirmation notification
 - **THEN** it is dismissed and the confirmed action is not run
 
+#### Scenario: Tap on the message just above the buttons
+- **WHEN** the user taps the last line of the message of a confirmation notification, right above its buttons
+- **THEN** it is dismissed and the confirmed action is not run
+
 ### Requirement: Actionable notification keys
-While at least one actionable notification is open it SHALL own the input (taken when the overlay opens, released when it closes). On opening, the action SHALL be preselected; the selection outline SHALL be drawn only while the keypad is active. DPAD_LEFT SHALL select "Cancel" when the top notification has an action label; DPAD_RIGHT SHALL select the action. DPAD_MIDDLE SHALL run the action of the top notification and dismiss it when the action is selected (a notification without an action is simply dismissed), and SHALL only dismiss it when "Cancel" is selected. BACK SHALL dismiss the top notification without running its action. HOME SHALL dismiss all open actionable notifications at once.
+While at least one actionable notification is open it SHALL own the input (taken when the overlay opens, released when it closes). When the overlay opens and whenever a notification is pushed onto an open one, the action SHALL be preselected; the selection outline SHALL be drawn only while the keypad is active. DPAD_LEFT SHALL select "Cancel" when the top notification has an action label; DPAD_RIGHT SHALL select the action. DPAD_MIDDLE SHALL run the action of the top notification and dismiss it when the action is selected (a notification without an action is simply dismissed), and SHALL only dismiss it when "Cancel" is selected. BACK SHALL dismiss the top notification without running its action. HOME SHALL dismiss all open actionable notifications at once.
 
 #### Scenario: Confirm with the keypad
 - **WHEN** the "Remove WiFi network" confirmation is open and DPAD_MIDDLE is pressed
@@ -90,6 +100,10 @@ While at least one actionable notification is open it SHALL own the input (taken
 #### Scenario: Cancel with the keypad
 - **WHEN** DPAD_LEFT and then DPAD_MIDDLE are pressed on a "Factory reset" confirmation
 - **THEN** the notification is dismissed and the dock is not reset
+
+#### Scenario: A notification arrives while Cancel is selected
+- **WHEN** "Cancel" is selected on an open notification and a second notification with an action arrives
+- **THEN** the second one is shown with its action selected, and DPAD_MIDDLE runs that action
 
 #### Scenario: HOME with several notifications
 - **WHEN** three actionable notifications are stacked and HOME is pressed
@@ -119,11 +133,13 @@ Voice assistant errors SHALL NOT produce notifications (see `voice-assistant`).
 - **THEN** a warning actionable notification asks "Are you sure you want to factory reset <dock name>?" with "Reset" and "Cancel"
 
 ### Requirement: Source of notification texts
-Notifications created for user guidance, confirmations, integration errors, software update errors and entity command errors SHALL use fixed, translatable texts; entity command errors SHALL show only the response code, not a message from the core. Several error notifications SHALL show the message text returned by the core verbatim: as the whole toast (profile switch, dock operations, WiFi commands), after a fixed English prefix that is not translated (e.g. "Error setting language: <message>", "Error adding page: <message>", "Error adding network: <message>", "Error on reboot: <message>"), inside a translated sentence ("There was an error starting dock discovery: <message>"), or as the message of an actionable notification ("Profile update error", media browsing and search errors, falling back to a translated default text when the core sends none). "The pin doesn't match. Try again.", "There was an error while getting the latest dock data" and "Not implemented yet" SHALL be shown in English regardless of the UI language.
+Notifications created for user guidance, confirmations, integration errors, software update errors and entity command errors SHALL use fixed, translatable texts; entity command errors SHALL show only the response code, not a message from the core. Several error notifications SHALL show the message text returned by the core verbatim: as the whole toast (profile switch, dock operations, WiFi commands), inside a translated text with the core message as placeholder (e.g. "Error setting language: <message>", "Error adding page: <message>", "Error adding network: <message>", "Error on reboot: <message>", "There was an error starting dock discovery: <message>"), or as the message of an actionable notification ("Profile update error", media browsing and search errors, falling back to a translated default text when the core sends none). The message from the core SHALL be shown unchanged; only the text around it is translated. "Not implemented yet" SHALL be shown in English regardless of the UI language.
 
 #### Scenario: Language rejected by the core
-- **WHEN** the core rejects a language change with the message "Invalid language code format"
-- **THEN** the warning toast reads "Error setting language: Invalid language code format" in every UI language
+- **WHEN** the core rejects a language change with the message "Invalid language code format" while the UI is in
+  German
+- **THEN** the warning toast shows the German text for "Error setting language: %1" with "Invalid language code
+  format" in place of %1, unchanged
 
 #### Scenario: Command error code
 - **WHEN** an entity command fails with code 500

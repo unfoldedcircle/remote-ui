@@ -30,7 +30,7 @@ The UI SHALL load the pages of the current profile with `get_pages` after the pr
 - **THEN** the page is shown once
 
 ### Requirement: No-page screen
-When the current profile has no pages the UI SHALL show a "+" with "Tap here to add your first page" and the status bar; for a restricted profile it SHALL show "No page found. Ask your administrator to setup pages." without the "+".
+When the current profile has no pages the UI SHALL show a "+" with "Add your first page" and the status bar; for a restricted profile it SHALL show "No page found. Ask your administrator to setup pages." without the "+".
 
 #### Scenario: First page added
 - **WHEN** the "+" area is tapped
@@ -106,11 +106,19 @@ Pulling the current page down past its header height plus 100 px SHALL reveal a 
 - **THEN** the menu closes and the page returns
 
 ### Requirement: HOME key on the main screen
-A short press on HOME SHALL scroll the current page to its top, select the first tile and end the reorder mode. A long press on HOME SHALL open the page menu; for a restricted profile it SHALL instead show the warning notification "Profile is restricted".
+A short press on HOME SHALL scroll the current page to its top, select the first tile and end the reorder mode. A long press on HOME SHALL open the page menu. The page menu is also the keypad's way to the page selector and to the profile page, which are otherwise opened by touch (page title, status bar profile icon, pull-down menu). For a restricted profile the page menu SHALL only offer "Pages", "Profile" and "Show tips".
 
 #### Scenario: Page menu entries
 - **WHEN** the page menu opens
-- **THEN** it is titled with the page name and offers "Add entity", "Add group", "Pages", "Reorder", "Edit <name of the selected tile>" (rename / change icon / remove for an entity, rename / edit entities / delete for a group) and "Show tips"
+- **THEN** it is titled with the page name and offers "Add entity", "Add group", "Pages", "Reorder", "Edit <name of the selected tile>" (rename / change icon / remove for an entity, rename / edit entities / delete for a group), "Profile & settings" and "Show tips"
+
+#### Scenario: Profile page by keypad
+- **WHEN** "Profile & settings" is chosen in the page menu
+- **THEN** the profile page opens with the profile list, the web configurator and the settings, as from the profile icon of the status bar
+
+#### Scenario: Page menu of a restricted profile
+- **WHEN** HOME is held on the main screen of a restricted profile
+- **THEN** the page menu opens with "Pages", "Profile" and "Show tips" only
 
 #### Scenario: Reorder on an empty page
 - **WHEN** "Reorder" is chosen on a page without tiles
@@ -215,8 +223,29 @@ Page events from the core SHALL be applied only when they carry the id of the cu
 - **THEN** the group tile is removed from every page
 
 ### Requirement: Tile selection by d-pad
-DPAD_UP / DPAD_DOWN SHALL move the selection through the tiles of the current page; inside an open group they walk the group's entity rows before leaving the group. DPAD_MIDDLE SHALL trigger the selected tile's quick action (toggle) and a long press SHALL open its control screen; with the "Inverted button behaviour" setting both are swapped. CHANNEL_UP closes and CHANNEL_DOWN opens the selected group. A tile whose entity is Unavailable SHALL refuse both presses and report the refusal, on a page and inside an open group alike (see `entity-commands`).
+DPAD_UP / DPAD_DOWN SHALL move the selection through the tiles of the current page; inside an open group they walk the group's entity rows before leaving the group. DPAD_MIDDLE SHALL trigger the selected tile's quick action (toggle) and a long press SHALL open its control screen; with the "Inverted button behavior" setting both are swapped. CHANNEL_UP closes and CHANNEL_DOWN opens the selected group. A tile whose entity is Unavailable SHALL refuse both presses and report the refusal, on a page and inside an open group alike (see `entity-commands`).
 
 #### Scenario: Group row that is off
 - **WHEN** DPAD_MIDDLE is pressed on a row of an open group whose entity is unavailable (state 0)
 - **THEN** no command is sent and the notification "<name> is unavailable" is shown
+
+### Requirement: No-page screen with the keypad
+With the keypad, DPAD_MIDDLE on the no-page screen SHALL add the first page as a tap on the "+" does, and the "+" area SHALL be drawn with the selection ring while the keypad is active.
+
+#### Scenario: First page by keypad
+- **WHEN** DPAD_MIDDLE is pressed on the no-page screen
+- **THEN** the "Name your page" dialog opens with the on-screen keyboard
+
+### Requirement: Menu on the no-page screen
+A long press on HOME on the no-page screen SHALL open a menu titled with the profile name, with "Profile & settings" ("Profile" for a restricted profile), which opens the profile page, and "Show tips".
+
+#### Scenario: Profile page from the no-page screen by keypad
+- **WHEN** HOME is held on the no-page screen and "Profile & settings" is chosen
+- **THEN** the profile page opens with the profile list, the web configurator and the settings, as from the profile icon of the status bar
+
+### Requirement: Current page in the page selector
+The page selector SHALL show its current page with the selection fill also when it is opened by touch, so the user sees which page is shown. Like the current value of a picker list, it does not wait for the keypad (`key-navigation` "Current choice after a touch").
+
+#### Scenario: Page selector opened by touch
+- **WHEN** the page title is tapped
+- **THEN** the page selector opens with the current page filled and no other row selected

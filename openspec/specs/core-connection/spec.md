@@ -103,7 +103,7 @@ The UI SHALL expose a "core connected" state that becomes true on successful aut
 - **THEN** the red dot is shown until the next successful authentication
 
 ### Requirement: Integration connection indicator
-The status bar SHALL show a spinning indicator while any integration is connecting (not while the core itself is reconnecting), except during onboarding. Tapping it SHALL open the "Connection status" popup listing every integration driver in an error state with its state text, or "No connection errors" when the list is empty. BACK, HOME, the close icon or a tap outside close the popup.
+The status bar SHALL show a spinning indicator while any integration is connecting (not while the core itself is reconnecting), except during onboarding. Tapping it SHALL open the "Connection status" popup listing every integration driver in an error state with its state text, or "No connection errors" when the list is empty. BACK, HOME, the close icon or a tap outside close the popup. DPAD_UP / DPAD_DOWN scroll a list longer than the popup by half its height.
 
 #### Scenario: Integration reconnecting
 - **WHEN** an integration reports it is connecting

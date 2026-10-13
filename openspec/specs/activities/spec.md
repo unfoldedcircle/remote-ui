@@ -18,7 +18,7 @@ An activity entity SHALL be in exactly one of the states Unavailable, Unknown, O
 - **THEN** the update is ignored and the activity keeps its previous state
 
 ### Requirement: Activity screen header reflects failure
-The activity screen header SHALL show the activity icon and name and a hint line. The hint SHALL read "Tap for more" normally, "Tap to fix" while the activity is in Error or Timeout, and "Tap to close" while the activity menu is open. The header background SHALL turn red while the activity is in Error or Timeout, and the hint SHALL then use the regular light text colour instead of dim grey. The header SHALL show a crossed-out Wi-Fi icon when the remote is not connected to Wi-Fi, a weak-signal icon when the signal is weak, and the battery indicator when "Show battery indicator everywhere" is on.
+The activity screen header SHALL show the activity icon and name and a hint line. The hint SHALL read "Tap for more" normally, "Tap to fix" while the activity is in Error or Timeout, and "Tap to close" while the activity menu is open. The header background SHALL turn red while the activity is in Error or Timeout, and the hint SHALL then use the regular light text colour instead of dim grey.
 
 #### Scenario: Activity fails while its screen is open
 - **WHEN** the activity turns to Error or Timeout while its screen is open
@@ -162,11 +162,19 @@ A not-ready or warning report SHALL be shown as a headline screen: the activity 
 - **THEN** both reports are shown one after the other
 
 ### Requirement: Activity menu and included entities
-The activity menu SHALL list a "Fix states" row followed by "Quickly access entities included in this activity:" and the activity's included entities except macros. Tapping an entity SHALL open its control screen on top of the activity. DPAD_UP/DOWN SHALL move over the top row and the entities (the selection outline only appears after the first d-pad press), DPAD_MIDDLE SHALL open the selected entry, BACK SHALL return from the "Fix states" page to the menu and close the menu from there.
+The activity menu SHALL list a "Fix states" row followed by "Quickly access entities included in this activity:" and the activity's included entities except macros. Tapping an entity SHALL open its control screen on top of the activity. DPAD_UP/DOWN SHALL move over the top row and the entities, DPAD_MIDDLE SHALL open the selected entry, BACK SHALL return from the "Fix states" page to the menu and close the menu from there. The selected entry SHALL be drawn in the main UI's fill style and only while the keypad is active (see `key-navigation`).
 
 #### Scenario: Open an included entity
 - **WHEN** the user taps an included media player
 - **THEN** the media player screen opens above the activity screen and takes the physical buttons until it closes
+
+#### Scenario: Menu opened by touch
+- **WHEN** the user opens the activity menu by tapping the title
+- **THEN** no entry is marked until the first d-pad press; the selection then appears where that press moved it
+
+#### Scenario: Menu opened while the keypad is active
+- **WHEN** the activity menu opens while the keypad is active
+- **THEN** the "Fix states" row is filled with the selection fill right away
 
 ### Requirement: Fix states page
 The "Fix states" page SHALL list the activity itself as its first row, separated by a line, followed by the included entities whose type has an on/off state (switch, light, climate, media player, remote, activity). Each row SHALL show "State: <state>", in red for the activity when it is in Error or Timeout. With no fixable entity the page SHALL read "None of the entities in this activity has an On/Off state that could be fixed". Tapping a row SHALL open a popup "Set the state of <name>. No command is sent to the device(s)." with "Device is on"/"Device is off" (or "Activity is on"/"Activity is off"), each sending `set_entity_state` with ON or OFF. A row whose entity is Unavailable SHALL show "<name> is unavailable, its state cannot be changed"; a Running activity SHALL show "<name> is running, its state cannot be changed".
@@ -295,3 +303,10 @@ Updates of `user_interface`, `button_mapping`, `included_entities`, `touch_slide
 #### Scenario: Button mapping edited in the web configurator
 - **WHEN** the core sends an updated `button_mapping` while the activity screen is open
 - **THEN** the new mapping is active for the next key press
+
+### Requirement: Status cluster in the activity header
+At the right the activity screen header SHALL show the status cluster of the control screen titles (see `entity-detail-controls`), its icons side by side: a red link-slash icon when the activity's integration state is known and not `connected`, a crossed-out Wi-Fi icon when the remote is not connected to Wi-Fi, a weak-signal icon when the signal is weak, and the battery indicator when "Show battery indicator everywhere" is on. The name and the hint SHALL end where the cluster begins.
+
+#### Scenario: Wi-Fi down and battery shown everywhere
+- **WHEN** the remote is not connected to Wi-Fi and "Show battery indicator everywhere" is on
+- **THEN** the crossed-out Wi-Fi icon and the battery indicator are shown side by side, not on top of each other

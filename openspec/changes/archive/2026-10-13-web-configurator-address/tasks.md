@@ -13,4 +13,4 @@
 - [x] 2.3 `make linux`; the profile page of the desktop simulator, which has no WiFi, shows
       `http://<host name>/configurator`.
 - [x] 2.4 `openspec validate web-configurator-address --strict`.
-- [ ] 2.5 On a device: the address while WiFi is off, and the switch to the IP address once it connects.
+- [x] 2.5 On a device: the address while WiFi is off, and the switch to the IP address once it connects.

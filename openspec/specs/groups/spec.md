@@ -45,7 +45,7 @@ A closed group tile SHALL be 130 px high and show a chevron, the group name (up 
 - **THEN** a menu titled with the group name offers "Rename", "Edit entities" and "Delete"; for a restricted profile the long press shows the warning notification "Profile is restricted" instead
 
 ### Requirement: Group tile by d-pad
-On a closed selected group DPAD_MIDDLE SHALL toggle the group and a long press SHALL open it (swapped with "Inverted button behaviour"). CHANNEL_DOWN opens and CHANNEL_UP closes the selected group. In an open group DPAD_UP / DPAD_DOWN walk the entity rows; past the first or last row the selection leaves the group to the neighbouring tile. On a selected row DPAD_MIDDLE triggers the row's quick action and a long press opens the entity screen.
+On a closed selected group DPAD_MIDDLE SHALL toggle the group and a long press SHALL open it (swapped with "Inverted button behavior"). CHANNEL_DOWN opens and CHANNEL_UP closes the selected group. In an open group DPAD_UP / DPAD_DOWN walk the entity rows; past the first or last row the selection leaves the group to the neighbouring tile. On a selected row DPAD_MIDDLE triggers the row's quick action and a long press opens the entity screen.
 
 #### Scenario: Open group selected
 - **WHEN** a group tile becomes the selected tile
@@ -68,7 +68,7 @@ On a closed selected group DPAD_MIDDLE SHALL toggle the group and a long press S
 
 #### Scenario: No entity selected
 - **WHEN** Add is triggered on step 2 without a selection
-- **THEN** the actionable notification "Select entities" with "Please select entities to add by tapping in the list." is shown
+- **THEN** the actionable notification "Select entities" with "Please select the entities to add in the list." is shown
 
 #### Scenario: Entities added
 - **WHEN** the core confirms `update_group`

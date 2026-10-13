@@ -50,4 +50,4 @@ One phase per fix, then the verification. Each fix commit carries its `CHANGELOG
       the blocks and the longest frame while the largest blocks come into view. First run: 2.8 s for the 138 kB
       block, which 5.4 splits; with 5.4 no step takes more than 387 ms (opening the operating system licenses), a
       jump to a large block at most 198 ms.
-- [ ] 6.6 On both remotes: the license overview and a license read through with the d-pad and by touch.
+- [x] 6.6 On both remotes: the license overview and a license read through with the d-pad and by touch.
