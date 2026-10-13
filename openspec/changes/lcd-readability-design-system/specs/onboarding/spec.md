@@ -29,3 +29,12 @@ The Finish step SHALL show "You're all set – You can add integrations or chang
 #### Scenario: Tips after Done
 - **WHEN** the help overlay is shown right after the onboarding
 - **THEN** DPAD_LEFT / DPAD_RIGHT only move between the tips and do not switch the pages behind them; OK, BACK or HOME closes the tips
+
+## ADDED Requirements
+
+### Requirement: Finish step taller than the screen
+When the Finish step is taller than the screen, as with the web configurator box and its QR code, the step SHALL scroll and show the scroll indicator, so a touch user can find the Done button below the screen.
+
+#### Scenario: Web configurator on at the Finish step
+- **WHEN** the Finish step shows the web configurator box with its QR code and Done is below the screen
+- **THEN** the scroll indicator is shown at the right edge, and scrolling the step brings Done into view

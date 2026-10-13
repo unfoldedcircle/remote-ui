@@ -683,7 +683,7 @@ Popup {
                             height: chipRow.height
                             width: chipText.implicitWidth + 24
                             radius: height / 2
-                            color: active ? colors.primaryButton : colors.dark
+                            color: active ? colors.buttonPrimary : colors.dark
 
                             Text {
                                 id: chipText
@@ -923,7 +923,7 @@ Popup {
                         Row {
                             anchors.horizontalCenter: parent.horizontalCenter; spacing: 40
                             Rectangle {
-                                width: 120; height: 70; radius: 35; color: colors.primaryButton
+                                width: 120; height: 70; radius: 35; color: colors.buttonPrimary
 
                                 Components.Icon { icon: "uc:play"; size: 60; color: colors.offwhite; anchors.centerIn: parent }
 
@@ -944,7 +944,7 @@ Popup {
                                 }
                             }
                             Rectangle {
-                                width: 120; height: 70; radius: 35; color: colors.primaryButton
+                                width: 120; height: 70; radius: 35; color: colors.buttonPrimary
 
                                 Components.Icon { icon: "uc:shuffle"; size: 60; color: colors.offwhite; anchors.centerIn: parent }
 

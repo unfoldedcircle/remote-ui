@@ -1,0 +1,15 @@
+# Files tools/design-check.py skips, one pattern per line (fnmatch, relative to the repository root),
+# each with the reason. Keep it short: a new screen follows the design system from the start.
+
+# The entity detail screens (activity, climate, cover, light, media player, ...) follow the design system
+# in a later change (docs/design-system.md, decision D-7). Their colour temperature gradients and
+# media-tinted fills are data, not tokens. The shared entity files one level up (tiles, lists, menus)
+# are checked.
+src/qml/components/entities/*/*
+
+# The Colors settings page edits the base colour itself: its red, green and blue channels are the
+# values being edited. It is not in the menu (docs/design-system.md section 3).
+src/qml/settings/settings/Color.qml
+
+# A pink outline for debugging layouts, put around an item while working on it; never in a screen.
+src/qml/BorderCheck.qml

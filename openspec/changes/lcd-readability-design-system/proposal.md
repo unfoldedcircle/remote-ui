@@ -44,11 +44,14 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 
 ### Modified Capabilities
 
-- `platform-constraints`: "Legibility" points at the accepted design system and states the
-  legibility floors every screen keeps.
-- `key-navigation`: "Keypad-active state and selection rendering" describes the two selection
-  styles; "Developer contract for a new keypad-navigable screen" requires the style of the screen's
-  layer.
+- `platform-constraints`: "Legibility" points at the accepted design system with one palette for
+  both models; the new "Legibility floors" states the floors every screen keeps.
+- `key-navigation`: new requirements describe the two selection styles by kind of screen ("Selection
+  fill in menu lists", "Selection ring on setting screens and buttons", "One selection style per
+  element") and require the style of its kind of screen from a new screen ("Selection of a new
+  screen"). "Current choice after a touch" keeps the fill on the page selector's current page and on
+  a picker list's current value (`pages`: "Current page in the page selector"); "Keypad-active state
+  and selection rendering" points at it, and the developer contract only updates its scenarios.
 - `activities`: "Activity menu and included entities" draws its selection in the fill style and
   follows the keypad-active state instead of a flag of its own (phase 2).
 - Phase 5 makes controls reachable on screens owned by other capabilities and rewords their
@@ -63,11 +66,18 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
   - `entity-management`: the filter sheet's Clear and Done are reachable; an empty list selects the
     filter button.
   - `onboarding`, `help-overlay`, `core-connection`: the Finish address, the tips' Close and the
-    connection status list; reworded hints.
+    connection status list; reworded hints. The Finish step shows its scroll indicator when it is
+    taller than the screen (`onboarding` "Finish step taller than the screen").
   - `groups`, `notifications`: the reworded "Select entities" text.
 - `notifications`: "Actionable notification presentation" also records the look phases 3 and 4 gave
   the actionable notification: the action and "Cancel" as buttons, the message in the prose role and
   the primary text colour, and the bar of a neutral notification in the primary text colour.
+- Recorded with the guardrails, what phases 3 and 4 changed on the legal pages and in the tips:
+  - `ui-resources`: "Legal documents" and "Licenses document" are set in the prose role and scroll by
+    half the page per key press.
+  - `settings-menu`: "About page", the key steps of the document pages; `key-navigation`: "Scroll the
+    focused control into view", its example of a legal page; `help-overlay`: "Overlay presentation",
+    the tip text in the help role.
 - Found on the device after phases 4 and 5:
   - `wifi`: the details of the current network call the MAC key "MAC" and show the MAC and IP
     addresses in full.
@@ -90,5 +100,5 @@ No behaviour of the Core-API, the input dispatch or the navigation idioms change
 - **Docs:** `docs/design-system.md` stays the reference; `docs/key-navigation.md` names the
   selection component; two new ADRs (0019, 0020).
 - **Open questions:** Q-1 to Q-4 and Q-8 in `docs/design-system.md` section 11 and Q-5 in
-  `design.md`. Q-1 to Q-3 are decided; the `#595959` fill of Q-3 stays for now and the checks on
+  `design.md`. All of them are decided; the `#595959` fill of Q-3 stays for now and the checks on
   both remotes may still adjust it in the design system.

@@ -153,12 +153,16 @@ git add -u
 In Qt Creator the formatter can be set up under Preferences, Beautifier, Clang Format: use the
 predefined style `File` and the fallback style `Google`.
 
-The lint must pass, as it does in CI (`.github/workflows/code_guidelines.yml`):
+The lints must pass, as they do in CI (`.github/workflows/code_guidelines.yml`):
 
 ```shell
 ./cpplint.sh
+./design-check.sh
 ```
 
+`design-check.sh` checks the QML sources against the rules of the [design system](design-system.md)
+(section 8): no text below 22 px, only colour tokens, no `Qt.lighter` / `Qt.darker`. A file that
+cannot follow a rule yet goes on the allow-list `tools/design-check-allow.txt` with its reason.
 CI also fails when a source file name contains a space, and checks the embedded icon font and its
 name mapping. Clang-Tidy is not run in CI; check new code with Clang-Tidy in Qt Creator (Debug
 sidebar: Clang-Tidy).

@@ -24,10 +24,6 @@ class Colors : public QObject {
     Q_PROPERTY(QColor dark MEMBER m_dark NOTIFY darkChanged)
 
     Q_PROPERTY(QColor highlight MEMBER m_highlight NOTIFY highlightChanged)
-    Q_PROPERTY(QColor inactiveText MEMBER m_inactive NOTIFY inactiveChanged)
-
-    Q_PROPERTY(QColor primaryButton MEMBER m_primaryButton NOTIFY primaryButtonChanged)
-    Q_PROPERTY(QColor secondaryButton MEMBER m_secondaryButton NOTIFY secondaryButtonChanged)
 
     Q_PROPERTY(QColor green MEMBER green CONSTANT)
     Q_PROPERTY(QColor red MEMBER red CONSTANT)
@@ -41,7 +37,8 @@ class Colors : public QObject {
     Q_PROPERTY(QColor remoteBlue MEMBER remoteBlue CONSTANT)
 
     // Design system tokens (docs/design-system.md, ADR 0019). A token that is an existing colour under a new name
-    // reads the same member, so both names stay in step while the screens move to the token names.
+    // reads the same member, so both names stay in step while the screens move to the token names. An old name
+    // goes once no screen uses it: inactiveText, primaryButton and secondaryButton are gone.
     Q_PROPERTY(QColor bg MEMBER black CONSTANT)
     Q_PROPERTY(QColor textPrimary MEMBER offwhite CONSTANT)
     Q_PROPERTY(QColor textSecondary MEMBER m_light NOTIFY lightChanged)
@@ -90,7 +87,6 @@ class Colors : public QObject {
     void highlightChanged();
     void inactiveChanged();
     void primaryButtonChanged();
-    void secondaryButtonChanged();
 
  private:
     QColor m_baseColor;
@@ -104,7 +100,6 @@ class Colors : public QObject {
     QColor m_inactive;
 
     QColor m_primaryButton;
-    QColor m_secondaryButton;
 };
 }  // namespace ui
 }  // namespace uc

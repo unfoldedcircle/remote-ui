@@ -422,7 +422,7 @@ Popup {
 
                     ctx.beginPath();
                     ctx.arc(x, y, radius, startAngle, progressAngle);
-                    ctx.strokeStyle = colors.primaryButton;
+                    ctx.strokeStyle = colors.buttonPrimary;
                     ctx.stroke();
 
                     // the slices of the steps that stayed silent, so the ring keeps the record of the run

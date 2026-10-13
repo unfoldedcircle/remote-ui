@@ -65,6 +65,8 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
 Rules:
 
 - Only tokens in QML. No literal hex, no `Qt.lighter` / `Qt.darker`, no `colors.white` for text.
+- The old names in the "Replaces" column read the same colour as their token and stay until no
+  screen uses them; `inactiveText`, `primaryButton` and `secondaryButton` are gone.
 - The palette is generated for the default black base colour. The only screen that changes the base
   colour, the Colors settings page, is not in the menu; a tinted palette is not part of the design
   system.
@@ -209,7 +211,8 @@ Use these; do not re-implement their look inline.
 
 1. Title bar from `Components.TitleBar`, 20 px gutter, 2 px dividers.
 2. Every text through a type role; no pixel sizes, nothing below 22 px, no opacity on text.
-3. Every colour a token; no literals, no `Qt.lighter` / `Qt.darker`.
+3. Every colour a token; no literals, no `Qt.lighter` / `Qt.darker`. `./design-check.sh` finds the
+   breaches of items 2 and 3 that a script can see, and CI runs it.
 4. Every selectable element drawn by `Components.Selectable` (or a component built on it), bound
    to `ui.keyNavigationActive`, in the style of the screen's kind (section 6).
 5. Every tappable element reachable by key; `initialFocusItem` or selection reset on entry;
@@ -253,4 +256,4 @@ Close row instead of a secondary button. The page menu sheet is black with a div
 | Q-2 | Focus ring colour: the revised screens use #D0D0D0, once at 92 % opacity; the token sheet still shows #C8C8C8 | Decided 2026-10-12 by the maintainer: opaque #D0D0D0, the same value as `textPrimary` |
 | Q-3 | Is the provisional #595959 fill right on the devices? It replaces the designer's #333333 so the selection is easy to judge on a Remote 3 in a lit room | Decided 2026-10-12 by the maintainer: #595959 for now. The device checks may still adjust it, towards #333333 if it looks too heavy; the value is set in this document and `Colors` only, not in an ADR |
 | Q-4 | Do all bottom sheets become black with a divider edge, or only popup menus on the main UI? | Decided 2026-10-07 by the designer: all bottom sheets, one rule: WifiInfo, WifiJoin, DropDownMenu and the delete drawers too |
-| Q-8 | The mockups draw tile and list subtitles in Poppins 24 and the release-notes date in Space Mono 22; the type table has no such sizes | Subtitles and states use the help role (Poppins 26), timestamps the caption role (Poppins 22). Implemented that way in phase 3 |
+| Q-8 | The mockups draw tile and list subtitles in Poppins 24 and the release-notes date in Space Mono 22; the type table has no such sizes | Decided 2026-10-12 by the maintainer, as implemented: subtitles and states use the help role (Poppins 26) on every screen, timestamps the caption role (Poppins 22); the release-notes date is part of the release notes text, in the prose role |

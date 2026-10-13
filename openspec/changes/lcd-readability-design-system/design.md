@@ -162,8 +162,8 @@ happens after the migration is merged to `main`.
 ## Open Questions
 
 - Q-1 to Q-4 and Q-8: in `docs/design-system.md`, section 11 (fill or ring beyond the mockups, ring
-  colour, the fill on devices, black bottom sheets, subtitle and timestamp sizes of the mockups). Q-1
-  to Q-3 are decided.
+  colour, the fill on devices, black bottom sheets, subtitle and timestamp sizes of the mockups).
+  All of them are decided.
 - Q-5, decided 2026-10-07 by the designer as proposed: the look of a held element while it is
   reordered (page tiles, group rows, page selector), today a 2 px border that turns `highlight`
   when held. The ring marks the held element, the fill marks the selection, so a held element is the
