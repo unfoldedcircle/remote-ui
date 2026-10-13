@@ -184,7 +184,7 @@ Item {
         text: ui.profile.name.substring(0,1)
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         anchors.centerIn: iconBg
-        font: fonts.secondaryFont(18)
+        font: fonts.caption()
     }
 
     MouseArea {
@@ -273,12 +273,11 @@ Item {
                         }
 
                         Text {
-                            color: colors.offwhite
-                            opacity: 0.6
+                            color: colors.textSecondary
                             //: Text explaining that the profile has restricted access
                             text: qsTr("Restricted")
                             anchors { left: lockIcon.right; leftMargin: 10; verticalCenter: lockIcon.verticalCenter }
-                            font: fonts.secondaryFont(24)
+                            font: fonts.help()
                         }
                     }
                 }
@@ -385,9 +384,9 @@ Item {
             wrapMode: Text.WordWrap
             maximumLineCount: 2
             horizontalAlignment: Text.AlignHCenter
-            color: colors.light
+            color: colors.textSecondary
             text: qsTr("Scan to open\nthe Web Configurator")
-            font: fonts.secondaryFont(22)
+            font: fonts.help()
             anchors { top: parent.top; topMargin: 20; horizontalCenter: parent.horizontalCenter }
         }
 
@@ -396,9 +395,9 @@ Item {
             wrapMode: Text.WordWrap
             maximumLineCount: 2
             horizontalAlignment: Text.AlignHCenter
-            color: colors.light
+            color: colors.textSecondary
             text: qsTr("Tap to close")
-            font: fonts.secondaryFont(22)
+            font: fonts.help()
             anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         }
     }
@@ -482,7 +481,7 @@ Item {
                     }
                     color: colors.offwhite
                     anchors.centerIn: parent
-                    font: fonts.secondaryFont(20)
+                    font: fonts.caption()
                 }
             }
 

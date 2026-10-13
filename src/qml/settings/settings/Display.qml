@@ -77,9 +77,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Automatically adjust the display brightness based on ambient lighting conditions.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 
@@ -174,9 +174,9 @@ Settings.Page {
                 Text {
                     Layout.fillWidth: true
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("When on, button backlight will automatically turn on in a dark room.")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
             }
 

@@ -38,11 +38,12 @@ OnboardingComponents.Page {
         id: description
         width: parent.width
         wrapMode: Text.WordWrap
-        color: colors.light
+        color: colors.textPrimary
         horizontalAlignment: Text.AlignHCenter
         text: qsTr("By using Unfolded Circle products you agree to the Terms & conditions.\n\nYou can read them on\nunfoldedcircle.com/legal\nor by scanning this QR code.\nTap the QR code to show it on the screen.")
         anchors { horizontalCenter: parent.horizontalCenter; top: title.bottom }
-        font: fonts.secondaryFont(24)
+        font: fonts.prose()
+        lineHeight: fonts.proseLineHeight
     }
 
     Item {

@@ -627,7 +627,7 @@ ListView {
 
                             Text {
                                 width: parent.width
-                                color: Qt.lighter(colors.light)
+                                color: colors.textSecondary
                                 text: {
                                     //: Used to show the entity state: %1 is the entity name, %2 is the state
                                     return qsTr("%1 is %2").arg(entity.name).arg(entity.stateAsString.toLowerCase());
@@ -635,7 +635,7 @@ ListView {
                                 elide: Text.ElideRight
                                 maximumLineCount: 1
                                 horizontalAlignment: Text.AlignHCenter
-                                font: fonts.secondaryFont(22)
+                                font: fonts.help()
                             }
 
                             Item {
@@ -710,14 +710,14 @@ ListView {
         visible: visualModel.count === 0 && !ui.editMode
 
         Text {
-            color: colors.offwhite
+            color: colors.textSecondary
             //: Web configurator is the name of the application, does not need translation
             text: qsTr("Press and hold the Home button or use the Web Configurator to configure the page")
             width: parent.width - 40
             wrapMode: Text.WordWrap
             verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
             anchors.centerIn: parent
-            font: fonts.secondaryFont(22)
+            font: fonts.help()
         }
     }
 

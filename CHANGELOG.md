@@ -22,6 +22,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   set-up screens it gets a bright frame, on a setting's switch or slider rather than around the whole setting. The
   selection is only shown while the d-pad is in use and disappears when the screen is touched, now also on tiles,
   in groups and in the media browser.
+- Help texts, release notes, legal texts and driver instructions are easier to read: they use the same typeface as
+  the rest of the interface instead of a typewriter font, in a larger size and with more line spacing. The typewriter
+  font is kept for values such as versions, addresses, times and the web configurator PIN and URL. No text is smaller
+  than 22 pixels anymore.
 
 ### Fixed
 - The tile and the control screen of a switch whose integration does not support toggling now switch it on and off.

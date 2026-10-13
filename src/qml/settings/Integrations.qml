@@ -342,8 +342,8 @@ Settings.Page {
                             text: integrationState
                             elide: Text.ElideRight
                             maximumLineCount: 1
-                            color: colors.light
-                            font: fonts.secondaryFont(24)
+                            color: colors.textSecondary
+                            font: fonts.help()
                         }
                     }
                 }
@@ -363,8 +363,8 @@ Settings.Page {
                         wrapMode: Text.WordWrap
                         elide: Text.ElideRight
                         maximumLineCount: 1
-                        color: colors.light
-                        font: fonts.secondaryFont(20)
+                        color: colors.textSecondary
+                        font: fonts.help()
                     }
 
                     Components.Icon {

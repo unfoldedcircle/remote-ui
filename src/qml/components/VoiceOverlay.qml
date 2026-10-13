@@ -649,12 +649,12 @@ Popup {
     Text {
         id: assistantNameText
         text: voice.voiceEntityObj ? voice.voiceEntityObj.name : ""
-        color: colors.light
+        color: colors.textSecondary
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
         width: parent.width - 80
         anchors { horizontalCenter: parent.horizontalCenter; bottom: assistantProfileNameText.top; bottomMargin: 0 }
-        font: fonts.primaryFont(24)
+        font: fonts.help()
     }
 
     Text {
@@ -673,13 +673,13 @@ Popup {
             return "";
         }
 
-        color: colors.light
+        color: colors.textSecondary
         horizontalAlignment: Text.AlignHCenter
         wrapMode: Text.WordWrap
         width: parent.width - 80
         height: text == "" ? 0 : implicitHeight
         anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 60 }
-        font: fonts.primaryFont(20)
+        font: fonts.help()
     }
 
 

@@ -41,13 +41,14 @@ Item {
 
     Text {
         id: smallText
-        color: colors.offwhite
+        color: colors.textPrimary
         text: ui.profile.restricted ? qsTr("No page found. Ask your administrator to setup pages.") : qsTr("Tap here to add your first page")
         width: parent.width - 40
         wrapMode: Text.WordWrap
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         anchors { horizontalCenter: parent.horizontalCenter; top: plusIcon.bottom; topMargin: 40 }
-        font: fonts.secondaryFont(22)
+        font: fonts.prose()
+        lineHeight: fonts.proseLineHeight
     }
 
     Components.HapticMouseArea {

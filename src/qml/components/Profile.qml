@@ -264,7 +264,7 @@ Item {
         text: ui.profile.name.substring(0,1)
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         anchors.centerIn: iconBg
-        font: fonts.secondaryFont(18)
+        font: fonts.caption()
     }
 
     MouseArea {
@@ -312,9 +312,9 @@ Item {
                 Layout.leftMargin: 20
                 Layout.fillWidth: true
 
-                color: colors.light
+                color: colors.textSecondary
                 text: qsTr("Your current profile")
-                font: fonts.secondaryFont(20)
+                font: fonts.help()
             }
 
             Components.HapticMouseArea {
@@ -357,7 +357,7 @@ Item {
                         maximumLineCount: 1
                         elide: Text.ElideRight
                         verticalAlignment: Text.AlignVCenter
-                        font: fonts.primaryFont(50, "Light")
+                        font: fonts.primaryFont(50)
                         fontSizeMode: Text.Fit
                         minimumPixelSize: 30
                     }
@@ -414,9 +414,9 @@ Item {
 
                                     wrapMode: Text.WordWrap
                                     verticalAlignment: Text.AlignVCenter
-                                    color: colors.light
+                                    color: colors.textSecondary
                                     text: Config.webConfiguratorEnabled ? qsTr("Web configurator enabled") : qsTr("Web configurator disabled")
-                                    font: fonts.secondaryFont(22)
+                                    font: fonts.help()
                                 }
 
                                 Components.Switch {
@@ -442,11 +442,11 @@ Item {
                                     Layout.fillWidth: true
                                     Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
 
-                                    wrapMode: Text.WordWrap
+                                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                                     verticalAlignment: Text.AlignVCenter
-                                    color: colors.light
+                                    color: colors.textPrimary
                                     text: ("http://%1/configurator").arg(webConfiguratorAddress.showIp ? Wifi.ipAddress : Config.webConfiguratorAddress)
-                                    font: fonts.secondaryFont(22)
+                                    font: fonts.value()
 
                                     Components.HapticMouseArea {
                                         id: addressRow
@@ -505,7 +505,7 @@ Item {
                                         color: colors.offwhite
                                         verticalAlignment: Text.AlignVCenter
                                         horizontalAlignment: Text.AlignHCenter
-                                        font: fonts.primaryFont(36, "Light")
+                                        font: fonts.value()
                                         anchors.centerIn: parent
                                     }
                                 }
@@ -522,7 +522,7 @@ Item {
                                         color: colors.offwhite
                                         verticalAlignment: Text.AlignVCenter
                                         horizontalAlignment: Text.AlignHCenter
-                                        font: fonts.primaryFont(36, "Light")
+                                        font: fonts.value()
                                         anchors.centerIn: parent
                                     }
                                 }
@@ -539,7 +539,7 @@ Item {
                                         color: colors.offwhite
                                         verticalAlignment: Text.AlignVCenter
                                         horizontalAlignment: Text.AlignHCenter
-                                        font: fonts.primaryFont(36, "Light")
+                                        font: fonts.value()
                                         anchors.centerIn: parent
                                     }
                                 }
@@ -556,7 +556,7 @@ Item {
                                         color: colors.offwhite
                                         verticalAlignment: Text.AlignVCenter
                                         horizontalAlignment: Text.AlignHCenter
-                                        font: fonts.primaryFont(36, "Light")
+                                        font: fonts.value()
                                         anchors.centerIn: parent
                                     }
                                 }
@@ -663,12 +663,11 @@ Item {
                         }
 
                         Text {
-                            color: colors.offwhite
-                            opacity: 0.6
+                            color: colors.textSecondary
                             //: Text explaining that the profile has restricted access
                             text: qsTr("Restricted")
                             anchors { left: lockIcon.right; leftMargin: 10; verticalCenter: lockIcon.verticalCenter }
-                            font: fonts.secondaryFont(24)
+                            font: fonts.help()
                         }
                     }
                 }
@@ -775,9 +774,9 @@ Item {
             wrapMode: Text.WordWrap
             maximumLineCount: 2
             horizontalAlignment: Text.AlignHCenter
-            color: colors.light
+            color: colors.textSecondary
             text: qsTr("Scan to open\nthe Web Configurator")
-            font: fonts.secondaryFont(22)
+            font: fonts.help()
             anchors { top: parent.top; topMargin: 20; horizontalCenter: parent.horizontalCenter }
         }
 
@@ -786,9 +785,9 @@ Item {
             wrapMode: Text.WordWrap
             maximumLineCount: 2
             horizontalAlignment: Text.AlignHCenter
-            color: colors.light
+            color: colors.textSecondary
             text: qsTr("Tap to close")
-            font: fonts.secondaryFont(22)
+            font: fonts.help()
             anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         }
     }
@@ -872,7 +871,7 @@ Item {
                     }
                     color: colors.offwhite
                     anchors.centerIn: parent
-                    font: fonts.secondaryFont(20)
+                    font: fonts.caption()
                 }
             }
 

@@ -235,12 +235,10 @@ Rectangle {
             maximumLineCount: 1
             //: Tap and hold down to edit a group
             text: groups.count === 1 ? qsTr("%1 entity").arg(1) : qsTr("%1 entities").arg(groups.count)
-            color: colors.offwhite
+            color: selection.shown ? colors.textPrimary : colors.textSecondary
             // on the selection fill everything is drawn in the primary text colour
-            opacity: selection.shown ? 1 : 0.6
             anchors { left: title.left; top: title.bottom }
-            font: fonts.secondaryFont(22, "Medium")
-            lineHeight: 0.8
+            font: fonts.help()
             visible: container.state == "closed"
         }
     }

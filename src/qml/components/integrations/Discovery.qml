@@ -120,13 +120,12 @@ ListView {
                 Text {
                     id: headerTitle
 
-                    color: colors.offwhite
-                    opacity: 0.6
+                    color: colors.textSecondary
                     //: Title for searching for integrations to setup
                     text: qsTr("Discovering")
                     verticalAlignment: Text.AlignVCenter
                     anchors { left: scanLoading.right; leftMargin: 20; verticalCenter: parent.verticalCenter }
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
 
                 Image {
@@ -175,12 +174,11 @@ ListView {
             Text {
                 id: footerItemText
                 width: parent.width - 20
-                color: colors.offwhite
-                opacity: 0.6
+                color: colors.textSecondary
                 text: qsTr("Integrations may require the Web Configurator for setup.")
                 horizontalAlignment: Text.AlignHCenter
                 wrapMode: Text.WordWrap
-                font: fonts.secondaryFont(24)
+                font: fonts.help()
                 anchors { top: parent.top; topMargin: 20; horizontalCenter: parent.horizontalCenter }
             }
 
@@ -256,12 +254,12 @@ ListView {
                     Text {
                         Layout.fillWidth: true
 
-                        color: colors.light
+                        color: colors.textSecondary
                         //: Integration driver developer name
                         text: qsTr("By %1").arg(driverDeveloperName)
                         maximumLineCount: 1
                         elide: Text.ElideRight
-                        font: fonts.secondaryFont(22)
+                        font: fonts.help()
                     }
                 }
             }

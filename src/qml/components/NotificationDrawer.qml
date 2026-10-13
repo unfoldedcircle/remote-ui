@@ -133,15 +133,14 @@ Drawer {
                     }
 
                     Text {
-                        color: colors.light
+                        color: colors.textSecondary
                         text: itemTimettamp
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                         elide: Text.ElideRight
                         maximumLineCount: 1
                         width: parent.width
                         anchors { top: notificationTitle.bottom }
-                        font: fonts.secondaryFont(22)
-                        lineHeight: 0.8
+                        font: fonts.caption()
                     }
                 }
             }
@@ -166,7 +165,7 @@ Drawer {
                     text: notificationsListView.count > 0 ? qsTr("Clear all") : qsTr("No notifications")
                     verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
                     color: colors.offwhite
-                    font: fonts.secondaryFont(26)
+                    font: fonts.button()
                     anchors.centerIn: parent
                 }
             }

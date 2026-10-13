@@ -158,9 +158,9 @@ Popup {
 
                 Text {
                     width: parent.width
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: Wifi.currentNetwork.frequency < 5000 ? "2.4 GHz" : "5 GHz"
-                    font: fonts.secondaryFont(24)
+                    font: fonts.value()
                     anchors { left: currentNetworkConnectedIcon.right; verticalCenter: currentNetworkConnectedIcon.verticalCenter }
                 }
             }
@@ -179,17 +179,17 @@ Popup {
                     id: macAddressLabel
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("MAC address")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
 
                 Text {
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: wifiInfo.macAddress
-                    font: fonts.secondaryFont(24)
+                    font: fonts.value()
                     anchors { top: macAddressLabel.bottom }
                 }
             }
@@ -208,17 +208,17 @@ Popup {
                     id: ipAddressLabel
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("IP address")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
 
                 Text {
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: wifiInfo.ipAddress
-                    font: fonts.secondaryFont(24)
+                    font: fonts.value()
                     anchors { top: ipAddressLabel.bottom }
                 }
             }
@@ -237,17 +237,17 @@ Popup {
                     id: keyManagementLabel
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.light
+                    color: colors.textSecondary
                     text: qsTr("Key management")
-                    font: fonts.secondaryFont(24)
+                    font: fonts.help()
                 }
 
                 Text {
                     width: parent.width
                     wrapMode: Text.WordWrap
-                    color: colors.offwhite
+                    color: colors.textPrimary
                     text: Wifi.currentNetwork.keyManagement
-                    font: fonts.secondaryFont(24)
+                    font: fonts.value()
                     anchors { top: keyManagementLabel.bottom }
                 }
             }
