@@ -14,6 +14,9 @@ class testCommon : public QObject {
 
     void getLanguageString_data();
     void getLanguageString();
+
+    void webConfiguratorUrl_data();
+    void webConfiguratorUrl();
 };
 
 void testCommon::getDefaultCountryLocale_data() {
@@ -168,6 +171,29 @@ void testCommon::getLanguageString() {
     QString result = uc::Util::getLanguageString(input, locale);
 
     QCOMPARE(result, expectedresult);
+}
+
+// The profile page starts on the IP address: while the remote had none it showed "http:///configurator"
+void testCommon::webConfiguratorUrl_data() {
+    QTest::addColumn<QString>("ipAddress");
+    QTest::addColumn<QString>("hostName");
+    QTest::addColumn<bool>("preferIp");
+    QTest::addColumn<QString>("url");
+
+    QTest::newRow("IP address") << "192.168.1.5" << "remote-3" << true << "http://192.168.1.5/configurator";
+    QTest::newRow("host name") << "192.168.1.5" << "remote-3" << false << "http://remote-3/configurator";
+    QTest::newRow("no IP address yet") << "" << "remote-3" << true << "http://remote-3/configurator";
+    QTest::newRow("no host name") << "192.168.1.5" << "" << false << "http://192.168.1.5/configurator";
+    QTest::newRow("no address") << "" << "" << true << "";
+}
+
+void testCommon::webConfiguratorUrl() {
+    QFETCH(QString, ipAddress);
+    QFETCH(QString, hostName);
+    QFETCH(bool, preferIp);
+    QFETCH(QString, url);
+
+    QCOMPARE(uc::Util::webConfiguratorUrl(ipAddress, hostName, preferIp), url);
 }
 
 QTEST_APPLESS_MAIN(testCommon)
