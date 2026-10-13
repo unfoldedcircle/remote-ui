@@ -18,7 +18,7 @@ An activity entity SHALL be in exactly one of the states Unavailable, Unknown, O
 - **THEN** the update is ignored and the activity keeps its previous state
 
 ### Requirement: Activity screen header reflects failure
-The activity screen header SHALL show the activity icon and name and a hint line. The hint SHALL read "Tap for more" normally, "Tap to fix" while the activity is in Error or Timeout, and "Tap to close" while the activity menu is open. The header background SHALL turn red while the activity is in Error or Timeout, and the hint SHALL then use the regular light text colour instead of dim grey. The header SHALL show a crossed-out Wi-Fi icon when the remote is not connected to Wi-Fi, a weak-signal icon when the signal is weak, and the battery indicator when "Show battery indicator everywhere" is on.
+The activity screen header SHALL show the activity icon and name and a hint line. The hint SHALL read "Tap for more" normally, "Tap to fix" while the activity is in Error or Timeout, and "Tap to close" while the activity menu is open. The header background SHALL turn red while the activity is in Error or Timeout, and the hint SHALL then use the regular light text colour instead of dim grey.
 
 #### Scenario: Activity fails while its screen is open
 - **WHEN** the activity turns to Error or Timeout while its screen is open
@@ -303,3 +303,10 @@ Updates of `user_interface`, `button_mapping`, `included_entities`, `touch_slide
 #### Scenario: Button mapping edited in the web configurator
 - **WHEN** the core sends an updated `button_mapping` while the activity screen is open
 - **THEN** the new mapping is active for the next key press
+
+### Requirement: Status cluster in the activity header
+At the right the activity screen header SHALL show the status cluster of the control screen titles (see `entity-detail-controls`), its icons side by side: a red link-slash icon when the activity's integration state is known and not `connected`, a crossed-out Wi-Fi icon when the remote is not connected to Wi-Fi, a weak-signal icon when the signal is weak, and the battery indicator when "Show battery indicator everywhere" is on. The name and the hint SHALL end where the cluster begins.
+
+#### Scenario: Wi-Fi down and battery shown everywhere
+- **WHEN** the remote is not connected to Wi-Fi and "Show battery indicator everywhere" is on
+- **THEN** the crossed-out Wi-Fi icon and the battery indicator are shown side by side, not on top of each other

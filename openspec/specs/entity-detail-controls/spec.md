@@ -42,11 +42,11 @@ A short or long press on BACK or HOME, or a tap on the close icon (×, top right
 - **THEN** the screen slides down and the page with the tiles is shown
 
 ### Requirement: Control screen title bar
-Every entity control screen SHALL show an 80 px title bar with the entity icon (70 px) and name, and at the right a status cluster: a WiFi icon when WiFi is disconnected (struck through in red) or the signal is none or weak; the battery level when "show battery everywhere" is on (percentage text while charging or when the percentage setting is on, a bolt while charging, the bar red when the battery is low); and a spinning indicator while a command for the entity is in progress (see `entity-commands`). A red link-slash icon SHALL appear left of the close icon when the entity's integration state is known and not `connected`.
+Every entity control screen SHALL show an 80 px title bar with the entity icon (70 px) and name, and at the right a status cluster: a red link-slash icon when the entity's integration state is known and not `connected`; a WiFi icon when WiFi is disconnected (struck through in red) or the signal is none or weak; the battery level when "show battery everywhere" is on (percentage text while charging or when the percentage setting is on, a bolt while charging, the bar red when the battery is low); and a spinning indicator while a command for the entity is in progress (see `entity-commands`).
 
 #### Scenario: Integration disconnected
 - **WHEN** a control screen is open and the entity's integration reports a state other than `connected`
-- **THEN** the red link-slash icon is shown next to the close icon
+- **THEN** the red link-slash icon is shown as the first icon of the status cluster, left of the WiFi and battery icons
 
 ### Requirement: Unavailable entity on a control screen
 While the entity state is Unavailable, the control screen SHALL cover everything below the close icon with an 85 % black overlay that swallows touches, and after 1 s show a red ban icon (120 px) with "Entity unavailable". The screen SHALL ignore every physical key that would send a command in this state, and SHALL raise no notification for such a key because the overlay already says why nothing happens. BACK and HOME SHALL still close the screen, on a short and on a long press, as SHALL a tap on the close icon. On a screen that maps BACK or HOME to a command of its own (the media player screens), those keys SHALL close the screen while the entity is Unavailable instead of sending the command. The overlay SHALL disappear as soon as the state changes away from Unavailable, and the command keys SHALL work again from that moment; while the remote is waking up they keep working (see `entity-commands`).
@@ -408,3 +408,14 @@ Toggling a switch from its tile or its control screen SHALL send `switch.toggle`
 #### Scenario: Unknown state without toggle feature
 - **WHEN** a switch in state Unknown that lacks `toggle` is toggled
 - **THEN** `switch.on` is sent
+
+### Requirement: Status cluster layout
+The icons of the status cluster of a control screen title SHALL stand side by side in one row without covering each other, and the cluster SHALL end clear of the close icon. The name SHALL end where the status cluster begins and SHALL be cut off with an ellipsis after three lines.
+
+#### Scenario: Every status icon at once
+- **WHEN** the integration is disconnected, WiFi is down and "show battery everywhere" is on
+- **THEN** the link-slash, WiFi and battery icons are shown side by side and none covers another or the close icon
+
+#### Scenario: Long entity name
+- **WHEN** the entity name does not fit on three lines next to the status cluster
+- **THEN** the name ends left of the cluster and its third line ends with an ellipsis
