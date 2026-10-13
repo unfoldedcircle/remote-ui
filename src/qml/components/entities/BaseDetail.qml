@@ -66,6 +66,11 @@ Rectangle {
 
     property string entityId
     property QtObject entityObj
+    // The integration of the entity is not connected. The title shows it in its status row (TitleStatus),
+    // next to the WiFi and battery icons, not on top of them. The integration objects are dropped and
+    // loaded again after a reconnect: null in between.
+    readonly property bool integrationDisconnected: integrationObj ? integrationObj.state != "connected" && integrationObj.state != "" : false
+
     property QtObject integrationObj: QtObject {
         property string state
     }
@@ -155,16 +160,6 @@ Rectangle {
                 entityBaseDetailContainer.close();
             }
         }
-    }
-
-    Components.Icon {
-        color: colors.red
-        icon: "uc:link-slash"
-        anchors { right: iconClose.left; verticalCenter: iconClose.verticalCenter }
-        size: 40
-        // the integration objects are dropped and loaded again after a reconnect: null in between
-        visible: integrationObj ? integrationObj.state != "connected" && integrationObj.state != "" : false
-        z: 1001
     }
 
 

@@ -3,11 +3,6 @@
 
 import QtQuick 2.15
 
-import Wifi 1.0
-import Wifi.SignalStrength 1.0
-import Battery 1.0
-import Config 1.0
-
 import "qrc:/components" as Components
 
 Item {
@@ -28,8 +23,11 @@ Item {
 
     Text {
         id: titleOpen
-        width: parent.width - 200
+        // up to the status row, which grows with the icons it shows
+        width: Math.min(parent.width - 200, statusCluster.x - x - 10)
         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        // three lines fill the 80 px bar; a longer name is cut off with an ellipsis instead of spilling out
+        maximumLineCount: 3
         elide: Text.ElideRight
         color: colors.offwhite
         opacity: iconOpen.opacity
@@ -38,110 +36,12 @@ Item {
         lineHeight: 0.8
     }
 
-    // right-aligned status cluster: wifi, battery, then the command-in-progress spinner
-    Row {
+    // right-aligned status row: integration, wifi, battery, then the command-in-progress spinner; it
+    // ends 60 px from the edge, clear of the close icon of the screen
+    TitleStatus {
         id: statusCluster
         anchors { right: parent.right; rightMargin: 60; verticalCenter: parent.verticalCenter }
-        spacing: 10
-
-        Components.Icon {
-            icon: "uc:wifi"
-            color: colors.offwhite
-            opacity: 0.5
-            size: 60
-            anchors.verticalCenter: parent.verticalCenter
-            visible: !Wifi.isConnected || Wifi.currentNetwork.signalStrength === SignalStrength.NONE ||  Wifi.currentNetwork.signalStrength === SignalStrength.WEAK
-
-            Components.Icon {
-                size: 60
-                icon: {
-                    switch (Wifi.currentNetwork.signalStrength) {
-                    case SignalStrength.NONE:
-                        return "";
-                    case SignalStrength.WEAK:
-                        return "uc:wifi-weak";
-                    default:
-                        return "";
-                    }
-                }
-                opacity: icon === "" ? 0 : 1
-                anchors.centerIn: parent
-            }
-
-            Rectangle {
-                width: 30
-                height: 2
-                color: colors.red
-                rotation: -45
-                transformOrigin: Item.Center
-                anchors.centerIn: parent
-                visible: !Wifi.isConnected
-            }
-        }
-
-        Row {
-            anchors.verticalCenter: parent.verticalCenter
-            spacing: 5
-            visible: Config.showBatteryEveryWhere
-
-        Text {
-            anchors.verticalCenter: parent.verticalCenter
-            color: colors.offwhite
-            text: Battery.level
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            font: fonts.primaryFontCapitalized(22)
-            visible: Battery.isCharging || Config.showBatteryPercentage
-        }
-
-        Components.Icon {
-            icon: "uc:bolt"
-            color: colors.offwhite
-            size: 40
-            visible: Battery.isCharging
-        }
-
-        Item {
-            width: 16
-            height: 30
-            anchors.verticalCenter: parent.verticalCenter
-            visible: !Battery.isCharging
-
-            Rectangle {
-                width: parent.width
-                height: (parent.height * Battery.level / 100) + (Battery.level < 10 ? 2 : 0)
-                radius: 4
-                color: Battery.low ? colors.red : colors.offwhite
-                opacity: 0.8
-                anchors { horizontalCenter: batteryBg.horizontalCenter; bottom: batteryBg.bottom; bottomMargin: 1 }
-            }
-
-            Rectangle {
-                id: batteryBg
-                width: parent.width
-                height: parent.height
-                radius: 4
-                color: colors.offwhite
-                opacity: 0.3
-                anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom }
-            }
-        }
-        }
-
-        Image {
-            id: commandLoadingIndicator
-            width: 32; height: 32
-            anchors.verticalCenter: parent.verticalCenter
-            source: "qrc:/images/loader_small.png"
-            fillMode: Image.PreserveAspectFit
-            visible: titleBase.parent && titleBase.parent.entityObj ? titleBase.parent.entityObj.commandInProgress : false
-
-            RotationAnimation on rotation {
-                running: commandLoadingIndicator.visible
-                loops: Animation.Infinite
-                from: 0; to: 360
-                duration: 1200
-            }
-        }
+        integrationDisconnected: titleBase.parent ? titleBase.parent.integrationDisconnected === true : false
+        commandInProgress: titleBase.parent && titleBase.parent.entityObj ? titleBase.parent.entityObj.commandInProgress : false
     }
 }
