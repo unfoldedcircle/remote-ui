@@ -22,7 +22,7 @@ this change after the migration is merged to `main`, not in a phase pull request
       in `test/ui/CMakeLists.txt` with the sources and headers it compiles
 - [x] 1.4 `CHANGELOG.md`: secondary text, dividers and surfaces are easier to read, above all on the
       Remote 3
-- [ ] 1.5 Verify on the desktop simulator, then on a Remote Two and a Remote 3 in a lit room
+- [x] 1.5 Verify on the desktop simulator, then on a Remote Two and a Remote 3 in a lit room
 
 ## 2. Selection
 
@@ -45,7 +45,7 @@ this change after the migration is merged to `main`, not in a phase pull request
       list, settings and profile menus, software update, display, Wi-Fi, localisation with its
       language picker, integrations, docks, about. Not reached on the desktop: `SourceList` and
       `MediaBrowser` (no media player in the simulator), the integration and dock set-up forms
-- [ ] 2.10 The same walk on both remotes, together with 2.6
+- [x] 2.10 The same walk on both remotes, together with 2.6
 - [x] 2.11 `activities` spec delta: the activity menu draws the fill and follows the keypad-active
       state
 
@@ -79,15 +79,16 @@ this change after the migration is merged to `main`, not in a phase pull request
       page menu, activity menu, Wi-Fi info and join, delete drawers, entity filter
 - [x] 4.6 Remove the copies the components replace: `AboutInfo.qml`, `settings/TopNavigation.qml`
 - [x] 4.7 `CHANGELOG.md`: consistent layout of settings, onboarding, docks and integrations
-- [ ] 4.8 Keypad walk per screen family on the desktop and both remotes. Desktop done at 800 px in
-      English and German (`UC_MODEL=DEV`): profile and settings menus, every settings page and picker,
-      software update, about, page menu, page selector with edit and held states, page add dialog,
-      profile switcher, notification, power off, activity menu, integrations list, info, delete
-      drawer, manage entities and filter sheet, docks, onboarding steps, Wi-Fi join and security
-      steps. Still open on the devices; points to look at: with Bluetooth off the dock start screen
-      scrolls at 800 px before Discover is fully visible (it now shows a scroll indicator); in German
-      the terms QR code shrinks to about 110 px to stay clear of the text; with the keyboard up the
-      Wi-Fi join buttons show their labels but their lower edge stays under the keyboard at 800 px
+- [x] 4.8 Keypad walk per screen family on the desktop and both remotes. Desktop done at 800 px in
+      English and German (`UC_MODEL=DEV`): profile and settings menus, every settings page and
+      picker, software update, about, page menu, page selector with edit and held states, page add
+      dialog, profile switcher, notification, power off, activity menu, integrations list, info,
+      delete drawer, manage entities and filter sheet, docks, onboarding steps, Wi-Fi join and
+      security steps. Done on both remotes as well; the points looked at there: with Bluetooth off
+      the dock start screen scrolls at 800 px before Discover is fully visible (it now shows a
+      scroll indicator); in German the terms QR code shrinks to about 110 px to stay clear of the
+      text; with the keyboard up the Wi-Fi join buttons show their labels but their lower edge stays
+      under the keyboard at 800 px
 - [x] 4.9 The 2 px `colors.highlight` outlines phase 2 left in place move to `Selectable` with the
       screens that own them: onboarding, keypad keys, the on-screen keyboard style, notifications,
       bottom sheet, dock and integration info and configure pages, readiness check, web
@@ -133,7 +134,7 @@ this change after the migration is merged to `main`, not in a phase pull request
       settings-menu, core-connection. The `notifications` delta also records the presentation
       phases 3 and 4 gave the actionable notification (buttons, prose message, bar colour)
 - [x] 5.5 `CHANGELOG.md`: every screen works with the d-pad
-- [ ] 5.6 Verify each newly reachable control on a device. Desktop done at 800 px
+- [x] 5.6 Verify each newly reachable control on a device. Desktop done at 800 px
       (`UC_MODEL=DEV`): page menu and profile page, web configurator, no-page screen with its menu
       and dialog, tips, Wi-Fi with empty lists, docks and integrations lists, Manage entities tabs and
       filter header, onboarding Start, Terms and Finish. Not reachable in the simulator: a restricted

@@ -29,14 +29,14 @@ The onboarding SHALL walk the steps Start → Terms → Language → Country →
 - **THEN** the previous step is shown after a 500 ms delay; BACK on Start and on Finish does nothing
 
 ### Requirement: Start step
-The Start step SHALL show a greeting that cycles through "Hallo", "Hoi", "Szia", "Hej", "Hei", "Hello" every 5 s with a 400 ms fade, and the hint "Tap the screen to begin". Tapping anywhere or DPAD_MIDDLE SHALL advance to the Terms step.
+The Start step SHALL show a greeting that cycles through "Hallo", "Hoi", "Szia", "Hej", "Hei", "Hello" every 5 s with a 400 ms fade, and the hint "Press OK or touch the screen to begin". Tapping anywhere or DPAD_MIDDLE SHALL advance to the Terms step.
 
 #### Scenario: BACK on Start
 - **WHEN** BACK is pressed on the Start step
 - **THEN** nothing happens
 
 ### Requirement: Terms & conditions step
-The Terms step SHALL show the text "By using Unfolded Circle products you agree to the Terms & conditions. You can read them on unfoldedcircle.com/legal or by scanning this QR code. Tap the QR code to show it on the screen.", a 300 px QR code linking to https://unfoldedcircle.com/legal, and the buttons Cancel and Agree. Agree SHALL advance; Cancel SHALL go back to Start.
+The Terms step SHALL show the text "By using Unfolded Circle products you agree to the Terms & conditions. You can read them on unfoldedcircle.com/legal or by scanning this QR code. Select the QR code to read them on the screen.", a 300 px QR code linking to https://unfoldedcircle.com/legal, and the buttons Cancel and Agree. Agree SHALL advance; Cancel SHALL go back to Start.
 
 #### Scenario: Keypad on the Terms step
 - **WHEN** the step opens
@@ -154,11 +154,11 @@ The Integration step SHALL show "Integration setup" and start the driver discove
 - **THEN** DPAD_UP / DPAD_DOWN walk the found drivers and end on Skip / Next; DPAD_MIDDLE activates; BACK stops the discovery and returns to the Dock step; BACK inside the setup popup cancels the setup
 
 ### Requirement: Finish step
-The Finish step SHALL show "You're all set – You can add integrations or change configuration via the Web configurator." and, for an unrestricted profile, a box with the web configurator switch ("Web configurator enabled" / "disabled"), the configurator address (the host name first; tapping toggles to the IP address and back), the 4-digit configurator PIN with a button that generates a new PIN, and a QR code of the address, all shown only while the configurator is enabled. The page SHALL scroll so Done is reachable in every language. Done SHALL end the onboarding and show the "Useful tips" help overlay.
+The Finish step SHALL show "You're all set – You can add integrations or change configuration via the Web configurator." and, for an unrestricted profile, a box with the web configurator switch ("Web configurator enabled" / "disabled"), the configurator address (the host name first; tapping it or DPAD_MIDDLE on it toggles to the IP address and back), the 4-digit configurator PIN with a button that generates a new PIN, and a QR code of the address, all shown only while the configurator is enabled. The page SHALL scroll so Done is reachable in every language. Done SHALL end the onboarding and show the "Useful tips" help overlay.
 
 #### Scenario: Keypad on the Finish step
 - **WHEN** the step is shown
-- **THEN** the selection starts on the web configurator switch (or on Done for a restricted profile); DPAD_DOWN reaches the new-PIN button and then Done; the focused control is scrolled into view; BACK does nothing
+- **THEN** the selection starts on the web configurator switch (or on Done for a restricted profile); DPAD_DOWN reaches the address, the new-PIN button and then Done; the focused control is scrolled into view; BACK does nothing
 
 #### Scenario: Tips after Done
 - **WHEN** the help overlay is shown right after the onboarding
@@ -170,3 +170,10 @@ A list or popup opened on a step (language, country and timezone lists, the term
 #### Scenario: One key press, one step
 - **WHEN** a key press moves to the next step
 - **THEN** the same key press does not activate a control of the new step
+
+### Requirement: Finish step taller than the screen
+When the Finish step is taller than the screen, as with the web configurator box and its QR code, the step SHALL scroll and show the scroll indicator, so a touch user can find the Done button below the screen.
+
+#### Scenario: Web configurator on at the Finish step
+- **WHEN** the Finish step shows the web configurator box with its QR code and Done is below the screen
+- **THEN** the scroll indicator is shown at the right edge, and scrolling the step brings Done into view

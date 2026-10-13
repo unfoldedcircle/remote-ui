@@ -58,14 +58,14 @@ The "Docks" settings page SHALL show one 300 px card per dock with the dock imag
 - **THEN** the core's error message is shown as a notification
 
 ### Requirement: Docks settings page keypad walk
-DPAD_UP / DPAD_DOWN SHALL move the selection through the dock list; DPAD_DOWN past the last dock selects the "Add a new dock" sheet and DPAD_UP from there returns to the list. DPAD_MIDDLE opens the selected dock's details or the sheet. When a dock below the selection is removed, the selection stays on the last dock. The Identify / Connect buttons of a card are not reachable by keypad; the same actions are reachable in the dock details.
+DPAD_UP / DPAD_DOWN SHALL move the selection through the dock list; DPAD_DOWN past the last dock selects the "Add a new dock" sheet and DPAD_UP from there returns to the list. DPAD_MIDDLE opens the selected dock's details or the sheet. While the list is empty the sheet is selected. When a dock below the selection is removed, the selection stays on the last dock. The Identify / Connect buttons of a card are not reachable by keypad; the same actions are reachable in the dock details.
 
 #### Scenario: Empty dock list
-- **WHEN** no dock is configured and DPAD_MIDDLE is pressed on the list
-- **THEN** nothing happens
+- **WHEN** no dock is configured and the page is opened by keypad
+- **THEN** the "Add a new dock" sheet is selected and DPAD_MIDDLE opens it
 
 ### Requirement: Dock discovery in the "Add a new dock" sheet
-The "Add a new dock" sheet SHALL open on a start screen with the text "Tap discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it's in close proximity to the remote." and a "Discover" button. When Bluetooth is disabled the screen SHALL additionally show the red hint "Bluetooth is disabled. Discovery limited to network only." with a Bluetooth switch that enables it. Discover SHALL clear the previous results and ask the core to start a discovery over Bluetooth and network for new docks only, with the core's default timeout of 30 s. Closing the sheet SHALL stop the discovery.
+The "Add a new dock" sheet SHALL open on a start screen with the text "Select Discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it's in close proximity to the remote." and a "Discover" button. When Bluetooth is disabled the screen SHALL additionally show the red hint "Bluetooth is disabled. Discovery limited to network only." with a Bluetooth switch that enables it. Discover SHALL clear the previous results and ask the core to start a discovery over Bluetooth and network for new docks only, with the core's default timeout of 30 s. Closing the sheet SHALL stop the discovery.
 
 #### Scenario: Discovery results
 - **WHEN** the core reports a discovered dock that is not yet configured
@@ -145,7 +145,7 @@ Cancel on the form, BACK on the form or HOME SHALL hide the waiting screen, send
 - **THEN** only the WiFi page closes; the setup is not cancelled
 
 ### Requirement: Dock details popup
-Tapping a dock card (or DPAD_MIDDLE on the selected card) SHALL open a full-screen details popup that first refreshes the dock from the core, showing the dock image and name ("Tap to edit name"), the "Something is wrong" line in state `ERROR`, Identify (states `ACTIVE` / `IDLE`) or Connect (state `ERROR`), the fields State, Connection type, Service name, Custom IP or URL ("Not set" when empty), Firmware version ("N/A" when unknown), a "Led brightness" slider from 0 to 100 in steps of 1, the rows "Change password", "Change WiFi settings" and "Factory reset", and a "Delete dock" drawer at the bottom. Name editing, the slider and the three rows are enabled only in states `ACTIVE` and `IDLE` and shown at 30 % opacity otherwise.
+Tapping a dock card (or DPAD_MIDDLE on the selected card) SHALL open a full-screen details popup that first refreshes the dock from the core, showing the dock image and name ("Select to edit the name"), the "Something is wrong" line in state `ERROR`, Identify (states `ACTIVE` / `IDLE`) or Connect (state `ERROR`), the fields State, Connection type, Service name, Custom IP or URL ("Not set" when empty), Firmware version ("N/A" when unknown), a "Led brightness" slider from 0 to 100 in steps of 1, the rows "Change password" and "Factory reset" ("Change WiFi settings" is hidden until it is implemented), and a "Delete dock" drawer at the bottom. Name editing, the slider and the two rows are enabled only in states `ACTIVE` and `IDLE` and shown at 30 % opacity otherwise.
 
 #### Scenario: Refresh fails
 - **WHEN** the core cannot deliver the dock's current data
@@ -154,15 +154,15 @@ Tapping a dock card (or DPAD_MIDDLE on the selected card) SHALL open a full-scre
 #### Scenario: Keypad walk of the details
 - **WHEN** the popup opens by keypad
 - **THEN** the selection starts on the name row (or on Connect / the delete opener when the name cannot be edited)
-- **AND** DPAD_DOWN walks name → Identify / Connect → LED slider → Change password → Change WiFi settings → Factory reset → Delete, skipping invisible or disabled rows; the focused row is scrolled into view; BACK / HOME close the popup
+- **AND** DPAD_DOWN walks name → Identify / Connect → LED slider → Change password → Factory reset → Delete, skipping invisible or disabled rows; the focused row is scrolled into view; BACK / HOME close the popup
 
 #### Scenario: LED brightness
 - **WHEN** the user drags the slider and releases it, or presses DPAD_LEFT / DPAD_RIGHT on it
 - **THEN** the new brightness is sent to the dock (each keypad step immediately); a rejected command shows the core's message
 
 #### Scenario: Change WiFi settings
-- **WHEN** the user activates "Change WiFi settings"
-- **THEN** the notification "Not implemented yet" is shown
+- **WHEN** the details popup is shown
+- **THEN** it has no "Change WiFi settings" row: changing the dock's WiFi is not implemented, and a row that does nothing would be a dead end for the keypad
 
 ### Requirement: Rename a dock
 The name row SHALL open a "Rename dock" dialog pre-filled with the current name, with Cancel and Rename. Rename with an empty field marks the field as erroneous; otherwise the waiting screen is shown and the name is sent to the core. On success the dialog closes; on failure the field shows "There was an error. Try again".

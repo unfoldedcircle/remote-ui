@@ -139,12 +139,13 @@ The "Manage entities" card SHALL open a full-screen entity manager with two tabs
 
 #### Scenario: Confirming without a selection
 - **WHEN** the user triggers Add or Remove with no entity selected
-- **THEN** the notification "Select entities" with "Please select entities to add (remove) by tapping in the list." is shown and the manager stays open
+- **THEN** the notification "Select entities" with "Please select the entities to add (remove) in the list." is shown and the manager stays open
 
 #### Scenario: Keypad walk of the entity manager
 - **WHEN** the entity manager is open
 - **THEN** DPAD_UP / DPAD_DOWN move the selection in the current list, DPAD_MIDDLE toggles the selected row or activates the selected footer control
 - **AND** DPAD_LEFT / DPAD_RIGHT move between the footer controls while the selection is on them, and switch between the two tabs otherwise
+- **AND** DPAD_UP from the filter button selects the tab bar: the current tab is drawn with the selection ring, DPAD_LEFT / DPAD_RIGHT switch the tabs and DPAD_DOWN returns to the filter button
 - **AND** BACK or HOME closes the manager and returns to the details popup
 
 ### Requirement: Delete integration with a deliberate second step
@@ -211,7 +212,9 @@ Every configuration page SHALL be rendered from the driver-supplied schema: each
 
 #### Scenario: Confirmation page from the driver
 - **WHEN** the driver sends a confirmation page (title, message, optional image, second message)
-- **THEN** the page shows the markdown messages and the base64 image; DPAD_DOWN / DPAD_UP scroll the text by 200 px, and DPAD_DOWN at the end moves on to Next
+- **THEN** the page shows the markdown messages and the base64 image, links in the primary text colour
+- **AND** a text taller than the page takes the selection, drawn with the selection ring; DPAD_DOWN / DPAD_UP scroll it by half its height and DPAD_DOWN at the end moves on to Next
+- **AND** a text that fits is not a stop: the selection starts on Next
 
 #### Scenario: Dropdown preselected by the driver
 - **WHEN** the schema has a dropdown with the items `a`, `b`, `c` and the value `b`
@@ -333,11 +336,11 @@ The finish step SHALL show either "You're all set – The integration has been a
 - **THEN** the selection is on Done (success) or on Try again (failure)
 
 ### Requirement: Integrations settings page keypad walk
-On the integrations settings page DPAD_UP / DPAD_DOWN SHALL move the selection through the integration list; DPAD_DOWN past the last entry selects the "Add an integration" sheet and DPAD_UP from there returns to the list. DPAD_MIDDLE opens the selected integration's details or the sheet. When an integration below the selection is removed, the selection stays on the last entry. Inside the setup popup BACK cancels the running setup instead of only closing the popup.
+On the integrations settings page DPAD_UP / DPAD_DOWN SHALL move the selection through the integration list; DPAD_DOWN past the last entry selects the "Add an integration" sheet and DPAD_UP from there returns to the list. DPAD_MIDDLE opens the selected integration's details or the sheet. While the list is empty the sheet is selected; the list loads after the page opens, and its first entry is selected once it arrives. When an integration below the selection is removed, the selection stays on the last entry. Inside the setup popup BACK cancels the running setup instead of only closing the popup.
 
 #### Scenario: Empty list
-- **WHEN** no integration is configured and DPAD_MIDDLE is pressed with the list selected
-- **THEN** nothing happens
+- **WHEN** no integration is configured and the page is opened by keypad
+- **THEN** the "Add an integration" sheet is selected and DPAD_MIDDLE opens it
 
 ### Requirement: Start and stop of an integration driver
 The UI SHALL be able to send a start or stop command for an integration driver; a rejected command SHALL show "Error while starting integration driver" (the same text is used for a failed stop).

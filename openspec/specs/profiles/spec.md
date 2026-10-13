@@ -121,6 +121,10 @@ The "+" footer SHALL open a menu "Add a new profile" with the entries "Normal" a
 - **WHEN** Cancel is tapped or BACK or HOME is pressed in the dialog
 - **THEN** the dialog closes, the field is cleared and the keyboard hides; the profile list behind it stays open
 
+#### Scenario: First profile
+- **WHEN** the "Profile name" dialog is shown full screen because no profile exists yet
+- **THEN** it has no Cancel button and no close icon, and BACK or HOME only clear the field and hide the keyboard: the dialog stays, as there is nothing to go back to
+
 ### Requirement: Profile menu (rename, icon, delete)
 A long press on a profile row (touch) or a long press on DPAD_MIDDLE on the selected row SHALL open a menu titled with the profile name with the entries "Rename", "Edit icon" and "Delete". When the current profile is restricted the menu SHALL not open and an error haptic is played.
 
@@ -193,7 +197,7 @@ The profile page (opened by tapping the profile icon in the status bar) SHALL sh
 
 #### Scenario: QR code tapped
 - **WHEN** the QR code is tapped or activated
-- **THEN** it is enlarged to full screen with "Scan to open the Web Configurator" and "Tap to close"; a tap, BACK or HOME return to the page
+- **THEN** it is enlarged to full screen with "Scan to open the Web Configurator" and "Press BACK to close"; a tap, DPAD_MIDDLE, BACK or HOME return to the page
 
 #### Scenario: Header rows by d-pad
 - **WHEN** DPAD_UP is pressed on the first menu entry
@@ -217,6 +221,7 @@ Enabling the web configurator SHALL generate a random 4-digit PIN (0000–9999, 
 #### Scenario: Web configurator screen from the pull-down menu
 - **WHEN** the globe icon of the pull-down menu is tapped
 - **THEN** a "Web Configurator" screen shows the same switch, address, PIN and regenerate rows and a large QR code; BACK / HOME close it
+- **AND** with the keypad the selection starts on the switch; DPAD_UP / DPAD_DOWN walk the switch, the address and the regenerate button (each shown only while the configurator is enabled), DPAD_MIDDLE activates the selected row with a haptic click
 
 ### Requirement: Restricted profile limits
 When the current profile is restricted, the UI SHALL hide the settings entries Software update, Settings, Integrations and Docks (only About remains), hide the web configurator and settings icons of the pull-down menu, hide the profile "+" footer, refuse the page menu with the notification "Profile is restricted", and hide the page selector's edit pencil.
@@ -239,3 +244,10 @@ A factory reset SHALL be a two-step operation: pressing "Erase everything" reque
 #### Scenario: Reset rejected
 - **WHEN** `factory_reset` fails
 - **THEN** a warning notification "Error factory reset: <message>" is shown
+
+### Requirement: First d-pad press on the profile page
+When the profile page, or the same menu opened with the gear of the pull-down menu, was opened or touched without the keypad, the first DPAD_UP or DPAD_DOWN SHALL show the selection on the row that holds it, the first entry after opening, instead of moving it. The next press moves it.
+
+#### Scenario: Profile page opened by touch
+- **WHEN** the profile page is opened with the status bar profile icon and DPAD_DOWN is pressed
+- **THEN** "Software update" is selected, and the next DPAD_DOWN selects "Settings"

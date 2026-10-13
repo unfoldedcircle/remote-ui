@@ -7,7 +7,7 @@ The settings menu of the remote: how it is opened and left, its structure and sc
 ## Requirements
 
 ### Requirement: Opening the settings
-The settings overlay SHALL open from the gear icon of the pull-down menu (pull the current page down past its header plus 100 px) and, as the profile page variant with header rows, by tapping the profile icon in the status bar. The overlay fades in over 200 ms and takes the input while it is open.
+The settings overlay SHALL open from the gear icon of the pull-down menu (pull the current page down past its header plus 100 px) and, as the profile page variant with header rows, by tapping the profile icon in the status bar or by choosing "Profile & settings" in the page menu (a long press on HOME, see `pages`), which is the way in with the keypad. The overlay fades in over 200 ms and takes the input while it is open.
 
 #### Scenario: Closing the overlay
 - **WHEN** the back arrow (or the X of the profile page) is tapped, or HOME is pressed on any level
@@ -43,7 +43,7 @@ Every settings page SHALL scroll its content when it is taller than the screen. 
 - **THEN** the page underneath stops reacting to the d-pad until the popup closes
 
 ### Requirement: Settings submenu
-"Settings" SHALL list, in order: "Display & Brightness", "User interface", "Touch Slider", "Sound & Haptic", "Voice Control", "Power Saving", "Wifi & Bluetooth", "Localisation", "Administrator PIN", "Factory reset". Opening it re-requests the configuration from the core. The list scrolls when it overflows, keeping the selection between 15% and 85% of its height.
+"Settings" SHALL list, in order: "Display & Brightness", "User interface", "Touch Slider", "Sound & Haptic", "Voice Control", "Power Saving", "Wifi & Bluetooth", "Localization", "Administrator PIN", "Factory reset". Opening it re-requests the configuration from the core. The list scrolls when it overflows, keeping the selection between 15% and 85% of its height.
 
 #### Scenario: Entry chosen
 - **WHEN** an entry is chosen
@@ -64,7 +64,7 @@ The page SHALL offer: "Auto brightness" switch ("Automatically adjust the displa
 - **THEN** the brightness follows live and the final value is sent on release; on Remote Two the UI additionally dims itself according to the value
 
 ### Requirement: User interface page
-The page SHALL offer switches: "Inverted button behaviour" (short press opens the control screen, long press toggles); "Show battery percentage"; "Show battery indicator everywhere"; "Activities on pages" (activity bar in the page header); "Open activities started with the API"; "Zoom media image" (crop artwork instead of fit); "Coverflow in media browser".
+The page SHALL offer switches: "Inverted button behavior" (short press opens the control screen, long press toggles); "Show battery percentage"; "Show battery indicator everywhere"; "Activities on pages" (activity bar in the page header); "Open activities started with the API"; "Zoom media image" (crop artwork instead of fit); "Coverflow in media browser".
 
 #### Scenario: Activity bar toggled
 - **WHEN** "Activities on pages" is switched
@@ -104,6 +104,7 @@ The page SHALL offer "Bluetooth" and "WiFi" switches, "Active WiFi scanning" wit
 #### Scenario: Whole page by d-pad
 - **WHEN** the d-pad walks the page
 - **THEN** the switches, the band row, both network lists and the buttons are all reachable in order
+- **AND** an empty "Known Networks" list is skipped, and an empty list of other networks starts on "Join other", so a press never lands where nothing is drawn
 
 ### Requirement: Localisation page
 The page SHALL offer rows opening selection lists: "Language" (installed translations shown in their native name), "Country" (sections "Suggested" and "All countries"), "Timezone" (zones of the country plus an "All timezones…" entry), a "24-hour time" switch and "Unit System". Each list preselects the current value; a selection is sent to the core and applied immediately; closing a list with BACK changes nothing.
@@ -135,7 +136,7 @@ The About page SHALL list "Model number", "Serial number", "Revision", "Wi-Fi ad
 
 #### Scenario: Document page
 - **WHEN** Regulatory, Terms & conditions or Warranty information is opened
-- **THEN** the document is shown as rich text from the legal resources; DPAD_DOWN / DPAD_UP scroll by 100 px per press, clamped to the content; a relative link inside the document is followed once, http links are ignored
+- **THEN** the document is shown as rich text from the legal resources; DPAD_DOWN / DPAD_UP scroll by half the page per press, clamped to the content; a relative link inside the document is followed once, http links are ignored
 
 #### Scenario: Licenses
 - **WHEN** Licenses is opened
@@ -147,3 +148,33 @@ The "Activities & macros", "Remotes" and "Colors" pages exist but SHALL NOT be l
 #### Scenario: Not reachable
 - **WHEN** the menus are browsed
 - **THEN** none of these pages can be opened
+
+### Requirement: Addresses on the About page are shown in full
+The Wi-Fi address and the Bluetooth address on the About page SHALL be shown in full: on the line of their key
+when both fit, otherwise on their own line under the key. They SHALL NOT be cut off, in any language.
+
+#### Scenario: Addresses on a Remote 3
+- **WHEN** the About page is shown on the 480 px wide screen of a Remote 3
+- **THEN** both addresses are shown in full, each on its own line under its key
+
+### Requirement: The About page shows its first entry
+On both remotes the information of the About page and its first entry SHALL fit on the screen together, so the
+page shows without scrolling that entries follow the information, and returning to the first entry shows the
+information from the top.
+
+#### Scenario: About page on a Remote 3
+- **WHEN** the About page opens on the 800 px high screen of a Remote 3
+- **THEN** "Regulatory" is shown in full below the information, without scrolling
+
+### Requirement: The About page scrolls back to its information
+When the keypad selection reaches the first entry of the About page, or DPAD_UP is pressed on it, the page SHALL
+scroll up as far as the selected entry stays visible, so the information above the entries is shown again.
+
+#### Scenario: Back up with the keypad
+- **WHEN** the selection is moved down to "Licenses" and back up to "Regulatory"
+- **THEN** the page scrolls up as far as "Regulatory" stays visible, which is the top of the page with the model
+  number
+
+#### Scenario: After scrolling by touch
+- **WHEN** the page was scrolled down by touch and DPAD_UP is pressed while "Regulatory" is selected
+- **THEN** the page scrolls up the same way
