@@ -57,6 +57,13 @@ ListView {
         if (activeFocus && wifiNetworkList.state === "closed") {
             wifiNetworkList.state = "open";
         }
+
+        // arriving without a selection (an empty list, or reached through a plain KeyNavigation
+        // link): select the first entry, so the focus never sits on the list with nothing drawn
+        if (activeFocus && !wifiNetworkList.otherSelected
+                && (wifiNetworkList.count === 0 || wifiNetworkList.currentIndex < 0)) {
+            wifiNetworkList.selectFirst();
+        }
     }
 
     // The scan result replaces the model now and then (a network appeared or disappeared): the
@@ -95,6 +102,9 @@ ListView {
         wifiNetworkList.otherSelected = false;
         if (wifiNetworkList.count > 0) {
             wifiNetworkList.currentIndex = 0;
+        } else if (wifiNetworkList.hasOther) {
+            // no network: "Join other" is the first entry
+            wifiNetworkList.otherSelected = true;
         }
     }
 

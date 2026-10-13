@@ -46,8 +46,21 @@ Rectangle {
     // 0 = Select all / Clear, 1 = Add / Remove
     property int footerIndex: 1
 
+    // An empty list has no row to stand on: the selection is on the filter button then, also when the
+    // list never loads (an integration in error), not only once the answer of the core arrived.
+    readonly property bool headerSelected: entityList.zone === EntityList.Zone.Header
+                                           || (entityList.zone === EntityList.Zone.List && itemList.count === 0)
+
+    function normalizeZone() {
+        if (entityList.zone === EntityList.Zone.List && itemList.count === 0) {
+            entityList.zone = EntityList.Zone.Header;
+        }
+    }
+
     // returns false when the selection would leave the list, so the host can move on
     function moveSelection(delta) {
+        entityList.normalizeZone();
+
         if (entityList.zone === EntityList.Zone.Header) {
             if (delta < 0) {
                 return false;
@@ -119,6 +132,8 @@ Rectangle {
     }
 
     function activateSelection() {
+        entityList.normalizeZone();
+
         switch (entityList.zone) {
         case EntityList.Zone.Header:
             entityFilterPopup.open();
@@ -332,7 +347,7 @@ Rectangle {
 
                 Components.Selectable {
                     radius: parent.radius
-                    selected: entityList.keypadSelected && entityList.zone === EntityList.Zone.Header
+                    selected: entityList.keypadSelected && entityList.headerSelected
                 }
 
                 Behavior on color {
@@ -368,8 +383,12 @@ Rectangle {
             closePolicy: Popup.CloseOnPressOutside
             padding: 0
 
+            // the header button the keypad selection is on: -1 the type rows, 0 Clear, 1 Done
+            property int headerButton: -1
+
             onOpened: {
                 filterTypesListView.currentIndex = 0;
+                entityFilterPopup.headerButton = -1;
                 entityFilterPopupButtonNavigation.takeControl();
             }
 
@@ -387,31 +406,63 @@ Rectangle {
                 NumberAnimation { property: "opacity"; from: 1.0; to: 0.0; easing.type: Easing.InExpo; duration: 300 }
             }
 
-            // the sheet owns the input while it is open: DPAD_UP / DOWN walk the filter rows,
-            // DPAD_MIDDLE toggles the row, DPAD_LEFT clears all filters, BACK / HOME close it
+            // the sheet owns the input while it is open: DPAD_UP / DOWN walk the filter rows, DPAD_UP on
+            // the first row selects Done in the header, DPAD_LEFT / RIGHT move between Clear and Done there.
+            // DPAD_MIDDLE toggles the row or activates the button; on the rows DPAD_LEFT clears all
+            // filters. BACK / HOME close the sheet.
             Components.ButtonNavigation {
                 id: entityFilterPopupButtonNavigation
                 defaultConfig: {
                     "DPAD_DOWN": {
                         "pressed": function() {
+                            if (entityFilterPopup.headerButton >= 0) {
+                                entityFilterPopup.headerButton = -1;
+                                return;
+                            }
+
                             filterTypesListView.incrementCurrentIndex();
                         }
                     },
                     "DPAD_UP": {
                         "pressed": function() {
+                            if (entityFilterPopup.headerButton >= 0) {
+                                return;
+                            }
+
+                            if (filterTypesListView.currentIndex <= 0) {
+                                entityFilterPopup.headerButton = 1;
+                                return;
+                            }
+
                             filterTypesListView.decrementCurrentIndex();
                         }
                     },
                     "DPAD_MIDDLE": {
                         "pressed": function() {
-                            if (filterTypesListView.currentItem) {
+                            if (entityFilterPopup.headerButton === 0) {
+                                clearFiltersButton.activate();
+                            } else if (entityFilterPopup.headerButton === 1) {
+                                filterDoneButton.activate();
+                            } else if (filterTypesListView.currentItem) {
                                 filterTypesListView.currentItem.toggle();
                             }
                         }
                     },
                     "DPAD_LEFT": {
                         "pressed": function() {
+                            if (entityFilterPopup.headerButton >= 0) {
+                                entityFilterPopup.headerButton = 0;
+                                return;
+                            }
+
                             clearFiltersButton.activate();
+                        }
+                    },
+                    "DPAD_RIGHT": {
+                        "pressed": function() {
+                            if (entityFilterPopup.headerButton >= 0) {
+                                entityFilterPopup.headerButton = 1;
+                            }
                         }
                     },
                     "BACK": {
@@ -467,6 +518,7 @@ Rectangle {
                                 //: Button that clears the active filters in the entity list.
                                 text: qsTr("Clear")
                                 variant: "secondary"
+                                highlight: entityFilterPopup.headerButton === 0 && ui.keyNavigationActive
                                 trigger: function() {
                                     entityList.model.cleanEntityTypes();
 
@@ -489,7 +541,9 @@ Rectangle {
                             }
 
                             Components.Button {
+                                id: filterDoneButton
                                 text: qsTr("Done")
+                                highlight: entityFilterPopup.headerButton === 1 && ui.keyNavigationActive
                                 trigger: function() {
                                     entityFilterPopup.close();
                                 }
@@ -577,7 +631,7 @@ Rectangle {
                                 // the ring around the selected type, inside the list's 20 px gutter
                                 Components.Selectable {
                                     anchors { leftMargin: -12; rightMargin: -12 }
-                                    selected: filterListViewDelegate.ListView.isCurrentItem
+                                    selected: filterListViewDelegate.ListView.isCurrentItem && entityFilterPopup.headerButton < 0
                                 }
 
                                 RowLayout {

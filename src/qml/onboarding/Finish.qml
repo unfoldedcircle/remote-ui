@@ -112,7 +112,8 @@ OnboardingComponents.Page {
 
                             icon: "uc:check"
                             checked: Config.webConfiguratorEnabled
-                            KeyNavigation.down: generateNewPin.visible ? generateNewPin : doneButton
+                            KeyNavigation.down: webConfiguratorAddress.visible ? addressToggle
+                                                                               : (generateNewPin.visible ? generateNewPin : doneButton)
                             trigger: function() {
                                 Config.webConfiguratorEnabled = !Config.webConfiguratorEnabled
                             }
@@ -133,10 +134,22 @@ OnboardingComponents.Page {
                         text: ("http://%1/configurator").arg(webConfiguratorAddress.showIp ? Wifi.ipAddress : Config.webConfiguratorAddress)
                         font: fonts.value()
 
+                        // OK switches between the host name and the IP address, as a tap does
                         Components.HapticMouseArea {
+                            id: addressToggle
                             anchors.fill: parent
+                            keypadActivatable: true
+
+                            KeyNavigation.up: webConfiguratorSwitch
+                            KeyNavigation.down: generateNewPin.visible ? generateNewPin : doneButton
+
                             onClicked: {
                                 webConfiguratorAddress.showIp = !webConfiguratorAddress.showIp;
+                            }
+
+                            Components.Selectable {
+                                selected: addressToggle.activeFocus
+                                anchors { leftMargin: -10; rightMargin: -10 }
                             }
                         }
                     }
@@ -185,7 +198,7 @@ OnboardingComponents.Page {
                             height: pinContainer.containerHeight
                             anchors { right: parent.right; bottom: parent.bottom }
 
-                            KeyNavigation.up: webConfiguratorSwitch
+                            KeyNavigation.up: webConfiguratorAddress.visible ? addressToggle : webConfiguratorSwitch
                             KeyNavigation.down: doneButton
 
                             function generate() {

@@ -41,25 +41,31 @@ Item {
     property int menuShift: 150
     property double menuFade: 0
 
+    // The page menu (HOME long press). It is also the keypad's way to the page selector and the profile
+    // page, which are otherwise opened by touch. A restricted profile gets the entries that change
+    // nothing: the page selector, the profile page and the tips.
     function openPageEditMenu() {
         popupMenu.title = pages.currentItem.title;
         let menuItems = [];
+        const restricted = ui.profile.restricted;
 
-        menuItems.push({
-                           title: qsTr("Add entity"),
-                           icon: "uc:plus",
-                           callback: function() {
-                               loadSecondContainer("qrc:/components/entities/EntityAdd.qml", { "pageId": currentPage._id });
-                           }
-                       });
+        if (!restricted) {
+            menuItems.push({
+                               title: qsTr("Add entity"),
+                               icon: "uc:plus",
+                               callback: function() {
+                                   loadSecondContainer("qrc:/components/entities/EntityAdd.qml", { "pageId": currentPage._id });
+                               }
+                           });
 
-        menuItems.push({
-                           title: qsTr("Add group"),
-                           icon: "uc:plus",
-                           callback: function() {
-                               loadSecondContainer("qrc:/components/group/GroupAdd.qml", { "pageId": currentPage._id });
-                           }
-                       });
+            menuItems.push({
+                               title: qsTr("Add group"),
+                               icon: "uc:plus",
+                               callback: function() {
+                                   loadSecondContainer("qrc:/components/group/GroupAdd.qml", { "pageId": currentPage._id });
+                               }
+                           });
+        }
 
         // the page selector (tapping the page title) has no key of its own
         menuItems.push({
@@ -70,41 +76,58 @@ Item {
                                loadSecondContainer("qrc:/components/PageSelector.qml", { currentPage: pages.currentItem.title });
                            }
                        });
-        menuItems.push({
-                           title: qsTr("Reorder"),
-                           icon: "uc:bars",
-                           callback: function() {
-                               if (currentPage.count > 0) {
-                                   ui.editMode = true;
-                               } else {
-                                   ui.createActionableNotification(qsTr("Page is empty"), qsTr("There is nothing to reorder. Try adding entities or groups first."))
+
+        if (!restricted) {
+            menuItems.push({
+                               title: qsTr("Reorder"),
+                               icon: "uc:bars",
+                               callback: function() {
+                                   if (currentPage.count > 0) {
+                                       ui.editMode = true;
+                                   } else {
+                                       ui.createActionableNotification(qsTr("Page is empty"), qsTr("There is nothing to reorder. Try adding entities or groups first."))
+                                   }
                                }
+                           });
+
+            // the selected tile's own menu (rename, icon, remove; edit entities, delete for a group)
+            // is reached from here with the keypad: the tile's long press is taken by open / toggle
+            const tile = currentEntity ? currentEntity.delegateItem : null;
+            if (tile && tile.groupObj) {
+                const groupObj = tile.groupObj;
+                menuItems.push({
+                                   //: Menu entry that opens the edit menu of the selected group or entity, %1 is its name
+                                   title: qsTr("Edit %1").arg(groupObj.groupName()),
+                                   icon: "uc:pen-to-square",
+                                   callback: function() {
+                                       openGroupEditMenu(groupObj);
+                                   }
+                               });
+            } else if (tile && tile.entityObj) {
+                const entityObj = tile.entityObj;
+                menuItems.push({
+                                   title: qsTr("Edit %1").arg(entityObj.name),
+                                   icon: "uc:pen-to-square",
+                                   callback: function() {
+                                       openEntityEditMenu(entityObj, "");
+                                   }
+                               });
+            }
+        }
+
+        // the profile page (the profile icon in the status bar, or the pull-down menu) has no key of its
+        // own either: it leads to the profile list, the web configurator and the settings
+        menuItems.push({
+                           title: restricted
+                                  //: Page menu entry of a restricted profile: opens the profile page (profile list and About)
+                                  ? qsTr("Profile")
+                                  //: Page menu entry: opens the profile page with the profile list, the web configurator and the settings
+                                  : qsTr("Profile & settings"),
+                           icon: "uc:user",
+                           callback: function() {
+                               loadSecondContainer("qrc:/components/Profile.qml");
                            }
                        });
-
-        // the selected tile's own menu (rename, icon, remove; edit entities, delete for a group)
-        // is reached from here with the keypad: the tile's long press is taken by open / toggle
-        const tile = currentEntity ? currentEntity.delegateItem : null;
-        if (tile && tile.groupObj) {
-            const groupObj = tile.groupObj;
-            menuItems.push({
-                               //: Menu entry that opens the edit menu of the selected group or entity, %1 is its name
-                               title: qsTr("Edit %1").arg(groupObj.groupName()),
-                               icon: "uc:pen-to-square",
-                               callback: function() {
-                                   openGroupEditMenu(groupObj);
-                               }
-                           });
-        } else if (tile && tile.entityObj) {
-            const entityObj = tile.entityObj;
-            menuItems.push({
-                               title: qsTr("Edit %1").arg(entityObj.name),
-                               icon: "uc:pen-to-square",
-                               callback: function() {
-                                   openEntityEditMenu(entityObj, "");
-                               }
-                           });
-        }
 
         menuItems.push({
                            title: qsTr("Show tips"),
@@ -454,11 +477,7 @@ Item {
                         return;
                     }
 
-                    if (ui.profile.restricted) {
-                        ui.createNotification(qsTr("Profile is restricted"), true);
-                    } else {
-                        openPageEditMenu();
-                    }
+                    openPageEditMenu();
                 }
             }
         }

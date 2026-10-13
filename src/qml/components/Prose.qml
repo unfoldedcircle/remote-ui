@@ -35,6 +35,8 @@ Flickable {
 
     Text {
         id: proseText
+        // links in textPrimary, not Qt's default blue (2.4:1 on black); they stay underlined
+        linkColor: colors.textPrimary
         x: 20
         width: prose.width - 40
         wrapMode: Text.WordWrap

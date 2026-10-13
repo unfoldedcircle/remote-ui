@@ -48,7 +48,7 @@ Rectangle {
             GroupController.updateGroup(addGroupContainer.groupId, ui.profile.id, "", selectedEntities)
             EntityController.configuredEntities.clearSelected();
         } else {
-            ui.createActionableNotification(qsTr("Select entities"), qsTr("Please select entities to add by tapping in the list."));
+            ui.createActionableNotification(qsTr("Select entities"), qsTr("Please select the entities to add in the list."));
         }
     }
 

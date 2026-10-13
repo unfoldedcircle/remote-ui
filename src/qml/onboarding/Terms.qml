@@ -31,7 +31,8 @@ OnboardingComponents.Page {
         wrapMode: Text.WordWrap
         color: colors.textPrimary
         horizontalAlignment: Text.AlignHCenter
-        text: qsTr("By using Unfolded Circle products you agree to the Terms & conditions.\n\nYou can read them on\nunfoldedcircle.com/legal\nor by scanning this QR code.\nTap the QR code to show it on the screen.")
+        //: Onboarding terms step; "them" are the Terms & conditions. Selecting the QR code (touch or OK) shows the terms on the remote
+        text: qsTr("By using Unfolded Circle products you agree to the Terms & conditions.\n\nYou can read them on\nunfoldedcircle.com/legal\nor by scanning this QR code.\nSelect the QR code to read them on the screen.")
         anchors { horizontalCenter: parent.horizontalCenter; top: title.bottom }
         font: fonts.prose()
         lineHeight: fonts.proseLineHeight

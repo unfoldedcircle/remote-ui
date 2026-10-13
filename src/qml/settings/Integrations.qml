@@ -20,8 +20,10 @@ Settings.Page {
         integrationDetailPopup.open();
     }
 
-    // the "add an integration" sheet sits below the list: DPAD_DOWN past the last entry selects it
+    // the "add an integration" sheet sits below the list: DPAD_DOWN past the last entry selects it.
+    // Without an entry the sheet is the only thing to select, so it is selected while the list is empty.
     property bool addSheetSelected: false
+    readonly property bool sheetSelected: addSheetSelected || itemList.count === 0
 
     Component.onCompleted: {
         IntegrationController.getAllIntegrationDrivers();
@@ -30,7 +32,7 @@ Settings.Page {
         buttonNavigation.extendDefaultConfig({
                                                  "DPAD_DOWN": {
                                                      "pressed": function() {
-                                                         if (integrationsPage.addSheetSelected) {
+                                                         if (integrationsPage.sheetSelected) {
                                                              return;
                                                          }
 
@@ -54,7 +56,7 @@ Settings.Page {
                                                  },
                                                  "DPAD_MIDDLE": {
                                                      "pressed": function() {
-                                                         if (integrationsPage.addSheetSelected) {
+                                                         if (integrationsPage.sheetSelected) {
                                                              addIntegrationSheet.state = "opened";
                                                              return;
                                                          }
@@ -103,7 +105,7 @@ Settings.Page {
         titleOpened: qsTr("Add an integration")
         titleClosed: qsTr("Add an integration")
         openItemSource: "qrc:/components/integrations/Discovery.qml"
-        highlight: integrationsPage.addSheetSelected
+        highlight: integrationsPage.sheetSelected
 
         onOpened: {
             IntegrationController.startDriverDiscovery();
@@ -284,7 +286,7 @@ Settings.Page {
 
             Components.Selectable {
                 anchors { leftMargin: 8; rightMargin: 8 }
-                selected: parent.isCurrentItem && !integrationsPage.addSheetSelected
+                selected: parent.isCurrentItem && !integrationsPage.sheetSelected
             }
 
             Components.HapticMouseArea {

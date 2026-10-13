@@ -61,6 +61,10 @@ class InputController : public QQuickItem {
 
     QObject* activeItem() const { return m_activeItem.data(); }
     bool     keypadActive() const { return m_keypadActive; }
+    // True only while the handlers of the key press run that made the keypad active, the first press after a touch
+    // or after the start. A list that keeps a current row while the keypad is not active shows that row on this
+    // press instead of moving past it.
+    Q_INVOKABLE bool pressActivatedKeypad() const { return m_pressActivatedKeypad; }
     int      getRepeatCount() { return m_repeatCount; }
 
     Q_INVOKABLE void setSource(QObject* source);
@@ -120,6 +124,7 @@ class InputController : public QQuickItem {
 
     bool m_blockInput = false;
     bool m_keypadActive = false;
+    bool m_pressActivatedKeypad = false;
     bool m_blockTouchInput = false;
 
     QHash<int, QString> m_keyCodeMapping{

@@ -53,7 +53,8 @@ Rectangle {
     }
 
     function resetForm() {
-        if (!ui.isOnboarding) {
+        // without any profile the form is the whole screen: there is nothing to go back to
+        if (!ui.isOnboarding && !addProfileContainer.noProfile) {
             addProfileContainer.state = "hidden";
         }
         inputFieldContainer.inputField.clear();
@@ -205,7 +206,8 @@ Rectangle {
                     trigger: function() {
                         addProfileContainer.cancelForm();
                     }
-                    visible: !ui.isOnboarding || addProfileContainer.noProfile
+                    // nothing to cancel during onboarding or when no profile exists yet
+                    visible: !ui.isOnboarding && !addProfileContainer.noProfile
 
                     KeyNavigation.up: inputFieldContainer.inputField
                     KeyNavigation.right: addButton

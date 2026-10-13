@@ -16,11 +16,13 @@ Item {
     property alias message2: message2.text
 
     /** KEYBOARD NAVIGATION **/
-    // the page has no control: the text takes the focus, DPAD_DOWN / UP scroll it, and DOWN at
-    // its end moves on to the control the hosting form passes as navExit (its Next button)
+    // the page has no control: a text taller than the page takes the focus, DPAD_DOWN / UP scroll it,
+    // and DOWN at its end moves on to the control the hosting form passes as navExit (its Next button).
+    // A text that fits is not a stop: the form starts on Next.
     property alias flickable: contentFlickable
-    readonly property Item firstFocusItem: contentFlickable
-    readonly property Item lastFocusItem: contentFlickable
+    readonly property bool scrollable: contentFlickable.contentHeight > contentFlickable.height
+    readonly property Item firstFocusItem: scrollable ? contentFlickable : null
+    readonly property Item lastFocusItem: scrollable ? contentFlickable : null
     property Item navExit: null
 
     Text {
@@ -33,6 +35,13 @@ Item {
         elide: Text.ElideRight
         font: fonts.title()
         anchors { top: parent.top; topMargin: 20; horizontalCenter: parent.horizontalCenter }
+    }
+
+    // the text holds the focus while it is scrolled with the keypad: it shows the ring like any control
+    Components.Selectable {
+        anchors.fill: contentFlickable
+        anchors.margins: -8
+        selected: contentFlickable.activeFocus
     }
 
     Flickable {
@@ -86,6 +95,7 @@ Item {
                 text: root.value
                 color: colors.textPrimary
                 textFormat: Text.MarkdownText
+                linkColor: colors.textPrimary
                 wrapMode: Text.WordWrap
                 font: fonts.prose()
                 lineHeight: fonts.proseLineHeight
@@ -115,6 +125,7 @@ Item {
                 text: root.value
                 color: colors.textPrimary
                 textFormat: Text.MarkdownText
+                linkColor: colors.textPrimary
                 wrapMode: Text.WordWrap
                 font: fonts.prose()
                 lineHeight: fonts.proseLineHeight

@@ -274,6 +274,7 @@ bool InputController::eventFilter(QObject* obj, QEvent* event) {
             }
 
             cancelDeferredRelease(key);
+            const bool activated = !m_keypadActive;
             setKeypadActive(true);
 
             if (key == Qt::Key_PowerOff && !keyEvent->isAutoRepeat() && !m_globalPowerPressed) {
@@ -294,8 +295,10 @@ bool InputController::eventFilter(QObject* obj, QEvent* event) {
                 m_keyOwner[key] = owner;
             }
 
+            m_pressActivatedKeypad = activated;
             emit keyPressed(mappedKey);
             emit keyPressedFor(owner.data(), mappedKey);
+            m_pressActivatedKeypad = false;
             qCDebug(lcInput()) << "Key pressed:" << mappedKey << owner.data();
             break;
         }

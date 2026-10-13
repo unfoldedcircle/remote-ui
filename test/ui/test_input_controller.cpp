@@ -128,6 +128,8 @@ class testInputController : public QObject {
     void heldEscape_repeatsAsBack();
     void blockedInput_dropsEscape();
     void escapeOnADeviceModel_isNotTranslated();
+
+    void firstPressAfterATouch_activatesTheKeypad();
 };
 
 void testInputController::shortHold_sendsNoAutoRepeat() {
@@ -299,6 +301,36 @@ void testInputController::escapeOnADeviceModel_isNotTranslated() {
     QCOMPARE(f.window.received, QStringList({"press Esc", "release Esc"}));
     QCOMPARE(f.pressed.count(), 0);
     QCOMPARE(f.released.count(), 0);
+}
+
+/**
+ * The handlers of a key press can tell whether that press made the keypad active: the first press after the start or
+ * after a touch, but not the presses that follow it. A list uses it to show its selection before moving it.
+ */
+void testInputController::firstPressAfterATouch_activatesTheKeypad() {
+    KeyboardFixture f(uc::hw::HardwareModel::DEV);
+    QList<bool>     activated;
+    QObject::connect(&f.controller, &InputController::keyPressed,
+                     [&f, &activated]() { activated.append(f.controller.pressActivatedKeypad()); });
+
+    f.send(QEvent::KeyPress, kDpadDown);
+    f.send(QEvent::KeyRelease, kDpadDown);
+    f.send(QEvent::KeyPress, kDpadDown);
+    f.send(QEvent::KeyRelease, kDpadDown);
+
+    // a touch ends the keypad-active state
+    QMouseEvent touch(QEvent::MouseButtonPress, QPointF(10, 10), QPointF(10, 10), Qt::LeftButton, Qt::LeftButton,
+                      Qt::NoModifier);
+    QCoreApplication::sendEvent(&f.window, &touch);
+    QVERIFY(!f.controller.keypadActive());
+
+    f.send(QEvent::KeyPress, kDpadDown);
+    f.send(QEvent::KeyRelease, kDpadDown);
+
+    QCOMPARE(activated, QList<bool>({true, false, true}));
+    // only while the handlers of the press run
+    QVERIFY(f.controller.keypadActive());
+    QVERIFY(!f.controller.pressActivatedKeypad());
 }
 
 QTEST_GUILESS_MAIN(testInputController)

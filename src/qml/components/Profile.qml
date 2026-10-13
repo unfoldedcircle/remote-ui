@@ -144,6 +144,12 @@ Item {
         defaultConfig: {
             "DPAD_DOWN": {
                 "pressed": function() {
+                    // the first press after a touch shows the selection where it is, on the first entry,
+                    // instead of moving past it
+                    if (ui.inputController.pressActivatedKeypad()) {
+                        return;
+                    }
+
                     if (profileRoot.headerSelection >= 0) {
                         if (profileRoot.headerSelection < profileRoot.headerRows().length - 1) {
                             profileRoot.headerSelection++;
@@ -158,6 +164,12 @@ Item {
             },
             "DPAD_UP": {
                 "pressed": function() {
+                    // the first press after a touch shows the selection where it is, on the first entry,
+                    // instead of moving past it
+                    if (ui.inputController.pressActivatedKeypad()) {
+                        return;
+                    }
+
                     if (profileRoot.headerSelection > 0) {
                         profileRoot.headerSelection--;
                         return;
@@ -736,7 +748,8 @@ Item {
             maximumLineCount: 2
             horizontalAlignment: Text.AlignHCenter
             color: colors.textSecondary
-            text: qsTr("Tap to close")
+            //: Hint below the full-screen QR code of the web configurator
+            text: qsTr("Press BACK to close")
             font: fonts.help()
             anchors { bottom: parent.bottom; bottomMargin: 20; horizontalCenter: parent.horizontalCenter }
         }
