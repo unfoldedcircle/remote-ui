@@ -49,8 +49,10 @@ Popup {
     // required, its security type is chosen by the dock itself.
     readonly property var securityOptions: {
         let options = [
-                    { "security": Security.OPEN, "name": "None" },
-                    { "security": Security.AUTO, "name": "Auto" }
+                    //: WiFi security: an open network without a password
+                    { "security": Security.OPEN, "name": qsTr("None") },
+                    //: WiFi security: taken from the network
+                    { "security": Security.AUTO, "name": qsTr("Auto") }
                 ];
 
         if (!wifiSetup.dockNetworkSelection) {

@@ -448,7 +448,12 @@ ListView {
             Text {
                 id: networkSubline
                 color: colors.textSecondary
-                text: (wifiNetworkList.knownNetworks ? (modelData.identifier === Wifi.currentNetwork.identifier ? (Wifi.currentNetwork.frequency < 5000 ? "2.4 GHz - " : "5 GHz - ") : "") : (modelData.frequency < 5000 ? "2.4 GHz" : "5 GHz")) + (wifiNetworkList.knownNetworks ? (modelData.enabled ? "Enabled" : "Disabled") : "")
+                text: (wifiNetworkList.knownNetworks ? (modelData.identifier === Wifi.currentNetwork.identifier ? (Wifi.currentNetwork.frequency < 5000 ? "2.4 GHz - " : "5 GHz - ") : "") : (modelData.frequency < 5000 ? "2.4 GHz" : "5 GHz")) +
+                      (wifiNetworkList.knownNetworks ? (modelData.enabled
+                                                        //: State of a saved WiFi network: the remote connects to it
+                                                        ? qsTr("Enabled")
+                                                        //: State of a saved WiFi network: the remote does not connect to it
+                                                        : qsTr("Disabled")) : "")
                 font: fonts.help()
                 anchors { top: currentNetworkSSID.bottom; left: currentNetworkSSID.left }
             }

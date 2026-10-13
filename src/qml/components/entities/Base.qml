@@ -206,7 +206,8 @@ Rectangle {
                     break;
                 case ActivityStates.On:
                     if (!activityObj.enabled) {
-                        ui.createNotification(activityObj.name + " " + qsTr("is unavailable"), true);
+                        //: Notification when a command was not sent because the device is unavailable. %1 is the entity name
+                        ui.createNotification(qsTr("%1 is unavailable").arg(activityObj.name), true);
                     } else {
                         loadSecondContainer(EntityController.screenUrl(activityObj), { "entityId": entityId, "entityObj": activityObj, "integrationObj": integrationObj });
                     }
@@ -221,7 +222,8 @@ Rectangle {
             return false;
         case ActivityStates.On:
             if (!currentEntityObj.enabled) {
-                ui.createNotification(currentEntityObj.name + " " + qsTr("is unavailable"), true);
+                //: Notification when a command was not sent because the device is unavailable. %1 is the entity name
+                ui.createNotification(qsTr("%1 is unavailable").arg(currentEntityObj.name), true);
                 return false;
             } else {
                 return true;
@@ -247,7 +249,8 @@ Rectangle {
 
         // an entity that could not be loaded has no name to report, the tile shows its placeholder
         if (currentEntityObj !== entityBaseContainer.entityObjDummy) {
-            ui.createNotification(currentEntityObj.name + " " + qsTr("is unavailable"), true);
+            //: Notification when a command was not sent because the device is unavailable. %1 is the entity name
+            ui.createNotification(qsTr("%1 is unavailable").arg(currentEntityObj.name), true);
         }
 
         return false;

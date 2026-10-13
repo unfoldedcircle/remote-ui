@@ -53,7 +53,8 @@ Rectangle {
     }
 
     property alias inputField: inputField
-    property string errorMsg: "Input field is empty"
+    //: Error under a text field that has to be filled in
+    property string errorMsg: qsTr("Input field is empty")
     property string placeholderText
     property int enterKeyAction: EnterKeyAction.None
     // The keyboard's enter key only shows a text when a label is set: its icons come from image files
@@ -195,7 +196,7 @@ Rectangle {
         maximumLineCount: 2
         color: colors.red
         opacity: 0
-        text: qsTr(errorMsg)
+        text: errorMsg
         anchors { left: inputField.left; top: inputField.bottom; bottomMargin: 5 }
         font: fonts.caption()
 
