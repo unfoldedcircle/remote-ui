@@ -267,7 +267,7 @@
         <message>
             <location filename="../../src/qml/components/integrations/AddEntities.qml" line="94"/>
             <source>Please select the entities to add in the list.</source>
-            <translation type="vanished">Bitte wähle Entitäten zum Hinzufügen durch Antippen in der Liste aus.</translation>
+            <translation>Bitte wähle Entitäten zum Hinzufügen durch Antippen in der Liste aus.</translation>
         </message>
     </context>
     <context>
@@ -281,10 +281,6 @@
     </context>
     <context>
         <name>Base</name>
-        <message>
-            <source>Activity error. Select option below.</source>
-            <translation type="vanished">Aktivitätsfehler. Wähle unten eine der Optionen aus.</translation>
-        </message>
         <message>
             <location filename="../../src/qml/components/entities/Base.qml" line="119"/>
             <source>Set the state of %1. No command is sent to the devices.</source>
@@ -347,11 +343,6 @@
             <extracomment>Button. Opens the menu to correct the recorded state of the activity or its devices</extracomment>
             <translatorcomment>Button. Opens the menu to correct the recorded state of the activity or its devices</translatorcomment>
             <translation>Status korrigieren, ohne Befehle zu senden</translation>
-        </message>
-        <message>
-            <location filename="../../src/qml/components/entities/Base.qml" line="209"/>
-            <source>is unavailable</source>
-            <translation type="vanished">ist nicht verfügbar</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/entities/Base.qml" line="183"/>
@@ -1193,16 +1184,12 @@ Climate fan</translatorcomment>
             <location filename="../../src/qml/components/docks/Discovery.qml" line="227"/>
             <source>Select Discover to search for docks on your network or via Bluetooth. If you would like to wirelessly setup a new dock, make sure it’s in close proximity to the remote.</source>
             <extracomment>Dock discovery start screen; "Discover" is the button below this text</extracomment>
-            <translation type="vanished">Tippe auf Suchen, um nach Docks in deinem Netzwerk oder über Bluetooth zu suchen. Wenn du ein neues Dock drahtlos einrichten möchtest, stelle sicher, dass es sich in der Nähe der Fernbedienung befindet.</translation>
+            <translation>Tippe auf Suchen, um nach Docks in deinem Netzwerk oder über Bluetooth zu suchen. Wenn du ein neues Dock drahtlos einrichten möchtest, stelle sicher, dass es sich in der Nähe der Fernbedienung befindet.</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/docks/Discovery.qml" line="244"/>
             <source>Discover</source>
             <translation>Suchen</translation>
-        </message>
-        <message>
-            <source>Skip</source>
-            <translation type="vanished">Überspringen</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/docks/Discovery.qml" line="282"/>
@@ -1359,7 +1346,7 @@ Climate fan</translatorcomment>
         <message>
             <location filename="../../src/qml/components/entities/EntityAdd.qml" line="37"/>
             <source>Please select the entities to add in the list.</source>
-            <translation type="vanished">Bitte wähle Entitäten zum Hinzufügen durch Antippen in der Liste aus.</translation>
+            <translation>Bitte wähle Entitäten zum Hinzufügen durch Antippen in der Liste aus.</translation>
         </message>
     </context>
     <context>
@@ -1600,16 +1587,12 @@ Climate fan</translatorcomment>
         <message>
             <location filename="../../src/qml/components/group/GroupAdd.qml" line="51"/>
             <source>Please select the entities to add in the list.</source>
-            <translation type="vanished">Bitte wähle Entitäten zum Hinzufügen durch Antippen in der Liste aus.</translation>
+            <translation>Bitte wähle Entitäten zum Hinzufügen durch Antippen in der Liste aus.</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/group/GroupAdd.qml" line="288"/>
             <source>Select entities to add</source>
             <translation>Entitäten zum Hinzufügen auswählen</translation>
-        </message>
-        <message>
-            <source>Search</source>
-            <translation type="vanished">Suchen</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/group/GroupAdd.qml" line="294"/>
@@ -1661,7 +1644,7 @@ Climate fan</translatorcomment>
         <message>
             <location filename="../../src/qml/components/group/GroupEdit.qml" line="353"/>
             <source>Please select the entities to add in the list.</source>
-            <translation type="vanished">Um Entitäten hinzuzufügen, bitte durch Antippen aus der Liste auswählen.</translation>
+            <translation>Um Entitäten hinzuzufügen, bitte durch Antippen aus der Liste auswählen.</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/group/GroupEdit.qml" line="628"/>
@@ -1806,7 +1789,7 @@ Climate fan</translatorcomment>
             <location filename="../../src/qml/components/docks/Info.qml" line="288"/>
             <source>Select to edit the name</source>
             <extracomment>Hint under the dock name: selecting the name (touch or OK) opens the rename dialog</extracomment>
-            <translation type="vanished">Tippen, um Namen zu bearbeiten</translation>
+            <translation>Tippen, um Namen zu bearbeiten</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/docks/Info.qml" line="306"/>
@@ -2055,10 +2038,6 @@ Climate fan</translatorcomment>
             <translation>Erneut versuchen</translation>
         </message>
         <message>
-            <source>The sequence timed out.</source>
-            <translation type="vanished">Zeitüberschreitung der Sequenz.</translation>
-        </message>
-        <message>
             <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="244"/>
             <source>%1 (error %2)</source>
             <extracomment>%1 is an error message reported by the device, %2 the error code</extracomment>
@@ -2071,10 +2050,6 @@ Climate fan</translatorcomment>
             <extracomment>%1 is an error code reported by the device</extracomment>
             <translatorcomment>%1 is an error code reported by the device</translatorcomment>
             <translation>Während der Sequenz ist ein Fehler aufgetreten. Fehlercode: %1</translation>
-        </message>
-        <message>
-            <source>Tap to close</source>
-            <translation type="vanished">Zum Schließen tippen</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/entities/activity/LoadingScreen.qml" line="560"/>
@@ -2213,13 +2188,6 @@ Climate fan</translatorcomment>
             <translation>Weitere Tipps findest du auf unfoldedcircle.com/support</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/help-overlay/Main.qml" line="28"/>
-            <source>Profile &amp; settings</source>
-            <extracomment>Tip title pointing at the round profile button in the top right corner of the main screen</extracomment>
-            <translatorcomment>Tip pointing at the round button in the top right corner of the main screen</translatorcomment>
-            <translation type="vanished">Hier tippen, um die Einstellungen zu öffnen</translation>
-        </message>
-        <message>
             <location filename="../../src/qml/components/help-overlay/Main.qml" line="30"/>
             <source>Open them with this button, or hold HOME and choose Profile &amp; settings.</source>
             <extracomment>Tip text below "Profile &amp; settings": the round button opens them, and so does the page menu of a long HOME press</extracomment>
@@ -2229,7 +2197,7 @@ Climate fan</translatorcomment>
             <location filename="../../src/qml/components/help-overlay/Main.qml" line="48"/>
             <source>Press HOME, or touch the status bar, to scroll to the top of a page.</source>
             <extracomment>Last paragraph of the status bar tip</extracomment>
-            <translation type="vanished">Du kannst auch auf die Statusleiste tippen, um zum Seitenanfang zu scrollen.</translation>
+            <translation>Du kannst auch auf die Statusleiste tippen, um zum Seitenanfang zu scrollen.</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/help-overlay/Main.qml" line="44"/>
@@ -2325,11 +2293,6 @@ Climate fan</translatorcomment>
             <source>Delete</source>
             <translation>Löschen</translation>
         </message>
-        <message>
-            <location filename="../../src/qml/MainContainer.qml" line="464"/>
-            <source>Profile is restricted</source>
-            <translation type="vanished">Profil ist eingeschränkt</translation>
-        </message>
     </context>
     <context>
         <name>ManageEntities</name>
@@ -2360,12 +2323,12 @@ Climate fan</translatorcomment>
         <message>
             <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="205"/>
             <source>Please select the entities to add in the list.</source>
-            <translation type="vanished">Um Entitäten hinzuzufügen, bitte durch Antippen aus der Liste auswählen.</translation>
+            <translation>Um Entitäten hinzuzufügen, bitte durch Antippen aus der Liste auswählen.</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="227"/>
             <source>Please select the entities to remove in the list.</source>
-            <translation type="vanished">Um Entitäten zu entfernen, bitte durch Antippen aus der Liste auswählen.</translation>
+            <translation>Um Entitäten zu entfernen, bitte durch Antippen aus der Liste auswählen.</translation>
         </message>
         <message>
             <location filename="../../src/qml/components/integrations/ManageEntities.qml" line="230"/>
@@ -2670,38 +2633,7 @@ Climate fan</translatorcomment>
             <location filename="../../src/qml/NoPage.qml" line="104"/>
             <source>Add your first page</source>
             <extracomment>Shown below a large "+" when the profile has no page yet; the "+" or OK adds one</extracomment>
-            <translation type="vanished">Tippe hier, um deine erste Seite hinzuzufügen</translation>
-        </message>
-    </context>
-    <context>
-        <name>NoProfile</name>
-        <message>
-            <location filename="../../src/qml/NoProfile.qml" line="22"/>
-            <source>There was an error loading the profile.</source>
-            <translation type="vanished">Beim Laden des Profils ist ein Fehler aufgetreten.</translation>
-        </message>
-        <message>
-            <location filename="../../src/qml/NoProfile.qml" line="31"/>
-            <source>Select or add profile</source>
-            <translation type="vanished">Profil auswählen oder hinzufügen</translation>
-        </message>
-    </context>
-    <context>
-        <name>NotificationDrawer</name>
-        <message>
-            <location filename="../../src/qml/components/NotificationDrawer.qml" line="61"/>
-            <source>Display brightness</source>
-            <translation type="vanished">Displayhelligkeit</translation>
-        </message>
-        <message>
-            <location filename="../../src/qml/components/NotificationDrawer.qml" line="166"/>
-            <source>Clear all</source>
-            <translation type="vanished">Alle löschen</translation>
-        </message>
-        <message>
-            <location filename="../../src/qml/components/NotificationDrawer.qml" line="166"/>
-            <source>No notifications</source>
-            <translation type="vanished">Keine Benachrichtigungen</translation>
+            <translation>Tippe hier, um deine erste Seite hinzuzufügen</translation>
         </message>
     </context>
     <context>
@@ -3045,64 +2977,64 @@ Climate fan</translatorcomment>
     <context>
         <name>Profile</name>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="212"/>
+            <location filename="../../src/qml/components/Profile.qml" line="224"/>
             <source>Software update</source>
             <translation>Software-Aktualisierung</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="218"/>
+            <location filename="../../src/qml/components/Profile.qml" line="230"/>
             <source>Settings</source>
             <translation>Einstellungen</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="224"/>
+            <location filename="../../src/qml/components/Profile.qml" line="236"/>
             <source>Integrations</source>
             <translation>Integrationen</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="230"/>
+            <location filename="../../src/qml/components/Profile.qml" line="242"/>
             <source>Docks</source>
             <translation>Docks</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="248"/>
+            <location filename="../../src/qml/components/Profile.qml" line="260"/>
             <source>About</source>
             <translation>Über</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="307"/>
+            <location filename="../../src/qml/components/Profile.qml" line="319"/>
             <source>Your current profile</source>
             <translation>Aktuelles Profil</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="411"/>
+            <location filename="../../src/qml/components/Profile.qml" line="423"/>
             <source>Web configurator enabled</source>
             <translation>Web-Konfigurator ist aktiviert</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="411"/>
+            <location filename="../../src/qml/components/Profile.qml" line="423"/>
             <source>Web configurator disabled</source>
             <translation>Web-Konfigurator ist deaktiviert</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="649"/>
+            <location filename="../../src/qml/components/Profile.qml" line="661"/>
             <source>Restricted</source>
             <extracomment>Text explaining that the profile has restricted access</extracomment>
             <translatorcomment>Text explaining that the profile has restricted access</translatorcomment>
             <translation>Eingeschränkt</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="728"/>
+            <location filename="../../src/qml/components/Profile.qml" line="740"/>
             <source>Scan to open
 the Web Configurator</source>
             <translation>Scannen, um
 den Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Profile.qml" line="740"/>
+            <location filename="../../src/qml/components/Profile.qml" line="752"/>
             <source>Press BACK to close</source>
             <extracomment>Hint below the full-screen QR code of the web configurator</extracomment>
-            <translation type="vanished">Zum Schließen tippen</translation>
+            <translation>Zum Schließen tippen</translation>
         </message>
         <message>
             <location filename="../../src/qml/onboarding/Profile.qml" line="29"/>
@@ -3679,7 +3611,7 @@ es kein Zurück</translation>
             <location filename="../../src/qml/settings/Settings.qml" line="105"/>
             <source>Localization</source>
             <extracomment>Settings page for the language, country, time zone, units and clock format of the remote.</extracomment>
-            <translation type="vanished">Sprache &amp; Region</translation>
+            <translation>Sprache &amp; Region</translation>
         </message>
         <message>
             <location filename="../../src/qml/settings/Settings.qml" line="110"/>
@@ -3695,49 +3627,49 @@ es kein Zurück</translation>
     <context>
         <name>SettingsNew</name>
         <message>
-            <location filename="../../src/qml/components/SettingsNew.qml" line="132"/>
+            <location filename="../../src/qml/components/SettingsNew.qml" line="144"/>
             <source>Software update</source>
             <translation>Software-Aktualisierung</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/SettingsNew.qml" line="138"/>
+            <location filename="../../src/qml/components/SettingsNew.qml" line="150"/>
             <source>Settings</source>
             <translation>Einstellungen</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/SettingsNew.qml" line="144"/>
+            <location filename="../../src/qml/components/SettingsNew.qml" line="156"/>
             <source>Integrations</source>
             <translation>Integrationen</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/SettingsNew.qml" line="150"/>
+            <location filename="../../src/qml/components/SettingsNew.qml" line="162"/>
             <source>Docks</source>
             <translation>Docks</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/SettingsNew.qml" line="168"/>
+            <location filename="../../src/qml/components/SettingsNew.qml" line="180"/>
             <source>About</source>
             <translation>Über</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/SettingsNew.qml" line="256"/>
+            <location filename="../../src/qml/components/SettingsNew.qml" line="268"/>
             <source>Restricted</source>
             <extracomment>Text explaining that the profile has restricted access</extracomment>
             <translatorcomment>Text explaining that the profile has restricted access</translatorcomment>
             <translation>Eingeschränkt</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/SettingsNew.qml" line="335"/>
+            <location filename="../../src/qml/components/SettingsNew.qml" line="347"/>
             <source>Scan to open
 the Web Configurator</source>
             <translation>Scannen, um den
 Web-Konfigurator zu öffnen</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/SettingsNew.qml" line="347"/>
+            <location filename="../../src/qml/components/SettingsNew.qml" line="359"/>
             <source>Press BACK to close</source>
             <extracomment>Hint below the full-screen QR code of the web configurator</extracomment>
-            <translation type="vanished">Zum Schließen tippen</translation>
+            <translation>Zum Schließen tippen</translation>
         </message>
     </context>
     <context>
@@ -3831,11 +3763,6 @@ Web-Konfigurator zu öffnen</translation>
             <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="195"/>
             <source>Low battery</source>
             <translation>Niedriger Akkustand</translation>
-        </message>
-        <message>
-            <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="194"/>
-            <source>Minimum 50% battery charge is required to install software updates</source>
-            <translation type="vanished">Es werden mindestens 50% Akkuladung benötigt, um Software-Updates zu installieren</translation>
         </message>
         <message>
             <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="212"/>
@@ -3932,7 +3859,7 @@ Web-Konfigurator zu öffnen</translation>
             <location filename="../../src/qml/onboarding/Start.qml" line="70"/>
             <source>Press OK or touch the screen to begin</source>
             <extracomment>Hint on the first onboarding screen; OK is the middle button of the d-pad</extracomment>
-            <translation type="vanished">Zum Starten auf den Bildschirm tippen</translation>
+            <translation>Zum Starten auf den Bildschirm tippen</translation>
         </message>
     </context>
     <context>
@@ -4040,7 +3967,7 @@ unfoldedcircle.com/legal
 or by scanning this QR code.
 Select the QR code to read them on the screen.</source>
             <extracomment>Onboarding terms step; "them" are the Terms &amp; conditions. Selecting the QR code (touch or OK) shows the terms on the remote</extracomment>
-            <translation type="vanished">Durch die Verwendung von Unfolded Circle Produkten stimmst du
+            <translation>Durch die Verwendung von Unfolded Circle Produkten stimmst du
 den Nutzungsbedingungen zu.
 
 Lesen kannst du diese unter
@@ -4246,7 +4173,7 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
             <location filename="../../src/qml/settings/settings/Ui.qml" line="44"/>
             <source>Inverted button behavior</source>
             <extracomment>Switch in the user interface settings: swaps what a short and a long press do on the main screen.</extracomment>
-            <translation type="vanished">Invertiertes Tastenverhalten</translation>
+            <translation>Invertiertes Tastenverhalten</translation>
         </message>
         <message>
             <location filename="../../src/qml/settings/settings/Ui.qml" line="45"/>
@@ -4434,10 +4361,6 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
     </context>
     <context>
         <name>VoiceOverlay</name>
-        <message>
-            <source>Voice Assistant is not available.</source>
-            <translation type="vanished">Sprachassistent ist nicht verfügbar.</translation>
-        </message>
         <message>
             <location filename="../../src/qml/components/VoiceOverlay.qml" line="113"/>
             <source>Processing ...</source>
@@ -4885,26 +4808,6 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
     </context>
     <context>
         <name>main</name>
-        <message>
-            <source>Some devices are not ready</source>
-            <extracomment>Title of the popup shown when an activity starts, but some of its devices will not react.</extracomment>
-            <translatorcomment>Title of the popup shown when an activity starts, but some of its devices will not react.</translatorcomment>
-            <translation type="vanished">Einige Geräte sind nicht bereit</translation>
-        </message>
-        <message>
-            <source>%1 is not connected yet. Tap Proceed to continue anyway.</source>
-            <translation type="vanished">%1 ist noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>%1 are not connected yet. Tap Proceed to continue anyway.</source>
-            <translation type="vanished">%1 sind noch nicht verbunden. Tippe auf Fortfahren, um trotzdem fortzufahren.</translation>
-        </message>
-        <message>
-            <source>Proceed</source>
-            <extracomment>Button label, quoted by name in the "not ready" messages.</extracomment>
-            <translatorcomment>Button label, quoted by name in the "not ready" messages.</translatorcomment>
-            <translation type="vanished">Fortfahren</translation>
-        </message>
         <message>
             <location filename="../../src/qml/main.qml" line="832"/>
             <source>Done</source>
@@ -5418,69 +5321,69 @@ Tippe auf den QR-Code, um ihn auf dem Bildschirm anzuzeigen.</translation>
     <context>
         <name>uc::ui::Controller</name>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="290"/>
+            <location filename="../../src/ui/uiController.cpp" line="297"/>
             <source>Error adding profile: %1</source>
             <extracomment>Notification: a profile could not be created. %1 is the core's error message</extracomment>
             <translation>Fehler beim Hinzufügen des Profils: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="309"/>
+            <location filename="../../src/ui/uiController.cpp" line="316"/>
             <source>Error</source>
             <translation>Fehler</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="310"/>
+            <location filename="../../src/ui/uiController.cpp" line="317"/>
             <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
             <translation>Das Löschen eines aktuell verwendeten Profils ist nicht erlaubt. Bitte zu einem anderen Profil wechseln und erneut versuchen.</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="327"/>
+            <location filename="../../src/ui/uiController.cpp" line="334"/>
             <source>Error deleting profile: %1</source>
             <extracomment>Notification: a profile could not be deleted. %1 is the core's error message</extracomment>
             <translation>Fehler beim Löschen des Profils: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="347"/>
+            <location filename="../../src/ui/uiController.cpp" line="354"/>
             <source>Error adding page: %1</source>
             <extracomment>Notification: a page could not be created. %1 is the core's error message</extracomment>
             <translation>Fehler beim Hinzufügen der Seite: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="370"/>
+            <location filename="../../src/ui/uiController.cpp" line="377"/>
             <source>Error renaming page: %1</source>
             <extracomment>Notification: a page could not be renamed. %1 is the core's error message</extracomment>
             <translation>Fehler beim Umbenennen der Seite: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="389"/>
+            <location filename="../../src/ui/uiController.cpp" line="396"/>
             <source>Error deleting page: %1</source>
             <extracomment>Notification: a page could not be deleted. %1 is the core's error message</extracomment>
             <translation>Fehler beim Löschen der Seite: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="488"/>
+            <location filename="../../src/ui/uiController.cpp" line="495"/>
             <source>Error during factory reset: %1</source>
             <extracomment>Notification: the factory reset failed. %1 is the core's error message</extracomment>
             <translation>Fehler beim Zurücksetzen auf Werkseinstellungen: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="632"/>
+            <location filename="../../src/ui/uiController.cpp" line="639"/>
             <source>Profile update error</source>
             <translation>Profil-Aktualisierungsfehler</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="693"/>
+            <location filename="../../src/ui/uiController.cpp" line="700"/>
             <source>Error updating page: %1</source>
             <extracomment>Notification: a change to a page could not be saved. %1 is the core's error message</extracomment>
             <translation>Fehler beim Aktualisieren der Seite: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="759"/>
+            <location filename="../../src/ui/uiController.cpp" line="766"/>
             <source>%1 error</source>
             <translation>%1 Fehler</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="759"/>
+            <location filename="../../src/ui/uiController.cpp" line="766"/>
             <source>Error while connecting to %1, with id %2</source>
             <translation>Fehler beim Verbinden mit %1, ID %2</translation>
         </message>
