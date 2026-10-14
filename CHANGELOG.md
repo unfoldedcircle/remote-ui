@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.84.0 - 2026-10-14
 ### Added
 - A design system for the interface, `docs/design-system.md`, with a check that keeps the QML sources on it:
   `./design-check.sh` finds text below 22 pixels and colours written as literals instead of the colour tokens, and
