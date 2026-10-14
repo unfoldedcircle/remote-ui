@@ -2188,6 +2188,12 @@ Climate fan</translatorcomment>
             <translation>Pour plus d’astuces, rendez-vous sur unfoldedcircle.com/support</translation>
         </message>
         <message>
+            <location filename="../../src/qml/components/help-overlay/Main.qml" line="28"/>
+            <source>Profile &amp; settings</source>
+            <extracomment>Tip title pointing at the round profile button in the top right corner of the main screen</extracomment>
+            <translation>Profil et paramètres</translation>
+        </message>
+        <message>
             <location filename="../../src/qml/components/help-overlay/Main.qml" line="30"/>
             <source>Open them with this button, or hold HOME and choose Profile &amp; settings.</source>
             <extracomment>Tip text below "Profile &amp; settings": the round button opens them, and so does the page menu of a long HOME press</extracomment>
