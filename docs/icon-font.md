@@ -106,7 +106,11 @@ Free rendering, which is also what CI and the unit tests use.
 - **Emoji code points are unmapped.**  
   Font Awesome maps several hundred emoji code points to icon glyphs, so any text containing an emoji would render as
   icons instead of the emoji. Every emoji is drawn by Google's Noto Color Emoji font, which the device firmware
-  installs; the icon font never draws one (ADR 0010).
+  installs; the icon font never draws one (ADR 0010).  
+  Only code points that are an emoji on their own are unmapped, not the parts of an emoji sequence: the keycap 1️⃣ is
+  `0031 FE0F 20E3`, and the icons `0`-`9`, `hashtag` and `asterisk` live at those ASCII code points. The build fails
+  if it would unmap a code point that `icon-mapping.json` points at. Which icons are affected is documented by a
+  report, see [Documenting the removed icons](#documenting-the-removed-icons).
 - **The font is renamed** to the family `UC Icons`.  
   Font Awesome Free is SIL OFL 1.1 with the reserved font name "Font Awesome", which a modified version must not carry.
   Renaming both editions to the same family also keeps the QML free of edition-specific names.  
@@ -163,6 +167,43 @@ configuration. The token is written to a temporary `.npmrc` and never persisted.
 
 The mapping generator reads `metadata/icon-families.json` of the package when it has it, otherwise
 `scss/_variables.scss` (a trimmed package copy still has that); both give the same result.
+
+### Documenting the removed icons
+
+Unmapping the emoji code points takes code points away from icons. `build --report <dir>` documents every one of them,
+so that a reviewer can see what the patch removes, e.g. after a Font Awesome or Unicode emoji upgrade:
+
+- `<dir>/removed-icons.md`: a table of every unmapped code point with its icon name (Font Awesome names its glyphs
+  after the icons), its Unicode name and the code points the icon keeps. Nearly every row keeps the icon's own code
+  point in the Private Use Area, e.g. `copyright` loses U+00A9 and keeps U+F1F9, so the icon still renders. A row
+  marked **none, icon lost** is an icon the patched font can no longer draw at all.
+- `<dir>/removed-icons.png`: the graphic, every removed glyph drawn from the *source* font, ten per row, with its icon
+  name and code point below it; the name of a lost icon is drawn in red. It needs Pillow 10.1 or newer; without
+  Pillow only the Markdown file is written and a warning is printed.
+
+The report is written by a build, after the check that no mapped name loses its code point: when that check fails, the
+build prints the affected icon names instead and writes neither the font nor the report.
+
+```shell
+python3 -m venv /tmp/icon-venv && /tmp/icon-venv/bin/pip install fonttools pillow
+export PATH=/tmp/icon-venv/bin:$PATH
+
+# Free: with the shell script, which also rebuilds the tracked font and its provenance.
+tools/icon-font.sh --free --report /tmp/icon-report
+tools/icon-font.sh --free /ci-cache/fontawesome-free --report /tmp/icon-report
+
+# Pro: with the shell script, as part of the firmware build.
+tools/icon-font.sh --pro --output /out/icon-font.ttf /ci-cache/fontawesome-pro --report /tmp/icon-report-pro
+
+# Report only, any webfont, without touching the repository: build into a scratch directory.
+mkdir -p /tmp/icon-build
+tools/icon-font.py build /ci-cache/fontawesome-pro/webfonts/fa-light-300.ttf --edition pro \
+    --output /tmp/icon-build/icon-font.ttf --provenance /tmp/icon-build/icon-font.json \
+    --emoji-cache /tmp/icon-build --report /tmp/icon-report-pro
+```
+
+`--emoji-cache <dir>` keeps the downloaded Unicode emoji data file, so that repeated builds work offline. The report
+of a Pro font shows its licensed glyphs: like the font itself, it is never committed or published.
 
 ### Upgrading Font Awesome
 

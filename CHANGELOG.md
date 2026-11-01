@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Fixed
+- The icons `0` to `9`, `hashtag` and `asterisk` are drawn again. Removing the emoji from the icon font also removed
+  them, because they share their code points with the keycap emoji such as 1️⃣.
 - The icon `music-magnifying-glass`, which only the Pro edition of the icon font has, now falls back to `music` with the
   embedded Free font instead of the question mark placeholder.
 
