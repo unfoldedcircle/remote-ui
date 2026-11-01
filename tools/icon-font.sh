@@ -16,6 +16,14 @@
 #       tools/icon-font.sh --free                     # download from the public registry
 #       tools/icon-font.sh --free /ci-cache/fa-free   # use a cached, extracted package
 #
+#   Report of the removed icons: either edition takes --report <dir>. It lists every emoji code point
+#   the patch unmaps, with its icon name, in <dir>/removed-icons.md, and draws the removed glyphs with
+#   their names in <dir>/removed-icons.png, which needs Pillow 10.1+ (pip install pillow).
+#       tools/icon-font.sh --free --report /tmp/icon-report
+#       tools/icon-font.sh --pro --output /out/icon-font.ttf /ci-cache/fa-pro --report /tmp/icon-report-pro
+#   --free also rewrites the tracked font; for a report alone, call tools/icon-font.py build with
+#   --output and --provenance outside the repository. A Pro report shows licensed glyphs: never commit it.
+#
 # !! The Pro font is commercially licensed and must NEVER be committed: --pro needs --output and
 #    refuses to write into the repository. !!
 set -euo pipefail
@@ -35,6 +43,7 @@ TRACKED_PROVENANCE="resources/icons/icon-font.json"
 EDITION=""
 PACKAGE_DIR=""
 OUTPUT=""
+REPORT=""
 
 usage() {
   echo "usage: $0 --free [<extracted-package-dir>]" >&2
@@ -42,6 +51,7 @@ usage() {
   echo "  <extracted-package-dir>: a Font Awesome npm package with a webfonts/ directory" >&2
   echo "  without it the package is downloaded; --pro then needs FONTAWESOME_NPM_AUTH_TOKEN" >&2
   echo "  --output: where --pro writes the font; its provenance goes next to it as <font>.json" >&2
+  echo "  --report <dir>: list and draw the icons whose emoji code points are unmapped" >&2
   exit 1
 }
 
@@ -55,6 +65,11 @@ while [ $# -gt 0 ]; do
       [ $# -ge 2 ] || usage
       shift
       OUTPUT="$1"
+      ;;
+    --report)
+      [ $# -ge 2 ] || usage
+      shift
+      REPORT="$1"
       ;;
     -h|--help) usage ;;
     -*) echo "error: unknown option '$1'" >&2; usage ;;
@@ -70,8 +85,10 @@ done
 if [ "$EDITION" = "pro" ]; then
   PACKAGE="$PRO_PACKAGE"; STYLE="$PRO_STYLE"
   [ -n "$OUTPUT" ] || { echo "error: --pro needs --output <font.ttf>; the Pro font is never written into the repository" >&2; usage; }
-  case "$(realpath -m "$OUTPUT")" in
-    "$(pwd)/resources/"*) echo "error: --output must not point into the repository's resources" >&2; exit 1 ;;
+  # Portable `realpath -m`: macOS has no -m, and the output need not exist yet.
+  resolve() { python3 -c 'import os, sys; print(os.path.realpath(sys.argv[1]))' "$1"; }
+  case "$(resolve "$OUTPUT")" in
+    "$(resolve resources)/"*) echo "error: --output must not point into the repository's resources" >&2; exit 1 ;;
   esac
   PROVENANCE="${OUTPUT%.ttf}.json"
 else
@@ -130,7 +147,8 @@ fi
 
 echo "[*] building the icon font from $(basename "$SOURCE") ($EDITION edition) -> $OUTPUT"
 mkdir -p "$(dirname "$OUTPUT")"
-python3 tools/icon-font.py build "$SOURCE" --edition "$EDITION" --output "$OUTPUT" --provenance "$PROVENANCE"
+python3 tools/icon-font.py build "$SOURCE" --edition "$EDITION" --output "$OUTPUT" --provenance "$PROVENANCE" \
+  ${REPORT:+--report "$REPORT"}
 
 if [ "$EDITION" = "free" ]; then
   python3 tools/icon-font.py check --require-free

@@ -39,6 +39,7 @@ class testIconFont : public QObject {
     void withoutAFontEveryMappedIconIsReturned();
     void defaultIconOfTheCoreIsDrawable_data();
     void defaultIconOfTheCoreIsDrawable();
+    void iconSharingACodePointWithAnEmojiIsInTheFont();
 
     void embeddedFontIsUsedWithoutAnOverride();
     void embeddedFontIsUsedWhenTheOverrideIsMissing();
@@ -219,6 +220,22 @@ void testIconFont::defaultIconOfTheCoreIsDrawable() {
     QVERIFY2(!glyph.isEmpty(), "not in the icon mapping");
     QVERIFY2(glyph != resources->getIcon("uc:" + m_placeholder),
              "drawn as the placeholder: add a fallback to resources/icons/icon-fallback.json");
+}
+
+void testIconFont::iconSharingACodePointWithAnEmojiIsInTheFont() {
+    // The keycap emoji 1️⃣ is the sequence 0031 FE0F 20E3. Only the code points that are an emoji on their own are
+    // removed from the icon font, not the parts of a sequence: the digit, hashtag and asterisk icons live at the
+    // ASCII code points. Asked of the font file, because every text font draws these code points too.
+    QFile mappingFile(":icon-mapping.json");
+    QVERIFY(mappingFile.open(QIODevice::ReadOnly));
+    const QJsonObject mapping = QJsonDocument::fromJson(mappingFile.readAll()).object();
+    const QRawFont    iconFont(QStringLiteral(":icon-font.ttf"), 16);
+
+    for (const QString& name : {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "hashtag", "asterisk"}) {
+        const uint codePoint = mapping.value(name).toString().toUcs4().value(0);
+        QVERIFY2(codePoint < 0x80, qPrintable(name));
+        QVERIFY2(iconFont.supportsCharacter(codePoint), qPrintable(name));
+    }
 }
 
 void testIconFont::embeddedFontIsUsedWithoutAnOverride() {

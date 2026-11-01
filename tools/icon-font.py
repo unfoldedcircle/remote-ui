@@ -18,12 +18,23 @@ Patching does two things:
 
 1. Emoji code points are unmapped. Font Awesome maps a few hundred emoji code points to
    icon glyphs, so any text containing an emoji would render as icons.
+   Only code points that are an emoji on their own; the build fails if one of them is the
+   code point of a mapped icon name.
 2. The font is renamed. Font Awesome Free is SIL OFL 1.1 with the Reserved Font Name
    "Font Awesome", so a modified version must not carry that name. Both editions are
    renamed to the same family, which keeps the QML independent of the edition.
 
-Requires fontTools (`pip install fonttools`). Only needed to rebuild the font, not to
-build the app.
+`build --report <dir>` documents the removed icons: <dir>/removed-icons.md lists every
+unmapped code point with its icon name, its Unicode name and the code points the icon keeps,
+and <dir>/removed-icons.png draws each removed glyph from the source font with its name and
+code point, a lost icon in red. A report without touching the repository:
+
+  tools/icon-font.py build <package>/webfonts/fa-light-300.ttf --edition pro \\
+      --output /tmp/icon-build/icon-font.ttf --provenance /tmp/icon-build/icon-font.json \\
+      --report /tmp/icon-report
+
+Requires fontTools (`pip install fonttools`), and Pillow 10.1+ (`pip install pillow`) for the
+graphic of the report. Only needed to rebuild the font, not to build the app.
 """
 
 import argparse
@@ -38,7 +49,8 @@ import urllib.request
 FAMILY = "UC Icons"
 PS_NAME = "UCIcons"
 EMOJI_BASE = "https://unicode.org/Public/emoji/15.1/"
-EMOJI_FILES = ["emoji-sequences.txt", "emoji-zwj-sequences.txt"]
+# Only emoji-sequences.txt lists single emoji; the ZWJ sequences are all built from those.
+EMOJI_FILES = ["emoji-sequences.txt"]
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 FONT = os.path.join(ROOT, "resources", "icons", "icon-font.ttf")
 PROVENANCE = os.path.join(ROOT, "resources", "icons", "icon-font.json")
@@ -54,7 +66,14 @@ def sha256(path):
 
 
 def emoji_codepoints(cache_dir=None):
-    """Code points of every emoji sequence, from the Unicode data files."""
+    """Code points that are an emoji on their own, from the Unicode data files.
+
+    Those are the entries of a single code point or range, and a code point followed by the
+    emoji presentation selector U+FE0F. The code points inside a longer sequence are not taken:
+    the keycap 1️⃣ is `0031 FE0F 20E3`, and unmapping its parts would remove the icons 0-9,
+    hashtag and asterisk, whose primary code points are the ASCII ones. Every emoji a sequence
+    is built from is listed on its own anyway.
+    """
     points = set()
     for name in EMOJI_FILES:
         cached = os.path.join(cache_dir, name) if cache_dir else None
@@ -75,8 +94,10 @@ def emoji_codepoints(cache_dir=None):
             if ".." in field:
                 start, end = field.split("..")
                 points.update(range(int(start, 16), int(end, 16) + 1))
-            else:
-                points.update(int(part, 16) for part in field.split())
+                continue
+            parts = [int(part, 16) for part in field.split()]
+            if len(parts) == 1 or parts[1:] == [0xFE0F]:
+                points.add(parts[0])
     return points
 
 
@@ -118,11 +139,26 @@ def cmd_build(args):
         edition = "pro" if "Pro" in original.get(1, "") else "free"
 
     emoji = emoji_codepoints(args.emoji_cache)
+    glyphs = dict(font.getBestCmap())
     removed = set()
     for table in font["cmap"].tables:
         for codepoint in [cp for cp in table.cmap if cp in emoji]:
             removed.add(codepoint)
             del table.cmap[codepoint]
+
+    # An unmapped code point must never be the one an icon name points at.
+    mapped = {}
+    for name, glyph in load_json(args.mapping).items():
+        mapped.setdefault(ord(glyph), []).append(name)
+    lost = sorted(cp for cp in removed if cp in mapped)
+    for codepoint in lost:
+        print(f"error: U+{codepoint:04X} ({glyphs[codepoint]}) is an emoji code point, but the icon names "
+              f"{', '.join(mapped[codepoint])} map to it", file=sys.stderr)
+    if lost:
+        return 1
+
+    if args.report:
+        write_report(args.report, source, glyphs, removed, font.getBestCmap())
 
     subfamily = "Regular"
     unique = f"{FAMILY}; {fa_version} {original.get(2, '')}".strip()
@@ -160,6 +196,58 @@ def cmd_build(args):
     if edition == "pro":
         print("[!] Commercially licensed font: never commit this file or its provenance.")
     return 0
+
+
+def write_report(directory, source, glyphs, removed, remaining):
+    """Documents the unmapped code points: removed-icons.md, and removed-icons.png if Pillow is there.
+
+    glyphs and remaining are the code point -> glyph name maps of the source and the patched font.
+    Font Awesome names its glyphs after the icons, so a glyph name is an icon name.
+    """
+    import unicodedata
+
+    others = {}
+    for codepoint, glyph in remaining.items():
+        others.setdefault(glyph, []).append(codepoint)
+    rows = []
+    for codepoint in sorted(removed):
+        glyph = glyphs[codepoint]
+        kept = ", ".join(f"U+{cp:04X}" for cp in sorted(others.get(glyph, [])))
+        rows.append((codepoint, glyph, unicodedata.name(chr(codepoint), "?"), kept))
+
+    os.makedirs(directory, exist_ok=True)
+    markdown = os.path.join(directory, "removed-icons.md")
+    with open(markdown, "w", encoding="utf-8") as handle:
+        handle.write(f"# Emoji code points unmapped from {os.path.basename(source)}\n\n")
+        handle.write(f"{len(rows)} code points of {len(set(r[1] for r in rows))} icons. An icon stays drawable "
+                     "through the code points it keeps.\n\n")
+        handle.write("| Code point | Icon | Unicode name | Kept code points |\n")
+        handle.write("| ---------- | ---- | ------------ | ---------------- |\n")
+        for codepoint, glyph, uname, kept in rows:
+            handle.write(f"| U+{codepoint:04X} | {glyph} | {uname} | {kept or '**none, icon lost**'} |\n")
+    print(f"[+] {markdown}")
+
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        print("[!] Pillow is not installed (pip install pillow): no removed-icons.png", file=sys.stderr)
+        return
+    columns, width, height = 10, 150, 130
+    image = Image.new("RGB", (columns * width, -(-len(rows) // columns) * height), "white")
+    draw = ImageDraw.Draw(image)
+    icon = ImageFont.truetype(source, 56)
+    label = ImageFont.load_default(14)
+    for index, (codepoint, glyph, _, kept) in enumerate(rows):
+        x, y = index % columns * width, index // columns * height
+        draw.rectangle((x, y, x + width - 1, y + height - 1), outline="#cccccc")
+        draw.text((x + width / 2, y + 45), chr(codepoint), font=icon, fill="black", anchor="mm")
+        colour = "black" if kept else "#d00000"
+        name = glyph if len(glyph) <= 20 else glyph[:19] + "…"
+        draw.text((x + width / 2, y + 95), name, font=label, fill=colour, anchor="mm")
+        draw.text((x + width / 2, y + 113), f"U+{codepoint:04X}", font=label, fill="#666666", anchor="mm")
+    png = os.path.join(directory, "removed-icons.png")
+    image.save(png)
+    print(f"[+] {png}")
 
 
 def cmd_check(args):
@@ -331,6 +419,9 @@ def main():
     build.add_argument("-p", "--provenance", default=PROVENANCE)
     build.add_argument("--edition", choices=["free", "pro"], default=None)
     build.add_argument("--emoji-cache", default=None, help="directory for the Unicode emoji data files")
+    build.add_argument("-m", "--mapping", default=MAPPING, help="icon name mapping; none of its code points is unmapped")
+    build.add_argument("--report", default=None, metavar="DIR",
+                       help="write removed-icons.md and removed-icons.png (needs Pillow) with the unmapped icons")
     build.set_defaults(func=cmd_build)
 
     check = sub.add_parser("check", help="verify the font against its provenance file")
