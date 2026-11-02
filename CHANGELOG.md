@@ -26,6 +26,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `1.499999999999997` is shown as `1.5`. Text values are shown as they are.
 
 ### Fixed
+- The colour temperature slider of a light that offers a limited number of colour temperatures now has exactly these
+  positions and sends their value between 0 and 100. It used to send the position number instead, for example 1
+  instead of 50 for the middle one of three.
 - The icons `0` to `9`, `hashtag` and `asterisk` are drawn again. Removing the emoji from the icon font also removed
   them, because they share their code points with the keycap emoji such as 1️⃣.
 - The icon `music-magnifying-glass`, which only the Pro edition of the icon font has, now falls back to `music` with the

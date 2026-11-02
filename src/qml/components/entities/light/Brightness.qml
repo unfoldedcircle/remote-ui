@@ -95,7 +95,7 @@ Item {
         running: false
         repeat: false
         interval: 500
-        onTriggered: entityObj.setColorTemperature(brightnessFeature.colorTempSlider.value)
+        onTriggered: entityObj.setColorTemperature(entityObj.colorTempFromPosition(brightnessFeature.colorTempSlider.value))
     }
 
     Item {
@@ -205,7 +205,7 @@ Item {
         visible: entityObj.hasFeature(LightFeatures.Color_temperature)
 
         Text {
-            text: colorTempSlider.value
+            text: entityObj.colorTempFromPosition(colorTempSlider.value)
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             elide: Text.ElideRight
             maximumLineCount: 2
@@ -227,10 +227,11 @@ Item {
             rotation: 180
             anchors { horizontalCenter: parent.horizontalCenter; bottom: parent.bottom; bottomMargin: 30 }
 
-            from: entityObj.colorTempSteps
+            // positions of the color_temperature_steps option, the attribute is 0..100
+            from: entityObj.colorTempPositionMax
             to: 0
             stepSize: 1
-            value: entityObj.colorTemp
+            value: entityObj.colorTempToPosition(entityObj.colorTemp)
 
             background: Rectangle {
                 id: colorTempSliderBg
@@ -256,7 +257,7 @@ Item {
 
             onPressedChanged: {
                 if (!colorTempSlider.pressed) {
-                    entityObj.setColorTemperature(value);
+                    entityObj.setColorTemperature(entityObj.colorTempFromPosition(value));
                 }
             }
         }

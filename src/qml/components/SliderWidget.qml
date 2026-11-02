@@ -137,7 +137,8 @@ Item {
                 min = 0; max = 255; step = 1;
                 sliderWidget.supported = true;
             } else if (sliderWidget.resolvedFeature === "color_temperature") {
-                min = 0; max = entityObj.colorTempSteps > 0 ? entityObj.colorTempSteps : 100; step = 1;
+                // slider positions: the color_temperature_steps option spread over 0..100, see Light
+                min = 0; max = entityObj.colorTempPositionMax; step = 1;
                 sliderWidget.supported = true;
             }
             break;
@@ -162,12 +163,16 @@ Item {
             break;
         }
 
-        // optional user limits, clamped to the feature range
+        // optional user limits in the unit of the feature, clamped to the feature range
+        const colorTemp = entityObj.type === EntityTypes.Light && sliderWidget.resolvedFeature === "color_temperature";
+        const toRange = function(limit) {
+            return colorTemp ? entityObj.colorTempToPosition(Number(limit)) : Number(limit);
+        }
         if (sliderWidget.minOverride !== undefined && sliderWidget.minOverride !== null) {
-            min = Math.max(min, Math.min(max, Number(sliderWidget.minOverride)));
+            min = Math.max(min, Math.min(max, toRange(sliderWidget.minOverride)));
         }
         if (sliderWidget.maxOverride !== undefined && sliderWidget.maxOverride !== null) {
-            max = Math.min(max, Math.max(min, Number(sliderWidget.maxOverride)));
+            max = Math.min(max, Math.max(min, toRange(sliderWidget.maxOverride)));
         }
 
         sliderWidget.rangeMin = min;
@@ -191,7 +196,8 @@ Item {
         case EntityTypes.Number:
             return entityObj.value;
         case EntityTypes.Light:
-            return sliderWidget.resolvedFeature === "dim" ? entityObj.brightness : entityObj.colorTemp;
+            return sliderWidget.resolvedFeature === "dim" ? entityObj.brightness
+                                                          : entityObj.colorTempToPosition(entityObj.colorTemp);
         case EntityTypes.Media_player:
             return entityObj.volume;
         case EntityTypes.Cover:
@@ -220,7 +226,7 @@ Item {
             if (sliderWidget.resolvedFeature === "dim") {
                 entityObj.setBrightness(value);
             } else {
-                entityObj.setColorTemperature(value);
+                entityObj.setColorTemperature(entityObj.colorTempFromPosition(value));
             }
             break;
         case EntityTypes.Media_player:
@@ -243,7 +249,8 @@ Item {
         case EntityTypes.Number:
             return entityObj.formatValue(value) + (entityObj.unit !== "" ? " " + entityObj.unit : "");
         case EntityTypes.Light:
-            return sliderWidget.resolvedFeature === "dim" ? Math.round(value / 255 * 100) + " %" : Math.round(value).toString();
+            return (sliderWidget.resolvedFeature === "dim" ? Math.round(value / 255 * 100)
+                                                           : entityObj.colorTempFromPosition(value)) + " %";
         case EntityTypes.Media_player:
             return Math.round(value).toString();
         case EntityTypes.Cover:

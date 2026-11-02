@@ -179,6 +179,28 @@ target_link_libraries(testCommandRetryPolicy
 # the entity classes are QML items: uc::ui::entity::Light derives from QQuickPaintedItem
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Quick REQUIRED)
 
+add_executable (testLightEntity
+    "test_light_entity.cpp"
+    "../../src/ui/entity/light.cpp"
+    "../../src/ui/entity/entityScreens.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testLightEntity
+         COMMAND testLightEntity)
+
+target_link_libraries(testLightEntity
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Quick
+    Qt5::Test
+    )
+
 add_executable (testEntityController
     "test_entity_controller.cpp"
     "../../src/ui/entity/entityController.cpp"

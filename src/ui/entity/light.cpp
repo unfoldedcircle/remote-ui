@@ -10,11 +10,14 @@ namespace uc {
 namespace ui {
 namespace entity {
 
+// range of the color_temperature attribute and command parameter
+static constexpr int COLOR_TEMP_MAX = 100;
+
 Light::Light(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
              const QString &deviceClass, const QStringList &features, bool enabled, QVariantMap attributes,
              QVariantMap options, const QString &integrationId, QObject *parent)
     : Base(id, nameI18n, language, icon, area, Type::Light, enabled, attributes, integrationId, false, parent),
-      m_colorTempSteps(100) {
+      m_colorTempPositionMax(COLOR_TEMP_MAX) {
     qCDebug(lcLight()) << "Light entity constructor";
 
     updateFeatures<LightFeatures::Enum>(features);
@@ -41,8 +44,11 @@ Light::Light(const QString &id, QVariantMap nameI18n, const QString &language, c
     }
 
     // options
-    if (options.contains("color_temperature_steps")) {
-        m_colorTempSteps = options.value("color_temperature_steps").toInt();
+    // n steps are n positions, e.g. 3 steps: 0, 50, 100. Without the option, or with more positions than whole
+    // numbers in the range, every value of 0..100 is a position. A single position is no range.
+    const int colorTempSteps = options.value("color_temperature_steps").toInt();
+    if (colorTempSteps >= 2 && colorTempSteps <= COLOR_TEMP_MAX) {
+        m_colorTempPositionMax = colorTempSteps - 1;
     }
 
     // Registered once: a type registration is never released, and every light entity ran this line.
@@ -87,6 +93,15 @@ void Light::setColor(QColor color) {
     params.insert("hue", hue == -1 ? 0 : hue);
     params.insert("saturation", color.hsvSaturation());
     sendCommand(LightCommands::On, params);
+}
+
+int Light::colorTempToPosition(int colorTemp) {
+    return qRound(qBound(0, colorTemp, COLOR_TEMP_MAX) * static_cast<double>(m_colorTempPositionMax) / COLOR_TEMP_MAX);
+}
+
+int Light::colorTempFromPosition(int position) {
+    return qRound(qBound(0, position, m_colorTempPositionMax) * static_cast<double>(COLOR_TEMP_MAX) /
+                  m_colorTempPositionMax);
 }
 
 void Light::setColorTemperature(int colorTemp) {

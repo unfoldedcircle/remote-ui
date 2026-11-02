@@ -9,8 +9,8 @@
         <location filename="../../src/qml/components/SelectWidget.qml" line="44"/>
         <location filename="../../src/qml/components/SensorWidget.qml" line="55"/>
         <location filename="../../src/qml/components/SliderWidget.qml" line="117"/>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="182"/>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="269"/>
+        <location filename="../../src/qml/components/SliderWidget.qml" line="187"/>
+        <location filename="../../src/qml/components/SliderWidget.qml" line="276"/>
         <location filename="../../src/qml/components/TouchSliderNumber.qml" line="51"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="375"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="393"/>
