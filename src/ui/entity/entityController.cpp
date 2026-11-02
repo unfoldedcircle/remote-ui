@@ -774,7 +774,8 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
         }
     }
 
-    if (entity.options.size() > 0) {
+    // empty options of a change event still count: removing the last user override leaves no options
+    if (entity.optionsProvided || entity.options.size() > 0) {
         entityObj->updateOptions(entity.options);
     }
 }

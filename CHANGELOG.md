@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Changed
+- Sensor values are rounded for display: with the number of decimal places the integration sets, or the user sets in
+  the web configurator, otherwise with at most 2 decimal places and without trailing zeros. A value such as
+  `1.499999999999997` is shown as `1.5`. Text values are shown as they are.
+
 ### Fixed
 - The icons `0` to `9`, `hashtag` and `asterisk` are drawn again. Removing the emoji from the icon font also removed
   them, because they share their code points with the keycap emoji such as 1️⃣.

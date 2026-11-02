@@ -5,6 +5,7 @@
 
 #include "../../logging.h"
 #include "../../util.h"
+#include "valueFormat.h"
 
 namespace uc {
 namespace ui {
@@ -19,7 +20,7 @@ Sensor::Sensor(const QString &id, QVariantMap nameI18n, const QString &language,
       m_customLabel(QString()),
       m_customUnit(QString()),
       m_nativeUnit(QString()),
-      m_decimals(0) {
+      m_decimals(-1) {
     qCDebug(lcSensor()) << "Sensor entity constructor";
 
     // device class
@@ -36,9 +37,8 @@ Sensor::Sensor(const QString &id, QVariantMap nameI18n, const QString &language,
     if (options.contains("native_unit")) {
         m_nativeUnit = options.value("native_unit").toString();
     }
-    if (options.contains("decimals")) {
-        m_decimals = options.value("decimals").toInt();
-    }
+    m_decimals = ValueFormat::decimalsOption(options.value("decimals"));
+    m_userDecimals = ValueFormat::decimalsOption(options.value("user").toMap().value("decimals"));
     if (options.contains("min_value")) {
         m_minValue = options.value("min_value").toInt();
     }
@@ -142,6 +142,41 @@ bool Sensor::updateAttribute(const QString &attribute, QVariant data) {
     }
 
     return ok;
+}
+
+QString Sensor::getValue() {
+    if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
+        const QString value = m_value.toString();
+        // getTranslatedValue() reads everything but "on" as off: no value stays no value
+        return value.isEmpty() ? value : BinarySensorDeviceClass::getTranslatedValue(m_binarySensorDeviceClass, value);
+    }
+
+    switch (static_cast<QMetaType::Type>(m_value.type())) {
+        case QMetaType::Double:
+        case QMetaType::Float:
+        case QMetaType::Int:
+        case QMetaType::UInt:
+        case QMetaType::LongLong:
+        case QMetaType::ULongLong: {
+            const int decimals = getDecimals();
+            return decimals >= 0 ? ValueFormat::fixed(m_value.toDouble(), decimals)
+                                 : ValueFormat::compact(m_value.toDouble());
+        }
+        default:
+            // a text value is shown as reported
+            return m_value.toString();
+    }
+}
+
+bool Sensor::updateOptions(QVariant data) {
+    // only the display format follows an option update, the other options are read once
+    const QVariantMap options = data.toMap();
+    m_decimals = ValueFormat::decimalsOption(options.value("decimals"));
+    m_userDecimals = ValueFormat::decimalsOption(options.value("user").toMap().value("decimals"));
+
+    emit valueChanged();
+    emit stateInfoChanged();
+    return true;
 }
 
 void Sensor::onLanguageChangedTypeSpecific()

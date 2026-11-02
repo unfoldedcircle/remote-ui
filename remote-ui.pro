@@ -132,6 +132,7 @@ HEADERS += \
     src/ui/entity/sequenceStep.h \
     src/ui/entity/switch.h \
     src/ui/entity/entityController.h \
+    src/ui/entity/valueFormat.h \
     src/ui/entity/voiceAssistant.h \
     src/ui/entity/voiceSession.h \
     src/ui/fonts.h \
@@ -200,6 +201,7 @@ SOURCES += \
         src/ui/entity/sequenceReadinessReport.cpp \
         src/ui/entity/switch.cpp \
         src/ui/entity/entityController.cpp \
+        src/ui/entity/valueFormat.cpp \
         src/ui/entity/voiceAssistant.cpp \
         src/ui/entity/voiceSession.cpp \
         src/ui/group/group.cpp \

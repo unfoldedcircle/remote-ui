@@ -42,6 +42,28 @@ target_link_libraries(testCoverEntity
     Qt5::Test
     )
 
+add_executable (testSensorEntity
+    "test_sensor_entity.cpp"
+    "../../src/ui/entity/sensor.cpp"
+    "../../src/ui/entity/valueFormat.cpp"
+    "../../src/ui/entity/entityScreens.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testSensorEntity
+         COMMAND testSensorEntity)
+
+target_link_libraries(testSensorEntity
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Test
+    )
+
 add_executable (testSwitchEntity
     "test_switch_entity.cpp"
     "../../src/ui/entity/switch.cpp"
@@ -154,6 +176,7 @@ add_executable (testEntityController
     "../../src/ui/entity/sensor.cpp"
     "../../src/ui/entity/sequenceReadinessReport.cpp"
     "../../src/ui/entity/switch.cpp"
+    "../../src/ui/entity/valueFormat.cpp"
     "../../src/ui/entity/voiceAssistant.cpp"
     "../../src/ui/entity/voiceSession.cpp"
     "../../src/ui/entity/entities.cpp"
@@ -280,6 +303,7 @@ add_executable (testEntityScreens
     "../../src/ui/entity/remote.cpp"
     "../../src/ui/entity/select.cpp"
     "../../src/ui/entity/sensor.cpp"
+    "../../src/ui/entity/valueFormat.cpp"
     "../../src/ui/entity/switch.cpp"
     "../../src/ui/entity/voiceAssistant.cpp"
     "../../src/ui/entity/voiceSession.cpp"
