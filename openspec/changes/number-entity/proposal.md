@@ -27,7 +27,9 @@ screen, and it ignores the sensor's `decimals` option.
 - Sensor values: a numeric value is shown with the effective decimals (user override, then the `decimals` option),
   otherwise with at most 2 decimal places and no trailing zeros. Text values are shown as reported.
 - An entity change event whose options became empty still updates the entity, so removing the last user override
-  takes effect.
+  takes effect. The overrides are edited in the web-configurator; the UI does not offer editing them.
+- A colour temperature slider, on the light screen and in a slider item, offers the positions of the light's
+  `color_temperature_steps` option spread over 0..100, and sends the 0..100 value instead of the position.
 
 ## Capabilities
 
@@ -39,8 +41,9 @@ None.
 
 - `entity-management`: the supported types and default icons gain `number`; the device class fallback names its
   screen; option updates and user overrides are applied.
-- `entity-detail-controls`: the sensor value format replaces "shown as reported"; new requirements for the number
-  entity, its control screen, the number widget and the slider widget.
+- `entity-detail-controls`: the sensor value format replaces "shown as reported"; the light's colour temperature
+  slider follows `color_temperature_steps`; new requirements for the number entity, its control screen, the number
+  widget and the slider widget.
 - `activities`: activity UI pages render the `slider` and `number` items.
 - `touch-slider`: a bounded number entity's `value` is a slider target.
 
@@ -55,9 +58,10 @@ None.
 - Code: new `src/ui/entity/number.*` and `src/ui/entity/valueFormat.*`; `sensor.*`, `entity.*`,
   `entityController.*`, `entityScreens.cpp`, `src/core/core.cpp`, `src/core/structs.h`, `src/logging.*`; new QML
   `NumberWidget.qml`, `SliderWidget.qml`, `TouchSliderNumber.qml`, `entities/number/deviceclass/Number.qml`; changed
-  `Activity.qml`, `TouchSlider.qml`, `entities/Base.qml`.
+  `Activity.qml`, `TouchSlider.qml`, `entities/Base.qml`; `src/ui/entity/light.*` and
+  `entities/light/Brightness.qml` for the colour temperature positions.
 - Resources: `resources/qrc/main.qrc`, `resources/icons/icon-fallback.json`.
-- Tests: new `testNumberEntity` and `testSensorEntity`; `testEntityScreens`, `testEntityController` and
+- Tests: new `testNumberEntity`, `testSensorEntity` and `testLightEntity`; `testEntityScreens`, `testEntityController` and
   `testIconFont` extended.
 - Translations: `en_US.ts`, the number states and two notifications, each with a translator comment.
 - Third-party code and assets: none.

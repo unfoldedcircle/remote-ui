@@ -19,6 +19,10 @@
   entity without driver options is removed, the options are an empty object and the update is dropped.
 - **Free icon font.** `uc:input-numeric` and `uc:slider` are Pro-only and have no entry in
   `resources/icons/icon-fallback.json`, so a build with the embedded Free font would draw the placeholder.
+- **Colour temperature.** The light screen's slider runs from 0 to the `color_temperature_steps` option (default
+  100), shows the 0..100 attribute as a position and sends the position as `color_temperature`
+  (`src/qml/components/entities/light/Brightness.qml:98`, `:230-233`, `:259`). Without the option the two agree;
+  with `color_temperature_steps` 3 the slider sends 0..3 instead of 0, 50, 100.
 
 ### Constraints
 
@@ -40,10 +44,12 @@
 
 **Non-Goals:**
 
-- Editing the user overrides on the remote (Open Questions).
+- Editing the user overrides: the web-configurator edits them, the remote only applies them.
 - Showing a `duration` number as a time span; the spec allows it, the value is shown with its unit.
-- D-pad control of a focused widget: activity pages have no widget focus, their D-pad keys switch pages and send the
-  activity's button mapping.
+- D-pad control of a focused widget: the Core-API asks for it only on a screen that offers D-pad navigation of the
+  user interface items. Activity pages have none, their D-pad keys switch pages and send the activity's button
+  mapping.
+- A colour temperature target of the Remote 3 touch slider; the touch slider controls a light's brightness only.
 - Slider and number items on remote-entity pages, which render no widget today.
 - The `entity_available` event, which the UI does not receive.
 
@@ -68,8 +74,8 @@ widgets and tiles.
 `setValue()` clamps to the limits that are set, sends `set_value` and keeps the value as pending. Any reported
 `value` ends the wait; a single-shot timer of 3 s returns to the last reported value. With `readable: false` the
 sent value becomes the known value. For a write-only entity `increment` / `decrement` change the shown value by
-`step` within the range, because no report will ever come; this is an estimate for display only, the command still
-carries no `step` (Open Questions).
+`step` within the range, because no report will ever come; this is for display only, the command still carries no
+value, as the Core-API documents for a write-only entity.
 
 ### D4 — The number widget reuses the slider widget
 
@@ -95,6 +101,13 @@ range, like a light. No new setting.
 when empty. `Activity`, `Remote` and `VoiceAssistant` read only the keys present, so an empty map changes nothing
 for them.
 
+### D8 — The light maps colour temperature positions
+
+`Light` exposes `colorTempPositionMax` (`color_temperature_steps` - 1, or 100 without the option or with more than
+100 steps) and converts between a position and the 0..100 value in both directions, rounding to the nearest whole
+number. The light screen and the slider widget use it; the command and the attribute stay 0..100. The slider
+item's `min` / `max`, given in 0..100, are converted to positions too.
+
 ## Risks / Trade-offs
 
 - [Core-API event handling: an empty options object now reaches `updateOptions()`] → the three existing overrides
@@ -116,8 +129,4 @@ entity; the touch slider needs a Remote 3. No data migration: entities configure
 
 ## Open Questions
 
-- Should the remote offer to edit the user overrides? The tile edit menu (Rename, Change icon, Remove) is where a
-  "Decimals" and "Display mode" entry would fit. Not added: the web-configurator edits them.
-- `readable: false` with `increment` / `decrement`: the Core-API says the remote never calculates the new value,
-  and also that a write-only entity shows the last value sent. D3 shows an estimate; the alternative is to keep the
-  shown value unchanged after a step.
+None.

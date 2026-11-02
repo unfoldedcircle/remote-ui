@@ -7,7 +7,25 @@ A sensor SHALL use device class `custom` (also for an empty or unknown class), `
 - **WHEN** a temperature sensor without `unit` attribute and without `decimals` option reports value 21.456 and the unit system is US
 - **THEN** it is shown as "21.46 °C"
 
+### Requirement: Light brightness and colour temperature
+The brightness page SHALL show a vertical brightness slider from 0 to 255 in steps of 1, labelled with the rounded percentage (0–100, no unit sign). When the light also has `color_temperature`, a colour temperature slider with the positions of the requirement "Colour temperature positions", labelled with the colour temperature of 0..100, SHALL be shown next to it and both take half the width. Every value change SHALL play a Bump haptic. Releasing a slider SHALL send `light.on` with `brightness` or `color_temperature` respectively. The sliders follow the entity's reported values.
+
+#### Scenario: Drag brightness
+- **WHEN** the user drags the brightness slider to 191 and releases it
+- **THEN** the label reads 75 and `light.on` is sent with `brightness` = 191
+
 ## ADDED Requirements
+
+### Requirement: Colour temperature positions
+A colour temperature slider, on the light screen and in a slider item, SHALL offer the number of positions of the light's `color_temperature_steps` option, spread evenly over 0..100 and rounded to whole numbers; without the option, or with more than 100 steps, it SHALL offer 0..100 in steps of 1. A position SHALL be sent as its value of 0..100, and a reported `color_temperature` SHALL be shown at the nearest position.
+
+#### Scenario: Three steps
+- **WHEN** a light with `color_temperature_steps` 3 is set with its colour temperature slider to the middle position
+- **THEN** `light.on` is sent with `color_temperature` = 50
+
+#### Scenario: Reported value between positions
+- **WHEN** a light with `color_temperature_steps` 3 reports `color_temperature` 30
+- **THEN** its colour temperature slider stands at the middle position
 
 ### Requirement: Sensor value format
 A numeric sensor value SHALL be rounded for display only. With effective decimals, the user override `decimals` and otherwise the `decimals` option (0..6), it SHALL be shown with exactly that many decimal places. Without them it SHALL be shown with at most 2 decimal places and without trailing zeros. A text value SHALL be shown as reported. This applies to the tile, the control screen and the sensor widget.

@@ -48,7 +48,7 @@ An entity change event that carries `options` SHALL apply them to the entity, al
 - **THEN** the sensor value is shown in the automatic format again
 
 ### Requirement: User overrides of entity options
-The UI SHALL apply the user overrides in an entity's `options.user` wherever the entity is shown, taking precedence over the driver option of the same name: `decimals` for sensor and number entities, `display_mode` for number entities. An override with an invalid value SHALL be ignored. The UI SHALL NOT edit the overrides.
+The UI SHALL apply the user overrides in an entity's `options.user` wherever the entity is shown, taking precedence over the driver option of the same name: `decimals` for sensor and number entities, `display_mode` for number entities. An override with an invalid value SHALL be ignored. The overrides are edited in the web-configurator; the UI SHALL NOT offer editing them.
 
 #### Scenario: Override wins
 - **WHEN** a number entity has the option `decimals` 2 and the user override `decimals` 0
