@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `1.499999999999997` is shown as `1.5`. Text values are shown as they are.
 
 ### Fixed
+- The Remote 3 touch slider for a light's brightness shows a brightness change made elsewhere again, for example in an
+  app or by a wall switch. The bar moved, but the value stayed at the old brightness.
 - The colour temperature slider of a light that offers a limited number of colour temperatures now has exactly these
   positions and sends their value between 0 and 100. It used to send the position number instead, for example 1
   instead of 50 for the middle one of three.
