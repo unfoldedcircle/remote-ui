@@ -104,6 +104,10 @@ int Light::colorTempFromPosition(int position) {
                   m_colorTempPositionMax);
 }
 
+double Light::colorTempPositionsPerSweep(double gain) {
+    return qMax(MIN_TOUCH_POSITIONS_PER_SWEEP, gain * m_colorTempPositionMax);
+}
+
 void Light::setColorTemperature(int colorTemp) {
     QVariantMap params;
     params.insert("color_temperature", colorTemp);

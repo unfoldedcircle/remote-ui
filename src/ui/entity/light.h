@@ -126,6 +126,17 @@ class Light : public Base {
      * @brief The color temperature of 0..100 of a slider position, rounded to a whole number.
      */
     Q_INVOKABLE int colorTempFromPosition(int position);
+    /**
+     * @brief The color temperature positions a full swipe of the Remote 3 touch slider covers.
+     *
+     * The gain applies to the number of positions, like the brightness gain to 0..255, but a swipe covers at least
+     * MIN_TOUCH_POSITIONS_PER_SWEEP positions: with only 2 or 3 positions a change would otherwise need most of the
+     * slider length.
+     * @param gain the touch slider gain, Config::touchSliderGainBrightness
+     */
+    Q_INVOKABLE double colorTempPositionsPerSweep(double gain);
+
+    static constexpr double MIN_TOUCH_POSITIONS_PER_SWEEP = 3;
 
     QString getStateInfo() override { return m_stateInfo1 + " " + (m_state == LightStates::On ? m_stateInfo2 : ""); }
 

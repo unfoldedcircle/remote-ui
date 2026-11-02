@@ -21,6 +21,9 @@ class testLightEntity : public QObject {
     void fromPosition();
     void toPosition_data();
     void toPosition();
+    void positionRoundTrip();
+    void positionsPerSweep_data();
+    void positionsPerSweep();
 
  private:
     static uc::ui::entity::Light* makeLight(QObject* parent, const QVariant& steps) {
@@ -108,6 +111,43 @@ void testLightEntity::toPosition() {
     auto    light = makeLight(&parent, steps);
 
     QCOMPARE(light->colorTempToPosition(colorTemp), position);
+}
+
+void testLightEntity::positionRoundTrip() {
+    // the touch slider sends the value of a position and shows the reported value at its nearest position: every
+    // position has to survive the way through 0..100
+    for (int steps = 2; steps <= 101; steps++) {
+        QObject parent;
+        auto    light = makeLight(&parent, steps);
+
+        for (int position = 0; position <= light->getColorTempPositionMax(); position++) {
+            QVERIFY2(light->colorTempToPosition(light->colorTempFromPosition(position)) == position,
+                     qPrintable(QStringLiteral("steps %1, position %2").arg(steps).arg(position)));
+        }
+    }
+}
+
+void testLightEntity::positionsPerSweep_data() {
+    QTest::addColumn<QVariant>("steps");
+    QTest::addColumn<double>("gain");
+    QTest::addColumn<double>("positions");
+
+    QTest::newRow("no option, default gain") << QVariant() << 1.2 << 120.0;
+    QTest::newRow("no option, low gain") << QVariant() << 0.5 << 50.0;
+    QTest::newRow("3 steps: at least 3") << QVariant(3) << 1.2 << 3.0;
+    QTest::newRow("2 steps: at least 3") << QVariant(2) << 1.2 << 3.0;
+    QTest::newRow("5 steps") << QVariant(5) << 1.2 << 4.8;
+}
+
+void testLightEntity::positionsPerSweep() {
+    QFETCH(QVariant, steps);
+    QFETCH(double, gain);
+    QFETCH(double, positions);
+
+    QObject parent;
+    auto    light = makeLight(&parent, steps);
+
+    QVERIFY(qFuzzyCompare(light->colorTempPositionsPerSweep(gain), positions));
 }
 
 QTEST_MAIN(testLightEntity)

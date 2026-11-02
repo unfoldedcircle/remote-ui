@@ -23,7 +23,8 @@ screen, and it ignores the sensor's `decimals` option.
 - Activity pages render the `slider` item (bound to an entity feature: number value, light brightness and colour
   temperature, media-player volume, cover position, climate target temperature) and the `number` item (the number
   entity in its effective representation).
-- The Remote 3 touch slider can control a bounded number entity's value.
+- The Remote 3 touch slider can control a bounded number entity's value, and a light's colour temperature when the
+  activity names that feature.
 - Sensor values: a numeric value is shown with the effective decimals (user override, then the `decimals` option),
   otherwise with at most 2 decimal places and no trailing zeros. Text values are shown as reported.
 - An entity change event whose options became empty still updates the entity, so removing the last user override
@@ -45,7 +46,7 @@ None.
   slider follows `color_temperature_steps`; new requirements for the number entity, its control screen, the number
   widget and the slider widget.
 - `activities`: activity UI pages render the `slider` and `number` items.
-- `touch-slider`: a bounded number entity's `value` is a slider target.
+- `touch-slider`: a bounded number entity's `value` and a light's `color_temperature` are slider targets.
 
 ## Impact
 
@@ -59,7 +60,7 @@ None.
   `entityController.*`, `entityScreens.cpp`, `src/core/core.cpp`, `src/core/structs.h`, `src/logging.*`; new QML
   `NumberWidget.qml`, `SliderWidget.qml`, `TouchSliderNumber.qml`, `entities/number/deviceclass/Number.qml`; changed
   `Activity.qml`, `TouchSlider.qml`, `entities/Base.qml`; `src/ui/entity/light.*` and
-  `entities/light/Brightness.qml` for the colour temperature positions.
+  `entities/light/Brightness.qml` for the colour temperature positions; new `TouchSliderColorTemperature.qml`.
 - Resources: `resources/qrc/main.qrc`, `resources/icons/icon-fallback.json`.
 - Tests: new `testNumberEntity`, `testSensorEntity` and `testLightEntity`; `testEntityScreens`, `testEntityController` and
   `testIconFont` extended.

@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with a label, the current value, optional icons at both ends and an optional narrower range. A number widget shows
   a number entity as a slider or with minus and plus buttons. A widget of a device that is unavailable refuses the
   change with a message, like a tile does.
+- The Remote 3 touch slider can change a light's colour temperature, when the activity's touch slider is set to it.
+  A light that offers only a few colour temperatures moves to the next one about every third of the slider length.
 
 ### Changed
 - Sensor values are rounded for display: with the number of decimal places the integration sets, or the user sets in

@@ -1,5 +1,5 @@
 One phase per commit; each user-visible phase carries its `CHANGELOG.md` entry. Phase 2 needs the formatter of
-phase 1, phase 3 the number entity of phase 2, phase 4 the slider widget of phase 3.
+phase 1, phase 3 the number entity of phase 2, phase 4 the slider widget of phase 3, phase 5 the colour temperature positions of phase 4.
 
 ## 1. Sensor value format
 
@@ -40,14 +40,24 @@ phase 1, phase 3 the number entity of phase 2, phase 4 the slider widget of phas
       value; the slider item's `min` / `max` are converted to positions.
 - [x] 4.3 `testLightEntity`; `CHANGELOG.md`, "Unreleased", "Fixed".
 
-## 5. Verification
+## 5. Colour temperature on the touch slider
 
-- [x] 5.1 `make test`: all targets pass.
-- [x] 5.2 `./cpplint.sh` clean, `./design-check.sh` 0 problems, `tools/icon-font.py check-mapping` consistent.
-- [x] 5.3 `make linux` builds.
-- [x] 5.4 `openspec validate number-entity --strict`.
-- [ ] 5.5 In the simulator against a core with number entities: tile, screen in both representations, user
+- [x] 5.1 `Light::colorTempPositionsPerSweep()`: the brightness gain times the highest position, at least 3.
+- [x] 5.2 `TouchSliderColorTemperature.qml`; the `color_temperature` case of a light in `TouchSlider.qml`, requiring
+      the Color_temperature feature; the default feature of a light stays `dim`; `main.qrc` entry.
+- [x] 5.3 `testLightEntity`: positions per sweep, every position survives the way through 0..100.
+- [x] 5.4 `en_US.ts` regenerated; `CHANGELOG.md`, "Unreleased", "Added".
+
+## 6. Verification
+
+- [x] 6.1 `make test`: all targets pass.
+- [x] 6.2 `./cpplint.sh` clean, `./design-check.sh` 0 problems, `tools/icon-font.py check-mapping` consistent.
+- [x] 6.3 `make linux` builds.
+- [x] 6.4 `openspec validate number-entity --strict`.
+- [ ] 6.5 In the simulator against a core with number entities: tile, screen in both representations, user
       overrides, slider and number items; a `null` value shows "N/A".
-- [ ] 5.6 On a Remote 3: the touch slider on an activity whose target is a number entity.
-- [ ] 5.7 A light with `color_temperature_steps` 3: the screen and a slider item offer three positions and send 0,
+- [ ] 6.6 On a Remote 3: the touch slider on an activity whose target is a number entity.
+- [ ] 6.7 A light with `color_temperature_steps` 3: the screen and a slider item offer three positions and send 0,
       50 and 100.
+- [ ] 6.8 On a Remote 3: the touch slider on an activity whose target is a light's `color_temperature`, with and
+      without `color_temperature_steps`; the same light with feature `default` is dimmed.

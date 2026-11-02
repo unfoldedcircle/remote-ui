@@ -3990,6 +3990,21 @@ Select the QR code to read them on the screen.</translation>
     </message>
 </context>
 <context>
+    <name>TouchSliderColorTemperature</name>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderColorTemperature.qml" line="81"/>
+        <source>Touch slider is not available.</source>
+        <extracomment>Notification title when the Remote 3 touch slider controls a light that is unavailable</extracomment>
+        <translation>Touch slider is not available.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderColorTemperature.qml" line="83"/>
+        <source>%1 is not available. Please check your configuration.</source>
+        <extracomment>Notification text when the touch slider&apos;s light is unavailable. %1 is the entity name</extracomment>
+        <translation>%1 is not available. Please check your configuration.</translation>
+    </message>
+</context>
+<context>
     <name>TouchSliderNumber</name>
     <message>
         <location filename="../../src/qml/components/TouchSliderNumber.qml" line="86"/>

@@ -185,6 +185,7 @@
         <file alias="components/TouchSliderVolume.qml">../../src/qml/components/TouchSliderVolume.qml</file>
         <file alias="components/TouchSliderSeek.qml">../../src/qml/components/TouchSliderSeek.qml</file>
         <file alias="components/TouchSliderBrightness.qml">../../src/qml/components/TouchSliderBrightness.qml</file>
+        <file alias="components/TouchSliderColorTemperature.qml">../../src/qml/components/TouchSliderColorTemperature.qml</file>
         <file alias="components/TouchSliderPosition.qml">../../src/qml/components/TouchSliderPosition.qml</file>
         <file alias="components/TouchSliderNumber.qml">../../src/qml/components/TouchSliderNumber.qml</file>
     </qresource>

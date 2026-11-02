@@ -10,7 +10,7 @@
   item type". Remote-entity pages render text and icon only (`remote/deviceclass/Remote.qml:30-63`) and are not
   changed here.
 - **Touch slider.** `TouchSlider.qml:88-182` knows media player volume and seek, light brightness and cover
-  position. It waits for the entity's features before choosing (`TouchSlider.qml:108`).
+  position; a light's colour temperature is not a target. It waits for the entity's features before choosing (`TouchSlider.qml:108`).
 - **Sensor values.** The value is stored as reported (`sensor.cpp:497`) and shown with `QVariant::toString()`
   (`sensor.h:324`, `sensor.h:344`), so a calculated value shows its floating point artifacts. The `decimals` option
   is parsed (`sensor.cpp:39`) but never read; the living spec says it "SHALL NOT affect what is shown".
@@ -49,7 +49,6 @@
 - D-pad control of a focused widget: the Core-API asks for it only on a screen that offers D-pad navigation of the
   user interface items. Activity pages have none, their D-pad keys switch pages and send the activity's button
   mapping.
-- A colour temperature target of the Remote 3 touch slider; the touch slider controls a light's brightness only.
 - Slider and number items on remote-entity pages, which render no widget today.
 - The `entity_available` event, which the UI does not receive.
 
@@ -105,8 +104,19 @@ for them.
 
 `Light` exposes `colorTempPositionMax` (`color_temperature_steps` - 1, or 100 without the option or with more than
 100 steps) and converts between a position and the 0..100 value in both directions, rounding to the nearest whole
-number. The light screen and the slider widget use it; the command and the attribute stay 0..100. The slider
-item's `min` / `max`, given in 0..100, are converted to positions too.
+number. The light screen, the slider widget and the touch slider use it; the command and the attribute stay 0..100.
+The slider item's `min` / `max`, given in 0..100, are converted to positions too.
+
+### D9 — Colour temperature on the touch slider: the brightness gain, at least 3 positions per swipe
+
+A light's colour temperature is a touch slider target only when the activity names `color_temperature`; the default
+feature of a light stays `dim`. The gesture works in positions, like the number entity in steps. A full swipe covers
+the brightness gain times the highest position (`Light::colorTempPositionsPerSweep()`): with the default gain of 1.2,
+120 of 0..100, the feel of the brightness slider. With 2 or 3 positions that rule would need 42 % to 83 % of the
+slider length per change, so a swipe covers at least 3 positions: one change per third of the length, and every
+position is reachable in one swipe from any start. Alternatives: a gain setting of its own, rejected as one more
+setting for a rarely used target; a fixed travel per position, rejected because 101 positions would then need
+several swipes.
 
 ## Risks / Trade-offs
 
@@ -124,7 +134,7 @@ animation. The widgets' 200 ms live timer runs only while a finger is down. Negl
 ## Migration Plan
 
 Verification target: the desktop simulator for the screens and widgets, against a core that provides the number
-entity; the touch slider needs a Remote 3. No data migration: entities configured with the former default icon
+entity; the touch slider needs a Remote 3, for the number entity and for a light's colour temperature. No data migration: entities configured with the former default icon
 `uc:slider` keep it and get a Free-font fallback.
 
 ## Open Questions
