@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the user in the web configurator chooses, and the d-pad and volume buttons step the value. The value set is shown
   at once and returns to the device's value if the device does not confirm it within 3 seconds. A number entity can
   be the target of the Remote 3 touch slider.
+- Slider and number widgets on activity pages. A slider widget is a horizontal or vertical slider for a number
+  entity, light brightness or colour temperature, media player volume, cover position or climate target temperature,
+  with a label, the current value, optional icons at both ends and an optional narrower range. A number widget shows
+  a number entity as a slider or with minus and plus buttons. A widget of a device that is unavailable refuses the
+  change with a message, like a tile does.
 
 ### Changed
 - Sensor values are rounded for display: with the number of decimal places the integration sets, or the user sets in
