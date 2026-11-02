@@ -192,6 +192,14 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::SelectDeviceClass>("Entity.Select", 1, 0, "SelectDeviceClasses",
                                                           "Enum is not a type");
 
+    // number enums
+    qRegisterMetaType<entity::NumberFeatures::Enum>("Number Features");
+    qRegisterMetaType<entity::NumberStates::Enum>("Number States");
+    qmlRegisterUncreatableType<entity::NumberFeatures>("Entity.Number", 1, 0, "NumberFeatures", "Enum is not a type");
+    qmlRegisterUncreatableType<entity::NumberStates>("Entity.Number", 1, 0, "NumberStates", "Enum is not a type");
+    qmlRegisterUncreatableType<entity::NumberDeviceClass>("Entity.Number", 1, 0, "NumberDeviceClasses",
+                                                          "Enum is not a type");
+
     QObject::connect(m_core, &core::Api::connected, this, &EntityController::onCoreConnected);
     QObject::connect(m_core, &core::Api::disconnected, this, &EntityController::onCoreDisconnected);
 
@@ -270,6 +278,9 @@ entity::Base* EntityController::createEntityObject(const QString& type, const QS
         case entity::Base::Type::Select:
             return new entity::Select(id, name, m_language, icon, area, deviceClass, enabled, attributes, integrationId,
                                       parent);
+        case entity::Base::Type::Number:
+            return new entity::Number(id, name, m_language, icon, area, deviceClass, enabled, attributes, options,
+                                      integrationId, parent);
         default:
             return new entity::Base(id, name, m_language, icon, area, entity::Base::Type::Unsupported, true,
                                     QVariantMap(), integrationId, false, parent);
@@ -762,6 +773,9 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
                 break;
             case entity::Base::Type::Voice_assistant:
                 entityObj->updateFeatures<entity::VoiceAssistantFeatures::Enum>(entity.features);
+                break;
+            case entity::Base::Type::Number:
+                entityObj->updateFeatures<entity::NumberFeatures::Enum>(entity.features);
                 break;
 
             case entity::Base::Type::Sensor:

@@ -8,6 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- Number entity: a numeric value with a range, step and unit provided by an integration, for example an amplifier's
+  bass level or a fan speed. Its screen shows a slider or a value with minus and plus buttons, as the integration or
+  the user in the web configurator chooses, and the d-pad and volume buttons step the value. The value set is shown
+  at once and returns to the device's value if the device does not confirm it within 3 seconds. A number entity can
+  be the target of the Remote 3 touch slider.
+
 ### Changed
 - Sensor values are rounded for display: with the number of decimal places the integration sets, or the user sets in
   the web configurator, otherwise with at most 2 decimal places and without trailing zeros. A value such as

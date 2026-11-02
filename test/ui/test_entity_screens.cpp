@@ -18,6 +18,7 @@
 #include "ui/entity/light.h"
 #include "ui/entity/macro.h"
 #include "ui/entity/mediaPlayer.h"
+#include "ui/entity/number.h"
 #include "ui/entity/remote.h"
 #include "ui/entity/select.h"
 #include "ui/entity/sensor.h"
@@ -59,6 +60,7 @@ class testEntityScreens : public QObject {
             {Type::Light, QMetaEnum::fromType<LightDeviceClass::Enum>()},
             {Type::Macro, QMetaEnum::fromType<MacroDeviceClass::Enum>()},
             {Type::Media_player, QMetaEnum::fromType<MediaPlayerDeviceClass::Enum>()},
+            {Type::Number, QMetaEnum::fromType<NumberDeviceClass::Enum>()},
             {Type::Remote, QMetaEnum::fromType<RemoteDeviceClass::Enum>()},
             {Type::Select, QMetaEnum::fromType<SelectDeviceClass::Enum>()},
             {Type::Sensor, QMetaEnum::fromType<SensorDeviceClass::Enum>()},

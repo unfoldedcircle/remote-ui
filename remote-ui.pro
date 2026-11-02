@@ -125,6 +125,7 @@ HEADERS += \
     src/ui/entity/light.h \
     src/ui/entity/macro.h \
     src/ui/entity/mediaPlayer.h \
+    src/ui/entity/number.h \
     src/ui/entity/remote.h \
     src/ui/entity/select.h \
     src/ui/entity/sensor.h \
@@ -195,6 +196,7 @@ SOURCES += \
         src/ui/entity/light.cpp \
         src/ui/entity/macro.cpp \
         src/ui/entity/mediaPlayer.cpp \
+        src/ui/entity/number.cpp \
         src/ui/entity/remote.cpp \
         src/ui/entity/select.cpp \
         src/ui/entity/sensor.cpp \

@@ -137,6 +137,7 @@
         <file alias="components/entities/remote/deviceclass/Remote.qml">../../src/qml/components/entities/remote/deviceclass/Remote.qml</file>
         <file alias="components/entities/macro/deviceclass/Macro.qml">../../src/qml/components/entities/macro/deviceclass/Macro.qml</file>
         <file alias="components/entities/select/deviceclass/Select.qml">../../src/qml/components/entities/select/deviceclass/Select.qml</file>
+        <file alias="components/entities/number/deviceclass/Number.qml">../../src/qml/components/entities/number/deviceclass/Number.qml</file>
         <file alias="components/integrations/AddEntities.qml">../../src/qml/components/integrations/AddEntities.qml</file>
         <file alias="components/integrations/Setup.qml">../../src/qml/components/integrations/Setup.qml</file>
         <file alias="components/integrations/Discovery.qml">../../src/qml/components/integrations/Discovery.qml</file>
@@ -183,5 +184,6 @@
         <file alias="components/TouchSliderSeek.qml">../../src/qml/components/TouchSliderSeek.qml</file>
         <file alias="components/TouchSliderBrightness.qml">../../src/qml/components/TouchSliderBrightness.qml</file>
         <file alias="components/TouchSliderPosition.qml">../../src/qml/components/TouchSliderPosition.qml</file>
+        <file alias="components/TouchSliderNumber.qml">../../src/qml/components/TouchSliderNumber.qml</file>
     </qresource>
 </RCC>

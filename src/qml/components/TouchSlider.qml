@@ -42,6 +42,8 @@ Popup {
             return "dim";
         case EntityTypes.Cover:
             return "position";
+        case EntityTypes.Number:
+            return "value";
         default:
             return "";
         }
@@ -99,6 +101,17 @@ Popup {
         if (HwInfo.modelNumber != "UCR3" && HwInfo.modelNumber != "DEV") {
             touchSlider.active = false;
             sliderLoader.source = "";
+            return;
+        }
+
+        // The value feature of a number entity is always present, even if the entity lists no features. An unbounded
+        // number has no slider range.
+        if (entityObj.type === EntityTypes.Number) {
+            if (resolvedFeature() === "value" && entityObj.bounded) {
+                setSliderSource("qrc:/components/TouchSliderNumber.qml");
+            } else {
+                touchSlider.active = false;
+            }
             return;
         }
 

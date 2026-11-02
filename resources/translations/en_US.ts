@@ -7,9 +7,11 @@
         <location filename="../../src/qml/components/SelectWidget.qml" line="43"/>
         <location filename="../../src/qml/components/SelectWidget.qml" line="44"/>
         <location filename="../../src/qml/components/SensorWidget.qml" line="55"/>
+        <location filename="../../src/qml/components/TouchSliderNumber.qml" line="51"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="375"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="393"/>
         <location filename="../../src/qml/components/entities/BaseSensorButton.qml" line="23"/>
+        <location filename="../../src/qml/components/entities/number/deviceclass/Number.qml" line="31"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Battery.qml" line="63"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Current.qml" line="64"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Custom.qml" line="40"/>
@@ -349,7 +351,7 @@
         <translation>%1 is unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/Base.qml" line="450"/>
+        <location filename="../../src/qml/components/entities/Base.qml" line="454"/>
         <location filename="../../src/qml/components/group/Base.qml" line="186"/>
         <source>Profile is restricted</source>
         <translation>Profile is restricted</translation>
@@ -2555,6 +2557,25 @@ Climate fan</extracomment>
     </message>
 </context>
 <context>
+    <name>Number state</name>
+    <message>
+        <location filename="../../src/ui/entity/number.h" line="41"/>
+        <source>Unavailable</source>
+        <translation>Unavailable</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/number.h" line="43"/>
+        <source>Unknown</source>
+        <translation>Unknown</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/number.h" line="46"/>
+        <source>On</source>
+        <extracomment>Device state: switched on. Not the preposition &quot;on&quot;.</extracomment>
+        <translation>On</translation>
+    </message>
+</context>
+<context>
     <name>OnOff</name>
     <message>
         <location filename="../../src/qml/components/entities/light/OnOff.qml" line="18"/>
@@ -3947,6 +3968,21 @@ Select the QR code to read them on the screen.</translation>
     </message>
 </context>
 <context>
+    <name>TouchSliderNumber</name>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderNumber.qml" line="86"/>
+        <source>Touch slider is not available.</source>
+        <extracomment>Notification title when the Remote 3 touch slider controls a number entity that is unavailable</extracomment>
+        <translation>Touch slider is not available.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/TouchSliderNumber.qml" line="88"/>
+        <source>%1 is not available. Please check your configuration.</source>
+        <extracomment>Notification text when the touch slider&apos;s number entity is unavailable. %1 is the entity name</extracomment>
+        <translation>%1 is not available. Please check your configuration.</translation>
+    </message>
+</context>
+<context>
     <name>TouchSliderPosition</name>
     <message>
         <location filename="../../src/qml/components/TouchSliderPosition.qml" line="60"/>
@@ -5269,91 +5305,91 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>uc::ui::EntityController</name>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="292"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="303"/>
         <source>Could not configure the entity: %1</source>
         <extracomment>Error while configuring an entity. %1 is an error message from the remote</extracomment>
         <translation>Could not configure the entity: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="317"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="328"/>
         <source>Could not rename the entity: %1</source>
         <extracomment>Error while renaming an entity. %1 is an error message from the remote</extracomment>
         <translation>Could not rename the entity: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="326"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="337"/>
         <source>Could not change the entity state: not connected</source>
         <translation>Could not change the entity state: not connected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="346"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="357"/>
         <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation>The state cannot be changed while the entity is unavailable or the activity is running</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="350"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="361"/>
         <source>The state of this entity type cannot be changed</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation>The state of this entity type cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="354"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="365"/>
         <source>Not allowed to change the entity state</source>
         <extracomment>Error while fixing an entity state</extracomment>
         <translation>Not allowed to change the entity state</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="358"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="369"/>
         <source>Could not change the entity state: %1</source>
         <extracomment>Error while fixing an entity state. %1 is an error message from the remote</extracomment>
         <translation>Could not change the entity state: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="377"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="388"/>
         <source>Could not change the entity icon: %1</source>
         <extracomment>Error while changing the icon of an entity. %1 is an error message from the remote</extracomment>
         <translation>Could not change the entity icon: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="454"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="465"/>
         <source>Could not delete the entities: %1</source>
         <extracomment>Error while deleting entities. %1 is an error message from the remote</extracomment>
         <translation>Could not delete the entities: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="926"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="941"/>
         <source>%1 is unavailable</source>
         <extracomment>Notification when a command was not sent because the device is unavailable. %1 is the entity name</extracomment>
         <translation>%1 is unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1120"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1135"/>
         <source>The device</source>
         <translation>The device</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1140"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1155"/>
         <source>%1 is not responding</source>
         <translation>%1 is not responding</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1141"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1156"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation>The command did not reach the device. Would you like to try again?</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1172"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1187"/>
         <source>Try again</source>
         <translation>Try again</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1178"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1193"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation>%1 is not responding. Error code: %2</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1178"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1193"/>
         <source>Error sending the command</source>
         <translation>Error sending the command</translation>
     </message>

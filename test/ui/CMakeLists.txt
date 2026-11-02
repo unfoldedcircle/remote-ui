@@ -64,6 +64,28 @@ target_link_libraries(testSensorEntity
     Qt5::Test
     )
 
+add_executable (testNumberEntity
+    "test_number_entity.cpp"
+    "../../src/ui/entity/number.cpp"
+    "../../src/ui/entity/valueFormat.cpp"
+    "../../src/ui/entity/entityScreens.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testNumberEntity
+         COMMAND testNumberEntity)
+
+target_link_libraries(testNumberEntity
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Test
+    )
+
 add_executable (testSwitchEntity
     "test_switch_entity.cpp"
     "../../src/ui/entity/switch.cpp"
@@ -171,6 +193,7 @@ add_executable (testEntityController
     "../../src/ui/entity/light.cpp"
     "../../src/ui/entity/macro.cpp"
     "../../src/ui/entity/mediaPlayer.cpp"
+    "../../src/ui/entity/number.cpp"
     "../../src/ui/entity/remote.cpp"
     "../../src/ui/entity/select.cpp"
     "../../src/ui/entity/sensor.cpp"
@@ -300,11 +323,12 @@ add_executable (testEntityScreens
     "../../src/ui/entity/light.cpp"
     "../../src/ui/entity/macro.cpp"
     "../../src/ui/entity/mediaPlayer.cpp"
+    "../../src/ui/entity/number.cpp"
     "../../src/ui/entity/remote.cpp"
     "../../src/ui/entity/select.cpp"
     "../../src/ui/entity/sensor.cpp"
-    "../../src/ui/entity/valueFormat.cpp"
     "../../src/ui/entity/switch.cpp"
+    "../../src/ui/entity/valueFormat.cpp"
     "../../src/ui/entity/voiceAssistant.cpp"
     "../../src/ui/entity/voiceSession.cpp"
     # header only: contains the Q_OBJECT class moc has to process
