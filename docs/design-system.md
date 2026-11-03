@@ -40,7 +40,7 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
    or control gets a 3 px ring. Never both on one element, and never a fill dark enough to vanish on
    the LCD.
 4. **Emphasis by token, never by opacity.** Opacity is for disabled controls (0.4), dim layers
-   (0.85) and the unavailable slider item (section 7) only.
+   (0.85) and an unavailable entity (section 7) only.
 5. **Sans for reading, mono for data.** Poppins for titles, labels, prose, help and buttons. Space
    Mono only for values: versions, addresses, times, codes, units.
 
@@ -232,9 +232,7 @@ the `ui` constants only, so a change is a one-place edit. The slider tokens are 
 | `ui.sliderTickSize` | 2 x 10 | Tick marks of a discrete default slider; its width is also the width of the separators of a discrete bar and of the zero line |
 | `ui.sliderButtonSize` | 60 | The round minus and plus buttons |
 | `ui.sliderIconSize` | 40 | The item's minimum and maximum icons and the button glyphs |
-| `ui.sliderMarkSize` | 30 | The red link-slash mark of an unavailable entity |
 | `ui.disabledOpacity` | 0.4 | A slider item whose feature is not supported |
-| `ui.sliderUnavailableOpacity`, `ui.sliderUnavailableLabelOpacity` | 0.15, 0.5 | Track, value, icons and buttons, and the label, of an unavailable entity |
 
 - **Track and fill.** The default track is `surfaceRaised`, a bar `surface`. The fill is `textPrimary` (colour
   `neutral`), the light's colour (`entity`) or the feature gradient (`gradient`), from the start, from zero (`center`,
@@ -246,7 +244,26 @@ the `ui` constants only, so a change is a one-place edit. The slider tokens are 
 - **Discrete.** A range of at most 10 positions shows a separator in `bg` between the positions of a bar and a tick
   mark in `textSecondary` at each position of a default slider.
 - **Buttons** are `surfaceRaised` circles; pressed, they invert like every pressed element (section 6).
-- **Unavailable entity.** The value reads "--"; the red mark precedes the label.
+- **Unavailable entity and unsupported feature** follow "No value and unavailable" below.
+
+### No value and unavailable
+
+One placeholder stands for every value that is not known: "—" (em dash, U+2014), without a unit. "N/A" and "--" are
+not used. Poppins and Space Mono both have the glyph.
+
+1. **No value** (never reported, null, unknown): the value reads "—".
+2. **Unavailable entity**: the unavailable look below with the value "—". A detail screen covers its controls with
+   the "Entity unavailable" overlay.
+3. **Missing entity or unsupported feature** (a configuration error): the red mark and "—"; the log names the reason.
+   An entity that is not loaded reads "—" without the mark as long as a failed load is not reported to the UI, since
+   it cannot be told from one that is still loading.
+
+| Token | Value | Use |
+| ----- | ----- | --- |
+| `ui.unavailableMarkSize` | 30 | The red link-slash mark (`uc:link-slash` in `red`) before the label |
+| `ui.unavailableOpacity`, `ui.unavailableLabelOpacity` | 0.15, 0.5 | Track, value, icons and buttons, and the label, of an unavailable entity |
+
+The slider and number items use these tokens today.
 
 ## 8. Checklist for a new screen
 

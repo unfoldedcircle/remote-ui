@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   entity, light brightness or colour temperature, media player volume, cover position or climate target temperature,
   with a label, the current value, optional icons at both ends and an optional narrower range. A number widget shows
   a number entity as a slider or with minus and plus buttons. A widget of a device that is unavailable refuses the
-  change with a message, like a tile does.
+  change with a message, like a tile does. A value that is not known shows "—", here and on the number screen.
 - Slider widget styles: a thin slider, a bar that fills the whole widget and is moved by the distance you drag, or
   minus and plus buttons around the value. The fill can follow the light's colour or show a gradient, such as cold to
   warm for a colour temperature, start in the middle for a range around zero, or be a marker only. Each setting has a

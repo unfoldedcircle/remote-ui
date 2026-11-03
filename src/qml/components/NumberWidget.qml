@@ -6,7 +6,8 @@
 
  A user interface page widget showing a number entity with its effective display mode: a slider (the slider widget
  bound to the value feature, sent on release) or the value with decrement and increment buttons (stepper). An
- unbounded number is always a stepper.
+ unbounded number is always a stepper. A number without a value, an unavailable one and a missing entity read "—"
+ without a unit; an unavailable entity and an entity that is not a number get the red mark.
  See https://github.com/unfoldedcircle/core-api/blob/main/doc/ui-widgets.md#number
 
  ********************************************************************
@@ -39,6 +40,9 @@ Item {
     readonly property bool vertical: height > width
     readonly property bool isNumber: entityObj !== null && entityObj.type === EntityTypes.Number
     readonly property bool slider: isNumber && entityObj.sliderRepresentation
+    readonly property bool unavailable: entityObj !== null && !entityObj.enabled
+    // the red mark: an unavailable entity or one that is not a number
+    readonly property bool marked: unavailable || (entityObj !== null && !isNumber)
 
     function ensureEntityLoaded() {
         entityObj = EntityController.get(entityId);
@@ -82,13 +86,13 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 4
-            visible: labelText.text !== "" || (entityObj && !entityObj.enabled)
+            visible: labelText.text !== "" || numberWidget.marked
 
             Components.Icon {
                 color: colors.red
                 icon: "uc:link-slash"
-                size: 30
-                visible: entityObj && !entityObj.enabled
+                size: ui.unavailableMarkSize
+                visible: numberWidget.marked
             }
 
             Text {
@@ -98,6 +102,7 @@ Item {
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 color: colors.textSecondary
+                opacity: numberWidget.unavailable ? ui.unavailableLabelOpacity : 1
                 verticalAlignment: Text.AlignVCenter
                 font: fonts.help()
             }
@@ -125,14 +130,15 @@ Item {
                         anchors.fill: parent
                         visible: modelData === "value"
                         text: {
-                            if (!numberWidget.isNumber || !entityObj.hasValue) {
-                                return qsTranslate("Abbreviation for not available", "N/A");
+                            if (!numberWidget.isNumber || numberWidget.unavailable || !entityObj.hasValue) {
+                                return "\u2014";
                             }
                             return entityObj.formattedValue + (entityObj.unit !== "" ? " " + entityObj.unit : "");
                         }
                         maximumLineCount: 1
                         elide: Text.ElideRight
                         color: colors.textPrimary
+                        opacity: numberWidget.unavailable ? ui.unavailableOpacity : 1
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         font: fonts.label()
@@ -143,7 +149,7 @@ Item {
                         visible: modelData !== "value"
                         radius: ui.cornerRadiusSmall
                         color: stepMouseArea.pressed ? colors.textPrimary : colors.surface
-                        opacity: entityObj && !entityObj.enabled ? 0.4 : 1
+                        opacity: numberWidget.unavailable ? ui.unavailableOpacity : 1
 
                         Components.Icon {
                             anchors.centerIn: parent

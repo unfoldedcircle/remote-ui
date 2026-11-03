@@ -159,6 +159,14 @@ their step; a number sends `increment` / `decrement`.
 The D-pad focus ring of a slider item (3 px `focusRing`) is not drawn: activity pages give no widget the focus
 (Non-Goals). It follows with D-pad navigation of the user interface items.
 
+### D15 — No value reads "—"
+
+A value that is not known, of a number without a value, an unavailable entity or a feature the item cannot show,
+reads "—" (U+2014) without a unit; "N/A" and "--" are not used. It is a symbol, not a translated text. The
+unavailable look, the red mark and its 15 % and 50 % opacities, are `ui` tokens of their own, shared by the slider
+and number items. An unsupported feature gets the mark too. An entity that is not loaded reads "—" without the mark:
+the entity controller reports no failed load, so a missing entity cannot be told from one that is still loading.
+
 ## Risks / Trade-offs
 
 - [Core-API event handling: an empty options object now reaches `updateOptions()`] → the three existing overrides

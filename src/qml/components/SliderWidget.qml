@@ -29,7 +29,9 @@
  - buttons: minus, value, plus. A press sends the value one step further; increment and decrement for a number.
 
  The media player's seek feature is a touch slider target only, and an unbounded number entity has no slider range:
- both are shown as unsupported.
+ both are shown as unsupported: the red mark and "—", with the reason in the log.
+
+ A value the slider cannot show, of a missing entity or a number without a value, reads "—" without a unit.
 
  An unavailable entity accepts no command: like a tile (entities/Base.qml), the slider refuses the
  drag where the user pressed, with a notification, instead of sending a command the core would drop.
@@ -74,6 +76,8 @@ Item {
     readonly property bool bar: SliderStyle.style(sliderStyle) === SliderStyle.Bar
     readonly property bool buttons: SliderStyle.style(sliderStyle) === SliderStyle.Buttons
     readonly property bool unavailable: entityObj !== null && !entityObj.enabled
+    // the red mark: an unavailable entity or a feature the slider cannot bind
+    readonly property bool marked: unavailable || (entityObj !== null && !supported)
 
     // resolved entity feature binding
     property string resolvedFeature: ""
@@ -168,7 +172,7 @@ Item {
 
         if (!entityObj) {
             sliderWidget.labelString = sliderWidget.customText;
-            sliderWidget.valueString = qsTranslate("Abbreviation for not available", "N/A");
+            sliderWidget.valueString = "\u2014";
             return;
         }
 
@@ -242,7 +246,7 @@ Item {
         if (!sliderWidget.supported) {
             console.log("Slider widget: unsupported feature '" + sliderWidget.resolvedFeature
                         + "' for entity " + sliderWidget.entityId);
-            sliderWidget.valueString = qsTranslate("Abbreviation for not available", "N/A");
+            sliderWidget.valueString = "\u2014";
             return;
         }
 
@@ -329,11 +333,8 @@ Item {
         sliderWidget.displayValue = entityValue();
         sliderWidget.trackValue = sliderWidget.displayValue;
 
-        if (sliderWidget.unavailable) {
-            sliderWidget.valueString = "--";
-        } else if (entityObj.type === EntityTypes.Number && !entityObj.hasValue) {
-            // unknown: no value
-            sliderWidget.valueString = qsTranslate("Abbreviation for not available", "N/A");
+        if (sliderWidget.unavailable || (entityObj.type === EntityTypes.Number && !entityObj.hasValue)) {
+            sliderWidget.valueString = "\u2014";
         } else {
             sliderWidget.valueString = formatValue(sliderWidget.displayValue);
         }
@@ -448,13 +449,13 @@ Item {
             Layout.columnSpan: sliderLayout.columns
             spacing: 4
             visible: !sliderWidget.bar && (sliderWidget.labelString !== "" || (sliderWidget.showValue && !sliderWidget.vertical)
-                                           || sliderWidget.unavailable)
+                                           || sliderWidget.marked)
 
             Components.Icon {
                 color: colors.red
                 icon: "uc:link-slash"
-                size: ui.sliderMarkSize
-                visible: sliderWidget.unavailable
+                size: ui.unavailableMarkSize
+                visible: sliderWidget.marked
             }
 
             Text {
@@ -463,7 +464,7 @@ Item {
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 color: colors.textSecondary
-                opacity: sliderWidget.unavailable ? ui.sliderUnavailableLabelOpacity : 1
+                opacity: sliderWidget.unavailable ? ui.unavailableLabelOpacity : 1
                 verticalAlignment: Text.AlignVCenter
                 font: fonts.help()
             }
@@ -474,7 +475,7 @@ Item {
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 color: colors.textPrimary
-                opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignRight
                 font: fonts.label()
@@ -484,7 +485,7 @@ Item {
 
         Components.Icon {
             color: colors.textSecondary
-            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+            opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
             icon: sliderWidget.iconMin
             size: ui.sliderIconSize
             visible: !sliderWidget.bar && !sliderWidget.vertical && sliderWidget.iconMin !== ""
@@ -507,7 +508,7 @@ Item {
                 width: sliderWidget.bar || !sliderWidget.vertical ? parent.width : thickness
                 height: sliderWidget.bar || sliderWidget.vertical ? parent.height : thickness
                 anchors.centerIn: parent
-                opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
 
                 Behavior on width {
                     enabled: !sliderWidget.bar && sliderWidget.vertical
@@ -662,15 +663,15 @@ Item {
                             Layout.topMargin: sliderWidget.vertical ? ui.sliderBarRadius : 0
                             color: colors.red
                             icon: "uc:link-slash"
-                            size: ui.sliderMarkSize
-                            visible: sliderWidget.unavailable
+                            size: ui.unavailableMarkSize
+                            visible: sliderWidget.marked
                         }
 
                         Components.Icon {
                             Layout.alignment: Qt.AlignCenter
-                            Layout.leftMargin: sliderWidget.unavailable ? 0 : ui.sliderBarRadius
+                            Layout.leftMargin: sliderWidget.marked ? 0 : ui.sliderBarRadius
                             color: barLayer.overFill ? barLayer.tint : colors.textSecondary
-                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                            opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
                             icon: sliderWidget.iconMin
                             size: ui.sliderIconSize
                             visible: !sliderWidget.vertical && sliderWidget.iconMin !== ""
@@ -678,14 +679,14 @@ Item {
 
                         Text {
                             Layout.fillWidth: true
-                            Layout.leftMargin: sliderWidget.vertical || sliderWidget.unavailable || sliderWidget.iconMin !== ""
+                            Layout.leftMargin: sliderWidget.vertical || sliderWidget.marked || sliderWidget.iconMin !== ""
                                                ? 0 : ui.sliderBarRadius
-                            Layout.topMargin: sliderWidget.vertical && !sliderWidget.unavailable ? ui.sliderBarRadius : 0
+                            Layout.topMargin: sliderWidget.vertical && !sliderWidget.marked ? ui.sliderBarRadius : 0
                             text: sliderWidget.labelString
                             maximumLineCount: 1
                             elide: Text.ElideRight
                             color: barLayer.overFill ? barLayer.tint : colors.textSecondary
-                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableLabelOpacity : 1
+                            opacity: sliderWidget.unavailable ? ui.unavailableLabelOpacity : 1
                             horizontalAlignment: sliderWidget.vertical ? Text.AlignHCenter : Text.AlignLeft
                             verticalAlignment: Text.AlignVCenter
                             font: fonts.help()
@@ -698,7 +699,7 @@ Item {
                             text: sliderWidget.valueString
                             maximumLineCount: 1
                             color: barLayer.overFill ? barLayer.tint : colors.textPrimary
-                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                            opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
                             verticalAlignment: Text.AlignVCenter
                             font: fonts.label()
                             visible: sliderWidget.showValue
@@ -708,7 +709,7 @@ Item {
                             Layout.alignment: Qt.AlignCenter
                             Layout.rightMargin: sliderWidget.vertical ? 0 : ui.sliderBarRadius
                             color: barLayer.overFill ? barLayer.tint : colors.textSecondary
-                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                            opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
                             icon: sliderWidget.iconMax
                             size: ui.sliderIconSize
                             visible: sliderWidget.iconMax !== ""
@@ -724,7 +725,7 @@ Item {
                             Layout.alignment: Qt.AlignCenter
                             Layout.bottomMargin: ui.sliderBarRadius
                             color: barLayer.overFill ? barLayer.tint : colors.textSecondary
-                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                            opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
                             icon: sliderWidget.iconMin
                             size: ui.sliderIconSize
                             visible: sliderWidget.vertical && sliderWidget.iconMin !== ""
@@ -800,7 +801,7 @@ Item {
 
         Components.Icon {
             color: colors.textSecondary
-            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+            opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
             icon: sliderWidget.iconMax
             size: ui.sliderIconSize
             visible: !sliderWidget.bar && !sliderWidget.vertical && sliderWidget.iconMax !== ""
@@ -813,7 +814,7 @@ Item {
             maximumLineCount: 1
             elide: Text.ElideRight
             color: colors.textPrimary
-            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+            opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
             horizontalAlignment: Text.AlignHCenter
             font: fonts.help()
             visible: !sliderWidget.bar && sliderWidget.showValue && sliderWidget.vertical
@@ -830,13 +831,13 @@ Item {
         RowLayout {
             Layout.fillWidth: true
             spacing: 4
-            visible: sliderWidget.labelString !== "" || sliderWidget.unavailable
+            visible: sliderWidget.labelString !== "" || sliderWidget.marked
 
             Components.Icon {
                 color: colors.red
                 icon: "uc:link-slash"
-                size: ui.sliderMarkSize
-                visible: sliderWidget.unavailable
+                size: ui.unavailableMarkSize
+                visible: sliderWidget.marked
             }
 
             Text {
@@ -845,7 +846,7 @@ Item {
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 color: colors.textSecondary
-                opacity: sliderWidget.unavailable ? ui.sliderUnavailableLabelOpacity : 1
+                opacity: sliderWidget.unavailable ? ui.unavailableLabelOpacity : 1
                 verticalAlignment: Text.AlignVCenter
                 font: fonts.help()
             }
@@ -875,7 +876,7 @@ Item {
                         maximumLineCount: 1
                         elide: Text.ElideRight
                         color: colors.textPrimary
-                        opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                        opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
                         horizontalAlignment: Text.AlignHCenter
                         verticalAlignment: Text.AlignVCenter
                         font: fonts.label()
@@ -888,7 +889,7 @@ Item {
                         visible: modelData !== "value"
                         radius: width / 2
                         color: stepMouseArea.pressed ? colors.textPrimary : colors.surfaceRaised
-                        opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                        opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
 
                         Components.Icon {
                             anchors.centerIn: parent

@@ -61,6 +61,8 @@ phase 6 the slider widget of phase 3.
 - [x] 6.5 `testSliderStyle`: defaults table, colour and fill resolution, relative drag, snap, discrete ranges;
       `testDesignTokens`: the slider colours and their contrast.
 - [x] 6.6 `CHANGELOG.md`, "Unreleased", "Added".
+- [x] 6.7 No value reads "—" without a unit in the slider and number items, the number screen and the touch slider;
+      the red mark also for an unsupported feature; the unavailable look as `ui` tokens shared with the number item.
 
 ## 7. Verification
 
@@ -69,7 +71,7 @@ phase 6 the slider widget of phase 3.
 - [x] 7.3 `make linux` builds.
 - [x] 7.4 `openspec validate number-entity --strict`.
 - [ ] 7.5 In the simulator against a core with number entities: tile, screen in both representations, user
-      overrides, slider and number items; a `null` value shows "N/A".
+      overrides, slider and number items; a `null` value shows "—".
 - [ ] 7.6 On a Remote 3: the touch slider on an activity whose target is a number entity.
 - [ ] 7.7 A light with `color_temperature_steps` 3: the screen and a slider item offer three positions and send 0,
       50 and 100.

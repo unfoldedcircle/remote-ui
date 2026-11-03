@@ -4,18 +4,12 @@
 <context>
     <name>Abbreviation for not available</name>
     <message>
-        <location filename="../../src/qml/components/NumberWidget.qml" line="129"/>
         <location filename="../../src/qml/components/SelectWidget.qml" line="43"/>
         <location filename="../../src/qml/components/SelectWidget.qml" line="44"/>
         <location filename="../../src/qml/components/SensorWidget.qml" line="55"/>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="171"/>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="245"/>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="336"/>
-        <location filename="../../src/qml/components/TouchSliderNumber.qml" line="51"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="375"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="393"/>
         <location filename="../../src/qml/components/entities/BaseSensorButton.qml" line="23"/>
-        <location filename="../../src/qml/components/entities/number/deviceclass/Number.qml" line="31"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Battery.qml" line="63"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Current.qml" line="64"/>
         <location filename="../../src/qml/components/entities/sensor/deviceclass/Custom.qml" line="40"/>
@@ -2582,7 +2576,7 @@ Climate fan</extracomment>
 <context>
     <name>NumberWidget</name>
     <message>
-        <location filename="../../src/qml/components/NumberWidget.qml" line="55"/>
+        <location filename="../../src/qml/components/NumberWidget.qml" line="59"/>
         <source>%1 is unavailable</source>
         <extracomment>Notification when a number was changed but the command was not sent because the device is unavailable. %1 is the entity name</extracomment>
         <translation>%1 is unavailable</translation>
@@ -3585,7 +3579,7 @@ the Web Configurator</translation>
 <context>
     <name>SliderWidget</name>
     <message>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="140"/>
+        <location filename="../../src/qml/components/SliderWidget.qml" line="144"/>
         <source>%1 is unavailable</source>
         <extracomment>Notification when a slider was moved but the command was not sent because the device is unavailable. %1 is the entity name</extracomment>
         <translation>%1 is unavailable</translation>
@@ -5334,7 +5328,7 @@ Select the QR code to read them on the screen.</translation>
         <translation>Error while connecting to %1, with id %2</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.h" line="285"/>
+        <location filename="../../src/ui/uiController.h" line="288"/>
         <source>The factory reset could not be started. Please try again.</source>
         <translation>The factory reset could not be started. Please try again.</translation>
     </message>

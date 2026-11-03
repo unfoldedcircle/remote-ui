@@ -22,7 +22,7 @@ The slider SHALL control: for a media player, "volume" (requires the Volume feat
 ## ADDED Requirements
 
 ### Requirement: Number entity on the touch slider
-For a number entity the touch slider SHALL map a full sweep to the gain times the range `max - min`, move the target in whole steps of `step` within the range, and show the entity name and the value formatted like the number entity with its unit. A number without a value SHALL start the gesture at `min`. The target SHALL be sent with `number.set_value` every 200 ms while it differs from the entity value, and once more on release.
+For a number entity the touch slider SHALL map a full sweep to the gain times the range `max - min`, move the target in whole steps of `step` within the range, and show the entity name and the value formatted like the number entity with its unit. A number without a value SHALL read "—" without a unit and start the gesture at `min`. The target SHALL be sent with `number.set_value` every 200 ms while it differs from the entity value, and once more on release.
 
 #### Scenario: Swipe on a bass level
 - **WHEN** the touch slider controls a number entity from -10 to 10 dB with step 0.5 and the user swipes

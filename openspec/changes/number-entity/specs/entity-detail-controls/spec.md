@@ -54,7 +54,7 @@ A number entity SHALL take its range from the options `min` (default 0) and `max
 - **THEN** it is shown in °C
 
 ### Requirement: Number value format
-A number value SHALL be shown with the effective decimals: the user override `decimals`, otherwise the `decimals` option (0..6), otherwise the largest number of decimal places of `step` and of the limits `min` and `max` that are set. The value SHALL always be shown with that many decimal places. A number entity without a value (`null`) SHALL show no value: its tile shows the state text and its screen and widgets "N/A".
+A number value SHALL be shown with the effective decimals: the user override `decimals`, otherwise the `decimals` option (0..6), otherwise the largest number of decimal places of `step` and of the limits `min` and `max` that are set. The value SHALL always be shown with that many decimal places. A number entity without a value (`null`) SHALL show no value: its tile shows the state text and its screen and widgets "—" without a unit.
 
 #### Scenario: Decimals from the step size
 - **WHEN** a number entity with `step` 0.5 and no `decimals` reports 21
@@ -62,7 +62,7 @@ A number value SHALL be shown with the effective decimals: the user override `de
 
 #### Scenario: Value unknown
 - **WHEN** a number entity reports `value` null
-- **THEN** its control screen shows "N/A"
+- **THEN** its control screen shows "—" without a unit
 
 ### Requirement: Number representation
 The effective display mode of a number entity SHALL be the user override `display_mode`, otherwise the `display_mode` option, otherwise `auto`. `slider` SHALL show a slider, `stepper` a stepper, and `auto` a slider for up to 256 positions `(max - min) / step` and a stepper for more. A number entity without `min` or without `max` SHALL always be shown as a stepper.
@@ -109,14 +109,14 @@ A number item on an activity UI page SHALL show the number entity in its effecti
 - **THEN** the item is a slider, and `number.set_value` is sent when it is released
 
 ### Requirement: Number widget label and availability
-The label of a number item SHALL follow the label rules of the select widget. A red link-slash icon SHALL precede the label of an unavailable entity, and its buttons SHALL refuse the press with a notification like a tile.
+The label of a number item SHALL follow the label rules of the select widget. A red link-slash icon SHALL precede the label of an unavailable entity or an entity that is not a number. An unavailable entity SHALL read "—", with the value and buttons at 15 % opacity and the label at 50 %, and its buttons SHALL refuse the press with a notification like a tile.
 
 #### Scenario: Unavailable entity
 - **WHEN** the user taps a button of a number item whose entity is unavailable
 - **THEN** no command is sent and a notification says the entity is unavailable
 
 ### Requirement: Slider widget on activity pages
-A slider item SHALL show a label, the formatted value and a horizontal or vertical (taller than wide) slider for its entity feature: number `value`, light `dim` or `color_temperature`, media player `volume`, cover `position`, climate `target_temperature`, with the type's default when no feature is set. The item's `min` / `max` SHALL narrow the range. Other features, `seek` and an unbounded number SHALL show "N/A".
+A slider item SHALL show a label, the formatted value and a horizontal or vertical (taller than wide) slider for its entity feature: number `value`, light `dim` or `color_temperature`, media player `volume`, cover `position`, climate `target_temperature`, with the type's default when no feature is set. The item's `min` / `max` SHALL narrow the range. Other features, `seek` and an unbounded number SHALL be shown as unsupported.
 
 #### Scenario: Narrower range
 - **WHEN** a volume slider item has `max` 60
@@ -124,7 +124,7 @@ A slider item SHALL show a label, the formatted value and a horizontal or vertic
 
 #### Scenario: Seek feature
 - **WHEN** a slider item is bound to a media player's `seek` feature
-- **THEN** it shows "N/A" and sends nothing
+- **THEN** it shows the red mark and "—" and sends nothing
 
 ### Requirement: Slider widget updates
 A slider item SHALL send its value when it is released, or every 200 ms while dragging and once more on release with `update_mode` `live`. It SHALL show the dragged value at once and the entity value again when the entity does not confirm within 3 s. A drag on an unavailable entity SHALL be refused with a notification like a tile.
@@ -200,8 +200,8 @@ In the default style a press SHALL move the value to the finger. In the bar styl
 - **THEN** `number.set_value` with 9 is sent on release
 
 ### Requirement: Slider widget states
-A slider item whose feature is not supported SHALL be drawn at 0.4 opacity with "N/A". For an unavailable entity the track, the value, the icons and the buttons SHALL be drawn at 15 % opacity and the label at 50 %, the value SHALL read "--" and a red mark SHALL precede the label.
+A slider item whose feature is not supported SHALL be drawn at 0.4 opacity with the red mark and the value "—". For an unavailable entity the track, the value, the icons and the buttons SHALL be drawn at 15 % opacity and the label at 50 %, the value SHALL read "—" and a red mark SHALL precede the label. Without an entity the value SHALL read "—".
 
 #### Scenario: Unavailable entity
 - **WHEN** the entity of a slider item becomes unavailable
-- **THEN** the value reads "--", the track fades to 15 % opacity and a red mark precedes the label
+- **THEN** the value reads "—", the track fades to 15 % opacity and a red mark precedes the label

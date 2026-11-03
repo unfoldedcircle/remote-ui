@@ -57,6 +57,11 @@ class Controller : public QObject {
     Q_PROPERTY(int cornerRadiusLarge READ getCornerRadiusLarge CONSTANT)
     Q_PROPERTY(double disabledOpacity READ getDisabledOpacity CONSTANT)
 
+    // an unavailable entity and a configuration error (docs/design-system.md, section 7)
+    Q_PROPERTY(int unavailableMarkSize READ getUnavailableMarkSize CONSTANT)
+    Q_PROPERTY(double unavailableOpacity READ getUnavailableOpacity CONSTANT)
+    Q_PROPERTY(double unavailableLabelOpacity READ getUnavailableLabelOpacity CONSTANT)
+
     // slider items on activity pages (docs/design-system.md, section 7)
     Q_PROPERTY(int sliderTrackThin READ getSliderTrackThin CONSTANT)
     Q_PROPERTY(int sliderTrackThinPressed READ getSliderTrackThinPressed CONSTANT)
@@ -66,10 +71,7 @@ class Controller : public QObject {
     Q_PROPERTY(QSize sliderTickSize READ getSliderTickSize CONSTANT)
     Q_PROPERTY(int sliderButtonSize READ getSliderButtonSize CONSTANT)
     Q_PROPERTY(int sliderIconSize READ getSliderIconSize CONSTANT)
-    Q_PROPERTY(int sliderMarkSize READ getSliderMarkSize CONSTANT)
     Q_PROPERTY(int sliderAnimationDuration READ getSliderAnimationDuration CONSTANT)
-    Q_PROPERTY(double sliderUnavailableOpacity READ getSliderUnavailableOpacity CONSTANT)
-    Q_PROPERTY(double sliderUnavailableLabelOpacity READ getSliderUnavailableLabelOpacity CONSTANT)
 
     Q_PROPERTY(QTime time READ getTime NOTIFY timeChanged)
 
@@ -113,6 +115,10 @@ class Controller : public QObject {
     int getCornerRadiusLarge() { return 22; }
     double getDisabledOpacity() { return 0.4; }
 
+    int    getUnavailableMarkSize() { return 30; }
+    double getUnavailableOpacity() { return 0.15; }
+    double getUnavailableLabelOpacity() { return 0.5; }
+
     int    getSliderTrackThin() { return 14; }
     int    getSliderTrackThinPressed() { return 28; }
     int    getSliderBarRadius() { return 16; }
@@ -121,10 +127,7 @@ class Controller : public QObject {
     QSize  getSliderTickSize() { return QSize(2, 10); }
     int    getSliderButtonSize() { return 60; }
     int    getSliderIconSize() { return 40; }
-    int    getSliderMarkSize() { return 30; }
     int    getSliderAnimationDuration() { return 200; }
-    double getSliderUnavailableOpacity() { return 0.15; }
-    double getSliderUnavailableLabelOpacity() { return 0.5; }
 
     QTime getTime() { return m_time; }
 

@@ -46,9 +46,9 @@ Item {
         return entityObj.formatValue(value) + (entityObj.unit !== "" ? " " + entityObj.unit : "");
     }
 
-    // the entity value, or N/A while the entity has none
+    // the entity value, or "—" without a unit while the entity has none
     function entityText() {
-        return entityObj.hasValue ? displayText(entityObj.value) : qsTranslate("Abbreviation for not available", "N/A");
+        return entityObj.hasValue ? displayText(entityObj.value) : "\u2014";
     }
 
     function snapToStep(value) {

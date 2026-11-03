@@ -21,14 +21,15 @@ import "qrc:/components/entities" as EntityComponents
 EntityComponents.BaseDetail {
     id: numberBase
 
+    // without a value, and while unavailable under the overlay of BaseDetail, the value reads "—" without a unit
     function displayText() {
         let value;
         if (entityObj.sliderRepresentation && valueSlider.pressed) {
             value = entityObj.formatValue(valueSlider.value);
-        } else if (entityObj.hasValue) {
+        } else if (entityObj.hasValue && entityObj.enabled) {
             value = entityObj.formattedValue;
         } else {
-            value = qsTranslate("Abbreviation for not available", "N/A");
+            return "\u2014";
         }
         return value + (entityObj.unit !== "" ? " " + entityObj.unit : "");
     }
