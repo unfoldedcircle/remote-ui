@@ -94,7 +94,7 @@ class SoftwareUpdate : public QObject {
 
     bool          m_updateAvailable = false;
     DownloadState m_updateDownloadState;
-    QString       m_currentVersion = "N/A";
+    QString       m_currentVersion = "\u2014";
     QString       m_newVersion = "N/A";
     QString       m_updateId;
     QString       m_title;

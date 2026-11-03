@@ -4,28 +4,14 @@
 <context>
     <name>Abbreviation for not available</name>
     <message>
-        <location filename="../../src/qml/components/SelectWidget.qml" line="43"/>
-        <location filename="../../src/qml/components/SelectWidget.qml" line="44"/>
-        <location filename="../../src/qml/components/SensorWidget.qml" line="55"/>
-        <location filename="../../src/qml/components/docks/Info.qml" line="375"/>
-        <location filename="../../src/qml/components/docks/Info.qml" line="393"/>
-        <location filename="../../src/qml/components/entities/BaseSensorButton.qml" line="23"/>
-        <location filename="../../src/qml/components/entities/sensor/deviceclass/Battery.qml" line="63"/>
-        <location filename="../../src/qml/components/entities/sensor/deviceclass/Current.qml" line="64"/>
-        <location filename="../../src/qml/components/entities/sensor/deviceclass/Custom.qml" line="40"/>
-        <location filename="../../src/qml/components/entities/sensor/deviceclass/Energy.qml" line="63"/>
-        <location filename="../../src/qml/components/entities/sensor/deviceclass/Humidity.qml" line="63"/>
-        <location filename="../../src/qml/components/entities/sensor/deviceclass/Power.qml" line="64"/>
-        <location filename="../../src/qml/components/entities/sensor/deviceclass/Temperature.qml" line="63"/>
-        <location filename="../../src/qml/components/entities/sensor/deviceclass/Voltage.qml" line="63"/>
         <source>N/A</source>
-        <translation>N/A</translation>
+        <translation type="vanished">N/A</translation>
     </message>
 </context>
 <context>
     <name>Abbreviation for nothing is selected</name>
     <message>
-        <location filename="../../src/qml/components/SelectWidget.qml" line="55"/>
+        <location filename="../../src/qml/components/SelectWidget.qml" line="56"/>
         <source>None</source>
         <translation>None</translation>
     </message>
@@ -782,7 +768,7 @@
 <context>
     <name>Blind</name>
     <message>
-        <location filename="../../src/qml/components/entities/cover/deviceclass/Blind.qml" line="312"/>
+        <location filename="../../src/qml/components/entities/cover/deviceclass/Blind.qml" line="313"/>
         <source>Stop</source>
         <extracomment>Button caption to stop window blinds motion</extracomment>
         <translation>Stop</translation>
@@ -1098,7 +1084,7 @@ Climate fan</extracomment>
 <context>
     <name>Curtain</name>
     <message>
-        <location filename="../../src/qml/components/entities/cover/deviceclass/Curtain.qml" line="388"/>
+        <location filename="../../src/qml/components/entities/cover/deviceclass/Curtain.qml" line="389"/>
         <source>Stop</source>
         <extracomment>Button caption to stop window blinds motion</extracomment>
         <translation>Stop</translation>
@@ -1478,7 +1464,7 @@ Climate fan</extracomment>
 <context>
     <name>Garage</name>
     <message>
-        <location filename="../../src/qml/components/entities/cover/deviceclass/Garage.qml" line="302"/>
+        <location filename="../../src/qml/components/entities/cover/deviceclass/Garage.qml" line="303"/>
         <source>Stop</source>
         <extracomment>Button caption to stop window blinds motion</extracomment>
         <translation>Stop</translation>
@@ -3381,7 +3367,7 @@ no return</translation>
 <context>
     <name>SelectWidget</name>
     <message>
-        <location filename="../../src/qml/components/SelectWidget.qml" line="295"/>
+        <location filename="../../src/qml/components/SelectWidget.qml" line="296"/>
         <source>Select an option</source>
         <translation>Select an option</translation>
     </message>
@@ -4647,7 +4633,7 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>Window</name>
     <message>
-        <location filename="../../src/qml/components/entities/cover/deviceclass/Window.qml" line="290"/>
+        <location filename="../../src/qml/components/entities/cover/deviceclass/Window.qml" line="291"/>
         <source>Stop</source>
         <extracomment>Button caption to stop window blinds motion</extracomment>
         <translation>Stop</translation>

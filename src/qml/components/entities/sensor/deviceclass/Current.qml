@@ -61,7 +61,7 @@ EntityComponents.BaseDetail {
             Layout.leftMargin: 10
             Layout.rightMargin: 10
             Layout.fillWidth: true
-            text: (entityObj.value !== "" ? entityObj.value : qsTranslate("Abbreviation for not available", "N/A")) + " " + entityObj.unit
+            text: entityObj.value !== "" && entityObj.enabled ? entityObj.value + " " + entityObj.unit : "\u2014"
             elide: Text.ElideRight
             maximumLineCount: 2
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere

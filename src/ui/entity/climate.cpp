@@ -93,11 +93,11 @@ Climate::~Climate() {
 }
 
 void Climate::updateCurrentTemperatureInfo() {
-    // only a device that measures the temperature has a temperature part, "--" while it has not reported one
+    // only a device that measures the temperature has a temperature part, "—" while it has not reported one
     QString info;
     if (hasFeature(ClimateFeatures::Current_temperature) || m_currentTemperatureAvailable) {
         info = m_currentTemperatureAvailable ? QString::number(m_currentTemperature) + m_temperatureLabel
-                                             : QStringLiteral("--");
+                                             : QStringLiteral("\u2014");
     }
     if (m_stateInfo2 != info) {
         m_stateInfo2 = info;
