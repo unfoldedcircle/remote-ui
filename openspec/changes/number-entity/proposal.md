@@ -22,7 +22,8 @@ screen, and it ignores the sensor's `decimals` option.
   the last known value returns, except for an entity with `readable: false`, which keeps the value sent.
 - Activity pages render the `slider` item (bound to an entity feature: number value, light brightness and colour
   temperature, media-player volume, cover position, climate target temperature) and the `number` item (the number
-  entity in its effective representation).
+  entity in its effective representation, or in the item's own `display_mode`, with the item's own `step` for its
+  buttons).
 - The Remote 3 touch slider can control a bounded number entity's value, and a light's colour temperature when the
   activity names that feature.
 - Sensor values: a numeric value is shown with the effective decimals (user override, then the `decimals` option),

@@ -153,7 +153,15 @@ class Number : public Base {
     int     getDecimals();
     QString getUnit() { return m_unit.isEmpty() ? defaultUnit() : m_unit; }
     bool    isReadable() { return m_readable; }
-    bool    isSliderRepresentation();
+    bool    isSliderRepresentation() { return isSliderRepresentationFor(NumberDisplayMode::Auto); }
+
+    /**
+     * @brief The representation of a number widget with its own display mode: the widget's slider or stepper wins
+     * over the user override, the display mode option and the auto rule; auto, empty or unknown falls through to
+     * them. An unbounded number is always a stepper.
+     */
+    Q_INVOKABLE bool isSliderRepresentationFor(const QString &widgetDisplayMode);
+    bool             isSliderRepresentationFor(NumberDisplayMode::Enum widgetDisplayMode);
 
     /**
      * @brief Format a value with the effective number of decimals, without unit.
@@ -165,8 +173,14 @@ class Number : public Base {
      * CONFIRMATION_TIMEOUT_MS. With option readable false the value is kept.
      */
     Q_INVOKABLE void setValue(double value);
-    Q_INVOKABLE void increment();
-    Q_INVOKABLE void decrement();
+
+    /**
+     * @brief Send increment or decrement, with the step parameter when step is greater than 0, as a number widget
+     * with its own step does; without it the driver steps by its step. With option readable false the value shown
+     * changes by that step within the range.
+     */
+    Q_INVOKABLE void increment(double step = 0);
+    Q_INVOKABLE void decrement(double step = 0);
 
     void sendCommand(NumberCommands::Enum cmd, QVariantMap params);
     void sendCommand(NumberCommands::Enum cmd);
@@ -183,6 +197,7 @@ class Number : public Base {
 
  private:
     void    applyOptions(const QVariantMap &options);
+    void    stepBy(NumberCommands::Enum cmd, double step, int direction);
     void    setKnownValue(double value);
     void    clearPending();
     QString defaultUnit();

@@ -29,6 +29,8 @@ class testNumberEntity : public QObject {
 
     void representation_data();
     void representation();
+    void representation_widget_data();
+    void representation_widget();
 
     void value_null();
     void stateInfo();
@@ -38,6 +40,8 @@ class testNumberEntity : public QObject {
     void setValue_clampedToRange();
     void setValue_notReadableKeepsSentValue();
     void stepCommands_withoutStepParameter();
+    void stepCommands_widgetStep();
+    void stepCommands_widgetStepNotReadable();
 
     void updateOptions_followsUserOverrides();
 
@@ -267,6 +271,41 @@ void testNumberEntity::setValue_clampedToRange() {
     QCOMPARE(commandSpy.at(0).at(2).toMap().value(QStringLiteral("value")).toDouble(), 10.0);
 }
 
+void testNumberEntity::representation_widget_data() {
+    QTest::addColumn<QVariantMap>("options");
+    QTest::addColumn<QString>("widget");
+    QTest::addColumn<bool>("slider");
+
+    const QVariantMap userStepper{{"user", QVariantMap{{"display_mode", "stepper"}}}};
+    const QVariantMap userSlider{{"user", QVariantMap{{"display_mode", "slider"}}}};
+
+    QTest::newRow("widget slider over user stepper") << userStepper << "slider" << true;
+    QTest::newRow("widget slider over stepper option") << QVariantMap{{"display_mode", "stepper"}} << "slider" << true;
+    QTest::newRow("widget slider over 257 positions") << QVariantMap{{"min", 0}, {"max", 257}} << "slider" << true;
+    QTest::newRow("widget stepper over bounded auto") << QVariantMap{} << "stepper" << false;
+    QTest::newRow("widget stepper over user slider") << userSlider << "stepper" << false;
+    QTest::newRow("widget slider on unbounded") << QVariantMap{{"max", QVariant()}} << "slider" << false;
+    QTest::newRow("widget auto falls to user stepper") << userStepper << "auto" << false;
+    QTest::newRow("widget auto falls to slider option")
+        << QVariantMap{{"max", 10000}, {"display_mode", "slider"}} << "auto" << true;
+    QTest::newRow("widget auto falls to auto rule") << QVariantMap{{"min", 0}, {"max", 257}} << "auto" << false;
+    QTest::newRow("widget empty is auto") << userStepper << "" << false;
+    QTest::newRow("widget unknown is auto") << QVariantMap{} << "dial" << true;
+}
+
+void testNumberEntity::representation_widget() {
+    QFETCH(QVariantMap, options);
+    QFETCH(QString, widget);
+    QFETCH(bool, slider);
+
+    QObject parent;
+    auto    number = makeNumber(&parent, options);
+
+    QCOMPARE(number->isSliderRepresentationFor(widget), slider);
+    // the detail screen keeps the entity's representation
+    QCOMPARE(number->isSliderRepresentation(), number->isSliderRepresentationFor(QStringLiteral("auto")));
+}
+
 void testNumberEntity::setValue_notReadableKeepsSentValue() {
     QObject parent;
     auto    number = makeNumber(&parent, {{QStringLiteral("readable"), false}});
@@ -298,6 +337,47 @@ void testNumberEntity::stepCommands_withoutStepParameter() {
 
     // the driver calculates the new value
     QCOMPARE(number->getValue(), 50.0);
+}
+
+void testNumberEntity::stepCommands_widgetStep() {
+    QObject parent;
+    auto    number = makeNumber(&parent, {{QStringLiteral("step"), 5}}, {{QStringLiteral("value"), 50}});
+
+    QSignalSpy commandSpy(number, &Base::command);
+    number->increment(2.5);
+    number->decrement(0.25);
+
+    QCOMPARE(commandSpy.count(), 2);
+    QCOMPARE(commandSpy.at(0).at(1).toString(), QStringLiteral("number.increment"));
+    QCOMPARE(commandSpy.at(0).at(2).toMap(), (QVariantMap{{QStringLiteral("step"), 2.5}}));
+    QCOMPARE(commandSpy.at(1).at(1).toString(), QStringLiteral("number.decrement"));
+    QCOMPARE(commandSpy.at(1).at(2).toMap(), (QVariantMap{{QStringLiteral("step"), 0.25}}));
+
+    // no step set: no parameter
+    number->increment(0);
+    QCOMPARE(commandSpy.at(2).at(2).toMap(), QVariantMap());
+
+    // the driver calculates the new value
+    QCOMPARE(number->getValue(), 50.0);
+}
+
+void testNumberEntity::stepCommands_widgetStepNotReadable() {
+    QObject parent;
+    auto    number = makeNumber(
+        &parent, {{QStringLiteral("step"), 5}, {QStringLiteral("max"), 52}, {QStringLiteral("readable"), false}},
+        {{QStringLiteral("value"), 50}});
+
+    // the widget's step, not rounded to the entity's step of 5
+    number->decrement(1.5);
+    QCOMPARE(number->getValue(), 48.5);
+
+    // clamped to the range
+    number->increment(10);
+    QCOMPARE(number->getValue(), 52.0);
+
+    // without a widget step the entity's step
+    number->decrement();
+    QCOMPARE(number->getValue(), 47.0);
 }
 
 void testNumberEntity::updateOptions_followsUserOverrides() {

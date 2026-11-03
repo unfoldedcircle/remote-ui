@@ -167,6 +167,16 @@ unavailable look, the red mark and its 15 % and 50 % opacities, are `ui` tokens 
 and number items. An unsupported feature gets the mark too. An entity that is not loaded reads "—" without the mark:
 the entity controller reports no failed load, so a missing entity cannot be told from one that is still loading.
 
+### D16 — The number item's display mode and step
+
+The number item's own `display_mode` is resolved by the entity, `Number::isSliderRepresentationFor()`, next to the
+user override, the option and the auto rule, so the precedence is one unit-tested function; the control screen asks
+for `auto` and keeps the entity's representation. The widget resolves it again when the options change, since a
+method call in a QML binding does not follow them. The item's `step` goes to the core as the `step` parameter of
+`increment` and `decrement`; the core and the driver calculate the value, and only a write-only number shows it
+changed by that step, clamped to the range and not rounded to the entity's step. Activity pages give no widget the
+D-pad focus (D14), so DPAD_LEFT / DPAD_RIGHT keep switching pages and the step applies to the buttons.
+
 ## Risks / Trade-offs
 
 - [Core-API event handling: an empty options object now reaches `updateOptions()`] → the three existing overrides

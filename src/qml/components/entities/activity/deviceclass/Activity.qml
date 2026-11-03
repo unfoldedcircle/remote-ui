@@ -211,7 +211,9 @@ EntityComponents.BaseDetail {
                                                  "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
                                                  "entityId": item.number.number_id,
                                                  "customText": item.text ? item.text : "",
-                                                 "showName": item.number.show_name ? item.number.show_name : false
+                                                 "showName": item.number.show_name ? item.number.show_name : false,
+                                                 "displayMode": item.number.display_mode ? item.number.display_mode : "auto",
+                                                 "step": item.number.step > 0 ? item.number.step : 0
                                              });
                 break;
             default:

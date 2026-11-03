@@ -5,8 +5,9 @@
  NUMBER COMPONENT
 
  A user interface page widget showing a number entity with its effective display mode: a slider (the slider widget
- bound to the value feature, sent on release) or the value with decrement and increment buttons (stepper). An
- unbounded number is always a stepper. A number without a value, an unavailable one and a missing entity read "—"
+ bound to the value feature, sent on release) or the value with decrement and increment buttons (stepper). The
+ widget's own display mode slider or stepper wins over the entity's, auto follows the entity. An unbounded number is
+ always a stepper. With its own step the stepper sends increment and decrement with that step; a slider ignores it. A number without a value, an unavailable one and a missing entity read "—"
  without a unit; an unavailable entity and an entity that is not a number get the red mark.
  See https://github.com/unfoldedcircle/core-api/blob/main/doc/ui-widgets.md#number
 
@@ -16,6 +17,8 @@
  - width / height: a slider or stepper is vertical if height > width
  - entityId
  - customText (label), showName
+ - displayMode: auto (default), slider or stepper
+ - step: the step of the stepper buttons, 0 for the entity's step
 **/
 
 import QtQuick 2.15
@@ -34,18 +37,26 @@ Item {
     property string customText
     property string entityId
     property bool showName: false
+    property string displayMode: "auto"
+    property real step: 0
 
     property QtObject entityObj
 
     readonly property bool vertical: height > width
     readonly property bool isNumber: entityObj !== null && entityObj.type === EntityTypes.Number
-    readonly property bool slider: isNumber && entityObj.sliderRepresentation
+    // resolved by the entity from the widget's display mode and the entity options
+    property bool slider: false
     readonly property bool unavailable: entityObj !== null && !entityObj.enabled
     // the red mark: an unavailable entity or one that is not a number
     readonly property bool marked: unavailable || (entityObj !== null && !isNumber)
 
     function ensureEntityLoaded() {
         entityObj = EntityController.get(entityId);
+    }
+
+    function resolveRepresentation() {
+        numberWidget.slider = entityObj !== null && entityObj.type === EntityTypes.Number
+                && entityObj.isSliderRepresentationFor(numberWidget.displayMode);
     }
 
     // like a tile, an unavailable entity refuses the press with a notification
@@ -61,9 +72,9 @@ Item {
         }
 
         if (up) {
-            entityObj.increment();
+            entityObj.increment(numberWidget.step);
         } else {
-            entityObj.decrement();
+            entityObj.decrement(numberWidget.step);
         }
     }
 
@@ -172,6 +183,8 @@ Item {
 
     Component.onCompleted: ensureEntityLoaded()
     onEntityIdChanged: ensureEntityLoaded()
+    onEntityObjChanged: resolveRepresentation()
+    onDisplayModeChanged: resolveRepresentation()
 
     Connections {
         target: EntityController
@@ -183,6 +196,15 @@ Item {
             }
 
             numberWidget.entityObj = EntityController.get(loadedId);
+        }
+    }
+
+    Connections {
+        target: numberWidget.entityObj
+        ignoreUnknownSignals: true
+
+        function onOptionsChanged() {
+            numberWidget.resolveRepresentation();
         }
     }
 }

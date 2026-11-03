@@ -115,6 +115,36 @@ The label of a number item SHALL follow the label rules of the select widget. A 
 - **WHEN** the user taps a button of a number item whose entity is unavailable
 - **THEN** no command is sent and a notification says the entity is unavailable
 
+### Requirement: Number widget display mode
+A number item's `display_mode` `slider` or `stepper` SHALL decide its representation over the entity's user override, its `display_mode` option and the 256-position rule. With `auto`, absent or unknown, the item SHALL follow the entity's effective display mode. An unbounded number SHALL be a stepper whatever the item's mode. The control screen SHALL keep the entity's representation.
+
+#### Scenario: Item slider over user stepper
+- **WHEN** a number item with `display_mode` `slider` shows a bounded number whose user override is `stepper`
+- **THEN** the item is a slider, and the number's control screen shows a stepper
+
+#### Scenario: Item stepper over auto
+- **WHEN** a number item with `display_mode` `stepper` shows a number with 100 positions and display mode `auto`
+- **THEN** the item is a stepper
+
+#### Scenario: Item slider on an unbounded number
+- **WHEN** a number item with `display_mode` `slider` shows a number without `max`
+- **THEN** the item is a stepper
+
+#### Scenario: Item auto
+- **WHEN** a number item with `display_mode` `auto` shows a number whose user override is `stepper`
+- **THEN** the item is a stepper
+
+### Requirement: Number widget step
+A number item with a `step` SHALL send `number.increment` and `number.decrement` from its stepper buttons with the parameter `step`, and without a parameter when the item has no `step`. For a number with `readable` false the value shown SHALL change by the item's step within the range, not rounded to the entity's step. A number item shown as a slider SHALL ignore its `step`.
+
+#### Scenario: Item step
+- **WHEN** the user taps the increment button of a number item with `step` 2.5
+- **THEN** `number.increment` is sent with `step` 2.5
+
+#### Scenario: Write-only number with an item step
+- **WHEN** the user taps the decrement button of a number item with `step` 1.5 for a number with `readable` false, `step` 5 and value 50
+- **THEN** 48.5 is shown
+
 ### Requirement: Slider widget on activity pages
 A slider item SHALL show a label, the formatted value and a horizontal or vertical (taller than wide) slider for its entity feature: number `value`, light `dim` or `color_temperature`, media player `volume`, cover `position`, climate `target_temperature`, with the type's default when no feature is set. The item's `min` / `max` SHALL narrow the range. Other features, `seek` and an unbounded number SHALL be shown as unsupported.
 

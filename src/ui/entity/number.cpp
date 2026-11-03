@@ -61,10 +61,21 @@ int Number::getDecimals() {
     return decimals;
 }
 
-bool Number::isSliderRepresentation() {
+bool Number::isSliderRepresentationFor(const QString &widgetDisplayMode) {
+    bool converted = false;
+    auto mode =
+        Util::convertStringToEnum<NumberDisplayMode::Enum>(uc::Util::FirstToUpper(widgetDisplayMode), &converted);
+    return isSliderRepresentationFor(converted ? mode : NumberDisplayMode::Auto);
+}
+
+bool Number::isSliderRepresentationFor(NumberDisplayMode::Enum widgetDisplayMode) {
     // an unbounded number has no slider range
     if (!isBounded()) {
         return false;
+    }
+
+    if (widgetDisplayMode != NumberDisplayMode::Auto) {
+        return widgetDisplayMode == NumberDisplayMode::Slider;
     }
 
     switch (m_hasUserDisplayMode ? m_userDisplayMode : m_displayMode) {
@@ -103,19 +114,27 @@ void Number::setValue(double value) {
     emit stateInfoChanged();
 }
 
-void Number::increment() {
-    sendCommand(NumberCommands::Increment);
-
-    if (!m_readable && m_hasValue) {
-        setKnownValue(clamp(m_value + m_step));
-    }
+void Number::increment(double step) {
+    stepBy(NumberCommands::Increment, step, 1);
 }
 
-void Number::decrement() {
-    sendCommand(NumberCommands::Decrement);
+void Number::decrement(double step) {
+    stepBy(NumberCommands::Decrement, step, -1);
+}
 
+void Number::stepBy(NumberCommands::Enum cmd, double step, int direction) {
+    QVariantMap params;
+    if (step > 0) {
+        step = qMax(MIN_STEP, step);
+        params.insert("step", step);
+    } else {
+        step = m_step;
+    }
+    sendCommand(cmd, params);
+
+    // the widget's step is not rounded to the step of the entity
     if (!m_readable && m_hasValue) {
-        setKnownValue(clamp(m_value - m_step));
+        setKnownValue(clamp(m_value + direction * step));
     }
 }
 
