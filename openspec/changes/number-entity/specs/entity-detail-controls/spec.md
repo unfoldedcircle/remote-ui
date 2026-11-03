@@ -136,3 +136,72 @@ A slider item SHALL send its value when it is released, or every 200 ms while dr
 #### Scenario: Unavailable entity
 - **WHEN** the user drags a slider item whose entity is unavailable
 - **THEN** no command is sent, a notification says the entity is unavailable and the slider returns to the entity value
+
+### Requirement: Slider widget styles
+A slider item SHALL be drawn in its `style`: `default`, a thin track with the label and value above it; `bar`, the whole item as the track with the label, the value and the icons inside it; `buttons`, the value between a minus and a plus button, the plus on top when the item is vertical. A missing or unknown style SHALL be `default`.
+
+#### Scenario: Unknown style
+- **WHEN** a slider item has the style `knob`
+- **THEN** it is drawn in the default style
+
+### Requirement: Slider widget buttons
+The `buttons` style SHALL ignore `update_mode`, the icons, `color` and `fill`. A button SHALL send `increment` or `decrement` to a number entity, and to the other features the feature command with the value one step further within the range; for a light's brightness the step SHALL be one percent.
+
+#### Scenario: Number buttons
+- **WHEN** the user taps the plus button of a slider item in the buttons style bound to a number entity
+- **THEN** `number.increment` is sent without parameters
+
+#### Scenario: Brightness buttons
+- **WHEN** the user taps the plus button of a slider item in the buttons style bound to a light at 50 %
+- **THEN** `light.on` is sent with the brightness of 51 %
+
+### Requirement: Slider widget colour and fill
+A slider item SHALL fill its track in its `color`: `neutral` the primary foreground, `entity` the light's current colour, `gradient` the feature gradient; and with its `fill`: `start` from the minimum, `center` from zero, `cursor` a marker at the value only. A vertical slider SHALL fill from the bottom. Inside a bar, the label, the value and the icons SHALL take the colour of higher contrast where they lie over the fill.
+
+#### Scenario: Number around zero
+- **WHEN** a slider item is bound to a number entity with the range -10 to 10 and the value 4
+- **THEN** the fill runs from zero to 4
+
+### Requirement: Slider widget feature defaults
+A missing, `auto` or unknown `color` or `fill` SHALL be the default of the feature:
+
+| Feature | Colour | Gradient | Fill |
+|---|---|---|---|
+| number `value` | neutral | none | center |
+| light `dim` | neutral | dark to foreground | start |
+| light `color_temperature` | gradient | cool to warm | cursor |
+| media player `volume`, cover `position`, `tilt_position` | neutral | none | start |
+| climate `target_temperature` | neutral | cool to heat | start |
+
+#### Scenario: Colour temperature
+- **WHEN** a slider item in the bar style is bound to a light's `color_temperature` without `color` and `fill`
+- **THEN** the track shows the gradient from cool at the minimum to warm and a cursor band marks the value
+
+### Requirement: Slider widget colour and fill fallbacks
+`entity` SHALL apply to a light's `dim` only, and be neutral for a light without a known colour; for another feature it SHALL be the default. `gradient` SHALL be neutral for a feature without a gradient. `center` SHALL be `start` unless the range runs from below to above zero.
+
+#### Scenario: Light without a colour
+- **WHEN** a slider item with the colour `entity` is bound to the brightness of a light without the `color` feature
+- **THEN** the fill is the primary foreground
+
+#### Scenario: Center without zero
+- **WHEN** a volume slider item has the fill `center`
+- **THEN** the fill runs from the minimum
+
+### Requirement: Slider widget interaction
+In the default style a press SHALL move the value to the finger. In the bar style a drag SHALL move the value by the dragged distance in proportion to the track length, and a tap without movement SHALL change nothing. A touch that starts on a slider SHALL NOT swipe the page. A range of at most 10 positions SHALL show separators between the positions of a bar and tick marks at the positions of a default slider, and the value SHALL snap to the nearest position on release.
+
+#### Scenario: Tap on a bar
+- **WHEN** the user taps a slider item in the bar style without moving
+- **THEN** no command is sent and the value stays
+
+#### Scenario: Relative drag
+- **WHEN** the user drags a slider item in the bar style bound to a number entity with the range -10 to 10 and the value 4 a quarter of its length to the right, starting anywhere on it
+- **THEN** `number.set_value` with 9 is sent on release
+
+### Requirement: Slider widget states
+A slider item whose feature is not supported SHALL be drawn at 0.4 opacity with "N/A". For an unavailable entity the track, the value, the icons and the buttons SHALL be drawn at 15 % opacity and the label at 50 %, the value SHALL read "--" and a red mark SHALL precede the label.
+
+#### Scenario: Unavailable entity
+- **WHEN** the entity of a slider item becomes unavailable
+- **THEN** the value reads "--", the track fades to 15 % opacity and a red mark precedes the label

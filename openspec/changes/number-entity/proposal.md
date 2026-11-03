@@ -29,6 +29,9 @@ screen, and it ignores the sensor's `decimals` option.
   otherwise with at most 2 decimal places and no trailing zeros. Text values are shown as reported.
 - An entity change event whose options became empty still updates the entity, so removing the last user override
   takes effect. The overrides are edited in the web-configurator; the UI does not offer editing them.
+- A slider item has a style: `default` (a thin track), `bar` (the whole item is the track, dragged by distance) or
+  `buttons` (minus, value, plus); a colour: neutral, the light's colour or the feature's gradient; and a fill: from the
+  start, from zero or a cursor. Without them each feature has its defaults. Colours and sizes are design system tokens.
 - A colour temperature slider, on the light screen and in a slider item, offers the positions of the light's
   `color_temperature_steps` option spread over 0..100, and sends the 0..100 value instead of the position.
 
@@ -52,7 +55,7 @@ None.
 
 - Hardware models: Remote Two and Remote 3 alike; the touch slider target is Remote 3 only (ADR 0008).
 - Core-API: the number entity, its `entity_command`s and `entity_change` events, the `slider` and `number` user
-  interface items, the `touch_slider` target `number.value`, the entity `options.user` overrides in entity change
+  interface items and the slider item's `style`, `color` and `fill`, the `touch_slider` target `number.value`, the entity `options.user` overrides in entity change
   events, and the default icon `uc:input-numeric` for a number entity without a driver icon
   (core-api `doc/entities/entity_number.md`, `entity_sensor.md`, `README.md` "User overrides", `doc/ui-widgets.md`).
   The UI and the core ship together (ADR 0005); no fallback for an older core.
@@ -60,10 +63,12 @@ None.
   `entityController.*`, `entityScreens.cpp`, `src/core/core.cpp`, `src/core/structs.h`, `src/logging.*`; new QML
   `NumberWidget.qml`, `SliderWidget.qml`, `TouchSliderNumber.qml`, `entities/number/deviceclass/Number.qml`; changed
   `Activity.qml`, `TouchSlider.qml`, `entities/Base.qml`; `src/ui/entity/light.*` and
-  `entities/light/Brightness.qml` for the colour temperature positions; new `TouchSliderColorTemperature.qml`.
+  `entities/light/Brightness.qml` for the colour temperature positions; new `TouchSliderColorTemperature.qml`; new
+  `src/ui/entity/sliderStyle.*` and the slider tokens in `src/ui/colors.h` and `src/ui/uiController.*` for the slider
+  styles.
 - Resources: `resources/qrc/main.qrc`, `resources/icons/icon-fallback.json`.
-- Tests: new `testNumberEntity`, `testSensorEntity` and `testLightEntity`; `testEntityScreens`, `testEntityController` and
-  `testIconFont` extended.
+- Tests: new `testNumberEntity`, `testSensorEntity`, `testLightEntity` and `testSliderStyle`; `testEntityScreens`,
+  `testEntityController`, `testIconFont` and `testDesignTokens` extended.
 - Translations: `en_US.ts`, the number states and two notifications, each with a translator comment.
 - Third-party code and assets: none.
-- Docs: `CHANGELOG.md`.
+- Docs: `CHANGELOG.md`; the slider tokens in `docs/design-system.md`.

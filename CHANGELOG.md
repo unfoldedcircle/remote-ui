@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   with a label, the current value, optional icons at both ends and an optional narrower range. A number widget shows
   a number entity as a slider or with minus and plus buttons. A widget of a device that is unavailable refuses the
   change with a message, like a tile does.
+- Slider widget styles: a thin slider, a bar that fills the whole widget and is moved by the distance you drag, or
+  minus and plus buttons around the value. The fill can follow the light's colour or show a gradient, such as cold to
+  warm for a colour temperature, start in the middle for a range around zero, or be a marker only. Each setting has a
+  default that suits the device; a slider with only a few positions shows them and snaps to the nearest one.
 - The Remote 3 touch slider can change a light's colour temperature, when the activity's touch slider is set to it.
   A light that offers only a few colour temperatures moves to the next one about every third of the slider length.
 

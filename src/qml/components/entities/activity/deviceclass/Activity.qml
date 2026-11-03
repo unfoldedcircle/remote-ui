@@ -196,7 +196,10 @@ EntityComponents.BaseDetail {
                                                  "iconMax": item.slider.icon_max ? item.slider.icon_max : "",
                                                  "minOverride": item.slider.min,
                                                  "maxOverride": item.slider.max,
-                                                 "updateMode": item.slider.update_mode ? item.slider.update_mode : "on_release"
+                                                 "updateMode": item.slider.update_mode ? item.slider.update_mode : "on_release",
+                                                 "sliderStyle": item.slider.style ? item.slider.style : "",
+                                                 "sliderColor": item.slider.color ? item.slider.color : "",
+                                                 "sliderFill": item.slider.fill ? item.slider.fill : ""
                                              });
                 break;
             case "number":

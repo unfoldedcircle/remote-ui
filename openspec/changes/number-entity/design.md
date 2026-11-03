@@ -118,6 +118,47 @@ position is reachable in one swipe from any start. Alternatives: a gain setting 
 setting for a rarely used target; a fixed travel per position, rejected because 101 positions would then need
 several swipes.
 
+### D10 — Slider styles: the per-feature defaults and the drag arithmetic in C++
+
+The slider item's `style`, `color` and `fill` resolve in `SliderStyle` (`src/ui/entity/sliderStyle.*`), a QML
+singleton: one table holds each feature's `auto` colour, gradient and `auto` fill, and the functions resolve a value
+against it, fall back to the default for an unknown value (ADR 0018), and compute the relative drag, the snap to a
+position and the number of positions. `testSliderStyle` covers them, as the project has no QML tests (ADR 0009, ADR
+0012). The table names colour roles, `Colors` holds their values. The feature range table stays in QML (D5).
+Alternative: a JavaScript singleton; rejected, it could not be unit tested.
+
+### D11 — Slider tokens in `Colors` and `ui`
+
+The slider design is not final, so every colour, size, radius, duration and opacity of the slider item is a token: the
+gradient ends, the colour over a fill and the grip in `Colors`, the sizes, the duration and the opacities as `ui`
+constants, documented in `docs/design-system.md` section 7. Fill, track, focus and text reuse the existing roles
+(`textPrimary`, `surface`, `surfaceRaised`, `textSecondary`). The dark end of the brightness gradient is
+`surfaceRaised`. The unavailable entity's 15 % and 50 % opacities are a documented exception to "emphasis by token".
+
+### D12 — Absolute press in the default style, relative drag in the bar
+
+The default style keeps the press-to-position of today's slider. A bar fills the whole item, so a touch anywhere on it
+would set a value; it moves the value by the dragged distance instead, past the platform's drag threshold, and a tap
+changes nothing. Both take the touch from the page swipe (`preventStealing`). A range of at most 10 positions follows
+the finger between the positions and snaps on release; a larger one snaps at once. The widget draws its own track for
+both styles instead of the Qt Quick Controls slider, which cannot drag relatively.
+
+### D13 — Text over the fill: drawn twice, the second copy clipped to the fill
+
+A bar draws its label, value and icons once in their colours and once in the colour over the fill, clipped to the fill
+(or to the cursor band, or the whole track for a cursor on a gradient). The colour over the fill is `sliderOnFill` or
+`textPrimary`, whichever contrasts more with the fill at its middle. Alternative: an opacity mask shader; rejected, a
+layer per item costs texture memory on the device.
+
+### D14 — A brightness button steps one percent
+
+The Core-API defines one step of the buttons style as one step of the shown value. Brightness is shown in percent but
+has the range 0..255 with step 1, so a button changes it by one percent (2.55, rounded). The other features step by
+their step; a number sends `increment` / `decrement`.
+
+The D-pad focus ring of a slider item (3 px `focusRing`) is not drawn: activity pages give no widget the focus
+(Non-Goals). It follows with D-pad navigation of the user interface items.
+
 ## Risks / Trade-offs
 
 - [Core-API event handling: an empty options object now reaches `updateOptions()`] → the three existing overrides
@@ -127,9 +168,14 @@ several swipes.
 - [Registration: three new QML files and two C++ units] → `testEntityScreens` checks the screen against
   `main.qrc`; the widgets are loaded by URL and were checked with a build and a start of the app.
 - [Static build] → no new Qt module; `QTimer` and `QLocale` are QtCore.
+- [A touch that starts on a slider item no longer swipes the page] → on a page filled with sliders the user swipes from
+  another item or uses DPAD_LEFT / DPAD_RIGHT; the Core-API asks for this.
+- [Provisional slider tokens] → each is one value in `Colors` or `ui`.
 
 Resource impact: one single-shot timer per number entity, armed only after the user sets a value; no polling, no
-animation. The widgets' 200 ms live timer runs only while a finger is down. Negligible against the budgets.
+animation. The widgets' 200 ms live timer runs only while a finger is down. A bar draws its few texts and icons
+twice and the default track animates its thickness for 200 ms on a press; no layers, shaders or images. Negligible
+against the budgets.
 
 ## Migration Plan
 

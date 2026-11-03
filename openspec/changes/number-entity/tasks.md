@@ -1,5 +1,6 @@
 One phase per commit; each user-visible phase carries its `CHANGELOG.md` entry. Phase 2 needs the formatter of
-phase 1, phase 3 the number entity of phase 2, phase 4 the slider widget of phase 3, phase 5 the colour temperature positions of phase 4.
+phase 1, phase 3 the number entity of phase 2, phase 4 the slider widget of phase 3, phase 5 the colour temperature positions of phase 4,
+phase 6 the slider widget of phase 3.
 
 ## 1. Sensor value format
 
@@ -48,16 +49,32 @@ phase 1, phase 3 the number entity of phase 2, phase 4 the slider widget of phas
 - [x] 5.3 `testLightEntity`: positions per sweep, every position survives the way through 0..100.
 - [x] 5.4 `en_US.ts` regenerated; `CHANGELOG.md`, "Unreleased", "Added".
 
-## 6. Verification
+## 6. Slider styles
 
-- [x] 6.1 `make test`: all targets pass.
-- [x] 6.2 `./cpplint.sh` clean, `./design-check.sh` 0 problems, `tools/icon-font.py check-mapping` consistent.
-- [x] 6.3 `make linux` builds.
-- [x] 6.4 `openspec validate number-entity --strict`.
-- [ ] 6.5 In the simulator against a core with number entities: tile, screen in both representations, user
+- [x] 6.1 `SliderStyle` (`src/ui/entity/sliderStyle.*`): the per-feature defaults, style, colour and fill resolution,
+      relative drag, snap, positions, colour mix and contrast; QML singleton; `remote-ui.pro`.
+- [x] 6.2 Slider tokens: `sliderGradientCool`, `sliderGradientWarm`, `sliderGradientHeat`, `sliderOnFill`, `sliderGrip`
+      in `Colors`; the slider sizes, duration and opacities and `disabledOpacity` in `ui`; `docs/design-system.md`.
+- [x] 6.3 `SliderWidget.qml`: the default, bar and buttons styles, colour and fill, separators and ticks, the text over
+      the fill, relative drag in the bar, the unavailable and unsupported states.
+- [x] 6.4 `style`, `color` and `fill` of the slider item in `Activity.qml`.
+- [x] 6.5 `testSliderStyle`: defaults table, colour and fill resolution, relative drag, snap, discrete ranges;
+      `testDesignTokens`: the slider colours and their contrast.
+- [x] 6.6 `CHANGELOG.md`, "Unreleased", "Added".
+
+## 7. Verification
+
+- [x] 7.1 `make test`: all targets pass.
+- [x] 7.2 `./cpplint.sh` clean, `./design-check.sh` 0 problems, `tools/icon-font.py check-mapping` consistent.
+- [x] 7.3 `make linux` builds.
+- [x] 7.4 `openspec validate number-entity --strict`.
+- [ ] 7.5 In the simulator against a core with number entities: tile, screen in both representations, user
       overrides, slider and number items; a `null` value shows "N/A".
-- [ ] 6.6 On a Remote 3: the touch slider on an activity whose target is a number entity.
-- [ ] 6.7 A light with `color_temperature_steps` 3: the screen and a slider item offer three positions and send 0,
+- [ ] 7.6 On a Remote 3: the touch slider on an activity whose target is a number entity.
+- [ ] 7.7 A light with `color_temperature_steps` 3: the screen and a slider item offer three positions and send 0,
       50 and 100.
-- [ ] 6.8 On a Remote 3: the touch slider on an activity whose target is a light's `color_temperature`, with and
+- [ ] 7.8 On a Remote 3: the touch slider on an activity whose target is a light's `color_temperature`, with and
       without `color_temperature_steps`; the same light with feature `default` is dimmed.
+- [ ] 7.9 In the simulator against a core with the slider styles: each style horizontal and vertical, the colours and
+      fills of the defaults table, a discrete range, an unavailable entity; a drag on a bar does not swipe the page.
+- [ ] 7.10 On both remotes: the provisional slider tokens, the gradients and the text over a fill are readable.

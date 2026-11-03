@@ -14,11 +14,11 @@ All ADRs 0001–0020 are accepted and none is superseded. Relevant to this chang
 - adr/0006-en-us-ts-is-the-only-edited-translation.md - en_US.ts is the only catalogue changed; the new texts have translator comments
 - adr/0007-one-input-idiom-per-screen.md - the activity page keeps its button-mapping idiom; the widgets add no key handling
 - adr/0008-remote-two-and-remote-3-with-feature-parity.md - everything but the touch slider target works on both models
-- adr/0009-unit-tests-for-new-logic-and-bug-fixes.md - value format, representation and feedback are unit tested
+- adr/0009-unit-tests-for-new-logic-and-bug-fixes.md - value format, representation, feedback and the slider style resolution are unit tested
 - adr/0010-icon-font-free-embedded-pro-from-the-firmware.md - the Pro-only default icons get Free fallbacks
-- adr/0012-qml-is-presentation-only-logic-and-models-in-cpp.md - the number entity resolves format, representation and feedback in C++; the slider widget's feature table stays in QML (design D5)
-- adr/0018-the-ui-tolerates-core-api-values-it-does-not-know.md - an unknown display mode or invalid decimals fall back to the defaults
-- adr/0019-the-design-system-owns-colours-type-and-selection.md - the new widgets use the colour tokens and type roles
+- adr/0012-qml-is-presentation-only-logic-and-models-in-cpp.md - the number entity resolves format, representation and feedback in C++; the slider widget's feature table stays in QML (design D5); the slider style defaults and the drag arithmetic are in C++ (design D10)
+- adr/0018-the-ui-tolerates-core-api-values-it-does-not-know.md - an unknown display mode, invalid decimals or an unknown slider style, colour or fill fall back to the defaults
+- adr/0019-the-design-system-owns-colours-type-and-selection.md - the new widgets use the colour tokens and type roles; the slider styles add their colours and sizes as tokens (design D11)
 
 ## Repository-Level ADRs Created
 

@@ -8,9 +8,9 @@
         <location filename="../../src/qml/components/SelectWidget.qml" line="43"/>
         <location filename="../../src/qml/components/SelectWidget.qml" line="44"/>
         <location filename="../../src/qml/components/SensorWidget.qml" line="55"/>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="117"/>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="187"/>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="276"/>
+        <location filename="../../src/qml/components/SliderWidget.qml" line="171"/>
+        <location filename="../../src/qml/components/SliderWidget.qml" line="245"/>
+        <location filename="../../src/qml/components/SliderWidget.qml" line="336"/>
         <location filename="../../src/qml/components/TouchSliderNumber.qml" line="51"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="375"/>
         <location filename="../../src/qml/components/docks/Info.qml" line="393"/>
@@ -110,102 +110,102 @@
 <context>
     <name>Activity</name>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="504"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="507"/>
         <source>Tap to close</source>
         <extracomment>Tap to close menu, tap to see more or, after a failed run, tap to fix the state</extracomment>
         <translation>Tap to close</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="504"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="507"/>
         <source>Tap for more</source>
         <translation>Tap for more</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="504"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="507"/>
         <source>Tap to fix</source>
         <translation>Tap to fix</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="618"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="621"/>
         <source>Fix states</source>
         <extracomment>Title referring to fixing device states that might out of sync</extracomment>
         <translation>Fix states</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="639"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="642"/>
         <source>Quickly access entities included in this activity:</source>
         <translation>Quickly access entities included in this activity:</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="686"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="689"/>
         <source>Back</source>
         <extracomment>Caption to go back</extracomment>
         <translation>Back</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="712"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="715"/>
         <source>None of the entities in this activity has an On/Off state that could be fixed</source>
         <extracomment>Shown in the &quot;Fix states&quot; list if none of the activity&apos;s entities has an on/off state</extracomment>
         <translation>None of the entities in this activity has an On/Off state that could be fixed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="740"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="743"/>
         <source>Empty page</source>
         <translation>Empty page</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="752"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="755"/>
         <source>You can add UI elements via the Web Configurator</source>
         <translation>You can add UI elements via the Web Configurator</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="832"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="835"/>
         <source>%1 is unavailable, its state cannot be changed</source>
         <translation>%1 is unavailable, its state cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="837"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="840"/>
         <source>%1 is running, its state cannot be changed</source>
         <translation>%1 is running, its state cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="881"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="884"/>
         <source>State: %1</source>
         <extracomment>Device state</extracomment>
         <translation>State: %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="917"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="920"/>
         <source>Set the state of %1. No command is sent to the devices.</source>
         <extracomment>Popup title when fixing the state of an activity. %1 is the activity name</extracomment>
         <translation>Set the state of %1. No command is sent to the devices.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="919"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="922"/>
         <source>Set the state of %1. No command is sent to the device.</source>
         <extracomment>Popup title when fixing the state of an entity. %1 is the entity name</extracomment>
         <translation>Set the state of %1. No command is sent to the device.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="925"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="928"/>
         <source>Activity is on</source>
         <extracomment>Button. Mark the activity as running without sending any command</extracomment>
         <translation>Activity is on</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="927"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="930"/>
         <source>Device is on</source>
         <extracomment>Button. Mark the device as switched on without sending a command</extracomment>
         <translation>Device is on</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="934"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="937"/>
         <source>Activity is off</source>
         <extracomment>Button. Mark the activity as stopped without sending any command</extracomment>
         <translation>Activity is off</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="936"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="939"/>
         <source>Device is off</source>
         <extracomment>Button. Mark the device as switched off without sending a command</extracomment>
         <translation>Device is off</translation>
@@ -3585,7 +3585,7 @@ the Web Configurator</translation>
 <context>
     <name>SliderWidget</name>
     <message>
-        <location filename="../../src/qml/components/SliderWidget.qml" line="86"/>
+        <location filename="../../src/qml/components/SliderWidget.qml" line="140"/>
         <source>%1 is unavailable</source>
         <extracomment>Notification when a slider was moved but the command was not sent because the device is unavailable. %1 is the entity name</extracomment>
         <translation>%1 is unavailable</translation>
@@ -5267,74 +5267,74 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>uc::ui::Controller</name>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="297"/>
+        <location filename="../../src/ui/uiController.cpp" line="302"/>
         <source>Error adding profile: %1</source>
         <extracomment>Notification: a profile could not be created. %1 is the core&apos;s error message</extracomment>
         <translation>Error adding profile: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="316"/>
+        <location filename="../../src/ui/uiController.cpp" line="321"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="317"/>
+        <location filename="../../src/ui/uiController.cpp" line="322"/>
         <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
         <translation>Deleting a current profile is not permitted. Please switch to another profile and try again.</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="334"/>
+        <location filename="../../src/ui/uiController.cpp" line="339"/>
         <source>Error deleting profile: %1</source>
         <extracomment>Notification: a profile could not be deleted. %1 is the core&apos;s error message</extracomment>
         <translation>Error deleting profile: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="354"/>
+        <location filename="../../src/ui/uiController.cpp" line="359"/>
         <source>Error adding page: %1</source>
         <extracomment>Notification: a page could not be created. %1 is the core&apos;s error message</extracomment>
         <translation>Error adding page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="377"/>
+        <location filename="../../src/ui/uiController.cpp" line="382"/>
         <source>Error renaming page: %1</source>
         <extracomment>Notification: a page could not be renamed. %1 is the core&apos;s error message</extracomment>
         <translation>Error renaming page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="396"/>
+        <location filename="../../src/ui/uiController.cpp" line="401"/>
         <source>Error deleting page: %1</source>
         <extracomment>Notification: a page could not be deleted. %1 is the core&apos;s error message</extracomment>
         <translation>Error deleting page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="495"/>
+        <location filename="../../src/ui/uiController.cpp" line="500"/>
         <source>Error during factory reset: %1</source>
         <extracomment>Notification: the factory reset failed. %1 is the core&apos;s error message</extracomment>
         <translation>Error during factory reset: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="639"/>
+        <location filename="../../src/ui/uiController.cpp" line="644"/>
         <source>Profile update error</source>
         <translation>Profile update error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="700"/>
+        <location filename="../../src/ui/uiController.cpp" line="705"/>
         <source>Error updating page: %1</source>
         <extracomment>Notification: a change to a page could not be saved. %1 is the core&apos;s error message</extracomment>
         <translation>Error updating page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="766"/>
+        <location filename="../../src/ui/uiController.cpp" line="771"/>
         <source>%1 error</source>
         <translation>%1 error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="766"/>
+        <location filename="../../src/ui/uiController.cpp" line="771"/>
         <source>Error while connecting to %1, with id %2</source>
         <translation>Error while connecting to %1, with id %2</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.h" line="255"/>
+        <location filename="../../src/ui/uiController.h" line="285"/>
         <source>The factory reset could not be started. Please try again.</source>
         <translation>The factory reset could not be started. Please try again.</translation>
     </message>

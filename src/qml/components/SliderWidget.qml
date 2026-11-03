@@ -16,6 +16,17 @@
  - iconMin, iconMax
  - minOverride, maxOverride (clamped to the feature range)
  - updateMode: "on_release" | "live"
+ - sliderStyle: "default" | "bar" | "buttons"
+ - sliderColor: "auto" | "neutral" | "entity" | "gradient"
+ - sliderFill: "auto" | "start" | "center" | "cursor"
+
+ SliderStyle resolves the style, colour and fill and holds the per-feature defaults. Every colour and size is a design
+ system token of colors or ui (docs/design-system.md).
+
+ - default: a thin track with the label and value above it. A press moves the value to the finger.
+ - bar: the whole item is the track, with label, value and icons inside. A drag moves the value by the dragged
+   distance; a tap changes nothing.
+ - buttons: minus, value, plus. A press sends the value one step further; increment and decrement for a number.
 
  The media player's seek feature is a touch slider target only, and an unbounded number entity has no slider range:
  both are shown as unsupported.
@@ -27,11 +38,12 @@
 **/
 
 import QtQuick 2.15
-import QtQuick.Controls 2.15
 import QtQuick.Layouts 1.15
 
 import Haptic 1.0
 import Entity.Controller 1.0
+import Entity.Light 1.0
+import SliderStyle 1.0
 
 import "qrc:/components" as Components
 
@@ -51,11 +63,17 @@ Item {
     property var minOverride: undefined
     property var maxOverride: undefined
     property string updateMode: "on_release"
+    property string sliderStyle: ""
+    property string sliderColor: ""
+    property string sliderFill: ""
 
     property QtObject entityObj
 
     readonly property bool vertical: height > width
     readonly property bool live: updateMode === "live"
+    readonly property bool bar: SliderStyle.style(sliderStyle) === SliderStyle.Bar
+    readonly property bool buttons: SliderStyle.style(sliderStyle) === SliderStyle.Buttons
+    readonly property bool unavailable: entityObj !== null && !entityObj.enabled
 
     // resolved entity feature binding
     property string resolvedFeature: ""
@@ -63,13 +81,49 @@ Item {
     property real rangeMin: 0
     property real rangeMax: 100
     property real stepSize: 1
+    // the change of a minus or plus button
+    property real buttonStepSize: 1
+
+    // resolved look
+    readonly property bool entityColorKnown: entityObj !== null && entityObj.type === EntityTypes.Light
+                                             && entityObj.hasFeature(LightFeatures.Color)
+    readonly property int paint: entityObj ? SliderStyle.color(entityObj.type, resolvedFeature, sliderColor, entityColorKnown)
+                                           : SliderStyle.Neutral
+    readonly property int fillMode: entityObj ? SliderStyle.fill(entityObj.type, resolvedFeature, sliderFill, rangeMin, rangeMax)
+                                              : SliderStyle.Start
+    readonly property var gradientRoles: entityObj ? SliderStyle.gradient(entityObj.type, resolvedFeature) : []
+    readonly property color paintColor: paint === SliderStyle.Entity ? entityObj.color : colors.textPrimary
+    readonly property bool discrete: SliderStyle.discrete(rangeMin, rangeMax, stepSize)
+    readonly property int positionCount: SliderStyle.positions(rangeMin, rangeMax, stepSize)
 
     // value currently shown: the entity value, or the dragged value while the user interacts
     property real displayValue: 0
+    // value the track shows: follows the finger between the positions of a discrete slider while dragging
+    property real trackValue: 0
     property real lastSentValue: NaN
+    property string labelString: ""
+    property string valueString: ""
 
-    // the drag in progress was refused: nothing is sent for it and the handle snaps back on release
+    property bool dragging: false
+    // the drag in progress was refused: nothing is sent for it and the track returns on release
     property bool refused: false
+
+    readonly property real valueFraction: fraction(trackValue)
+    readonly property real fillFrom: fillMode === SliderStyle.Center ? Math.min(fraction(0), valueFraction) : 0
+    readonly property real fillTo: fillMode === SliderStyle.Center ? Math.max(fraction(0), valueFraction) : valueFraction
+
+    function fraction(value) {
+        const range = sliderWidget.rangeMax - sliderWidget.rangeMin;
+        return range > 0 ? Math.max(0, Math.min(1, (value - sliderWidget.rangeMin) / range)) : 0;
+    }
+
+    // the colour of the feature gradient at a fraction of the range
+    function gradientAt(at) {
+        if (sliderWidget.gradientRoles.length !== 2) {
+            return colors.textPrimary;
+        }
+        return SliderStyle.mix(colors[sliderWidget.gradientRoles[0]], colors[sliderWidget.gradientRoles[1]], at);
+    }
 
     // Decided once, when the drag starts: a refusal per live update would raise a notification every
     // 200 ms while the finger is down.
@@ -113,8 +167,8 @@ Item {
         sliderWidget.supported = false;
 
         if (!entityObj) {
-            labelText.text = sliderWidget.customText;
-            valueText.text = qsTranslate("Abbreviation for not available", "N/A");
+            sliderWidget.labelString = sliderWidget.customText;
+            sliderWidget.valueString = qsTranslate("Abbreviation for not available", "N/A");
             return;
         }
 
@@ -124,6 +178,7 @@ Item {
         let min = 0;
         let max = 100;
         let step = 1;
+        let buttonStep = 0;
 
         switch (entityObj.type) {
         case EntityTypes.Number:
@@ -135,6 +190,8 @@ Item {
         case EntityTypes.Light:
             if (sliderWidget.resolvedFeature === "dim") {
                 min = 0; max = 255; step = 1;
+                // the brightness is shown in percent: a button changes it by one
+                buttonStep = 255 / 100;
                 sliderWidget.supported = true;
             } else if (sliderWidget.resolvedFeature === "color_temperature") {
                 // slider positions: the color_temperature_steps option spread over 0..100, see Light
@@ -178,13 +235,14 @@ Item {
         sliderWidget.rangeMin = min;
         sliderWidget.rangeMax = max;
         sliderWidget.stepSize = step;
+        sliderWidget.buttonStepSize = buttonStep > 0 ? buttonStep : step;
 
-        labelText.text = sliderWidget.showName ? entityObj.name : sliderWidget.customText;
+        sliderWidget.labelString = sliderWidget.showName ? entityObj.name : sliderWidget.customText;
 
         if (!sliderWidget.supported) {
             console.log("Slider widget: unsupported feature '" + sliderWidget.resolvedFeature
                         + "' for entity " + sliderWidget.entityId);
-            valueText.text = qsTranslate("Abbreviation for not available", "N/A");
+            sliderWidget.valueString = qsTranslate("Abbreviation for not available", "N/A");
             return;
         }
 
@@ -262,35 +320,86 @@ Item {
     }
 
     function syncFromEntity() {
-        if (!entityObj || !sliderWidget.supported || valueSlider.pressed) {
+        if (!entityObj || !sliderWidget.supported || sliderWidget.dragging) {
             return;
         }
 
         fallbackTimer.stop();
         sliderWidget.lastSentValue = NaN;
         sliderWidget.displayValue = entityValue();
-        valueSlider.value = sliderWidget.displayValue;
+        sliderWidget.trackValue = sliderWidget.displayValue;
 
-        if (entityObj.type === EntityTypes.Number && !entityObj.hasValue) {
-            // unavailable or unknown: no value
-            valueText.text = qsTranslate("Abbreviation for not available", "N/A");
+        if (sliderWidget.unavailable) {
+            sliderWidget.valueString = "--";
+        } else if (entityObj.type === EntityTypes.Number && !entityObj.hasValue) {
+            // unknown: no value
+            sliderWidget.valueString = qsTranslate("Abbreviation for not available", "N/A");
         } else {
-            valueText.text = formatValue(sliderWidget.displayValue);
+            sliderWidget.valueString = formatValue(sliderWidget.displayValue);
         }
     }
 
-    function onDragged(value) {
-        if (sliderWidget.refused) {
-            return;
-        }
+    // a discrete slider follows the finger between its positions and snaps on release, any other snaps at once
+    function dragTo(value) {
+        const snapped = SliderStyle.snap(value, sliderWidget.rangeMin, sliderWidget.rangeMax, sliderWidget.stepSize);
+        sliderWidget.trackValue = sliderWidget.discrete ? value : snapped;
 
-        sliderWidget.displayValue = value;
-        valueText.text = formatValue(value);
-        Haptic.play(Haptic.Bump);
+        if (snapped !== sliderWidget.displayValue) {
+            sliderWidget.displayValue = snapped;
+            sliderWidget.valueString = formatValue(snapped);
+            Haptic.play(Haptic.Bump);
+        }
 
         if (sliderWidget.live && !liveTimer.running) {
             liveTimer.start();
         }
+    }
+
+    function endDrag(changed) {
+        liveTimer.stop();
+        sliderWidget.dragging = false;
+
+        if (sliderWidget.refused) {
+            // nothing was sent: show the entity value again
+            sliderWidget.refused = false;
+            sliderWidget.syncFromEntity();
+            return;
+        }
+
+        if (changed || !isNaN(sliderWidget.lastSentValue)) {
+            sliderWidget.trackValue = sliderWidget.displayValue;
+            sliderWidget.sendValue(sliderWidget.displayValue);
+        } else {
+            // a tap on a bar, or a drag back to where it started
+            sliderWidget.syncFromEntity();
+        }
+    }
+
+    function stepBy(up) {
+        if (!entityObj || !sliderWidget.supported || !commandAllowed()) {
+            return;
+        }
+
+        if (entityObj.type === EntityTypes.Number) {
+            // the core knows the step
+            if (up) {
+                entityObj.increment();
+            } else {
+                entityObj.decrement();
+            }
+            return;
+        }
+
+        const value = SliderStyle.snap(sliderWidget.displayValue + (up ? 1 : -1) * sliderWidget.buttonStepSize,
+                                       sliderWidget.rangeMin, sliderWidget.rangeMax, sliderWidget.stepSize);
+        if (value === sliderWidget.displayValue) {
+            return;
+        }
+
+        sliderWidget.displayValue = value;
+        sliderWidget.trackValue = value;
+        sliderWidget.valueString = formatValue(value);
+        sliderWidget.sendValue(value);
     }
 
     Timer {
@@ -300,11 +409,11 @@ Item {
         repeat: true
         running: false
         onTriggered: {
-            if (!valueSlider.pressed) {
+            if (!sliderWidget.dragging) {
                 liveTimer.stop();
                 return;
             }
-            sliderWidget.sendValue(valueSlider.value);
+            sliderWidget.sendValue(sliderWidget.displayValue);
         }
     }
 
@@ -317,48 +426,55 @@ Item {
         onTriggered: sliderWidget.syncFromEntity()
     }
 
+    // default and bar style
     GridLayout {
+        id: sliderLayout
         anchors.fill: parent
         anchors.leftMargin: 10
         anchors.rightMargin: 10
         anchors.topMargin: 4
         anchors.bottomMargin: 4
-        columns: sliderWidget.vertical ? 1 : 3
+        // horizontal default: a column for each icon, an empty one would take a share of the header's width
+        columns: sliderWidget.vertical || sliderWidget.bar ? 1
+                                                           : 1 + (sliderWidget.iconMin !== "" ? 1 : 0) + (sliderWidget.iconMax !== "" ? 1 : 0)
         rowSpacing: 0
         columnSpacing: 6
+        visible: !sliderWidget.buttons
+        opacity: sliderWidget.supported ? 1 : ui.disabledOpacity
 
         // header: label and value
         RowLayout {
             Layout.fillWidth: true
-            Layout.columnSpan: sliderWidget.vertical ? 1 : 3
+            Layout.columnSpan: sliderLayout.columns
             spacing: 4
-            visible: labelText.text !== "" || (sliderWidget.showValue && !sliderWidget.vertical) || (entityObj && !entityObj.enabled)
+            visible: !sliderWidget.bar && (sliderWidget.labelString !== "" || (sliderWidget.showValue && !sliderWidget.vertical)
+                                           || sliderWidget.unavailable)
 
             Components.Icon {
                 color: colors.red
                 icon: "uc:link-slash"
-                size: 30
-                visible: entityObj && !entityObj.enabled
+                size: ui.sliderMarkSize
+                visible: sliderWidget.unavailable
             }
 
             Text {
-                id: labelText
                 Layout.fillWidth: true
-                text: ""
+                text: sliderWidget.labelString
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 color: colors.textSecondary
+                opacity: sliderWidget.unavailable ? ui.sliderUnavailableLabelOpacity : 1
                 verticalAlignment: Text.AlignVCenter
                 font: fonts.help()
             }
 
             Text {
-                id: valueText
                 Layout.alignment: Qt.AlignRight
-                text: ""
+                text: sliderWidget.valueString
                 maximumLineCount: 1
                 elide: Text.ElideRight
                 color: colors.textPrimary
+                opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
                 verticalAlignment: Text.AlignVCenter
                 horizontalAlignment: Text.AlignRight
                 font: fonts.label()
@@ -368,90 +484,428 @@ Item {
 
         Components.Icon {
             color: colors.textSecondary
+            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
             icon: sliderWidget.iconMin
-            size: 40
-            visible: !sliderWidget.vertical && sliderWidget.iconMin !== ""
+            size: ui.sliderIconSize
+            visible: !sliderWidget.bar && !sliderWidget.vertical && sliderWidget.iconMin !== ""
         }
 
-        Slider {
-            id: valueSlider
+        Item {
+            id: trackArea
             Layout.fillWidth: true
             Layout.fillHeight: true
             Layout.minimumHeight: sliderWidget.vertical ? 60 : 30
-            live: true
-            // stays pressable while the entity is unavailable, so the press is refused with a
-            // notification like on a tile - and gets through while the remote is waking up
-            enabled: sliderWidget.supported && entityObj !== null
-            opacity: entityObj && !entityObj.enabled ? 0.4 : 1
-            padding: 0
-            snapMode: Slider.SnapAlways
-            orientation: sliderWidget.vertical ? Qt.Vertical : Qt.Horizontal
-            from: sliderWidget.rangeMin
-            to: sliderWidget.rangeMax
-            stepSize: sliderWidget.stepSize
 
-            background: Rectangle {
-                implicitWidth: valueSlider.width; implicitHeight: valueSlider.height
-                width: valueSlider.availableWidth; height: valueSlider.availableHeight
-                radius: ui.cornerRadiusSmall
-                color: colors.surfaceRaised
+            Item {
+                id: track
+
+                readonly property real thickness: interaction.pressed ? ui.sliderTrackThinPressed : ui.sliderTrackThin
+                readonly property real radius: sliderWidget.bar ? ui.sliderBarRadius
+                                                                : (sliderWidget.vertical ? width : height) / 2
+
+                // the default style is a thin pill that grows while pressed, the bar is the whole item
+                width: sliderWidget.bar || !sliderWidget.vertical ? parent.width : thickness
+                height: sliderWidget.bar || sliderWidget.vertical ? parent.height : thickness
+                anchors.centerIn: parent
+                opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+
+                Behavior on width {
+                    enabled: !sliderWidget.bar && sliderWidget.vertical
+                    NumberAnimation { duration: ui.sliderAnimationDuration; easing.type: Easing.OutExpo }
+                }
+                Behavior on height {
+                    enabled: !sliderWidget.bar && !sliderWidget.vertical
+                    NumberAnimation { duration: ui.sliderAnimationDuration; easing.type: Easing.OutExpo }
+                }
+
+                // the feature gradient over the whole range, for a cursor on a gradient track
+                Gradient {
+                    id: trackGradient
+                    orientation: sliderWidget.vertical ? Gradient.Vertical : Gradient.Horizontal
+                    GradientStop { position: 0; color: sliderWidget.gradientAt(sliderWidget.vertical ? 1 : 0) }
+                    GradientStop { position: 1; color: sliderWidget.gradientAt(sliderWidget.vertical ? 0 : 1) }
+                }
+
+                // the part of the feature gradient under the fill
+                Gradient {
+                    id: fillGradient
+                    orientation: sliderWidget.vertical ? Gradient.Vertical : Gradient.Horizontal
+                    GradientStop { position: 0; color: sliderWidget.gradientAt(sliderWidget.vertical ? sliderWidget.fillTo : sliderWidget.fillFrom) }
+                    GradientStop { position: 1; color: sliderWidget.gradientAt(sliderWidget.vertical ? sliderWidget.fillFrom : sliderWidget.fillTo) }
+                }
 
                 Rectangle {
-                    // filled part of the track
-                    width: sliderWidget.vertical ? parent.width : valueSlider.visualPosition * parent.width
-                    height: sliderWidget.vertical ? (1 - valueSlider.visualPosition) * parent.height : parent.height
-                    anchors.bottom: parent.bottom
-                    color: colors.textPrimary
+                    anchors.fill: parent
+                    radius: track.radius
+                    color: sliderWidget.bar ? colors.surface : colors.surfaceRaised
+                    gradient: sliderWidget.fillMode === SliderStyle.Cursor && sliderWidget.paint === SliderStyle.Gradient
+                              ? trackGradient : undefined
+                }
+
+                Rectangle {
+                    // fill from the start or from zero; vertical fills from the bottom
+                    id: fillRect
+                    x: sliderWidget.vertical ? 0 : sliderWidget.fillFrom * track.width
+                    y: sliderWidget.vertical ? (1 - sliderWidget.fillTo) * track.height : 0
+                    width: sliderWidget.vertical ? track.width : (sliderWidget.fillTo - sliderWidget.fillFrom) * track.width
+                    height: sliderWidget.vertical ? (sliderWidget.fillTo - sliderWidget.fillFrom) * track.height : track.height
+                    radius: track.radius
+                    color: sliderWidget.paintColor
+                    gradient: sliderWidget.paint === SliderStyle.Gradient ? fillGradient : undefined
+                    visible: sliderWidget.fillMode !== SliderStyle.Cursor
+                }
+
+                Rectangle {
+                    // zero line of a center fill
+                    x: sliderWidget.vertical ? 0 : sliderWidget.fraction(0) * track.width - width / 2
+                    y: sliderWidget.vertical ? (1 - sliderWidget.fraction(0)) * track.height - height / 2 : 0
+                    width: sliderWidget.vertical ? track.width : ui.sliderTickSize.width
+                    height: sliderWidget.vertical ? ui.sliderTickSize.width : track.height
+                    color: colors.textSecondary
+                    visible: sliderWidget.fillMode === SliderStyle.Center
+                }
+
+                Repeater {
+                    // separators between the positions of a discrete bar
+                    model: sliderWidget.bar && sliderWidget.discrete ? Math.max(0, sliderWidget.positionCount - 2) : 0
+
+                    Rectangle {
+                        readonly property real at: sliderWidget.fraction(Math.min(sliderWidget.rangeMax,
+                                                                                  sliderWidget.rangeMin + (index + 1) * sliderWidget.stepSize))
+                        x: sliderWidget.vertical ? 0 : at * track.width - width / 2
+                        y: sliderWidget.vertical ? (1 - at) * track.height - height / 2 : 0
+                        width: sliderWidget.vertical ? track.width : ui.sliderTickSize.width
+                        height: sliderWidget.vertical ? ui.sliderTickSize.width : track.height
+                        color: colors.bg
+                    }
+                }
+
+                Rectangle {
+                    // cursor: a band over the full thickness with a grip
+                    id: cursorBand
+                    width: sliderWidget.vertical ? track.width : ui.sliderCursorWidth
+                    height: sliderWidget.vertical ? ui.sliderCursorWidth : track.height
+                    x: sliderWidget.vertical ? 0 : sliderWidget.valueFraction * (track.width - width)
+                    y: sliderWidget.vertical ? (1 - sliderWidget.valueFraction) * (track.height - height) : 0
                     radius: ui.cornerRadiusSmall
+                    color: sliderWidget.paint === SliderStyle.Gradient ? colors.textPrimary : sliderWidget.paintColor
+                    visible: sliderWidget.fillMode === SliderStyle.Cursor
+
+                    Rectangle {
+                        anchors.centerIn: parent
+                        width: sliderWidget.vertical ? Math.min(ui.sliderGripSize.height, parent.width / 2) : ui.sliderGripSize.width
+                        height: sliderWidget.vertical ? ui.sliderGripSize.width : Math.min(ui.sliderGripSize.height, parent.height / 2)
+                        radius: ui.sliderGripSize.width / 2
+                        color: colors.sliderGrip
+                    }
                 }
             }
 
-            handle: Item {
-                implicitWidth: 40; implicitHeight: 40
-                x: sliderWidget.vertical ? (valueSlider.availableWidth - width) / 2
-                                         : valueSlider.visualPosition * (valueSlider.availableWidth - width)
-                y: sliderWidget.vertical ? valueSlider.visualPosition * (valueSlider.availableHeight - height)
-                                         : (valueSlider.availableHeight - height) / 2
+            Repeater {
+                // tick marks of a discrete default slider, beside the track
+                model: !sliderWidget.bar && sliderWidget.discrete ? sliderWidget.positionCount : 0
+
+                Rectangle {
+                    readonly property real at: sliderWidget.fraction(Math.min(sliderWidget.rangeMax,
+                                                                              sliderWidget.rangeMin + index * sliderWidget.stepSize))
+                    readonly property real offset: ui.sliderTrackThinPressed / 2 + ui.sliderTickSize.width
+                    x: sliderWidget.vertical ? trackArea.width / 2 + offset : at * (trackArea.width - width)
+                    y: sliderWidget.vertical ? (1 - at) * (trackArea.height - height) : trackArea.height / 2 + offset
+                    width: sliderWidget.vertical ? ui.sliderTickSize.height : ui.sliderTickSize.width
+                    height: sliderWidget.vertical ? ui.sliderTickSize.width : ui.sliderTickSize.height
+                    color: colors.textSecondary
+                }
             }
 
-            onMoved: sliderWidget.onDragged(value)
+            Repeater {
+                // bar contents, twice: as they are, and in the colour over the fill, clipped to it
+                model: sliderWidget.bar ? 2 : 0
 
-            onPressedChanged: {
-                if (valueSlider.pressed) {
+                Item {
+                    id: barLayer
+
+                    readonly property bool overFill: index === 1
+                    readonly property bool cursor: sliderWidget.fillMode === SliderStyle.Cursor
+                    readonly property bool gradientTrack: cursor && sliderWidget.paint === SliderStyle.Gradient
+                    // the colour of the fill under the contents
+                    readonly property color fillColor: {
+                        if (sliderWidget.paint === SliderStyle.Gradient) {
+                            return gradientTrack ? sliderWidget.gradientAt(0.5)
+                                                 : sliderWidget.gradientAt((sliderWidget.fillFrom + sliderWidget.fillTo) / 2);
+                        }
+                        return cursor ? cursorBand.color : sliderWidget.paintColor;
+                    }
+                    readonly property color tint: SliderStyle.contrastColor(fillColor, colors.sliderOnFill, colors.textPrimary)
+
+                    // the layer over the fill shows only where the fill is: the whole gradient track for a cursor
+                    x: !overFill || gradientTrack ? 0 : (cursor ? cursorBand.x : fillRect.x)
+                    y: !overFill || gradientTrack ? 0 : (cursor ? cursorBand.y : fillRect.y)
+                    width: !overFill || gradientTrack ? trackArea.width : (cursor ? cursorBand.width : fillRect.width)
+                    height: !overFill || gradientTrack ? trackArea.height : (cursor ? cursorBand.height : fillRect.height)
+                    clip: overFill
+                    visible: !overFill || !sliderWidget.unavailable
+
+                    GridLayout {
+                        x: -barLayer.x
+                        y: -barLayer.y
+                        width: trackArea.width
+                        height: trackArea.height
+                        columns: sliderWidget.vertical ? 1 : 5
+                        rowSpacing: 0
+                        columnSpacing: 6
+
+                        // horizontal: [mark] [icon min] label value [icon max]
+                        // vertical: [mark] label, value, [icon max], [icon min] at the bottom
+                        Components.Icon {
+                            Layout.alignment: Qt.AlignCenter
+                            Layout.leftMargin: sliderWidget.vertical ? 0 : ui.sliderBarRadius
+                            Layout.topMargin: sliderWidget.vertical ? ui.sliderBarRadius : 0
+                            color: colors.red
+                            icon: "uc:link-slash"
+                            size: ui.sliderMarkSize
+                            visible: sliderWidget.unavailable
+                        }
+
+                        Components.Icon {
+                            Layout.alignment: Qt.AlignCenter
+                            Layout.leftMargin: sliderWidget.unavailable ? 0 : ui.sliderBarRadius
+                            color: barLayer.overFill ? barLayer.tint : colors.textSecondary
+                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                            icon: sliderWidget.iconMin
+                            size: ui.sliderIconSize
+                            visible: !sliderWidget.vertical && sliderWidget.iconMin !== ""
+                        }
+
+                        Text {
+                            Layout.fillWidth: true
+                            Layout.leftMargin: sliderWidget.vertical || sliderWidget.unavailable || sliderWidget.iconMin !== ""
+                                               ? 0 : ui.sliderBarRadius
+                            Layout.topMargin: sliderWidget.vertical && !sliderWidget.unavailable ? ui.sliderBarRadius : 0
+                            text: sliderWidget.labelString
+                            maximumLineCount: 1
+                            elide: Text.ElideRight
+                            color: barLayer.overFill ? barLayer.tint : colors.textSecondary
+                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableLabelOpacity : 1
+                            horizontalAlignment: sliderWidget.vertical ? Text.AlignHCenter : Text.AlignLeft
+                            verticalAlignment: Text.AlignVCenter
+                            font: fonts.help()
+                            visible: text !== ""
+                        }
+
+                        Text {
+                            Layout.alignment: sliderWidget.vertical ? Qt.AlignHCenter : (Qt.AlignRight | Qt.AlignVCenter)
+                            Layout.rightMargin: sliderWidget.vertical || sliderWidget.iconMax !== "" ? 0 : ui.sliderBarRadius
+                            text: sliderWidget.valueString
+                            maximumLineCount: 1
+                            color: barLayer.overFill ? barLayer.tint : colors.textPrimary
+                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                            verticalAlignment: Text.AlignVCenter
+                            font: fonts.label()
+                            visible: sliderWidget.showValue
+                        }
+
+                        Components.Icon {
+                            Layout.alignment: Qt.AlignCenter
+                            Layout.rightMargin: sliderWidget.vertical ? 0 : ui.sliderBarRadius
+                            color: barLayer.overFill ? barLayer.tint : colors.textSecondary
+                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                            icon: sliderWidget.iconMax
+                            size: ui.sliderIconSize
+                            visible: sliderWidget.iconMax !== ""
+                        }
+
+                        Item {
+                            // vertical: pushes the minimum icon to the bottom
+                            Layout.fillHeight: true
+                            visible: sliderWidget.vertical
+                        }
+
+                        Components.Icon {
+                            Layout.alignment: Qt.AlignCenter
+                            Layout.bottomMargin: ui.sliderBarRadius
+                            color: barLayer.overFill ? barLayer.tint : colors.textSecondary
+                            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                            icon: sliderWidget.iconMin
+                            size: ui.sliderIconSize
+                            visible: sliderWidget.vertical && sliderWidget.iconMin !== ""
+                        }
+                    }
+                }
+            }
+
+            MouseArea {
+                // A touch that starts on the slider belongs to it, not to the page swipe. The default style moves
+                // the value to the finger, the bar by the dragged distance.
+                id: interaction
+                anchors.fill: parent
+                // stays pressable while the entity is unavailable, so the press is refused with a
+                // notification like on a tile - and gets through while the remote is waking up
+                enabled: sliderWidget.supported && entityObj !== null
+                preventStealing: true
+
+                property real startValue: 0
+                property real startPosition: 0
+                property bool moved: false
+
+                // the position along the track, growing towards the maximum
+                function along(mouse) {
+                    return sliderWidget.vertical ? -mouse.y : mouse.x;
+                }
+
+                function valueAt(mouse) {
+                    const at = sliderWidget.vertical ? 1 - (mouse.y - track.y) / track.height
+                                                     : (mouse.x - track.x) / track.width;
+                    return sliderWidget.rangeMin + Math.max(0, Math.min(1, at)) * (sliderWidget.rangeMax - sliderWidget.rangeMin);
+                }
+
+                onPressed: {
                     sliderWidget.refused = !sliderWidget.commandAllowed();
-                    return;
+                    interaction.startValue = sliderWidget.displayValue;
+                    interaction.startPosition = along(mouse);
+                    interaction.moved = false;
+                    if (sliderWidget.refused) {
+                        return;
+                    }
+
+                    sliderWidget.dragging = true;
+                    if (!sliderWidget.bar) {
+                        sliderWidget.dragTo(valueAt(mouse));
+                    }
                 }
 
-                liveTimer.stop();
+                onPositionChanged: {
+                    if (sliderWidget.refused) {
+                        return;
+                    }
 
-                if (sliderWidget.refused) {
-                    // nothing was sent: put the handle back on the entity value
-                    sliderWidget.refused = false;
-                    sliderWidget.syncFromEntity();
-                    return;
+                    if (!sliderWidget.bar) {
+                        sliderWidget.dragTo(valueAt(mouse));
+                        return;
+                    }
+
+                    const distance = along(mouse) - interaction.startPosition;
+                    if (!interaction.moved && Math.abs(distance) < Qt.styleHints.startDragDistance) {
+                        return;
+                    }
+                    interaction.moved = true;
+                    sliderWidget.dragTo(SliderStyle.dragValue(interaction.startValue, distance,
+                                                              sliderWidget.vertical ? track.height : track.width,
+                                                              sliderWidget.rangeMin, sliderWidget.rangeMax));
                 }
 
-                sliderWidget.sendValue(valueSlider.value);
+                onReleased: sliderWidget.endDrag(sliderWidget.displayValue !== interaction.startValue)
+                onCanceled: sliderWidget.endDrag(sliderWidget.displayValue !== interaction.startValue)
             }
         }
 
         Components.Icon {
             color: colors.textSecondary
+            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
             icon: sliderWidget.iconMax
-            size: 40
-            visible: !sliderWidget.vertical && sliderWidget.iconMax !== ""
+            size: ui.sliderIconSize
+            visible: !sliderWidget.bar && !sliderWidget.vertical && sliderWidget.iconMax !== ""
         }
 
         Text {
             // vertical layout: value below the slider
             Layout.fillWidth: true
-            text: valueText.text
+            text: sliderWidget.valueString
             maximumLineCount: 1
             elide: Text.ElideRight
             color: colors.textPrimary
+            opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
             horizontalAlignment: Text.AlignHCenter
             font: fonts.help()
-            visible: sliderWidget.showValue && sliderWidget.vertical
+            visible: !sliderWidget.bar && sliderWidget.showValue && sliderWidget.vertical
+        }
+    }
+
+    // buttons style: minus, value, plus; vertically plus on top
+    ColumnLayout {
+        anchors { fill: parent; leftMargin: 10; rightMargin: 10; topMargin: 4; bottomMargin: 4 }
+        spacing: 0
+        visible: sliderWidget.buttons
+        opacity: sliderWidget.supported ? 1 : ui.disabledOpacity
+
+        RowLayout {
+            Layout.fillWidth: true
+            spacing: 4
+            visible: sliderWidget.labelString !== "" || sliderWidget.unavailable
+
+            Components.Icon {
+                color: colors.red
+                icon: "uc:link-slash"
+                size: ui.sliderMarkSize
+                visible: sliderWidget.unavailable
+            }
+
+            Text {
+                Layout.fillWidth: true
+                text: sliderWidget.labelString
+                maximumLineCount: 1
+                elide: Text.ElideRight
+                color: colors.textSecondary
+                opacity: sliderWidget.unavailable ? ui.sliderUnavailableLabelOpacity : 1
+                verticalAlignment: Text.AlignVCenter
+                font: fonts.help()
+            }
+        }
+
+        GridLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            columns: sliderWidget.vertical ? 1 : 3
+            rowSpacing: 4
+            columnSpacing: 4
+
+            Repeater {
+                model: sliderWidget.buttons ? (sliderWidget.vertical ? ["up", "value", "down"] : ["down", "value", "up"]) : []
+
+                Item {
+                    Layout.fillWidth: modelData === "value"
+                    Layout.fillHeight: true
+                    Layout.minimumWidth: ui.sliderButtonSize
+                    Layout.minimumHeight: ui.sliderButtonSize
+                    Layout.preferredWidth: modelData === "value" ? -1 : ui.sliderButtonSize
+
+                    Text {
+                        anchors.fill: parent
+                        visible: modelData === "value"
+                        text: sliderWidget.showValue ? sliderWidget.valueString : ""
+                        maximumLineCount: 1
+                        elide: Text.ElideRight
+                        color: colors.textPrimary
+                        opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+                        horizontalAlignment: Text.AlignHCenter
+                        verticalAlignment: Text.AlignVCenter
+                        font: fonts.label()
+                    }
+
+                    Rectangle {
+                        width: ui.sliderButtonSize
+                        height: ui.sliderButtonSize
+                        anchors.centerIn: parent
+                        visible: modelData !== "value"
+                        radius: width / 2
+                        color: stepMouseArea.pressed ? colors.textPrimary : colors.surfaceRaised
+                        opacity: sliderWidget.unavailable ? ui.sliderUnavailableOpacity : 1
+
+                        Components.Icon {
+                            anchors.centerIn: parent
+                            color: stepMouseArea.pressed ? colors.bg : colors.textPrimary
+                            icon: modelData === "up" ? "uc:plus" : "uc:minus"
+                            size: ui.sliderIconSize
+                        }
+
+                        Components.HapticMouseArea {
+                            id: stepMouseArea
+                            anchors.fill: parent
+                            enabled: sliderWidget.supported && entityObj !== null
+                            onClicked: sliderWidget.stepBy(modelData === "up")
+                        }
+                    }
+                }
+            }
         }
     }
 

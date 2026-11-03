@@ -7,6 +7,7 @@
 #include <QPalette>
 
 #include "../logging.h"
+#include "entity/sliderStyle.h"
 #include "iconFont.h"
 #include "mediaImageProvider.h"
 
@@ -94,6 +95,10 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     m_entityController = new EntityController(m_core, m_config->getLanguage(), m_config->getUnitSystemEnum(), m_config->getResumeTimeoutWindowSec(), this);
     qmlRegisterSingletonType<EntityController>("Entity.Controller", 1, 0, "EntityController",
                                                &EntityController::qmlInstance);
+
+    qmlRegisterSingletonType<entity::SliderStyle>(
+        "SliderStyle", 1, 0, "SliderStyle",
+        [](QQmlEngine *, QJSEngine *) -> QObject * { return new entity::SliderStyle(); });
 
     m_groupController = new GroupController(m_core, this);
     qmlRegisterSingletonType<GroupController>("Group.Controller", 1, 0, "GroupController",

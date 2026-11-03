@@ -39,8 +39,8 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
    or row gets a lighter fill. On setting screens with switches, sliders or fields the selected row
    or control gets a 3 px ring. Never both on one element, and never a fill dark enough to vanish on
    the LCD.
-4. **Emphasis by token, never by opacity.** Opacity is for disabled controls (0.4) and dim layers
-   (0.85) only.
+4. **Emphasis by token, never by opacity.** Opacity is for disabled controls (0.4), dim layers
+   (0.85) and the unavailable slider item (section 7) only.
 5. **Sans for reading, mono for data.** Poppins for titles, labels, prose, help and buttons. Space
    Mono only for values: versions, addresses, times, codes, units.
 
@@ -61,6 +61,11 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
 | `buttonPrimary`   | #5A5A5A | -        | `primaryButton`               | Primary button fill                                        |
 | `redPressed`      | #FF0D2A | -        | new                           | Pressed destructive button; white label at 3.9:1 (large text) |
 | `red`, `green`, `orange`, `yellow` | unchanged | ≥ 6:1 | same                 | Status and destructive. `blue` is not for text             |
+| `sliderGradientCool` | #D5F7FF | - | new                      | Cool end of the colour temperature and the target temperature gradients of a slider item (section 7) |
+| `sliderGradientWarm` | #F3AA67 | - | new                      | Warm end of the colour temperature gradient of a slider item |
+| `sliderGradientHeat` | #C33030 | - | new                      | Heat end of the target temperature gradient of a slider item |
+| `sliderOnFill`    | #000000 | -        | new                           | Text and icons over a light slider fill                    |
+| `sliderGrip`      | #595959 | -        | new                           | Grip on the cursor band of a slider item                   |
 
 Rules:
 
@@ -209,6 +214,39 @@ Use these; do not re-implement their look inline.
 | `Components.Divider`          | The 2 px separators, inset 20                                                                |
 | `Components.ScrollIndicator`  | `ScrollBar` and the "more below" arrows: the one indicator of a scrolling page or list      |
 | `Components.Prose`            | The scrolling bodies of ReleaseNotes and AboutPage. LicensePage and the UserAction body keep their own containers and use the prose role |
+
+### Slider items
+
+The slider item of an activity page (`SliderWidget.qml`) comes in three styles: `default`, a thin track with the label
+and value above it; `bar`, where the whole item is the track with label, value and icons inside; and `buttons`, a
+minus and a plus button around the value. The slider design is not final: its values are set here, in `Colors` and in
+the `ui` constants only, so a change is a one-place edit. The slider tokens are provisional.
+
+| Token | Value | Use |
+| ----- | ----- | --- |
+| `ui.sliderTrackThin`, `ui.sliderTrackThinPressed` | 14, 28 | Thickness of the default track at rest and while pressed; it is a pill |
+| `ui.sliderAnimationDuration` | 200 ms | The default track growing while pressed |
+| `ui.sliderBarRadius` | 16 | Corner radius of a bar, and the inner padding of its contents |
+| `ui.sliderCursorWidth` | 22 | The cursor band, with the radius `ui.cornerRadiusSmall` |
+| `ui.sliderGripSize` | 4 x 24 | The grip on the cursor band, in `sliderGrip` |
+| `ui.sliderTickSize` | 2 x 10 | Tick marks of a discrete default slider; its width is also the width of the separators of a discrete bar and of the zero line |
+| `ui.sliderButtonSize` | 60 | The round minus and plus buttons |
+| `ui.sliderIconSize` | 40 | The item's minimum and maximum icons and the button glyphs |
+| `ui.sliderMarkSize` | 30 | The red link-slash mark of an unavailable entity |
+| `ui.disabledOpacity` | 0.4 | A slider item whose feature is not supported |
+| `ui.sliderUnavailableOpacity`, `ui.sliderUnavailableLabelOpacity` | 0.15, 0.5 | Track, value, icons and buttons, and the label, of an unavailable entity |
+
+- **Track and fill.** The default track is `surfaceRaised`, a bar `surface`. The fill is `textPrimary` (colour
+  `neutral`), the light's colour (`entity`) or the feature gradient (`gradient`), from the start, from zero (`center`,
+  with a 2 px `textSecondary` zero line) or as a cursor band. A cursor on a gradient is `textPrimary` over the
+  gradient track. Which colour and fill a feature takes without a setting is the table in `SliderStyle`
+  (`src/ui/entity/sliderStyle.cpp`), not a rule of this document.
+- **Text over the fill.** Label, value and icons inside a bar switch to `sliderOnFill` or `textPrimary` where they lie
+  over the fill, whichever has the higher contrast on it.
+- **Discrete.** A range of at most 10 positions shows a separator in `bg` between the positions of a bar and a tick
+  mark in `textSecondary` at each position of a default slider.
+- **Buttons** are `surfaceRaised` circles; pressed, they invert like every pressed element (section 6).
+- **Unavailable entity.** The value reads "--"; the red mark precedes the label.
 
 ## 8. Checklist for a new screen
 
