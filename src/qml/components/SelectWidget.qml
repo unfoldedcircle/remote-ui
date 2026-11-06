@@ -39,9 +39,10 @@ Item {
     }
 
     function evaluateSelect() {
+        // a missing entity shows the item's text and "—"
         if (!entityObj) {
-            selectNameText.text = qsTranslate("Abbreviation for not available", "N/A");
-            selectOptionText.text = qsTranslate("Abbreviation for not available", "N/A");
+            selectNameText.text = selectWidget.customText;
+            selectOptionText.text = "\u2014";
             return;
         }
 

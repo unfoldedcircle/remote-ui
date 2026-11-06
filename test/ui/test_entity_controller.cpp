@@ -499,7 +499,7 @@ void testEntityController::mediaPlayer_deletedWhileArtworkIsDecoded_doesNotCrash
 
 /**
  * 0 is a temperature like any other and is shown. A device that measures the temperature but has none to report
- * (null) shows "--" instead, like the cover does for an unknown position.
+ * (null) shows "—" instead, like the cover does for an unknown position.
  */
 void testEntityController::climate_currentTemperature_zeroIsShownAndNullIsNotAvailable() {
     uc::core::Api            api(kTestUrl);
@@ -516,7 +516,7 @@ void testEntityController::climate_currentTemperature_zeroIsShownAndNullIsNotAva
 
     // nothing reported yet
     QVERIFY(!climate->isCurrentTemperatureAvailable());
-    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("--")), qPrintable(climate->getStateInfo()));
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("\u2014")), qPrintable(climate->getStateInfo()));
 
     climate->updateAttribute(QStringLiteral("Current_temperature"), 0);
     QVERIFY(climate->isCurrentTemperatureAvailable());
@@ -524,7 +524,7 @@ void testEntityController::climate_currentTemperature_zeroIsShownAndNullIsNotAva
 
     climate->updateAttribute(QStringLiteral("Current_temperature"), QVariant());
     QVERIFY(!climate->isCurrentTemperatureAvailable());
-    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("--")), qPrintable(climate->getStateInfo()));
+    QVERIFY2(climate->getStateInfo().contains(QStringLiteral("\u2014")), qPrintable(climate->getStateInfo()));
     QVERIFY2(!climate->getStateInfo().contains(QStringLiteral("°C")), qPrintable(climate->getStateInfo()));
 
     climate->updateAttribute(QStringLiteral("Current_temperature"), -18.5);
@@ -538,7 +538,7 @@ void testEntityController::climate_currentTemperature_zeroIsShownAndNullIsNotAva
     controller.onEntityAdded(heater);
     auto heaterObj = qobject_cast<uc::ui::entity::Climate*>(controller.get(heaterId));
     QVERIFY(heaterObj);
-    QVERIFY2(!heaterObj->getStateInfo().contains(QStringLiteral("--")), qPrintable(heaterObj->getStateInfo()));
+    QVERIFY2(!heaterObj->getStateInfo().contains(QStringLiteral("\u2014")), qPrintable(heaterObj->getStateInfo()));
 }
 
 /**

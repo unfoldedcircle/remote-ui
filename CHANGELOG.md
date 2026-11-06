@@ -32,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Sensor values are rounded for display: with the number of decimal places the integration sets, or the user sets in
   the web configurator, otherwise with at most 2 decimal places and without trailing zeros. A value such as
   `1.499999999999997` is shown as `1.5`. Text values are shown as they are.
+- A value that is not known shows "—" without a unit, instead of "N/A" or "--": a sensor without a value or that is
+  unavailable, a cover that has not reported its position, a climate device's current temperature, a select widget
+  of a missing entity, the dock details and the system version before the first update check.
 
 ### Fixed
 - The Remote 3 touch slider for a light's brightness shows a brightness change made elsewhere again, for example in an

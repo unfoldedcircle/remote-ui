@@ -37,7 +37,7 @@ EntityComponents.BaseDetail {
 
         Text {
             id: valueText
-            text: (entityObj.value !== "" ? entityObj.value : qsTranslate("Abbreviation for not available", "N/A")) + " " + entityObj.unit
+            text: entityObj.value !== "" && entityObj.enabled ? entityObj.value + " " + entityObj.unit : "\u2014"
             width: parent.width - 20
             wrapMode: Text.WrapAtWordBoundaryOrAnywhere
             elide: Text.ElideRight

@@ -172,7 +172,7 @@ EntityComponents.BaseDetail {
 
             Text {
                 id: positionText
-                text: coverBase.positionKnown ? positionSlider.value : "--"
+                text: coverBase.positionKnown ? positionSlider.value : "\u2014"
                 elide: Text.ElideRight
                 maximumLineCount: 1
                 color: colors.offwhite
@@ -181,6 +181,7 @@ EntityComponents.BaseDetail {
 
             Text {
                 text: "%"
+                visible: coverBase.positionKnown
                 color: colors.offwhite
                 font: fonts.primaryFont(90)
                 anchors { left: positionText.right; baseline: positionText.baseline }

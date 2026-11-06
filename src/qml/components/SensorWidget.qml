@@ -50,9 +50,9 @@ ColumnLayout {
             sensorLabelText.text =  entityObj.customLabel;
         }
 
-        // sensor value
-        if (!entityObj) {
-            sensorValueText.text = qsTranslate("Abbreviation for not available", "N/A");
+        // sensor value: "—" without a unit for a missing or unavailable entity and a sensor without a value
+        if (!entityObj || !entityObj.enabled || entityObj.value === "") {
+            sensorValueText.text = "\u2014";
             return;
         }
 
@@ -137,6 +137,10 @@ ColumnLayout {
         }
 
         function onUnitChanged() {
+            sensorWidget.evaluateSensor();
+        }
+
+        function onEntityEnabledChanged() {
             sensorWidget.evaluateSensor();
         }
     }

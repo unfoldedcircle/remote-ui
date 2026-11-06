@@ -372,7 +372,7 @@ Item {
 
             Components.KeyValueRow {
                 key: qsTr("Connection type")
-                value: dockObj.connectionType ? dockObj.connectionType : qsTranslate("Abbreviation for not available", "N/A")
+                value: dockObj.connectionType ? dockObj.connectionType : "\u2014"
             }
 
             Components.KeyValueRow {
@@ -390,7 +390,7 @@ Item {
 
             Components.KeyValueRow {
                 key: qsTr("Firmware version")
-                value: dockObj.version ? dockObj.version : qsTranslate("Abbreviation for not available", "N/A")
+                value: dockObj.version ? dockObj.version : "\u2014"
             }
 
 //            Components.Button {
