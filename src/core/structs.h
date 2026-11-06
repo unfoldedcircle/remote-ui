@@ -74,6 +74,8 @@ struct Entity {
     // still delivered to the UI has to be checked in the core first.
     bool        enabled = true;
     QVariantMap options;
+    // an entity change event carried the options, even if empty: the last user override was removed
+    bool        optionsProvided = false;
     QVariantMap attributes;
 };
 

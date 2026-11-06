@@ -214,7 +214,7 @@ Item {
                     function onBrightnessChanged() {
                         if (!sliderContainer.touchSliderActive) {
                             sliderContentVisualValue.width = caclulateSliderWidth(entityObj.brightness);
-                            sliderContentValueText.text = Math.rodun(entityObj.brightness / 255 * 100);
+                            sliderContentValueText.text = Math.round(entityObj.brightness / 255 * 100);
                         }
                     }
                 }

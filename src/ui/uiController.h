@@ -12,6 +12,7 @@
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQuickWindow>
+#include <QSize>
 #include <QSortFilterProxyModel>
 #include <QTimer>
 
@@ -54,6 +55,23 @@ class Controller : public QObject {
     Q_PROPERTY(int height READ height CONSTANT)
     Q_PROPERTY(int cornerRadiusSmall READ getCornerRadiusSmall CONSTANT)
     Q_PROPERTY(int cornerRadiusLarge READ getCornerRadiusLarge CONSTANT)
+    Q_PROPERTY(double disabledOpacity READ getDisabledOpacity CONSTANT)
+
+    // an unavailable entity and a configuration error (docs/design-system.md, section 7)
+    Q_PROPERTY(int unavailableMarkSize READ getUnavailableMarkSize CONSTANT)
+    Q_PROPERTY(double unavailableOpacity READ getUnavailableOpacity CONSTANT)
+    Q_PROPERTY(double unavailableLabelOpacity READ getUnavailableLabelOpacity CONSTANT)
+
+    // slider items on activity pages (docs/design-system.md, section 7)
+    Q_PROPERTY(int sliderTrackThin READ getSliderTrackThin CONSTANT)
+    Q_PROPERTY(int sliderTrackThinPressed READ getSliderTrackThinPressed CONSTANT)
+    Q_PROPERTY(int sliderBarRadius READ getSliderBarRadius CONSTANT)
+    Q_PROPERTY(int sliderCursorWidth READ getSliderCursorWidth CONSTANT)
+    Q_PROPERTY(QSize sliderGripSize READ getSliderGripSize CONSTANT)
+    Q_PROPERTY(QSize sliderTickSize READ getSliderTickSize CONSTANT)
+    Q_PROPERTY(int sliderButtonSize READ getSliderButtonSize CONSTANT)
+    Q_PROPERTY(int sliderIconSize READ getSliderIconSize CONSTANT)
+    Q_PROPERTY(int sliderAnimationDuration READ getSliderAnimationDuration CONSTANT)
 
     Q_PROPERTY(QTime time READ getTime NOTIFY timeChanged)
 
@@ -95,6 +113,21 @@ class Controller : public QObject {
 
     int getCornerRadiusSmall() { return 8; }
     int getCornerRadiusLarge() { return 22; }
+    double getDisabledOpacity() { return 0.4; }
+
+    int    getUnavailableMarkSize() { return 30; }
+    double getUnavailableOpacity() { return 0.15; }
+    double getUnavailableLabelOpacity() { return 0.5; }
+
+    int    getSliderTrackThin() { return 14; }
+    int    getSliderTrackThinPressed() { return 28; }
+    int    getSliderBarRadius() { return 16; }
+    int    getSliderCursorWidth() { return 22; }
+    QSize  getSliderGripSize() { return QSize(4, 24); }
+    QSize  getSliderTickSize() { return QSize(2, 10); }
+    int    getSliderButtonSize() { return 60; }
+    int    getSliderIconSize() { return 40; }
+    int    getSliderAnimationDuration() { return 200; }
 
     QTime getTime() { return m_time; }
 

@@ -33,7 +33,22 @@ class Base : public QObject {
     Q_PROPERTY(bool commandInProgress READ getCommandInProgress NOTIFY commandInProgressChanged)
 
  public:
-    enum Type { Unsupported, Button, Switch, Climate, Cover, Light, Media_player, Remote, Sensor, Activity, Macro, Voice_assistant, Select };
+    enum Type {
+        Unsupported,
+        Button,
+        Switch,
+        Climate,
+        Cover,
+        Light,
+        Media_player,
+        Remote,
+        Sensor,
+        Activity,
+        Macro,
+        Voice_assistant,
+        Select,
+        Number
+    };
     Q_ENUM(Type)
 
     enum CommonAttributes { Name, Icon, Area };

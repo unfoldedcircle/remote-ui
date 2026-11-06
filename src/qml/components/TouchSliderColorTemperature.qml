@@ -1,0 +1,277 @@
+// Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
+
+/**
+ Remote 3 touch slider for a light's color temperature.
+
+ The gesture moves between the positions of the light's color_temperature_steps option, see
+ Light::colorTempPositionMax; the attribute and the command are 0..100. A full swipe covers
+ Light::colorTempPositionsPerSweep() positions.
+**/
+
+import QtQuick 2.15
+import QtQuick.Controls 2.15
+import QtGraphicalEffects 1.0
+
+import Haptic 1.0
+import TouchSlider 1.0
+import Config 1.0
+
+import "qrc:/components" as Components
+
+Item {
+    id: sliderContainer
+    width: ui.width; height: 300
+
+    property QtObject entityObj
+    property bool touchSliderActive: false
+    property double prevTouchX: 0
+    property int sliderAnimationDuration: 200
+    property int targetPosition: 0
+    property bool unavailableWarningShown: false
+    property double lastHapticMs: 0
+
+    // positions per raw slider unit, computed at gesture start
+    property real touchScale: 0
+    // fractional position change accumulator, keeps sub-position finger motion
+    property real deltaAcc: 0
+    // the brightness gain: color temperature is the other light slider
+    readonly property real sweepGain: Config.touchSliderGainBrightness
+    // raw axis range to assume when the driver does not report one
+    readonly property int fallbackAxisRange: 300
+
+    signal open()
+    signal close()
+
+    function calculateSliderWidth(position) {
+        return sliderContentVisual.width * position / entityObj.colorTempPositionMax;
+    }
+
+    function entityPosition() {
+        return entityObj.colorTempToPosition(entityObj.colorTemp);
+    }
+
+    Connections {
+        target: sliderContainer.entityObj
+        ignoreUnknownSignals: true
+
+        function onEntityEnabledChanged() {
+            if (sliderContainer.entityObj.enabled) {
+                sliderContainer.unavailableWarningShown = false;
+            }
+        }
+
+        function onColorTempChanged() {
+            if (!sliderContainer.touchSliderActive) {
+                sliderContentVisualValue.width = calculateSliderWidth(entityPosition());
+                sliderContentValueText.text = entityObj.colorTemp;
+            }
+        }
+    }
+
+    Connections {
+        target: TouchSliderProcessor
+        ignoreUnknownSignals: true
+
+        function onTouchPressed() {
+            // if entity is unavailable we do nothing, but only warn once
+            if (!entityObj.enabled) {
+                if (!sliderContainer.unavailableWarningShown) {
+                    //: Notification title when the Remote 3 touch slider controls a light that is unavailable
+                    const title = qsTr("Touch slider is not available.");
+                    //: Notification text when the touch slider's light is unavailable. %1 is the entity name
+                    const message = qsTr("%1 is not available. Please check your configuration.").arg(entityObj.name);
+                    ui.createActionableNotification(title, message, "uc:link-slash");
+                    sliderContainer.unavailableWarningShown = true;
+                }
+                return;
+            }
+
+            sliderContainer.unavailableWarningShown = false;
+            sliderContainer.touchSliderActive = true;
+
+            releaseTimer.stop();
+            sliderContainer.prevTouchX = TouchSliderProcessor.touchX;
+            sliderContainer.deltaAcc = 0;
+            let axisRange = TouchSliderProcessor.touchXMax - TouchSliderProcessor.touchXMin;
+            if (axisRange <= 0) {
+                axisRange = sliderContainer.fallbackAxisRange;
+            }
+            sliderContainer.touchScale = entityObj.colorTempPositionsPerSweep(sliderContainer.sweepGain) / axisRange;
+            sliderContainer.targetPosition = entityPosition();
+            sliderContentVisualValue.width = calculateSliderWidth(sliderContainer.targetPosition);
+            sliderContentValueText.text = entityObj.colorTempFromPosition(sliderContainer.targetPosition);
+
+            sliderContainer.open();
+
+            updateDataTimer.start();
+        }
+
+        function onTouchXChanged(x) {
+            if (!entityObj.enabled || !sliderContainer.touchSliderActive) {
+                return;
+            }
+
+            // proportional mapping in positions, sub-position motion accumulates in deltaAcc
+            sliderContainer.deltaAcc += (x - sliderContainer.prevTouchX) * sliderContainer.touchScale;
+            sliderContainer.prevTouchX = x;
+
+            const steps = sliderContainer.deltaAcc > 0 ? Math.floor(sliderContainer.deltaAcc)
+                                                       : Math.ceil(sliderContainer.deltaAcc);
+            if (steps === 0) {
+                return;
+            }
+            sliderContainer.deltaAcc -= steps;
+
+            const newTarget = Math.max(0, Math.min(entityObj.colorTempPositionMax, sliderContainer.targetPosition + steps));
+            if (newTarget === sliderContainer.targetPosition) {
+                // pinned at an end stop
+                return;
+            }
+            sliderContainer.targetPosition = newTarget;
+
+            // rate limit haptic feedback, fast swipes generate a lot of value changes
+            const now = Date.now();
+            if (now - sliderContainer.lastHapticMs >= 30) {
+                Haptic.play(Haptic.Bump);
+                sliderContainer.lastHapticMs = now;
+            }
+
+            sliderContentVisualValue.width = calculateSliderWidth(sliderContainer.targetPosition);
+            sliderContentValueText.text = entityObj.colorTempFromPosition(sliderContainer.targetPosition);
+        }
+
+        function onTouchReleased() {
+            if (!entityObj.enabled) {
+                return;
+            }
+
+            updateDataTimer.stop();
+
+            if (entityPosition() !== sliderContainer.targetPosition) {
+                entityObj.setColorTemperature(entityObj.colorTempFromPosition(sliderContainer.targetPosition));
+            }
+            sliderContainer.touchSliderActive = false;
+
+            releaseTimer.start();
+        }
+    }
+
+    LinearGradient {
+        anchors.fill: parent
+        start: Qt.point(0, 0)
+        end: Qt.point(0, parent.height)
+        gradient: Gradient {
+            GradientStop { position: 0.0; color: colors.transparent }
+            GradientStop { position: 0.5; color: colors.black }
+            GradientStop { position: 1.0; color: colors.black }
+        }
+    }
+
+    Rectangle {
+        id: sliderContent
+        width: parent.width - 20
+        height: 100
+        color: colors.transparent
+        border { width: 1; color: Qt.hsla(colors.white.hslHue, colors.white.hslSaturation, colors.white.hslLightness, 0.3) }
+        radius: height / 2
+        anchors { bottom: parent.bottom; bottomMargin: 10; horizontalCenter: parent.horizontalCenter }
+
+        Item {
+            id: sliderContentIcon
+            width: 100
+            height: 100
+            anchors { left: parent.left }
+
+            Components.Icon {
+                color: colors.white
+                anchors.centerIn: parent
+                icon: "uc:temperature-half"
+                size: 80
+            }
+        }
+
+        Rectangle {
+            id: sliderContentVisual
+            color: colors.transparent
+            border { width: 1; color: colors.white }
+            radius: 6
+            height: 12
+            anchors { verticalCenter: parent.verticalCenter;  left: sliderContentIcon.right; right: sliderContentValue.left }
+
+            layer.enabled: true
+            layer.effect: OpacityMask {
+                maskSource:
+                    Rectangle {
+                    width: sliderContentVisual.width
+                    height: sliderContentVisual.height
+                    radius: sliderContentVisual.radius
+                }
+            }
+
+            Rectangle {
+                id: sliderContentVisualValue
+                color: colors.white
+                x: 0
+                width: calculateSliderWidth(entityPosition())
+                height: 12
+
+                Behavior on width {
+                    NumberAnimation { duration: sliderContainer.sliderAnimationDuration; easing.type: Easing.OutExpo }
+                }
+            }
+        }
+
+        Item {
+            id: sliderContentValue
+            width: 100
+            height: 100
+            anchors { right: parent.right }
+
+            Text {
+                id: sliderContentValueText
+                text: entityObj.colorTemp
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignHCenter
+                wrapMode: Text.NoWrap
+                maximumLineCount: 1
+                color: colors.white
+                font: fonts.primaryFont(40)
+                anchors.fill: parent
+            }
+        }
+    }
+
+    Text {
+        text: entityObj.name
+        width: parent.width - 20
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+        wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+        maximumLineCount: 1
+        elide: Text.ElideRight
+        color: colors.white
+        font: fonts.primaryFont(30)
+        anchors { bottom: sliderContent.top; bottomMargin: 20; horizontalCenter: parent.horizontalCenter; }
+    }
+
+    Timer {
+        id: updateDataTimer
+        running: false
+        repeat: true
+        interval: 200
+        onTriggered: {
+            if (entityPosition() !== sliderContainer.targetPosition) {
+                entityObj.setColorTemperature(entityObj.colorTempFromPosition(sliderContainer.targetPosition));
+            }
+        }
+    }
+
+    Timer {
+        id: releaseTimer
+        running: false
+        repeat: false
+        interval: 1000
+        onTriggered: sliderContainer.close()
+    }
+}

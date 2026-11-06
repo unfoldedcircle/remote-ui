@@ -180,6 +180,42 @@ EntityComponents.BaseDetail {
                                                  "showName": item.select.show_name ? item.select.show_name : false
                                              });
                 break;
+            case "slider":
+                let sliderComponent = Qt.createComponent("qrc:/components/SliderWidget.qml");
+                sliderComponent.createObject(container, {
+                                                 "x": gridSizeW * item.location.x,
+                                                 "y": gridSizeH * item.location.y,
+                                                 "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
+                                                 "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
+                                                 "entityId": item.slider.entity_id,
+                                                 "feature": item.slider.feature ? item.slider.feature : "",
+                                                 "customText": item.text ? item.text : "",
+                                                 "showName": item.slider.show_name ? item.slider.show_name : false,
+                                                 "showValue": item.slider.show_value === undefined ? true : item.slider.show_value,
+                                                 "iconMin": item.slider.icon_min ? item.slider.icon_min : "",
+                                                 "iconMax": item.slider.icon_max ? item.slider.icon_max : "",
+                                                 "minOverride": item.slider.min,
+                                                 "maxOverride": item.slider.max,
+                                                 "updateMode": item.slider.update_mode ? item.slider.update_mode : "on_release",
+                                                 "sliderStyle": item.slider.style ? item.slider.style : "",
+                                                 "sliderColor": item.slider.color ? item.slider.color : "",
+                                                 "sliderFill": item.slider.fill ? item.slider.fill : ""
+                                             });
+                break;
+            case "number":
+                let numberComponent = Qt.createComponent("qrc:/components/NumberWidget.qml");
+                numberComponent.createObject(container, {
+                                                 "x": gridSizeW * item.location.x,
+                                                 "y": gridSizeH * item.location.y,
+                                                 "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
+                                                 "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
+                                                 "entityId": item.number.number_id,
+                                                 "customText": item.text ? item.text : "",
+                                                 "showName": item.number.show_name ? item.number.show_name : false,
+                                                 "displayMode": item.number.display_mode ? item.number.display_mode : "auto",
+                                                 "step": item.number.step > 0 ? item.number.step : 0
+                                             });
+                break;
             default:
                 console.log("Not implemented item type: " + item.type);
                 break;

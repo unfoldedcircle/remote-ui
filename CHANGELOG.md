@@ -8,12 +8,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- Number entity: a numeric value with a range, step and unit provided by an integration, for example an amplifier's
+  bass level or a fan speed. Its screen shows a slider or a value with minus and plus buttons, as the integration or
+  the user in the web configurator chooses, and the d-pad and volume buttons step the value. The value set is shown
+  at once and returns to the device's value if the device does not confirm it within 3 seconds. A number entity can
+  be the target of the Remote 3 touch slider.
+- Slider and number widgets on activity pages. A slider widget is a horizontal or vertical slider for a number
+  entity, light brightness or colour temperature, media player volume, cover position or climate target temperature,
+  with a label, the current value, optional icons at both ends and an optional narrower range. A number widget shows
+  a number entity as a slider or with minus and plus buttons. A widget of a device that is unavailable refuses the
+  change with a message, like a tile does. A value that is not known shows "—", here and on the number screen.
+  A number widget can be set to a slider or to minus and plus buttons whatever the device's setting, and its buttons
+  can change the value by a step of their own.
+- Slider widget styles: a thin slider, a bar that fills the whole widget and is moved by the distance you drag, or
+  minus and plus buttons around the value. The fill can follow the light's colour or show a gradient, such as cold to
+  warm for a colour temperature, start in the middle for a range around zero, or be a marker only. Each setting has a
+  default that suits the device; a slider with only a few positions shows them and snaps to the nearest one.
+- The Remote 3 touch slider can change a light's colour temperature, when the activity's touch slider is set to it.
+  A light that offers only a few colour temperatures moves to the next one about every third of the slider length.
+
 ### Changed
+- Sensor values are rounded for display: with the number of decimal places the integration sets, or the user sets in
+  the web configurator, otherwise with at most 2 decimal places and without trailing zeros. A value such as
+  `1.499999999999997` is shown as `1.5`. Text values are shown as they are.
 - A value that is not known shows "—" without a unit, instead of "N/A" or "--": a sensor without a value or that is
   unavailable, a cover that has not reported its position, a climate device's current temperature, a select widget
   of a missing entity, the dock details and the system version before the first update check.
 
 ### Fixed
+- The Remote 3 touch slider for a light's brightness shows a brightness change made elsewhere again, for example in an
+  app or by a wall switch. The bar moved, but the value stayed at the old brightness.
+- The colour temperature slider of a light that offers a limited number of colour temperatures now has exactly these
+  positions and sends their value between 0 and 100. It used to send the position number instead, for example 1
+  instead of 50 for the middle one of three.
 - The icons `0` to `9`, `hashtag` and `asterisk` are drawn again. Removing the emoji from the icon font also removed
   them, because they share their code points with the keycap emoji such as 1️⃣.
 - The icon `music-magnifying-glass`, which only the Pro edition of the icon font has, now falls back to `music` with the

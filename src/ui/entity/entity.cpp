@@ -70,6 +70,9 @@ Base::Base(const QString &id, QVariantMap nameI18n, const QString &language, con
             case Select:
                 m_icon.append("list-dropdown");
                 break;
+            case Number:
+                m_icon.append("input-numeric");
+                break;
             default:
                 m_icon.append("warning");
                 break;
