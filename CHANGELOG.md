@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.85.0 - 2026-11-06
 ### Added
 - Number entity: a numeric value with a range, step and unit provided by an integration, for example an amplifier's
   bass level or a fan speed. Its screen shows a slider or a value with minus and plus buttons, as the integration or
