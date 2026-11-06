@@ -157,6 +157,7 @@ add_executable (testIconFont
     "test_icon_font.cpp"
     "../../src/ui/iconFont.cpp"
     "../../src/ui/resources.cpp"
+    "../../src/ui/imageDecoder.cpp"
     "../../src/util.cpp"
     "../../src/logging.cpp"
     # util.cpp generates QR codes
@@ -252,6 +253,7 @@ add_executable (testEntityController
     "../../src/ui/entity/entityScreens.cpp"
     # header only: contains the Q_GADGET class moc has to process
     "../../src/ui/entity/sequenceStep.h"
+    "../../src/ui/imageDecoder.cpp"
     "../../src/ui/mediaImageProvider.cpp"
     "../../src/ui/notification.cpp"
     "../../src/config/config.cpp"
@@ -377,6 +379,7 @@ add_executable (testEntityScreens
     "../../src/ui/entity/voiceSession.cpp"
     # header only: contains the Q_OBJECT class moc has to process
     "../../src/ui/entity/sequenceStep.h"
+    "../../src/ui/imageDecoder.cpp"
     "../../src/ui/mediaImageProvider.cpp"
     "../../src/util.cpp"
     "../../src/logging.cpp"
@@ -431,6 +434,7 @@ add_executable (testResources
     "test_resources.cpp"
     "../../src/ui/iconFont.cpp"
     "../../src/ui/resources.cpp"
+    "../../src/ui/imageDecoder.cpp"
     "../../src/util.cpp"
     "../../src/logging.cpp"
     # util.cpp generates QR codes
@@ -545,5 +549,46 @@ target_link_libraries(testTypeRoles
     PUBLIC
     Qt5::Core
     Qt5::Gui
+    Qt5::Test
+    )
+
+# Bounded decoding of media artwork and driver images. The SVG cases need the Qt SVG image format
+# plugin of the Qt installation and are skipped without it.
+add_executable (testImageDecoder
+    "test_image_decoder.cpp"
+    "../../src/ui/imageDecoder.cpp"
+    )
+
+add_test(NAME testImageDecoder
+         COMMAND testImageDecoder)
+
+target_link_libraries(testImageDecoder
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Test
+    )
+
+# Custom and TV channel icon files: the resource lookup and the custom icon list. Compiles the
+# icon resources in for the placeholder glyph.
+add_executable (testIconFiles
+    "test_icon_files.cpp"
+    "../../src/ui/resources.cpp"
+    "../../src/ui/imageDecoder.cpp"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    # util.cpp generates QR codes
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    "../../resources/qrc/icons.qrc"
+    )
+
+add_test(NAME testIconFiles
+         COMMAND testIconFiles)
+
+target_link_libraries(testIconFiles
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
     Qt5::Test
     )

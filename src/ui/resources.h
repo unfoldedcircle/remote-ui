@@ -71,6 +71,14 @@ class Resources : public QObject {
     Q_INVOKABLE QStringList getCustomIconList();
 
     /**
+     * @brief Returns the glyph of the placeholder icon, a question mark in a circle.
+     *
+     * Shown in place of an icon file that exists but cannot be used: one the checks reject or one
+     * the image loader cannot decode.
+     */
+    Q_INVOKABLE QString getIconPlaceholder();
+
+    /**
      * @brief Sets the font family the icon glyphs are rendered with.
      *
      * Enables the icon fallback: an icon the embedded font cannot draw is replaced by its
@@ -99,6 +107,14 @@ class Resources : public QObject {
      */
     QString getIconGlyph(const QString& name);
     bool    canRenderGlyph(const QString& glyph) const;
+
+    /**
+     * @brief Returns the `file:` URL of a custom or TV channel icon file, or what to show instead.
+     *
+     * A missing file resolves to an empty string. A file that exists but cannot be used, an SVG
+     * above the size limit or a compressed one, resolves to the placeholder glyph and is logged.
+     */
+    QString getIconFile(ResourceType type, const QString& id, const QString& name);
 
     QString                      m_resourcePath;
     QHash<ResourceType, QString> m_resourcePaths = {{Icon, m_resourcePath + "/Icon/"},

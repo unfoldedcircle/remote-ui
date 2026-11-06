@@ -142,6 +142,7 @@ HEADERS += \
     src/ui/group/group.h \
     src/ui/group/groupController.h \
     src/ui/group/groupItem.h \
+    src/ui/imageDecoder.h \
     src/ui/inputController.h \
     src/ui/mediaImageProvider.h \
     src/ui/notification.h \
@@ -211,6 +212,7 @@ SOURCES += \
         src/ui/group/group.cpp \
         src/ui/group/groupController.cpp \
         src/ui/group/groupItem.cpp \
+        src/ui/imageDecoder.cpp \
         src/ui/iconFont.cpp \
         src/ui/inputController.cpp \
         src/ui/mediaImageProvider.cpp \

@@ -27,6 +27,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   default that suits the device; a slider with only a few positions shows them and snaps to the nearest one.
 - The Remote 3 touch slider can change a light's colour temperature, when the activity's touch slider is set to it.
   A light that offers only a few colour temperatures moves to the next one about every third of the slider length.
+- Custom icons and TV channel icons can be SVG files, next to the PNG and JPG files supported so far. An SVG icon is
+  drawn at the size it is shown in, so it stays sharp everywhere. An icon file that exists but cannot be used, a
+  compressed `.svgz`, an SVG above 256 KB or a file that fails to decode, shows the placeholder icon and is logged
+  instead of leaving an empty space. Uploading SVG icons needs a core release that accepts them.
 
 ### Changed
 - Sensor values are rounded for display: with the number of decimal places the integration sets, or the user sets in
@@ -35,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A value that is not known shows "—" without a unit, instead of "N/A" or "--": a sensor without a value or that is
   unavailable, a cover that has not reported its position, a climate device's current temperature, a select widget
   of a missing entity, the dock details and the system version before the first update check.
+- Media artwork is decoded within fixed limits: an SVG is drawn at the display size, never at the size it declares,
+  and compressed SVG data, SVG documents above 256 KB and images above 32 megapixels are rejected and logged instead
+  of using up the memory of the remote.
 
 ### Fixed
 - The Remote 3 touch slider for a light's brightness shows a brightness change made elsewhere again, for example in an

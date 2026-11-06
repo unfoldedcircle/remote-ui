@@ -10,6 +10,7 @@
 
 #include "../logging.h"
 #include "../util.h"
+#include "imageDecoder.h"
 
 namespace uc {
 namespace ui {
@@ -101,52 +102,21 @@ QString Resources::getIconGlyph(const QString& name) {
     return canRenderGlyph(placeholderGlyph) ? placeholderGlyph : QString();
 }
 
+QString Resources::getIconPlaceholder() {
+    return getIconGlyph(m_iconPlaceholder);
+}
+
 QString Resources::getIcon(const QString& id, const QString& suffix) {
-    QString _id;
-    QString ext;
+    // State variants of an icon (e.g. "-on" / "-off") are not supported yet.
+    Q_UNUSED(suffix)
 
     if (id.isEmpty()) {
         qCWarning(lcResources()) << "Empty ID passed to getIcon()";
         return QString();
     }
 
-    if (id.endsWith(".png") || id.endsWith(".jpg")) {
-        if (id.length() >= 4) {
-            _id = id.chopped(4);
-            ext = id.right(4);
-        } else {
-            qCWarning(lcResources()) << "ID too short for .png/.jpg extension:" << id;
-            return QString();  // Or handle it gracefully
-        }
-    } else if (id.endsWith(".jpeg")) {
-        if (id.length() >= 5) {
-            _id = id.chopped(5);
-            ext = id.right(5);
-        } else {
-            qCWarning(lcResources()) << "ID too short for .jpeg extension:" << id;
-            return QString();
-        }
-    } else {
-        _id = id;
-    }
-
-    QString icon;
-    ResourceType resourceType = Icon;
-
-            // suffix not supported yet
-    //    if (!suffix.isEmpty()) {
-    //        icon = getResource(Icon, _id + "-" + suffix.toLower() + ext);
-    //    }
-
-    if (_id.contains("ctv:")) {
-        resourceType = TvChannelIcon;
-    }
-
-    if (icon.isEmpty()) {
-        icon = getResource(resourceType, _id + ext);
-    }
-
-    return icon;
+    // The file name is used as is: whatever image format the image loader can decode is accepted.
+    return getResource(id.contains("ctv:") ? TvChannelIcon : Icon, id);
 }
 
 void Resources::getAboutInfo(int type) {
@@ -445,7 +415,7 @@ QString Resources::licenseBlockWithSelection(const QString& block, int index, co
 QStringList Resources::getIconList() {
     QStringList list;
 
-    foreach(const QString& key, m_iconList.keys()) {
+    foreach (const QString& key, m_iconList.keys()) {
         // Don't offer icons the embedded font cannot draw: they would all look like the
         // placeholder in the icon selection.
         if (canRenderGlyph(m_iconList.value(key).toString())) {
@@ -460,14 +430,42 @@ QStringList Resources::getCustomIconList() {
     QDir        dir(m_resourcePaths.value(Icon));
     QStringList files = dir.entryList(QStringList() << "*.png"
                                                     << "*.jpg"
-                                                    << "*.jpeg",
+                                                    << "*.jpeg"
+                                                    << "*.svg",
                                       QDir::Files | QDir::NoDot | QDir::NoDotAndDotDot);
+    QStringList icons;
 
-    for (QString& file : files) {
-        file.prepend("custom:");
+    for (const QString& file : files) {
+        QString error;
+
+        // Don't offer an SVG the checks reject: it would only show as the placeholder.
+        if (ImageDecoder::isSvgFileName(file) && !ImageDecoder::checkSvgFile(dir.filePath(file), &error)) {
+            qCWarning(lcResources()) << "Not offering custom icon" << file << ":" << error;
+            continue;
+        }
+
+        icons.append("custom:" + file);
     }
 
-    return files;
+    return icons;
+}
+
+QString Resources::getIconFile(ResourceType type, const QString& id, const QString& name) {
+    const QString path = m_resourcePaths.value(type) + name;
+
+    if (!QFile::exists(path)) {
+        qCDebug(lcResources()) << "Cannot find icon:" << id;
+        return QString();
+    }
+
+    QString error;
+
+    if (ImageDecoder::isSvgFileName(name) && !ImageDecoder::checkSvgFile(path, &error)) {
+        qCWarning(lcResources()) << "Cannot use icon" << id << ":" << error;
+        return getIconPlaceholder();
+    }
+
+    return QString("file:" + path);
 }
 
 QString Resources::getResource(ResourceType type, const QString& id) {
@@ -491,24 +489,13 @@ QString Resources::getResource(ResourceType type, const QString& id) {
             if (prefix.contains("uc")) {
                 return getIconGlyph(resourceName);
             } else if (prefix.contains("custom")) {
-                // Custom icon
-                if (QFile::exists(m_resourcePaths.value(type) + resourceName)) {
-                    return QString("file:" + m_resourcePaths.value(type) + resourceName);
-                }
-
-                qCDebug(lcResources()) << "Cannot find custom icon:" << id;
-                return QString();
+                return getIconFile(type, id, resourceName);
             } else {
                 return QString();
             }
         }
         case TvChannelIcon: {
-            if (QFile::exists(m_resourcePaths.value(type) + resourceName)) {
-                return QString("file:" + m_resourcePaths.value(type) + resourceName);
-            }
-
-            qCDebug(lcResources()) << "Cannot find TV channel icon:" << id;
-            return QString();
+            return getIconFile(type, id, resourceName);
         }
         case BackgroundImage:
         case Sound: {
