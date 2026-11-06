@@ -59,6 +59,11 @@ void testDesignTokens::defaultPalette_matchesTheDesignSystem_data() {
     QTest::newRow("focusRing") << "focusRing" << "#d0d0d0";
     QTest::newRow("buttonPrimary") << "buttonPrimary" << "#5a5a5a";
     QTest::newRow("redPressed") << "redPressed" << "#ff0d2a";
+    QTest::newRow("sliderGradientCool") << "sliderGradientCool" << "#d5f7ff";
+    QTest::newRow("sliderGradientWarm") << "sliderGradientWarm" << "#f3aa67";
+    QTest::newRow("sliderGradientHeat") << "sliderGradientHeat" << "#c33030";
+    QTest::newRow("sliderOnFill") << "sliderOnFill" << "#000000";
+    QTest::newRow("sliderGrip") << "sliderGrip" << "#595959";
 }
 
 void testDesignTokens::defaultPalette_matchesTheDesignSystem() {
@@ -133,6 +138,12 @@ void testDesignTokens::contrast_meetsTheDesignSystem_data() {
     QTest::newRow("pressed destructive label") << "textOnButton" << "redPressed" << 3.0;
     // the selection ring is a non-text indicator
     QTest::newRow("focus ring on black") << "focusRing" << "bg" << 3.0;
+    // slider items: the label (26 px) and the value (30 px) over a fill are large text, the grip a non-text indicator
+    QTest::newRow("slider text on the neutral fill") << "sliderOnFill" << "textPrimary" << 4.5;
+    QTest::newRow("slider text on the cool end") << "sliderOnFill" << "sliderGradientCool" << 4.5;
+    QTest::newRow("slider text on the warm end") << "sliderOnFill" << "sliderGradientWarm" << 4.5;
+    QTest::newRow("slider text on the heat end") << "sliderOnFill" << "sliderGradientHeat" << 3.0;
+    QTest::newRow("slider grip on the cursor band") << "sliderGrip" << "textPrimary" << 3.0;
 }
 
 void testDesignTokens::contrast_meetsTheDesignSystem() {

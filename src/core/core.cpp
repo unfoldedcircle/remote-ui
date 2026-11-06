@@ -2177,6 +2177,7 @@ void Api::processEntityChange(QVariant msgData) {
         }
         if (newState.contains("options")) {
             entity.options = newState.value("options").toMap();
+            entity.optionsProvided = true;
         }
         if (newState.contains("attributes")) {
             entity.attributes = newState.value("attributes").toMap();

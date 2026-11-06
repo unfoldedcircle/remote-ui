@@ -24,6 +24,7 @@
 #include "light.h"
 #include "macro.h"
 #include "mediaPlayer.h"
+#include "number.h"
 #include "remote.h"
 #include "select.h"
 #include "sensor.h"

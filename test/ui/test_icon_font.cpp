@@ -183,10 +183,11 @@ void testIconFont::defaultIconOfTheCoreIsDrawable_data() {
     // The icons remote-core assigns on its own, which the UI shows without naming them in its sources, so
     // `tools/icon-font.py check-mapping` cannot see them. Extend the list when the core adds a default.
     const QList<QPair<const char*, QStringList>> defaults = {
-        // the core's default icon per entity type
+        // the core's default icon per entity type; "slider" is the former default of a number entity, which entities
+        // configured before keep
         {"entity",
-         {"activity", "blind", "button", "button-brightness", "climate", "light", "list-dropdown", "macro",
-          "mediaplayer", "microphone", "remote", "sensor", "switch"}},
+         {"activity", "blind", "button", "button-brightness", "climate", "input-numeric", "light", "list-dropdown",
+          "macro", "mediaplayer", "microphone", "remote", "sensor", "slider", "switch"}},
         // media browser thumbnails without an image, which the core sends as icon://uc:...
         {"media",
          {"browser", "compact-disc", "file-music", "film", "folder", "gamepad", "globe-wifi", "image", "list-music",

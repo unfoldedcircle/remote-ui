@@ -101,7 +101,9 @@ class Light : public Base {
     Q_PROPERTY(int colorTemp READ getColorTemp NOTIFY colorTempChanged)
 
     // options
-    Q_PROPERTY(int colorTempSteps READ getColorTempSteps CONSTANT)
+    // A color temperature slider offers the positions 0..colorTempPositionMax. The attribute and the command are
+    // 0..100: with the color_temperature_steps option the positions are spread evenly over that range.
+    Q_PROPERTY(int colorTempPositionMax READ getColorTempPositionMax CONSTANT)
 
  public:
     explicit Light(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
@@ -114,7 +116,27 @@ class Light : public Base {
     int    getColorTemp() { return m_colorTemp; }
 
     // options
-    int getColorTempSteps() { return m_colorTempSteps; }
+    int getColorTempPositionMax() { return m_colorTempPositionMax; }
+
+    /**
+     * @brief The slider position nearest to a color temperature of 0..100.
+     */
+    Q_INVOKABLE int colorTempToPosition(int colorTemp);
+    /**
+     * @brief The color temperature of 0..100 of a slider position, rounded to a whole number.
+     */
+    Q_INVOKABLE int colorTempFromPosition(int position);
+    /**
+     * @brief The color temperature positions a full swipe of the Remote 3 touch slider covers.
+     *
+     * The gain applies to the number of positions, like the brightness gain to 0..255, but a swipe covers at least
+     * MIN_TOUCH_POSITIONS_PER_SWEEP positions: with only 2 or 3 positions a change would otherwise need most of the
+     * slider length.
+     * @param gain the touch slider gain, Config::touchSliderGainBrightness
+     */
+    Q_INVOKABLE double colorTempPositionsPerSweep(double gain);
+
+    static constexpr double MIN_TOUCH_POSITIONS_PER_SWEEP = 3;
 
     QString getStateInfo() override { return m_stateInfo1 + " " + (m_state == LightStates::On ? m_stateInfo2 : ""); }
 
@@ -150,7 +172,7 @@ class Light : public Base {
     void calculateQColor();
 
     // options
-    int m_colorTempSteps;
+    int m_colorTempPositionMax;
 };
 
 }  // namespace entity

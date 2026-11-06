@@ -28,6 +28,7 @@ Popup {
     property var requiredMediaPlayerFeaturesForVolume: [MediaPlayerFeatures.Volume]
     property var requiredMediaPlayerFeaturesForSeek: [MediaPlayerFeatures.Seek, MediaPlayerFeatures.Media_duration, MediaPlayerFeatures.Media_position]
     property var requiredLightFeaturesForBrightness: [LightFeatures.Dim]
+    property var requiredLightFeaturesForColorTemperature: [LightFeatures.Color_temperature]
     property var requiredCoverFeaturesForPosition: [CoverFeatures.Position]
 
     // An activity slider config without an explicit feature reports "default".
@@ -42,6 +43,8 @@ Popup {
             return "dim";
         case EntityTypes.Cover:
             return "position";
+        case EntityTypes.Number:
+            return "value";
         default:
             return "";
         }
@@ -102,6 +105,17 @@ Popup {
             return;
         }
 
+        // The value feature of a number entity is always present, even if the entity lists no features. An unbounded
+        // number has no slider range.
+        if (entityObj.type === EntityTypes.Number) {
+            if (resolvedFeature() === "value" && entityObj.bounded) {
+                setSliderSource("qrc:/components/TouchSliderNumber.qml");
+            } else {
+                touchSlider.active = false;
+            }
+            return;
+        }
+
         // Features may not be loaded yet (bulk-loaded entity). Fetch them and
         // wait for featuresChanged instead of deactivating the slider, so the
         // capability checks below don't fail on missing feature data.
@@ -145,6 +159,15 @@ Popup {
             case "brightness": {
                 if (entityObj.hasAllFeatures(requiredLightFeaturesForBrightness)) {
                     setSliderSource("qrc:/components/TouchSliderBrightness.qml");
+                } else {
+                    touchSlider.active = false;
+                }
+                break;
+            }
+            case "color_temperature": {
+                // only when named explicitly: the default feature of a light stays dim
+                if (entityObj.hasAllFeatures(requiredLightFeaturesForColorTemperature)) {
+                    setSliderSource("qrc:/components/TouchSliderColorTemperature.qml");
                 } else {
                     touchSlider.active = false;
                 }

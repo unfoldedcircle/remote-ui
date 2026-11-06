@@ -52,6 +52,13 @@ class Colors : public QObject {
     Q_PROPERTY(QColor buttonPrimary MEMBER m_primaryButton NOTIFY primaryButtonChanged)
     Q_PROPERTY(QColor redPressed MEMBER redPressed CONSTANT)
 
+    // slider items on activity pages; their fill and track take textPrimary, surface and surfaceRaised
+    Q_PROPERTY(QColor sliderGradientCool MEMBER sliderGradientCool CONSTANT)
+    Q_PROPERTY(QColor sliderGradientWarm MEMBER sliderGradientWarm CONSTANT)
+    Q_PROPERTY(QColor sliderGradientHeat MEMBER sliderGradientHeat CONSTANT)
+    Q_PROPERTY(QColor sliderOnFill MEMBER black CONSTANT)
+    Q_PROPERTY(QColor sliderGrip MEMBER sliderGrip CONSTANT)
+
  public:
     explicit Colors(const QString &baseColor = "#000000", QObject *parent = nullptr);
     ~Colors();
@@ -76,6 +83,12 @@ class Colors : public QObject {
     QColor surfaceSelected = QColor("#595959");
     QColor divider = QColor("#3A3A3A");
     QColor redPressed = QColor("#FF0D2A");
+
+    // provisional until the slider design is final (docs/design-system.md, section 7)
+    QColor sliderGradientCool = QColor("#D5F7FF");
+    QColor sliderGradientWarm = QColor("#F3AA67");
+    QColor sliderGradientHeat = QColor("#C33030");
+    QColor sliderGrip = QColor("#595959");
 
     Q_INVOKABLE void generateColorPalette(QColor primaryColor);
 

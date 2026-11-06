@@ -309,7 +309,8 @@ class Sensor : public Base {
     Q_PROPERTY(QString customLabel READ getCustomLabel CONSTANT)
     Q_PROPERTY(QString customUnit READ getCustomUnit CONSTANT)
     Q_PROPERTY(QString nativeUnit READ getNativeUnit CONSTANT)
-    Q_PROPERTY(int decimals READ getDecimals CONSTANT)
+    // effective number of decimal places of a numeric value, -1 for the automatic format
+    Q_PROPERTY(int decimals READ getDecimals NOTIFY valueChanged)
     Q_PROPERTY(int minValue READ getMinValue CONSTANT)
     Q_PROPERTY(int maxValue READ getMaxValue CONSTANT)
 
@@ -319,33 +320,28 @@ class Sensor : public Base {
                     QVariantMap options, const QString &integrationId, QObject *parent);
     ~Sensor();
 
-    // The value as the sensor reported it; a binary sensor's on/off is translated here, with the binary device
-    // class that is current, so a language change and a later unit (device class) change are reflected.
-    QString getValue() {
-        const QString value = m_value.toString();
-        // getTranslatedValue() reads everything but "on" as off: no value stays no value
-        if (m_sensorDeviceClass == SensorDeviceClass::Binary && !value.isEmpty()) {
-            return BinarySensorDeviceClass::getTranslatedValue(m_binarySensorDeviceClass, value);
-        }
-        return value;
-    }
+    // The value as it is shown. A binary sensor's on/off is translated here, with the binary device class that is
+    // current, so a language change and a later unit (device class) change are reflected. A numeric value is
+    // formatted with the effective decimals, a text value is shown as reported.
+    QString getValue();
     QString getUnit() { return m_unit; }
 
     // options
     QString getCustomLabel() { return m_customLabel; }
     QString getCustomUnit() { return m_customUnit; }
     QString getNativeUnit() { return m_nativeUnit; }
-    int     getDecimals() { return m_decimals; }
+    int     getDecimals() { return m_userDecimals >= 0 ? m_userDecimals : m_decimals; }
     int     getMinValue() { return m_minValue; }
     int     getMaxValue() { return m_maxValue; }
 
     bool updateAttribute(const QString &attribute, QVariant data) override;
+    bool updateOptions(QVariant data) override;
 
     QString getStateInfo() override {
         if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
             return getValue();
         } else {
-            return m_value.toString() + " " + m_unit;
+            return getValue() + " " + m_unit;
         }
     }
 
@@ -366,7 +362,9 @@ class Sensor : public Base {
     QString m_customLabel;
     QString m_customUnit;
     QString m_nativeUnit;
+    // decimals option of the driver and the user override in options.user, -1 if not set
     int     m_decimals;
+    int     m_userDecimals = -1;
     int     m_minValue = 0;
     int     m_maxValue = 0;
 };
