@@ -130,15 +130,15 @@ jobs:
           cmake -D CMAKE_PREFIX_PATH="$QT_ROOT_DIR" ..
           cmake --build .
 
+      # Runs every test registered with add_test() in test/**/CMakeLists.txt: a new test target is picked up without
+      # touching the workflow. The runner has no display.
       - name: Unit tests
         shell: bash
+        env:
+          QT_QPA_PLATFORM: offscreen
         run: |
           cd ${{ env.PROJECT_NAME }}/test/build
-          common/testCommon
-          core/testCore
-          hardware/testHardware
-          ui/testUiModels
-          hardware/testBattery
+          ctest --output-on-failure
 
   # The static builds run in Docker toolchain images. The Linux x64 desktop simulator is only built for release
   # builds (push to main and version tags), not for pull requests, so the matrix is computed here.
