@@ -99,8 +99,22 @@ void testIconFiles::initTestCase() {
     write(sizeIconPath("2x1-em.svg"), svg("viewBox=\"0 0 200 100\" width=\"1em\" height=\"1em\""));
     write(sizeIconPath("2x1-percent.svg"), svg("viewBox=\"0 0 200 100\" width=\"100%\" height=\"100%\""));
     write(sizeIconPath("2x1-auto.svg"), svg("viewBox=\"0 0 200 100\" width=\"auto\" height=\"auto\""));
-    // root width and height that disagree with the viewBox: Qt draws the root size
+    // root width and height that disagree with the viewBox: the viewBox decides, Qt maps it onto any size
     write(sizeIconPath("mismatch.svg"), svg("viewBox=\"0 0 200 100\" width=\"100\" height=\"100\""));
+    write(sizeIconPath("mismatch-reverse.svg"), svg("viewBox=\"0 0 100 100\" width=\"200\" height=\"100\""));
+    // a flag with a 2:1 viewBox, declared square in px
+    write(sizeIconPath("flag.svg"),
+          "<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 200 100\" width=\"100px\" height=\"100px\">\n"
+          "  <!-- a comment before the content -->\n"
+          "  <rect width=\"200px\" height=\"100px\" fill=\"#00247d\"/>\n"
+          "  <path d=\"M100,0 V100 M0,50 H200\" stroke=\"#cc142b\" stroke-width=\"18\"/>\n"
+          "</svg>\n");
+    write(sizeIconPath("fractional.svg"), svg("viewBox=\"0 0 24.5 24\""));
+    write(sizeIconPath("commas.svg"), svg("viewBox=\"0,0,200,100\" width=\"100\" height=\"100\""));
+    // without a usable viewBox: the size Qt reports
+    write(sizeIconPath("no-viewbox.svg"), svg("width=\"200\" height=\"100\""));
+    write(sizeIconPath("bad-viewbox.svg"), svg("viewBox=\"0 0 200\" width=\"100\" height=\"100\""));
+    write(sizeIconPath("empty-viewbox.svg"), svg("viewBox=\"0 0 0 100\" width=\"200\" height=\"100\""));
     write(m_sizeDir.path() + "/TvChannelIcon/wide.svg", svg("viewBox=\"0 0 400 100\""));
 
     QVERIFY(png.save(sizeIconPath("sofa.png")));
@@ -219,8 +233,16 @@ void testIconFiles::svgIconSize_data() {
     QTest::newRow("em width and height") << "custom:2x1-em.svg" << QSize(240, 240) << QSize(240, 120);
     QTest::newRow("% width and height") << "custom:2x1-percent.svg" << QSize(240, 240) << QSize(240, 120);
     QTest::newRow("auto width and height") << "custom:2x1-auto.svg" << QSize(240, 240) << QSize(240, 120);
-    QTest::newRow("width and height disagree with the viewBox")
-        << "custom:mismatch.svg" << QSize(240, 120) << QSize(120, 120);
+    QTest::newRow("2:1 viewBox declared square") << "custom:mismatch.svg" << QSize(240, 120) << QSize(240, 120);
+    QTest::newRow("1:1 viewBox declared 2:1") << "custom:mismatch-reverse.svg" << QSize(240, 120) << QSize(120, 120);
+    QTest::newRow("flag on a 2 x 1 button") << "custom:flag.svg" << QSize(276, 128) << QSize(256, 128);
+    QTest::newRow("flag on a 1 x 1 button") << "custom:flag.svg" << QSize(120, 120) << QSize(120, 60);
+    QTest::newRow("flag on a 4 x 2 button") << "custom:flag.svg" << QSize(480, 240) << QSize(480, 240);
+    QTest::newRow("fractional viewBox") << "custom:fractional.svg" << QSize(120, 120) << QSize(120, 118);
+    QTest::newRow("viewBox separated by commas") << "custom:commas.svg" << QSize(240, 240) << QSize(240, 120);
+    QTest::newRow("no viewBox") << "custom:no-viewbox.svg" << QSize(240, 240) << QSize(240, 120);
+    QTest::newRow("viewBox with three values") << "custom:bad-viewbox.svg" << QSize(240, 120) << QSize(120, 120);
+    QTest::newRow("viewBox without a width") << "custom:empty-viewbox.svg" << QSize(240, 240) << QSize(240, 120);
 }
 
 void testIconFiles::svgIconSize() {

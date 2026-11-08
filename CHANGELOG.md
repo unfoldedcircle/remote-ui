@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on
   memory. A wide SVG icon on an activity or remote page button uses the whole button, and a square one stays square
-  and centred.
+  and centred. An SVG icon keeps the aspect ratio of its `viewBox`, also when its `width` and `height` declare
+  another one, so it is no longer drawn squashed.
 
 ---
 

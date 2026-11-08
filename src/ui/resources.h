@@ -35,10 +35,11 @@ class Resources : public QObject {
     /**
      * @brief The size a `custom:` or `ctv:` SVG icon is drawn at in a box of boxWidth x boxHeight.
      *
-     * The largest size with the aspect ratio Qt reports for the file that fits into the box. The size of a file is read
-     * once and cached until the file's modification time or size changes. Returns an invalid size for any other icon,
-     * a missing or rejected file, a file whose size cannot be read and an empty box: the icon is then decoded at the
-     * box size.
+     * The largest size with the aspect ratio of the root `viewBox` that fits into the box: Qt maps the viewBox onto
+     * the size it rasterizes at, so the root width and height are ignored. Without a usable viewBox, the size Qt
+     * reports for the file. The size of a file is read once and cached until the file's modification time or size
+     * changes. Returns an invalid size for any other icon, a missing or rejected file, a file whose size cannot be read
+     * and an empty box: the icon is then decoded at the box size.
      */
     Q_INVOKABLE QSize   getIconSize(const QString& id, int boxWidth, int boxHeight);
     Q_INVOKABLE QString getTvChannelIcon(const QString& id) { return getResource(TvChannelIcon, id); }
@@ -128,11 +129,11 @@ class Resources : public QObject {
      */
     QString getIconFile(ResourceType type, const QString& id, const QString& name);
 
-    // the size Qt reports for an SVG icon file, with the file's modification time and size it was read from
+    // the viewBox size of an SVG icon file, with the file's modification time and size it was read from
     struct SvgIconSize {
         QDateTime modified;
         qint64    fileSize = -1;
-        QSize     size;
+        QSizeF    size;
     };
     QHash<QString, SvgIconSize> m_svgIconSizes;
 

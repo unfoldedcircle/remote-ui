@@ -267,6 +267,7 @@ void testImageDecoder::fitSize_data() {
     QTest::newRow("viewBox 70 x 35 in 240 x 120") << QSizeF(70, 35) << QSizeF(240, 120) << QSize(240, 120);
     // rounded to whole pixels, but never below one pixel per side
     QTest::newRow("3:1 in 100 x 100") << QSizeF(300, 100) << QSizeF(100, 100) << QSize(100, 33);
+    QTest::newRow("viewBox 24.5 x 24 in 120 x 120") << QSizeF(24.5, 24) << QSizeF(120, 120) << QSize(120, 118);
     QTest::newRow("1000:1 in 100 x 100") << QSizeF(1000, 1) << QSizeF(100, 100) << QSize(100, 1);
 }
 

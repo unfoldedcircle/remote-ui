@@ -22,7 +22,7 @@ Item {
     property string icon
     property string suffix
     property string _icon: icon ? resource.getIcon(icon, suffix.toLowerCase()) : ""
-    // an SVG icon file: the largest size with its own aspect ratio inside the box, invalid for any other icon
+    // an SVG icon file: the largest size with the aspect ratio of its viewBox inside the box, invalid for any other icon
     readonly property size _svgSize: _icon.indexOf("file:") === 0 ? resource.getIconSize(icon, width, height)
                                                                    : Qt.size(-1, -1)
     readonly property bool _hasSvgSize: _svgSize.width > 0 && _svgSize.height > 0
@@ -38,7 +38,9 @@ Item {
 
     Image {
         id: image
-        fillMode: Image.PreserveAspectFit
+        // An SVG of a known size already has its own aspect ratio: it is decoded at exactly that size, with the viewBox
+        // mapped onto it. A fit mode would decode it to cover the size the file declares, which may differ.
+        fillMode: iconBase._hasSvgSize ? Image.Stretch : Image.PreserveAspectFit
         antialiasing: true
         asynchronous: true
         cache: source.toString().indexOf("data:") !== 0
