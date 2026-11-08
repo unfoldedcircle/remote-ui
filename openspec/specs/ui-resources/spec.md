@@ -7,7 +7,7 @@ The resources the UI renders: built-in and custom icons, the icon selector, back
 ## Requirements
 
 ### Requirement: Icon identifiers
-An icon SHALL be referenced by a string `<prefix>:<name>`, where only the text between the first and the second colon is used as the name. A `uc:` icon (any prefix containing `uc`) SHALL resolve to a glyph of the icon font through the embedded name mapping, which SHALL be generated from the Font Awesome release the font is built from: every canonical Font Awesome icon name of that release, all editions, mapped to its code point (aliases are not mapped), plus the names of the tracked overrides file — the remote's own pre-Font-Awesome icon names such as `remote`, `blind`, `activity` or `lamp-1`, and the Font Awesome names the UI deliberately points at another icon (`heat`, `info`, `link`, `list`, `square-full`) — each mapped to the Font Awesome icon it shows. At Font Awesome 6.7.2 the mapping SHALL have 3891 names: 3814 Font Awesome icons and 82 overrides, 5 of which replace a Font Awesome name. A name once offered SHALL stay in the mapping, because it may be stored in a configuration. That mapping SHALL be the same for both editions of the icon font; whether the loaded font can actually draw a mapped name depends on the edition, and a name it cannot draw is replaced as specified in "Missing and default icons". The repository check SHALL fail if an override is not applied, if a `uc:` name used by the sources is not in the mapping, if a fallback target or the placeholder is not drawable by the Free font, or if a Pro-only name used by the sources has no fallback. Because the icon names the core assigns on its own appear in no UI source, the unit tests SHALL keep the list of them, taken from the core, and SHALL fail when the Free font would draw one of them as the placeholder; the list SHALL be extended when the core adds such a name. A `custom:` icon (any prefix containing `custom`) SHALL resolve to the file `<UC_RESOURCE_PATH>/Icon/<name>`. An identifier containing `ctv:` SHALL resolve to the TV channel icon file `<UC_RESOURCE_PATH>/TvChannelIcon/<name>`. A trailing `.png`, `.jpg` or `.jpeg` SHALL be kept as part of the file name.
+An icon SHALL be referenced by a string `<prefix>:<name>`, where only the text between the first and the second colon is used as the name. A `uc:` icon (any prefix containing `uc`) SHALL resolve to a glyph of the icon font through the embedded name mapping, which SHALL be generated from the Font Awesome release the font is built from: every canonical Font Awesome icon name of that release, all editions, mapped to its code point (aliases are not mapped), plus the names of the tracked overrides file — the remote's own pre-Font-Awesome icon names such as `remote`, `blind`, `activity` or `lamp-1`, and the Font Awesome names the UI deliberately points at another icon (`heat`, `info`, `link`, `list`, `square-full`) — each mapped to the Font Awesome icon it shows. At Font Awesome 6.7.2 the mapping SHALL have 3891 names: 3814 Font Awesome icons and 82 overrides, 5 of which replace a Font Awesome name. A name once offered SHALL stay in the mapping, because it may be stored in a configuration. That mapping SHALL be the same for both editions of the icon font; whether the loaded font can actually draw a mapped name depends on the edition, and a name it cannot draw is replaced as specified in "Missing and default icons". The repository check SHALL fail if an override is not applied, if a `uc:` name used by the sources is not in the mapping, if a fallback target or the placeholder is not drawable by the Free font, or if a Pro-only name used by the sources has no fallback. Because the icon names the core assigns on its own appear in no UI source, the unit tests SHALL keep the list of them, taken from the core, and SHALL fail when the Free font would draw one of them as the placeholder; the list SHALL be extended when the core adds such a name. A `custom:` icon (any prefix containing `custom`) SHALL resolve to the file `<UC_RESOURCE_PATH>/Icon/<name>`. An identifier containing `ctv:` SHALL resolve to the TV channel icon file `<UC_RESOURCE_PATH>/TvChannelIcon/<name>`. The file name SHALL be used as it is, whatever its extension: a `.png`, `.jpg`, `.jpeg` or `.svg` file is an icon.
 
 #### Scenario: Built-in icon
 - **WHEN** a tile shows the icon `uc:lightbulb`
@@ -29,6 +29,10 @@ An icon SHALL be referenced by a string `<prefix>:<name>`, where only the text b
 - **WHEN** a tile shows the icon `custom:sofa.png` and `<UC_RESOURCE_PATH>/Icon/sofa.png` exists
 - **THEN** that image file is drawn
 
+#### Scenario: Custom SVG icon
+- **WHEN** a tile shows the icon `custom:sofa.svg` and `<UC_RESOURCE_PATH>/Icon/sofa.svg` exists
+- **THEN** that file is drawn, rasterized at the size of the tile's icon box
+
 #### Scenario: TV channel icon
 - **WHEN** a tile shows the icon `ctv:bbc1.png` and `<UC_RESOURCE_PATH>/TvChannelIcon/bbc1.png` exists
 - **THEN** that image file is drawn
@@ -37,12 +41,28 @@ An icon SHALL be referenced by a string `<prefix>:<name>`, where only the text b
 - **WHEN** the core starts assigning a Pro-only icon name on its own and that name is added to the list kept by the unit tests without a fallback entry
 - **THEN** the unit tests fail until a fallback is added
 
+#### Scenario: TV channel SVG icon
+- **WHEN** a tile shows the icon `ctv:bbc1.svg` and `<UC_RESOURCE_PATH>/TvChannelIcon/bbc1.svg` exists
+- **THEN** that file is drawn
+
 ### Requirement: Missing and default icons
-An icon that cannot be resolved SHALL leave its area empty and SHALL only be logged: an identifier without a colon, an unknown prefix, or a custom or TV channel icon whose file does not exist. An element with no icon identifier at all SHALL leave its area empty without asking for a lookup and without logging anything, because having no icon is a normal state. A `uc:` name that is not in the mapping SHALL leave its area empty and SHALL NOT be looked up as a TV channel icon file. Whether the icon font can draw a mapped name SHALL be decided by the loaded icon font alone: a code point that only another installed font has — a system symbol or text font that Qt would fall back to — SHALL count as missing, so such a font's unrelated glyph is never drawn in place of an icon. A `uc:` name that is in the mapping but that the loaded icon font cannot draw SHALL be replaced by the alternative name listed for it in the embedded fallback mapping and, when it has no entry there or the alternative cannot be drawn either, by the placeholder icon, a question mark in a circle; every replacement SHALL be logged with the name that was requested. The fallback SHALL be looked up by the name as it is stored, not by the icon it shows, so an override name (`switch`, `integration`, `playlist`) SHALL have its own fallback entry even when the icon it points at has one. The icon names the core assigns on its own SHALL have a fallback the Free edition can draw when the Free edition lacks them: the default icons of the entity types, among them those of macro, select, switch and IR emitter entities; the media browser thumbnails without an image (`icon://uc:…`), such as artists, tracks, playlists, channels, apps and web links; the button pages of IR remotes and Bluetooth peripherals, such as home, play/pause and record; the icon of an integration without one; and the default activity group. An entity without an icon SHALL get a default icon by type: button and switch `uc:power-on`, climate `uc:climate`, cover `uc:blind`, light `uc:light`, media player `uc:music`, sensor `uc:sensor`, remote `uc:remote`, activity and macro `uc:activity`, voice assistant `uc:microphone`, select `uc:list-dropdown`, any other type `uc:warning`.
+An icon that cannot be resolved SHALL leave its area empty and SHALL only be logged: an identifier without a colon, an unknown prefix, or a custom or TV channel icon whose file does not exist. An element with no icon identifier at all SHALL leave its area empty without asking for a lookup and without logging anything, because having no icon is a normal state. A `uc:` name that is not in the mapping SHALL leave its area empty and SHALL NOT be looked up as a TV channel icon file. Whether the icon font can draw a mapped name SHALL be decided by the loaded icon font alone: a code point that only another installed font has — a system symbol or text font that Qt would fall back to — SHALL count as missing, so such a font's unrelated glyph is never drawn in place of an icon. A `uc:` name that is in the mapping but that the loaded icon font cannot draw SHALL be replaced by the alternative name listed for it in the embedded fallback mapping and, when it has no entry there or the alternative cannot be drawn either, by the placeholder icon, a question mark in a circle; every replacement SHALL be logged with the name that was requested. The fallback SHALL be looked up by the name as it is stored, not by the icon it shows, so an override name (`switch`, `integration`, `playlist`) SHALL have its own fallback entry even when the icon it points at has one. The icon names the core assigns on its own SHALL have a fallback the Free edition can draw when the Free edition lacks them: the default icons of the entity types, among them those of macro, select, switch and IR emitter entities; the media browser thumbnails without an image (`icon://uc:…`), such as artists, tracks, playlists, channels, apps and web links; the button pages of IR remotes and Bluetooth peripherals, such as home, play/pause and record; the icon of an integration without one; and the default activity group. A custom or TV channel icon file that exists but cannot be used SHALL show the placeholder icon and SHALL be logged as a warning with the identifier and the reason: an SVG file larger than 256 KB, a gzip-compressed SVG (`.svgz` content), or any file the image loader fails to decode. An entity without an icon SHALL get a default icon by type: button and switch `uc:power-on`, climate `uc:climate`, cover `uc:blind`, light `uc:light`, media player `uc:music`, sensor `uc:sensor`, remote `uc:remote`, activity and macro `uc:activity`, voice assistant `uc:microphone`, select `uc:list-dropdown`, any other type `uc:warning`.
 
 #### Scenario: Custom icon file deleted
 - **WHEN** an entity uses `custom:old.png` and the file no longer exists
 - **THEN** the tile shows no icon and no placeholder
+
+#### Scenario: Compressed SVG icon
+- **WHEN** an entity uses `custom:packed.svg` and that file starts with the gzip magic number
+- **THEN** the tile shows the placeholder icon and a warning naming `custom:packed.svg` is logged
+
+#### Scenario: Oversized SVG icon
+- **WHEN** an entity uses `custom:poster.svg` and that file is larger than 256 KB
+- **THEN** the tile shows the placeholder icon and a warning is logged
+
+#### Scenario: Icon file that does not decode
+- **WHEN** an entity uses `custom:broken.png` and the image loader cannot decode the file
+- **THEN** the tile shows the placeholder icon and a warning naming `custom:broken.png` is logged
 
 #### Scenario: Unknown built-in name
 - **WHEN** an entity uses `uc:does-not-exist`
@@ -81,7 +101,7 @@ An icon that cannot be resolved SHALL leave its area empty and SHALL only be log
 - **THEN** the fallback listed for `switch` itself is drawn, because the fallback of `light-switch` is not consulted for it
 
 ### Requirement: Icon rendering
-A glyph icon SHALL be drawn centred in its square box in the icon font at a pixel size of half the box size (rounded), off-white unless a colour is given, with native text rendering. An image icon SHALL be decoded asynchronously at the box size, scaled to fit the box with its aspect ratio preserved, and kept in the image cache. The UI SHALL NOT name the icon font family itself: it SHALL take the family from the icon font it loaded at startup, which is the same for both editions. If that font cannot be loaded the UI SHALL log "Icon font failed to load" and continue with the fonts the platform offers.
+A glyph icon SHALL be drawn centred in its square box in the icon font at a pixel size of half the box size (rounded), off-white unless a colour is given, with native text rendering. An image icon SHALL be decoded asynchronously at the box size, scaled to fit the box with its aspect ratio preserved, and kept in the image cache; an SVG icon SHALL be rasterized at the box size, never at the size the file declares, so that its cost is bounded by the screen and it stays sharp in every box. An image icon whose decoding fails SHALL be replaced by the placeholder icon in the same box, and the failure SHALL be logged. The UI SHALL NOT name the icon font family itself: it SHALL take the family from the icon font it loaded at startup, which is the same for both editions. If that font cannot be loaded the UI SHALL log "Icon font failed to load" and continue with the fonts the platform offers.
 
 #### Scenario: Glyph size
 - **WHEN** an icon is shown in an 80 px box
@@ -91,16 +111,32 @@ A glyph icon SHALL be drawn centred in its square box in the icon font at a pixe
 - **WHEN** a 200 x 100 custom icon is shown in an 80 px box
 - **THEN** it is drawn 80 x 40, centred
 
+#### Scenario: SVG icon in two boxes
+- **WHEN** the same `custom:sofa.svg` is shown in an 80 px box on a tile and in a 100 px box in the icon selector
+- **THEN** each is rasterized at its own box size and neither shows scaling artefacts
+
+#### Scenario: SVG declaring a huge size
+- **WHEN** a custom SVG icon declares a width and height of 20000 and is shown in an 80 px box
+- **THEN** it is rasterized at 80 px and no 20000 px raster is ever allocated
+
 #### Scenario: Font family taken from the loaded font
 - **WHEN** the embedded icon font is exchanged for the other edition before a build
 - **THEN** the icons still render, because no screen names an icon font family
 
 ### Requirement: Icon selector
-The icon selector SHALL be a full-screen overlay titled "Select icon" with two tabs, "Unfolded Icons" and "Custom Icons", a grid of 120 x 120 px cells each showing a 100 px icon, and a "Close" button. The Unfolded tab SHALL list as `uc:<name>`, sorted by name, only those names of the icon font mapping that the loaded icon font itself can actually draw — a code point only another installed font has does not count — so that no offered icon would show as a fallback, as the placeholder or as another font's character; the Custom tab SHALL list every `.png`, `.jpg` and `.jpeg` file (extension matched case-insensitively) in `<UC_RESOURCE_PATH>/Icon/` as `custom:<file name>`, sorted by name ignoring case. Both lists SHALL be read when the selector is created, not each time it opens. There SHALL be no search field and no swiping between tabs. Tapping an icon SHALL select it and close the overlay; the selected identifier is applied to the entity (from the page edit menu) or the profile (from the profile menu). Opening SHALL start on the Unfolded tab with its first icon.
+The icon selector SHALL be a full-screen overlay titled "Select icon" with two tabs, "Unfolded Icons" and "Custom Icons", a grid of 120 x 120 px cells each showing a 100 px icon, and a "Close" button. The Unfolded tab SHALL list as `uc:<name>`, sorted by name, only those names of the icon font mapping that the loaded icon font itself can actually draw — a code point only another installed font has does not count — so that no offered icon would show as a fallback, as the placeholder or as another font's character; the Custom tab SHALL list every `.png`, `.jpg`, `.jpeg` and `.svg` file (extension matched case-insensitively) in `<UC_RESOURCE_PATH>/Icon/` as `custom:<file name>`, sorted by name ignoring case, except an SVG file that is larger than 256 KB or gzip-compressed, which SHALL be left out and logged because it would only show as the placeholder. Both lists SHALL be read when the selector is created, not each time it opens. There SHALL be no search field and no swiping between tabs. Tapping an icon SHALL select it and close the overlay; the selected identifier is applied to the entity (from the page edit menu) or the profile (from the profile menu). Opening SHALL start on the Unfolded tab with its first icon.
 
 #### Scenario: Selecting an icon
 - **WHEN** the user taps the `uc:tv` cell
 - **THEN** the overlay closes and `uc:tv` becomes the icon of the entity or profile being edited
+
+#### Scenario: Selecting an SVG icon
+- **WHEN** `<UC_RESOURCE_PATH>/Icon/` contains `sofa.svg` and the user taps its cell on the Custom Icons tab
+- **THEN** the overlay closes and `custom:sofa.svg` becomes the icon of the entity or profile being edited
+
+#### Scenario: Rejected SVG file
+- **WHEN** `<UC_RESOURCE_PATH>/Icon/` contains a gzip-compressed `packed.svg`
+- **THEN** the Custom Icons tab does not show it and the omission is logged
 
 #### Scenario: No resource directory
 - **WHEN** `UC_RESOURCE_PATH` is unset or its `Icon` folder is empty

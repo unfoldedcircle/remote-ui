@@ -34,9 +34,9 @@ The implementation is on the branch `feat/svg-icons`. The change stays open unti
 
 ## 3. Outside this repository
 
-- [ ] 3.1 remote-core: `svg` in `file_formats` of `Icon` and `TvChannelIcon`, upload validation
+- [x] 3.1 remote-core: `svg` in `file_formats` of `Icon` and `TvChannelIcon`, upload validation
       (format gate, element allow-list, attribute rules, geometry, complexity limits, parse test)
-- [ ] 3.2 web-configurator: upload SVG files untouched, bypassing the canvas cropper
+- [x] 3.2 web-configurator: upload SVG files untouched, bypassing the canvas cropper
 
 ## 4. Spec, verification and closing
 
@@ -44,7 +44,7 @@ The implementation is on the branch `feat/svg-icons`. The change stays open unti
       rendering, icon selector
 - [x] 4.2 `media-player` delta: `MODIFIED` artwork download
 - [x] 4.3 `openspec validate svg-custom-icons --strict` green
-- [ ] 4.4 On a device with a core that accepts SVG: upload an SVG icon, pick it in the selector,
+- [x] 4.4 On a device with a core that accepts SVG: upload an SVG icon, pick it in the selector,
       see it on a tile and in the selector grid; a compressed and an oversized SVG copied into the
       icon directory show the placeholder and log the reason
-- [ ] 4.5 Archive the change so the deltas land in the living specs
+- [x] 4.5 Archive the change so the deltas land in the living specs
