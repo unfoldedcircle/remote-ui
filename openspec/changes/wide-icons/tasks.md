@@ -47,7 +47,7 @@ Needs phases 1 and 2.
       `ButtonIcon.qml` (stubbed `resource`, `colors`, `fonts`, `ui`) that the painted sizes of the
       design.md table stay the same and that `implicitWidth/Height` (the raster) now equal the
       painted size.
-- [ ] 3.2 Run `./design-check.sh` and `./cpplint.sh`. Format with `git clang-format`. All must be
+- [x] 3.2 Run `./design-check.sh` and `./cpplint.sh`. Format with `git clang-format`. All must be
       clean.
 - [x] 3.3 Add a `CHANGELOG.md` entry under Unreleased, in the same commit as 3.1. Suggested
       "Changed": "SVG icons that are wider or taller than their box are rendered at the size they
@@ -66,7 +66,7 @@ Needs phases 1 and 2.
 - [ ] 4.2 On a Remote Two or Remote 3, measure the first lookup of a 32 KB SVG (log timing in a
       local build, not committed) and look at a 4:1 and a 1:4 icon on page buttons for sharpness.
       If the lookup is above 1 ms, raise it before the merge (design.md, Risks).
-- [ ] 4.3 Run `make test` (all targets green) and
+- [x] 4.3 Run `make test` (all targets green) and
       `npx @fission-ai/openspec@1.14.1 validate wide-icons --strict`.
 
 ## Workflow follow-up
