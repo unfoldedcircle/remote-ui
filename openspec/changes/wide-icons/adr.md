@@ -10,8 +10,8 @@
 
 All ADRs 0001–0020 are accepted, and none is superseded. These are relevant to this change:
 
-- adr/0002-qt-5-15-lts-pinned.md - The change works around the Qt 5.15 `loadSize` behaviour (fit decodes to the cover size) with Qt 5.15 API only (`QImageReader::size`, `sourceSize`). It uses no Qt 6 API.
-- adr/0005-core-api-over-websocket-ui-holds-no-business-logic.md - The core validates SVG uploads and their aspect ratio. The UI does not clamp or reject ratios, also not a width/height that disagrees with the viewBox (a follow-up for the core's upload validation); it lays out what Qt draws.
+- adr/0002-qt-5-15-lts-pinned.md - The change works around the Qt 5.15 `loadSize` behaviour (fit decodes to the cover size) with Qt 5.15 API only (`sourceSize`, `Image.Stretch`; the viewBox is read with `QXmlStreamReader`). It uses no Qt 6 API.
+- adr/0005-core-api-over-websocket-ui-holds-no-business-logic.md - The core validates SVG uploads and their aspect ratio. The UI does not clamp or reject ratios. It takes the ratio from the viewBox, which the core requires and checks, so a root width/height that disagrees with the viewBox needs no rejection.
 - adr/0007-one-input-idiom-per-screen.md - The page buttons are not reached by the d-pad. Their input idiom is unchanged.
 - adr/0008-remote-two-and-remote-3-with-feature-parity.md - The same behaviour applies on both models. Only the cell size differs, through the screen height.
 - adr/0009-unit-tests-for-new-logic-and-bug-fixes.md - The size lookup, its cache and the fit computation get unit tests in `testIconFiles` and `testImageDecoder`.

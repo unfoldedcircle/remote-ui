@@ -24,6 +24,9 @@ sharpness.
 - An SVG icon is rasterized at the size it is drawn, not at the larger size that covers its box.
   This saves memory and keeps the icon sharp. It applies wherever an SVG icon is shown; every
   other icon box keeps its square shape and looks the same.
+- The aspect ratio of an SVG icon is the ratio of its root `viewBox`. A root `width` and `height`
+  that declare another ratio no longer squash the icon: a 2:1 flag declared `width="100px"
+  height="100px"` is drawn 2:1, not as a square.
 - Glyph icons (`uc:`), PNG and JPEG icons, the placeholder of a failed icon and every square icon
   box elsewhere in the UI look the same as before.
 
@@ -65,14 +68,6 @@ sharpness.
 
 ## Follow-ups outside this change
 
-- **Reject SVG icons whose root width/height ratio differs from the viewBox ratio (remote-core
-  upload validation; the web configurator warns before the upload).** The UI shows what Qt 5.15
-  draws. For such a file, Qt reports the root width/height as the image size and **stretches** the
-  viewBox content to that ratio, because the image plugin renders with
-  `preserveAspectRatio` off and ignores the file's own `preserveAspectRatio` attribute.
-  - Measured: viewBox `0 0 200 100` with `width="100" height="100"` is reported as 100 × 100, and a
-    circle in the viewBox is drawn as an upright ellipse.
-  - Root width/height in `em`/`ex` is ignored, so the viewBox is used, and such files are not
-    affected.
-
-  The UI adds no rejection of its own; this is not part of this change.
+None. An earlier draft asked remote-core and the web configurator to reject SVG icons whose root
+width/height ratio differs from the viewBox ratio. That is not needed: the UI takes the ratio from
+the viewBox (design.md, D9), so such a file is drawn undistorted.

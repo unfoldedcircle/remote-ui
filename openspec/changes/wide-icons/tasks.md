@@ -19,7 +19,8 @@ Phases 1 and 2 touch different files and can run in parallel. Phase 3 needs both
 
 - [x] 2.1 Add `Q_INVOKABLE QSize getIconSize(const QString& id, int boxWidth, int boxHeight)` to
       `src/ui/resources.{h,cpp}`. For a `custom:` or `ctv:` SVG that passes
-      `checkSvgFile`, it reads `QImageReader::size()`, caches it per path with the modification time
+      `checkSvgFile`, it reads the size of the root `viewBox` (D9), falling back to
+      `QImageReader::size()` without a usable viewBox, caches it per path with the modification time
       and file size, and returns `ImageDecoder::fitSize(...)`. For a glyph, a bitmap, a missing or
       rejected file, an unreadable size or an empty box, it returns an invalid size. Verify with
       task 2.2.
@@ -29,12 +30,16 @@ Phases 1 and 2 touch different files and can run in parallel. Phase 3 needs both
       - 2:1 with root width/height in unitless px, `mm`, `em`, `%` and `auto`;
       - a viewBox of 200 × 100 with width = height = 100.
 
-      Check the returned sizes against the `ui-resources` scenarios (the `em`/`%`/`auto` cases use
-      the viewBox, and the mismatch case is 1:1). Run with
+      Check the returned sizes against the `ui-resources` scenarios (every unit gives 2:1, and the
+      mismatch case is 2:1, the viewBox ratio). Run with
       `cd test/build && ctest -R testIconFiles`.
 - [x] 2.3 Add a test that replaces a fixture with a file of another aspect ratio under the same name
       and expects the new size (cache invalidation), plus tests that a PNG, a `uc:` glyph, a missing
       file, a gzip SVG and an unparsable SVG return an invalid size.
+- [x] 2.4 Take the aspect ratio from the viewBox (D9) and add fixtures for it: a 2:1 flag declared
+      100px × 100px, a 1:1 viewBox declared 200 × 100, a fractional viewBox (`0 0 24.5 24`), a
+      viewBox separated by commas, and the fallbacks without a viewBox, with three values and with a
+      zero width. Add a `fitSize` case for the fractional size.
 
 ## 3. Rendering (`Icon.qml`)
 
@@ -42,7 +47,8 @@ Needs phases 1 and 2.
 
 - [x] 3.1 In `src/qml/components/Icon.qml`, bind the `Image` `width`, `height` and `sourceSize` to
       the size from the lookup when it is valid, and to the whole box otherwise (today's
-      behaviour). Keep `PreserveAspectFit`, `anchors.centerIn` and the `Image.Error` placeholder.
+      behaviour). Use `Image.Stretch` when the size is known and `PreserveAspectFit` otherwise
+      (D5); keep `anchors.centerIn` and the `Image.Error` placeholder.
       Leave `ButtonIcon.qml` unchanged. Verify with a `qmlscene` harness of `Icon.qml` and
       `ButtonIcon.qml` (stubbed `resource`, `colors`, `fonts`, `ui`) that the painted sizes of the
       design.md table stay the same and that `implicitWidth/Height` (the raster) now equal the
@@ -63,6 +69,9 @@ Needs phases 1 and 2.
       Compare against every scenario of the `activities` and `remote-entity` deltas. Also check a
       glyph item, a PNG item and a broken SVG (placeholder). Check a wide SVG on an entity tile and
       in the icon selector: it is unchanged, fitted to the width. The QML log is free of warnings.
+- [x] 3.4 With the harness, check a 2:1 flag declared 100px × 100px in 276 × 128, 240 × 120,
+      120 × 120 and 480 × 240 boxes: drawn 2:1, decoded at the drawn size, and its pixels equal a
+      2:1 reference rendered by `QImageReader` with the viewBox mapped onto the size.
 - [ ] 4.2 On a Remote Two or Remote 3, measure the first lookup of a 32 KB SVG (log timing in a
       local build, not committed) and look at a 4:1 and a 1:4 icon on page buttons for sharpness.
       If the lookup is above 1 ms, raise it before the merge (design.md, Risks).
