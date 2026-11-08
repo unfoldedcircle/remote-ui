@@ -8,7 +8,7 @@ Phases 1 and 2 touch different files and can run in parallel. Phase 3 needs both
 
 ## 1. Fit computation (`ImageDecoder`)
 
-- [ ] 1.1 Add `ImageDecoder::fitSize(QSizeF source, QSizeF box)` to `src/ui/imageDecoder.{h,cpp}`.
+- [x] 1.1 Add `ImageDecoder::fitSize(QSizeF source, QSizeF box)` to `src/ui/imageDecoder.{h,cpp}`.
       It returns the largest size with the source's aspect ratio inside the box, rounded to whole
       pixels, and an invalid size for an empty source or box. Verify with `testImageDecoder` cases
       for 1:1, 2:1, 3:1, 4:1, 1:2 and 1:4 in the Remote 3 default-grid boxes 120 × 120, 240 × 120,

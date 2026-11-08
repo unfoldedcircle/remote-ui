@@ -5,6 +5,8 @@
 
 #include <QByteArray>
 #include <QImage>
+#include <QSize>
+#include <QSizeF>
 #include <QString>
 
 namespace uc {
@@ -43,6 +45,13 @@ class ImageDecoder {
      * rasterization is checked: it must exist, be at most MAX_SVG_BYTES and not be gzip-compressed.
      */
     static bool checkSvgFile(const QString& path, QString* error = nullptr);
+
+    /**
+     * @brief The largest size with the aspect ratio of source that fits into box, rounded to whole pixels.
+     *
+     * At least one pixel per side. Returns an invalid size when source or box is empty.
+     */
+    static QSize fitSize(const QSizeF& source, const QSizeF& box);
 
     /// True for a `.svg` or `.svgz` file name, matched case-insensitively.
     static bool isSvgFileName(const QString& fileName);
