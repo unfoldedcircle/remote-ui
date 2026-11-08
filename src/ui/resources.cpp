@@ -4,6 +4,7 @@
 #include "resources.h"
 
 #include <QFileInfo>
+#include <QImageReader>
 #include <QRegularExpression>
 #include <QTextStream>
 #include <QUrl>
@@ -117,6 +118,43 @@ QString Resources::getIcon(const QString& id, const QString& suffix) {
 
     // The file name is used as is: whatever image format the image loader can decode is accepted.
     return getResource(id.contains("ctv:") ? TvChannelIcon : Icon, id);
+}
+
+QSize Resources::getIconSize(const QString& id, int boxWidth, int boxHeight) {
+    // the same file getIcon() resolves
+    const QStringList parts = id.split(":");
+
+    if (boxWidth <= 0 || boxHeight <= 0 || parts.size() < 2) {
+        return QSize();
+    }
+
+    const QString& prefix = parts[0];
+    const QString& name = parts[1];
+
+    if ((prefix != "custom" && prefix != "ctv") || !ImageDecoder::isSvgFileName(name)) {
+        return QSize();
+    }
+
+    const QString path = m_resourcePaths.value(prefix == "ctv" ? TvChannelIcon : Icon) + name;
+
+    if (!ImageDecoder::checkSvgFile(path)) {
+        return QSize();
+    }
+
+    const QFileInfo info(path);
+    SvgIconSize     cached = m_svgIconSizes.value(path);
+
+    if (cached.modified != info.lastModified() || cached.fileSize != info.size()) {
+        // Parses the whole document: once per file and change.
+        cached = {info.lastModified(), info.size(), QImageReader(path).size()};
+        m_svgIconSizes.insert(path, cached);
+
+        if (!cached.size.isValid() || cached.size.isEmpty()) {
+            qCWarning(lcResources()) << "Cannot read the size of icon" << id;
+        }
+    }
+
+    return ImageDecoder::fitSize(cached.size, QSizeF(boxWidth, boxHeight));
 }
 
 void Resources::getAboutInfo(int type) {

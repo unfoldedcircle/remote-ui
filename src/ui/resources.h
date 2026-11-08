@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QDateTime>
 #include <QDir>
 #include <QFile>
 #include <QFont>
@@ -11,6 +12,7 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QRawFont>
+#include <QSize>
 
 namespace uc {
 namespace ui {
@@ -29,6 +31,16 @@ class Resources : public QObject {
     Q_ENUM(AboutType)
 
     Q_INVOKABLE QString getIcon(const QString& id, const QString& suffix = QString());
+
+    /**
+     * @brief The size a `custom:` or `ctv:` SVG icon is drawn at in a box of boxWidth x boxHeight.
+     *
+     * The largest size with the aspect ratio Qt reports for the file that fits into the box. The size of a file is read
+     * once and cached until the file's modification time or size changes. Returns an invalid size for any other icon,
+     * a missing or rejected file, a file whose size cannot be read and an empty box: the icon is then decoded at the
+     * box size.
+     */
+    Q_INVOKABLE QSize   getIconSize(const QString& id, int boxWidth, int boxHeight);
     Q_INVOKABLE QString getTvChannelIcon(const QString& id) { return getResource(TvChannelIcon, id); }
     Q_INVOKABLE QString getBackgroundImage(const QString& id) { return getResource(BackgroundImage, id); }
     Q_INVOKABLE QString getSound(const QString& id) { return getResource(Sound, id); }
@@ -115,6 +127,14 @@ class Resources : public QObject {
      * above the size limit or a compressed one, resolves to the placeholder glyph and is logged.
      */
     QString getIconFile(ResourceType type, const QString& id, const QString& name);
+
+    // the size Qt reports for an SVG icon file, with the file's modification time and size it was read from
+    struct SvgIconSize {
+        QDateTime modified;
+        qint64    fileSize = -1;
+        QSize     size;
+    };
+    QHash<QString, SvgIconSize> m_svgIconSizes;
 
     QString                      m_resourcePath;
     QHash<ResourceType, QString> m_resourcePaths = {{Icon, m_resourcePath + "/Icon/"},

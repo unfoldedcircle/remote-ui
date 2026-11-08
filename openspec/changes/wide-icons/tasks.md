@@ -17,13 +17,13 @@ Phases 1 and 2 touch different files and can run in parallel. Phase 3 needs both
 
 ## 2. Size lookup (`Resources`)
 
-- [ ] 2.1 Add `Q_INVOKABLE QSize getIconSize(const QString& id, int boxWidth, int boxHeight)` to
+- [x] 2.1 Add `Q_INVOKABLE QSize getIconSize(const QString& id, int boxWidth, int boxHeight)` to
       `src/ui/resources.{h,cpp}`. For a `custom:` or `ctv:` SVG that passes
       `checkSvgFile`, it reads `QImageReader::size()`, caches it per path with the modification time
       and file size, and returns `ImageDecoder::fitSize(...)`. For a glyph, a bitmap, a missing or
       rejected file, an unreadable size or an empty box, it returns an invalid size. Verify with
       task 2.2.
-- [ ] 2.2 In `test/ui/test_icon_files.cpp`, write the fixture SVGs into the temporary resource
+- [x] 2.2 In `test/ui/test_icon_files.cpp`, write the fixture SVGs into the temporary resource
       directory:
       - viewBox only, at 1:1, 2:1, 3:1, 4:1, 1:2 and 1:4;
       - 2:1 with root width/height in unitless px, `mm`, `em`, `%` and `auto`;
@@ -32,7 +32,7 @@ Phases 1 and 2 touch different files and can run in parallel. Phase 3 needs both
       Check the returned sizes against the `ui-resources` scenarios (the `em`/`%`/`auto` cases use
       the viewBox, and the mismatch case is 1:1). Run with
       `cd test/build && ctest -R testIconFiles`.
-- [ ] 2.3 Add a test that replaces a fixture with a file of another aspect ratio under the same name
+- [x] 2.3 Add a test that replaces a fixture with a file of another aspect ratio under the same name
       and expects the new size (cache invalidation), plus tests that a PNG, a `uc:` glyph, a missing
       file, a gzip SVG and an unparsable SVG return an invalid size.
 
