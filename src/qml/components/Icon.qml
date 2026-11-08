@@ -22,6 +22,10 @@ Item {
     property string icon
     property string suffix
     property string _icon: icon ? resource.getIcon(icon, suffix.toLowerCase()) : ""
+    // an SVG icon file: the largest size with its own aspect ratio inside the box, invalid for any other icon
+    readonly property size _svgSize: _icon.indexOf("file:") === 0 ? resource.getIconSize(icon, width, height)
+                                                                   : Qt.size(-1, -1)
+    readonly property bool _hasSvgSize: _svgSize.width > 0 && _svgSize.height > 0
     property int size: 5
     property bool useLayer: false
     property alias color: iconText.color
@@ -38,9 +42,10 @@ Item {
         antialiasing: true
         asynchronous: true
         cache: source.toString().indexOf("data:") !== 0
-        width: parent.width
-        height: parent.height
-        // decoded at the box size: an SVG is rasterized at this size, never at the size it declares
+        width: iconBase._hasSvgSize ? iconBase._svgSize.width : parent.width
+        height: iconBase._hasSvgSize ? iconBase._svgSize.height : parent.height
+        // decoded at the size it is drawn: an SVG is rasterized at this size, never at the size it declares and
+        // never at a larger size that covers the box
         sourceSize.width: width
         sourceSize.height: height
         source: _icon.includes("data:") || _icon.includes("file:") ? _icon : ""

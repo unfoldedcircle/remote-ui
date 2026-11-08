@@ -40,7 +40,7 @@ Phases 1 and 2 touch different files and can run in parallel. Phase 3 needs both
 
 Needs phases 1 and 2.
 
-- [ ] 3.1 In `src/qml/components/Icon.qml`, bind the `Image` `width`, `height` and `sourceSize` to
+- [x] 3.1 In `src/qml/components/Icon.qml`, bind the `Image` `width`, `height` and `sourceSize` to
       the size from the lookup when it is valid, and to the whole box otherwise (today's
       behaviour). Keep `PreserveAspectFit`, `anchors.centerIn` and the `Image.Error` placeholder.
       Leave `ButtonIcon.qml` unchanged. Verify with a `qmlscene` harness of `Icon.qml` and
@@ -49,7 +49,7 @@ Needs phases 1 and 2.
       painted size.
 - [ ] 3.2 Run `./design-check.sh` and `./cpplint.sh`. Format with `git clang-format`. All must be
       clean.
-- [ ] 3.3 Add a `CHANGELOG.md` entry under Unreleased, in the same commit as 3.1. Suggested
+- [x] 3.3 Add a `CHANGELOG.md` entry under Unreleased, in the same commit as 3.1. Suggested
       "Changed": "SVG icons that are wider or taller than their box are rendered at the size they
       are shown: sharper and lighter on memory. Wide SVG icons on activity and remote page buttons
       use the whole button."
