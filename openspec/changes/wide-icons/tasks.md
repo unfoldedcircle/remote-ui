@@ -62,7 +62,7 @@ Needs phases 1 and 2.
 
 ## 4. Verification
 
-- [ ] 4.1 Run the desktop simulator (`UC_MODEL=DEV`, core-simulator). Copy the fixture SVGs into
+- [x] 4.1 Run the desktop simulator (`UC_MODEL=DEV`, core-simulator). Copy the files of [fixtures/](fixtures/README.md) into
       `<UC_RESOURCE_PATH>/Icon/` and configure an activity page and a remote page with
       `custom:<file>` icon items in 1 × 1, 2 × 1, 4 × 1, 4 × 2, 1 × 4 and 4 × 6 (whole page) sizes on the default
       4 × 6 grid.
@@ -72,7 +72,7 @@ Needs phases 1 and 2.
 - [x] 3.4 With the harness, check a 2:1 flag declared 100px × 100px in 276 × 128, 240 × 120,
       120 × 120 and 480 × 240 boxes: drawn 2:1, decoded at the drawn size, and its pixels equal a
       2:1 reference rendered by `QImageReader` with the viewBox mapped onto the size.
-- [ ] 4.2 On a Remote Two or Remote 3, measure the first lookup of a 32 KB SVG (log timing in a
+- [ ] 4.2 On a Remote Two or Remote 3, measure the first lookup of a 32 KB SVG (`fixtures/size-32kb-4x1.svg`, log timing in a
       local build, not committed) and look at a 4:1 and a 1:4 icon on page buttons for sharpness.
       If the lookup is above 1 ms, raise it before the merge (design.md, Risks).
 - [x] 4.3 Run `make test` (all targets green) and
