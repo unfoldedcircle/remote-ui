@@ -19,6 +19,7 @@ Q_LOGGING_CATEGORY(lcGroup, "uc.ui.group");
 Q_LOGGING_CATEGORY(lcInput, "uc.ui.input");
 Q_LOGGING_CATEGORY(lcNotification, "uc.ui.notification");
 Q_LOGGING_CATEGORY(lcOnboarding, "uc.ui.onboarding");
+Q_LOGGING_CATEGORY(lcWebView, "uc.ui.webview");
 
 Q_LOGGING_CATEGORY(lcEntityController, "uc.ui.entity.controller");
 Q_LOGGING_CATEGORY(lcEntities, "uc.ui.entities");

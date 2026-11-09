@@ -233,6 +233,30 @@ SOURCES += \
         src/util.cpp \
         src/voice.cpp
 
+# === WebView (optional, Linux) ===============================
+# The WebView QML item (UC.WebView) shows a WPE WebKit page rendered by the firmware's libucwebview.so.1, loaded at
+# runtime with QLibrary (docs/webview.md). CONFIG+=no-webview leaves the item out of the binary entirely.
+!no-webview {
+    DEFINES += UC_WEBVIEW
+    # <qpa/qplatformnativeinterface.h> for Qt's EGLDisplay
+    QT += gui-private
+
+    HEADERS += \
+        src/webview/uc_webview.h \
+        src/webview/webviewframequeue.h \
+        src/webview/webviewinput.h \
+        src/webview/webviewitem.h \
+        src/webview/webviewlibrary.h \
+        src/webview/webviewtexture.h
+
+    SOURCES += \
+        src/webview/webviewframequeue.cpp \
+        src/webview/webviewinput.cpp \
+        src/webview/webviewitem.cpp \
+        src/webview/webviewlibrary.cpp \
+        src/webview/webviewtexture.cpp
+}
+
 # === QR code generator =======================================
 HEADERS += \
         3rd-party/QR-Code-generator/cpp/qrcodegen.hpp

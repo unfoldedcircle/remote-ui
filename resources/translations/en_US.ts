@@ -3500,6 +3500,12 @@ no return</translation>
         <source>Factory reset</source>
         <translation>Factory reset</translation>
     </message>
+    <message>
+        <location filename="../../src/qml/settings/Settings.qml" line="122"/>
+        <source>Web view</source>
+        <extracomment>Developer page with a web page shown inside the user interface; listed only when the firmware provides the web view library</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SettingsNew</name>
@@ -4356,6 +4362,27 @@ Select the QR code to read them on the screen.</translation>
         <source>Restricted</source>
         <extracomment>Text explaining that the profile has restricted access</extracomment>
         <translation>Restricted</translation>
+    </message>
+</context>
+<context>
+    <name>WebView</name>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="47"/>
+        <source>Web address</source>
+        <extracomment>Placeholder of the address field on the developer page that shows a web page inside the user interface</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="56"/>
+        <source>Load</source>
+        <extracomment>Button on the developer page that loads the entered web address in the embedded web view</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="72"/>
+        <source>Web view unavailable</source>
+        <extracomment>Status line of the developer page when the firmware has no web view library</extracomment>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5247,74 +5274,74 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>uc::ui::Controller</name>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="302"/>
+        <location filename="../../src/ui/uiController.cpp" line="312"/>
         <source>Error adding profile: %1</source>
         <extracomment>Notification: a profile could not be created. %1 is the core&apos;s error message</extracomment>
         <translation>Error adding profile: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="321"/>
+        <location filename="../../src/ui/uiController.cpp" line="331"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="322"/>
+        <location filename="../../src/ui/uiController.cpp" line="332"/>
         <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
         <translation>Deleting a current profile is not permitted. Please switch to another profile and try again.</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="339"/>
+        <location filename="../../src/ui/uiController.cpp" line="349"/>
         <source>Error deleting profile: %1</source>
         <extracomment>Notification: a profile could not be deleted. %1 is the core&apos;s error message</extracomment>
         <translation>Error deleting profile: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="359"/>
+        <location filename="../../src/ui/uiController.cpp" line="369"/>
         <source>Error adding page: %1</source>
         <extracomment>Notification: a page could not be created. %1 is the core&apos;s error message</extracomment>
         <translation>Error adding page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="382"/>
+        <location filename="../../src/ui/uiController.cpp" line="392"/>
         <source>Error renaming page: %1</source>
         <extracomment>Notification: a page could not be renamed. %1 is the core&apos;s error message</extracomment>
         <translation>Error renaming page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="401"/>
+        <location filename="../../src/ui/uiController.cpp" line="411"/>
         <source>Error deleting page: %1</source>
         <extracomment>Notification: a page could not be deleted. %1 is the core&apos;s error message</extracomment>
         <translation>Error deleting page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="500"/>
+        <location filename="../../src/ui/uiController.cpp" line="510"/>
         <source>Error during factory reset: %1</source>
         <extracomment>Notification: the factory reset failed. %1 is the core&apos;s error message</extracomment>
         <translation>Error during factory reset: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="644"/>
+        <location filename="../../src/ui/uiController.cpp" line="654"/>
         <source>Profile update error</source>
         <translation>Profile update error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="705"/>
+        <location filename="../../src/ui/uiController.cpp" line="715"/>
         <source>Error updating page: %1</source>
         <extracomment>Notification: a change to a page could not be saved. %1 is the core&apos;s error message</extracomment>
         <translation>Error updating page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="771"/>
+        <location filename="../../src/ui/uiController.cpp" line="789"/>
         <source>%1 error</source>
         <translation>%1 error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="771"/>
+        <location filename="../../src/ui/uiController.cpp" line="789"/>
         <source>Error while connecting to %1, with id %2</source>
         <translation>Error while connecting to %1, with id %2</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.h" line="288"/>
+        <location filename="../../src/ui/uiController.h" line="291"/>
         <source>The factory reset could not be started. Please try again.</source>
         <translation>The factory reset could not be started. Please try again.</translation>
     </message>

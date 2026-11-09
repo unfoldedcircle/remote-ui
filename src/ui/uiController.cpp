@@ -11,6 +11,11 @@
 #include "iconFont.h"
 #include "mediaImageProvider.h"
 
+#ifdef UC_WEBVIEW
+#include "../webview/webviewitem.h"
+#include "../webview/webviewlibrary.h"
+#endif
+
 namespace uc {
 namespace ui {
 
@@ -90,6 +95,11 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
                                       qgetenv("UC_SOUND_EFFECTS_PATH"), m_model, this);
     m_soundEffects->initialize();
     qmlRegisterSingletonType<SoundEffects>("SoundEffects", 1, 0, "SoundEffects", &SoundEffects::qmlInstance);
+
+#ifdef UC_WEBVIEW
+    // the WebView item loads the firmware's libucwebview at runtime; without it the item reports available=false
+    webview::WebViewItem::registerQmlTypes();
+#endif
 
     // TODO(#279) climate entity requires localization info: current value & signal handler for changed setting
     m_entityController = new EntityController(m_core, m_config->getLanguage(), m_config->getUnitSystemEnum(), m_config->getResumeTimeoutWindowSec(), this);
@@ -736,6 +746,14 @@ void Controller::onWarning(core::MsgEventTypes::WarningEvent event, bool shutdow
         auto obj = getQMLObject("remoteOpenLoader");
         obj->setProperty("active", true);
     }
+}
+
+bool Controller::isWebViewAvailable() const {
+#ifdef UC_WEBVIEW
+    return webview::WebViewLibrary::instance()->isAvailable();
+#else
+    return false;
+#endif
 }
 
 void Controller::onBrightnessChanged(int brightness) {

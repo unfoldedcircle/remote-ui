@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- Web view (developer preview): on a firmware that provides the web view library (`libucwebview.so.1`, WPE WebKit),
+  a web page can be shown inside the user interface. The settings menu then lists a developer page, Web view, with an
+  address field and the page below it; touch, the d-pad and the on-screen keyboard work in the page like in the rest
+  of the interface. Without the library, and in the desktop simulator, nothing changes. See `docs/webview.md`.
+
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on
   memory. A wide SVG icon on an activity or remote page button uses the whole button, and a square one stays square
