@@ -5,8 +5,8 @@ include_directories(
     ../..
 )
 
-find_package(QT NAMES Qt5 Qt6 COMPONENTS Core Gui Quick Test REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Quick Test REQUIRED)
+find_package(QT NAMES Qt5 Qt6 COMPONENTS Core Gui Qml Quick Test REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core Gui Qml Quick Test REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -71,6 +71,39 @@ target_link_libraries(testWebViewItem
     Qt5::Gui
     # <qpa/qplatformnativeinterface.h> for the EGLDisplay lookup in webviewlibrary.cpp
     Qt5::GuiPrivate
+    Qt5::Quick
+    Qt5::Test
+    )
+
+# the on-screen keyboard on the WebView settings page: the page as the app loads it under a copy of main.qml's
+# keyboard controller, with the Qt Virtual Keyboard input context and the real InputController (offscreen platform)
+add_executable (testWebViewKeyboard
+    "test_webview_keyboard.cpp"
+    "test_webview_keyboard.qrc"
+    "../../resources/qrc/main.qrc"
+    "../../src/webview/webviewitem.cpp"
+    "../../src/webview/webviewlibrary.cpp"
+    "../../src/webview/webviewinput.cpp"
+    "../../src/webview/webviewframequeue.cpp"
+    "../../src/webview/webviewtexture.cpp"
+    "../../src/ui/inputController.cpp"
+    "../../src/ui/colors.cpp"
+    # header only: contains the Q_OBJECT / Q_GADGET classes moc has to process
+    "../../src/ui/fonts.h"
+    "../../src/core/enums.h"
+    "../../src/hardware/hardwareModel.h"
+    "../../src/logging.cpp"
+    )
+
+add_test(NAME testWebViewKeyboard
+         COMMAND testWebViewKeyboard)
+
+target_link_libraries(testWebViewKeyboard
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::GuiPrivate
+    Qt5::Qml
     Qt5::Quick
     Qt5::Test
     )

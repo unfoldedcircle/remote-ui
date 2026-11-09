@@ -102,6 +102,16 @@ Rectangle {
         target: keyboard
 
         function onClosed() {
+            // A field whose keyboard follows the focus keeps the focus when the keyboard is dismissed
+            // under it (its hide key and the Done button call keyboard.hide()). Dropping the focus made
+            // the page's ButtonNavigation (manageFocus: WifiPassword.qml, WifiSetup.qml, the web view
+            // page) hand it straight back to the field as its last focus item, and TextInput shows the
+            // input method whenever it gains the focus (qquicktextinput.cpp:2681), which mirrors into
+            // keyboard.show(): the hide key appeared to do nothing. The field stays the selected
+            // control; a d-pad walk or a tap on it brings the keyboard back.
+            if (inputFieldContainer.keyboardFollowsFocus && inputField.activeFocus) {
+                return;
+            }
             inputField.focus = false;
         }
     }

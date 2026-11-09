@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   a web page can be shown inside the user interface. The settings menu then lists a developer page, Web view, with an
   address field and the page below it; touch, the d-pad and the on-screen keyboard work in the page like in the rest
   of the interface. Without the library, and in the desktop simulator, nothing changes. See `docs/webview.md`.
+- The web view's developer page has a Stop/Reload button, and a path typed into the address field opens as a file
+  address. The web view loads only web (http, https), `about:` and `data:` addresses; file addresses are refused with
+  a "load failed" message unless `UC_WEBVIEW_ALLOW_FILE_URLS=1` is set. A tap on a text field of the page that is
+  still selected brings the on-screen keyboard back after its hide key closed it.
 
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on
@@ -24,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A rebuild on a new commit kept the version string of the previous build in the binary, so Settings, About and the
   core reported an older version than the one installed. The version now comes from a generated header that is
   recompiled whenever it changes; no `make clean` is needed.
+- The hide key of the on-screen keyboard closes the keyboard on forms that bring it up when a text field is selected,
+  such as the Wi-Fi password and Wi-Fi setup. The keyboard used to slide back in at once because the field was
+  selected again right after it had been dropped.
 
 ---
 

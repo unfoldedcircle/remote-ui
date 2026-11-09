@@ -24,6 +24,7 @@ struct State {
     uc_webview_callbacks callbacks{};
     void                *user = nullptr;
     QStringList          calls;  // "name(args)" in order
+    QStringList          panel;  // the item's QInputMethod show/hide requests
     bool                 canGoBack = false;
     bool                 canGoForward = false;
 };
@@ -248,20 +249,65 @@ void fireFrame(int number) {
 
 }  // namespace stub
 
+// the protected grab-loss hooks Qt calls when another item takes a grab
+class ExposedItem : public WebViewItem {
+ public:
+    explicit ExposedItem(QQuickItem *parent) : WebViewItem(parent) {}
+    using WebViewItem::mouseUngrabEvent;
+    using WebViewItem::touchUngrabEvent;
+};
+
 // A WebView item inside a (never shown) window, like the QML page creates it. The window is never exposed, so the
 // scene graph does not render and updatePaintNode() is not called: the test covers the GUI thread side.
 struct Fixture {
     QQuickWindow window;
-    WebViewItem *item;
+    ExposedItem *item;
 
     Fixture() {
         stub::s = stub::State();
         WebViewLibrary::instance()->setFunctionsForTest(stub::functions());
-        item = new WebViewItem(window.contentItem());
+        WebViewItem::setInputPanelHookForTest([](bool show) { stub::s.panel.append(show ? "show" : "hide"); });
+        item = new ExposedItem(window.contentItem());
         item->setSize(QSizeF(300, 200));
     }
 
-    ~Fixture() { delete item; }
+    ~Fixture() {
+        delete item;
+        WebViewItem::setInputPanelHookForTest(nullptr);
+    }
+
+    // Items get the active focus only inside a focused window (qquickwindow.cpp setFocusInScope checks the content
+    // item's focus, which QQuickWindow::focusInEvent sets): fake the window focus without showing it.
+    void focusWindow() {
+        QFocusEvent focusIn(QEvent::FocusIn, Qt::ActiveWindowFocusReason);
+        QCoreApplication::sendEvent(&window, &focusIn);
+    }
+
+    void sendTouch(QEvent::Type type, const QList<QTouchEvent::TouchPoint> &points, Qt::TouchPointStates states) {
+        static QTouchDevice *device = QTest::createTouchDevice();
+        QTouchEvent          event(type, device, Qt::NoModifier, states, points);
+        event.setTimestamp(4242);
+        QCoreApplication::sendEvent(item, &event);
+        lastAccepted = event.isAccepted();
+    }
+
+    static QTouchEvent::TouchPoint touchPoint(int id, Qt::TouchPointState state, const QPointF &pos) {
+        QTouchEvent::TouchPoint point(id);
+        point.setState(state);
+        point.setPos(pos);
+        point.setScenePos(pos);
+        point.setScreenPos(pos);
+        return point;
+    }
+
+    // a one-finger touch sequence: press at from, one move to `to`, release there
+    void touchTap(const QPointF &from, const QPointF &to, int id = 1) {
+        sendTouch(QEvent::TouchBegin, {touchPoint(id, Qt::TouchPointPressed, from)}, Qt::TouchPointPressed);
+        if (to != from) {
+            sendTouch(QEvent::TouchUpdate, {touchPoint(id, Qt::TouchPointMoved, to)}, Qt::TouchPointMoved);
+        }
+        sendTouch(QEvent::TouchEnd, {touchPoint(id, Qt::TouchPointReleased, to)}, Qt::TouchPointReleased);
+    }
 
     void sendKey(QEvent::Type type, int key, const QString &text = QString(),
                  Qt::KeyboardModifiers modifiers = Qt::NoModifier) {
@@ -286,7 +332,13 @@ class testWebViewItem : public QObject {
     void loadFailureIsSignalled();
     void crashReloadsOnceUntilALoadFinishes();
     void imeFocusEnablesTheInputMethodWithTheMappedHints();
+    void keyboardFollowsTheFocusOwnerNotTheImeCallbacks();
+    void tapIntoTheFocusedFieldAsksForTheKeyboardAgain();
+    void tapThatMovesThePageFocusDoesNotFlashTheKeyboard();
+    void urlsOutsideTheSchemeAllowlistAreRefused();
     void inputMethodEventsReachTheLibrary();
+    void touchPointsAreForwardedAndCancelledWhenTheSequenceIsLost();
+    void mouseButtonsAreReleasedWhenTheGrabIsLost();
     void pageKeysAreForwardedRemoteButtonsAreNot();
     void framesArriveAndAreReleasedWhenTheItemGoes();
     void destructorFreesTheView();
@@ -449,8 +501,9 @@ void testWebViewItem::imeFocusEnablesTheInputMethodWithTheMappedHints() {
     QCOMPARE(f.item->inputMethodQuery(Qt::ImSurroundingText).toString(), QStringLiteral("12"));
     QCOMPARE(f.item->inputMethodQuery(Qt::ImCursorPosition).toInt(), 2);
     QCOMPARE(f.item->inputMethodQuery(Qt::ImAnchorPosition).toInt(), 2);
-    // the page's editable element has the keyboard focus of the item
-    QVERIFY(f.item->hasFocus());
+    // the item never takes the focus from an IME callback, and asks for the keyboard only as the focus owner
+    QVERIFY(!f.item->hasFocus());
+    QVERIFY(stub::s.panel.isEmpty());
 
     // the caret rectangle comes in view pixels and is answered in item coordinates
     const qreal ratio = f.window.effectiveDevicePixelRatio();
@@ -469,6 +522,208 @@ void testWebViewItem::imeFocusEnablesTheInputMethodWithTheMappedHints() {
     stub::fireImeFocus(0, 0, 0, nullptr, -1);
     QCOMPARE(f.item->inputMethodQuery(Qt::ImEnabled).toBool(), false);
     QCOMPARE(f.item->inputMethodQuery(Qt::ImSurroundingText).toString(), QString());
+}
+
+void testWebViewItem::keyboardFollowsTheFocusOwnerNotTheImeCallbacks() {
+    Fixture f;
+    f.focusWindow();
+    f.item->forceActiveFocus();
+    QVERIFY(f.item->hasActiveFocus());
+    QCOMPARE(stub::s.calls.last(), QStringLiteral("set_focused(1)"));
+
+    // the page focuses an editable element while the item owns the focus: keyboard requested once
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+    QCOMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
+    QVERIFY(f.item->inputMethodQuery(Qt::ImEnabled).toBool());
+
+    // a TextField next to the view takes the focus (the address field of the developer page)
+    QQuickItem other(f.window.contentItem());
+    other.setFlag(QQuickItem::ItemAcceptsInputMethod);
+    other.forceActiveFocus();
+    QVERIFY(other.hasActiveFocus());
+    QVERIFY(!f.item->hasActiveFocus());
+    QCOMPARE(stub::s.calls.last(), QStringLiteral("set_focused(0)"));
+    // the item forgets the page's editable element without closing the other item's keyboard
+    QVERIFY(!f.item->inputMethodQuery(Qt::ImEnabled).toBool());
+    QCOMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
+
+    // WebKit reports the focus-out that set_focused(0) caused: still no hide, no refocus
+    stub::fireImeFocus(0, 0, 0, nullptr, -1);
+    QCOMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
+    QVERIFY(other.hasActiveFocus());
+
+    // a focus-in arriving while another item owns the focus is recorded but moves neither focus nor keyboard
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+    QCOMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
+    QVERIFY(other.hasActiveFocus());
+    QVERIFY(!f.item->hasActiveFocus());
+
+    // the user comes back to the view (a press): the page's element is reported again and the keyboard follows
+    f.item->forceActiveFocus();
+    QCOMPARE(stub::s.calls.last(), QStringLiteral("set_focused(1)"));
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+    QCOMPARE(stub::s.panel, (QStringList{QStringLiteral("show"), QStringLiteral("show")}));
+
+    // the page blurs the element while the item owns the focus: this hide is the item's to request
+    stub::fireImeFocus(0, 0, 0, nullptr, -1);
+    QCOMPARE(stub::s.panel, (QStringList{QStringLiteral("show"), QStringLiteral("show"), QStringLiteral("hide")}));
+    QVERIFY(!f.item->inputMethodQuery(Qt::ImEnabled).toBool());
+}
+
+void testWebViewItem::tapIntoTheFocusedFieldAsksForTheKeyboardAgain() {
+    Fixture           f;
+    const QStringList once{QStringLiteral("show")};
+    const QStringList twice{QStringLiteral("show"), QStringLiteral("show")};
+    f.focusWindow();
+
+    // the user taps the page's PIN field: the press gives the item the focus, WebKit reports the element
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QVERIFY(f.item->hasActiveFocus());
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+    QCOMPARE(stub::s.panel, once);
+
+    // The keyboard's hide key closes it; the field keeps the DOM focus, so the next tap on it brings no ime_focus
+    // (WebKit only reports focus changes). The tap itself asks again, after WebKit had the time to report a focus
+    // change of the page (not at once), and a small finger movement is still a tap.
+    f.touchTap(QPointF(100, 50), QPointF(103, 52));
+    QCOMPARE(stub::s.panel, once);
+    QTRY_COMPARE(stub::s.panel, twice);
+
+    // a drag farther than WebKit's 8 px is a scroll, not a tap: no request
+    f.touchTap(QPointF(100, 50), QPointF(100, 70));
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+    QCOMPARE(stub::s.panel, twice);
+
+    // a release outside the item does not count
+    f.touchTap(QPointF(296, 50), QPointF(302, 50));
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+    QCOMPARE(stub::s.panel, twice);
+
+    // a second finger is not a tap of its own (WebKit's gesture controller follows the first one only)
+    f.sendTouch(QEvent::TouchBegin, {Fixture::touchPoint(5, Qt::TouchPointPressed, QPointF(10, 10))},
+                Qt::TouchPointPressed);
+    f.sendTouch(QEvent::TouchUpdate,
+                {Fixture::touchPoint(5, Qt::TouchPointMoved, QPointF(10, 60)),
+                 Fixture::touchPoint(6, Qt::TouchPointPressed, QPointF(50, 50))},
+                Qt::TouchPointPressed | Qt::TouchPointMoved);
+    f.sendTouch(QEvent::TouchUpdate,
+                {Fixture::touchPoint(5, Qt::TouchPointStationary, QPointF(10, 60)),
+                 Fixture::touchPoint(6, Qt::TouchPointReleased, QPointF(50, 50))},
+                Qt::TouchPointReleased | Qt::TouchPointStationary);
+    f.sendTouch(QEvent::TouchEnd, {Fixture::touchPoint(5, Qt::TouchPointReleased, QPointF(10, 60))},
+                Qt::TouchPointReleased);
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+    QCOMPARE(stub::s.panel, twice);
+
+    // a click of the primary mouse button (desktop) is a tap too
+    QMouseEvent press(QEvent::MouseButtonPress, QPointF(40, 40), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(f.item, &press);
+    QMouseEvent release(QEvent::MouseButtonRelease, QPointF(41, 40), Qt::LeftButton, Qt::NoButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(f.item, &release);
+    QTRY_COMPARE(stub::s.panel.size(), 3);
+
+    // the page asked for no on-screen keyboard (inputmode="none", a field focused by script): taps leave it alone
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_INHIBIT_OSK, UC_WEBVIEW_IME_PURPOSE_FREE_FORM, "", 0);
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+    QCOMPARE(stub::s.panel.size(), 3);
+
+    // without a focused editable element a tap is just a click for the page
+    stub::fireImeFocus(0, 0, 0, nullptr, -1);
+    QCOMPARE(stub::s.panel.last(), QStringLiteral("hide"));
+    const int afterBlur = stub::s.panel.size();
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+    QCOMPARE(stub::s.panel.size(), afterBlur);
+}
+
+void testWebViewItem::tapThatMovesThePageFocusDoesNotFlashTheKeyboard() {
+    Fixture f;
+    f.focusWindow();
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+    QCOMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
+
+    // keyboard closed by its hide key, then a tap on the page's Submit button: WebKit moves the focus to the
+    // button and reports the field's focus-out before the tap's request is due, which cancels it
+    f.touchTap(QPointF(100, 150), QPointF(100, 150));
+    stub::fireImeFocus(0, 0, 0, nullptr, -1);
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+    QCOMPARE(stub::s.panel, (QStringList{QStringLiteral("show"), QStringLiteral("hide")}));
+
+    // a tap whose request is pending when another item takes the focus (the address field next to the view)
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+    const int before = stub::s.panel.size();
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QQuickItem other(f.window.contentItem());
+    other.forceActiveFocus();
+    QVERIFY(!f.item->hasActiveFocus());
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+    QCOMPARE(stub::s.panel.size(), before);
+
+    // a new press while a request is pending (the user scrolls right after the tap) drops it
+    f.item->forceActiveFocus();
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+    const int scrolled = stub::s.panel.size();
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    f.touchTap(QPointF(100, 50), QPointF(100, 90));
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+    QCOMPARE(stub::s.panel.size(), scrolled);
+}
+
+void testWebViewItem::urlsOutsideTheSchemeAllowlistAreRefused() {
+    qunsetenv("UC_WEBVIEW_ALLOW_FILE_URLS");
+    Fixture    f;
+    QSignalSpy failed(f.item, &WebViewItem::loadFailed);
+    QSignalSpy urlChanged(f.item, &WebViewItem::urlChanged);
+    auto       loads = [] { return stub::s.calls.filter(QRegularExpression("^load_(uri|html)\\(")); };
+
+    // file: is blocked by default (production), like the library does: loadFailed at once, nothing loaded, the
+    // item's url stays
+    const QUrl file(QStringLiteral("file:///app/data/emoji.html"));
+    f.item->setUrl(file);
+    QCOMPARE(failed.count(), 1);
+    QCOMPARE(failed.last().first().toUrl(), file);
+    QVERIFY(loads().isEmpty());
+    QCOMPARE(urlChanged.count(), 0);
+    QVERIFY(f.item->url().isEmpty());
+
+    for (const char *refused : {"javascript:alert(1)", "ftp://host/file", "localhost:8080/", "/app/data/x.html"}) {
+        f.item->setUrl(QUrl(QString::fromLatin1(refused)));
+    }
+    QCOMPARE(failed.count(), 5);
+    QVERIFY(loads().isEmpty());
+
+    // a base URL outside the allowlist refuses the HTML too
+    f.item->loadHtml(QStringLiteral("<p>x</p>"), QUrl(QStringLiteral("file:///")));
+    QCOMPARE(failed.count(), 6);
+    QCOMPARE(failed.last().first().toUrl(), QUrl(QStringLiteral("file:///")));
+    QVERIFY(loads().isEmpty());
+
+    // the allowed schemes go to the library
+    f.item->setUrl(QUrl(QStringLiteral("http://localhost/")));
+    f.item->setUrl(QUrl(QStringLiteral("about:blank")));
+    f.item->setUrl(QUrl(QStringLiteral("data:text/html,hi")));
+    f.item->loadHtml(QStringLiteral("<p>y</p>"), QUrl());
+    QCOMPARE(loads(), (QStringList{QStringLiteral("load_uri(http://localhost/)"), QStringLiteral("load_uri(about:blank)"),
+                                   QStringLiteral("load_uri(data:text/html,hi)"), QStringLiteral("load_html(<p>y</p>,null)")}));
+    QCOMPARE(failed.count(), 6);
+
+    // UC_WEBVIEW_ALLOW_FILE_URLS=1 (the library reads the same variable) lets file: through
+    qputenv("UC_WEBVIEW_ALLOW_FILE_URLS", "1");
+    f.item->setUrl(file);
+    f.item->loadHtml(QStringLiteral("<p>z</p>"), QUrl(QStringLiteral("file:///")));
+    qunsetenv("UC_WEBVIEW_ALLOW_FILE_URLS");
+    QCOMPARE(loads().mid(4), (QStringList{QStringLiteral("load_uri(file:///app/data/emoji.html)"),
+                                          QStringLiteral("load_html(<p>z</p>,file:///)")}));
+    QCOMPARE(failed.count(), 6);
+
+    // the library refuses on its own as well (another host, a different environment): FAILED without STARTED or
+    // FINISHED is a load failure that leaves `loading` alone
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, "file:///etc/passwd");
+    QCOMPARE(failed.count(), 7);
+    QCOMPARE(failed.last().first().toUrl(), QUrl(QStringLiteral("file:///etc/passwd")));
+    QVERIFY(!f.item->isLoading());
 }
 
 void testWebViewItem::inputMethodEventsReachTheLibrary() {
@@ -537,6 +792,102 @@ void testWebViewItem::pageKeysAreForwardedRemoteButtonsAreNot() {
     f.sendKey(QEvent::KeyPress, Qt::Key_VolumeUp);
     QVERIFY(!f.lastAccepted);
     QCOMPARE(stub::s.calls.size(), before + 3);
+}
+
+void testWebViewItem::touchPointsAreForwardedAndCancelledWhenTheSequenceIsLost() {
+    Fixture     f;
+    const qreal r = f.window.effectiveDevicePixelRatio();
+    auto        touch = [r](int slot, int phase, qreal x, qreal y) {
+        return QStringLiteral("touch(%1,%2,%3,%4)").arg(slot).arg(phase).arg(x * r).arg(y * r);
+    };
+    // only the touch calls: the first press also records the focus change (set_focused)
+    auto touches = [](int from) { return stub::s.calls.mid(from).filter(QStringLiteral("touch(")).join(" | "); };
+    const int before = stub::s.calls.size();
+
+    // a tap with Qt id 7: down, a small move, up; stationary points are not forwarded; the library gets slot 0
+    // like WPE's DRM platform would send it (the device's touch ids are the kernel's incrementing tracking ids)
+    f.sendTouch(QEvent::TouchBegin, {Fixture::touchPoint(7, Qt::TouchPointPressed, QPointF(10, 20))},
+                Qt::TouchPointPressed);
+    QVERIFY(f.lastAccepted);
+    f.sendTouch(QEvent::TouchUpdate, {Fixture::touchPoint(7, Qt::TouchPointMoved, QPointF(11, 21))},
+                Qt::TouchPointMoved);
+    f.sendTouch(QEvent::TouchUpdate, {Fixture::touchPoint(7, Qt::TouchPointStationary, QPointF(11, 21))},
+                Qt::TouchPointStationary);
+    f.sendTouch(QEvent::TouchEnd, {Fixture::touchPoint(7, Qt::TouchPointReleased, QPointF(11, 21))},
+                Qt::TouchPointReleased);
+    QCOMPARE(touches(before),
+             (QStringList{touch(0, UC_WEBVIEW_TOUCH_DOWN, 10, 20), touch(0, UC_WEBVIEW_TOUCH_MOVE, 11, 21),
+                          touch(0, UC_WEBVIEW_TOUCH_UP, 11, 21)}).join(" | "));
+    // the first press took the focus
+    QVERIFY(f.item->hasFocus());
+
+    // the next finger gets slot 0 again; another item steals the grab mid-sequence: Qt calls touchUngrabEvent()
+    // without a cancel event
+    const int lost = stub::s.calls.size();
+    f.sendTouch(QEvent::TouchBegin, {Fixture::touchPoint(8, Qt::TouchPointPressed, QPointF(50, 60))},
+                Qt::TouchPointPressed);
+    f.sendTouch(QEvent::TouchUpdate, {Fixture::touchPoint(8, Qt::TouchPointMoved, QPointF(70, 60))},
+                Qt::TouchPointMoved);
+    f.item->touchUngrabEvent();
+    QCOMPARE(touches(lost),
+             (QStringList{touch(0, UC_WEBVIEW_TOUCH_DOWN, 50, 60), touch(0, UC_WEBVIEW_TOUCH_MOVE, 70, 60),
+                          touch(0, UC_WEBVIEW_TOUCH_CANCEL, 70, 60)}).join(" | "));
+    // nothing left to cancel, and a late release of the cancelled point is dropped (no press for it)
+    f.item->touchUngrabEvent();
+    f.sendTouch(QEvent::TouchEnd, {Fixture::touchPoint(8, Qt::TouchPointReleased, QPointF(70, 60))},
+                Qt::TouchPointReleased);
+    QCOMPARE(touches(lost).count(QStringLiteral("touch(")), 3);
+
+    // two fingers: slots 0 and 1; a TouchCancel comes without touch points (qquickwindow.cpp
+    // deliverTouchCancelEvent): both end
+    const int two = stub::s.calls.size();
+    f.sendTouch(QEvent::TouchBegin, {Fixture::touchPoint(9, Qt::TouchPointPressed, QPointF(1, 2))},
+                Qt::TouchPointPressed);
+    f.sendTouch(QEvent::TouchUpdate,
+                {Fixture::touchPoint(9, Qt::TouchPointStationary, QPointF(1, 2)),
+                 Fixture::touchPoint(10, Qt::TouchPointPressed, QPointF(3, 4))},
+                Qt::TouchPointPressed | Qt::TouchPointStationary);
+    QCOMPARE(touches(two),
+             (QStringList{touch(0, UC_WEBVIEW_TOUCH_DOWN, 1, 2), touch(1, UC_WEBVIEW_TOUCH_DOWN, 3, 4)}).join(" | "));
+    f.sendTouch(QEvent::TouchCancel, {}, Qt::TouchPointStates());
+    QVERIFY(f.lastAccepted);
+    QStringList cancelled = stub::s.calls.mid(two).filter(QStringLiteral("touch(")).mid(2);
+    cancelled.sort();
+    QCOMPARE(cancelled.join(" | "), (QStringList{touch(0, UC_WEBVIEW_TOUCH_CANCEL, 1, 2),
+                                                 touch(1, UC_WEBVIEW_TOUCH_CANCEL, 3, 4)}).join(" | "));
+
+    // a press for a Qt id that is still down (its release was lost) ends the old sequence first
+    const int reuse = stub::s.calls.size();
+    f.sendTouch(QEvent::TouchBegin, {Fixture::touchPoint(11, Qt::TouchPointPressed, QPointF(5, 5))},
+                Qt::TouchPointPressed);
+    f.sendTouch(QEvent::TouchBegin, {Fixture::touchPoint(11, Qt::TouchPointPressed, QPointF(6, 6))},
+                Qt::TouchPointPressed);
+    QCOMPARE(touches(reuse),
+             (QStringList{touch(0, UC_WEBVIEW_TOUCH_DOWN, 5, 5), touch(0, UC_WEBVIEW_TOUCH_CANCEL, 5, 5),
+                          touch(0, UC_WEBVIEW_TOUCH_DOWN, 6, 6)}).join(" | "));
+}
+
+void testWebViewItem::mouseButtonsAreReleasedWhenTheGrabIsLost() {
+    Fixture     f;
+    const qreal r = f.window.effectiveDevicePixelRatio();
+    const int   before = stub::s.calls.size();
+
+    QMouseEvent press(QEvent::MouseButtonPress, QPointF(10, 10), Qt::LeftButton, Qt::LeftButton, Qt::NoModifier);
+    QCoreApplication::sendEvent(f.item, &press);
+    QVERIFY(press.isAccepted());
+    f.item->mouseUngrabEvent();
+    auto button = [r](int pressed) {
+        return QStringLiteral("pointer_button(%1,%2,%3,%4)")
+            .arg(UC_WEBVIEW_BUTTON_PRIMARY)
+            .arg(pressed)
+            .arg(10 * r)
+            .arg(10 * r);
+    };
+    QCOMPARE(stub::s.calls.mid(before).filter(QStringLiteral("pointer_button(")).join(" | "),
+             (QStringList{button(1), button(0)}).join(" | "));
+    // nothing pressed any more
+    f.item->mouseUngrabEvent();
+    QCOMPARE(stub::s.calls.mid(before).filter(QStringLiteral("pointer_button(")).size(), 2);
 }
 
 void testWebViewItem::framesArriveAndAreReleasedWhenTheItemGoes() {

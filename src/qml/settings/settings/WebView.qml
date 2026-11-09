@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// Developer page of the embedded web view: an address field, a Load button, the WebView and a status line.
-// Listed in the settings menu only when the firmware provides libucwebview (ui.webViewAvailable), see
-// docs/webview.md. The page uses the QML focus chain (ADR 0007): the d-pad moves between the field, the button
-// and the web view; inside the web view the arrow keys and Enter go to the page.
+// Developer page of the embedded web view: an address field, a Load button, a Stop/Reload button, the WebView and a
+// status line. Listed in the settings menu only when the firmware provides libucwebview (ui.webViewAvailable), see
+// docs/webview.md. The page uses the QML focus chain (ADR 0007): the d-pad moves field -> Load -> Stop/Reload ->
+// web view (down) and back (up); inside the web view the arrow keys and Enter go to the page.
 
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
@@ -20,13 +20,26 @@ Settings.Page {
 
     property string lastEvent: ""
 
+    // What the address field means: a URL with a scheme the web view knows is loaded as it is (the item refuses
+    // file: unless UC_WEBVIEW_ALLOW_FILE_URLS=1 is set, and every scheme outside http, https, file, about and data,
+    // with loadFailed), an absolute path becomes a file:// URL, anything else a host for http:// ("localhost:8080").
+    function normalizedAddress(address) {
+        if (/^(https?|file|about|data):/i.test(address)) {
+            return address;
+        }
+        if (address.charAt(0) === "/") {
+            return "file://" + address;
+        }
+        return address.indexOf("://") === -1 ? "http://" + address : address;
+    }
+
     function load() {
         const address = urlField.inputValue.trim();
         if (address === "") {
             return;
         }
         webViewPage.lastEvent = "";
-        webView.url = address.indexOf("://") === -1 ? "http://" + address : address;
+        webView.url = normalizedAddress(address);
     }
 
     ColumnLayout {
@@ -47,6 +60,13 @@ Settings.Page {
                 inputField.placeholderText: qsTr("Web address")
                 inputField.inputMethodHints: Qt.ImhUrlCharactersOnly | Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
                 inputField.onAccepted: webViewPage.load()
+                // Edit in place with the keyboard below, like every other form (WifiPassword.qml). The default
+                // moveInput opens the full-screen input overlay of main.qml, which takes the input control; the
+                // page's ButtonNavigation (manageFocus) then parks the focus, the virtual keyboard closes without a
+                // focused text item, the overlay hides and hands the control back, the ButtonNavigation refocuses
+                // the field, which opens the overlay again: an endless show/hide loop, with no web page involved.
+                moveInput: false
+                keyboardFollowsFocus: true
                 navDown: loadButton
             }
 
@@ -56,7 +76,35 @@ Settings.Page {
                 text: qsTr("Load")
                 trigger: webViewPage.load
                 KeyNavigation.up: urlField.inputField
+                KeyNavigation.down: stopReloadButton
+                KeyNavigation.right: stopReloadButton
+            }
+
+            // One button for both, the row has no room for two: Stop while a page loads, Reload otherwise. Square,
+            // as high as Load.
+            Components.Button {
+                id: stopReloadButton
+                objectName: "stopReloadButton"
+                width: height
+                text: ""
+                trigger: function() {
+                    if (webView.loading) {
+                        webView.stop();
+                    } else {
+                        webView.reload();
+                    }
+                }
+                KeyNavigation.up: loadButton
+                KeyNavigation.left: loadButton
                 KeyNavigation.down: webView
+
+                Components.Icon {
+                    objectName: "stopReloadIcon"
+                    anchors.centerIn: parent
+                    size: 60
+                    color: colors.offwhite
+                    icon: webView.loading ? "uc:xmark" : "uc:arrow-rotate-right"
+                }
             }
         }
 
@@ -84,7 +132,7 @@ Settings.Page {
             id: webView
             Layout.fillWidth: true
             Layout.fillHeight: true
-            KeyNavigation.up: loadButton
+            KeyNavigation.up: stopReloadButton
 
             onCrashed: webViewPage.lastEvent = "crashed (" + reason + ")"
             onLoadFailed: webViewPage.lastEvent = "load failed: " + url

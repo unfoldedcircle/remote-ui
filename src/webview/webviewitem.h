@@ -4,11 +4,16 @@
 #pragma once
 
 #include <QColor>
+#include <QHash>
 #include <QMetaObject>
+#include <QPointF>
 #include <QQuickItem>
 #include <QRectF>
 #include <QString>
+#include <QTimer>
 #include <QUrl>
+
+#include <functional>
 
 #include "uc_webview.h"
 #include "webviewframequeue.h"
@@ -31,6 +36,28 @@ namespace webview {
  *
  * Without the library (desktop simulator, firmware without the uc-webview package) `available` is false and the
  * item draws nothing.
+ *
+ * Input rules (docs/webview.md):
+ * - Touch points are forwarded one by one with the ids WebKit sees from WPE's own DRM platform: the lowest free
+ *   slot (0 for a single finger, WPEDRMSeat.cpp:491-545) instead of Qt's ids, which on the device are the kernel's
+ *   ever-incrementing tracking ids. Every point that went down is remembered until its release, so that a Qt
+ *   TouchCancel (delivered without touch points) or a grab taken by another item (touchUngrabEvent(), no cancel
+ *   event at all) ends the sequence in WebKit with a touch-cancel; moves and releases of points whose press was
+ *   not seen are dropped like the DRM platform does. WebKit's gesture controller keys its sequence by id, and a
+ *   point that is never released would otherwise block every later tap.
+ * - The item takes the keyboard focus only on a user press. It asks the global QInputMethod to show or hide the
+ *   on-screen keyboard only while it has the active focus; an `ime_focus` callback that arrives while another
+ *   item owns the focus (WebKit reports focus-out when the item itself loses the focus) changes the item's state
+ *   and nothing else. Losing the active focus resets the input method state without touching the keyboard.
+ * - A tap (press and release within WebKit's drag distance) while the page's editable element is focused asks for
+ *   the keyboard again, like Qt's TextInput re-opens it on a press into the focused field: WebKit reports the
+ *   element's focus only when it changes, so after the keyboard's hide key a tap on the same field would bring
+ *   nothing. The request waits kTapInputPanelDelayMs; a tap that moves the page's focus elsewhere (a button, the
+ *   page background) reports `ime_focus(0)` before that and cancels it.
+ * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
+ *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
+ * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at
+ *   INFO level (uc.ui.webview).
  */
 class WebViewItem : public QQuickItem {
     Q_OBJECT
@@ -76,6 +103,14 @@ class WebViewItem : public QQuickItem {
     // what the page's focused editable element reports, for Qt's input method (public in QQuickItem)
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const override;
 
+    // Tests: receives the item's QInputMethod::show() (true) / hide() (false) requests instead of the real input
+    // method. nullptr restores the default.
+    static void setInputPanelHookForTest(std::function<void(bool)> hook);
+
+    // How long a tap into the page waits before it asks for the keyboard again (see the class comment): enough
+    // for WebKit to turn the tap into a click and report a focus change of the page (a few IPC round trips).
+    static constexpr int kTapInputPanelDelayMs = 200;
+
  signals:
     void urlChanged();
     void titleChanged();
@@ -86,7 +121,8 @@ class WebViewItem : public QQuickItem {
     void frameStatsChanged();
     // the web process died (UC_WEBVIEW_TERMINATED_*); the item reloads once by itself
     void crashed(int reason);
-    // a load failed; `loading` turns false with the following finished event
+    // a load failed; `loading` turns false with the following finished event. Also emitted, without any other
+    // change, for a URL outside the scheme allowlist (setUrl(), loadHtml() base URL): nothing is loaded then.
     void loadFailed(const QUrl &url);
 
  protected:
@@ -95,9 +131,11 @@ class WebViewItem : public QQuickItem {
     QSGNode  *updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *data) override;
     void      releaseResources() override;
     void      touchEvent(QTouchEvent *event) override;
+    void      touchUngrabEvent() override;
     void      mousePressEvent(QMouseEvent *event) override;
     void      mouseMoveEvent(QMouseEvent *event) override;
     void      mouseReleaseEvent(QMouseEvent *event) override;
+    void      mouseUngrabEvent() override;
     void      wheelEvent(QWheelEvent *event) override;
     void      keyPressEvent(QKeyEvent *event) override;
     void      keyReleaseEvent(QKeyEvent *event) override;
@@ -133,6 +171,15 @@ class WebViewItem : public QQuickItem {
     void   releaseFrames();
     void   releaseFrame(void *handle);
     void   keyEvent(QKeyEvent *event, bool pressed);
+    void   sendTouch(int id, int slot, int phase, const QPointF &devicePos, uint32_t time);
+    int    allocateTouchSlot(int id);
+    void   cancelActiveTouches(const char *why);
+    void   requestInputPanel(bool show);
+    void   onTap();
+    void   onTapInputPanelTimeout();
+    bool   exceedsTapDistance(const QPointF &from, const QPointF &to) const;
+    bool   loadAllowed(const QUrl &url, const char *what);
+    void   resetImeState();
     void   setLoading(bool loading);
     void   setUrlFromPage(const QUrl &url);
     QSize  devicePixelSize() const;
@@ -170,6 +217,21 @@ class WebViewItem : public QQuickItem {
     int                  m_anchorPosition = -1;
     QRectF               m_cursorRectangle;
     bool                 m_preeditActive = false;
+    bool                 m_imeInhibitOsk = false;  // UC_WEBVIEW_IME_HINT_INHIBIT_OSK of the focused element
+    QTimer               m_tapInputPanelTimer;      // a tap's deferred keyboard request (kTapInputPanelDelayMs)
+
+    // touch points that went down and were not released yet: id -> last position in device pixels; the position
+    // the sequence started at, for the trace (tap or drag: WebKit's drag threshold is 8 px)
+    QHash<int, QPointF> m_activeTouches;
+    QHash<int, QPointF> m_touchStarts;
+    QHash<int, int>     m_touchSlots;  // Qt touch id -> slot sent to the library
+    // the Qt id of the point that may still end as a tap: the first finger of a sequence (WebKit's gesture
+    // controller follows only that one) until a move takes it farther than the drag distance; -1 for none
+    int                 m_tapTouchId = -1;
+    Qt::MouseButtons    m_pressedButtons = Qt::NoButton;
+    QPointF             m_lastMousePos;
+    QPointF             m_mousePressPos;
+    bool                m_mouseTapCandidate = false;  // primary button down and not dragged farther than a tap
 
     QMetaObject::Connection m_frameSwappedConnection;
     QMetaObject::Connection m_windowVisibleConnection;

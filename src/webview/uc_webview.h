@@ -92,7 +92,9 @@ typedef struct {
 #define UC_WEBVIEW_LOAD_REDIRECTED  1   /* server redirect, uri is the new one */
 #define UC_WEBVIEW_LOAD_COMMITTED   2   /* content started arriving, uri is final */
 #define UC_WEBVIEW_LOAD_FINISHED    3   /* load finished (also after a failure) */
-#define UC_WEBVIEW_LOAD_FAILED      4   /* load failed, uri is the failing uri; FINISHED follows */
+#define UC_WEBVIEW_LOAD_FAILED      4   /* load failed, uri is the failing uri; FINISHED follows, except for a
+                                           URI the scheme allowlist rejected (uc_webview_load_uri()), which is
+                                           reported alone and leaves the current page and load untouched */
 
 /* web_process_terminated() reasons (values of WebKitWebProcessTerminationReason, WebKitWebView.h.in:236-238) */
 #define UC_WEBVIEW_TERMINATED_CRASHED               0
@@ -198,7 +200,8 @@ int uc_webview_api_version(void);
  * already initialised (the arguments of the second call are ignored).
  * Environment honoured: WPE_DRM_DEVICE, WPE_BUFFER_FORMAT, WPE_USE_EXPLICIT_SYNC, LIBGL_ALWAYS_SOFTWARE
  * (WPEPlatform), WEBKIT_INSPECTOR_SERVER (needs UC_WEBVIEW_DEVELOPER_EXTRAS=1), UC_WEBVIEW_CONSOLE_LOG=1
- * (page console to stderr), JavaScriptCoreUseJIT=0 (sandboxes with MemoryDenyWriteExecute).
+ * (page console to stderr), JavaScriptCoreUseJIT=0 (sandboxes with MemoryDenyWriteExecute),
+ * UC_WEBVIEW_ALLOW_FILE_URLS=1 (lets uc_webview_load_uri()/load_html() use file: URIs; read here, once).
  */
 int uc_webview_global_init(void *egl_display, const char *data_dir, const char *cache_dir);
 
@@ -237,9 +240,17 @@ void uc_webview_set_scale(uc_webview *, double scale);
 
 /* ---- navigation ---------------------------------------------------------- */
 
-/* UI thread. Starts loading uri (any scheme WebKit knows: http(s), file, about, data). */
+/*
+ * UI thread. Starts loading uri. Scheme allowlist: http, https, about and data; file only when the process
+ * set UC_WEBVIEW_ALLOW_FILE_URLS=1 before uc_webview_global_init() (blocked by default). Any other scheme,
+ * and a string without a scheme (a bare path, "example.com"), is refused with a warning in the log and a
+ * load_changed(UC_WEBVIEW_LOAD_FAILED, uri) callback from the main context (no STARTED/FINISHED); the
+ * current page and a running load stay as they are.
+ */
 void uc_webview_load_uri(uc_webview *, const char *uri);
-/* UI thread. Loads html (UTF-8, NUL terminated) with base_uri (NULL = about:blank) for relative URLs. */
+/* UI thread. Loads html (UTF-8, NUL terminated) with base_uri (NULL or "" = about:blank) for relative URLs.
+ * A base_uri outside the allowlist of uc_webview_load_uri() refuses the load the same way (FAILED with
+ * base_uri). */
 void uc_webview_load_html(uc_webview *, const char *html, const char *base_uri);
 void uc_webview_reload(uc_webview *);
 void uc_webview_stop(uc_webview *);

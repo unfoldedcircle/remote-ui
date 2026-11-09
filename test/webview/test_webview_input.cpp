@@ -24,6 +24,10 @@ class testWebViewInput : public QObject {
     void imePurposeSelectsTheKeyboardLayout_data();
     void imePurposeSelectsTheKeyboardLayout();
     void imeHintsRefineTheLayout();
+    void urlSchemeAllowlist_data();
+    void urlSchemeAllowlist();
+    void environmentSwitchLikeTheLibrary();
+    void tapDistanceFromTheEnvironment();
 };
 
 void testWebViewInput::keysForThePage_data() {
@@ -177,6 +181,55 @@ void testWebViewInput::imeHintsRefineTheLayout() {
     // hints add to the purpose
     QCOMPARE(inputMethodHintsForIme(UC_WEBVIEW_IME_HINT_LOWERCASE, UC_WEBVIEW_IME_PURPOSE_DIGITS),
              Qt::ImhDigitsOnly | Qt::ImhPreferLowercase | Qt::ImhNoAutoUppercase);
+}
+
+void testWebViewInput::urlSchemeAllowlist_data() {
+    QTest::addColumn<QString>("url");
+    QTest::addColumn<bool>("withoutFile");  // allowed while file: URLs are blocked (the production default)
+    QTest::addColumn<bool>("withFile");     // allowed with UC_WEBVIEW_ALLOW_FILE_URLS=1
+
+    // the rows of the library's allowlist (uc_uri_policy.c, tests/test-uri-policy.c)
+    QTest::newRow("http") << "http://localhost/" << true << true;
+    QTest::newRow("https upper case") << "HTTPS://EXAMPLE.COM/" << true << true;
+    QTest::newRow("about") << "about:blank" << true << true;
+    QTest::newRow("data") << "data:text/html,<p>hi</p>" << true << true;
+    QTest::newRow("file") << "file:///app/data/emoji.html" << false << true;
+    QTest::newRow("javascript") << "javascript:alert(1)" << false << false;
+    QTest::newRow("blob") << "blob:http://x/1" << false << false;
+    QTest::newRow("ftp") << "ftp://host/file" << false << false;
+    QTest::newRow("host:port parses as a scheme") << "localhost:8080/" << false << false;
+    QTest::newRow("bare path") << "/app/data/emoji.html" << false << false;
+    QTest::newRow("host without scheme") << "example.com" << false << false;
+}
+
+void testWebViewInput::urlSchemeAllowlist() {
+    QFETCH(QString, url);
+    QFETCH(bool, withoutFile);
+    QFETCH(bool, withFile);
+    QCOMPARE(urlRejectionReason(QUrl(url), false).isEmpty(), withoutFile);
+    QCOMPARE(urlRejectionReason(QUrl(url), true).isEmpty(), withFile);
+}
+
+void testWebViewInput::environmentSwitchLikeTheLibrary() {
+    for (const char *on : {"1", "true", "YES", "On"}) {
+        QVERIFY2(envSwitchEnabled(on), on);
+    }
+    for (const char *off : {"", "0", "2", "false", "off", "1 "}) {
+        QVERIFY2(!envSwitchEnabled(off), off);
+    }
+    QVERIFY(!envSwitchEnabled(QByteArray()));
+    QVERIFY(urlRejectionReason(QUrl("file:///x"), false).contains("UC_WEBVIEW_ALLOW_FILE_URLS=1"));
+}
+
+void testWebViewInput::tapDistanceFromTheEnvironment() {
+    // the library's UC_WEBVIEW_DRAG_THRESHOLD rule (uc_events_drag_threshold), WPE's 8 px otherwise
+    QCOMPARE(dragThresholdFromEnv(QByteArray()), 8.0);
+    QCOMPARE(dragThresholdFromEnv("12"), 12.0);
+    QCOMPARE(dragThresholdFromEnv("1"), 1.0);
+    QCOMPARE(dragThresholdFromEnv("200"), 200.0);
+    QCOMPARE(dragThresholdFromEnv("0"), 8.0);
+    QCOMPARE(dragThresholdFromEnv("201"), 8.0);
+    QCOMPARE(dragThresholdFromEnv("12px"), 8.0);
 }
 
 QTEST_GUILESS_MAIN(testWebViewInput)

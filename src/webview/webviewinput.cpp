@@ -182,5 +182,34 @@ Qt::InputMethodHints inputMethodHintsForIme(unsigned hints, unsigned purpose) {
     return result;
 }
 
+bool envSwitchEnabled(const QByteArray &value) {
+    const QByteArray lower = value.toLower();
+    return lower == "1" || lower == "true" || lower == "yes" || lower == "on";
+}
+
+QString urlRejectionReason(const QUrl &url, bool allowFileUrls) {
+    // QUrl lower-cases the scheme like g_uri_peek_scheme(); "localhost:8080" has the scheme "localhost" in both
+    const QString scheme = url.scheme().toLower();
+    if (scheme == QLatin1String("http") || scheme == QLatin1String("https") || scheme == QLatin1String("about") ||
+        scheme == QLatin1String("data")) {
+        return QString();
+    }
+    if (scheme == QLatin1String("file")) {
+        return allowFileUrls ? QString()
+                             : QStringLiteral("file: URLs are disabled (UC_WEBVIEW_ALLOW_FILE_URLS=1 enables them)");
+    }
+    if (scheme.isEmpty()) {
+        return QStringLiteral("not an absolute URL");
+    }
+    return QStringLiteral("scheme not allowed (http, https, about, data; file with UC_WEBVIEW_ALLOW_FILE_URLS=1)");
+}
+
+double dragThresholdFromEnv(const QByteArray &value) {
+    constexpr double kWpeDefault = 8.0;
+    bool             ok = false;
+    const int        px = value.toInt(&ok);
+    return ok && px >= 1 && px <= 200 ? px : kWpeDefault;
+}
+
 }  // namespace webview
 }  // namespace uc
