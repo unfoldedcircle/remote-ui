@@ -178,6 +178,21 @@ Forms with a focused `TextField` (rename dialogs, `ProfileAdd`, `WifiPassword`):
 the field's Return and submits through `onAccepted` — never add a `DPAD_MIDDLE` handler to the
 form's `ButtonNavigation` (double submit). Reach Cancel / OK with `inputField.KeyNavigation.down`.
 
+An item that takes the d-pad keys itself ends the chain: the `WebView` of the developer page
+(`settings/settings/WebView.qml`, `docs/webview.md`) forwards every arrow and OK to the web page
+and accepts them, so the d-pad leaves it only through a tap on another control or BACK, which
+leaves the page. A key the page needs while the d-pad is in there goes through path 1: the page
+extends its `ButtonNavigation` with PREV / NEXT for the web view's history (`goBack()` /
+`goForward()`, ignored without history), VOLUME + / - for its zoom (`zoomIn()` / `zoomOut()`)
+and CHANNEL + / - to scroll it a page (`pageUp()` / `pageDown()`). That works because the item leaves the remote's buttons
+unaccepted and unforwarded (`xkbKeysymForKey()` returns 0 for every Qt special key outside its
+table, `webviewinput.cpp`), so on path 2 they bubble up to the page root unhandled. Two details
+of such a path-1 handler on a page with a text field: it checks `keyboard.active` and does
+nothing while the user types (the field's `moveInput: false` keeps the input with the page, so
+the keyboard does not take it; `MediaBrowser.qml` does the same for its list keys), and it
+declares an empty `pressed_repeat` when a held button must not repeat the action (without one,
+`ButtonNavigation` runs `pressed` again for every auto-repeat press).
+
 ### b) Button navigation driven selection (settings Docks/Integrations, onboarding WiFi/Dock/Integration)
 
 The page's `ButtonNavigation` handles `DPAD_UP/DOWN/MIDDLE` and keeps the selection in page state:
@@ -229,9 +244,10 @@ is dropped). A page change leaves the focus on the previous, still visible page 
 (`focusPage()`). Dynamically created fields (`integrations/Settings.qml`) declare `focusItem` /
 `navUp` / `navDown` (`fields/FieldBase.qml`) and bind their own `KeyNavigation` to them; the form
 chains them after creation and points the last one at its Next button. `Components.InputField` takes
-`navUp` / `navDown` / `keyboardFollowsFocus` for the same reason: an attached property can only be
-set on the item that declares it. `Button`, `Switch` and `Checkbox` hide the on-screen keyboard
-when they gain the focus.
+`navUp` / `navDown` / `navLeft` / `navRight` / `keyboardFollowsFocus` for the same reason: an attached
+property can only be set on the item that declares it. Left and right move the caret first; the field
+hands them on only at the start / end of its text. `Button`, `Switch` and `Checkbox` hide the
+on-screen keyboard when they gain the focus.
 Never reset the swipe view to its first step while the hosting popup is closing (Done / Try
 again): the hosts unload the setup at the end of the popup's fade-out, and a step re-activated
 behind the fading popup claims its text field and leaves the on-screen keyboard open over the page
@@ -339,6 +355,10 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
 - In `DEV`, Escape is BACK: `InputController` replaces every Escape key event with the `Key_Exit`
   event of the BACK button, so both paths see BACK as on the device, and a popup that would close
   on Escape does not. Backspace and the keypad Enter act as no button.
+- The button simulator's key events carry the key's name as text (`QKeySequence(key).toString()`
+  in `InputController::sendKeyEvent()`: "Media Rewind" for PREV, "Exit" for BACK); the device's
+  evdev keymap sends the remote's buttons without text. Code that turns key text into characters
+  (the `WebView` item) must not trust the text of a Qt special key (`Qt::Key_Escape` and above).
 - macOS blocks synthetic keystrokes (`osascript`) without Accessibility permission for the
   terminal. For scripted walks a temporary hook in `main.cpp` that reads key names from a file
   and calls `InputController::emitKey()` (which sends a real `QKeyEvent` to the window, so both
