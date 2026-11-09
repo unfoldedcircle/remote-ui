@@ -411,6 +411,8 @@ void WebViewItem::onFrameReady(const uc_webview_frame &frame) {
 void WebViewItem::onLoadChanged(int event, const char *uri) {
     const QUrl url = QUrl::fromEncoded(uri ? QByteArray(uri) : QByteArray());
     UC_WEBVIEW_TRACE_IF() << "load " << loadEventName(event) << " " << logUrl(url);
+    // the page went on: a login whose user name waited for a retry is over (WebViewRequests, "Retry")
+    m_requests.forgetUser();
     switch (event) {
         case UC_WEBVIEW_LOAD_STARTED:
             m_loadFailed = false;

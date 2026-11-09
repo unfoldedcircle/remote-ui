@@ -91,6 +91,9 @@ class testWebViewRequests : public QObject {
     void unknownTypesAndSchemesAreAnsweredNo();
     void loginsSendTheCredentialsOnce();
     void loginFlags();
+    void retryGetsTheUserNameOfItsLogin();
+    void keptUserNameEndsWithLoadsTimeoutAndClear();
+    void noUserNameIsKeptWithoutCredentials();
     void leavePageIsAnsweredBeforeANavigation();
     void clearEndsEveryRequestWithoutASignal();
     void answersNeedAViewAndTheRightKind();
@@ -346,6 +349,108 @@ void testWebViewRequests::loginFlags() {
     QVERIFY(noRealm->realm().isEmpty());
 }
 
+void testWebViewRequests::retryGetsTheUserNameOfItsLogin() {
+    // after a wrong login the dialog asks for the password only
+    Fixture             f;
+    WebViewAuthRequest *first = f.login(70);
+    QVERIFY(first->previousUser().isEmpty());
+    QVERIFY(!f.requests->keepsUser());
+    QVERIFY(first->login(QStringLiteral("ucuser"), QStringLiteral("wrong")));
+    QVERIFY(f.requests->keepsUser());
+
+    // the server rejects it: the retry of the same origin, realm and proxy gets the user name, which leaves the table
+    WebViewAuthRequest *retry = f.login(71, "https://example.com", UC_WEBVIEW_AUTH_RETRY);
+    QCOMPARE(retry->previousUser(), QStringLiteral("ucuser"));
+    QVERIFY(!f.requests->keepsUser());
+    // the user may correct the user name too: the one sent last is kept
+    QVERIFY(retry->login(QStringLiteral("ucuser2"), QStringLiteral("wrong again")));
+    QVERIFY(f.requests->keepsUser());
+
+    // logins of another origin, realm or proxy get nothing and leave it alone (several logins can be under way)
+    QVERIFY(f.login(72, "https://other.example", UC_WEBVIEW_AUTH_RETRY)->previousUser().isEmpty());
+    QVERIFY(f.requests
+                ->addAuth(73, "https://example.com", "Other", UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC, UC_WEBVIEW_AUTH_RETRY)
+                ->previousUser()
+                .isEmpty());
+    QVERIFY(f.login(74, "https://example.com", UC_WEBVIEW_AUTH_RETRY | UC_WEBVIEW_AUTH_PROXY)
+                ->previousUser()
+                .isEmpty());
+    QVERIFY(f.requests->keepsUser());
+    // another scheme for the same area is still its retry (Digest after Basic)
+    WebViewAuthRequest *digest = f.requests->addAuth(75, "https://example.com", "Router",
+                                                     UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST, UC_WEBVIEW_AUTH_RETRY);
+    QCOMPARE(digest->previousUser(), QStringLiteral("ucuser2"));
+    QVERIFY(!f.requests->keepsUser());
+    QCOMPARE(stub::calls.size(), 2);
+
+    // a new login of the same area that is no retry (the chain ended) gets nothing and ends it
+    QVERIFY(digest->login(QStringLiteral("ucuser3"), QStringLiteral("pw")));
+    WebViewAuthRequest *fresh = f.login(76);
+    QVERIFY(fresh->previousUser().isEmpty());
+    QVERIFY(!f.requests->keepsUser());
+    QVERIFY(f.login(77, "https://example.com", UC_WEBVIEW_AUTH_RETRY)->previousUser().isEmpty());
+
+    // a proxy's login and its retry
+    WebViewAuthRequest *proxy = f.login(78, "http://proxy:3128", UC_WEBVIEW_AUTH_PROXY);
+    QVERIFY(proxy->login(QStringLiteral("proxyuser"), QStringLiteral("pw")));
+    QCOMPARE(f.login(79, "http://proxy:3128", UC_WEBVIEW_AUTH_PROXY | UC_WEBVIEW_AUTH_RETRY)->previousUser(),
+             QStringLiteral("proxyuser"));
+}
+
+void testWebViewRequests::keptUserNameEndsWithLoadsTimeoutAndClear() {
+    Fixture f;
+    // a load event of the view (the item calls forgetUser()): the page went on, the login is over
+    QVERIFY(f.login(80)->login(QStringLiteral("ucuser"), QStringLiteral("pw")));
+    QVERIFY(f.requests->keepsUser());
+    f.requests->forgetUser();
+    QVERIFY(!f.requests->keepsUser());
+    QVERIFY(f.login(81, "https://example.com", UC_WEBVIEW_AUTH_RETRY)->previousUser().isEmpty());
+
+    // no retry within the time: the login was accepted without a load (a script's request), or the server is gone
+    QCOMPARE(WebViewRequests::kKeptUserTimeoutMs, 30000);
+    f.requests->setKeptUserTimeoutForTest(50);
+    QVERIFY(f.login(82)->login(QStringLiteral("ucuser"), QStringLiteral("pw")));
+    QVERIFY(f.requests->keepsUser());
+    QTRY_VERIFY_WITH_TIMEOUT(!f.requests->keepsUser(), 2000);
+    QVERIFY(f.login(83, "https://example.com", UC_WEBVIEW_AUTH_RETRY)->previousUser().isEmpty());
+
+    // a retry in time stops the clock: the user name lives on in the request only
+    f.requests->setKeptUserTimeoutForTest(200);
+    QVERIFY(f.login(84)->login(QStringLiteral("ucuser"), QStringLiteral("pw")));
+    WebViewAuthRequest *retry = f.login(85, "https://example.com", UC_WEBVIEW_AUTH_RETRY);
+    QCOMPARE(retry->previousUser(), QStringLiteral("ucuser"));
+    QTest::qWait(300);
+    QCOMPARE(retry->previousUser(), QStringLiteral("ucuser"));
+    QVERIFY(!f.requests->keepsUser());
+
+    // the view is freed
+    QVERIFY(retry->login(QStringLiteral("ucuser"), QStringLiteral("pw")));
+    QVERIFY(f.requests->keepsUser());
+    f.requests->clear();
+    QVERIFY(!f.requests->keepsUser());
+}
+
+void testWebViewRequests::noUserNameIsKeptWithoutCredentials() {
+    Fixture f;
+    // Cancel (continue without credentials), an empty user name, the default of an unhandled login
+    QVERIFY(f.login(86)->cancel());
+    QVERIFY(f.login(87)->login(QString(), QStringLiteral("pw")));
+    f.requests->answerIfUnhandled(f.login(88));
+    QCOMPARE(stub::calls.size(), 3);
+    QVERIFY(!f.requests->keepsUser());
+
+    // an answer the library refused (the request had ended): no retry will come
+    stub::result = -1;
+    QVERIFY(!f.login(89)->login(QStringLiteral("ucuser"), QStringLiteral("pw")));
+    QVERIFY(!f.requests->keepsUser());
+    stub::result = 0;
+
+    // the kept user name of one login survives another login's Cancel
+    QVERIFY(f.login(90)->login(QStringLiteral("ucuser"), QStringLiteral("pw")));
+    QVERIFY(f.login(91, "https://other.example")->cancel());
+    QCOMPARE(f.login(92, "https://example.com", UC_WEBVIEW_AUTH_RETRY)->previousUser(), QStringLiteral("ucuser"));
+}
+
 void testWebViewRequests::leavePageIsAnsweredBeforeANavigation() {
     Fixture               f;
     WebViewDialogRequest *leave = f.dialog(60, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
@@ -437,7 +542,11 @@ void testWebViewRequests::traceCarriesNoTextsOrCredentials() {
     f.requests
         ->addAuth(94, "https://uc-origin.example", "uc-realm", UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC, UC_WEBVIEW_AUTH_RETRY)
         ->login(QStringLiteral("ucuser"), QStringLiteral("ucsecret"));
-    f.requests->addAuth(95, "https://uc-origin.example", "uc-realm", UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST, 0)->cancel();
+    // its retry carries the user name, the trace only says so
+    f.requests
+        ->addAuth(95, "https://uc-origin.example", "uc-realm", UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST,
+                  UC_WEBVIEW_AUTH_RETRY)
+        ->cancel();
     f.dialog(96, UC_WEBVIEW_DIALOG_ALERT, "https://uc-origin.example", "uc-alert");
     f.requests->cancel(96);
     f.dialog(97, UC_WEBVIEW_DIALOG_CONFIRM, "https://uc-origin.example", "uc-confirm");
@@ -454,7 +563,7 @@ void testWebViewRequests::traceCarriesNoTextsOrCredentials() {
                           QStringLiteral("request 93: answered leave (not handled)"),
                           QStringLiteral("request 94: auth scheme 2, retry"),
                           QStringLiteral("request 94: answered with credentials"),
-                          QStringLiteral("request 95: auth scheme 3"),
+                          QStringLiteral("request 95: auth scheme 3, retry, previous user name"),
                           QStringLiteral("request 95: answered without credentials"),
                           QStringLiteral("request 96: alert"),
                           QStringLiteral("request 96: cancelled"),

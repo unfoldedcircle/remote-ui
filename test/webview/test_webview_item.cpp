@@ -595,6 +595,7 @@ class testWebViewItem : public QObject {
     void dialogsAreRequestObjectsAnsweredOnce();
     void unhandledRequestsGetTheDefaultAtOnce();
     void cancelledRequestsEndWithoutAnAnswer();
+    void loginRetryGetsTheUserNameUntilALoadEvent();
     void freedViewEndsRequestsWithoutSignals();
     void leavePageIsAnsweredBeforeTheItemNavigates();
     void newWindowsAndRefusedResponsesAreSignalled();
@@ -1154,7 +1155,7 @@ const char *const kAllowedTraceLines[] = {
     R"(^magnification [\d.]+ rendered after \d+ ms \((done|timeout|cancelled|status -?\d+)\)$)",
     R"(^magnification changed to [\d.]+ by a navigation or history step$)",
     R"(^request \d+: (alert|confirm|prompt|beforeunload)$)",
-    R"(^request \d+: auth scheme \d+(, retry)?(, proxy)?$)",
+    R"(^request \d+: auth scheme \d+(, retry)?(, proxy)?(, previous user name)?$)",
     R"(^request \d+: answered (yes|yes with text|no|with credentials|without credentials|no \(not handled\)|)"
     R"(leave \(not handled\)|without credentials \(not handled\)|leave \(the host navigates\)|)"
     R"(stay \(the host stops\))$)",
@@ -2572,6 +2573,28 @@ void testWebViewItem::cancelledRequestsEndWithoutAnAnswer() {
     QCOMPARE(stub::requestCalls(), QStringList{QStringLiteral("request_reply(12,1,\"\")")});
 }
 
+void testWebViewItem::loginRetryGetsTheUserNameUntilALoadEvent() {
+    // The retry of a rejected login has the user name filled in; any load event of the view
+    // ends the login it was kept for (the server took the credentials, or the user went elsewhere)
+    Fixture        f;
+    RequestCatcher catcher(f.item);
+    stub::fireAuthenticate(1, "https://example.com", "Area");
+    QVERIFY(catcher.logins.last()->previousUser().isEmpty());
+    QVERIFY(catcher.logins.last()->login(QStringLiteral("ucuser"), QStringLiteral("wrong")));
+    stub::fireAuthenticate(2, "https://example.com", "Area", UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC, UC_WEBVIEW_AUTH_RETRY);
+    QCOMPARE(catcher.logins.last()->previousUser(), QStringLiteral("ucuser"));
+
+    quint64 id = 3;
+    for (int event : {UC_WEBVIEW_LOAD_STARTED, UC_WEBVIEW_LOAD_REDIRECTED, UC_WEBVIEW_LOAD_COMMITTED,
+                      UC_WEBVIEW_LOAD_FINISHED, UC_WEBVIEW_LOAD_FAILED}) {
+        QVERIFY(catcher.logins.last()->login(QStringLiteral("ucuser"), QStringLiteral("pw")));
+        stub::fireLoadChanged(event, "https://example.com/");
+        stub::fireAuthenticate(id++, "https://example.com", "Area", UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC,
+                               UC_WEBVIEW_AUTH_RETRY);
+        QVERIFY2(catcher.logins.last()->previousUser().isEmpty(), qPrintable(QString::number(event)));
+    }
+}
+
 void testWebViewItem::freedViewEndsRequestsWithoutSignals() {
     // uc_webview_free() ends pending requests without a callback: the item drops their objects before it, without
     // signals from its destructor; QML properties that hold them turn null
@@ -2718,6 +2741,9 @@ void testWebViewItem::requestTraceLines() {
         stub::fireAuthenticate(3, "https://uc-origin.example", "uc-realm", UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST,
                                UC_WEBVIEW_AUTH_RETRY);
         catcher.logins.last()->login(QStringLiteral("ucuser"), QStringLiteral("ucsecret"));
+        stub::fireAuthenticate(6, "https://uc-origin.example", "uc-realm", UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST,
+                               UC_WEBVIEW_AUTH_RETRY);
+        catcher.logins.last()->cancel();
         stub::fireScriptDialog(4, UC_WEBVIEW_DIALOG_ALERT, "https://uc-origin.example", "uc-message");
         stub::fireRequestCancelled(4);
         stub::fireNewWindow("https://uc-origin.example/popup?token=uc-token", UC_WEBVIEW_NEW_WINDOW_LOADED);
@@ -2753,6 +2779,8 @@ void testWebViewItem::requestTraceLines() {
             QStringLiteral("request 1: prompt"), QStringLiteral("request 1: answered yes with text"),
             QStringLiteral("request 2: beforeunload"), QStringLiteral("request 2: answered leave (the host navigates)"),
             QStringLiteral("request 3: auth scheme 3, retry"), QStringLiteral("request 3: answered with credentials"),
+            QStringLiteral("request 6: auth scheme 3, retry, previous user name"),
+            QStringLiteral("request 6: answered without credentials"),
             QStringLiteral("request 4: alert"), QStringLiteral("request 4: cancelled"),
             QStringLiteral("new window loaded into this view: \"https://uc-origin.example/popup?...\""),
             QStringLiteral("response refused, cannot be shown \"https://uc-origin.example/doc.pdf#...\" "

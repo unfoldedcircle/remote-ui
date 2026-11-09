@@ -36,7 +36,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   question before leaving a page with unsaved changes, and the login of a password-protected site as dialogs that
   name the site and work with the d-pad, OK, BACK and the on-screen keyboard. A download, a PDF document or a new
   window the remote cannot show is told with a notification instead of a "load failed" message, and a page that
-  closes itself leaves the developer page. Needs the web view library 0.7.0; with an older one nothing changes.
+  closes itself leaves the developer page. The question before leaving starts on Stay, so that OK keeps the
+  page, after a wrong password the login asks again with the user name filled in, and every login opens with
+  the password hidden. Needs the web view library 0.7.0; with an older one nothing changes.
 
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on

@@ -96,8 +96,9 @@ namespace webview {
  *   at once. new_window, response_refused and close_requested become signals. Before a navigation call the item answers
  *   a pending leave-page question itself: leave for setUrl(), loadHtml(), reload(), goBack() and goForward() (the user
  *   goes elsewhere), stay for stop(); the library would answer "stay" to every navigation call, and the next navigation
- *   would ask again. Freeing the view ends the requests without a signal. Without the function the library decides
- *   alone, as before 0.7.0, and none of these signals comes.
+ *   would ask again. Freeing the view ends the requests without a signal. A login answered with a user name keeps
+ *   that name for the login's retry (`previousUser`) until the retry comes, a load event or 30 s (WebViewRequests,
+ *   "Retry"). Without the function the library decides alone, as before 0.7.0, and none of these signals comes.
  * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
  *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
  * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at

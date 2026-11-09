@@ -311,8 +311,9 @@ Settings.Page {
             }
         }
 
-        // window.close() of the page: back in the history if there is one, else away from this page like BACK. WebKit
-        // allows it only on a page with at most one history entry, so it is nearly always the latter.
+        // window.close() of the page: back in the history if there is one, else away from this page like BACK.
+        // WebKit allows it only on a page with at most one history entry, so it is nearly always
+        // the latter.
         function onCloseRequested() {
             if (webView.canGoBack) {
                 webView.goBack();
@@ -324,7 +325,6 @@ Settings.Page {
             webViewPage.buttonNavigation.restoreDefaultConfig();
         }
     }
-
 
     Timer {
         id: zoomSpinnerTimer

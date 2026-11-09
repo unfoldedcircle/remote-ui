@@ -6,6 +6,7 @@
 #include <QHash>
 #include <QObject>
 #include <QString>
+#include <QTimer>
 
 #include <functional>
 #include <utility>
@@ -122,6 +123,10 @@ class WebViewAuthRequest : public WebViewRequest {
     Q_PROPERTY(QString realm READ realm CONSTANT)
     // the credentials sent for this login before were rejected
     Q_PROPERTY(bool retry READ isRetry CONSTANT)
+    // On a retry: the user name sent with the rejected credentials, when this login is the retry of the login answered
+    // here last with a user name (same origin, realm and proxy, WebViewRequests "Retry"); a dialog fills it in and asks
+    // for the password only. Empty otherwise. Never the password.
+    Q_PROPERTY(QString previousUser READ previousUser CONSTANT)
     // a proxy asks, origin is the proxy's
     Q_PROPERTY(bool proxy READ isProxy CONSTANT)
     // the origin is http: the connection is not encrypted (with Basic the password travels readable)
@@ -129,12 +134,13 @@ class WebViewAuthRequest : public WebViewRequest {
 
  public:
     WebViewAuthRequest(WebViewRequests *owner, quint64 id, const QString &origin, const QString &realm, unsigned flags,
-                       QObject *parent);
+                       const QString &previousUser, QObject *parent);
 
     QString realm() const { return m_realm; }
     bool    isRetry() const { return m_retry; }
     bool    isProxy() const { return m_proxy; }
     bool    isInsecure() const;
+    QString previousUser() const { return m_previousUser; }
 
     // Sends the credentials. False when the request has ended already.
     Q_INVOKABLE bool login(const QString &user, const QString &password);
@@ -145,6 +151,7 @@ class WebViewAuthRequest : public WebViewRequest {
     const QString m_realm;
     const bool    m_retry;
     const bool    m_proxy;
+    const QString m_previousUser;
 };
 
 /**
@@ -154,6 +161,15 @@ class WebViewAuthRequest : public WebViewRequest {
  *
  * The trace (setTrace) gets one line per request event: kind, id and outcome, never a message, a default text, an
  * answer, a realm, an origin, a user name or a password.
+ *
+ * Retry: after a wrong login the user does not type the user name again. When a login is
+ * answered with a non-empty user name and the library takes it, the table keeps that user name with the login's
+ * origin, realm and proxy flag. The next login request with the same three takes it when it is a retry (its
+ * previousUser) and ends it otherwise (a new login); a login request for another origin, realm or proxy leaves it
+ * alone (several logins can be under way). A rejected login comes back before any load event: libsoup emits the
+ * retry's "authenticate" on the server's next 401, before WebKit sees a response (NetworkDataTaskSoup.cpp:570-579).
+ * So every load event of the view (forgetUser(): the page went on, with the login accepted or given up),
+ * kKeptUserTimeoutMs without a retry and the view freed (clear()) drop it. The password is never kept.
  */
 class WebViewRequests {
  public:
@@ -164,6 +180,9 @@ class WebViewRequests {
     // A dialog's message and preset text keep at most this many characters (plus an ellipsis): more than a dialog on
     // the remote's screen can show, and a page cannot stall the UI with a giant text.
     static constexpr int kMaxDialogTextLength = 10000;
+    // How long the user name of a login waits for its retry: the server rejects credentials within one HTTP round trip;
+    // a retry that comes later starts with an empty user name.
+    static constexpr int kKeptUserTimeoutMs = 30000;
 
     explicit WebViewRequests(QObject *parent);
     ~WebViewRequests();
@@ -190,10 +209,15 @@ class WebViewRequests {
     // stay (stop), instead of the library's "stay" for every navigation call.
     void answerLeavePage(bool leave);
     // The view is freed (uc_webview_free() ends its requests without a callback): every request ends without a signal
-    // and is deleted.
+    // and is deleted. The kept user name goes too.
     void clear();
+    // A load event of the view: the login whose user name waits for a retry is over (see "Retry" above).
+    void forgetUser();
 
-    int pendingCount() const { return m_pending.size(); }
+    int  pendingCount() const { return m_pending.size(); }
+    // a user name waits for the retry of its login
+    bool keepsUser() const { return !m_keptUser.isEmpty(); }
+    void setKeptUserTimeoutForTest(int msec) { m_keptUserTimer.setInterval(msec); }
 
     // The answers of the request objects; false when the request is not pending here.
     bool reply(WebViewRequest *request, bool accept, const QString &text);
@@ -206,12 +230,21 @@ class WebViewRequests {
     void finish(WebViewRequest *request, int result, const char *how);
     void trace(const QString &line) const;
 
+    void keepUser(const QString &user, const QString &origin, const QString &realm, bool proxy);
+
     QObject                         *m_parent;
     uc_webview                      *m_view = nullptr;
     ReplyFunction                    m_reply = nullptr;
     AuthFunction                     m_auth = nullptr;
     Trace                            m_trace;
     QHash<quint64, WebViewRequest *> m_pending;
+
+    // the user name of the last login answered with credentials and the login it is kept for (see "Retry" above)
+    QString m_keptUser;
+    QString m_keptOrigin;
+    QString m_keptRealm;
+    bool    m_keptProxy = false;
+    QTimer  m_keptUserTimer;
 };
 
 }  // namespace webview

@@ -127,11 +127,12 @@ bool WebViewDialogRequest::reject() {
 // ---- WebViewAuthRequest -----------------------------------------------------------------------------------------
 
 WebViewAuthRequest::WebViewAuthRequest(WebViewRequests *owner, quint64 id, const QString &origin, const QString &realm,
-                                       unsigned flags, QObject *parent)
+                                       unsigned flags, const QString &previousUser, QObject *parent)
     : WebViewRequest(owner, id, origin, parent),
       m_realm(realm),
       m_retry((flags & UC_WEBVIEW_AUTH_RETRY) != 0),
-      m_proxy((flags & UC_WEBVIEW_AUTH_PROXY) != 0) {}
+      m_proxy((flags & UC_WEBVIEW_AUTH_PROXY) != 0),
+      m_previousUser(previousUser) {}
 
 bool WebViewAuthRequest::isInsecure() const {
     return origin().startsWith(QLatin1String("http:"), Qt::CaseInsensitive);
@@ -157,7 +158,12 @@ bool WebViewAuthRequest::cancel() {
 
 // ---- WebViewRequests --------------------------------------------------------------------------------------------
 
-WebViewRequests::WebViewRequests(QObject *parent) : m_parent(parent) {}
+WebViewRequests::WebViewRequests(QObject *parent) : m_parent(parent) {
+    m_keptUserTimer.setSingleShot(true);
+    m_keptUserTimer.setInterval(kKeptUserTimeoutMs);
+    // the timer is a member: the connection ends with the table
+    QObject::connect(&m_keptUserTimer, &QTimer::timeout, &m_keptUserTimer, [this]() { forgetUser(); });
+}
 
 WebViewRequests::~WebViewRequests() {
     clear();
@@ -204,13 +210,25 @@ WebViewAuthRequest *WebViewRequests::addAuth(quint64 id, const char *origin, con
         }
         return nullptr;
     }
-    auto *request = new WebViewAuthRequest(this, id, fromLibrary(origin), fromLibrary(realm), flags, m_parent);
+    const QString loginOrigin = fromLibrary(origin);
+    const QString loginRealm = fromLibrary(realm);
+    const bool    proxy = (flags & UC_WEBVIEW_AUTH_PROXY) != 0;
+    QString       previousUser;
+    if (!m_keptUser.isEmpty() && loginOrigin == m_keptOrigin && loginRealm == m_keptRealm && proxy == m_keptProxy) {
+        // the login the user name was kept for: its retry gets it, a new login of the same area ends it
+        if (flags & UC_WEBVIEW_AUTH_RETRY) {
+            previousUser = m_keptUser;
+        }
+        forgetUser();
+    }
+    auto *request = new WebViewAuthRequest(this, id, loginOrigin, loginRealm, flags, previousUser, m_parent);
     m_pending.insert(id, request);
-    trace(QStringLiteral("request %1: auth scheme %2%3%4")
+    trace(QStringLiteral("request %1: auth scheme %2%3%4%5")
               .arg(id)
               .arg(scheme)
               .arg(request->isRetry() ? QLatin1String(", retry") : QLatin1String())
-              .arg(request->isProxy() ? QLatin1String(", proxy") : QLatin1String()));
+              .arg(request->isProxy() ? QLatin1String(", proxy") : QLatin1String())
+              .arg(previousUser.isEmpty() ? QLatin1String() : QLatin1String(", previous user name")));
     return request;
 }
 
@@ -250,12 +268,33 @@ void WebViewRequests::answerLeavePage(bool leave) {
 }
 
 void WebViewRequests::clear() {
+    forgetUser();
     const QHash<quint64, WebViewRequest *> pending = std::exchange(m_pending, {});
     for (WebViewRequest *request : pending) {
         trace(QStringLiteral("request %1: ended (view freed)").arg(request->id()));
         request->end(false, false);
         delete request;
     }
+}
+
+void WebViewRequests::forgetUser() {
+    m_keptUserTimer.stop();
+    m_keptUser.clear();
+    m_keptOrigin.clear();
+    m_keptRealm.clear();
+    m_keptProxy = false;
+}
+
+void WebViewRequests::keepUser(const QString &user, const QString &origin, const QString &realm, bool proxy) {
+    if (user.isEmpty()) {
+        // nothing to fill in on a retry; an earlier login's user name waits on
+        return;
+    }
+    m_keptUser = user;
+    m_keptOrigin = origin;
+    m_keptRealm = realm;
+    m_keptProxy = proxy;
+    m_keptUserTimer.start();
 }
 
 bool WebViewRequests::take(WebViewRequest *request) {
@@ -275,10 +314,21 @@ bool WebViewRequests::reply(WebViewRequest *request, bool accept, const QString 
 }
 
 bool WebViewRequests::authenticate(WebViewRequest *request, const QString *user, const QString *password) {
-    if (!qobject_cast<WebViewAuthRequest *>(request)) {
+    auto *login = qobject_cast<WebViewAuthRequest *>(request);
+    if (!login) {
         return false;
     }
-    return sendAuth(request, user, password, user ? "with credentials" : "without credentials");
+    // read before the answer: the request ends in it (finished() and its handlers, deleteLater())
+    const QString keep = user ? *user : QString();
+    const QString origin = login->origin();
+    const QString realm = login->realm();
+    const bool    proxy = login->isProxy();
+    if (!sendAuth(request, user, password, user ? "with credentials" : "without credentials")) {
+        return false;
+    }
+    // for the retry, should the server reject the credentials (see "Retry" in the header)
+    keepUser(keep, origin, realm, proxy);
+    return true;
 }
 
 bool WebViewRequests::sendReply(WebViewRequest *request, bool accept, const QString &text, const char *how) {

@@ -9,10 +9,11 @@
 // fits below. A long message scrolls inside the sheet.
 //
 // Keys (the dialog owns the input while it is open, so the page's keys, PREV/NEXT, VOLUME and CHANNEL, do nothing):
-// - OK presses the selected button; the accepting one (OK, Leave) is selected when the dialog opens, on a prompt the
-//   text field, whose OK is the dialog's OK;
-// - BACK and HOME answer no: alert closed, confirm() false, prompt() null, stay on the page; so does a tap above the
-//   sheet (not on a prompt: the keyboard is there);
+// - OK presses the selected button. When the dialog opens that is OK, on the leave-page question Stay (OK stays,
+//   leaving needs a d-pad move to Leave first), on a prompt the text field, whose OK is the dialog's OK;
+// - BACK and HOME answer no: alert closed, confirm() false, prompt() null, stay on the page (HOME does not go home,
+//   like the Wi-Fi popups). So does a tap above the sheet (not on a prompt: the keyboard is
+//   there);
 // - LEFT and RIGHT move between the buttons, UP from the buttons of a prompt reaches its field; UP and DOWN that no
 //   control takes scroll a long message.
 // The request's cancelled() (the page went on, a navigation, a crash) closes the dialog without an answer.
@@ -53,8 +54,9 @@ Popup {
     // keyboard.
     readonly property int messageMaxHeight: isPrompt ? 120 : Math.max(120, height - 400)
 
-    // the d-pad and the keyboard: the text field of a prompt, else the accepting button
-    readonly property Item initialFocusItem: isPrompt ? promptField.inputField : yesButton
+    // the d-pad and the keyboard: the text field of a prompt, Stay on the leave-page question (an OK pressed out of
+    // habit keeps the page and what the user typed into it), else OK
+    readonly property Item initialFocusItem: isPrompt ? promptField.inputField : (isLeavePage ? noButton : yesButton)
 
     function show(dialogRequest) {
         webViewDialog.type = dialogRequest.type;

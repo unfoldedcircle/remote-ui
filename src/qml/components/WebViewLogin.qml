@@ -8,12 +8,17 @@
 // keyboard below, Cancel and Sign in.
 //
 // Keys (the dialog owns the input while it is open): the d-pad walks user name, password, Cancel / Sign in; OK on the
-// user name goes to the password, OK on the password signs in; BACK and HOME cancel. Cancel continues without
-// credentials: the server's own page for a refused login loads, as in a desktop browser.
+// user name goes to the password, OK on the password signs in; BACK and HOME cancel (HOME does not go home, like the
+// Wi-Fi popups). Cancel continues without credentials: the server's own page for a refused login loads, as in a desktop
+// browser.
 //
 // The credentials live in the two fields only while the dialog is open: they go to the request on Sign in and the
-// fields are emptied at once, also on Cancel and when the request goes away. Nothing logs them. A retry (the server
-// rejected the last credentials) opens with empty fields and the error under the password field.
+// fields are emptied at once, also on Cancel and when the request goes away. Nothing logs them. The password field
+// opens masked for every login, whatever its eye showed in the last one. A retry (the server
+// rejected the last credentials) opens with the error under the password field. When it is the retry of the login
+// just signed in to (same origin, realm and proxy), the user name stays filled in (the request's previousUser, kept by
+// the WebView item until the retry, see WebViewRequests "Retry") and the empty password field has the focus;
+// otherwise both fields are empty and the user name has the focus.
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
@@ -41,6 +46,9 @@ Popup {
     property bool insecure: false
     property bool retry: false
 
+    // the retry of a login with its user name filled in: only the password is asked for again
+    property bool askPasswordOnly: false
+
     function show(authRequest) {
         webViewLogin.origin = authRequest.origin;
         webViewLogin.realm = authRequest.realm;
@@ -48,6 +56,11 @@ Popup {
         webViewLogin.insecure = authRequest.insecure;
         webViewLogin.retry = authRequest.retry;
         webViewLogin.clearFields();
+        // every login opens with the password masked, a retry too: the field's eye (InputField.qml) sets echoMode
+        // itself, which ends the binding below, and the dialog lives on from one login to the next
+        passwordField.inputField.echoMode = TextInput.Password;
+        userField.inputValue = authRequest.previousUser;
+        webViewLogin.askPasswordOnly = authRequest.previousUser !== "";
         webViewLogin.request = authRequest;
         buttonNavigation.lastFocusItem = null;
         buttonNavigation.lastFocusAnchor = null;
@@ -131,7 +144,7 @@ Popup {
     Components.ButtonNavigation {
         id: buttonNavigation
         manageFocus: true
-        initialFocusItem: userField.inputField
+        initialFocusItem: webViewLogin.askPasswordOnly ? passwordField.inputField : userField.inputField
         defaultConfig: {
             "BACK": {
                 "pressed": function() {

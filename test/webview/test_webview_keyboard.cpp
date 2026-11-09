@@ -31,7 +31,8 @@
 // The web page's dialogs and logins (libucwebview 0.7.0): components/WebViewDialog.qml and WebViewLogin.qml on the
 // page, opened by the library's request callbacks, answered with the d-pad, OK, BACK and the keyboard; one at a time,
 // script dialogs first; the page's keys do nothing while one is open; notifications for refused responses and
-// windows; window.close().
+// windows; window.close(). The leave-page question opens on Stay (OK stays), and the
+// retry of a rejected login keeps the user name and asks for the password only.
 
 #include <QElapsedTimer>
 #include <QJSValue>
@@ -363,13 +364,16 @@ class testWebViewKeyboard : public QObject {
     void confirmTakesTheKeysAndBackAnswersNo();
     void dpadMovesBetweenTheDialogButtons();
     void promptTypesIntoItsFieldWithTheKeyboard();
-    void leavePageHasAFixedTextAndTheOrigin();
+    void leavePageOpensOnStayAndOkStays();
     void pageKeysDoNothingWhileADialogIsOpen();
     void cancelledRequestClosesItsDialog();
     void longMessageScrollsWithUpAndDown();
     void loginSendsTheCredentialsAndEmptiesTheFields();
     void loginBackContinuesWithoutCredentials();
     void loginRetryAndInsecureConnection();
+    void loginRetryKeepsTheUserNameAndAsksForThePassword();
+    void loginOpensWithThePasswordMasked();
+    void keptUserNameEndsWithTheLogin();
     void requestsShowOneAtATimeScriptDialogsFirst();
     void refusedResponsesAndWindowsShowANotification();
     void closeRequestedGoesBackOrLeavesThePage();
@@ -381,6 +385,7 @@ class testWebViewKeyboard : public QObject {
     QQuickItem *loginItem(const char *name) const;
     bool        dialogShown() const;
     bool        loginShown() const;
+    bool        loginErrorShown() const;
     void        commitText(QQuickItem *field, const QString &text);
     void tapTheAddressField();
     void click(QQuickItem *item);
@@ -1253,6 +1258,16 @@ bool testWebViewKeyboard::loginShown() const {
            ui->input()->activeItem() == login->property("contentItem").value<QQuickItem *>();
 }
 
+// "Wrong user name or password" under the login's password field
+bool testWebViewKeyboard::loginErrorShown() const {
+    for (QQuickItem *item : loginItem("webViewLoginPassword")->findChildren<QQuickItem *>()) {
+        if (item->property("text").toString() == QStringLiteral("Wrong user name or password") && item->opacity() > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 // what the on-screen keyboard sends for typed text: a commit to the focused field
 void testWebViewKeyboard::commitText(QQuickItem *field, const QString &text) {
     QVERIFY(field->hasActiveFocus());
@@ -1398,7 +1413,7 @@ void testWebViewKeyboard::promptTypesIntoItsFieldWithTheKeyboard() {
     QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(9,0,null)"));
 }
 
-void testWebViewKeyboard::leavePageHasAFixedTextAndTheOrigin() {
+void testWebViewKeyboard::leavePageOpensOnStayAndOkStays() {
     lib::fireScriptDialog(10, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://shop.example.com", nullptr);
     QTRY_VERIFY(dialogShown());
     QCOMPARE(dialogItem("webViewDialogTitle")->property("text").toString(), QStringLiteral("Leave this page?"));
@@ -1411,16 +1426,54 @@ void testWebViewKeyboard::leavePageHasAFixedTextAndTheOrigin() {
     QQuickItem *no = dialogItem("webViewDialogNo");
     QCOMPARE(no->property("text").toString(), QStringLiteral("Stay"));
     QCOMPARE(yes->property("text").toString(), QStringLiteral("Leave"));
-    // OK leaves, BACK stays: the accepting button is selected
-    QTRY_VERIFY(yes->hasActiveFocus());
+    // Stay is selected, an OK out of habit keeps the page
+    QTRY_VERIFY(no->hasActiveFocus());
     QTest::keyClick(view, Qt::Key_Return);
-    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_reply(10,1,\"\")")});
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_reply(10,0,null)")});
     QTRY_VERIFY(!dialog->property("visible").toBool());
 
+    // leaving takes a d-pad move to Leave first
     lib::fireScriptDialog(11, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://shop.example.com", nullptr);
     QTRY_VERIFY(dialogShown());
-    pressRemoteButton(Qt::Key_Exit);
-    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(11,0,null)"));
+    QTRY_VERIFY(no->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Right);
+    QTRY_VERIFY(yes->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(11,1,\"\")"));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+
+    // the next question opens on Stay again; BACK and HOME stay
+    lib::fireScriptDialog(12, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://shop.example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    QTRY_VERIFY(no->hasActiveFocus());
+    QVERIFY(!pressRemoteButton(Qt::Key_Exit));
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(12,0,null)"));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    lib::fireScriptDialog(13, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://shop.example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    pressRemoteButton(Qt::Key_Home);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(13,0,null)"));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    QObject *profileRoot = view->rootObject()->findChild<QObject *>("profileRoot");
+    QCOMPARE(profileRoot->property("backCalls").toInt(), 0);
+
+    // taps work as before: Leave leaves without a d-pad move
+    lib::fireScriptDialog(14, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://shop.example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    click(yes);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(14,1,\"\")"));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    lib::fireScriptDialog(15, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://shop.example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    click(no);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(15,0,null)"));
+    QCOMPARE(lib::calls.size(), 6);
+
+    // the other two-button dialogs keep OK selected
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    lib::fireScriptDialog(16, UC_WEBVIEW_DIALOG_CONFIRM, "https://shop.example.com", "Sure?");
+    QTRY_VERIFY(dialogShown());
+    QTRY_VERIFY(yes->hasActiveFocus());
 }
 
 void testWebViewKeyboard::pageKeysDoNothingWhileADialogIsOpen() {
@@ -1557,22 +1610,15 @@ void testWebViewKeyboard::loginBackContinuesWithoutCredentials() {
 }
 
 void testWebViewKeyboard::loginRetryAndInsecureConnection() {
+    // a retry without a login answered here (WebKit's session credentials were rejected): both fields empty, the user
+    // name has the focus, the error under the password field
     lib::fireAuthenticate(25, "http://192.168.1.1", "Router", UC_WEBVIEW_AUTH_RETRY);
     QTRY_VERIFY(loginShown());
     QVERIFY(loginItem("webViewLoginInsecure")->isVisible());
-    // the error under the password field
-    bool error = false;
-    QTRY_VERIFY_WITH_TIMEOUT(
-        [&] {
-            for (QQuickItem *item : loginItem("webViewLoginPassword")->findChildren<QQuickItem *>()) {
-                if (item->property("text").toString() == QStringLiteral("Wrong user name or password") &&
-                    item->opacity() > 0) {
-                    error = true;
-                }
-            }
-            return error;
-        }(),
-        2000);
+    QQuickItem *user = textFieldOf(loginItem("webViewLoginUser"));
+    QTRY_VERIFY(user->hasActiveFocus());
+    QCOMPARE(user->property("text").toString(), QString());
+    QTRY_VERIFY_WITH_TIMEOUT(loginErrorShown(), 2000);
     // a proxy
     pressRemoteButton(Qt::Key_Exit);
     QTRY_VERIFY(!login->property("visible").toBool());
@@ -1581,6 +1627,178 @@ void testWebViewKeyboard::loginRetryAndInsecureConnection() {
     QTRY_VERIFY(loginShown());
     QCOMPARE(loginItem("webViewLoginTitle")->property("text").toString(),
              QStringLiteral("Sign in to the proxy http://proxy:3128"));
+}
+
+void testWebViewKeyboard::loginRetryKeepsTheUserNameAndAsksForThePassword() {
+    // after a wrong password the login asks for the password only
+    lib::fireAuthenticate(26, "https://router.example", "Admin area");
+    QTRY_VERIFY(loginShown());
+    QQuickItem *user = textFieldOf(loginItem("webViewLoginUser"));
+    QQuickItem *password = textFieldOf(loginItem("webViewLoginPassword"));
+    QTRY_VERIFY(user->hasActiveFocus());
+    commitText(user, QStringLiteral("admin"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QTRY_VERIFY(password->hasActiveFocus());
+    commitText(password, QStringLiteral("wrong"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_auth(26,\"admin\",\"wrong\")")});
+    // the fields are emptied at once, as before
+    QCOMPARE(user->property("text").toString(), QString());
+    QCOMPARE(password->property("text").toString(), QString());
+    QTRY_VERIFY(!login->property("visible").toBool());
+
+    // the server rejects it: the retry opens with the user name, an empty password field with the focus and the
+    // keyboard, and the error under it
+    lib::fireAuthenticate(27, "https://router.example", "Admin area", UC_WEBVIEW_AUTH_RETRY);
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(user->property("text").toString(), QStringLiteral("admin"));
+    QCOMPARE(password->property("text").toString(), QString());
+    QTRY_VERIFY(password->hasActiveFocus());
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    QTRY_VERIFY_WITH_TIMEOUT(loginErrorShown(), 2000);
+    // OK on the password signs in with both
+    commitText(password, QStringLiteral("s3crét"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(27,\"admin\",\"s3crét\")"));
+    QCOMPARE(user->property("text").toString(), QString());
+    QCOMPARE(password->property("text").toString(), QString());
+    QTRY_VERIFY(!login->property("visible").toBool());
+
+    // the user name can still be changed: UP to it
+    lib::fireAuthenticate(28, "https://router.example", "Admin area", UC_WEBVIEW_AUTH_RETRY);
+    QTRY_VERIFY(loginShown());
+    QTRY_VERIFY(password->hasActiveFocus());
+    QCOMPARE(user->property("text").toString(), QStringLiteral("admin"));
+    QTest::keyClick(view, Qt::Key_Up);
+    QTRY_VERIFY(user->hasActiveFocus());
+    user->setProperty("text", QString());
+    commitText(user, QStringLiteral("root"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QTRY_VERIFY(password->hasActiveFocus());
+    commitText(password, QStringLiteral("pw"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(28,\"root\",\"pw\")"));
+    QTRY_VERIFY(!login->property("visible").toBool());
+
+    // BACK on a retry still cancels: without credentials, both fields emptied
+    lib::fireAuthenticate(29, "https://router.example", "Admin area", UC_WEBVIEW_AUTH_RETRY);
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(user->property("text").toString(), QStringLiteral("root"));
+    QTRY_VERIFY(password->hasActiveFocus());
+    commitText(password, QStringLiteral("typed"));
+    QVERIFY(!pressRemoteButton(Qt::Key_Exit));
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(29,null,null)"));
+    QCOMPARE(user->property("text").toString(), QString());
+    QCOMPARE(password->property("text").toString(), QString());
+    QTRY_VERIFY(!login->property("visible").toBool());
+    QObject *profileRoot = view->rootObject()->findChild<QObject *>("profileRoot");
+    QCOMPARE(profileRoot->property("backCalls").toInt(), 0);
+}
+
+void testWebViewKeyboard::loginOpensWithThePasswordMasked() {
+    lib::fireAuthenticate(30, "https://router.example", "Admin area");
+    QTRY_VERIFY(loginShown());
+    QQuickItem *user = textFieldOf(loginItem("webViewLoginUser"));
+    QQuickItem *password = textFieldOf(loginItem("webViewLoginPassword"));
+    // the eye of the password field (InputField.qml) shows and hides what was typed
+    QQuickItem *eye = nullptr;
+    for (QQuickItem *item : loginItem("webViewLoginPassword")->findChildren<QQuickItem *>()) {
+        if (item->property("icon").toString() == QStringLiteral("uc:eye")) {
+            eye = item;
+        }
+    }
+    QVERIFY(eye && eye->isVisible());
+    QTRY_VERIFY(user->hasActiveFocus());
+    commitText(user, QStringLiteral("admin"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QTRY_VERIFY(password->hasActiveFocus());
+    commitText(password, QStringLiteral("wrong"));
+    QCOMPARE(password->property("echoMode").toInt(), 2);  // TextInput.Password
+    click(eye);
+    QCOMPARE(password->property("echoMode").toInt(), 0);  // TextInput.Normal
+    QVERIFY(password->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(30,\"admin\",\"wrong\")"));
+    QTRY_VERIFY(!login->property("visible").toBool());
+
+    // the retry opens masked
+    lib::fireAuthenticate(31, "https://router.example", "Admin area", UC_WEBVIEW_AUTH_RETRY);
+    QTRY_VERIFY(loginShown());
+    QTRY_VERIFY(password->hasActiveFocus());
+    QCOMPARE(password->property("echoMode").toInt(), 2);
+
+    // and so does the next login after one cancelled with the password shown
+    click(eye);
+    QCOMPARE(password->property("echoMode").toInt(), 0);
+    QVERIFY(!pressRemoteButton(Qt::Key_Exit));
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(31,null,null)"));
+    QTRY_VERIFY(!login->property("visible").toBool());
+    lib::fireAuthenticate(32, "https://nas.example", "Files");
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(password->property("echoMode").toInt(), 2);
+}
+
+void testWebViewKeyboard::keptUserNameEndsWithTheLogin() {
+    QQuickItem *user = textFieldOf(loginItem("webViewLoginUser"));
+    QQuickItem *password = textFieldOf(loginItem("webViewLoginPassword"));
+    auto signIn = [&](quint64 id, unsigned flags) {
+        lib::fireAuthenticate(id, "https://router.example", "Admin area", flags);
+        QTRY_VERIFY(loginShown());
+        if (user->property("text").toString().isEmpty()) {
+            QTRY_VERIFY(user->hasActiveFocus());
+            commitText(user, QStringLiteral("admin"));
+            QTest::keyClick(view, Qt::Key_Return);
+        }
+        QTRY_VERIFY(password->hasActiveFocus());
+        commitText(password, QStringLiteral("pw"));
+        QTest::keyClick(view, Qt::Key_Return);
+        QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(%1,\"admin\",\"pw\")").arg(id));
+        QTRY_VERIFY(!login->property("visible").toBool());
+    };
+    // a retry that opens with an empty user name, which has the focus
+    auto retryOpensEmpty = [&](quint64 id, const char *origin, const char *realm) {
+        lib::fireAuthenticate(id, origin, realm, UC_WEBVIEW_AUTH_RETRY);
+        QTRY_VERIFY(loginShown());
+        QTRY_VERIFY(user->hasActiveFocus());
+        QCOMPARE(user->property("text").toString(), QString());
+        QVERIFY(!pressRemoteButton(Qt::Key_Exit));
+        QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(%1,null,null)").arg(id));
+        QTRY_VERIFY(!login->property("visible").toBool());
+    };
+
+    // the server took the credentials: the page loads, the user name is gone; a later retry asks for both again
+    signIn(50, 0);
+    lib::fireLoad(UC_WEBVIEW_LOAD_COMMITTED, "https://router.example/");
+    retryOpensEmpty(51, "https://router.example", "Admin area");
+
+    // BACK on the retry closed the login for good: the next retry starts empty
+    signIn(52, 0);
+    lib::fireAuthenticate(53, "https://router.example", "Admin area", UC_WEBVIEW_AUTH_RETRY);
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(user->property("text").toString(), QStringLiteral("admin"));
+    pressRemoteButton(Qt::Key_Exit);
+    QTRY_VERIFY(!login->property("visible").toBool());
+    retryOpensEmpty(54, "https://router.example", "Admin area");
+
+    // another origin or realm gets nothing
+    signIn(55, 0);
+    retryOpensEmpty(56, "https://other.example", "Admin area");
+    retryOpensEmpty(57, "https://router.example", "Other area");
+    // the request chain is still under way: its retry gets the user name
+    lib::fireAuthenticate(58, "https://router.example", "Admin area", UC_WEBVIEW_AUTH_RETRY);
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(user->property("text").toString(), QStringLiteral("admin"));
+    pressRemoteButton(Qt::Key_Exit);
+    QTRY_VERIFY(!login->property("visible").toBool());
+
+    // the page cancelled the retry's login while it was shown: closed for good as well
+    signIn(59, 0);
+    lib::fireAuthenticate(60, "https://router.example", "Admin area", UC_WEBVIEW_AUTH_RETRY);
+    QTRY_VERIFY(loginShown());
+    lib::fireRequestCancelled(60);
+    QTRY_VERIFY(!login->property("visible").toBool());
+    QCOMPARE(user->property("text").toString(), QString());
+    retryOpensEmpty(61, "https://router.example", "Admin area");
 }
 
 void testWebViewKeyboard::requestsShowOneAtATimeScriptDialogsFirst() {
@@ -1657,7 +1875,7 @@ void testWebViewKeyboard::closeRequestedGoesBackOrLeavesThePage() {
 
 void testWebViewKeyboard::prevAsksToLeaveAndPrevAgainDoesNothing() {
     // beforeunload and PREV: PREV, the page asks; PREV again while the question shows
-    // does nothing; Leave goes back (the library continues the navigation that asked)
+    // does nothing; OK stays (Stay is selected)
     lib::setHistory(true, false, "http://localhost/2");
     lib::calls.clear();
     webView->forceActiveFocus();
@@ -1668,25 +1886,38 @@ void testWebViewKeyboard::prevAsksToLeaveAndPrevAgainDoesNothing() {
     pressRemoteButton(Qt::Key_AudioRewind);
     QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
     QTest::keyClick(view, Qt::Key_Return);
-    QCOMPARE(lib::calls, (QStringList{QStringLiteral("go_back"), QStringLiteral("request_reply(40,1,\"\")")}));
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("go_back"), QStringLiteral("request_reply(40,0,null)")}));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
 
-    // Stay: the page stays, PREV asks again later
+    // PREV asks again; RIGHT and OK leave: the library continues the navigation that asked
+    QTRY_VERIFY(webView->hasActiveFocus());
+    pressRemoteButton(Qt::Key_AudioRewind);
+    QCOMPARE(lib::calls.last(), QStringLiteral("go_back"));
     lib::fireScriptDialog(41, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
     QTRY_VERIFY(dialogShown());
+    QTest::keyClick(view, Qt::Key_Right);
+    QTRY_VERIFY(dialogItem("webViewDialogYes")->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(41,1,\"\")"));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+
+    // BACK stays as well
+    lib::fireScriptDialog(42, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
     pressRemoteButton(Qt::Key_Exit);
-    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(41,0,null)"));
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(42,0,null)"));
     QTRY_VERIFY(!dialog->property("visible").toBool());
 
     // the item answers the question itself before a navigation the dialog does not block (a handler of the page that
     // reloads): the dialog closes, nothing is answered twice
-    lib::fireScriptDialog(42, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
+    lib::fireScriptDialog(43, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
     QTRY_VERIFY(dialogShown());
     webView->reload();
     QCOMPARE(lib::calls.mid(lib::calls.size() - 2),
-             (QStringList{QStringLiteral("request_reply(42,1,\"\")"), QStringLiteral("reload")}));
+             (QStringList{QStringLiteral("request_reply(43,1,\"\")"), QStringLiteral("reload")}));
     QTRY_VERIFY(!dialog->property("visible").toBool());
     QTRY_COMPARE(ui->input()->activeItem(), page);
-    QCOMPARE(lib::calls.filter(QStringLiteral("request_reply(42")).size(), 1);
+    QCOMPARE(lib::calls.filter(QStringLiteral("request_reply(43")).size(), 1);
 }
 
 int main(int argc, char *argv[]) {
