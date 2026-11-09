@@ -16,6 +16,11 @@
 // Wherever the d-pad is, the web view included, PREV and NEXT go back and forward in the page's history, VOLUME +/-
 // zoom the page in and out, CHANNEL +/- scroll it a page up and down (not while the on-screen keyboard is up).
 // Two fingers pinch-zoom the page (libucwebview 0.6.0): the zoom label shows the magnification next to the zoom.
+// The page's alert(), confirm(), prompt(), "leave this page?" question and HTTP logins open a dialog over the page
+// (libucwebview 0.7.0, components/WebViewDialog.qml and WebViewLogin.qml), one at a time, script dialogs first: the page
+// waits for them. While one is open it owns the keys; PREV/NEXT, VOLUME and CHANNEL do nothing. Downloads, documents the
+// web view cannot show (PDF) and refused new windows are told with a notification; window.close() of the page goes
+// back in the history, or leaves this page like BACK when there is none.
 
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
@@ -55,6 +60,11 @@ Settings.Page {
     // the on-screen keyboard is up, on the address field or on an input of the page: the user is typing
     function keyboardUp() {
         return typeof keyboard !== "undefined" && keyboard.active;
+    }
+
+    // a dialog or login of the web page is open, or still fading: the keys are its own
+    function requestShown() {
+        return webViewDialog.visible || webViewLogin.visible;
     }
 
     // the user is typing into the address field: the keyboard is up on it
@@ -104,7 +114,7 @@ Settings.Page {
     // form of the page, which a navigation would take away under the keyboard (MediaBrowser.qml ignores its list keys
     // while the keyboard is up, too).
     function historyStep(forward) {
-        if (webViewPage.keyboardUp()) {
+        if (webViewPage.keyboardUp() || webViewPage.requestShown()) {
             return;
         }
         if (forward && webView.canGoForward) {
@@ -122,7 +132,7 @@ Settings.Page {
     // move the field the user types into. Presses while the page renders a step move the level at once; the item
     // hands only the latest one to WebKit when the render is done (docs/webview.md).
     function zoomStep(up) {
-        if (webViewPage.keyboardUp()) {
+        if (webViewPage.keyboardUp() || webViewPage.requestShown()) {
             return;
         }
         if (up) {
@@ -138,7 +148,7 @@ Settings.Page {
     // (in a text area of the page that has the focus the key moves its caret a page instead, docs/webview.md). Not
     // while the keyboard is up, like the other keys.
     function scrollStep(down) {
-        if (webViewPage.keyboardUp()) {
+        if (webViewPage.keyboardUp() || webViewPage.requestShown()) {
             return;
         }
         if (down) {
@@ -146,6 +156,48 @@ Settings.Page {
         } else {
             webView.pageUp();
         }
+    }
+
+    // ---- the web page's requests (libucwebview 0.7.0, docs/webview.md "Dialogs and logins") ----------------------
+
+    // Requests waiting for their dialog, oldest first. Script dialogs go first: the page is blocked until the answer.
+    // WebKit has one script dialog of a page at a time, several logins can wait (a page with several protected parts).
+    property var dialogQueue: []
+    property var loginQueue: []
+
+    function queueRequest(queue, request) {
+        // the page answers it: the item does not answer it with the default
+        request.handled = true;
+        queue.push(request);
+        // a request that ends while it waits (a navigation, the page went on) leaves the queue
+        const drop = function() {
+            webViewPage.dropRequest(request);
+        };
+        request.finished.connect(drop);
+        request.cancelled.connect(drop);
+        // not from inside the library's callback: the dialog takes the focus from the web view
+        Qt.callLater(webViewPage.showNextRequest);
+    }
+
+    function dropRequest(request) {
+        webViewPage.dialogQueue = webViewPage.dialogQueue.filter(function(r) { return r !== request; });
+        webViewPage.loginQueue = webViewPage.loginQueue.filter(function(r) { return r !== request; });
+    }
+
+    function showNextRequest() {
+        if (webViewPage.requestShown()) {
+            return;
+        }
+        if (webViewPage.dialogQueue.length > 0) {
+            webViewDialog.show(webViewPage.dialogQueue.shift());
+        } else if (webViewPage.loginQueue.length > 0) {
+            webViewLogin.show(webViewPage.loginQueue.shift());
+        }
+    }
+
+    // the PDF types of libucwebview (uc_pdf_policy.c), with or without parameters
+    function isPdf(mimeType) {
+        return /^\s*(application\/pdf|application\/x-pdf|text\/pdf)\s*(;|$)/i.test(mimeType);
     }
 
     // PREV/NEXT and VOLUME: one step per press, a held key does not repeat (pressed_repeat does nothing). Every
@@ -224,7 +276,55 @@ Settings.Page {
                 webViewPage.zoomSpinnerShown = false;
             }
         }
+
+        function onDialogRequested(request) {
+            webViewPage.queueRequest(webViewPage.dialogQueue, request);
+        }
+
+        function onAuthenticationRequested(request) {
+            webViewPage.queueRequest(webViewPage.loginQueue, request);
+        }
+
+        // nothing was saved and the page stays; the item reports no load failure for it
+        function onResponseRefused(url, mimeType, download) {
+            let message;
+            if (download) {
+                //: Notification when a web page starts a download, which the remote cannot save
+                message = qsTr("Downloads are not supported");
+            } else if (webViewPage.isPdf(mimeType)) {
+                //: Notification when a link of a web page opens a PDF document, which the remote cannot show
+                message = qsTr("PDF documents cannot be shown here");
+            } else {
+                //: Notification when a link of a web page opens a file the remote cannot show (not a web page or image)
+                message = qsTr("This document cannot be shown here");
+            }
+            ui.createNotification(message, true);
+            webViewPage.lastEvent = (download ? "download refused: " : "not shown: ") + url;
+        }
+
+        // window.open() and target=_blank: http and https load into this view without a word, like a link
+        function onNewWindow(url, loaded) {
+            if (!loaded) {
+                //: Notification when a web page tries to open a new window with an address the remote cannot show
+                ui.createNotification(qsTr("The page tried to open a link that cannot be shown"), true);
+                webViewPage.lastEvent = "new window refused: " + url;
+            }
+        }
+
+        // window.close() of the page: back in the history if there is one, else away from this page like BACK. WebKit
+        // allows it only on a page with at most one history entry, so it is nearly always the latter.
+        function onCloseRequested() {
+            if (webView.canGoBack) {
+                webView.goBack();
+                return;
+            }
+            //: Notification when the web page shown in the user interface closed itself (window.close())
+            ui.createNotification(qsTr("The web page closed itself"), false);
+            profileRoot.goBack();
+            webViewPage.buttonNavigation.restoreDefaultConfig();
+        }
     }
+
 
     Timer {
         id: zoomSpinnerTimer
@@ -485,5 +585,18 @@ Settings.Page {
                 }
             }
         }
+    }
+
+    // the web page's dialogs and logins, declared after the page's controls: they open over all of them
+    Components.WebViewDialog {
+        id: webViewDialog
+        objectName: "webViewDialog"
+        onClosed: Qt.callLater(webViewPage.showNextRequest)
+    }
+
+    Components.WebViewLogin {
+        id: webViewLogin
+        objectName: "webViewLogin"
+        onClosed: Qt.callLater(webViewPage.showNextRequest)
     }
 }

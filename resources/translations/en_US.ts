@@ -4367,21 +4367,171 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>WebView</name>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="251"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="293"/>
+        <source>Downloads are not supported</source>
+        <extracomment>Notification when a web page starts a download, which the remote cannot save</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="296"/>
+        <source>PDF documents cannot be shown here</source>
+        <extracomment>Notification when a link of a web page opens a PDF document, which the remote cannot show</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="299"/>
+        <source>This document cannot be shown here</source>
+        <extracomment>Notification when a link of a web page opens a file the remote cannot show (not a web page or image)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="309"/>
+        <source>The page tried to open a link that cannot be shown</source>
+        <extracomment>Notification when a web page tries to open a new window with an address the remote cannot show</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="322"/>
+        <source>The web page closed itself</source>
+        <extracomment>Notification when the web page shown in the user interface closed itself (window.close())</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="351"/>
         <source>Web address</source>
         <extracomment>Placeholder of the address field on the developer page that shows a web page inside the user interface</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="271"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="371"/>
         <source>Load</source>
         <extracomment>Button on the developer page that loads the entered web address in the embedded web view</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="382"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="482"/>
         <source>Web view unavailable</source>
         <extracomment>Status line of the developer page when the firmware has no web view library</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>WebViewDialog</name>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="236"/>
+        <source>Leave this page?</source>
+        <extracomment>Title of the question a web page asks before the user leaves it (the page may have unsaved changes)</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="240"/>
+        <source>%1 says</source>
+        <extracomment>Title of a message, question or text input a web page shows; %1 is the page&apos;s address, such as https://example.com</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="243"/>
+        <source>This page says</source>
+        <extracomment>Title of a message, question or text input of a web page that has no address of its own</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="299"/>
+        <source>Changes you made may not be saved.</source>
+        <extracomment>Text of the question a web page asks before the user leaves it; pages cannot word it themselves</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="316"/>
+        <source>Your answer</source>
+        <extracomment>Placeholder of the text field of a web page&apos;s text input dialog</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="337"/>
+        <source>Stay</source>
+        <extracomment>Button of the question a web page asks before the user leaves it: stay on the page</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="339"/>
+        <source>Cancel</source>
+        <extracomment>Button of a web page&apos;s question or text input dialog that answers no</extracomment>
+        <translation type="unfinished">Cancel</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="356"/>
+        <source>Leave</source>
+        <extracomment>Button of the question a web page asks before the user leaves it: leave the page</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewDialog.qml" line="358"/>
+        <source>OK</source>
+        <extracomment>Button of a web page&apos;s message, question or text input dialog that answers yes</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>WebViewLogin</name>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="99"/>
+        <source>The page cancelled the sign-in</source>
+        <extracomment>Notification when a web page&apos;s login dialog closes because the page went on without the login</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="121"/>
+        <source>Wrong user name or password</source>
+        <extracomment>Error under the password field when a web server rejected the user name or password the user entered</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="179"/>
+        <source>Sign in to the proxy %1</source>
+        <extracomment>Title of the login dialog of a proxy server; %1 is the proxy&apos;s address, such as http://proxy:3128</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="181"/>
+        <source>Sign in to %1</source>
+        <extracomment>Title of the login dialog of a web site; %1 is the site&apos;s address, such as https://example.com</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="198"/>
+        <source>The site says: “%1”</source>
+        <extracomment>Line of the web login dialog with the server&apos;s own name for the protected area; %1 is that text</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="211"/>
+        <source>Not secure: this connection is not encrypted</source>
+        <extracomment>Warning of the web login dialog when the site uses http instead of https</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="219"/>
+        <source>User name</source>
+        <extracomment>Placeholder of the user name field of a web site&apos;s login dialog</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="232"/>
+        <source>Password</source>
+        <extracomment>Placeholder of the password field of a web site&apos;s login dialog</extracomment>
+        <translation type="unfinished">Password</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="251"/>
+        <source>Cancel</source>
+        <extracomment>Button of a web site&apos;s login dialog: continue without signing in</extracomment>
+        <translation type="unfinished">Cancel</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLogin.qml" line="267"/>
+        <source>Sign in</source>
+        <extracomment>Button of a web site&apos;s login dialog: send the user name and password</extracomment>
         <translation type="unfinished"></translation>
     </message>
 </context>

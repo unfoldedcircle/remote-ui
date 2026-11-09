@@ -27,6 +27,11 @@
 // zoom the page and CHANNEL +/- scroll it a page, through the page's ButtonNavigation,
 // wherever the d-pad focus is; the WebView item must neither forward these keys to the page nor accept them. The
 // InputController is installed on the window like main.qml does, so a key travels both paths.
+//
+// The web page's dialogs and logins (libucwebview 0.7.0): components/WebViewDialog.qml and WebViewLogin.qml on the
+// page, opened by the library's request callbacks, answered with the d-pad, OK, BACK and the keyboard; one at a time,
+// script dialogs first; the page's keys do nothing while one is open; notifications for refused responses and
+// windows; window.close().
 
 #include <QElapsedTimer>
 #include <QJSValue>
@@ -48,6 +53,7 @@
 #include "ui/inputController.h"
 #include "webview/webviewitem.h"
 #include "webview/webviewlibrary.h"
+#include "webview/webviewrequest.h"
 
 using uc::ui::Colors;
 using uc::ui::Fonts;
@@ -89,7 +95,14 @@ class UiStub : public QObject {
         });
     }
 
+    // uiController.h createNotification: the toast at the top of the screen
+    Q_INVOKABLE void createNotification(const QString &message, bool warning = false) {
+        notifications.append((warning ? QStringLiteral("warning: ") : QString()) + message);
+    }
+
     InputController *input() { return &m_input; }
+
+    QStringList notifications;
 
  private:
     InputController m_input;
@@ -122,7 +135,8 @@ uc_webview *const kView = reinterpret_cast<uc_webview *>(0x1234);
 
 uc_webview_callbacks callbacks{};
 void                *user = nullptr;
-QStringList          calls;  // "reload", "stop", "go_back", "go_forward", "load_uri(<uri>)", "set_zoom(<zoom>)"
+QStringList          calls;  // "reload", "stop", "go_back", "go_forward", "load_uri(<uri>)", "set_zoom(<zoom>)",
+                             // "request_reply(<id>,<accept>,<text>)", "request_auth(<id>,<user>,<password>)"
 bool                 canBack = false;
 bool                 canForward = false;
 QList<uint32_t>      keys;   // keysyms forwarded to the page (uc_webview_key presses)
@@ -194,6 +208,18 @@ void        key(uc_webview *, uint32_t keysym, uint32_t, int pressed, unsigned, 
     }
 }
 void        imePreedit(uc_webview *, const char *, int) {}
+// library 0.7.0: the answers to the page's dialogs and logins
+QString orNull(const char *text) {
+    return text ? QStringLiteral("\"%1\"").arg(QString::fromUtf8(text)) : QStringLiteral("null");
+}
+int requestReply(uc_webview *, uint64_t id, int accept, const char *text) {
+    calls.append(QStringLiteral("request_reply(%1,%2,%3)").arg(id).arg(accept).arg(orNull(text)));
+    return 0;
+}
+int requestAuth(uc_webview *, uint64_t id, const char *user, const char *password) {
+    calls.append(QStringLiteral("request_auth(%1,%2,%3)").arg(id).arg(orNull(user), orNull(password)));
+    return 0;
+}
 void        imeDeleteSurrounding(uc_webview *, int, int) {}
 
 WebViewFunctions functions() {
@@ -234,6 +260,8 @@ WebViewFunctions functions() {
     f.create_sized = &createSized;
     f.set_magnification = &setMagnification;
     f.get_magnification = &getMagnification;
+    f.request_reply = &requestReply;
+    f.request_auth = &requestAuth;
     return f;
 }
 
@@ -249,6 +277,22 @@ void fireImeFocus(int focused, unsigned purpose) {
 
 void fireLoad(int event, const char *uri = "http://localhost/") {
     callbacks.load_changed(kView, event, uri, user);
+}
+
+// the page's requests as the library reports them
+void fireScriptDialog(uint64_t id, int type, const char *origin, const char *message,
+                      const char *defaultText = nullptr) {
+    QVERIFY(callbacks.script_dialog != nullptr);
+    callbacks.script_dialog(kView, id, type, origin, message, defaultText, user);
+}
+
+void fireAuthenticate(uint64_t id, const char *origin, const char *realm, unsigned flags = 0) {
+    QVERIFY(callbacks.authenticate != nullptr);
+    callbacks.authenticate(kView, id, origin, realm, UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC, flags, user);
+}
+
+void fireRequestCancelled(uint64_t id) {
+    callbacks.request_cancelled(kView, id, user);
 }
 
 // WebKit's back/forward list after a navigation; the item reads it on every load event
@@ -315,9 +359,29 @@ class testWebViewKeyboard : public QObject {
     void heldChannelScrollsOnEveryRepeat();
     void volumeAndChannelAreIgnoredWhileTheKeyboardIsUp();
     void pinchShowsTheMagnificationNextToTheZoom();
+    void alertOpensOverThePageAndOkAnswersIt();
+    void confirmTakesTheKeysAndBackAnswersNo();
+    void dpadMovesBetweenTheDialogButtons();
+    void promptTypesIntoItsFieldWithTheKeyboard();
+    void leavePageHasAFixedTextAndTheOrigin();
+    void pageKeysDoNothingWhileADialogIsOpen();
+    void cancelledRequestClosesItsDialog();
+    void longMessageScrollsWithUpAndDown();
+    void loginSendsTheCredentialsAndEmptiesTheFields();
+    void loginBackContinuesWithoutCredentials();
+    void loginRetryAndInsecureConnection();
+    void requestsShowOneAtATimeScriptDialogsFirst();
+    void refusedResponsesAndWindowsShowANotification();
+    void closeRequestedGoesBackOrLeavesThePage();
+    void prevAsksToLeaveAndPrevAgainDoesNothing();
 
  private:
     bool pressRemoteButton(Qt::Key key, int repeats = 0);
+    QQuickItem *dialogItem(const char *name) const;
+    QQuickItem *loginItem(const char *name) const;
+    bool        dialogShown() const;
+    bool        loginShown() const;
+    void        commitText(QQuickItem *field, const QString &text);
     void tapTheAddressField();
     void click(QQuickItem *item);
     void tapTheWebView(const QPointF &moveBy = QPointF());
@@ -340,6 +404,8 @@ class testWebViewKeyboard : public QObject {
     QObject     *overlay = nullptr;
     QSignalSpy  *opened = nullptr;
     QSignalSpy  *closed = nullptr;
+    QObject     *dialog = nullptr;  // components/WebViewDialog.qml on the page
+    QObject     *login = nullptr;   // components/WebViewLogin.qml on the page
 };
 
 void testWebViewKeyboard::init() {
@@ -373,6 +439,9 @@ void testWebViewKeyboard::init() {
     stopReloadButton = page->findChild<QQuickItem *>("stopReloadButton");
     stopReloadIcon = page->findChild<QQuickItem *>("stopReloadIcon");
     QVERIFY(field && loadButton && backButton && forwardButton && stopReloadButton && stopReloadIcon);
+    dialog = page->findChild<QObject *>("webViewDialog");
+    login = page->findChild<QObject *>("webViewLogin");
+    QVERIFY(dialog && login);
     QVERIFY(!page->findChildren<WebViewItem *>().isEmpty());
     webView = page->findChildren<WebViewItem *>().first();
     lib::calls.clear();
@@ -1161,6 +1230,463 @@ void testWebViewKeyboard::pinchShowsTheMagnificationNextToTheZoom() {
     QCOMPARE(text->property("text").toString(), QStringLiteral("110 % \u00b7 2.0\u00d7"));
     QCOMPARE(webView->magnification(), 2.0);
     lib::finishRender();
+}
+
+// ---- the web page's dialogs and logins (libucwebview 0.7.0) ------------------------------------------------------
+
+QQuickItem *testWebViewKeyboard::dialogItem(const char *name) const {
+    return dialog->findChild<QQuickItem *>(QLatin1String(name));
+}
+
+QQuickItem *testWebViewKeyboard::loginItem(const char *name) const {
+    return login->findChild<QQuickItem *>(QLatin1String(name));
+}
+
+// open, focused on its first control and owning the input
+bool testWebViewKeyboard::dialogShown() const {
+    return dialog->property("opened").toBool() &&
+           ui->input()->activeItem() == dialog->property("contentItem").value<QQuickItem *>();
+}
+
+bool testWebViewKeyboard::loginShown() const {
+    return login->property("opened").toBool() &&
+           ui->input()->activeItem() == login->property("contentItem").value<QQuickItem *>();
+}
+
+// what the on-screen keyboard sends for typed text: a commit to the focused field
+void testWebViewKeyboard::commitText(QQuickItem *field, const QString &text) {
+    QVERIFY(field->hasActiveFocus());
+    QInputMethodEvent event;
+    event.setCommitString(text);
+    QCoreApplication::sendEvent(field, &event);
+}
+
+void testWebViewKeyboard::alertOpensOverThePageAndOkAnswersIt() {
+    // the page's text is never markup: no bold text, no image loaded from anywhere
+    lib::fireScriptDialog(1, UC_WEBVIEW_DIALOG_ALERT, "https://example.com", "<b>Saved</b><img src=x>");
+    // not from inside the library's callback: the dialog opens from the event loop
+    QVERIFY(!dialog->property("visible").toBool());
+    QTRY_VERIFY(dialogShown());
+    QQuickItem *yes = dialogItem("webViewDialogYes");
+    QQuickItem *no = dialogItem("webViewDialogNo");
+    QTRY_VERIFY(yes->hasActiveFocus());
+    QVERIFY(!no->isVisible());
+    QCOMPARE(yes->property("text").toString(), QStringLiteral("OK"));
+    QCOMPARE(dialogItem("webViewDialogTitle")->property("text").toString(), QStringLiteral("https://example.com says"));
+    QQuickItem *messageText = dialogItem("webViewDialogMessageText");
+    QCOMPARE(messageText->property("text").toString(), QStringLiteral("<b>Saved</b><img src=x>"));
+    QCOMPARE(messageText->property("textFormat").toInt(), 0);  // Text.PlainText
+    QCOMPARE(dialogItem("webViewDialogTitle")->property("textFormat").toInt(), 0);
+    QVERIFY(!keyboard->property("active").toBool());
+
+    // OK
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_reply(1,1,\"\")")});
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    QTRY_COMPARE(ui->input()->activeItem(), page);
+    QTRY_VERIFY(loadButton->hasActiveFocus());
+    // the same key did not reach the page's Load button
+    QCOMPARE(lib::calls.size(), 1);
+
+    // without an origin (about:blank, data:)
+    lib::fireScriptDialog(2, UC_WEBVIEW_DIALOG_ALERT, nullptr, "Hi");
+    QTRY_VERIFY(dialogShown());
+    QCOMPARE(dialogItem("webViewDialogTitle")->property("text").toString(), QStringLiteral("This page says"));
+    click(dialogItem("webViewDialogYes"));
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(2,1,\"\")"));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+}
+
+void testWebViewKeyboard::confirmTakesTheKeysAndBackAnswersNo() {
+    // the d-pad is in the web view when the page asks
+    tapTheWebView();
+    QTRY_VERIFY(webView->hasActiveFocus());
+    lib::keys.clear();
+    lib::fireScriptDialog(3, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Delete it?");
+    QTRY_VERIFY(dialogShown());
+    QQuickItem *yes = dialogItem("webViewDialogYes");
+    QQuickItem *no = dialogItem("webViewDialogNo");
+    QTRY_VERIFY(yes->hasActiveFocus());
+    QVERIFY(!webView->hasActiveFocus());
+    QVERIFY(no->isVisible());
+    QCOMPARE(no->property("text").toString(), QStringLiteral("Cancel"));
+    QCOMPARE(yes->property("text").toString(), QStringLiteral("OK"));
+
+    // the d-pad moves in the dialog, nothing reaches the page
+    QTest::keyClick(view, Qt::Key_Down);
+    QTest::keyClick(view, Qt::Key_Up);
+    QVERIFY(lib::keys.isEmpty());
+
+    // BACK: no, and the web view gets the d-pad back
+    QVERIFY(!pressRemoteButton(Qt::Key_Exit));
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_reply(3,0,null)")});
+    QObject *profileRoot = view->rootObject()->findChild<QObject *>("profileRoot");
+    QCOMPARE(profileRoot->property("backCalls").toInt(), 0);
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    QTRY_VERIFY(webView->hasActiveFocus());
+    QCOMPARE(ui->input()->activeItem(), page);
+
+    // HOME answers no as well, and a tap above the sheet
+    lib::fireScriptDialog(4, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Sure?");
+    QTRY_VERIFY(dialogShown());
+    pressRemoteButton(Qt::Key_Home);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(4,0,null)"));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    lib::fireScriptDialog(5, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Sure?");
+    QTRY_VERIFY(dialogShown());
+    QTest::mouseClick(view, Qt::LeftButton, Qt::NoModifier, QPoint(240, 100));
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(5,0,null)"));
+    QCOMPARE(lib::calls.size(), 3);
+}
+
+void testWebViewKeyboard::dpadMovesBetweenTheDialogButtons() {
+    lib::fireScriptDialog(6, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Sure?");
+    QTRY_VERIFY(dialogShown());
+    QQuickItem *yes = dialogItem("webViewDialogYes");
+    QQuickItem *no = dialogItem("webViewDialogNo");
+    QTRY_VERIFY(yes->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Left);
+    QTRY_VERIFY(no->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Right);
+    QTRY_VERIFY(yes->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Left);
+    QTRY_VERIFY(no->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_reply(6,0,null)")});
+
+    // a dialog opened again starts on its accepting button
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    lib::fireScriptDialog(7, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Again?");
+    QTRY_VERIFY(dialogShown());
+    QTRY_VERIFY(yes->hasActiveFocus());
+}
+
+void testWebViewKeyboard::promptTypesIntoItsFieldWithTheKeyboard() {
+    lib::fireScriptDialog(8, UC_WEBVIEW_DIALOG_PROMPT, "https://example.com", "Your name?", "Max");
+    QTRY_VERIFY(dialogShown());
+    QQuickItem *promptField = textFieldOf(dialogItem("webViewDialogField"));
+    QVERIFY(promptField);
+    QTRY_VERIFY(promptField->hasActiveFocus());
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    QCOMPARE(promptField->property("text").toString(), QStringLiteral("Max"));
+    // the sheet sits at the top, the keyboard below
+    QCOMPARE(dialogItem("webViewDialogSheet")->y(), 0.0);
+
+    // the on-screen keyboard types, OK (the field's Return) answers
+    promptField->setProperty("cursorPosition", 3);
+    commitText(promptField, QStringLiteral(" Grüezi"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_reply(8,1,\"Max Grüezi\")")});
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    QCOMPARE(promptField->property("text").toString(), QString());
+
+    // down to the buttons (the keyboard goes), Cancel: null
+    lib::fireScriptDialog(9, UC_WEBVIEW_DIALOG_PROMPT, "https://example.com", "Your name?");
+    QTRY_VERIFY(dialogShown());
+    QTRY_VERIFY(promptField->hasActiveFocus());
+    QCOMPARE(promptField->property("text").toString(), QString());
+    QTest::keyClick(view, Qt::Key_Down);
+    QTRY_VERIFY(dialogItem("webViewDialogYes")->hasActiveFocus());
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    QTest::keyClick(view, Qt::Key_Up);
+    QTRY_VERIFY(promptField->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Down);
+    QTest::keyClick(view, Qt::Key_Left);
+    QTRY_VERIFY(dialogItem("webViewDialogNo")->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(9,0,null)"));
+}
+
+void testWebViewKeyboard::leavePageHasAFixedTextAndTheOrigin() {
+    lib::fireScriptDialog(10, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://shop.example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    QCOMPARE(dialogItem("webViewDialogTitle")->property("text").toString(), QStringLiteral("Leave this page?"));
+    QQuickItem *origin = dialogItem("webViewDialogOrigin");
+    QVERIFY(origin->isVisible());
+    QCOMPARE(origin->property("text").toString(), QStringLiteral("https://shop.example.com"));
+    QCOMPARE(dialogItem("webViewDialogMessageText")->property("text").toString(),
+             QStringLiteral("Changes you made may not be saved."));
+    QQuickItem *yes = dialogItem("webViewDialogYes");
+    QQuickItem *no = dialogItem("webViewDialogNo");
+    QCOMPARE(no->property("text").toString(), QStringLiteral("Stay"));
+    QCOMPARE(yes->property("text").toString(), QStringLiteral("Leave"));
+    // OK leaves, BACK stays: the accepting button is selected
+    QTRY_VERIFY(yes->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_reply(10,1,\"\")")});
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+
+    lib::fireScriptDialog(11, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://shop.example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    pressRemoteButton(Qt::Key_Exit);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(11,0,null)"));
+}
+
+void testWebViewKeyboard::pageKeysDoNothingWhileADialogIsOpen() {
+    lib::setHistory(true, true, "http://localhost/2");
+    lib::calls.clear();
+    lib::fireScriptDialog(12, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Sure?");
+    QTRY_VERIFY(dialogShown());
+    for (Qt::Key key : {Qt::Key_AudioRewind, Qt::Key_AudioForward, Qt::Key_VolumeUp, Qt::Key_VolumeDown,
+                        Qt::Key_ChannelUp, Qt::Key_ChannelDown}) {
+        pressRemoteButton(key);
+    }
+    QVERIFY(lib::calls.isEmpty());
+    QVERIFY(lib::keys.isEmpty());
+    QCOMPARE(webView->zoom(), 1.0);
+
+    // after the answer they work again
+    QTest::keyClick(view, Qt::Key_Return);
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    QTRY_COMPARE(ui->input()->activeItem(), page);
+    pressRemoteButton(Qt::Key_VolumeUp);
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("request_reply(12,1,\"\")"), QStringLiteral("set_zoom(1.1)")}));
+}
+
+void testWebViewKeyboard::cancelledRequestClosesItsDialog() {
+    tapTheWebView();
+    QTRY_VERIFY(webView->hasActiveFocus());
+    lib::fireScriptDialog(13, UC_WEBVIEW_DIALOG_PROMPT, "https://example.com", "Name?");
+    QTRY_VERIFY(dialogShown());
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    // the page went on (a navigation, a crash): the dialog closes without an answer
+    lib::fireRequestCancelled(13);
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    QTRY_VERIFY(webView->hasActiveFocus());
+    QVERIFY(lib::calls.isEmpty());
+    QVERIFY(ui->notifications.isEmpty());
+}
+
+void testWebViewKeyboard::longMessageScrollsWithUpAndDown() {
+    QByteArray message;
+    for (int i = 0; i < 80; ++i) {
+        message += "Line " + QByteArray::number(i) + " of a long message\n";
+    }
+    lib::fireScriptDialog(14, UC_WEBVIEW_DIALOG_ALERT, "https://example.com", message.constData());
+    QTRY_VERIFY(dialogShown());
+    QQuickItem *flickable = dialogItem("webViewDialogMessage");
+    QVERIFY(flickable->property("interactive").toBool());
+    QVERIFY(flickable->height() < flickable->property("contentHeight").toReal());
+    // the sheet stays on the screen
+    QQuickItem *sheet = dialogItem("webViewDialogSheet");
+    QVERIFY(sheet->y() >= 0);
+    QCOMPARE(flickable->property("contentY").toReal(), 0.0);
+    QTest::keyClick(view, Qt::Key_Down);
+    QVERIFY(flickable->property("contentY").toReal() > 0);
+    QTest::keyClick(view, Qt::Key_Up);
+    QCOMPARE(flickable->property("contentY").toReal(), 0.0);
+    QVERIFY(dialogItem("webViewDialogYes")->hasActiveFocus());
+    QVERIFY(lib::calls.isEmpty());
+}
+
+void testWebViewKeyboard::loginSendsTheCredentialsAndEmptiesTheFields() {
+    lib::fireAuthenticate(20, "https://router.example", "Admin area");
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(loginItem("webViewLoginTitle")->property("text").toString(),
+             QStringLiteral("Sign in to https://router.example"));
+    QCOMPARE(loginItem("webViewLoginRealm")->property("text").toString(),
+             QStringLiteral("The site says: “Admin area”"));
+    QCOMPARE(loginItem("webViewLoginRealm")->property("textFormat").toInt(), 0);
+    QVERIFY(!loginItem("webViewLoginInsecure")->isVisible());
+    QQuickItem *user = textFieldOf(loginItem("webViewLoginUser"));
+    QQuickItem *password = textFieldOf(loginItem("webViewLoginPassword"));
+    QTRY_VERIFY(user->hasActiveFocus());
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    QCOMPARE(password->property("echoMode").toInt(), 2);  // TextInput.Password
+
+    // user name, OK to the password, OK signs in
+    commitText(user, QStringLiteral("admin"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QTRY_VERIFY(password->hasActiveFocus());
+    QVERIFY(lib::calls.isEmpty());
+    commitText(password, QStringLiteral("s3crét"));
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_auth(20,\"admin\",\"s3crét\")")});
+    // the fields are emptied at once, the dialog and the keyboard go
+    QCOMPARE(user->property("text").toString(), QString());
+    QCOMPARE(password->property("text").toString(), QString());
+    QTRY_VERIFY(!login->property("visible").toBool());
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    QTRY_COMPARE(ui->input()->activeItem(), page);
+
+    // the d-pad reaches Sign in from the password field
+    lib::fireAuthenticate(21, "https://router.example", "Admin area");
+    QTRY_VERIFY(loginShown());
+    QTRY_VERIFY(user->hasActiveFocus());
+    QCOMPARE(user->property("text").toString(), QString());
+    QTest::keyClick(view, Qt::Key_Down);
+    QTRY_VERIFY(password->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Down);
+    QTRY_VERIFY(loginItem("webViewLoginSignIn")->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Left);
+    QTRY_VERIFY(loginItem("webViewLoginCancel")->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Right);
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(21,\"\",\"\")"));
+}
+
+void testWebViewKeyboard::loginBackContinuesWithoutCredentials() {
+    lib::fireAuthenticate(22, "https://router.example", "");
+    QTRY_VERIFY(loginShown());
+    QVERIFY(!loginItem("webViewLoginRealm")->isVisible());
+    QQuickItem *user = textFieldOf(loginItem("webViewLoginUser"));
+    QTRY_VERIFY(user->hasActiveFocus());
+    commitText(user, QStringLiteral("admin"));
+    QVERIFY(!pressRemoteButton(Qt::Key_Exit));
+    // continue without credentials: the server's 401 page loads; what was typed is gone
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("request_auth(22,null,null)")});
+    QCOMPARE(user->property("text").toString(), QString());
+    QTRY_VERIFY(!login->property("visible").toBool());
+    QObject *profileRoot = view->rootObject()->findChild<QObject *>("profileRoot");
+    QCOMPARE(profileRoot->property("backCalls").toInt(), 0);
+
+    // Cancel does the same; a login the page gives up closes with a notification
+    lib::fireAuthenticate(23, "https://router.example", "Admin area");
+    QTRY_VERIFY(loginShown());
+    click(loginItem("webViewLoginCancel"));
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_auth(23,null,null)"));
+    QTRY_VERIFY(!login->property("visible").toBool());
+    lib::fireAuthenticate(24, "https://router.example", "Admin area");
+    QTRY_VERIFY(loginShown());
+    lib::fireRequestCancelled(24);
+    QTRY_VERIFY(!login->property("visible").toBool());
+    QCOMPARE(ui->notifications, QStringList{QStringLiteral("The page cancelled the sign-in")});
+    QCOMPARE(lib::calls.size(), 2);
+}
+
+void testWebViewKeyboard::loginRetryAndInsecureConnection() {
+    lib::fireAuthenticate(25, "http://192.168.1.1", "Router", UC_WEBVIEW_AUTH_RETRY);
+    QTRY_VERIFY(loginShown());
+    QVERIFY(loginItem("webViewLoginInsecure")->isVisible());
+    // the error under the password field
+    bool error = false;
+    QTRY_VERIFY_WITH_TIMEOUT(
+        [&] {
+            for (QQuickItem *item : loginItem("webViewLoginPassword")->findChildren<QQuickItem *>()) {
+                if (item->property("text").toString() == QStringLiteral("Wrong user name or password") &&
+                    item->opacity() > 0) {
+                    error = true;
+                }
+            }
+            return error;
+        }(),
+        2000);
+    // a proxy
+    pressRemoteButton(Qt::Key_Exit);
+    QTRY_VERIFY(!login->property("visible").toBool());
+    lib::callbacks.authenticate(lib::kView, 26, "http://proxy:3128", "Proxy", UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC,
+                                UC_WEBVIEW_AUTH_PROXY, lib::user);
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(loginItem("webViewLoginTitle")->property("text").toString(),
+             QStringLiteral("Sign in to the proxy http://proxy:3128"));
+}
+
+void testWebViewKeyboard::requestsShowOneAtATimeScriptDialogsFirst() {
+    lib::fireAuthenticate(30, "https://a.example", "A");
+    lib::fireAuthenticate(31, "https://b.example", "B");
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(loginItem("webViewLoginTitle")->property("text").toString(),
+             QStringLiteral("Sign in to https://a.example"));
+    // a script dialog meanwhile waits, and goes before the second login: the page is blocked until its answer
+    lib::fireScriptDialog(32, UC_WEBVIEW_DIALOG_ALERT, "https://example.com", "Hi");
+    QTest::qWait(50);
+    QVERIFY(!dialog->property("visible").toBool());
+    pressRemoteButton(Qt::Key_Exit);
+    QTRY_VERIFY(dialogShown());
+    QVERIFY(!login->property("visible").toBool());
+    QTest::keyClick(view, Qt::Key_Return);
+    QTRY_VERIFY(loginShown());
+    QCOMPARE(loginItem("webViewLoginTitle")->property("text").toString(),
+             QStringLiteral("Sign in to https://b.example"));
+    // a waiting request that goes away is not shown
+    lib::fireAuthenticate(33, "https://c.example", "C");
+    lib::fireRequestCancelled(33);
+    pressRemoteButton(Qt::Key_Exit);
+    QTRY_VERIFY(!login->property("visible").toBool());
+    QTest::qWait(400);
+    QVERIFY(!login->property("visible").toBool());
+    QCOMPARE(lib::calls,
+             (QStringList{QStringLiteral("request_auth(30,null,null)"), QStringLiteral("request_reply(32,1,\"\")"),
+                          QStringLiteral("request_auth(31,null,null)")}));
+    // the waiting login of an ended request did not announce anything
+    QVERIFY(ui->notifications.isEmpty());
+}
+
+void testWebViewKeyboard::refusedResponsesAndWindowsShowANotification() {
+    QQuickItem *statusLine = page->findChild<QQuickItem *>("statusLine");
+    lib::callbacks.response_refused(lib::kView, "https://example.com/file.zip", nullptr, UC_WEBVIEW_RESPONSE_DOWNLOAD,
+                                    lib::user);
+    lib::callbacks.response_refused(lib::kView, "https://example.com/a.pdf", "application/pdf",
+                                    UC_WEBVIEW_RESPONSE_UNSUPPORTED, lib::user);
+    lib::callbacks.response_refused(lib::kView, "https://example.com/b", "Application/X-PDF; v=1",
+                                    UC_WEBVIEW_RESPONSE_UNSUPPORTED, lib::user);
+    lib::callbacks.response_refused(lib::kView, "https://example.com/c.bin", "application/octet-stream",
+                                    UC_WEBVIEW_RESPONSE_UNSUPPORTED, lib::user);
+    lib::callbacks.new_window(lib::kView, "https://example.com/popup", UC_WEBVIEW_NEW_WINDOW_LOADED, lib::user);
+    lib::callbacks.new_window(lib::kView, "data:text/html,x", UC_WEBVIEW_NEW_WINDOW_REFUSED, lib::user);
+    QCOMPARE(ui->notifications, (QStringList{QStringLiteral("warning: Downloads are not supported"),
+                                             QStringLiteral("warning: PDF documents cannot be shown here"),
+                                             QStringLiteral("warning: PDF documents cannot be shown here"),
+                                             QStringLiteral("warning: This document cannot be shown here"),
+                                             QStringLiteral("warning: The page tried to open a link that cannot "
+                                                            "be shown")}));
+    QVERIFY(statusLine->property("text").toString().endsWith(QLatin1String("new window refused: data:text/html,x")));
+    // the page stays: no load, no dialog
+    QVERIFY(lib::calls.isEmpty());
+    QVERIFY(!dialog->property("visible").toBool());
+}
+
+void testWebViewKeyboard::closeRequestedGoesBackOrLeavesThePage() {
+    QObject *profileRoot = view->rootObject()->findChild<QObject *>("profileRoot");
+    // with history: one step back
+    lib::setHistory(true, false, "http://localhost/2");
+    lib::calls.clear();
+    lib::callbacks.close_requested(lib::kView, lib::user);
+    QTRY_COMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
+    QCOMPARE(profileRoot->property("backCalls").toInt(), 0);
+
+    // without (WebKit's rule, nearly always): away from the page like BACK, with a word why
+    lib::setHistory(false, false, "http://localhost/");
+    lib::callbacks.close_requested(lib::kView, lib::user);
+    QTRY_COMPARE(profileRoot->property("backCalls").toInt(), 1);
+    QCOMPARE(ui->notifications, QStringList{QStringLiteral("The web page closed itself")});
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
+}
+
+void testWebViewKeyboard::prevAsksToLeaveAndPrevAgainDoesNothing() {
+    // beforeunload and PREV: PREV, the page asks; PREV again while the question shows
+    // does nothing; Leave goes back (the library continues the navigation that asked)
+    lib::setHistory(true, false, "http://localhost/2");
+    lib::calls.clear();
+    webView->forceActiveFocus();
+    pressRemoteButton(Qt::Key_AudioRewind);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
+    lib::fireScriptDialog(40, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    pressRemoteButton(Qt::Key_AudioRewind);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("go_back"), QStringLiteral("request_reply(40,1,\"\")")}));
+
+    // Stay: the page stays, PREV asks again later
+    lib::fireScriptDialog(41, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    pressRemoteButton(Qt::Key_Exit);
+    QCOMPARE(lib::calls.last(), QStringLiteral("request_reply(41,0,null)"));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+
+    // the item answers the question itself before a navigation the dialog does not block (a handler of the page that
+    // reloads): the dialog closes, nothing is answered twice
+    lib::fireScriptDialog(42, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
+    QTRY_VERIFY(dialogShown());
+    webView->reload();
+    QCOMPARE(lib::calls.mid(lib::calls.size() - 2),
+             (QStringList{QStringLiteral("request_reply(42,1,\"\")"), QStringLiteral("reload")}));
+    QTRY_VERIFY(!dialog->property("visible").toBool());
+    QTRY_COMPARE(ui->input()->activeItem(), page);
+    QCOMPARE(lib::calls.filter(QStringLiteral("request_reply(42")).size(), 1);
 }
 
 int main(int argc, char *argv[]) {
