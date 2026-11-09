@@ -13,12 +13,15 @@ namespace webview {
 
 /**
  * The functions of libucwebview.so.1 (uc_webview.h without the uc_webview_ prefix; new/free are create/destroy).
- * Every pointer is set once the library is available. A unit test fills the table with stubs.
+ * Every pointer is set once the library is available, except the optional ones, which a library of the same API
+ * version but an older release lacks (nullptr then). A unit test fills the table with stubs.
  */
 struct WebViewFunctions {
     int (*api_version)(void) = nullptr;
     int (*global_init)(void *, const char *, const char *) = nullptr;
     void (*global_shutdown)(void) = nullptr;
+    // optional, library 0.2.0: the display refresh rate WebKit paces animations with
+    int (*global_set_refresh_rate)(double) = nullptr;
     uc_webview *(*create)(int, int, const uc_webview_callbacks *, void *) = nullptr;
     void (*destroy)(uc_webview *) = nullptr;
     void (*resize)(uc_webview *, int, int) = nullptr;
@@ -77,6 +80,11 @@ class WebViewLibrary {
 
     const WebViewFunctions &functions() const { return m_functions; }
 
+    // The refresh rate of the screen the web views are shown on, for uc_webview_global_set_refresh_rate(): WebKit
+    // ticks requestAnimationFrame and animations at this rate (60 Hz without it). Only after ensureInitialized()
+    // and only with a library that has the function; a rate already passed is not passed again.
+    void setDisplayRefreshRate(qreal hz);
+
     // Unit tests: use this function table instead of loading the library. The table counts as available and not
     // yet initialised, so ensureInitialized() calls its global_init.
     void setFunctionsForTest(const WebViewFunctions &functions);
@@ -93,6 +101,7 @@ class WebViewLibrary {
     bool             m_probed = false;
     bool             m_available = false;
     bool             m_initialized = false;
+    qreal            m_refreshRate = 0;  // last rate passed to the library, 0 = none yet
 };
 
 }  // namespace webview

@@ -24,6 +24,7 @@ namespace webview {
 UC_WEBVIEW_CHECK_SIGNATURE(api_version, uc_webview_api_version);
 UC_WEBVIEW_CHECK_SIGNATURE(global_init, uc_webview_global_init);
 UC_WEBVIEW_CHECK_SIGNATURE(global_shutdown, uc_webview_global_shutdown);
+UC_WEBVIEW_CHECK_SIGNATURE(global_set_refresh_rate, uc_webview_global_set_refresh_rate);
 UC_WEBVIEW_CHECK_SIGNATURE(create, uc_webview_new);
 UC_WEBVIEW_CHECK_SIGNATURE(destroy, uc_webview_free);
 UC_WEBVIEW_CHECK_SIGNATURE(resize, uc_webview_resize);
@@ -133,6 +134,10 @@ bool WebViewLibrary::load() {
     }
 
     qCDebug(lcWebView()) << "Loaded" << m_library.fileName() << "with the" << dispatcherName << "dispatcher";
+    if (!m_functions.global_set_refresh_rate) {
+        qCInfo(lcWebView()) << m_library.fileName()
+                            << "has no uc_webview_global_set_refresh_rate (older than 0.2.0): pages animate at 60 Hz";
+    }
     return true;
 }
 
@@ -172,6 +177,11 @@ bool WebViewLibrary::resolveAll(QString *missing) {
     UC_WEBVIEW_RESOLVE(ime_preedit, uc_webview_ime_preedit);
     UC_WEBVIEW_RESOLVE(ime_delete_surrounding, uc_webview_ime_delete_surrounding);
 #undef UC_WEBVIEW_RESOLVE
+
+    // Optional: added after the first release within the same API version, which the header allows for new
+    // functions; an older library simply lacks them.
+    m_functions.global_set_refresh_rate = reinterpret_cast<decltype(m_functions.global_set_refresh_rate)>(
+        m_library.resolve("uc_webview_global_set_refresh_rate"));
     return ok;
 }
 
@@ -211,11 +221,27 @@ bool WebViewLibrary::ensureInitialized() {
     return true;
 }
 
+void WebViewLibrary::setDisplayRefreshRate(qreal hz) {
+    Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
+
+    if (!m_initialized || !m_functions.global_set_refresh_rate || qFuzzyCompare(hz, m_refreshRate)) {
+        return;
+    }
+    m_refreshRate = hz;
+    // The library logs which rate it uses: UC_WEBVIEW_REFRESH_RATE in the environment wins over this one.
+    if (m_functions.global_set_refresh_rate(static_cast<double>(hz)) == 0) {
+        qCInfo(lcWebView()) << "Display refresh rate" << hz << "Hz passed to the web view";
+    } else {
+        qCWarning(lcWebView()) << "The web view refused the display refresh rate" << hz << "Hz (valid: 20..240)";
+    }
+}
+
 void WebViewLibrary::setFunctionsForTest(const WebViewFunctions &functions) {
     m_functions = functions;
     m_probed = true;
     m_available = true;
     m_initialized = false;
+    m_refreshRate = 0;
     m_reason.clear();
 }
 

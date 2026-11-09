@@ -201,7 +201,9 @@ int uc_webview_api_version(void);
  * Environment honoured: WPE_DRM_DEVICE, WPE_BUFFER_FORMAT, WPE_USE_EXPLICIT_SYNC, LIBGL_ALWAYS_SOFTWARE
  * (WPEPlatform), WEBKIT_INSPECTOR_SERVER (needs UC_WEBVIEW_DEVELOPER_EXTRAS=1), UC_WEBVIEW_CONSOLE_LOG=1
  * (page console to stderr), JavaScriptCoreUseJIT=0 (sandboxes with MemoryDenyWriteExecute),
- * UC_WEBVIEW_ALLOW_FILE_URLS=1 (lets uc_webview_load_uri()/load_html() use file: URIs; read here, once).
+ * UC_WEBVIEW_ALLOW_FILE_URLS=1 (lets uc_webview_load_uri()/load_html() use file: URIs; read here, once),
+ * UC_WEBVIEW_REFRESH_RATE=<Hz> (display refresh rate, wins over uc_webview_global_set_refresh_rate(); read here,
+ * once), UC_WEBVIEW_TRACE=1 (log lines about the display refresh ticks).
  */
 int uc_webview_global_init(void *egl_display, const char *data_dir, const char *cache_dir);
 
@@ -212,6 +214,31 @@ int uc_webview_global_init(void *egl_display, const char *data_dir, const char *
  * settings proxy), so a second uc_webview_global_init() in the same process is supported for tests only.
  */
 void uc_webview_global_shutdown(void);
+
+/*
+ * UI thread (the thread that runs or will run uc_webview_global_init(); may be called before it, the value is
+ * kept for it). Added in library 0.2.0 within API version 1: hosts resolve it with dlsym() and skip it when an
+ * older library lacks it (WebKit then paces at 60 Hz as before).
+ *
+ * The refresh rate of the display the host presents the frames on, in Hz (decimals allowed: 49.999, 59.6), valid
+ * range 20..240. The library reports it to WebKit as the screen's refresh rate (WebKit's nominal frame rate) and
+ * ticks WebKit's display link, which drives requestAnimationFrame and the page's rendering updates, from a thread
+ * of its own at this rate plus 1 % (a link slower than the panel would leave refreshes without a frame; a surplus
+ * tick is absorbed while the host reports frames as it presents them). Without it the link runs at 60 Hz. Qt hosts
+ * pass QScreen::refreshRate() of the view's window.
+ * Precedence: UC_WEBVIEW_REFRESH_RATE (environment, read by uc_webview_global_init()) > this value > 60 Hz.
+ * Call it before the first page load: WebKit takes its nominal frame rate from the screen once, when it sets up
+ * the display link at the first load in the process; later calls change the tick rate at once but not that
+ * nominal value.
+ * Returns 0 when the value was taken (also when UC_WEBVIEW_REFRESH_RATE overrides it), -1 when it is not a number
+ * in 20..240 or the call comes from another thread (the previous value stays).
+ */
+int uc_webview_global_set_refresh_rate(double hz);
+
+/* UI thread. Added in library 0.2.0 like the setter. The display refresh rate in Hz the library uses after the
+ * precedence above (the display link ticks 1 % faster; before uc_webview_global_init() the environment is not read
+ * yet). */
+double uc_webview_global_get_refresh_rate(void);
 
 /* ---- view lifecycle ------------------------------------------------------ */
 

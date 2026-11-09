@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   address. The web view loads only web (http, https), `about:` and `data:` addresses; file addresses are refused with
   a "load failed" message unless `UC_WEBVIEW_ALLOW_FILE_URLS=1` is set. A tap on a text field of the page that is
   still selected brings the on-screen keyboard back after its hide key closed it.
+- The web view tells the page the refresh rate of the display (50 Hz on the Remote 3) instead of 60 Hz, so page
+  animations that do not redraw on every frame keep step with the display. Needs the web view library 0.2.0.
 
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on

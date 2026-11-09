@@ -19,6 +19,7 @@
 #include "webviewframequeue.h"
 
 class QQuickWindow;
+class QScreen;
 
 namespace uc {
 namespace webview {
@@ -58,6 +59,12 @@ namespace webview {
  *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
  * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at
  *   INFO level (uc.ui.webview).
+ *
+ * Frame pacing: WebKit ticks requestAnimationFrame and animations at the refresh rate the library is given, 60 Hz
+ * otherwise. The item passes QScreen::refreshRate() of its window's screen (eglfs_kms: the DRM mode's vrefresh, 50 on
+ * the Remote 3) before it creates the view, because WebKit reads the rate once at the first page load, and again
+ * when the window moves to another screen or the screen's rate changes. UC_WEBVIEW_REFRESH_RATE in the environment
+ * wins inside the library (docs/webview.md).
  */
 class WebViewItem : public QQuickItem {
     Q_OBJECT
@@ -162,6 +169,8 @@ class WebViewItem : public QQuickItem {
     void onFrameSwapped();
 
     void   attachWindow(QQuickWindow *window);
+    void   watchScreen(QScreen *screen);
+    void   updateRefreshRate();
     void   ensureView();
     void   destroyView();
     void   updateMapped();
@@ -235,6 +244,8 @@ class WebViewItem : public QQuickItem {
 
     QMetaObject::Connection m_frameSwappedConnection;
     QMetaObject::Connection m_windowVisibleConnection;
+    QMetaObject::Connection m_screenChangedConnection;
+    QMetaObject::Connection m_refreshRateConnection;
 };
 
 }  // namespace webview

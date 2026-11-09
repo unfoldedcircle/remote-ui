@@ -2,7 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QQuickWindow>
+#include <QScreen>
 #include <QtTest>
+#include <qpa/qwindowsysteminterface.h>
 
 #include "webview/webviewitem.h"
 #include "webview/webviewlibrary.h"
@@ -27,6 +29,8 @@ struct State {
     QStringList          panel;  // the item's QInputMethod show/hide requests
     bool                 canGoBack = false;
     bool                 canGoForward = false;
+    QList<double>        refreshRates;           // uc_webview_global_set_refresh_rate() arguments
+    int                  refreshRateResult = 0;  // what the stub returns (-1: refused)
 };
 
 State s;
@@ -48,6 +52,12 @@ int globalInit(void *egl, const char *, const char *) {
 }
 
 void globalShutdown() {}
+
+int globalSetRefreshRate(double hz) {
+    s.refreshRates.append(hz);
+    record(QStringLiteral("global_set_refresh_rate(%1)").arg(hz));
+    return s.refreshRateResult;
+}
 
 uc_webview *create(int w, int h, const uc_webview_callbacks *cb, void *user) {
     s.view = kView;
@@ -178,6 +188,7 @@ WebViewFunctions functions() {
     f.api_version = &apiVersion;
     f.global_init = &globalInit;
     f.global_shutdown = &globalShutdown;
+    f.global_set_refresh_rate = &globalSetRefreshRate;
     f.create = &create;
     f.destroy = &destroy;
     f.resize = &resize;
@@ -341,6 +352,9 @@ class testWebViewItem : public QObject {
     void mouseButtonsAreReleasedWhenTheGrabIsLost();
     void pageKeysAreForwardedRemoteButtonsAreNot();
     void framesArriveAndAreReleasedWhenTheItemGoes();
+    void screenRefreshRateGoesToTheLibraryBeforeTheView();
+    void refreshRateFollowsTheScreen();
+    void refreshRateSetterIsOptional();
     void destructorFreesTheView();
 };
 
@@ -915,6 +929,92 @@ void testWebViewItem::framesArriveAndAreReleasedWhenTheItemGoes() {
     const int free = stub::s.calls.indexOf(QStringLiteral("free"));
     QVERIFY(release >= 0);
     QVERIFY(free > release);
+}
+
+void testWebViewItem::screenRefreshRateGoesToTheLibraryBeforeTheView() {
+    // WebKit reads the rate once, when the first load sets up the page's display link: it has to reach the library
+    // after uc_webview_global_init() and before uc_webview_new()
+    Fixture     f;
+    const qreal rate = f.window.screen()->refreshRate();
+    QCOMPARE(stub::s.initCalls, 1);
+    QCOMPARE(stub::s.refreshRates.count(), 1);
+    QCOMPARE(stub::s.refreshRates.first(), static_cast<double>(rate));
+    const int setIndex = stub::s.calls.indexOf(QStringLiteral("global_set_refresh_rate(%1)").arg(rate));
+    const int newIndex = stub::s.calls.indexOf(QRegularExpression(QStringLiteral("new\\(.*")));  // exact match
+    QVERIFY2(setIndex >= 0 && newIndex > setIndex, qPrintable(stub::s.calls.join(QLatin1Char(' '))));
+
+    // resizing or remapping the view does not pass the same rate again
+    f.item->setSize(QSizeF(120, 80));
+    QCOMPARE(stub::s.refreshRates.count(), 1);
+}
+
+void testWebViewItem::refreshRateFollowsTheScreen() {
+    stub::s = stub::State();
+    WebViewLibrary::instance()->setFunctionsForTest(stub::functions());
+    QQuickWindow window;
+    QScreen     *screen = window.screen();
+    QVERIFY(screen);
+    const qreal original = screen->refreshRate();
+    const qreal panel = qFuzzyCompare(original, 50.0) ? 60.0 : 50.0;
+
+    // like the QML engine creates it: parented after construction, so the item watches its window's screen
+    auto *item = new WebViewItem();
+    item->setSize(QSizeF(300, 200));
+    item->setParentItem(window.contentItem());
+    QVERIFY(stub::s.view != nullptr);
+    QCOMPARE(stub::s.refreshRates.count(), 1);
+    QCOMPARE(stub::s.refreshRates.last(), static_cast<double>(original));
+
+    // eglfs_kms reports a mode change through the QPA layer: the new rate goes to the library
+    QWindowSystemInterface::handleScreenRefreshRateChange(screen, panel);
+    QWindowSystemInterface::flushWindowSystemEvents();
+    QCOMPARE(screen->refreshRate(), panel);
+    QCOMPARE(stub::s.refreshRates.count(), 2);
+    QCOMPARE(stub::s.refreshRates.last(), static_cast<double>(panel));
+    QCOMPARE(stub::s.calls.last(), QStringLiteral("global_set_refresh_rate(%1)").arg(panel));
+
+    QWindowSystemInterface::handleScreenRefreshRateChange(screen, original);
+    QWindowSystemInterface::flushWindowSystemEvents();
+    QCOMPARE(stub::s.refreshRates.count(), 3);
+    QCOMPARE(stub::s.refreshRates.last(), static_cast<double>(original));
+
+    // once the item is gone, screen changes no longer reach the library
+    delete item;
+    QWindowSystemInterface::handleScreenRefreshRateChange(screen, panel);
+    QWindowSystemInterface::flushWindowSystemEvents();
+    QCOMPARE(stub::s.refreshRates.count(), 3);
+    QWindowSystemInterface::handleScreenRefreshRateChange(screen, original);
+    QWindowSystemInterface::flushWindowSystemEvents();
+    QCOMPARE(screen->refreshRate(), original);
+}
+
+void testWebViewItem::refreshRateSetterIsOptional() {
+    // a library of the same API version from before 0.2.0 has no uc_webview_global_set_refresh_rate
+    {
+        stub::s = stub::State();
+        WebViewFunctions functions = stub::functions();
+        functions.global_set_refresh_rate = nullptr;
+        WebViewLibrary::instance()->setFunctionsForTest(functions);
+        QQuickWindow window;
+        WebViewItem  item(window.contentItem());
+        item.setSize(QSizeF(300, 200));
+        QVERIFY(stub::s.view != nullptr);
+        QVERIFY(stub::s.refreshRates.isEmpty());
+    }
+    // a rate the library refuses is logged once, not passed again, and the view works
+    {
+        stub::s = stub::State();
+        stub::s.refreshRateResult = -1;
+        WebViewLibrary::instance()->setFunctionsForTest(stub::functions());
+        QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("refused the display refresh rate")));
+        QQuickWindow window;
+        WebViewItem  item(window.contentItem());
+        item.setSize(QSizeF(300, 200));
+        QVERIFY(stub::s.view != nullptr);
+        QCOMPARE(stub::s.refreshRates.count(), 1);
+        WebViewLibrary::instance()->setDisplayRefreshRate(window.screen()->refreshRate());
+        QCOMPARE(stub::s.refreshRates.count(), 1);
+    }
 }
 
 void testWebViewItem::destructorFreesTheView() {

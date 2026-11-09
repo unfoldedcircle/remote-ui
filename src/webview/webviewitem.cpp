@@ -11,6 +11,7 @@
 #include <QMouseEvent>
 #include <QQmlEngine>
 #include <QQuickWindow>
+#include <QScreen>
 #include <QThread>
 #include <QTimer>
 #include <QTouchEvent>
@@ -481,6 +482,8 @@ void WebViewItem::itemChange(ItemChange change, const ItemChangeData &value) {
 void WebViewItem::attachWindow(QQuickWindow *window) {
     QObject::disconnect(m_frameSwappedConnection);
     QObject::disconnect(m_windowVisibleConnection);
+    QObject::disconnect(m_screenChangedConnection);
+    watchScreen(nullptr);
     releaseFrames();
 
     if (window) {
@@ -489,9 +492,34 @@ void WebViewItem::attachWindow(QQuickWindow *window) {
             connect(window, &QQuickWindow::frameSwapped, this, &WebViewItem::onFrameSwapped, Qt::QueuedConnection);
         // the display-off path hides the window (src/system/power.h): unmap so the web process stops rendering
         m_windowVisibleConnection = connect(window, &QWindow::visibleChanged, this, [this] { updateMapped(); });
+        if (m_available) {
+            m_screenChangedConnection = connect(window, &QWindow::screenChanged, this, [this](QScreen *screen) {
+                watchScreen(screen);
+                updateRefreshRate();
+            });
+            watchScreen(window->screen());
+            updateRefreshRate();
+        }
     }
     updateSize();
     updateMapped();
+}
+
+void WebViewItem::watchScreen(QScreen *screen) {
+    QObject::disconnect(m_refreshRateConnection);
+    if (screen) {
+        m_refreshRateConnection = connect(screen, &QScreen::refreshRateChanged, this, [this] { updateRefreshRate(); });
+    }
+}
+
+void WebViewItem::updateRefreshRate() {
+    // a no-op until the library is initialised (ensureView() calls this again right before the first view); the
+    // library is process-wide, so the last item to report wins, which is fine with the remote's single screen
+    QQuickWindow *win = window();
+    QScreen      *screen = win ? win->screen() : nullptr;
+    if (screen) {
+        WebViewLibrary::instance()->setDisplayRefreshRate(screen->refreshRate());
+    }
 }
 
 void WebViewItem::geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) {
@@ -517,6 +545,9 @@ void WebViewItem::ensureView() {
     if (!library->ensureInitialized()) {
         return;
     }
+
+    // before the view and its first load: WebKit takes its nominal frame rate when the page's display link is set up
+    updateRefreshRate();
 
     m_devicePixelRatio = window()->effectiveDevicePixelRatio();
     m_viewSize = devicePixelSize();
