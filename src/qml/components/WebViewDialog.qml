@@ -4,23 +4,22 @@
 // A web page's script dialog: alert(), confirm(), prompt() and the "leave this page?" question of a beforeunload
 // handler, for a WebViewDialogRequest of the WebView item (libucwebview 0.7.0, docs/webview.md "Dialogs and logins").
 //
-// A bottom sheet like WifiJoin.qml, titled with the page's origin ("https://example.com says") so that the user knows
-// which site asks. A prompt sits at the top with its text field, like WifiPassword.qml, so that the on-screen keyboard
-// fits below. A long message scrolls inside the sheet.
+// A bottom sheet like WifiJoin.qml (docs/design-system.md section 5: black with the divider edge, over the dimmed
+// page), titled with the page's origin ("https://example.com says") so that the user knows which site asks. A prompt
+// sits at the top with its text field, like WifiPassword.qml, so that the on-screen keyboard fits below. A long
+// message scrolls inside the sheet.
 //
 // Keys (the dialog owns the input while it is open, so the page's keys, PREV/NEXT, VOLUME and CHANNEL, do nothing):
 // - OK presses the selected button. When the dialog opens that is OK, on the leave-page question Stay (OK stays,
 //   leaving needs a d-pad move to Leave first), on a prompt the text field, whose OK is the dialog's OK;
 // - BACK and HOME answer no: alert closed, confirm() false, prompt() null, stay on the page (HOME does not go home,
-//   like the Wi-Fi popups). So does a tap above the sheet (not on a prompt: the keyboard is
-//   there);
+//   like the Wi-Fi popups). So does a tap above the sheet (not on a prompt: the keyboard is there);
 // - LEFT and RIGHT move between the buttons, UP from the buttons of a prompt reaches its field; UP and DOWN that no
 //   control takes scroll a long message.
 // The request's cancelled() (the page went on, a navigation, a crash) closes the dialog without an answer.
 
 import QtQuick 2.15
 import QtQuick.Controls 2.15
-import QtGraphicalEffects 1.0
 
 import UC.WebView 1.0
 
@@ -161,29 +160,17 @@ Popup {
         }
     }
 
+    // the sheet dims the page; a prompt covers it, the keyboard is below its sheet
     background: Item {
-        Rectangle {
-            id: bg
-            width: parent.width
-            height: webViewDialog.isPrompt ? parent.height : sheet.height + 40
-            color: colors.black
-            anchors.bottom: parent.bottom
+        Components.Dim {
+            anchors.fill: parent
+            visible: !webViewDialog.isPrompt
         }
 
-        Item {
-            width: parent.width; height: parent.height - bg.height
-            anchors { bottom: bg.top; horizontalCenter: parent.horizontalCenter }
-            visible: !webViewDialog.isPrompt
-
-            LinearGradient {
-                anchors.fill: parent
-                start: Qt.point(0, 0)
-                end: Qt.point(0, parent.height)
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: colors.transparent }
-                    GradientStop { position: 1.0; color: colors.black }
-                }
-            }
+        Rectangle {
+            anchors.fill: parent
+            visible: webViewDialog.isPrompt
+            color: colors.bg
         }
     }
 
@@ -198,14 +185,18 @@ Popup {
         }
     }
 
-    Rectangle {
+    Item {
         id: sheet
         objectName: "webViewDialogSheet"
         width: parent.width
         height: content.height + 40
-        color: colors.dark
-        radius: ui.cornerRadiusSmall
         y: webViewDialog.isPrompt ? 0 : parent.height - height
+
+        // the bottom sheet's black with the divider edge; a prompt sits on the black page
+        Components.Sheet {
+            anchors.fill: parent
+            visible: !webViewDialog.isPrompt
+        }
 
         MouseArea {
             anchors.fill: parent
@@ -230,8 +221,8 @@ Popup {
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 maximumLineCount: 3
                 elide: Text.ElideRight
-                color: colors.offwhite
-                font: fonts.primaryFont(30)
+                color: colors.textPrimary
+                font: fonts.title()
                 text: {
                     if (webViewDialog.isLeavePage) {
                         //: Title of the question a web page asks before the user leaves it (the page may have unsaved changes)
@@ -254,15 +245,14 @@ Popup {
                 visible: webViewDialog.isLeavePage && webViewDialog.origin !== ""
                 textFormat: Text.PlainText
                 elide: Text.ElideMiddle
-                color: colors.light
-                font: fonts.secondaryFont(22)
+                // an address: the value role
+                color: colors.textPrimary
+                font: fonts.value()
                 text: webViewDialog.origin
             }
 
-            Rectangle {
-                width: parent.width
-                height: 2
-                color: colors.medium
+            Components.Divider {
+                inset: 0
             }
 
             Item {
@@ -291,12 +281,14 @@ Popup {
                         id: messageText
                         objectName: "webViewDialogMessageText"
                         // room for the scroll indicator
-                        width: messageFlickable.width - 50
+                        width: messageFlickable.width - 20
                         // the page's text as it wrote it: never interpreted as markup (no images, no links)
                         textFormat: Text.PlainText
                         wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                        color: colors.offwhite
-                        font: fonts.secondaryFont(26)
+                        // dialog text: the prose role
+                        color: colors.textPrimary
+                        font: fonts.prose()
+                        lineHeight: fonts.proseLineHeight
                         //: Text of the question a web page asks before the user leaves it; pages cannot word it themselves
                         text: webViewDialog.isLeavePage ? qsTr("Changes you made may not be saved.") : webViewDialog.message
                     }
@@ -332,7 +324,7 @@ Popup {
                     objectName: "webViewDialogNo"
                     visible: webViewDialog.hasTwoButtons
                     width: parent.width / 2 - 10
-                    color: colors.secondaryButton
+                    variant: "secondary"
                     anchors { left: parent.left; bottom: parent.bottom }
                     text: webViewDialog.isLeavePage
                           //: Button of the question a web page asks before the user leaves it: stay on the page

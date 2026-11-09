@@ -161,7 +161,7 @@ Popup {
 
     background: Rectangle {
         anchors.fill: parent
-        color: colors.black
+        color: colors.bg
     }
 
     // the page below stays out of reach while the login is open
@@ -171,7 +171,9 @@ Popup {
 
     Column {
         id: content
-        width: parent.width
+        // the 20 px gutter (docs/design-system.md section 5)
+        x: 20
+        width: parent.width - 40
         spacing: 10
         anchors { top: parent.top; topMargin: 10 }
 
@@ -185,8 +187,8 @@ Popup {
             maximumLineCount: 2
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
-            color: colors.offwhite
-            font: fonts.primaryFont(26)
+            color: colors.textPrimary
+            font: fonts.title()
             text: webViewLogin.proxy
                   //: Title of the login dialog of a proxy server; %1 is the proxy's address, such as http://proxy:3128
                   ? qsTr("Sign in to the proxy %1").arg(webViewLogin.origin)
@@ -205,8 +207,8 @@ Popup {
             maximumLineCount: 2
             elide: Text.ElideRight
             horizontalAlignment: Text.AlignHCenter
-            color: colors.light
-            font: fonts.secondaryFont(22)
+            color: colors.textSecondary
+            font: fonts.help()
             //: Line of the web login dialog with the server's own name for the protected area; %1 is that text
             text: qsTr("The site says: “%1”").arg(webViewLogin.realm)
         }
@@ -219,7 +221,7 @@ Popup {
             wrapMode: Text.WordWrap
             horizontalAlignment: Text.AlignHCenter
             color: colors.red
-            font: fonts.secondaryFont(22)
+            font: fonts.help()
             //: Warning of the web login dialog when the site uses http instead of https
             text: qsTr("Not secure: this connection is not encrypted")
         }
@@ -263,7 +265,7 @@ Popup {
                 //: Button of a web site's login dialog: continue without signing in
                 text: qsTr("Cancel")
                 width: parent.width / 2 - 10
-                color: colors.secondaryButton
+                variant: "secondary"
                 anchors { left: parent.left; bottom: parent.bottom }
                 trigger: function() {
                     webViewLogin.cancel();
