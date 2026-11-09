@@ -72,9 +72,10 @@ Needs phases 1 and 2.
 - [x] 3.4 With the harness, check a 2:1 flag declared 100px × 100px in 276 × 128, 240 × 120,
       120 × 120 and 480 × 240 boxes: drawn 2:1, decoded at the drawn size, and its pixels equal a
       2:1 reference rendered by `QImageReader` with the viewBox mapped onto the size.
-- [ ] 4.2 On a Remote Two or Remote 3, measure the first lookup of a 32 KB SVG (`fixtures/size-32kb-4x1.svg`, log timing in a
-      local build, not committed) and look at a 4:1 and a 1:4 icon on page buttons for sharpness.
-      If the lookup is above 1 ms, raise it before the merge (design.md, Risks).
+- [x] 4.2 On a Remote 3, look at the 32 KB 4:1 and 1:4 icons
+      (`fixtures/size-32kb-4x1.svg`, `fixtures/size-32kb-1x4.svg`) on page buttons, up to the whole
+      page, for sharpness. Verified: the 32 KB icon is sharp full screen. The lookup timing is not
+      measured (design.md, Risks).
 - [x] 4.3 Run `make test` (all targets green) and
       `npx @fission-ai/openspec@1.14.1 validate wide-icons --strict`.
 

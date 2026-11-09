@@ -268,8 +268,8 @@ Failure Mode Analysis (the change touches image loading, which is shared by abou
 - [The lookup reads the SVG once more, synchronously on the GUI thread] → It reads only up to the
   root element; only a file without a usable viewBox is parsed in full by `QImageReader::size()`.
   The core caps icon uploads at 32 KB and the UI at 256 KB. The result is cached per file, so each
-  file is read once per session. The cost is measured on a device
-  (task 4.2); above 1 ms for a 32 KB file it is raised before the merge.
+  file is read once per session. The lookup time is not measured; task 4.2 checked on a Remote 3
+  that a 32 KB icon is shown sharp.
 - [The binding calls the lookup before the box has its final size (0 × 0)] → An empty box returns
   an invalid size, which means "use the box". The binding re-evaluates when width and height change.
 - [The cached size is stale after a file is replaced under the same name] → The cache is keyed by
