@@ -17,7 +17,7 @@ records why the web engine comes from a firmware library loaded at runtime.
 ## The ABI dependency
 
 - `src/webview/uc_webview.h` is a verbatim copy of the public header of the firmware's libucwebview library (MIT;
-  currently the one of library 0.6.2) with one comment line on top. Keep it identical to the firmware's header;
+  currently the one of library 0.7.2) with one comment line on top. Keep it identical to the firmware's header;
   `src/webview/CPPLINT.cfg` excludes it from the lint because it keeps its C include guard.
 - `WebViewLibrary` (`webviewlibrary.{h,cpp}`) loads `libucwebview.so.1` on first use (GUI thread), resolves every
   function once into a table (`static_assert`ed against the header), and refuses the library unless
@@ -33,13 +33,17 @@ records why the web engine comes from a firmware library loaded at runtime.
   | `uc_webview_new_sized()` | 0.4.0 | `uc_webview_new()`, the callbacks of API version 1 only |
   | `uc_webview_when_rendered()` | 0.5.0 | a zoom step counts as rendered at the first frame after it (see "Zoom render wait") |
   | `uc_webview_set_magnification()`, `uc_webview_get_magnification()` | 0.6.0 | no pinch zoom |
+  | `uc_webview_request_reply()`, `uc_webview_request_auth()` | 0.7.0 | no dialogs and logins of the page |
 
 - The item creates its view with `uc_webview_new_sized(..., sizeof(uc_webview_callbacks), ...)` when the library has
   it, else with `uc_webview_new()`; both read the nine callbacks of API version 1. The two callbacks library 0.6.0
   appended, `pinch` and `magnification_changed`, are set only when the library has pinch zoom
   (`WebViewLibrary::pinchZoomAvailable()`: `uc_webview_new_sized()`, `uc_webview_set_magnification()` and
-  `uc_webview_when_rendered()`). A 0.4 or 0.5 library logs once that the host's callback struct (88 bytes on aarch64)
-  is longer than its own (72) and reads its part.
+  `uc_webview_when_rendered()`). The six request callbacks library 0.7.0 appended (`script_dialog` ..
+  `response_refused`) are set only when the library has `uc_webview_new_sized()`, `uc_webview_request_reply()` and
+  `uc_webview_request_auth()` (`WebViewLibrary::requestsAvailable()`). With the 0.7.0 header the struct has 17
+  callbacks, 136 bytes on aarch64 and x86_64 (`static_assert` in `webviewitem.cpp`); a 0.4 to 0.6 library logs once
+  that the host's struct is longer than its own (72 or 88 bytes) and reads its part.
 - WebKit delivers its events through GLib's default main context, which Qt's GLib event dispatcher runs on the GUI
   thread (`QPAEventDispatcherGlib` on eglfs, `QXcbGlibEventDispatcher` on a desktop). The library is refused with
   any other dispatcher, for example when `QT_NO_GLIB=1` is set.
@@ -170,7 +174,8 @@ element.
 |------|---------|
 | Properties | `url`, `title`, `loading`, `loadProgress`, `canGoBack`, `canGoForward`, `available`, `backgroundColor` (white by default, like a browser: what WebKit shows where the page paints no background), `zoom`, `zoomRendering`, `magnification`, `pinching`, `pinchZoomAvailable`, `framesReceived`, `framesReleased` |
 | Methods | `reload()`, `stop()`, `goBack()`, `goForward()`, `runJavaScript(script)`, `loadHtml(html, baseUrl)`, `zoomIn()`, `zoomOut()`, `pageUp()`, `pageDown()` |
-| Signals | `crashed(reason)`, `loadFailed(url)` (also for a URL outside the scheme allowlist) |
+| Signals | `crashed(reason)`, `loadFailed(url)` (also for a URL outside the scheme allowlist), `dialogRequested(request)`, `authenticationRequested(request)`, `newWindow(url, loaded)`, `responseRefused(url, mimeType, download)`, `closeRequested()` |
+| Types | `WebViewDialogRequest`, `WebViewAuthRequest` (uncreatable, see "Dialogs and logins") |
 
 `zoom` is the page zoom factor WebKit uses for the view (1 = 100 %, `uc_webview_set_zoom()`, which calls
 `webkit_web_view_set_zoom_level()`: a zoom of the whole page with a new layout, not a magnification of the frame).
@@ -289,6 +294,166 @@ Magnification does not raise the web process's memory: the page is not laid out 
 magnification step renders in a fraction of the time of a page zoom step on a text page; on a complex page the
 difference is smaller.
 
+### Dialogs and logins (library 0.7.0)
+
+Up to library 0.6.x a page's `alert()`, `confirm()`, `prompt()`, its "leave this page?" question and an HTTP login
+went nowhere: WebKit's WPE defaults close the dialogs at once (`confirm()` is false), a login hangs until the next load,
+a `target=_blank` link does nothing, a download or a PDF shows "load failed". Library 0.7.0 passes them to the host.
+The item turns them into request objects and signals, and the developer page shows them with two dialogs from
+`components/`.
+
+| Library callback | Item | Developer page |
+|------------------|------|----------------|
+| `script_dialog(id, type, origin, message, default_text)` | `dialogRequested(WebViewDialogRequest *request)` | `WebViewDialog.qml` |
+| `authenticate(id, origin, realm, scheme, flags)` | `authenticationRequested(WebViewAuthRequest *request)` | `WebViewLogin.qml` |
+| `request_cancelled(id)` | the request's `cancelled()` | the dialog closes without an answer; a login adds a notification |
+| `new_window(uri, result)` | `newWindow(url, loaded)` | loaded: nothing to say, the page loads like a link; refused: a notification |
+| `response_refused(uri, mime_type, reason)` | `responseRefused(url, mimeType, download)`, no `loadFailed` | a notification and the status line |
+| `close_requested()` | `closeRequested()`, after the library's callback has returned | back in the history, else leaves the page like BACK |
+
+**Request objects** (`webviewrequest.{h,cpp}`; QML types `WebViewDialogRequest` and `WebViewAuthRequest` of
+`UC.WebView 1.0`, uncreatable), after Qt WebEngine's `JavaScriptDialogRequest` and `AuthenticationDialogRequest` with
+the `pending` state and `cancelled()` signal Qt 5.15 lacks:
+
+- both: `origin` ("scheme://host[:port]"; empty for `about:blank` and `data:`), `pending`, `handled`; signals
+  `finished()` (the answer went to the page) and `cancelled()` (the request went away first: a navigation, a commit, a
+  crash, WebKit gave the login up, or the library refused a late answer);
+- `WebViewDialogRequest`: `type` (`Alert`, `Confirm`, `Prompt`, `LeavePage`), `message`, `defaultText`; `accept(text)`,
+  `reject()`;
+- `WebViewAuthRequest`: `realm`, `retry`, `proxy`, `insecure` (the origin is `http:`), `previousUser` (on the retry of
+  the login answered last with a user name: that user name, see "Retry"); `login(user, password)`, `cancel()`
+  (continue without credentials: the server's page for a refused login loads, as in a desktop browser).
+
+Every request ends exactly once; `pending` turns false before `finished()` or `cancelled()`. A second answer, or one
+after the end, returns false and never reaches the library. The library's id stays in C++ (`WebViewRequests`, a table
+by id); a late `request_cancelled()` for an id the item no longer has is ignored. The item owns the request (QObject
+parent, `QQmlEngine::CppOwnership`) and deletes it with `deleteLater()` after it ended. When the view is freed the
+requests go at once and without a signal (`uc_webview_free()` ends them in the library without callbacks, and the item
+emits nothing from its destructor); a QML property typed `WebViewDialogRequest` or `WebViewAuthRequest` turns null then,
+which closes its dialog. A message or preset text longer than 10000 characters is cut (a page cannot stall the text
+layout with `alert('x'.repeat(1e7))`).
+
+A handler that shows a request sets `handled` during the signal. A request nobody handled gets the library's own answer
+without a host at once: alert, confirm and prompt "no", the leave-page question "leave", a login without credentials.
+So a `WebView` on a screen without dialogs behaves as with a 0.6 library, except that the leave-page question and logins
+no longer hang. Dialog types and authentication schemes of a newer library are answered "no" at once
+(`uc_webview_request_reply(id, 0, NULL)`) without a signal; a login is shown for Basic, Digest, NTLM and the default
+scheme, while Negotiate (which takes the system's ticket), server trust and HTML form requests are answered without
+credentials.
+
+**Before the item navigates** (`url`, `loadHtml()`, `reload()`, `goBack()` and `goForward()` when there is history),
+it answers a pending leave-page question "leave" itself: the user wants to go elsewhere. `stop()` answers it "stay".
+Otherwise the library would answer "stay" for every navigation call: the navigation that asked would stop and the next
+navigation would ask again. Other pending dialogs and logins are the library's to end ("no", cancelled), reported with
+`request_cancelled()` from an idle right after the call. On the developer page this matters little: the dialog owns the
+keys and covers the page, so PREV/NEXT, Load, Back, Forward and Reload cannot be used while it is open.
+
+**The dialogs** follow the Wi-Fi screens:
+
+- `WebViewDialog.qml`, a bottom sheet like `WifiJoin.qml`: the title names the site, "https://example.com says" ("This
+  page says" without an origin), then the message, which scrolls when it is long. A prompt sits at the top with its text
+  field and the on-screen keyboard below, like `WifiPassword.qml`. The leave-page question: "Leave this page?", the
+  origin, the fixed text "Changes you made may not be saved." (pages cannot word it), Stay and Leave.
+- `WebViewLogin.qml`, full screen like `WifiPassword.qml`: "Sign in to https://example.com" ("Sign in to the proxy ..."),
+  the server's realm quoted ("The site says: “Admin area”"), a red "Not secure: this connection is not encrypted" for
+  an `http:` origin, user name and password fields with the keyboard (password masked, shown for a second while typed,
+  no predictive text, sensitive data hint; every login and retry opens masked, whatever the field's eye showed in the
+  last one), Cancel and Sign in. A retry (the server rejected the credentials) opens with "Wrong user name or
+  password" under the password field; when it is the retry of the login just signed in to, the user name is filled in
+  and the empty password field has the focus (see "Retry").
+- Texts of the page and the server (origin, message, realm) are plain text, never markup: no images load from a
+  message.
+- One at a time, script dialogs first (the page waits for them), then the logins in their order; a waiting request
+  that ends leaves the queue. A dialog opens from the event loop (`Qt.callLater`), not from inside the library's callback.
+
+| Key | Script dialog | Login |
+|-----|---------------|-------|
+| OK | presses the selected control; when the dialog opens that is OK, on the leave-page question Stay (OK stays, Leave needs a d-pad move first), on a prompt the text field, whose OK answers OK | on the user name: to the password; on the password: Sign in; on a button: the button. The login opens on the user name, the retry of the login just signed in to on the password |
+| BACK, HOME | no: alert closed, `confirm()` false, `prompt()` null, stay on the page; HOME does not go home (as on the Wi-Fi popups) | Cancel (without credentials), also on a retry |
+| left / right | between the two buttons (on the leave-page question from Stay to Leave and back) | between the two buttons |
+| up / down | prompt: field and buttons; otherwise a long message scrolls by half its height | user name, password, buttons |
+| PREV/NEXT, VOLUME, CHANNEL | nothing | nothing |
+| tap on a button | presses it, Leave included (no d-pad move needed) | presses it |
+| tap above the sheet | no, like BACK (not on a prompt: the keyboard is there) | (full screen) |
+
+The keys of the page do nothing while a dialog is open, VOLUME and CHANNEL included: the dialog owns the input (its
+`ButtonNavigation` takes the control and declares BACK and HOME only), and the page's PREV/NEXT, VOLUME and CHANNEL
+handlers also check `requestShown()`, for the fade-in before the dialog takes the input. The web view loses the d-pad
+focus to the dialog and gets it back when it closes.
+
+**Notifications** (`ui.createNotification()`, the banner at the top; red for the refusals):
+
+| Event | Text |
+|-------|------|
+| a download (`Content-Disposition: attachment`, `<a download>`) | "Downloads are not supported" |
+| a PDF (`application/pdf`, `application/x-pdf`, `text/pdf`, the library's PDF types) | "PDF documents cannot be shown here" |
+| another type the web view cannot show | "This document cannot be shown here" |
+| a new window refused (`data:`, `blob:`, `javascript:`, a form posted to a new window) | "The page tried to open a link that cannot be shown" |
+| `window.close()` without history | "The web page closed itself" |
+| a shown login the page gave up | "The page cancelled the sign-in" |
+
+The status line adds `download refused: <url>`, `not shown: <url>` or `new window refused: <url>`.
+
+**`window.close()`**: one step back when the view has history, else the page leaves like BACK. WebKit allows the call
+only for a page opened by script or with at most one history entry, and new windows load into the same view, so it
+nearly always comes from the first address loaded after the page opened, and the page leaves.
+
+**Credentials** live in the two fields only while the login is open. Sign in passes them to `login()` and empties the
+fields at once (through `text`, which also drops `TextInput`'s undo history); Cancel, BACK, HOME and a cancelled request
+empty them too. The item's UTF-8 copies are overwritten after the library call.
+
+**Retry**: after a wrong login only the password is asked for again. The item keeps the user name of a Sign in the
+library took (`WebViewRequests`, in memory, never the password) for the retry of that login: the next login request
+with the same origin, realm and proxy flag takes it as `previousUser` when it is a retry (WebKit's `is_retry`) and ends
+it otherwise (a new login of that area). The login then opens with the user name filled in, an empty password field
+with the focus and the keyboard, and "Wrong user name or password" under it; UP reaches the user name to correct it.
+Logins of another origin or realm leave the kept user name alone (a page can have several under way). Every load event
+of the view (the server took the credentials and the page loads, or the user went elsewhere), 30 s without a retry
+(`kKeptUserTimeoutMs`) and the freed view drop it. A rejected login comes back before any load event: libsoup asks
+again on the server's next 401, before WebKit sees a response. Once the retry has it, the user name lives in that
+request and the field only, and goes with them on Sign in, Cancel, BACK, HOME or a cancelled request: the login closed
+for good starts empty the next time. A retry that is not the login answered here (WebKit's session credentials were
+rejected) opens with both fields empty, on the user name.
+
+Nothing logs the credentials: the trace has the kind, id and outcome of a request only, never a message, a default
+text, an answer, a realm, an origin, a user name or a password. WebKit keeps accepted credentials in memory for the
+session (the remote-ui process) and never writes them.
+
+**Behaviour in detail**, with the code that implements it:
+
+1. The leave-page question shows a fixed text, not the page's (`WebViewDialog.qml`, `messageText`; the library passes
+   none).
+2. A PDF says "PDF documents cannot be shown here" instead of "load failed" (`WebView.qml`, `onResponseRefused`; the
+   library reports it as `response_refused(UNSUPPORTED)`, no `FAILED`).
+3. Cancel on a login shows the server's 401 page (`WebViewLogin.qml`, `cancel()`: without credentials, not a cancelled
+   load).
+4. Dialog loops (`for (;;) alert(1)`): the library's guard shows four dialogs that each came less than 1 s after the
+   previous answer, then answers further dialogs of that document with WebKit's default until the user taps or
+   presses a key in the page (library 0.7.2) or the next page commits; the UI shows what comes.
+5. The library's behaviour without a host callback: alert, confirm and prompt closed at once, the leave-page question
+   "leave", a login continued without credentials, new windows into the same view, downloads refused (the item's
+   answers to unhandled requests follow it).
+6. After a navigation call of the host, dialogs the page opens before the web process takes the new load (at most
+   2 s; not the leave-page question) close at once with WebKit's default (library).
+7. A form posted to a new window is refused (library): "The page tried to open a link that cannot be shown".
+8. HOME in a dialog or login answers no (Cancel on a login) and stays on the page, like the Wi-Fi popups
+   (`WebViewDialog.qml`, `WebViewLogin.qml`, the `HOME` entry of their `ButtonNavigation`).
+9. The leave-page question opens with Stay selected: OK stays, leaving needs a d-pad move to Leave first; taps work as
+   before (`WebViewDialog.qml`, `initialFocusItem`). The other dialogs open on OK.
+10. `window.close()` of the page goes one step back, or leaves the developer page when there is no history
+    (`WebView.qml`, `onCloseRequested`).
+11. After a wrong login (retry) the user name stays filled in; only the password is cleared, with the focus on the
+    password field (`WebViewRequests`, "Retry" in `webviewrequest.h`; `WebViewLogin.qml`, `show()`).
+12. "Leave this page?" does not appear for a link to another site: WPE moves a cross-site navigation to a new web
+    process and WebKit runs `beforeunload` only for navigations that stay in the current one. Reload, Back, Forward
+    and same-site links ask.
+13. A new window that loaded says nothing; a login the page gave up says so.
+
+**Older firmware** (library 0.6.x and older): no `uc_webview_request_reply()`, so the item sets no request callbacks
+(the struct still has this build's 136 bytes, the library copies its own part), none of the signals comes, and the page
+behaves as before. The log says once `... has no uc_webview_request_reply (older than 0.7.0): no dialogs or logins of
+the page`.
+
 ## Addresses and the scheme allowlist
 
 The library loads only `http`, `https`, `about` and `data` URLs; `file` only when the process sets
@@ -381,6 +546,7 @@ over it (up, right), and the keyboard then shows for that moment.
 | PREV / NEXT | wherever the d-pad is: one step back / forward in the history, nothing without history in that direction | one step | nothing |
 | VOLUME + / - | wherever the d-pad is: page zoom one level in / out (50 to 300 %), the new level shows while the page renders it (with a spinner after 150 ms) and for a second after the press; a pinch's magnification stays | one level | nothing |
 | CHANNEL + / - | wherever the d-pad is: `Page_Up` / `Page_Down` for the page, a page up / down | scrolls on with every repeat | nothing |
+| any of these while a dialog or login of the page is open | the dialog's keys (see "Dialogs and logins"): OK, BACK, the d-pad; PREV/NEXT, VOLUME and CHANNEL do nothing | | |
 
 - **Leaving the web view: BACK.** Inside the web view every arrow key and OK go to the page (scrolling, a web app's
   own key navigation, form submit), so the d-pad focus stays in the web view until a tap on a control or BACK, which
@@ -515,6 +681,11 @@ depend on `type="password"`.
 | `pinch begin at 240,400, magnification 1`, `pinch end, scale 2.1, magnification 2.1` (optionally `(after the running render)` or `(no change)`), `pinch cancelled` | a pinch the library reported (no line per update) | |
 | `magnification 1 -> 2.1 at 240,400`, `magnification 2.1 rendered after 2840 ms (done)` | the magnification passed to the library with its focal point, and the end of its render wait (`done`, `timeout`, `cancelled`) | |
 | `magnification changed to 1 by a navigation or history step` | WebKit's own change, reported by the library | |
+| `request 7: confirm`, `request 8: auth scheme 2, retry` (`, proxy`; `, previous user name`: the retry of the login answered last with a user name, which it carries) | a script dialog or login of the page by kind and id (library 0.7.0) | its message, default text, realm and origin, the user name |
+| `request 7: answered yes` (`no`, `yes with text`, `with credentials`, `without credentials`; `no (not handled)`, `leave (not handled)`, `leave (the host navigates)`, `stay (the host stops)`) | the answer and where it came from | the text, the user name, the password |
+| `request 7: cancelled`, `request 7: ended (view freed)`, `request 7: answer refused by the library, the request had ended` | how a request ended without an answer | |
+| `request 9: dialog type 5 unknown, answered no`, `request 9: auth scheme 6 takes no user name, answered without credentials` | a request the item answers without a dialog | |
+| `new window loaded into this view: "https://example.com/?..."` (`refused`), `response refused, download "..." (type unknown)` (`cannot be shown`), `close requested by the page (window.close())` | the page's other requests | query, fragment (see below) |
 
 What stays visible is how many keys and keyboard events happened and when: the number of `key printable` or `input
 method event: commit` lines between `ime_focus true` and `ime_focus false` gives the length of what was typed, never
@@ -535,7 +706,8 @@ collect tokens; the library reads the same switch for its lines.
 The library has trace lines of its own under the same switch (`ucwebview: trace ...`: key classes, its text input
 calls, WebKit's focus reports, the vsync ticks, from 0.5.0 `rendered after 2840 ms (done)` per render request, from
 0.6.0 `pinch begin at 240,400`, `pinch end, scale 2.08 at 240,400`, `magnification 1.00 -> 2.08 at 240,400` and
-`magnification 2.08 rendered after 2840 ms (done)`), with the same rules. Outside these rules: `UC_WEBVIEW_CONSOLE_LOG=1` puts the page's own console output into the journal,
+`magnification 2.08 rendered after 2840 ms (done)`, and from 0.7.0 the page's requests by kind, id and outcome), with
+the same rules. Outside these rules: `UC_WEBVIEW_CONSOLE_LOG=1` puts the page's own console output into the journal,
 and a page can print anything there, form data included.
 
 `testWebViewItem` runs a password session through the item (a saved password, hardware keys with scan codes, keyboard
@@ -555,7 +727,7 @@ service reads optional variables from `/var/uc/ui/custom/config/env`; restart th
 | `UC_WEBVIEW_DATA_DIR=<dir>` | persistent website data (cookies, local storage) in a writable directory inside the sandbox; default: an ephemeral session |
 | `UC_WEBVIEW_ALLOW_FILE_URLS=1` | lets the item and the library load `file:` URLs (and use them as `loadHtml()` base); default: refused with `loadFailed` (production) |
 | `QT_LOGGING_RULES=uc.ui.webview.debug=true` | view creation, size and frame counters in the log |
-| `UC_WEBVIEW_TRACE=1` | every forwarded touch point, key (class only for characters), mouse event, input method event (its parts only), every `ime_focus`/`ime_cursor_area`/`ime_surrounding` callback, focus changes, taps that ask for the keyboard, the keyboard requests, every load request and load event, every zoom and pinch with the time its render took, at INFO level in `uc.ui.webview` (the device journal keeps INFO; debug is dropped); never typed text, see "What the trace logs". The library reads the same switch for its own lines |
+| `UC_WEBVIEW_TRACE=1` | every forwarded touch point, key (class only for characters), mouse event, input method event (its parts only), every `ime_focus`/`ime_cursor_area`/`ime_surrounding` callback, focus changes, taps that ask for the keyboard, the keyboard requests, every load request and load event, every zoom and pinch with the time its render took, every request of the page by kind, id and outcome, at INFO level in `uc.ui.webview` (the device journal keeps INFO; debug is dropped); never typed text, see "What the trace logs". The library reads the same switch for its own lines |
 | `UC_WEBVIEW_LOG_FULL_URLS=1` | log lines of the item and the library show URLs with query, fragment and `data:` payload; default: scheme, host, port and path only (credentials never), see "What the trace logs" |
 | `UC_WEBVIEW_REFRESH_RATE=<Hz>` | read by the library: the display refresh rate WebKit is paced with (decimals allowed, 20..240), wins over the screen's rate the item passes (see "Frame pacing"); not set by the firmware |
 | `QSG_INFO=1` | Qt's render loop and OpenGL ES report, to confirm the threaded render loop on the device |
@@ -578,14 +750,22 @@ service reads optional variables from `/var/uc/ui/custom/config/env`; restart th
     key forwarding, frame release, the screen's refresh rate passed before the view and on a rate change, a library
     without the refresh rate function, the history read on frames and title changes, the zoom levels and the zoom
     render wait (coalescing, timeout, cancellation, the fallback), `Page_Up`/`Page_Down` with their keysyms, keycodes
-    and event times, the `uc_webview_new_sized()` path with the pinch callbacks and the older libraries without them,
-    the held frame of a pinch.
+    and event times, the `uc_webview_new_sized()` path with the pinch and request callbacks and the older libraries
+    without them, the held frame of a pinch, the page's requests (defaults of unhandled requests, unknown types and
+    schemes, the 10000 character cut, the leave-page question answered before a navigation, the view freed with
+    requests pending, the new-window and refused-response signals, `closeRequested()` after the callback, the trace
+    without texts or credentials).
+  - `testWebViewRequests`: the request objects and their table: accept, reject, a prompt's text, login and cancel, each
+    answer sent once and a second one refused, `request_cancelled()` and a late answer racing it, deletion after the
+    end, the user name kept for the retry of the same origin, realm and proxy only.
   - `testWebViewKeyboard`: the developer page under main.qml's keyboard controller with the real Qt Virtual Keyboard
     and the real input controller on the window: the keyboard of the address field (no show/hide loop, the hide key),
     the d-pad map of both rows, Back/Forward enabled by the history and skipped while disabled, the focus hand-over
     from a button that turns disabled, Stop/Reload, the field following the page's address, address completion,
     PREV/NEXT, VOLUME and CHANNEL from every control and from the web view, held, and ignored while the keyboard is
-    up, BACK from the web view, the zoom label with its spinner, three quick presses with two `set_zoom` calls.
+    up, BACK from the web view, the zoom label with its spinner, three quick presses with two `set_zoom` calls, and
+    the dialogs and the login with OK, BACK, HOME, the d-pad and taps (leave page on Stay, the login retry with the
+    user name filled in, the password masked again, the queue, the notifications, `window.close()`).
 - **Desktop simulator** (`make linux`): the Settings menu has no "Web view" entry (no library), nothing is logged
   until a `WebView` is created.
 - **Device**: a firmware with the web view library. Install the build as a custom UI
@@ -720,6 +900,112 @@ trace logs"). Without the trace, check what the screen shows and the journal lin
   `load failed: file:///app/data/page.html` in the status line and `Not loading URL ... file: URLs are disabled` in
   the journal. With `UC_WEBVIEW_ALLOW_FILE_URLS=1` in the custom UI's environment the library's start line ends with
   `file: URLs allowed` and the page loads (see "Known limitations" for the MIME type).
+- **Dialogs and logins**: see "Device test: dialogs and logins" below.
+
+### Device test: dialogs and logins (library 0.7.0)
+
+On both remotes, with a firmware whose web view library is 0.7.0 or newer. With the trace on (on a test device), the
+trace lines named below can be checked as well; without it, check what the screen shows, and the privacy check
+(step 12) is the journal grep alone. Serve this page as `requests.html` from a host on the network
+(`python3 -m http.server 8000` in its directory); the login and download links use `httpbin.org` and the PDF the W3C's
+test file, so the remote needs internet access.
+
+```html
+<!doctype html><meta name=viewport content="width=device-width"><title>requests</title>
+<style>body{font:22px sans-serif;line-height:2.2}a{padding:6px 4px}input{width:32px;height:32px;vertical-align:middle}
+#log{font:16px monospace;line-height:1.4;border-top:1px solid #888}</style>
+<button onclick="alert('Hello from the test page')">alert</button>
+<button onclick="document.title='confirm '+confirm('Delete the item?')">confirm</button>
+<button onclick="document.title='prompt '+prompt('Your name?','Max')">prompt</button>
+<button onclick="alert('A long line of text. '.repeat(150))">long</button>
+<button onclick="for(let i=0;i<6;i++)alert('loop '+i)">6 alerts</button><br>
+<label><input type=checkbox id=ask autocomplete=off onchange="askBeforeLeaving(this.checked)">
+ask before leaving</label><br>
+<a href="requests.html?2">local link</a> <a href="https://en.wikipedia.org/">link</a>
+<a target=_blank href="https://en.wikipedia.org/">_blank</a><br>
+<button onclick="window.open('https://en.wikipedia.org/')">open</button>
+<button onclick="window.open('data:text/html,x')">open data:</button>
+<button onclick="if(confirm('Open Wikipedia?'))window.open('https://en.wikipedia.org/')">confirm+open</button>
+<button onclick="window.close()">close</button><br>
+<a href="https://httpbin.org/basic-auth/ucuser/ucsecret">basic</a>
+<a href="https://httpbin.org/digest-auth/auth/ucuser/ucsecret">digest</a>
+<a href="http://httpbin.org/basic-auth/ucuser/ucsecret">basic over http</a><br>
+<a download href="requests.html">a download</a>
+<a href="https://httpbin.org/response-headers?Content-Disposition=attachment">attachment</a>
+<a href="https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf">PDF</a>
+<div id=log></div>
+<script>
+// what the page saw: loads of this tab (survive a reload), history length, the last clicks with their target
+const n = Number(sessionStorage.getItem('loads') || 0) + 1; sessionStorage.setItem('loads', n);
+const log = document.getElementById('log');
+const line = t => { log.textContent = (t + '\n' + log.textContent).split('\n').slice(0, 6).join('\n'); };
+line('load ' + n + ' ' + location.search + ', history ' + history.length);
+// the leave question follows the box; WebKit restores a ticked box on Back without a change event
+function askBeforeLeaving(on) {
+  onbeforeunload = on ? (e => { e.preventDefault(); e.returnValue = 'x'; }) : null;
+  line('ask before leaving ' + (on ? 'on' : 'off'));
+}
+addEventListener('pageshow', () => askBeforeLeaving(document.getElementById('ask').checked));
+document.addEventListener('click', e => line('click ' + e.target.tagName + ' "' +
+  (e.target.textContent || '').trim().slice(0, 12) + '" button ' + e.button + ' trusted ' + e.isTrusted), true);
+</script>
+```
+
+The `ucuser`/`ucsecret` pair is httpbin's test login, defined by the address itself; it protects nothing.
+
+Open Settings > Web view and load `http://<host>:8000/requests.html` as the first address (step 8 needs a view with one
+history entry). The page has no background of its own and must show black text on white (the item's default
+background). The box at the bottom is the page's own log, newest line first: `load N` counts the loads of the page in
+this view (a reload adds one), `history` is `history.length`, and every click the page receives is listed with its
+target, mouse button (0 = primary) and `trusted` (a real input event). A tap that lists no click did not reach the page
+as a click. "local link" loads the same page again (`load N+1`, history +1) without internet. Expected:
+
+1. **alert**: a sheet at the bottom, "http://<host>:8000 says", the text, OK selected. OK closes it. With the trace on,
+   the journal has `trace ...: request N: alert` and `request N: answered yes` from the item and
+   `ucwebview: trace ...: request N: alert` from the library.
+2. **confirm**: OK, the page title (status line) is "confirm true"; again with BACK: "confirm false"; again with a tap
+   above the sheet, and with HOME: "confirm false", the page stays. LEFT and RIGHT move between Cancel and OK.
+3. **prompt**: the sheet at the top with "Max" in the field and the keyboard below. Type, then OK on the remote:
+   "prompt Max..." with the typed text. Again with BACK: "prompt null". DOWN goes to the buttons (the keyboard goes),
+   UP back to the field.
+4. **long**: the message scrolls with UP and DOWN on the OK button and with a finger; the scroll indicator shows where.
+5. While a dialog is open: VOLUME, CHANNEL, PREV and NEXT do nothing (no zoom label; with the trace no `zoom` or
+   `page down` lines). After the answer they work again.
+6. **6 alerts**, answered quickly with OK: four dialogs, then the rest close without one (the library's loop guard,
+   `ucwebview: dialog loop guard: ...` once in the journal). A tap on "confirm+open" afterwards shows its question
+   again: the guard ends with the user's input.
+7. **ask before leaving**: tick it (the box shows the tick, the log `ask before leaving on`), tap "local link" (same
+   site): "Leave this page?", the origin, "Changes you made may not be saved.", Stay and Leave with Stay selected.
+   OK: the page stays. "local link" again, RIGHT (Leave selected), OK: the page loads again (`load N+1`). Tick, PREV:
+   the question; PREV again while it shows: nothing; OK: the page stays. PREV again, the question, a tap on Leave: the
+   previous page. Tick, Reload button: the question; BACK: the page stays. Ticked, "link" (another site): Wikipedia
+   opens without the question, as WebKit does (see "Behaviour in detail", 12).
+8. **close** on the test page as the first address after opening the developer page: "The web page closed itself",
+   the settings list. Open the page again, load the test page, follow "local link", "close": back to the first entry
+   (the item goes back while there is history); at the first entry after "link" and PREV, "close": nothing (WebKit
+   refuses with more than one history entry).
+9. **_blank** and **open**: Wikipedia loads in the view without a notification, PREV returns. **open data:**: "The
+   page tried to open a link that cannot be shown", the page stays, the status line `new window refused: data:...`.
+   **confirm+open**: the question, OK: Wikipedia (WebKit keeps the tap's user gesture through the dialog). The buttons
+   call `window.open()` and `window.close()`: a bare `open()`/`close()` in an inline `onclick` is `document.open()` and
+   `document.close()` (the handler's scope includes the document).
+10. **basic**: full screen "Sign in to https://httpbin.org", "The site says: “Fake Realm”", no warning, the user name
+    field with the keyboard. Cancel (or BACK): httpbin's 401 page (it may be empty), no "load failed". PREV, "basic"
+    again: user `ucuser`, OK, a wrong password, OK: the login again with `ucuser` still in the user name field, the
+    password field empty and selected with the keyboard, and "Wrong user name or password" under it. BACK: httpbin's
+    401 page; PREV, "basic" again: both fields empty, the user name selected. `ucuser`, a wrong password, Sign in, and
+    on the retry `ucsecret`, OK: httpbin's JSON with `"authenticated": true`. WebKit keeps accepted credentials until
+    remote-ui restarts, so "basic" asks no more after that. **digest**: the same steps. **basic over http**: the red
+    "Not secure: this connection is not encrypted".
+11. **a download**, **attachment**: "Downloads are not supported", the page stays; **PDF**: "PDF documents cannot be
+    shown here", the status line `not shown: https://www.w3.org/...`; no `load failed` in the status line or journal.
+12. Nothing typed or shown reaches the journal, with the trace and without:
+    `journalctl -u remote-ui-custom -b | grep -v -e basic-auth/ucuser/ucsecret -e digest-auth/auth/ucuser/ucsecret |
+    grep -c -e ucsecret -e ucuser -e 'Delete the item' -e 'Your name' -e 'Fake Realm'` prints 0, and so does a grep for
+    what was typed into the prompt. The two `grep -v` drop httpbin's own addresses, whose path holds the user name and
+    password and which the log shows like any address (without the query).
+13. With a firmware whose library is 0.6.x: the page loads and works as before, no dialog appears (alert and confirm
+    close at once, "confirm false"), and the journal has `has no uc_webview_request_reply (older than 0.7.0)` once.
 
 ## Known limitations
 
@@ -745,6 +1031,10 @@ trace logs"). Without the trace, check what the screen shows and the journal lin
   render runs needs a Core-API request the UI does not send today.
 - **`file:` URLs** (only with `UC_WEBVIEW_ALLOW_FILE_URLS=1`): without a shared-mime-info database on the device, GIO
   types an `.html` file as `text/plain`, so a local page can show as text.
-- **Text links need the firmware's font configuration** of library 0.6.3 or newer: with older firmware the
+- **A slow login can fail.** A login answered after a long wait can fail with WebKit's error page
+  (`HTTP/2 Error: NO_ERROR` in the journal): the server closed its idle connection while the login screen was open,
+  and the request with the credentials is not sent again on a new connection. Tapping the link again or Reload works.
+- **No "Leave this page?" for links to another site** (see "Behaviour in detail", 12).
+- **Text links need the firmware's font configuration** of library 0.6.3 / 0.7.1 or newer: with older firmware the
   page's generic fonts (`sans-serif`, `serif`, `monospace`) resolve to nothing, inline text gets no height, and a tap
   on a text link or a label hits the block behind it.
