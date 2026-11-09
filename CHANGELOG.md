@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and centred. An SVG icon keeps the aspect ratio of its `viewBox`, also when its `width` and `height` declare
   another one, so it is no longer drawn squashed.
 
+### Fixed
+- A rebuild on a new commit kept the version string of the previous build in the binary, so Settings, About and the
+  core reported an older version than the one installed. The version now comes from a generated header that is
+  recompiled whenever it changes; no `make clean` is needed.
+
 ---
 
 ## v0.85.0 - 2026-11-06

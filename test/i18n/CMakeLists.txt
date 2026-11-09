@@ -34,9 +34,6 @@ add_executable (testI18n
     "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
     )
 
-# translation.cpp reports the app version to core; qmake defines it from git at build time
-target_compile_definitions(testI18n PRIVATE APP_VERSION="test")
-
 add_test(NAME testI18n
          COMMAND testI18n)
 

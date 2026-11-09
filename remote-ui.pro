@@ -64,7 +64,9 @@ isEmpty(UC_BUILD_VERSION) {
     }
 }
 REMOTE_VERSION = $$replace(GIT_VERSION, v, "")
-DEFINES += APP_VERSION=\\\"$$REMOTE_VERSION\\\"
+# APP_VERSION is generated into $$OUT_PWD/version.h (QMAKE_SUBSTITUTES below), not passed as a define: make does not
+# recompile an object whose DEFINES changed, so a rebuild on a new commit kept the old version string in the binary.
+# The build directory is in the include path of the generated Makefile.
 
 # TODO map REMOTE_VERSION to VERSION if format is X.Y.Z
 VERSION = 0.1.0
@@ -79,7 +81,7 @@ CONFIG(debug, debug|release) {
     DEBUG_BUILD = false
 }
 
-QMAKE_SUBSTITUTES += version.txt.in
+QMAKE_SUBSTITUTES += version.txt.in version.h.in
 
 HEADERS += \
     src/config/config.h \
@@ -326,7 +328,8 @@ macx {
 # === end CONFIG COPY section =======================================
 
 DISTFILES += \
-    version.txt.in
+    version.txt.in \
+    version.h.in
 
 # -----------------------------------------------------------------------------
 # DESTINATION PATH

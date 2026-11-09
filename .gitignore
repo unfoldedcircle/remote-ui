@@ -35,6 +35,9 @@ Thumbs.db
 *.rc
 /.qmake.cache
 /.qmake.stash
+# qmake substitutes of an in-source qmake run (version.txt.in, version.h.in)
+/version.txt
+/version.h
 *.bak
 
 # qtcreator generated files
