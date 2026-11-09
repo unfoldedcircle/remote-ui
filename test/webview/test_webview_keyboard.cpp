@@ -18,6 +18,14 @@
 // Regression 3: after the hide key, a tap on the web page's input that still had the DOM focus did not bring the
 // keyboard back: WebKit reports the element's focus only when it changes. The WebView item asks for the keyboard
 // again on such a tap; this checks that the request reaches main.qml's controller through the real input context.
+//
+// Regression 4: the address field could not be reached with the d-pad. It sits left of Load, and Load had only an
+// `up` link to it: left did nothing. The page now walks its two rows as they look (field <-> Load, Back <-> Forward
+// <-> Stop/Reload, up to the field, down to the web view), with the history buttons skipped while disabled.
+//
+// PREV and NEXT of the remote go back and forward in the page's history, through the
+// page's ButtonNavigation, wherever the d-pad focus is; the WebView item must neither forward them to the page nor
+// accept them. The InputController is installed on the window like main.qml does, so a key travels both paths.
 
 #include <QJSValue>
 #include <QQmlContext>
@@ -108,7 +116,10 @@ uc_webview *const kView = reinterpret_cast<uc_webview *>(0x1234);
 
 uc_webview_callbacks callbacks{};
 void                *user = nullptr;
-QStringList          calls;  // navigation requests: "reload", "stop"
+QStringList          calls;  // navigation requests: "reload", "stop", "go_back", "go_forward", "load_uri(<uri>)"
+bool                 canBack = false;
+bool                 canForward = false;
+QList<uint32_t>      keys;   // keysyms forwarded to the page (uc_webview_key presses)
 
 int         apiVersion() { return UC_WEBVIEW_API_VERSION; }
 int         globalInit(void *, const char *, const char *) { return 0; }
@@ -124,10 +135,13 @@ void        setInt(uc_webview *, int) {}
 void        setDouble(uc_webview *, double) {}
 void        setString(uc_webview *, const char *) {}
 void        loadHtml(uc_webview *, const char *, const char *) {}
-void        noArgs(uc_webview *) {}
 void        reload(uc_webview *) { calls.append(QStringLiteral("reload")); }
 void        stop(uc_webview *) { calls.append(QStringLiteral("stop")); }
-int         no(uc_webview *) { return 0; }
+void        goBack(uc_webview *) { calls.append(QStringLiteral("go_back")); }
+void        goForward(uc_webview *) { calls.append(QStringLiteral("go_forward")); }
+void        loadUri(uc_webview *, const char *uri) { calls.append(QStringLiteral("load_uri(%1)").arg(uri)); }
+int         canGoBack(uc_webview *) { return canBack ? 1 : 0; }
+int         canGoForward(uc_webview *) { return canForward ? 1 : 0; }
 const char *none(uc_webview *) { return nullptr; }
 void        setBackground(uc_webview *, float, float, float, float) {}
 void        frame(uc_webview *, void *) {}
@@ -135,7 +149,11 @@ void        touch(uc_webview *, int, int, double, double, uint32_t) {}
 void        pointerButton(uc_webview *, int, int, double, double, unsigned, uint32_t) {}
 void        pointerMove(uc_webview *, double, double, unsigned, uint32_t) {}
 void        scroll(uc_webview *, double, double, double, double, int, uint32_t) {}
-void        key(uc_webview *, uint32_t, uint32_t, int, unsigned, uint32_t) {}
+void        key(uc_webview *, uint32_t keysym, uint32_t, int pressed, unsigned, uint32_t) {
+    if (pressed) {
+        keys.append(keysym);
+    }
+}
 void        imePreedit(uc_webview *, const char *, int) {}
 void        imeDeleteSurrounding(uc_webview *, int, int) {}
 
@@ -150,14 +168,14 @@ WebViewFunctions functions() {
     f.set_mapped = &setInt;
     f.set_focused = &setInt;
     f.set_scale = &setDouble;
-    f.load_uri = &setString;
+    f.load_uri = &loadUri;
     f.load_html = &loadHtml;
     f.reload = &reload;
     f.stop = &stop;
-    f.go_back = &noArgs;
-    f.go_forward = &noArgs;
-    f.can_go_back = &no;
-    f.can_go_forward = &no;
+    f.go_back = &goBack;
+    f.go_forward = &goForward;
+    f.can_go_back = &canGoBack;
+    f.can_go_forward = &canGoForward;
     f.get_uri = &none;
     f.get_title = &none;
     f.run_javascript = &setString;
@@ -180,8 +198,15 @@ void fireImeFocus(int focused, unsigned purpose) {
     callbacks.ime_focus(kView, focused, UC_WEBVIEW_IME_HINT_NONE, purpose, "", 0, user);
 }
 
-void fireLoad(int event) {
-    callbacks.load_changed(kView, event, "http://localhost/", user);
+void fireLoad(int event, const char *uri = "http://localhost/") {
+    callbacks.load_changed(kView, event, uri, user);
+}
+
+// WebKit's back/forward list after a navigation; the item reads it on every load event
+void setHistory(bool back, bool forward, const char *uri) {
+    canBack = back;
+    canForward = forward;
+    fireLoad(UC_WEBVIEW_LOAD_COMMITTED, uri);
 }
 
 }  // namespace lib
@@ -216,15 +241,26 @@ class testWebViewKeyboard : public QObject {
     void cleanup();
 
     void tapOnTheAddressFieldShowsTheKeyboardOnceAndItStays();
-    void dpadToTheLoadButtonHidesTheKeyboardAndBackUpShowsItAgain();
+    void dpadToTheLoadButtonHidesTheKeyboardAndBackShowsItAgain();
     void hideKeyClosesTheKeyboardAndItStaysClosed();
-    void dpadWalksFieldLoadStopReloadWebView();
+    void dpadReachesTheAddressFieldFromLoad();
+    void dpadWalksBothRowsAndIntoTheWebView();
+    void backAndForwardFollowTheHistory();
+    void disabledHistoryButtonHandsTheFocusOn();
+    void addressFieldShowsThePageAddress();
     void stopReloadButtonFollowsTheLoad();
     void addressesAreNormalized();
     void tapOnTheFocusedPageInputReopensTheKeyboardAfterTheHideKey();
+    void prevAndNextStepThroughTheHistoryFromEveryControl();
+    void prevAndNextWithoutHistoryDoNothing();
+    void prevAndNextPassTheFocusedWebView();
+    void heldPrevStepsOnce();
+    void prevAndNextAreIgnoredWhileTheKeyboardIsUp();
 
  private:
+    bool pressRemoteButton(Qt::Key key, int repeats = 0);
     void tapTheAddressField();
+    void click(QQuickItem *item);
     void tapTheWebView(const QPointF &moveBy = QPointF());
     void pressTheHideKey();
 
@@ -236,6 +272,8 @@ class testWebViewKeyboard : public QObject {
     QQuickItem  *page = nullptr;
     QQuickItem  *field = nullptr;
     QQuickItem  *loadButton = nullptr;
+    QQuickItem  *backButton = nullptr;
+    QQuickItem  *forwardButton = nullptr;
     QQuickItem  *stopReloadButton = nullptr;
     QQuickItem  *stopReloadIcon = nullptr;
     WebViewItem *webView = nullptr;
@@ -271,12 +309,20 @@ void testWebViewKeyboard::init() {
     QVERIFY(page && keyboard && overlay);
     field = textFieldOf(page);
     loadButton = buttonOf(page, "Load");
+    backButton = page->findChild<QQuickItem *>("backButton");
+    forwardButton = page->findChild<QQuickItem *>("forwardButton");
     stopReloadButton = page->findChild<QQuickItem *>("stopReloadButton");
     stopReloadIcon = page->findChild<QQuickItem *>("stopReloadIcon");
-    QVERIFY(field && loadButton && stopReloadButton && stopReloadIcon);
+    QVERIFY(field && loadButton && backButton && forwardButton && stopReloadButton && stopReloadIcon);
     QVERIFY(!page->findChildren<WebViewItem *>().isEmpty());
     webView = page->findChildren<WebViewItem *>().first();
     lib::calls.clear();
+    lib::keys.clear();
+    lib::canBack = lib::canForward = false;
+
+    // both paths of a key press (docs/key-navigation.md section 1): the input controller filters the window's
+    // events like main.qml's ui.inputController.setSource(applicationWindow)
+    ui->input()->setSource(view);
 
     opened = new QSignalSpy(keyboard, SIGNAL(opened()));
     closed = new QSignalSpy(keyboard, SIGNAL(closed()));
@@ -304,6 +350,12 @@ void testWebViewKeyboard::tapTheAddressField() {
     QTest::mouseClick(view, Qt::LeftButton, Qt::NoModifier, center.toPoint());
 }
 
+// a tap (mouse click) in the middle of an item
+void testWebViewKeyboard::click(QQuickItem *item) {
+    const QPointF center = item->mapToScene(QPointF(item->width() / 2, item->height() / 2));
+    QTest::mouseClick(view, Qt::LeftButton, Qt::NoModifier, center.toPoint());
+}
+
 void testWebViewKeyboard::tapTheWebView(const QPointF &moveBy) {
     static QTouchDevice *device = QTest::createTouchDevice();
     // near the top of the view: the keyboard, when up, covers the bottom of the window
@@ -323,6 +375,21 @@ void testWebViewKeyboard::pressTheHideKey() {
     QVERIFY(QMetaObject::invokeMethod(keyboard, "hide"));
 }
 
+// A button of the remote as the device delivers it to the window: the evdev keymap gives it no text
+// (qevdevkeyboardhandler.cpp:249), a held button repeats presses flagged autoRepeat and releases once. The input
+// controller (event filter, path 1) and the focused item (path 2) see it. Returns whether an item accepted the press.
+bool testWebViewKeyboard::pressRemoteButton(Qt::Key key, int repeats) {
+    QKeyEvent press(QEvent::KeyPress, key, Qt::NoModifier);
+    QCoreApplication::sendEvent(view, &press);
+    for (int i = 0; i < repeats; ++i) {
+        QKeyEvent repeat(QEvent::KeyPress, key, Qt::NoModifier, QString(), true);
+        QCoreApplication::sendEvent(view, &repeat);
+    }
+    QKeyEvent release(QEvent::KeyRelease, key, Qt::NoModifier);
+    QCoreApplication::sendEvent(view, &release);
+    return press.isAccepted();
+}
+
 void testWebViewKeyboard::tapOnTheAddressFieldShowsTheKeyboardOnceAndItStays() {
     tapTheAddressField();
 
@@ -340,11 +407,12 @@ void testWebViewKeyboard::tapOnTheAddressFieldShowsTheKeyboardOnceAndItStays() {
     QCOMPARE(ui->input()->activeItem(), page);
 }
 
-void testWebViewKeyboard::dpadToTheLoadButtonHidesTheKeyboardAndBackUpShowsItAgain() {
+void testWebViewKeyboard::dpadToTheLoadButtonHidesTheKeyboardAndBackShowsItAgain() {
     tapTheAddressField();
     QTRY_VERIFY(keyboard->property("active").toBool());
 
-    QTest::keyClick(view, Qt::Key_Down);
+    // the caret is at the end of the text: right leaves the field for Load
+    QTest::keyClick(view, Qt::Key_Right);
     QTRY_VERIFY(loadButton->hasActiveFocus());
     QTRY_COMPARE(closed->count(), 1);
     QTest::qWait(800);
@@ -352,7 +420,7 @@ void testWebViewKeyboard::dpadToTheLoadButtonHidesTheKeyboardAndBackUpShowsItAga
     QVERIFY(!keyboard->property("active").toBool());
     QVERIFY(loadButton->hasActiveFocus());
 
-    QTest::keyClick(view, Qt::Key_Up);
+    QTest::keyClick(view, Qt::Key_Left);
     QTRY_VERIFY(field->hasActiveFocus());
     QTRY_VERIFY(keyboard->property("active").toBool());
     QTest::qWait(800);
@@ -389,44 +457,191 @@ void testWebViewKeyboard::hideKeyClosesTheKeyboardAndItStaysClosed() {
     QVERIFY(QMetaObject::invokeMethod(keyboard, "hide"));
     QTRY_COMPARE(closed->count(), 2);
     QTest::keyClick(view, Qt::Key_Down);
-    QTRY_VERIFY(loadButton->hasActiveFocus());
+    QTRY_VERIFY(stopReloadButton->hasActiveFocus());
     QVERIFY(!keyboard->property("active").toBool());
     QTest::keyClick(view, Qt::Key_Up);
     QTRY_VERIFY(field->hasActiveFocus());
     QTRY_VERIFY(keyboard->property("active").toBool());
 }
 
-void testWebViewKeyboard::dpadWalksFieldLoadStopReloadWebView() {
-    // init() left the focus on Load; down: Stop/Reload, then the web view
+void testWebViewKeyboard::dpadReachesTheAddressFieldFromLoad() {
+    // init() left the focus on Load, where the page opens. The field is left of it: left reaches it, and the
+    // keyboard comes up like on the Wi-Fi forms (keyboardFollowsFocus)
+    QTest::keyClick(view, Qt::Key_Left);
+    QTRY_VERIFY(field->hasActiveFocus());
+    QTRY_VERIFY(keyboard->property("active").toBool());
+
+    // right at the end of the text goes back to Load, which hides the keyboard
+    QTest::keyClick(view, Qt::Key_Right);
+    QTRY_VERIFY(loadButton->hasActiveFocus());
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+
+    // up from Load reaches the field as well (nothing else is above Load)
+    QTest::keyClick(view, Qt::Key_Up);
+    QTRY_VERIFY(field->hasActiveFocus());
+    QTRY_VERIFY(keyboard->property("active").toBool());
+
+    // left inside the field moves the caret and stays, up has nowhere to go
+    QTest::keyClick(view, Qt::Key_Left);
+    QTest::keyClick(view, Qt::Key_Up);
+    QTest::qWait(50);
+    QVERIFY(field->hasActiveFocus());
+    QCOMPARE(field->property("cursorPosition").toInt(), field->property("text").toString().size() - 1);
+
+    // DPAD_MIDDLE is the field's Return: it loads the address and puts the keyboard away, the field keeps the focus
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("load_uri(http://localhost/)")});
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    QVERIFY(field->hasActiveFocus());
+    QCOMPARE(ui->input()->activeItem(), page);
+}
+
+void testWebViewKeyboard::dpadWalksBothRowsAndIntoTheWebView() {
+    // the field has the room the buttons left
+    QVERIFY2(field->parentItem()->width() > 300, qPrintable(QString::number(field->parentItem()->width())));
+
+    // a fresh view has no history: down from Load reaches Stop/Reload, Back and Forward are skipped
     QTest::keyClick(view, Qt::Key_Down);
     QTRY_VERIFY(stopReloadButton->hasActiveFocus());
     QVERIFY(!keyboard->property("active").toBool());
+    QTest::keyClick(view, Qt::Key_Left);
+    QTest::qWait(50);
+    QVERIFY(stopReloadButton->hasActiveFocus());
+
+    // down again: the web view, where the arrows belong to the page (forwarded and accepted): the focus stays
     QTest::keyClick(view, Qt::Key_Down);
     QTRY_VERIFY(webView->hasActiveFocus());
-
-    // inside the web view the arrows belong to the page (they are forwarded and accepted): the focus stays
     QTest::keyClick(view, Qt::Key_Up);
     QTest::qWait(50);
     QVERIFY(webView->hasActiveFocus());
 
-    // back up from the button row: Stop/Reload -> Load -> address field (which brings the keyboard)
+    // with history in both directions the second row walks Back <-> Forward <-> Stop/Reload
+    lib::setHistory(true, true, "http://localhost/2");
     stopReloadButton->forceActiveFocus();
-    QTest::keyClick(view, Qt::Key_Up);
-    QTRY_VERIFY(loadButton->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Left);
+    QTRY_VERIFY(forwardButton->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Left);
+    QTRY_VERIFY(backButton->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Left);
+    QTest::qWait(50);
+    QVERIFY(backButton->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Right);
+    QTRY_VERIFY(forwardButton->hasActiveFocus());
     QTest::keyClick(view, Qt::Key_Right);
     QTRY_VERIFY(stopReloadButton->hasActiveFocus());
-    QTest::keyClick(view, Qt::Key_Left);
-    QTRY_VERIFY(loadButton->hasActiveFocus());
-    QTest::keyClick(view, Qt::Key_Up);
-    QTRY_VERIFY(field->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Right);
+    QTest::qWait(50);
+    QVERIFY(stopReloadButton->hasActiveFocus());
+
+    // up from every button of the row: the address field above them
+    for (QQuickItem *button : {backButton, forwardButton, stopReloadButton}) {
+        button->forceActiveFocus();
+        QTest::keyClick(view, Qt::Key_Up);
+        QTRY_VERIFY2(field->hasActiveFocus(), qPrintable(button->objectName()));
+    }
     QTRY_VERIFY(keyboard->property("active").toBool());
+
+    // down from the field: the first button of the row (the keyboard goes), down again: the web view
     QTest::keyClick(view, Qt::Key_Down);
-    QTRY_VERIFY(loadButton->hasActiveFocus());
+    QTRY_VERIFY(backButton->hasActiveFocus());
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    QTest::keyClick(view, Qt::Key_Down);
+    QTRY_VERIFY(webView->hasActiveFocus());
+    forwardButton->forceActiveFocus();
+    QTest::keyClick(view, Qt::Key_Down);
+    QTRY_VERIFY(webView->hasActiveFocus());
+}
+
+void testWebViewKeyboard::backAndForwardFollowTheHistory() {
+    // square, as large as Stop/Reload, dimmed and disabled without history: a tap does nothing
+    for (QQuickItem *button : {backButton, forwardButton}) {
+        QCOMPARE(button->width(), button->height());
+        QCOMPARE(button->height(), stopReloadButton->height());
+        QVERIFY(!button->isEnabled());
+        QVERIFY(button->opacity() < 0.5);
+        click(button);
+    }
+    QVERIFY(lib::calls.isEmpty());
+
+    // a link was followed: Back works, by touch and by DPAD_MIDDLE (Return on the focused button)
+    lib::setHistory(true, false, "http://localhost/2");
+    QVERIFY(backButton->isEnabled());
+    QCOMPARE(backButton->opacity(), 1.0);
+    QVERIFY(!forwardButton->isEnabled());
+    click(backButton);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
+    stopReloadButton->forceActiveFocus();
+    QTest::keyClick(view, Qt::Key_Left);  // over the disabled Forward
+    QTRY_VERIFY(backButton->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("go_back"), QStringLiteral("go_back")}));
+
+    // WebKit went back to the first page: Forward works
+    lib::setHistory(false, true, "http://localhost/");
+    QVERIFY(!backButton->isEnabled());
+    QVERIFY(forwardButton->isEnabled());
+    lib::calls.clear();
+    click(forwardButton);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_forward")});
+
+    // and the field's down goes to the first enabled button
+    field->forceActiveFocus();
+    QTest::keyClick(view, Qt::Key_Down);
+    QTRY_VERIFY(forwardButton->hasActiveFocus());
+}
+
+void testWebViewKeyboard::disabledHistoryButtonHandsTheFocusOn() {
+    // DPAD_MIDDLE on Back until the first page: Back turns disabled under the d-pad and the focus moves to Forward
+    lib::setHistory(true, false, "http://localhost/2");
+    backButton->forceActiveFocus();
+    QTest::keyClick(view, Qt::Key_Return);
+    lib::setHistory(false, true, "http://localhost/");
+    QTRY_VERIFY(forwardButton->hasActiveFocus());
+
+    // and back the other way
+    QTest::keyClick(view, Qt::Key_Return);
+    lib::setHistory(true, false, "http://localhost/2");
+    QTRY_VERIFY(backButton->hasActiveFocus());
+
+    // no history left at all (a new view): Stop/Reload
+    lib::setHistory(false, false, "http://localhost/3");
+    QTRY_VERIFY(stopReloadButton->hasActiveFocus());
+    QTest::qWait(50);
+    QVERIFY(stopReloadButton->hasActiveFocus());
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("go_back"), QStringLiteral("go_forward")}));
+}
+
+void testWebViewKeyboard::addressFieldShowsThePageAddress() {
+    // a redirect, Back or Forward: the field shows the address of the page on screen
+    lib::fireLoad(UC_WEBVIEW_LOAD_STARTED, "http://localhost/a");
+    QCOMPARE(field->property("text").toString(), QStringLiteral("http://localhost/a"));
+    lib::fireLoad(UC_WEBVIEW_LOAD_REDIRECTED, "https://localhost/b");
+    QCOMPARE(field->property("text").toString(), QStringLiteral("https://localhost/b"));
+
+    // but not while the user types into it
+    tapTheAddressField();
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    field->setProperty("text", QStringLiteral("example.com"));
+    lib::fireLoad(UC_WEBVIEW_LOAD_COMMITTED, "https://localhost/c");
+    QCOMPARE(field->property("text").toString(), QStringLiteral("example.com"));
+
+    // Load (a tap, the field keeps the focus): the keyboard goes and the field shows the completed address
+    click(loadButton);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("load_uri(http://example.com)")});
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    QCOMPARE(field->property("text").toString(), QStringLiteral("http://example.com"));
+    QVERIFY(field->hasActiveFocus());
+
+    // a refused address stays in the field
+    field->setProperty("text", QStringLiteral("ftp://host/f"));
+    click(loadButton);
+    QCOMPARE(lib::calls.size(), 1);
+    QCOMPARE(field->property("text").toString(), QStringLiteral("ftp://host/f"));
 }
 
 void testWebViewKeyboard::stopReloadButtonFollowsTheLoad() {
     QCOMPARE(stopReloadIcon->property("icon").toString(), QStringLiteral("uc:arrow-rotate-right"));
-    QCOMPARE(stopReloadButton->height(), loadButton->height());
+    QCOMPARE(stopReloadButton->height(), 60.0);
     QCOMPARE(stopReloadButton->width(), stopReloadButton->height());
 
     // idle: the button reloads (DPAD_MIDDLE is Key_Return on the focused button)
@@ -500,6 +715,134 @@ void testWebViewKeyboard::tapOnTheFocusedPageInputReopensTheKeyboardAfterTheHide
     QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 200);
     QCOMPARE(closed->count(), closedBefore);
     QVERIFY(keyboard->property("active").toBool());
+}
+
+void testWebViewKeyboard::prevAndNextStepThroughTheHistoryFromEveryControl() {
+    // history in both directions: PREV goes back, NEXT forward, whichever control the d-pad is on (the field is left
+    // out: the d-pad brings the keyboard up there, see prevAndNextAreIgnoredWhileTheKeyboardIsUp)
+    lib::setHistory(true, true, "http://localhost/2");
+    QStringList expected;
+    QQuickItem *const webViewItem = webView;
+    for (QQuickItem *item : {loadButton, backButton, forwardButton, stopReloadButton, webViewItem}) {
+        item->forceActiveFocus();
+        QTRY_VERIFY(item->hasActiveFocus());
+        QVERIFY(!keyboard->property("active").toBool());
+
+        QVERIFY2(!pressRemoteButton(Qt::Key_AudioRewind), qPrintable(item->objectName()));
+        expected << QStringLiteral("go_back");
+        QCOMPARE(lib::calls, expected);
+        QVERIFY2(!pressRemoteButton(Qt::Key_AudioForward), qPrintable(item->objectName()));
+        expected << QStringLiteral("go_forward");
+        QCOMPARE(lib::calls, expected);
+
+        // the keys change nothing else: the focus stays where it was, the page gets no key
+        QVERIFY(item->hasActiveFocus());
+        QVERIFY(lib::keys.isEmpty());
+    }
+    QCOMPARE(ui->input()->activeItem(), page);
+}
+
+void testWebViewKeyboard::prevAndNextWithoutHistoryDoNothing() {
+    // a fresh view: no history at all, neither key calls the library
+    webView->forceActiveFocus();
+    QVERIFY(!pressRemoteButton(Qt::Key_AudioRewind));
+    QVERIFY(!pressRemoteButton(Qt::Key_AudioForward));
+    QVERIFY(lib::calls.isEmpty());
+
+    // only back: NEXT does nothing, PREV goes back
+    lib::setHistory(true, false, "http://localhost/2");
+    pressRemoteButton(Qt::Key_AudioForward);
+    QVERIFY(lib::calls.isEmpty());
+    pressRemoteButton(Qt::Key_AudioRewind);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
+
+    // WebKit is on the first entry again: PREV does nothing, NEXT goes forward
+    lib::setHistory(false, true, "http://localhost/");
+    lib::calls.clear();
+    pressRemoteButton(Qt::Key_AudioRewind);
+    QVERIFY(lib::calls.isEmpty());
+    pressRemoteButton(Qt::Key_AudioForward);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_forward")});
+    QVERIFY(lib::keys.isEmpty());
+}
+
+void testWebViewKeyboard::prevAndNextPassTheFocusedWebView() {
+    // the d-pad is in the web view, where the arrows belong to the page
+    lib::setHistory(true, true, "http://localhost/2");
+    tapTheWebView();
+    QTRY_VERIFY(webView->hasActiveFocus());
+    QTest::keyClick(view, Qt::Key_Down);
+    QCOMPARE(lib::keys, QList<uint32_t>{0xff54});  // WPE_KEY_Down
+    lib::keys.clear();
+
+    // PREV/NEXT as the device sends them: not accepted by the item, not forwarded, handled by the page
+    QVERIFY(!pressRemoteButton(Qt::Key_AudioRewind));
+    QVERIFY(!pressRemoteButton(Qt::Key_AudioForward));
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("go_back"), QStringLiteral("go_forward")}));
+    QVERIFY(lib::keys.isEmpty());
+    QVERIFY(webView->hasActiveFocus());
+
+    // the button simulator sends the key's name as text ("Media Rewind"): still not a character for the page
+    ui->input()->pressSimulatorKey(Qt::Key_AudioRewind);
+    ui->input()->releaseSimulatorKey(Qt::Key_AudioRewind);
+    ui->input()->pressSimulatorKey(Qt::Key_AudioForward);
+    ui->input()->releaseSimulatorKey(Qt::Key_AudioForward);
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("go_back"), QStringLiteral("go_forward"),
+                                      QStringLiteral("go_back"), QStringLiteral("go_forward")}));
+    QVERIFY(lib::keys.isEmpty());
+
+    // BACK leaves the page from inside the web view (Settings.Page: profileRoot.goBack()), also not forwarded.
+    // Last: the BACK handler restores the page's original button configuration.
+    QObject *profileRoot = view->rootObject()->findChild<QObject *>("profileRoot");
+    QVERIFY(profileRoot);
+    QVERIFY(!pressRemoteButton(Qt::Key_Exit));
+    QCOMPARE(profileRoot->property("backCalls").toInt(), 1);
+    QVERIFY(lib::keys.isEmpty());
+}
+
+void testWebViewKeyboard::heldPrevStepsOnce() {
+    // a held button repeats every 150 ms on the device: still one step, every step is a navigation
+    lib::setHistory(true, true, "http://localhost/2");
+    webView->forceActiveFocus();
+    pressRemoteButton(Qt::Key_AudioRewind, 5);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
+    pressRemoteButton(Qt::Key_AudioForward, 5);
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("go_back"), QStringLiteral("go_forward")}));
+
+    // and the next press steps again
+    pressRemoteButton(Qt::Key_AudioRewind);
+    QCOMPARE(lib::calls,
+             (QStringList{QStringLiteral("go_back"), QStringLiteral("go_forward"), QStringLiteral("go_back")}));
+    QVERIFY(lib::keys.isEmpty());
+}
+
+void testWebViewKeyboard::prevAndNextAreIgnoredWhileTheKeyboardIsUp() {
+    lib::setHistory(true, true, "http://localhost/2");
+
+    // typing into the address field
+    tapTheAddressField();
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    QVERIFY(!pressRemoteButton(Qt::Key_AudioRewind));
+    QVERIFY(!pressRemoteButton(Qt::Key_AudioForward));
+    QVERIFY(lib::calls.isEmpty());
+    QVERIFY(field->hasActiveFocus());
+    QVERIFY(keyboard->property("active").toBool());
+
+    // typing into an input of the page
+    tapTheWebView();
+    QTRY_VERIFY(webView->hasActiveFocus());
+    lib::fireImeFocus(1, UC_WEBVIEW_IME_PURPOSE_FREE_FORM);
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    pressRemoteButton(Qt::Key_AudioRewind);
+    pressRemoteButton(Qt::Key_AudioForward);
+    QVERIFY(lib::calls.isEmpty());
+    QVERIFY(lib::keys.isEmpty());
+
+    // the keyboard is put away: the keys work again
+    pressTheHideKey();
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    pressRemoteButton(Qt::Key_AudioRewind);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
 }
 
 int main(int argc, char *argv[]) {

@@ -340,6 +340,7 @@ class testWebViewItem : public QObject {
     void viewIsCreatedInDevicePixelsOnceItHasWindowAndSize();
     void pendingUrlIsLoadedWhenTheViewExists();
     void loadEventsDriveTheProperties();
+    void historyFollowsSameDocumentNavigations();
     void loadFailureIsSignalled();
     void crashReloadsOnceUntilALoadFinishes();
     void imeFocusEnablesTheInputMethodWithTheMappedHints();
@@ -456,6 +457,34 @@ void testWebViewItem::loadEventsDriveTheProperties() {
     stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "http://localhost/index.html");
     QVERIFY(!f.item->isLoading());
     QCOMPARE(loading.count(), 2);
+}
+
+void testWebViewItem::historyFollowsSameDocumentNavigations() {
+    // a single-page application changes the back/forward list with history.pushState and shows the new route:
+    // WebKit reports no load event for it, only the new frame and maybe a new title
+    Fixture    f;
+    QSignalSpy history(f.item, &WebViewItem::navigationHistoryChanged);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "http://localhost/");
+    QVERIFY(!f.item->canGoBack());
+    QCOMPARE(history.count(), 0);
+
+    stub::s.canGoBack = true;
+    stub::fireFrame(1);
+    QVERIFY(f.item->canGoBack());
+    QVERIFY(!f.item->canGoForward());
+    QCOMPARE(history.count(), 1);
+
+    // frames without a history change do not signal
+    stub::fireFrame(2);
+    QCOMPARE(history.count(), 1);
+
+    // going back between such entries: the page's new title arrives before its frame
+    stub::s.canGoBack = false;
+    stub::s.canGoForward = true;
+    stub::fireTitle("Route 1");
+    QVERIFY(!f.item->canGoBack());
+    QVERIFY(f.item->canGoForward());
+    QCOMPARE(history.count(), 2);
 }
 
 void testWebViewItem::loadFailureIsSignalled() {

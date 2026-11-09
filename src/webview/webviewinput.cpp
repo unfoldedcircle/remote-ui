@@ -20,8 +20,9 @@ struct KeyMapping {
 // Qt::Key -> XKB keysym. The values are those of WPEPlatform's WPEKeysyms.h (identical to xkbcommon-keysyms.h):
 // WebKit derives key, code and text from the keysym (WebKeyboardEventWPE.cpp), the upstream Qt 6 binding passes
 // Qt key codes instead, which is a known weakness. The remote's buttons that the UI handles itself are absent on
-// purpose: BACK is Qt::Key_Exit, HOME is Qt::Key_Home, VOICE/MENU are F3/F4, plus the colour, channel, media,
-// volume and power keys (src/ui/inputController.h). They return 0 and stay with the QML page.
+// purpose: BACK is Qt::Key_Exit, HOME is Qt::Key_Home, VOICE/MENU are F3/F4, plus the colour, channel, media
+// (PREV and NEXT, Key_AudioRewind/Key_AudioForward, are the developer page's history keys), volume and power keys
+// (src/ui/inputController.h). They return 0, with or without text, and stay with the QML page.
 constexpr KeyMapping kKeyTable[] = {
     {Qt::Key_Return, 0xff0d},    // WPE_KEY_Return
     {Qt::Key_Enter, 0xff8d},     // WPE_KEY_KP_Enter
@@ -60,6 +61,15 @@ uint32_t xkbKeysymForKey(int key, const QString &text) {
     // F3 and F4 are the VOICE and MENU buttons of the remote
     if (key >= Qt::Key_F1 && key <= Qt::Key_F12 && key != Qt::Key_F3 && key != Qt::Key_F4) {
         return kKeysymF1 + static_cast<uint32_t>(key - Qt::Key_F1);
+    }
+
+    // Any other Qt special key (Qt::Key_Escape = 0x01000000 and above) is not a character, whatever text the event
+    // carries. The device's evdev keymap sends the remote's buttons without text (unicode 0xffff,
+    // qevdevkeyboardhandler.cpp:249), but the button simulator sends the key's name (QKeySequence(key).toString() in
+    // InputController::sendKeyEvent: "Media Rewind" for PREV, "Exit" for BACK), which the fallback below would
+    // forward as its first letter. Qt::Key_unknown with text is a character Qt has no key code for.
+    if (key >= Qt::Key_Escape && key != Qt::Key_unknown) {
+        return 0;
     }
 
     if (text.isEmpty()) {

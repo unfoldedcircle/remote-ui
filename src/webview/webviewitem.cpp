@@ -170,6 +170,8 @@ void WebViewItem::onTitleChangedCb(uc_webview *, const char *title, void *user) 
         item->m_title = newTitle;
         emit item->titleChanged();
     }
+    // a single-page application names its new route without a load (see onFrameReady)
+    item->updateNavigationHistory();
 }
 
 void WebViewItem::onProgressChangedCb(uc_webview *, double progress, void *user) {
@@ -214,6 +216,13 @@ void WebViewItem::onFrameReady(const uc_webview_frame &frame) {
     }
     emit frameStatsChanged();
     update();
+    // A same-document navigation (history.pushState of a single-page application, a fragment link, going back or
+    // forward between such entries) changes the back/forward list without any load event: WebKit's glib navigation
+    // client has no same-document hook and WPE's PageClientImpl::didSameDocumentNavigationForMainFrame is empty
+    // (PageClientImpl.cpp:414-416); only WebKitBackForwardList::changed reports it, which the library does not pass
+    // on. Such a navigation shows new content, so the history is read again with every frame (and title change):
+    // can_go_back/forward only look at the UI process' list (WebKitWebView.cpp:3898-3934), no IPC.
+    updateNavigationHistory();
 }
 
 void WebViewItem::onLoadChanged(int event, const char *uri) {

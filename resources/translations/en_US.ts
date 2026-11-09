@@ -4367,19 +4367,19 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>WebView</name>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="60"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="153"/>
         <source>Web address</source>
         <extracomment>Placeholder of the address field on the developer page that shows a web page inside the user interface</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="76"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="173"/>
         <source>Load</source>
         <extracomment>Button on the developer page that loads the entered web address in the embedded web view</extracomment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="120"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="278"/>
         <source>Web view unavailable</source>
         <extracomment>Status line of the developer page when the firmware has no web view library</extracomment>
         <translation type="unfinished"></translation>

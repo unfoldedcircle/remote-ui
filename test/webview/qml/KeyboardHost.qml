@@ -20,6 +20,7 @@ Item {
     // main.qml's profileRoot: Settings.Page and TopNavigation call goBack()/goHome()
     QtObject {
         id: profileRoot
+        objectName: "profileRoot"
         property int backCalls: 0
         function goBack() { backCalls++; }
         function goHome() {}

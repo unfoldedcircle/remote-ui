@@ -1,6 +1,7 @@
 // Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include <QKeySequence>
 #include <QtTest>
 
 #include "webview/uc_webview.h"
@@ -70,23 +71,38 @@ void testWebViewInput::keysForThePage() {
 void testWebViewInput::remoteButtonsStayWithTheUi_data() {
     QTest::addColumn<int>("key");
 
-    // src/ui/inputController.h: the buttons the UI handles on every screen
+    // src/ui/inputController.h: the buttons the UI handles itself, every one of InputController::Buttons that is not
+    // a d-pad key
     QTest::newRow("BACK") << static_cast<int>(Qt::Key_Exit);
     QTest::newRow("HOME") << static_cast<int>(Qt::Key_Home);
     QTest::newRow("VOICE") << static_cast<int>(Qt::Key_F3);
     QTest::newRow("MENU") << static_cast<int>(Qt::Key_F4);
     QTest::newRow("VOLUME_UP") << static_cast<int>(Qt::Key_VolumeUp);
+    QTest::newRow("VOLUME_DOWN") << static_cast<int>(Qt::Key_VolumeDown);
     QTest::newRow("MUTE") << static_cast<int>(Qt::Key_VolumeMute);
     QTest::newRow("GREEN") << static_cast<int>(Qt::Key_Green);
+    QTest::newRow("YELLOW") << static_cast<int>(Qt::Key_Yellow);
+    QTest::newRow("RED") << static_cast<int>(Qt::Key_Red);
+    QTest::newRow("BLUE") << static_cast<int>(Qt::Key_Blue);
     QTest::newRow("CHANNEL_UP") << static_cast<int>(Qt::Key_ChannelUp);
+    QTest::newRow("CHANNEL_DOWN") << static_cast<int>(Qt::Key_ChannelDown);
+    QTest::newRow("PREV") << static_cast<int>(Qt::Key_AudioRewind);
     QTest::newRow("PLAY") << static_cast<int>(Qt::Key_MediaTogglePlayPause);
+    QTest::newRow("NEXT") << static_cast<int>(Qt::Key_AudioForward);
     QTest::newRow("POWER") << static_cast<int>(Qt::Key_PowerOff);
     QTest::newRow("STOP") << static_cast<int>(Qt::Key_Stop);
+    QTest::newRow("RECORD") << static_cast<int>(Qt::Key_MediaRecord);
 }
 
 void testWebViewInput::remoteButtonsStayWithTheUi() {
     QFETCH(int, key);
+    // the device: the evdev keymap gives the remote's buttons no text
     QCOMPARE(xkbKeysymForKey(key, QString()), uint32_t(0));
+    // the button simulator: InputController::sendKeyEvent() sends the key's name as text ("Media Rewind" for PREV),
+    // which must not reach the page as its first letter
+    const QString name = QKeySequence(key).toString();
+    QVERIFY(!name.isEmpty());
+    QCOMPARE(xkbKeysymForKey(key, name), static_cast<uint32_t>(0));
 }
 
 void testWebViewInput::printableCharacters() {

@@ -55,6 +55,8 @@ namespace webview {
  *   element's focus only when it changes, so after the keyboard's hide key a tap on the same field would bring
  *   nothing. The request waits kTapInputPanelDelayMs; a tap that moves the page's focus elsewhere (a button, the
  *   page background) reports `ime_focus(0)` before that and cancels it.
+ * - canGoBack/canGoForward are read from the library again on every load event, frame and title change: a
+ *   same-document navigation (history.pushState, a fragment link) changes the history without a load event.
  * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
  *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
  * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at

@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   still selected brings the on-screen keyboard back after its hide key closed it.
 - The web view tells the page the refresh rate of the display (50 Hz on the Remote 3) instead of 60 Hz, so page
   animations that do not redraw on every frame keep step with the display. Needs the web view library 0.2.0.
+- The web view's developer page has Back and Forward buttons, dimmed while there is no page to go back or forward to,
+  and the remote's PREV and NEXT buttons go back and forward in the page's history, also while the d-pad is in the web
+  view. BACK leaves the page. The address field can be reached with the d-pad and shows the address of the page on
+  screen.
 
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on
