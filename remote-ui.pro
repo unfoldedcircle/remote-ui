@@ -247,6 +247,7 @@ SOURCES += \
         src/webview/webviewinput.h \
         src/webview/webviewitem.h \
         src/webview/webviewlibrary.h \
+        src/webview/webviewpinch.h \
         src/webview/webviewtexture.h
 
     SOURCES += \
@@ -254,6 +255,7 @@ SOURCES += \
         src/webview/webviewinput.cpp \
         src/webview/webviewitem.cpp \
         src/webview/webviewlibrary.cpp \
+        src/webview/webviewpinch.cpp \
         src/webview/webviewtexture.cpp
 }
 

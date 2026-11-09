@@ -35,7 +35,7 @@ class FrameQueue {
     void *push(const uc_webview_frame &frame);
 
     // Make the pending frame the current one (render thread, GUI blocked). Returns true if the current frame
-    // changed; the previous current frame is retired and released with the next report.
+    // changed; the previous current frame is retired and released with the next report. Nothing while held.
     bool swap();
 
     bool                    hasCurrent() const { return m_hasCurrent; }
@@ -50,12 +50,26 @@ class FrameQueue {
 
     bool isEmpty() const { return !m_hasPending && !m_hasCurrent && m_retired.isEmpty(); }
 
+    // Pinch zoom (GUI thread): while held, swap() keeps the current frame, which the scene graph shows scaled until
+    // the page has rendered the new magnification (docs/webview.md, "Pinch zoom"). Frames keep arriving as pending,
+    // a newer one replacing an older one (push() returns it for release).
+    void setHeld(bool held) { m_held = held; }
+    bool isHeld() const { return m_held; }
+
+    // While held, the item reports the pending frame rendered at once so that WebKit renders on: WebKit composites
+    // the next frame only after the previous one was reported (AcceleratedBackingStore.cpp:301-310), and the page's
+    // rendering update, which ends the hold, waits for that composite. Returns the pending frame's handle the first
+    // time, nullptr without a pending frame or when it was taken already; swap() then does not report it again.
+    void *takePendingForRendered();
+
  private:
     uc_webview_frame m_pending{};
     uc_webview_frame m_current{};
     bool             m_hasPending = false;
     bool             m_hasCurrent = false;
     bool             m_currentReported = false;
+    bool             m_pendingReported = false;
+    bool             m_held = false;
     QVector<void *>  m_retired;
 };
 

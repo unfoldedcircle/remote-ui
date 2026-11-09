@@ -1,10 +1,16 @@
 // Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#include <QElapsedTimer>
 #include <QQuickWindow>
 #include <QScreen>
 #include <QtTest>
 #include <qpa/qwindowsysteminterface.h>
+#include <qpa/qwindowsysteminterface_p.h>
+
+#include <algorithm>
+#include <cstring>
+#include <utility>
 
 #include "webview/webviewinput.h"
 #include "webview/webviewitem.h"
@@ -38,6 +44,18 @@ struct State {
     bool                 replayFocus = false;
     unsigned             replayHints = 0;
     unsigned             replayPurpose = 0;
+    QList<uint32_t>      keycodes;  // the keycode of every uc_webview_key() call
+    QList<uint32_t>      keyTimes;  // and its event time
+    // uc_webview_when_rendered() requests (library 0.5.0) not ended yet, oldest first; renderResult is what the
+    // stub returns (-1: refused)
+    QList<QPair<uc_webview_rendered_cb, void *>> renders;
+    int                  renderResult = 0;
+    // pinch zoom (library 0.6.0): the view came from uc_webview_new_sized() with this cb_size, the scales of
+    // uc_webview_set_magnification() and what it returns (-1: refused)
+    bool                 createdSized = false;
+    size_t               callbacksSize = 0;
+    QList<double>        magnifications;
+    int                  magnificationResult = 0;
 };
 
 State s;
@@ -80,10 +98,49 @@ uc_webview *create(int w, int h, const uc_webview_callbacks *cb, void *user) {
     return kView;
 }
 
+// uc_webview_new_sized(): like the library, min(cb_size, its own size) bytes of the host's struct
+uc_webview *createSized(int w, int h, const uc_webview_callbacks *cb, size_t size, void *user) {
+    s.view = kView;
+    s.width = w;
+    s.height = h;
+    s.callbacks = uc_webview_callbacks{};
+    memcpy(&s.callbacks, cb, std::min(size, sizeof s.callbacks));
+    s.user = user;
+    s.createdSized = true;
+    s.callbacksSize = size;
+    record(QStringLiteral("new(%1x%2)").arg(w).arg(h));
+    return kView;
+}
+
+int setMagnification(uc_webview *, double scale, double x, double y) {
+    record(QStringLiteral("set_magnification(%1,%2,%3)").arg(scale).arg(x).arg(y));
+    if (s.magnificationResult == 0) {
+        s.magnifications.append(scale);
+    }
+    return s.magnificationResult;
+}
+
+double getMagnification(uc_webview *) {
+    return s.magnifications.isEmpty() ? 1.0 : s.magnifications.last();
+}
+
 void destroy(uc_webview *v) {
     QCOMPARE(v, kView);
-    s.view = nullptr;
     record(QStringLiteral("free"));
+    // like uc_webview_free(): pending render requests end as cancelled inside the call
+    const auto pending = std::exchange(s.renders, {});
+    for (const auto &render : pending) {
+        render.first(v, UC_WEBVIEW_RENDERED_CANCELLED, render.second);
+    }
+    s.view = nullptr;
+}
+
+int whenRendered(uc_webview *, uc_webview_rendered_cb cb, void *user) {
+    record(QStringLiteral("when_rendered"));
+    if (s.renderResult == 0) {
+        s.renders.append(qMakePair(cb, user));
+    }
+    return s.renderResult;
 }
 
 void resize(uc_webview *, int w, int h) {
@@ -152,7 +209,9 @@ void runJavascript(uc_webview *, const char *script) {
     record(QStringLiteral("run_javascript(%1)").arg(QString::fromUtf8(script)));
 }
 
-void setZoom(uc_webview *, double) {}
+void setZoom(uc_webview *, double zoom) {
+    record(QStringLiteral("set_zoom(%1)").arg(zoom));
+}
 
 void setBackground(uc_webview *, float r, float g, float b, float a) {
     record(QStringLiteral("set_background_rgba(%1,%2,%3,%4)").arg(r).arg(g).arg(b).arg(a));
@@ -182,7 +241,9 @@ void scroll(uc_webview *, double dx, double dy, double, double, int precise, uin
     record(QStringLiteral("scroll(%1,%2,%3)").arg(dx).arg(dy).arg(precise));
 }
 
-void key(uc_webview *, uint32_t keysym, uint32_t, int pressed, unsigned mods, uint32_t) {
+void key(uc_webview *, uint32_t keysym, uint32_t keycode, int pressed, unsigned mods, uint32_t ms) {
+    s.keycodes.append(keycode);
+    s.keyTimes.append(ms);
     record(QStringLiteral("key(0x%1,%2,%3)").arg(keysym, 0, 16).arg(pressed).arg(mods));
 }
 
@@ -234,7 +295,47 @@ WebViewFunctions functions() {
     f.ime_commit = &imeCommit;
     f.ime_preedit = &imePreedit;
     f.ime_delete_surrounding = &imeDeleteSurrounding;
+    f.when_rendered = &whenRendered;
+    f.create_sized = &createSized;
+    f.set_magnification = &setMagnification;
+    f.get_magnification = &getMagnification;
     return f;
+}
+
+// a library 0.5.x: no pinch zoom
+WebViewFunctions functionsWithoutPinch() {
+    WebViewFunctions f = functions();
+    f.set_magnification = nullptr;
+    f.get_magnification = nullptr;
+    return f;
+}
+
+// a library older than 0.5.0: no uc_webview_when_rendered() (nor pinch zoom)
+WebViewFunctions functionsWithoutWhenRendered() {
+    WebViewFunctions f = functionsWithoutPinch();
+    f.when_rendered = nullptr;
+    return f;
+}
+
+// a library older than 0.4.0: uc_webview_new() only
+WebViewFunctions functionsWithoutNewSized() {
+    WebViewFunctions f = functionsWithoutWhenRendered();
+    f.create_sized = nullptr;
+    return f;
+}
+
+// the page rendered: the oldest request ends with status (the item may issue the next one from the callback)
+void finishRender(int status = UC_WEBVIEW_RENDERED_DONE) {
+    QVERIFY(!s.renders.isEmpty());
+    const auto render = s.renders.takeFirst();
+    render.first(s.view, status, render.second);
+}
+
+// every request ends as done, also the ones the item issues meanwhile
+void finishRenders() {
+    while (!s.renders.isEmpty()) {
+        finishRender();
+    }
 }
 
 // the library's callbacks, as the GLib main context would deliver them
@@ -266,6 +367,29 @@ void fireImeSurrounding(const char *text, int cursor, int anchor) {
     s.callbacks.ime_surrounding(s.view, text, cursor, anchor, s.user);
 }
 
+void firePinch(int phase, double scale, double x, double y) {
+    QVERIFY(s.callbacks.pinch != nullptr);
+    s.callbacks.pinch(s.view, phase, scale, x, y, s.user);
+}
+
+// a pinch from begin to end around (x, y), the scale reached in two updates
+void pinch(double scale, double x, double y) {
+    firePinch(UC_WEBVIEW_PINCH_BEGIN, 1.0, x, y);
+    firePinch(UC_WEBVIEW_PINCH_UPDATE, (1.0 + scale) / 2, x, y);
+    firePinch(UC_WEBVIEW_PINCH_UPDATE, scale, x, y);
+    firePinch(UC_WEBVIEW_PINCH_END, scale, x, y);
+}
+
+void fireMagnificationChanged(double magnification) {
+    s.magnifications.append(magnification);
+    s.callbacks.magnification_changed(s.view, magnification, s.user);
+}
+
+// the calls of the pinch zoom
+QStringList magnificationCalls() {
+    return s.calls.filter(QRegularExpression(QStringLiteral("^(set_magnification|when_rendered)")));
+}
+
 void fireFrame(int number) {
     uc_webview_frame frame{};
     frame.width = s.width;
@@ -290,12 +414,13 @@ struct Fixture {
     QQuickWindow window;
     ExposedItem *item;
 
-    explicit Fixture(const WebViewFunctions &functions = stub::functions()) {
+    // an empty size leaves the item without a view until the test sizes it
+    explicit Fixture(const WebViewFunctions &functions = stub::functions(), const QSizeF &size = QSizeF(300, 200)) {
         stub::s = stub::State();
         WebViewLibrary::instance()->setFunctionsForTest(functions);
         WebViewItem::setInputPanelHookForTest([](bool show) { stub::s.panel.append(show ? "show" : "hide"); });
         item = new ExposedItem(window.contentItem());
-        item->setSize(QSizeF(300, 200));
+        item->setSize(size);
     }
 
     ~Fixture() {
@@ -372,6 +497,31 @@ class testWebViewItem : public QObject {
     void touchPointsAreForwardedAndCancelledWhenTheSequenceIsLost();
     void mouseButtonsAreReleasedWhenTheGrabIsLost();
     void pageKeysAreForwardedRemoteButtonsAreNot();
+    void zoomStepsThroughTheBrowserLevelsAndStopsAtTheEnds();
+    void zoomOutsideTheLibrarysRangeIsRefused();
+    void zoomSetBeforeTheViewIsAppliedWhenItIsCreated();
+    void zoomWaitsForThePageToRenderAndPassesOnlyTheLatestLevel();
+    void zoomBackToTheRenderedLevelNeedsNoRelayout();
+    void zoomWaitEndsOnTimeoutAndCancellation();
+    void zoomWaitEndsQuietlyWhenTheItemGoes();
+    void zoomWithoutWhenRenderedWaitsForTheFirstFrame();
+    void zoomWithoutWhenRenderedEndsAfterTheFallbackTimeout();
+    void refusedWhenRenderedFallsBackToTheFirstFrame();
+    void zoomRenderTraceLines();
+    void pageUpAndDownPressAndReleaseThePageKeys();
+    void pinchCallbacksNeedTheSizedViewAndTheMagnificationFunctions();
+    void olderLibrariesHaveNoPinchZoom();
+    void pinchScalesTheFrameAndCommitsOnceAtTheEnd();
+    void scaledFrameIsHeldUntilThePageRenderedTheMagnification();
+    void magnificationTimeoutAndCancelShowTheNextFrame();
+    void pinchesDuringAMagnificationRenderAreCommittedTogether();
+    void smallOrCancelledPinchCommitsNothing();
+    void refusedMagnificationSnapsBack();
+    void navigationAndHistoryResetTheMagnification();
+    void pageZoomAndMagnificationAreIndependent();
+    void twoFingersAreNoTapWithPinchZoom();
+    void magnificationWaitEndsQuietlyWhenTheItemGoes();
+    void pinchTraceLines();
     void framesArriveAndAreReleasedWhenTheItemGoes();
     void screenRefreshRateGoesToTheLibraryBeforeTheView();
     void refreshRateFollowsTheScreen();
@@ -399,6 +549,11 @@ void testWebViewItem::realLibraryIsAbsentOnTheHost() {
     item.setUrl(QUrl(QStringLiteral("http://localhost/")));
     item.reload();
     QCOMPARE(item.url(), QUrl(QStringLiteral("http://localhost/")));
+    // no view, nothing to call: the zoom is kept like the URL, the page keys go nowhere
+    item.zoomIn();
+    QCOMPARE(item.zoom(), 1.1);
+    item.pageDown();
+    item.pageUp();
 }
 
 void testWebViewItem::availableWithTheFunctionTable() {
@@ -909,6 +1064,17 @@ const char *const kAllowedTraceLines[] = {
     R"(^cancelling \d+ touch point\(s\): .+$)",
     R"(^mouse grab taken by another item, releasing buttons$)",
     R"(^touch id \d+ (down|move|up|cancel) without a press, dropped$)",
+    R"(^zoom [\d.]+ \(\d+ %\)$)",
+    R"(^zoom [\d.]+ \(\d+ %\) waits until the page rendered \d+ %$)",
+    R"(^zoom \d+ % rendered after \d+ ms \((done|timeout|cancelled|status -?\d+|first frame after the zoom|)"
+    R"(no frame within \d+ ms)\)$)",
+    R"(^page (up|down): Page_(Up|Down) press and release \(keysym 0x[0-9a-f]+, scancode \d+\)$)",
+    R"(^pinch begin at -?[\d.]+,-?[\d.]+, magnification [\d.]+$)",
+    R"(^pinch end, scale [\d.e+-]+, magnification [\d.]+( \(after the running render\)| \(no change\))?$)",
+    R"(^pinch cancelled$)",
+    R"(^magnification [\d.]+ -> [\d.]+ at -?[\d.]+,-?[\d.]+$)",
+    R"(^magnification [\d.]+ rendered after \d+ ms \((done|timeout|cancelled|status -?\d+)\)$)",
+    R"(^magnification changed to [\d.]+ by a navigation or history step$)",
 };
 
 bool traceLineAllowed(const QString &line) {
@@ -1158,7 +1324,380 @@ void testWebViewItem::pageKeysAreForwardedRemoteButtonsAreNot() {
     QVERIFY(!f.lastAccepted);
     f.sendKey(QEvent::KeyPress, Qt::Key_VolumeUp);
     QVERIFY(!f.lastAccepted);
+    // VOLUME and CHANNEL as well: the developer page zooms and scrolls with them through zoomIn() and pageDown()
+    f.sendKey(QEvent::KeyPress, Qt::Key_VolumeDown);
+    QVERIFY(!f.lastAccepted);
+    f.sendKey(QEvent::KeyPress, Qt::Key_ChannelUp);
+    QVERIFY(!f.lastAccepted);
+    f.sendKey(QEvent::KeyPress, Qt::Key_ChannelDown);
+    QVERIFY(!f.lastAccepted);
     QCOMPARE(stub::s.calls.size(), before + 3);
+}
+
+void testWebViewItem::zoomStepsThroughTheBrowserLevelsAndStopsAtTheEnds() {
+    Fixture    f;
+    QSignalSpy changed(f.item, &WebViewItem::zoomChanged);
+    auto       zoomCalls = [] { return stub::s.calls.filter(QStringLiteral("set_zoom(")); };
+
+    // a new view is at WebKit's 100 %, the item does not set it
+    QCOMPARE(f.item->zoom(), 1.0);
+    QVERIFY(zoomCalls().isEmpty());
+
+    // in: one level per call up to 300 %, then nothing (no library call, no signal)
+    const QList<qreal> in{1.1, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0};
+    for (int i = 0; i < in.size(); ++i) {
+        f.item->zoomIn();
+        QCOMPARE(f.item->zoom(), in.at(i));
+        QCOMPARE(zoomCalls().last(), QStringLiteral("set_zoom(%1)").arg(in.at(i)));
+        QCOMPARE(changed.count(), i + 1);
+        stub::finishRenders();  // the page rendered the step (zoomWaitsForThePageToRender... covers the wait)
+    }
+    f.item->zoomIn();
+    QCOMPARE(f.item->zoom(), 3.0);
+    QCOMPARE(zoomCalls().size(), in.size());
+    QCOMPARE(changed.count(), in.size());
+
+    // out: all the way down to 50 %, then nothing
+    const QList<qreal> out{2.5, 2.0, 1.75, 1.5, 1.25, 1.1, 1.0, 0.9, 0.8, 0.75, 0.67, 0.5};
+    for (const qreal level : out) {
+        f.item->zoomOut();
+        QCOMPARE(f.item->zoom(), level);
+        QCOMPARE(zoomCalls().last(), QStringLiteral("set_zoom(%1)").arg(level));
+        stub::finishRenders();
+    }
+    f.item->zoomOut();
+    QCOMPARE(f.item->zoom(), 0.5);
+    QCOMPARE(zoomCalls().size(), in.size() + out.size());
+
+    // a zoom between two levels goes to the next one in either direction
+    f.item->setZoom(1.2);
+    QCOMPARE(zoomCalls().last(), QStringLiteral("set_zoom(1.2)"));
+    stub::finishRenders();
+    f.item->zoomIn();
+    QCOMPARE(f.item->zoom(), 1.25);
+    stub::finishRenders();
+    f.item->setZoom(1.2);
+    stub::finishRenders();
+    f.item->zoomOut();
+    QCOMPARE(f.item->zoom(), 1.1);
+    stub::finishRenders();
+
+    // beyond the last level the steps lead back into the table, beyond the first one as well
+    f.item->setZoom(4.0);
+    stub::finishRenders();
+    f.item->zoomIn();
+    QCOMPARE(f.item->zoom(), 4.0);
+    f.item->zoomOut();
+    QCOMPARE(f.item->zoom(), 3.0);
+    stub::finishRenders();
+    f.item->setZoom(0.3);
+    stub::finishRenders();
+    f.item->zoomOut();
+    QCOMPARE(f.item->zoom(), 0.3);
+    f.item->zoomIn();
+    QCOMPARE(f.item->zoom(), 0.5);
+    stub::finishRenders();
+
+    // the same zoom again calls nothing
+    const int calls = zoomCalls().size();
+    const int emitted = changed.count();
+    f.item->setZoom(0.5);
+    QCOMPARE(zoomCalls().size(), calls);
+    QCOMPARE(changed.count(), emitted);
+
+    // WebKit keeps the zoom across navigations and a web process crash: no call after a load or a crash reload
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "http://localhost/2");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "http://localhost/2");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "http://localhost/2");
+    stub::fireTerminated(UC_WEBVIEW_TERMINATED_CRASHED);
+    QTRY_VERIFY(stub::s.calls.contains(QStringLiteral("reload")));
+    QCOMPARE(zoomCalls().size(), calls);
+    QCOMPARE(f.item->zoom(), 0.5);
+}
+
+void testWebViewItem::zoomOutsideTheLibrarysRangeIsRefused() {
+    Fixture    f;
+    QSignalSpy changed(f.item, &WebViewItem::zoomChanged);
+
+    // uc_webview_set_zoom() ignores these with a warning: the item does not pass them on and keeps its zoom, which
+    // is what WebKit uses
+    for (const qreal zoom : {0.0, -1.0, 20.5, qQNaN(), qInf()}) {
+        QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("^Zoom .* refused")));
+        f.item->setZoom(zoom);
+    }
+    QCOMPARE(f.item->zoom(), 1.0);
+    QCOMPARE(changed.count(), 0);
+    QVERIFY(stub::s.calls.filter(QStringLiteral("set_zoom(")).isEmpty());
+
+    // the limits themselves are taken
+    f.item->setZoom(20.0);
+    stub::finishRenders();
+    f.item->setZoom(0.01);
+    QCOMPARE(stub::s.calls.filter(QStringLiteral("set_zoom(")),
+             (QStringList{QStringLiteral("set_zoom(20)"), QStringLiteral("set_zoom(0.01)")}));
+}
+
+void testWebViewItem::zoomSetBeforeTheViewIsAppliedWhenItIsCreated() {
+    // without a size the item has no view yet: the zoom waits for it
+    Fixture f(stub::functions(), QSizeF());
+    f.item->setUrl(QUrl(QStringLiteral("http://localhost/")));
+    f.item->zoomIn();
+    f.item->zoomIn();
+    QCOMPARE(f.item->zoom(), 1.25);
+    QVERIFY(stub::s.view == nullptr);
+    QVERIFY(stub::s.calls.filter(QStringLiteral("set_zoom(")).isEmpty());
+
+    // the new view starts at WebKit's 100 %: the item sets its zoom right after creating it, before the first load
+    f.item->setSize(QSizeF(300, 200));
+    QVERIFY(stub::s.view != nullptr);
+    const int created = stub::s.calls.indexOf(QRegularExpression(QStringLiteral("new\\(.*")));  // exact match
+    const int zoomed = stub::s.calls.indexOf(QStringLiteral("set_zoom(1.25)"));
+    const int loaded = stub::s.calls.indexOf(QStringLiteral("load_uri(http://localhost/)"));
+    QVERIFY(created >= 0);
+    QVERIFY(zoomed > created);
+    QVERIFY(loaded > zoomed);
+    QCOMPARE(stub::s.calls.filter(QStringLiteral("set_zoom(")).size(), 1);
+    // nothing is rendered yet: no render wait, no indicator
+    QVERIFY(!stub::s.calls.contains(QStringLiteral("when_rendered")));
+    QVERIFY(!f.item->isZoomRendering());
+}
+
+void testWebViewItem::zoomWaitsForThePageToRenderAndPassesOnlyTheLatestLevel() {
+    // A large page takes seconds to re-render a zoom step. WebKit does the whole relayout
+    // for every level it gets, so presses during a render only move `zoom`; the latest level follows once the page
+    // rendered the current one: three quick steps, two relayouts.
+    Fixture    f;
+    QSignalSpy rendering(f.item, &WebViewItem::zoomRenderingChanged);
+    QSignalSpy changed(f.item, &WebViewItem::zoomChanged);
+    auto       zoomCalls = [] { return stub::s.calls.filter(QRegularExpression(QStringLiteral("^(set_zoom|when_)"))); };
+
+    f.item->zoomIn();
+    QCOMPARE(zoomCalls(), (QStringList{QStringLiteral("set_zoom(1.1)"), QStringLiteral("when_rendered")}));
+    QVERIFY(f.item->isZoomRendering());
+    QCOMPARE(rendering.count(), 1);
+
+    f.item->zoomIn();
+    f.item->zoomIn();
+    QCOMPARE(f.item->zoom(), 1.5);   // the level follows every press
+    QCOMPARE(changed.count(), 3);
+    QCOMPARE(zoomCalls().size(), 2);  // WebKit still renders 110 %
+    QVERIFY(f.item->isZoomRendering());
+    QCOMPARE(rendering.count(), 1);
+
+    stub::finishRender();  // 110 % rendered: 150 % goes to WebKit, the indicator keeps running
+    QCOMPARE(zoomCalls(), (QStringList{QStringLiteral("set_zoom(1.1)"), QStringLiteral("when_rendered"),
+                                       QStringLiteral("set_zoom(1.5)"), QStringLiteral("when_rendered")}));
+    QVERIFY(f.item->isZoomRendering());
+    QCOMPARE(rendering.count(), 1);
+
+    stub::finishRender();  // 150 % rendered: done
+    QVERIFY(!f.item->isZoomRendering());
+    QCOMPARE(rendering.count(), 2);
+    QCOMPARE(zoomCalls().size(), 4);
+    QVERIFY(stub::s.renders.isEmpty());
+    QCOMPARE(f.item->zoom(), 1.5);
+
+    // a step after the render is passed on at once
+    f.item->zoomOut();
+    QCOMPARE(zoomCalls().mid(4), (QStringList{QStringLiteral("set_zoom(1.25)"), QStringLiteral("when_rendered")}));
+    QVERIFY(f.item->isZoomRendering());
+}
+
+void testWebViewItem::zoomBackToTheRenderedLevelNeedsNoRelayout() {
+    Fixture f;
+    f.item->zoomIn();  // 110 % to WebKit
+    f.item->zoomIn();  // 125 % waits
+    f.item->zoomOut();  // back to 110 %: what WebKit renders anyway
+    QCOMPARE(f.item->zoom(), 1.1);
+    stub::finishRender();
+    QCOMPARE(stub::s.calls.filter(QStringLiteral("set_zoom(")), QStringList{QStringLiteral("set_zoom(1.1)")});
+    QCOMPARE(stub::s.calls.count(QStringLiteral("when_rendered")), 1);
+    QVERIFY(!f.item->isZoomRendering());
+}
+
+void testWebViewItem::zoomWaitEndsOnTimeoutAndCancellation() {
+    Fixture f;
+    auto    zoomCalls = [] { return stub::s.calls.filter(QStringLiteral("set_zoom(")); };
+
+    // the library's timeout (60 s from 0.6.0) (page busy, view unmapped): the indicator stops
+    f.item->zoomIn();
+    stub::finishRender(UC_WEBVIEW_RENDERED_TIMEOUT);
+    QVERIFY(!f.item->isZoomRendering());
+
+    // a navigation commits (or the web process dies) during the render: the waiting level goes to WebKit now
+    f.item->zoomIn();   // 125 %
+    f.item->zoomIn();   // 150 % waits
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "http://localhost/2");
+    stub::finishRender(UC_WEBVIEW_RENDERED_CANCELLED);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "http://localhost/2");
+    QCOMPARE(zoomCalls(), (QStringList{QStringLiteral("set_zoom(1.1)"), QStringLiteral("set_zoom(1.25)"),
+                                       QStringLiteral("set_zoom(1.5)")}));
+    QVERIFY(f.item->isZoomRendering());
+    stub::finishRender(UC_WEBVIEW_RENDERED_CANCELLED);
+    QVERIFY(!f.item->isZoomRendering());
+    QCOMPARE(zoomCalls().size(), 3);
+
+    // unknown statuses of a newer library end the wait like the others
+    f.item->zoomIn();
+    stub::finishRender(42);
+    QVERIFY(!f.item->isZoomRendering());
+}
+
+void testWebViewItem::zoomWaitEndsQuietlyWhenTheItemGoes() {
+    // uc_webview_free() ends the pending request with CANCELLED inside the call: the item, half destroyed, ignores it
+    auto *f = new Fixture;
+    f->item->zoomIn();
+    f->item->zoomIn();  // 125 % waits
+    QVERIFY(f->item->isZoomRendering());
+    QVERIFY(!stub::s.renders.isEmpty());
+    delete f;
+    const int freed = stub::s.calls.indexOf(QStringLiteral("free"));
+    QVERIFY(freed > 0);
+    QVERIFY(stub::s.calls.mid(freed + 1).isEmpty());  // no zoom for a freed view
+    QVERIFY(stub::s.renders.isEmpty());
+}
+
+void testWebViewItem::zoomWithoutWhenRenderedWaitsForTheFirstFrame() {
+    // a library older than 0.5.0: the first frame after the zoom ends the wait (after the frame callback)
+    Fixture f(stub::functionsWithoutWhenRendered());
+    auto    zoomCalls = [] { return stub::s.calls.filter(QStringLiteral("set_zoom(")); };
+
+    f.item->zoomIn();
+    QVERIFY(f.item->isZoomRendering());
+    f.item->zoomIn();  // 125 % waits for the frame
+    QCOMPARE(zoomCalls(), QStringList{QStringLiteral("set_zoom(1.1)")});
+    stub::fireFrame(1);
+    QVERIFY(f.item->isZoomRendering());  // not inside the frame callback
+    QTRY_COMPARE(zoomCalls(), (QStringList{QStringLiteral("set_zoom(1.1)"), QStringLiteral("set_zoom(1.25)")}));
+    QVERIFY(f.item->isZoomRendering());
+    stub::fireFrame(2);
+    QTRY_VERIFY(!f.item->isZoomRendering());
+    QVERIFY(!stub::s.calls.contains(QStringLiteral("when_rendered")));
+
+    // frames without a zoom change nothing
+    stub::fireFrame(3);
+    QTest::qWait(20);
+    QCOMPARE(zoomCalls().size(), 2);
+    QVERIFY(!f.item->isZoomRendering());
+}
+
+void testWebViewItem::zoomWithoutWhenRenderedEndsAfterTheFallbackTimeout() {
+    // no frame at all after the zoom (nothing changed on screen): the wait ends after the fallback's timeout
+    WebViewItem::setZoomFallbackTimeoutForTest(100);
+    Fixture       f(stub::functionsWithoutWhenRendered());
+    QElapsedTimer clock;
+    clock.start();
+    f.item->zoomIn();
+    QVERIFY(f.item->isZoomRendering());
+    QTRY_VERIFY_WITH_TIMEOUT(!f.item->isZoomRendering(), 2000);
+    QVERIFY(clock.elapsed() >= 100);
+    WebViewItem::setZoomFallbackTimeoutForTest(0);
+}
+
+void testWebViewItem::refusedWhenRenderedFallsBackToTheFirstFrame() {
+    Fixture f;
+    stub::s.renderResult = -1;
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("refused the request")));
+    f.item->zoomIn();
+    QVERIFY(f.item->isZoomRendering());
+    stub::fireFrame(1);
+    QTRY_VERIFY(!f.item->isZoomRendering());
+}
+
+void testWebViewItem::zoomRenderTraceLines() {
+    // UC_WEBVIEW_TRACE=1: the zoom steps, the waiting level and the render time per step, in the documented format
+    QStringList messages;
+    capturedMessages = &messages;
+    WebViewItem::setTraceEnabledForTest(true);
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    {
+        Fixture f;
+        f.item->zoomIn();
+        f.item->zoomIn();
+        stub::finishRender();
+        stub::finishRender(UC_WEBVIEW_RENDERED_TIMEOUT);
+    }
+    {
+        WebViewItem::setZoomFallbackTimeoutForTest(50);
+        Fixture f(stub::functionsWithoutWhenRendered());
+        f.item->zoomIn();
+        stub::fireFrame(1);
+        QTRY_VERIFY(!f.item->isZoomRendering());
+        f.item->zoomIn();
+        QTRY_VERIFY_WITH_TIMEOUT(!f.item->isZoomRendering(), 2000);
+        WebViewItem::setZoomFallbackTimeoutForTest(0);
+    }
+    qInstallMessageHandler(previous);
+    WebViewItem::setTraceEnabledForTest(false);
+    capturedMessages = nullptr;
+
+    const QRegularExpression traceLine(QStringLiteral("^uc\\.ui\\.webview: trace 0x[0-9a-f]+: (zoom .*)$"));
+    QStringList              traced;
+    for (const QString &message : messages) {
+        const QRegularExpressionMatch match = traceLine.match(message);
+        if (match.hasMatch()) {
+            QVERIFY2(traceLineAllowed(match.captured(1)), qPrintable(message));
+            traced << match.captured(1).replace(QRegularExpression(QStringLiteral("after \\d+ ms")),
+                                                QStringLiteral("after N ms"));
+        }
+    }
+    QCOMPARE(traced, (QStringList{QStringLiteral("zoom 1.1 (110 %)"),
+                                  QStringLiteral("zoom 1.25 (125 %) waits until the page rendered 110 %"),
+                                  QStringLiteral("zoom 110 % rendered after N ms (done)"),
+                                  QStringLiteral("zoom 1.25 (125 %)"),
+                                  QStringLiteral("zoom 125 % rendered after N ms (timeout)"),
+                                  QStringLiteral("zoom 1.1 (110 %)"),
+                                  QStringLiteral("zoom 110 % rendered after N ms (first frame after the zoom)"),
+                                  QStringLiteral("zoom 1.25 (125 %)"),
+                                  QStringLiteral("zoom 125 % rendered after N ms (no frame within 50 ms)")}));
+}
+
+void testWebViewItem::pageUpAndDownPressAndReleaseThePageKeys() {
+    Fixture f;
+    // whichever item has the focus: the page keys come from the page's button navigation, not from a key event
+    QVERIFY(!f.item->hasActiveFocus());
+    const int before = stub::s.calls.size();
+
+    QStringList messages;
+    capturedMessages = &messages;
+    WebViewItem::setTraceEnabledForTest(true);
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    const qint64           start = QWindowSystemInterfacePrivate::eventTime.elapsed();
+    f.item->pageDown();
+    f.item->pageUp();
+    const qint64 end = QWindowSystemInterfacePrivate::eventTime.elapsed();
+    qInstallMessageHandler(previous);
+    WebViewItem::setTraceEnabledForTest(false);
+    capturedMessages = nullptr;
+
+    // XKB_KEY_Page_Down/Page_Up, a press and a release each, no modifiers (WebKit scrolls only without them), and
+    // the keycodes of a keyboard's keys (evdev + 8) for KeyboardEvent.code; nothing else is called
+    QCOMPARE(stub::s.calls.mid(before),
+             (QStringList{QStringLiteral("key(0xff56,1,0)"), QStringLiteral("key(0xff56,0,0)"),
+                          QStringLiteral("key(0xff55,1,0)"), QStringLiteral("key(0xff55,0,0)")}));
+    QCOMPARE(stub::s.keycodes, (QList<uint32_t>{117, 117, 112, 112}));
+    // the time of Qt's input events on the device (eglfs stamps them with QWindowSystemInterfacePrivate::eventTime),
+    // never 0, which the library would turn into CLOCK_MONOTONIC, another base for WebKit (1 in the first ms)
+    QCOMPARE(stub::s.keyTimes.size(), 4);
+    for (const uint32_t ms : stub::s.keyTimes) {
+        QVERIFY2(ms >= std::max<qint64>(1, start) && ms <= std::max<qint64>(1, end),
+                 qPrintable(QStringLiteral("%1 not in %2..%3").arg(ms).arg(start).arg(end)));
+    }
+    QVERIFY(!f.item->hasActiveFocus());
+
+    // one trace line per key, in the documented format
+    const QRegularExpression traceLine(QStringLiteral("^uc\\.ui\\.webview: trace 0x[0-9a-f]+: (.*)$"));
+    QStringList              traced;
+    for (const QString &message : messages) {
+        const QRegularExpressionMatch match = traceLine.match(message);
+        if (match.hasMatch()) {
+            QVERIFY2(traceLineAllowed(match.captured(1)), qPrintable(message));
+            traced << match.captured(1);
+        }
+    }
+    QCOMPARE(traced,
+             (QStringList{QStringLiteral("page down: Page_Down press and release (keysym 0xff56, scancode 117)"),
+                          QStringLiteral("page up: Page_Up press and release (keysym 0xff55, scancode 112)")}));
 }
 
 void testWebViewItem::touchPointsAreForwardedAndCancelledWhenTheSequenceIsLost() {
@@ -1382,6 +1921,366 @@ void testWebViewItem::destructorFreesTheView() {
     }
     QVERIFY(stub::s.view == nullptr);
     QCOMPARE(stub::s.calls.count(QStringLiteral("free")), 1);
+}
+
+// ---- pinch zoom (library 0.6.0) ---------------------------------------------------------------------------------
+
+void testWebViewItem::pinchCallbacksNeedTheSizedViewAndTheMagnificationFunctions() {
+    // a 0.6.0 library: the view comes from uc_webview_new_sized() with this build's struct and the pinch callbacks
+    Fixture f;
+    QVERIFY(f.item->isPinchZoomAvailable());
+    QVERIFY(stub::s.createdSized);
+    QCOMPARE(stub::s.callbacksSize, sizeof(uc_webview_callbacks));
+    QVERIFY(stub::s.callbacks.pinch != nullptr);
+    QVERIFY(stub::s.callbacks.magnification_changed != nullptr);
+    QVERIFY(stub::s.callbacks.frame_ready != nullptr);
+    QCOMPARE(f.item->magnification(), 1.0);
+    QVERIFY(!f.item->isPinching());
+}
+
+void testWebViewItem::olderLibrariesHaveNoPinchZoom() {
+    {
+        // 0.5.x: uc_webview_new_sized() with the struct of this build, but no pinch callbacks: the library keeps
+        // two fingers as they were (the first one taps or scrolls)
+        Fixture f(stub::functionsWithoutPinch());
+        QVERIFY(!f.item->isPinchZoomAvailable());
+        QVERIFY(stub::s.createdSized);
+        QVERIFY(stub::s.callbacks.pinch == nullptr);
+        QVERIFY(stub::s.callbacks.magnification_changed == nullptr);
+        QCOMPARE(f.item->magnification(), 1.0);
+        // VOLUME zoom works as before
+        f.item->zoomIn();
+        QVERIFY(stub::s.calls.contains(QStringLiteral("set_zoom(1.1)")));
+    }
+    {
+        // older than 0.4.0: uc_webview_new()
+        Fixture f(stub::functionsWithoutNewSized());
+        QVERIFY(!f.item->isPinchZoomAvailable());
+        QVERIFY(!stub::s.createdSized);
+        QVERIFY(stub::s.calls.contains(QStringLiteral("new(300x200)")));
+        QVERIFY(stub::s.callbacks.pinch == nullptr);
+    }
+}
+
+void testWebViewItem::pinchScalesTheFrameAndCommitsOnceAtTheEnd() {
+    Fixture    f;
+    QSignalSpy magnification(f.item, &WebViewItem::magnificationChanged);
+    QSignalSpy pinching(f.item, &WebViewItem::pinchingChanged);
+    QSignalSpy rendering(f.item, &WebViewItem::zoomRenderingChanged);
+
+    stub::firePinch(UC_WEBVIEW_PINCH_BEGIN, 1.0, 100, 150);
+    QVERIFY(f.item->isPinching());
+    QCOMPARE(pinching.count(), 1);
+    stub::firePinch(UC_WEBVIEW_PINCH_UPDATE, 1.5, 102, 149);
+    QCOMPARE(f.item->magnification(), 1.5);
+    stub::firePinch(UC_WEBVIEW_PINCH_UPDATE, 2.0, 103, 151);
+    QCOMPARE(f.item->magnification(), 2.0);
+    QCOMPARE(magnification.count(), 2);
+    // the picture is the item's alone while the fingers move: nothing goes to the page
+    QVERIFY(stub::magnificationCalls().isEmpty());
+    QVERIFY(!f.item->isZoomRendering());
+
+    // the end: one magnification at the point where the pinch began, and the wait for the page
+    stub::firePinch(UC_WEBVIEW_PINCH_END, 2.0, 103, 151);
+    QVERIFY(!f.item->isPinching());
+    QCOMPARE(pinching.count(), 2);
+    QCOMPARE(stub::magnificationCalls(),
+             (QStringList{QStringLiteral("set_magnification(2,100,150)"), QStringLiteral("when_rendered")}));
+    QCOMPARE(f.item->magnification(), 2.0);
+    QVERIFY(f.item->isZoomRendering());
+    QCOMPARE(rendering.count(), 1);
+
+    stub::finishRender();
+    QVERIFY(!f.item->isZoomRendering());
+    QCOMPARE(rendering.count(), 2);
+    QCOMPARE(f.item->magnification(), 2.0);
+    QCOMPARE(magnification.count(), 2);  // the sharp frame shows the same magnification
+}
+
+void testWebViewItem::scaledFrameIsHeldUntilThePageRenderedTheMagnification() {
+    // While the page renders the magnification the item keeps its scaled frame. The frames that arrive meanwhile are
+    // reported rendered at once, so that WebKit composites on and the page's rendering update can finish; they are
+    // not shown (FrameQueue::setHeld). After DONE the frames follow the usual path again (reported after the swap).
+    Fixture f;
+    stub::fireFrame(1);
+    stub::pinch(2.0, 150, 100);
+    QCOMPARE(stub::magnificationCalls().size(), 2);
+
+    // (the test window never renders, so frame 1 still waits in the queue and each new frame replaces the last)
+    const int before = stub::s.calls.size();
+    stub::fireFrame(2);
+    QCOMPARE(stub::s.calls.mid(before),
+             (QStringList{QStringLiteral("frame_release(1)"), QStringLiteral("frame_rendered(2)")}));
+    // a newer one replaces it, which goes back
+    stub::fireFrame(3);
+    QCOMPARE(stub::s.calls.mid(before),
+             (QStringList{QStringLiteral("frame_release(1)"), QStringLiteral("frame_rendered(2)"),
+                          QStringLiteral("frame_release(2)"), QStringLiteral("frame_rendered(3)")}));
+
+    stub::finishRender();
+    const int after = stub::s.calls.size();
+    stub::fireFrame(4);
+    // no early report: the scene graph shows this one and reports it after the swap
+    QCOMPARE(stub::s.calls.mid(after), QStringList{QStringLiteral("frame_release(3)")});
+    QCOMPARE(f.item->framesReceived(), 4);
+}
+
+void testWebViewItem::magnificationTimeoutAndCancelShowTheNextFrame() {
+    Fixture f;
+    // the library's 60 s timeout: the hold ends, the next frame shows what the page has
+    stub::pinch(2.0, 150, 100);
+    QVERIFY(f.item->isZoomRendering());
+    stub::finishRender(UC_WEBVIEW_RENDERED_TIMEOUT);
+    QVERIFY(!f.item->isZoomRendering());
+    int before = stub::s.calls.size();
+    stub::fireFrame(1);
+    QVERIFY(!stub::s.calls.mid(before).contains(QStringLiteral("frame_rendered(1)")));
+    QCOMPARE(f.item->magnification(), 2.0);
+
+    // cancelled (a navigation committed, the web process died): the same
+    stub::pinch(1.5, 150, 100);
+    QCOMPARE(stub::s.calls.filter(QStringLiteral("set_magnification(")).last(),
+             QStringLiteral("set_magnification(3,150,100)"));
+    stub::finishRender(UC_WEBVIEW_RENDERED_CANCELLED);
+    QVERIFY(!f.item->isZoomRendering());
+    before = stub::s.calls.size();
+    stub::fireFrame(2);
+    QVERIFY(!stub::s.calls.mid(before).contains(QStringLiteral("frame_rendered(2)")));
+
+    // a refused render request: no hold at all
+    stub::s.renderResult = -1;
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("refused the request")));
+    stub::pinch(0.5, 150, 100);
+    QVERIFY(!f.item->isZoomRendering());
+    QCOMPARE(f.item->magnification(), 1.5);
+    before = stub::s.calls.size();
+    stub::fireFrame(3);
+    QVERIFY(!stub::s.calls.mid(before).contains(QStringLiteral("frame_rendered(3)")));
+}
+
+void testWebViewItem::pinchesDuringAMagnificationRenderAreCommittedTogether() {
+    // like the zoom keys: WebKit would re-render the page for every magnification it gets
+    Fixture f;
+    stub::pinch(2.0, 100, 100);
+    QCOMPARE(stub::s.magnifications, QList<double>{2.0});
+    stub::pinch(1.5, 50, 50);   // the page still renders 2x
+    QCOMPARE(f.item->magnification(), 3.0);
+    stub::pinch(1.2, 200, 150);
+    QCOMPARE(f.item->magnification(), 3.6);
+    QCOMPARE(stub::s.magnifications, QList<double>{2.0});
+    QCOMPARE(stub::s.renders.size(), 1);
+
+    stub::finishRender();  // 2x is rendered: both pinches go to the page as one magnification
+    QCOMPARE(stub::s.magnifications.size(), 2);
+    QVERIFY(qAbs(stub::s.magnifications.last() - 3.6) < 1e-9);
+    QVERIFY(f.item->isZoomRendering());
+    stub::finishRender();
+    QVERIFY(!f.item->isZoomRendering());
+    QVERIFY(qAbs(f.item->magnification() - 3.6) < 1e-9);
+}
+
+void testWebViewItem::smallOrCancelledPinchCommitsNothing() {
+    Fixture    f;
+    QSignalSpy magnification(f.item, &WebViewItem::magnificationChanged);
+    // below 1 % of change: the picture snaps back, the page is not re-rendered for it
+    stub::pinch(1.005, 100, 100);
+    QVERIFY(stub::magnificationCalls().isEmpty());
+    QCOMPARE(f.item->magnification(), 1.0);
+    // a cancelled pinch (the page took the touches over, a navigation)
+    stub::firePinch(UC_WEBVIEW_PINCH_BEGIN, 1.0, 100, 100);
+    stub::firePinch(UC_WEBVIEW_PINCH_UPDATE, 2.5, 100, 100);
+    QCOMPARE(f.item->magnification(), 2.5);
+    stub::firePinch(UC_WEBVIEW_PINCH_CANCEL, 2.5, 100, 100);
+    QCOMPARE(f.item->magnification(), 1.0);
+    QVERIFY(!f.item->isPinching());
+    QVERIFY(stub::magnificationCalls().isEmpty());
+    // the limits: 1 to 4, a pinch below 1 stops at 1
+    stub::pinch(0.3, 100, 100);
+    QCOMPARE(f.item->magnification(), 1.0);
+    QVERIFY(stub::magnificationCalls().isEmpty());
+    stub::pinch(9.0, 100, 100);
+    QCOMPARE(f.item->magnification(), 4.0);
+    QCOMPARE(stub::s.magnifications, QList<double>{4.0});
+    // a phase of a newer library is ignored
+    stub::firePinch(7, 2.0, 1, 1);
+    QCOMPARE(f.item->magnification(), 4.0);
+}
+
+void testWebViewItem::refusedMagnificationSnapsBack() {
+    Fixture f;
+    stub::s.magnificationResult = -1;
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("uc_webview_set_magnification refused")));
+    stub::pinch(2.0, 100, 100);
+    QCOMPARE(f.item->magnification(), 1.0);
+    QVERIFY(!f.item->isZoomRendering());
+    QVERIFY(stub::s.renders.isEmpty());
+    // frames flow as usual
+    const int before = stub::s.calls.size();
+    stub::fireFrame(1);
+    QVERIFY(stub::s.calls.mid(before).isEmpty());
+}
+
+void testWebViewItem::navigationAndHistoryResetTheMagnification() {
+    Fixture    f;
+    QSignalSpy magnification(f.item, &WebViewItem::magnificationChanged);
+    stub::pinch(2.0, 100, 100);
+    stub::finishRender();
+    QCOMPARE(magnification.count(), 2);
+
+    // a new page: WebKit starts it at 1 (the library reports it after the commit)
+    stub::fireMagnificationChanged(1.0);
+    QCOMPARE(f.item->magnification(), 1.0);
+    QCOMPARE(magnification.count(), 3);
+    // back: WebKit restores the page's own magnification
+    stub::fireMagnificationChanged(2.0);
+    QCOMPARE(f.item->magnification(), 2.0);
+    // a pinch from there goes from the restored value
+    stub::pinch(1.5, 100, 100);
+    QCOMPARE(stub::s.calls.filter(QStringLiteral("set_magnification(")).last(),
+             QStringLiteral("set_magnification(3,100,100)"));
+
+    // a navigation during the render: the render request ends as cancelled first, then the reset; the hold is over
+    stub::finishRender(UC_WEBVIEW_RENDERED_CANCELLED);
+    stub::fireMagnificationChanged(1.0);
+    QVERIFY(!f.item->isZoomRendering());
+    QCOMPARE(f.item->magnification(), 1.0);
+    // a reset while the page renders (a same-document history step): the late report of that render is stale
+    stub::pinch(2.0, 100, 100);
+    stub::fireMagnificationChanged(1.5);
+    QVERIFY(!f.item->isZoomRendering());
+    stub::pinch(2.0, 100, 100);   // a new magnification and its own render
+    QCOMPARE(stub::s.renders.size(), 2);
+    stub::finishRender();         // the old one: not the end of the new hold
+    QVERIFY(f.item->isZoomRendering());
+    stub::finishRender();
+    QVERIFY(!f.item->isZoomRendering());
+    QCOMPARE(f.item->magnification(), 3.0);
+}
+
+void testWebViewItem::pageZoomAndMagnificationAreIndependent() {
+    // VOLUME changes the page zoom (a new layout) and leaves the magnification alone; a pinch leaves the zoom alone.
+    // The busy indicator covers both renders.
+    Fixture f;
+    stub::pinch(2.0, 100, 100);
+    f.item->zoomIn();
+    QCOMPARE(f.item->zoom(), 1.1);
+    QCOMPARE(f.item->magnification(), 2.0);
+    QCOMPARE(stub::s.calls.filter(QRegularExpression(QStringLiteral("^(set_zoom|set_magnification)"))),
+             (QStringList{QStringLiteral("set_magnification(2,100,100)"), QStringLiteral("set_zoom(1.1)")}));
+    QCOMPARE(stub::s.renders.size(), 2);
+    QVERIFY(f.item->isZoomRendering());
+    stub::finishRender();  // the magnification
+    QVERIFY(f.item->isZoomRendering());  // the zoom still renders
+    stub::finishRender();
+    QVERIFY(!f.item->isZoomRendering());
+    QCOMPARE(f.item->zoom(), 1.1);
+    QCOMPARE(f.item->magnification(), 2.0);
+    // a pinch does not touch the zoom
+    stub::pinch(1.5, 100, 100);
+    QCOMPARE(f.item->zoom(), 1.1);
+    QCOMPARE(stub::s.calls.filter(QStringLiteral("set_zoom(")).size(), 1);
+}
+
+void testWebViewItem::twoFingersAreNoTapWithPinchZoom() {
+    // The keyboard request on a tap into the focused field (onTap): with the library's pinch recognition a second
+    // finger cancels WebKit's tap of the first one, so its release is no tap here either. One finger still is.
+    const QStringList once{QStringLiteral("show")};
+    const QStringList twice{QStringLiteral("show"), QStringLiteral("show")};
+    auto              twoFingers = [](Fixture &f) {
+        f.sendTouch(QEvent::TouchBegin, {Fixture::touchPoint(5, Qt::TouchPointPressed, QPointF(100, 50))},
+                    Qt::TouchPointPressed);
+        f.sendTouch(QEvent::TouchUpdate,
+                    {Fixture::touchPoint(5, Qt::TouchPointStationary, QPointF(100, 50)),
+                     Fixture::touchPoint(6, Qt::TouchPointPressed, QPointF(150, 50))},
+                    Qt::TouchPointPressed | Qt::TouchPointStationary);
+        f.sendTouch(QEvent::TouchUpdate,
+                    {Fixture::touchPoint(5, Qt::TouchPointStationary, QPointF(100, 50)),
+                     Fixture::touchPoint(6, Qt::TouchPointReleased, QPointF(150, 50))},
+                    Qt::TouchPointReleased | Qt::TouchPointStationary);
+        f.sendTouch(QEvent::TouchEnd, {Fixture::touchPoint(5, Qt::TouchPointReleased, QPointF(100, 50))},
+                    Qt::TouchPointReleased);
+    };
+    {
+        Fixture f;
+        f.focusWindow();
+        f.touchTap(QPointF(100, 50), QPointF(100, 50));
+        stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+        QCOMPARE(stub::s.panel, once);
+        // two fingers on the field: no request
+        twoFingers(f);
+        QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
+        QCOMPARE(stub::s.panel, once);
+        // the touches went to the library as before, with slots 0 and 1
+        QVERIFY(stub::s.calls.contains(QStringLiteral("touch(1,0,150,50)")));
+        // a one-finger tap still asks, also within the drag threshold
+        f.touchTap(QPointF(100, 50), QPointF(105, 53));
+        QTRY_COMPARE(stub::s.panel, twice);
+    }
+    {
+        // a library without pinch zoom: WebKit's controller follows the first finger and clicks at its release,
+        // so that release stays a tap (the behaviour before 0.6.0)
+        Fixture f(stub::functionsWithoutPinch());
+        f.focusWindow();
+        f.touchTap(QPointF(100, 50), QPointF(100, 50));
+        stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+        QCOMPARE(stub::s.panel, once);
+        twoFingers(f);
+        QTRY_COMPARE(stub::s.panel, twice);
+    }
+}
+
+void testWebViewItem::magnificationWaitEndsQuietlyWhenTheItemGoes() {
+    // uc_webview_free() ends a pending render request with CANCELLED inside the call: the item has ended its hold
+    // before and ignores it, without signals from the destructor
+    auto      *f = new Fixture();
+    QSignalSpy rendering(f->item, &WebViewItem::zoomRenderingChanged);
+    stub::pinch(2.0, 100, 100);
+    QCOMPARE(rendering.count(), 1);
+    delete f;
+    QCOMPARE(stub::s.calls.count(QStringLiteral("free")), 1);
+    QVERIFY(stub::s.renders.isEmpty());
+}
+
+void testWebViewItem::pinchTraceLines() {
+    // UC_WEBVIEW_TRACE=1: begin and end of a pinch, the magnification with its focal point and render time, WebKit's
+    // own changes; numbers only, in the documented formats
+    QStringList messages;
+    capturedMessages = &messages;
+    WebViewItem::setTraceEnabledForTest(true);
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    {
+        Fixture f;
+        stub::pinch(2.0, 100, 150);
+        stub::finishRender();
+        stub::firePinch(UC_WEBVIEW_PINCH_BEGIN, 1.0, 10, 10);
+        stub::firePinch(UC_WEBVIEW_PINCH_CANCEL, 1.0, 10, 10);
+        stub::pinch(1.001, 10, 10);
+        stub::fireMagnificationChanged(1.0);
+    }
+    qInstallMessageHandler(previous);
+    WebViewItem::setTraceEnabledForTest(false);
+    capturedMessages = nullptr;
+
+    const QRegularExpression traceLine(QStringLiteral("^uc\\.ui\\.webview: trace 0x[0-9a-f]+: (.*)$"));
+    QStringList              traced;
+    for (const QString &message : messages) {
+        const QRegularExpressionMatch match = traceLine.match(message);
+        if (match.hasMatch() && !match.captured(1).startsWith(QLatin1String("load"))) {
+            QVERIFY2(traceLineAllowed(match.captured(1)), qPrintable(message));
+            traced.append(match.captured(1));
+        }
+    }
+    const QStringList pinchLines = traced.filter(QRegularExpression(QStringLiteral("^(pinch|magnification)")));
+    QCOMPARE(pinchLines,
+             (QStringList{QStringLiteral("pinch begin at 100,150, magnification 1"),
+                          QStringLiteral("pinch end, scale 2, magnification 2"),
+                          QStringLiteral("magnification 1 -> 2 at 100,150"), pinchLines.value(3),
+                          QStringLiteral("pinch begin at 10,10, magnification 2"), QStringLiteral("pinch cancelled"),
+                          QStringLiteral("pinch begin at 10,10, magnification 2"),
+                          QStringLiteral("pinch end, scale 1.001, magnification 2 (no change)"),
+                          QStringLiteral("magnification changed to 1 by a navigation or history step")}));
+    QVERIFY(pinchLines.at(3).startsWith(QLatin1String("magnification 2 rendered after ")));
+    QVERIFY(pinchLines.at(3).endsWith(QLatin1String(" ms (done)")));
 }
 
 QTEST_MAIN(testWebViewItem)

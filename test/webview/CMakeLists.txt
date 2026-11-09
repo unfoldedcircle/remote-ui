@@ -50,6 +50,21 @@ target_link_libraries(testWebViewFrameQueue
     Qt5::Test
     )
 
+# the pinch zoom's picture, hold and commits and the node geometry (pure state machine and arithmetic)
+add_executable (testWebViewPinch
+    "test_webview_pinch.cpp"
+    "../../src/webview/webviewpinch.cpp"
+    )
+
+add_test(NAME testWebViewPinch
+         COMMAND testWebViewPinch)
+
+target_link_libraries(testWebViewPinch
+    PUBLIC
+    Qt5::Core
+    Qt5::Test
+    )
+
 # the WebView item against a stubbed libucwebview function table: lifecycle, load events, crash recovery, input
 # method contract and key forwarding, without the library and without rendering (offscreen platform)
 add_executable (testWebViewItem
@@ -58,6 +73,7 @@ add_executable (testWebViewItem
     "../../src/webview/webviewlibrary.cpp"
     "../../src/webview/webviewinput.cpp"
     "../../src/webview/webviewframequeue.cpp"
+    "../../src/webview/webviewpinch.cpp"
     "../../src/webview/webviewtexture.cpp"
     "../../src/logging.cpp"
     )
@@ -81,10 +97,13 @@ add_executable (testWebViewKeyboard
     "test_webview_keyboard.cpp"
     "test_webview_keyboard.qrc"
     "../../resources/qrc/main.qrc"
+    # the spinner of the zoom label (loader_small.png)
+    "../../resources/qrc/images.qrc"
     "../../src/webview/webviewitem.cpp"
     "../../src/webview/webviewlibrary.cpp"
     "../../src/webview/webviewinput.cpp"
     "../../src/webview/webviewframequeue.cpp"
+    "../../src/webview/webviewpinch.cpp"
     "../../src/webview/webviewtexture.cpp"
     "../../src/ui/inputController.cpp"
     "../../src/ui/colors.cpp"

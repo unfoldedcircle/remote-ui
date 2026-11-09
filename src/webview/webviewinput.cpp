@@ -21,9 +21,10 @@ struct KeyMapping {
 // Qt::Key -> XKB keysym. The values are those of WPEPlatform's WPEKeysyms.h (identical to xkbcommon-keysyms.h):
 // WebKit derives key, code and text from the keysym (WebKeyboardEventWPE.cpp), the upstream Qt 6 binding passes
 // Qt key codes instead, which is a known weakness. The remote's buttons that the UI handles itself are absent on
-// purpose: BACK is Qt::Key_Exit, HOME is Qt::Key_Home, VOICE/MENU are F3/F4, plus the colour, channel, media
-// (PREV and NEXT, Key_AudioRewind/Key_AudioForward, are the developer page's history keys), volume and power keys
-// (src/ui/inputController.h). They return 0, with or without text, and stay with the QML page.
+// purpose: BACK is Qt::Key_Exit, HOME is Qt::Key_Home, VOICE/MENU are F3/F4, plus the colour, channel, media, volume
+// and power keys (src/ui/inputController.h). They return 0, with or without text, and stay with the QML page. On the
+// developer page PREV and NEXT (Key_AudioRewind/Key_AudioForward) are its history keys, VOLUME its zoom keys and
+// CHANNEL its page scroll keys, which send Page_Up/Page_Down through WebViewItem::pageUp()/pageDown().
 constexpr KeyMapping kKeyTable[] = {
     {Qt::Key_Return, 0xff0d, "Return"},        // WPE_KEY_Return
     {Qt::Key_Enter, 0xff8d, "KP_Enter"},       // WPE_KEY_KP_Enter

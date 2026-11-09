@@ -18,6 +18,7 @@
 
 #include "uc_webview.h"
 #include "webviewframequeue.h"
+#include "webviewpinch.h"
 
 class QQuickWindow;
 class QScreen;
@@ -63,6 +64,30 @@ namespace webview {
  *   the view's focus (set_focused, a press that focuses the view) are replays and keep what the item knew.
  * - canGoBack/canGoForward are read from the library again on every load event, frame and title change: a
  *   same-document navigation (history.pushState, a fragment link) changes the history without a load event.
+ * - `zoom` is the page zoom WebKit uses (1 = 100 %), the item being its only writer: WebKit keeps it for the view
+ *   across navigations, reloads and web process swaps (WebPageProxy::pageZoomFactor, WebPageProxy.cpp:6742-6748;
+ *   a new web process gets it with its creation parameters, WebPageProxy.cpp:14262, WebPage.cpp:1067) and starts
+ *   every new view at 1 (WebPageProxy.h:3971). So the zoom lasts as long as the item, and a zoom set before the
+ *   view exists is applied when it is created. zoomIn()/zoomOut() step through browser-like levels.
+ * - A zoom step re-renders the whole page in the web process, seconds on a large page. `zoomRendering` is true from a
+ *   zoom change until the page has rendered the latest level: uc_webview_when_rendered() (library 0.5.0) reports it;
+ *   with an older library the first frame after the zoom counts, at most kZoomFallbackTimeoutMs. Zoom changes while
+ *   the page renders only move `zoom`; the item passes the latest level to WebKit once the current render is done,
+ *   because WebKit rebuilds the style and lays the page out again for every zoom it gets (LocalFrame.cpp:1085-1130):
+ *   three quick steps cost at most two relayouts.
+ * - pageUp()/pageDown() press and release Page_Up/Page_Down for the page, whichever item has the focus: WebKit
+ *   scrolls the focused scroller by a page, or moves the caret a page in a focused text area (docs/webview.md).
+ * - Pinch zoom (library 0.6.0, docs/webview.md "Pinch zoom"): the library recognises a two-finger pinch in the touches
+ *   the page leaves alone and reports it (the pinch callback; the view is then created with uc_webview_new_sized()).
+ *   While the fingers move, updatePaintNode() draws the frame scaled around the point the pinch began at (the node's
+ *   rect and source rect, no new frame needed); at the end the item asks for the magnification once
+ *   (uc_webview_set_magnification(), clamped to 1..4) and keeps the scaled frame (the frame queue is held) until
+ *   uc_webview_when_rendered() reports; the first frame after it is sharp at the new magnification. A timeout or a
+ *   cancellation ends the hold the same way: the next frame shows what the page has. `magnification` is what the user
+ *   sees, `pinching` is true between the pinch's begin and end; `zoomRendering` covers the magnification's render too.
+ *   Page zoom (`zoom`, VOLUME) and magnification are separate WebKit factors: the keys leave the magnification alone.
+ *   A new page starts at 1; back, forward and reload restore the page's magnification (WebKit, reported by the
+ *   library). Without the library's 0.6.0 functions two fingers behave as before.
  * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
  *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
  * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at
@@ -87,6 +112,14 @@ class WebViewItem : public QQuickItem {
     Q_PROPERTY(bool canGoForward READ canGoForward NOTIFY navigationHistoryChanged)
     Q_PROPERTY(bool available READ isAvailable CONSTANT)
     Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor NOTIFY backgroundColorChanged)
+    // page zoom factor, 1 = 100 %; 0 < zoom <= 20 like uc_webview_set_zoom(), other values are refused
+    Q_PROPERTY(qreal zoom READ zoom WRITE setZoom NOTIFY zoomChanged)
+    // a zoom or magnification change has not been rendered by the page yet (busy indicator)
+    Q_PROPERTY(bool zoomRendering READ isZoomRendering NOTIFY zoomRenderingChanged)
+    // pinch zoom (library 0.6.0): the magnification the user sees, 1 = none; a pinch in progress; the library can
+    Q_PROPERTY(qreal magnification READ magnification NOTIFY magnificationChanged)
+    Q_PROPERTY(bool pinching READ isPinching NOTIFY pinchingChanged)
+    Q_PROPERTY(bool pinchZoomAvailable READ isPinchZoomAvailable CONSTANT)
     // frame counters for the validation on the device: both must stay equal after the last frame
     Q_PROPERTY(int framesReceived READ framesReceived NOTIFY frameStatsChanged)
     Q_PROPERTY(int framesReleased READ framesReleased NOTIFY frameStatsChanged)
@@ -108,6 +141,12 @@ class WebViewItem : public QQuickItem {
     bool    isAvailable() const { return m_available; }
     QColor  backgroundColor() const { return m_backgroundColor; }
     void    setBackgroundColor(const QColor &color);
+    qreal   zoom() const { return m_zoom; }
+    void    setZoom(qreal zoom);
+    bool    isZoomRendering() const { return m_zoomRendering || m_magnificationRendering; }
+    qreal   magnification() const { return m_pinch.magnification(); }
+    bool    isPinching() const { return m_pinch.pinching(); }
+    bool    isPinchZoomAvailable() const { return m_pinchZoomAvailable; }
     int     framesReceived() const { return m_framesReceived; }
     int     framesReleased() const { return m_framesReleased; }
 
@@ -117,6 +156,13 @@ class WebViewItem : public QQuickItem {
     Q_INVOKABLE void goForward();
     Q_INVOKABLE void runJavaScript(const QString &script);
     Q_INVOKABLE void loadHtml(const QString &html, const QUrl &baseUrl = QUrl());
+    // One zoom level up or down in browser-like steps from 50 to 300 % (the table in webviewitem.cpp); a zoom
+    // between two levels goes to the next one in that direction. Nothing happens beyond the first or last level.
+    Q_INVOKABLE void zoomIn();
+    Q_INVOKABLE void zoomOut();
+    // The Page_Up / Page_Down key, pressed and released, as if typed on the page (the item's focus does not matter)
+    Q_INVOKABLE void pageUp();
+    Q_INVOKABLE void pageDown();
 
     // what the page's focused editable element reports, for Qt's input method (public in QQuickItem)
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const override;
@@ -126,10 +172,16 @@ class WebViewItem : public QQuickItem {
     static void setInputPanelHookForTest(std::function<void(bool)> hook);
     // Tests: switches the input trace on or off (default: UC_WEBVIEW_TRACE, read at the first trace line).
     static void setTraceEnabledForTest(bool enabled);
+    // Tests: the fallback's wait for a frame after a zoom (default kZoomFallbackTimeoutMs); 0 restores the default.
+    static void setZoomFallbackTimeoutForTest(int ms);
 
     // How long a tap into the page waits before it asks for the keyboard again (see the class comment): enough
     // for WebKit to turn the tap into a click and report a focus change of the page (a few IPC round trips).
     static constexpr int kTapInputPanelDelayMs = 200;
+
+    // Without uc_webview_when_rendered() (library older than 0.5.0) a zoom counts as rendered at the first frame after
+    // it, or after this long without one (a zoom that changes nothing on screen brings no frame).
+    static constexpr int kZoomFallbackTimeoutMs = 5000;
 
  signals:
     void urlChanged();
@@ -138,6 +190,10 @@ class WebViewItem : public QQuickItem {
     void loadProgressChanged();
     void navigationHistoryChanged();
     void backgroundColorChanged();
+    void zoomChanged();
+    void zoomRenderingChanged();
+    void magnificationChanged();
+    void pinchingChanged();
     void frameStatsChanged();
     // the web process died (UC_WEBVIEW_TERMINATED_*); the item reloads once by itself
     void crashed(int reason);
@@ -173,6 +229,10 @@ class WebViewItem : public QQuickItem {
                              int cursor, void *user);
     static void onImeCursorAreaCb(uc_webview *, int x, int y, int w, int h, void *user);
     static void onImeSurroundingCb(uc_webview *, const char *text, int cursor, int anchor, void *user);
+    static void onZoomRenderedCb(uc_webview *, int status, void *user);
+    static void onPinchCb(uc_webview *, int phase, double scale, double x, double y, void *user);
+    static void onMagnificationChangedCb(uc_webview *, double magnification, void *user);
+    static void onMagnificationRenderedCb(uc_webview *, int status, void *user);
 
     void onFrameReady(const uc_webview_frame &frame);
     void onLoadChanged(int event, const char *uri);
@@ -190,6 +250,19 @@ class WebViewItem : public QQuickItem {
     void   updateSize();
     void   updateNavigationHistory();
     void   applyBackgroundColor();
+    void   applyZoom();
+    void   startZoomRenderWait();
+    // end: UC_WEBVIEW_RENDERED_* from the library, or one of the fallback's ends (webviewitem.cpp)
+    void   finishZoomRenderWait(int end);
+    void   setZoomRendering(bool rendering);
+    void   onPinch(int phase, double scale, const QPointF &centre);
+    void   onMagnificationChanged(double magnification);
+    void   commitMagnification(const PinchZoom::Commit &commit);
+    void   finishMagnificationRender(int status);
+    // after every change of the pinch state: the frame queue's hold, the properties, a new picture
+    void   pinchStateChanged(qreal oldMagnification, bool oldPinching);
+    void   setMagnificationRendering(bool rendering);
+    void   sendPageKey(int key);
     void   releaseFrames();
     void   releaseFrame(void *handle);
     void   keyEvent(QKeyEvent *event, bool pressed);
@@ -220,6 +293,23 @@ class WebViewItem : public QQuickItem {
     bool    m_loadFailed = false;
     bool    m_reloadedAfterCrash = false;
     QColor  m_backgroundColor = Qt::black;
+    qreal   m_zoom = 1.0;  // what WebKit uses for the view: its default until the item sets another one
+    // the zoom render wait (class comment): the level last passed to WebKit, a wait running for it (a library
+    // request or the fallback), the fallback's state, the time since the zoom for the trace
+    qreal         m_zoomApplied = 1.0;
+    bool          m_zoomWaiting = false;
+    bool          m_zoomRendering = false;
+    bool          m_zoomWaitsForFrame = false;  // fallback: the next frame ends the wait
+    quint64       m_zoomWaitGeneration = 0;     // ignores a deferred fallback end of an earlier wait
+    QTimer        m_zoomFallbackTimer;
+    QElapsedTimer m_zoomRenderClock;
+    // pinch zoom (library 0.6.0): the picture and the hold (webviewpinch.h), the magnification renders requested and
+    // not reported yet (only the last one's report ends the hold), the time since the last commit for the trace
+    const bool    m_pinchZoomAvailable;
+    PinchZoom     m_pinch;
+    int           m_magnificationRequests = 0;
+    bool          m_magnificationRendering = false;
+    QElapsedTimer m_magnificationClock;
     QString m_pendingHtml;
     QUrl    m_pendingBaseUrl;
 

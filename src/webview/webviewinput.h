@@ -18,9 +18,10 @@ namespace webview {
 // check every table entry without a window.
 
 // XKB keysym for a Qt key event, or 0 when the key is not forwarded to the page: the event is then left to the
-// QML focus chain and the remote's button navigation (BACK, HOME, the colour, media and volume buttons). text is
-// QKeyEvent::text(); a printable character is forwarded as its Unicode keysym. A Qt special key (Qt::Key_Escape and
-// above) outside the table is never a character, whatever its text (the button simulator sends the key's name).
+// QML focus chain and the remote's button navigation (BACK, HOME, the colour, media, volume and channel buttons).
+// text is QKeyEvent::text(); a printable character is forwarded as its Unicode keysym. A Qt special key
+// (Qt::Key_Escape and above) outside the table is never a character, whatever its text (the button simulator sends
+// the key's name).
 uint32_t xkbKeysymForKey(int key, const QString &text);
 
 // UC_WEBVIEW_MOD_* bits for the keyboard modifiers and the held mouse buttons of an event.

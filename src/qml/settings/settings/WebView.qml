@@ -13,7 +13,9 @@
 // - Back <-> Forward <-> Stop/Reload (left/right), up: the address field, down: the web view; a disabled Back or
 //   Forward (no history in that direction) is skipped;
 // - inside the web view the arrow keys and OK go to the page; a tap on a control or BACK (leaves the page) gets out.
-// PREV and NEXT go back and forward in the page's history wherever the d-pad is, the web view included.
+// Wherever the d-pad is, the web view included, PREV and NEXT go back and forward in the page's history, VOLUME +/-
+// zoom the page in and out, CHANNEL +/- scroll it a page up and down (not while the on-screen keyboard is up).
+// Two fingers pinch-zoom the page (libucwebview 0.6.0): the zoom label shows the magnification next to the zoom.
 
 import QtQuick 2.15
 import QtQuick.Layouts 1.15
@@ -32,6 +34,11 @@ Settings.Page {
     // the square icon buttons of the second row
     readonly property int toolButtonSize: 60
 
+    // The spinner next to the zoom level appears only when the page takes longer than this to render a zoom step
+    // (webView.zoomRendering): a quick step does not flicker.
+    readonly property int zoomSpinnerDelay: 150
+    property bool zoomSpinnerShown: false
+
     // What the address field means: a URL with a scheme the web view knows is loaded as it is (the item refuses
     // file: unless UC_WEBVIEW_ALLOW_FILE_URLS=1 is set, and every scheme outside http, https, file, about and data,
     // with loadFailed), an absolute path becomes a file:// URL, anything else a host for http:// ("localhost:8080").
@@ -45,9 +52,14 @@ Settings.Page {
         return address.indexOf("://") === -1 ? "http://" + address : address;
     }
 
+    // the on-screen keyboard is up, on the address field or on an input of the page: the user is typing
+    function keyboardUp() {
+        return typeof keyboard !== "undefined" && keyboard.active;
+    }
+
     // the user is typing into the address field: the keyboard is up on it
     function editingAddress() {
-        return urlField.inputField.activeFocus && typeof keyboard !== "undefined" && keyboard.active;
+        return urlField.inputField.activeFocus && webViewPage.keyboardUp();
     }
 
     function load() {
@@ -92,7 +104,7 @@ Settings.Page {
     // form of the page, which a navigation would take away under the keyboard (MediaBrowser.qml ignores its list keys
     // while the keyboard is up, too).
     function historyStep(forward) {
-        if (typeof keyboard !== "undefined" && keyboard.active) {
+        if (webViewPage.keyboardUp()) {
             return;
         }
         if (forward && webView.canGoForward) {
@@ -102,9 +114,44 @@ Settings.Page {
         }
     }
 
-    // One step per press: a held key does not repeat (pressed_repeat does nothing). Every step starts a navigation,
-    // and the remote's auto-repeat (every 150 ms after 600 ms) would skip pages the user never saw. Extended, not
-    // assigned: Settings.Page declares BACK and HOME (docs/key-navigation.md section 2).
+    // VOLUME+ and VOLUME-: one zoom level in or out (the levels are the WebView item's, 50 to 300 %), shown over the
+    // page while it renders the new level and for a moment after. WebKit keeps the zoom for the view across
+    // navigations, and the view lives as long as the page: every visit of the page starts at 100 %. The page has the
+    // keys to itself: a settings page does nothing with them otherwise, the volume of an activity is the main
+    // screen's (components/Page.qml). Like PREV and NEXT they do nothing while the keyboard is up: a relayout would
+    // move the field the user types into. Presses while the page renders a step move the level at once; the item
+    // hands only the latest one to WebKit when the render is done (docs/webview.md).
+    function zoomStep(up) {
+        if (webViewPage.keyboardUp()) {
+            return;
+        }
+        if (up) {
+            webView.zoomIn();
+        } else {
+            webView.zoomOut();
+        }
+        // also at the first or last level: the label tells that the zoom ends there
+        zoomLabelHold.restart();
+    }
+
+    // CHANNEL+ and CHANNEL-: Page_Up and Page_Down for the page, which WebKit scrolls by a page like a browser does
+    // (in a text area of the page that has the focus the key moves its caret a page instead, docs/webview.md). Not
+    // while the keyboard is up, like the other keys.
+    function scrollStep(down) {
+        if (webViewPage.keyboardUp()) {
+            return;
+        }
+        if (down) {
+            webView.pageDown();
+        } else {
+            webView.pageUp();
+        }
+    }
+
+    // PREV/NEXT and VOLUME: one step per press, a held key does not repeat (pressed_repeat does nothing). Every
+    // history step starts a navigation and every zoom step a relayout, and the remote's auto-repeat (every 150 ms
+    // after 600 ms) would skip pages and levels the user never saw. CHANNEL repeats: holding it scrolls on. Extended,
+    // not assigned: Settings.Page declares BACK and HOME (docs/key-navigation.md section 2).
     Component.onCompleted: {
         webViewPage.buttonNavigation.extendDefaultConfig({
             "PREV": {
@@ -118,6 +165,34 @@ Settings.Page {
                     webViewPage.historyStep(true);
                 },
                 "pressed_repeat": function() {}
+            },
+            "VOLUME_UP": {
+                "pressed": function() {
+                    webViewPage.zoomStep(true);
+                },
+                "pressed_repeat": function() {}
+            },
+            "VOLUME_DOWN": {
+                "pressed": function() {
+                    webViewPage.zoomStep(false);
+                },
+                "pressed_repeat": function() {}
+            },
+            "CHANNEL_UP": {
+                "pressed": function() {
+                    webViewPage.scrollStep(false);
+                },
+                "pressed_repeat": function() {
+                    webViewPage.scrollStep(false);
+                }
+            },
+            "CHANNEL_DOWN": {
+                "pressed": function() {
+                    webViewPage.scrollStep(true);
+                },
+                "pressed_repeat": function() {
+                    webViewPage.scrollStep(true);
+                }
             }
         });
     }
@@ -133,6 +208,28 @@ Settings.Page {
                 urlField.inputValue = webView.url.toString();
             }
         }
+
+        // the label stays a second after a pinch, like after a key press
+        function onPinchingChanged() {
+            if (!webView.pinching) {
+                zoomLabelHold.restart();
+            }
+        }
+
+        function onZoomRenderingChanged() {
+            if (webView.zoomRendering) {
+                zoomSpinnerTimer.restart();
+            } else {
+                zoomSpinnerTimer.stop();
+                webViewPage.zoomSpinnerShown = false;
+            }
+        }
+    }
+
+    Timer {
+        id: zoomSpinnerTimer
+        interval: webViewPage.zoomSpinnerDelay
+        onTriggered: webViewPage.zoomSpinnerShown = true
     }
 
     ColumnLayout {
@@ -296,6 +393,84 @@ Settings.Page {
 
             onCrashed: webViewPage.lastEvent = "crashed (" + reason + ")"
             onLoadFailed: webViewPage.lastEvent = "load failed: " + url
+
+            // The zoom level after VOLUME+/- and the magnification of a pinch, at the top of the page: at once, while
+            // the fingers move and the page renders it, and for about a second after the last press or pinch; then it
+            // fades out. A render that takes longer than zoomSpinnerDelay adds a spinner next to the level.
+            Rectangle {
+                id: zoomLabel
+                objectName: "zoomLabel"
+                // a press or pinch within the last second, a pinch, or the page still renders the level
+                readonly property bool shown: zoomLabelHold.running || webView.zoomRendering || webView.pinching
+                anchors { top: parent.top; topMargin: 20; horizontalCenter: parent.horizontalCenter }
+                width: zoomRow.implicitWidth + 40
+                height: zoomRow.implicitHeight + 20
+                radius: ui.cornerRadiusSmall
+                color: colors.black
+                opacity: 0
+                visible: opacity > 0
+
+                onShownChanged: {
+                    if (shown) {
+                        zoomLabelFade.stop();
+                        opacity = 1;
+                    } else {
+                        zoomLabelFade.start();
+                    }
+                }
+
+                Row {
+                    id: zoomRow
+                    anchors.centerIn: parent
+                    spacing: 12
+
+                    Text {
+                        id: zoomText
+                        objectName: "zoomText"
+                        anchors.verticalCenter: parent.verticalCenter
+                        color: colors.offwhite
+                        font: fonts.secondaryFont(24)
+                        // "125 %", "2.0×" or both ("125 % · 2.0×"): the page zoom (VOLUME) and the magnification of
+                        // a pinch are separate (docs/webview.md, "Pinch zoom")
+                        text: {
+                            const zoom = Math.round(webView.zoom * 100) + " %";
+                            if (Math.abs(webView.magnification - 1) < 0.05) {
+                                return zoom;
+                            }
+                            const magnification = webView.magnification.toFixed(1) + "\u00d7";
+                            return Math.abs(webView.zoom - 1) < 0.005 ? magnification : zoom + " · " + magnification;
+                        }
+                    }
+
+                    // the app's command-in-progress spinner (StatusBar.qml, BaseTitle.qml)
+                    Image {
+                        id: zoomSpinner
+                        objectName: "zoomSpinner"
+                        anchors.verticalCenter: parent.verticalCenter
+                        width: 28; height: 28
+                        source: "qrc:/images/loader_small.png"
+                        fillMode: Image.PreserveAspectFit
+                        visible: webViewPage.zoomSpinnerShown
+
+                        RotationAnimation on rotation {
+                            running: zoomSpinner.visible
+                            loops: Animation.Infinite
+                            from: 0; to: 360
+                            duration: 1200
+                        }
+                    }
+                }
+
+                Timer {
+                    id: zoomLabelHold
+                    interval: 1000
+                }
+
+                NumberAnimation {
+                    id: zoomLabelFade
+                    target: zoomLabel; property: "opacity"; to: 0; duration: 300; easing.type: Easing.OutExpo
+                }
+            }
         }
     }
 }

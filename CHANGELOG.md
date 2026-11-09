@@ -28,6 +28,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as the PIN field of the web configurator's login, opens the on-screen keyboard. The web view's input trace for
   device tests (`UC_WEBVIEW_TRACE=1`) records no typed text, and web addresses in the log lose user name, password,
   query and fragment unless `UC_WEBVIEW_LOG_FULL_URLS=1` is set.
+- On the web view's developer page the remote's VOLUME buttons zoom the page and the CHANNEL buttons scroll it a page
+  up or down. A label shows the zoom level, with a spinner while a large page renders it. Two fingers pinch-zoom the
+  page on a touch panel that reports two fingers, such as the Remote Two's. Needs the web view library 0.5.0 for the
+  spinner and 0.6.0 for the pinch.
 
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on

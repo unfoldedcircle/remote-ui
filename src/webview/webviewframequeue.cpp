@@ -10,11 +10,20 @@ void *FrameQueue::push(const uc_webview_frame &frame) {
     void *replaced = m_hasPending ? m_pending.handle : nullptr;
     m_pending = frame;
     m_hasPending = true;
+    m_pendingReported = false;
     return replaced;
 }
 
+void *FrameQueue::takePendingForRendered() {
+    if (!m_hasPending || m_pendingReported) {
+        return nullptr;
+    }
+    m_pendingReported = true;
+    return m_pending.handle;
+}
+
 bool FrameQueue::swap() {
-    if (!m_hasPending) {
+    if (!m_hasPending || m_held) {
         return false;
     }
     if (m_hasCurrent) {
@@ -25,7 +34,9 @@ bool FrameQueue::swap() {
     m_current = m_pending;
     m_hasCurrent = true;
     m_hasPending = false;
-    m_currentReported = false;
+    // a frame reported while the queue was held is not reported again
+    m_currentReported = m_pendingReported;
+    m_pendingReported = false;
     return true;
 }
 
@@ -51,6 +62,7 @@ QVector<void *> FrameQueue::drain() {
     if (m_hasPending) {
         handles.append(m_pending.handle);
         m_hasPending = false;
+        m_pendingReported = false;
     }
     return handles;
 }

@@ -56,6 +56,10 @@ UC_WEBVIEW_CHECK_SIGNATURE(key, uc_webview_key);
 UC_WEBVIEW_CHECK_SIGNATURE(ime_commit, uc_webview_ime_commit);
 UC_WEBVIEW_CHECK_SIGNATURE(ime_preedit, uc_webview_ime_preedit);
 UC_WEBVIEW_CHECK_SIGNATURE(ime_delete_surrounding, uc_webview_ime_delete_surrounding);
+UC_WEBVIEW_CHECK_SIGNATURE(when_rendered, uc_webview_when_rendered);
+UC_WEBVIEW_CHECK_SIGNATURE(create_sized, uc_webview_new_sized);
+UC_WEBVIEW_CHECK_SIGNATURE(set_magnification, uc_webview_set_magnification);
+UC_WEBVIEW_CHECK_SIGNATURE(get_magnification, uc_webview_get_magnification);
 
 #undef UC_WEBVIEW_CHECK_SIGNATURE
 
@@ -140,6 +144,15 @@ bool WebViewLibrary::load() {
         qCInfo(lcWebView()) << m_library.fileName()
                             << "has no uc_webview_global_set_refresh_rate (older than 0.2.0): pages animate at 60 Hz";
     }
+    if (!m_functions.when_rendered) {
+        qCInfo(lcWebView()) << m_library.fileName()
+                            << "has no uc_webview_when_rendered (older than 0.5.0): a zoom step counts as rendered at "
+                               "the first frame after it";
+    }
+    if (!m_functions.set_magnification) {
+        qCInfo(lcWebView()) << m_library.fileName()
+                            << "has no uc_webview_set_magnification (older than 0.6.0): no pinch zoom";
+    }
     return true;
 }
 
@@ -186,6 +199,14 @@ bool WebViewLibrary::resolveAll(QString *missing) {
         m_library.resolve("uc_webview_global_set_refresh_rate"));
     m_functions.global_get_drag_threshold = reinterpret_cast<decltype(m_functions.global_get_drag_threshold)>(
         m_library.resolve("uc_webview_global_get_drag_threshold"));
+    m_functions.when_rendered =
+        reinterpret_cast<decltype(m_functions.when_rendered)>(m_library.resolve("uc_webview_when_rendered"));
+    m_functions.create_sized =
+        reinterpret_cast<decltype(m_functions.create_sized)>(m_library.resolve("uc_webview_new_sized"));
+    m_functions.set_magnification =
+        reinterpret_cast<decltype(m_functions.set_magnification)>(m_library.resolve("uc_webview_set_magnification"));
+    m_functions.get_magnification =
+        reinterpret_cast<decltype(m_functions.get_magnification)>(m_library.resolve("uc_webview_get_magnification"));
     return ok;
 }
 

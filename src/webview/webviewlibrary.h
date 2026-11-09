@@ -53,6 +53,14 @@ struct WebViewFunctions {
     void (*ime_commit)(uc_webview *, const char *) = nullptr;
     void (*ime_preedit)(uc_webview *, const char *, int) = nullptr;
     void (*ime_delete_surrounding)(uc_webview *, int, int) = nullptr;
+    // optional, library 0.5.0: calls back once the page rendered everything requested before (the zoom indicator)
+    int (*when_rendered)(uc_webview *, uc_webview_rendered_cb, void *) = nullptr;
+    // optional, library 0.4.0: uc_webview_new() for a callback struct of the given size, the only way the library
+    // reads callbacks appended after the API version 1 ones (pinch, magnification_changed of 0.6.0)
+    uc_webview *(*create_sized)(int, int, const uc_webview_callbacks *, size_t, void *) = nullptr;
+    // optional, library 0.6.0: pinch zoom, WebKit's page scale with a focal point
+    int (*set_magnification)(uc_webview *, double, double, double) = nullptr;
+    double (*get_magnification)(uc_webview *) = nullptr;
 };
 
 /**
@@ -87,6 +95,12 @@ class WebViewLibrary {
     // an older library UC_WEBVIEW_DRAG_THRESHOLD or WPE's 8 px (dragThresholdFromEnv). Read once the library is
     // initialised; before that the fallback.
     double dragThreshold();
+
+    // Pinch zoom works: the library has uc_webview_new_sized() (the pinch callbacks reach it), set_magnification()
+    // (0.6.0) and when_rendered() (the hold of the scaled frame). Without, two fingers behave as before 0.6.0.
+    bool pinchZoomAvailable() const {
+        return m_functions.create_sized && m_functions.set_magnification && m_functions.when_rendered;
+    }
 
     // The refresh rate of the screen the web views are shown on, for uc_webview_global_set_refresh_rate(): WebKit
     // ticks requestAnimationFrame and animations at this rate (60 Hz without it). Only after ensureInitialized()

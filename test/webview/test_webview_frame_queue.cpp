@@ -3,6 +3,8 @@
 
 #include <QtTest>
 
+#include <algorithm>
+
 #include "webview/webviewframequeue.h"
 
 using uc::webview::FrameQueue;
@@ -37,6 +39,9 @@ class testWebViewFrameQueue : public QObject {
     void swapBeforeReportRetiresAnUnreportedFrame();
     void drainReturnsEveryHeldFrameOnce();
     void everyPushedFrameIsReleasedExactlyOnce();
+    void heldQueueKeepsTheCurrentFrame();
+    void pendingFrameReportedWhileHeldIsNotReportedAgain();
+    void everyFrameIsReleasedOnceAcrossAHold();
 };
 
 void testWebViewFrameQueue::startsEmpty() {
@@ -189,6 +194,95 @@ void testWebViewFrameQueue::everyPushedFrameIsReleasedExactlyOnce() {
     }
     QVERIFY(rendered > 0);
     QVERIFY(queue.isEmpty());
+}
+
+// pinch zoom: the scaled frame stays on screen while the page renders the new magnification
+void testWebViewFrameQueue::heldQueueKeepsTheCurrentFrame() {
+    FrameQueue queue;
+    queue.push(frame(1));
+    queue.swap();
+    queue.takeReport();
+
+    queue.setHeld(true);
+    QVERIFY(queue.isHeld());
+    queue.push(frame(2));
+    QVERIFY(!queue.swap());
+    QCOMPARE(queue.current().handle, handle(1));
+    // a newer frame replaces the waiting one, which goes back at once
+    QCOMPARE(queue.push(frame(3)), handle(2));
+    QVERIFY(!queue.swap());
+    FrameQueue::Report report = queue.takeReport();
+    QCOMPARE(report.rendered, static_cast<void *>(nullptr));
+    QVERIFY(report.released.isEmpty());
+
+    queue.setHeld(false);
+    QVERIFY(queue.swap());
+    QCOMPARE(queue.current().handle, handle(3));
+    report = queue.takeReport();
+    QCOMPARE(report.rendered, handle(3));
+    QCOMPARE(report.released, QVector<void *>{handle(1)});
+}
+
+void testWebViewFrameQueue::pendingFrameReportedWhileHeldIsNotReportedAgain() {
+    FrameQueue queue;
+    QCOMPARE(queue.takePendingForRendered(), static_cast<void *>(nullptr));
+    queue.push(frame(1));
+    queue.swap();
+    queue.takeReport();
+
+    queue.setHeld(true);
+    queue.push(frame(2));
+    QCOMPARE(queue.takePendingForRendered(), handle(2));
+    QCOMPARE(queue.takePendingForRendered(), static_cast<void *>(nullptr));  // once
+    // the next frame is a new one to report
+    QCOMPARE(queue.push(frame(3)), handle(2));
+    QCOMPARE(queue.takePendingForRendered(), handle(3));
+
+    queue.setHeld(false);
+    QVERIFY(queue.swap());
+    const FrameQueue::Report report = queue.takeReport();
+    // frame 3 was reported while held: only frame 1's release is left
+    QCOMPARE(report.rendered, static_cast<void *>(nullptr));
+    QCOMPARE(report.released, QVector<void *>{handle(1)});
+
+    // the following frames are reported as usual
+    queue.push(frame(4));
+    queue.swap();
+    QCOMPARE(queue.takeReport().rendered, handle(4));
+}
+
+void testWebViewFrameQueue::everyFrameIsReleasedOnceAcrossAHold() {
+    FrameQueue      queue;
+    QVector<void *> released;
+    QVector<void *> rendered;
+
+    for (int i = 1; i <= 60; ++i) {
+        queue.setHeld(i >= 10 && i < 40);
+        if (void *replaced = queue.push(frame(i))) {
+            released.append(replaced);
+        }
+        if (queue.isHeld()) {
+            if (void *handle = queue.takePendingForRendered()) {
+                rendered.append(handle);
+            }
+        }
+        queue.swap();
+        const FrameQueue::Report report = queue.takeReport();
+        if (report.rendered) {
+            rendered.append(report.rendered);
+        }
+        released += report.released;
+    }
+    released += queue.drain();
+
+    QCOMPARE(released.size(), 60);
+    std::sort(released.begin(), released.end());
+    for (int i = 1; i <= 60; ++i) {
+        QCOMPARE(released.at(i - 1), handle(i));
+    }
+    // no frame is reported rendered twice
+    std::sort(rendered.begin(), rendered.end());
+    QVERIFY(std::adjacent_find(rendered.begin(), rendered.end()) == rendered.end());
 }
 
 QTEST_GUILESS_MAIN(testWebViewFrameQueue)

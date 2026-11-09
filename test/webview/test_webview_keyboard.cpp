@@ -23,10 +23,12 @@
 // `up` link to it: left did nothing. The page now walks its two rows as they look (field <-> Load, Back <-> Forward
 // <-> Stop/Reload, up to the field, down to the web view), with the history buttons skipped while disabled.
 //
-// PREV and NEXT of the remote go back and forward in the page's history, through the
-// page's ButtonNavigation, wherever the d-pad focus is; the WebView item must neither forward them to the page nor
-// accept them. The InputController is installed on the window like main.qml does, so a key travels both paths.
+// PREV and NEXT of the remote go back and forward in the page's history, VOLUME +/-
+// zoom the page and CHANNEL +/- scroll it a page, through the page's ButtonNavigation,
+// wherever the d-pad focus is; the WebView item must neither forward these keys to the page nor accept them. The
+// InputController is installed on the window like main.qml does, so a key travels both paths.
 
+#include <QElapsedTimer>
 #include <QJSValue>
 #include <QQmlContext>
 #include <QQmlEngine>
@@ -35,6 +37,10 @@
 #include <QSignalSpy>
 #include <QTimer>
 #include <QtTest>
+
+#include <algorithm>
+#include <cstring>
+#include <utility>
 
 #include "hardware/hardwareModel.h"
 #include "ui/colors.h"
@@ -116,10 +122,12 @@ uc_webview *const kView = reinterpret_cast<uc_webview *>(0x1234);
 
 uc_webview_callbacks callbacks{};
 void                *user = nullptr;
-QStringList          calls;  // navigation requests: "reload", "stop", "go_back", "go_forward", "load_uri(<uri>)"
+QStringList          calls;  // "reload", "stop", "go_back", "go_forward", "load_uri(<uri>)", "set_zoom(<zoom>)"
 bool                 canBack = false;
 bool                 canForward = false;
 QList<uint32_t>      keys;   // keysyms forwarded to the page (uc_webview_key presses)
+// uc_webview_when_rendered() requests (library 0.5.0) the page waits for, oldest first: the test ends them
+QList<QPair<uc_webview_rendered_cb, void *>> renders;
 
 int         apiVersion() { return UC_WEBVIEW_API_VERSION; }
 int         globalInit(void *, const char *, const char *) { return 0; }
@@ -129,7 +137,37 @@ uc_webview *create(int, int, const uc_webview_callbacks *cb, void *u) {
     user = u;
     return kView;
 }
-void        destroy(uc_webview *) {}
+// library 0.4.0 and 0.6.0: the struct of the host's size, and the pinch zoom's magnification
+uc_webview *createSized(int, int, const uc_webview_callbacks *cb, size_t size, void *u) {
+    callbacks = uc_webview_callbacks{};
+    memcpy(&callbacks, cb, std::min(size, sizeof callbacks));
+    user = u;
+    return kView;
+}
+int setMagnification(uc_webview *, double magnification, double, double) {
+    calls.append(QStringLiteral("set_magnification(%1)").arg(magnification));
+    return 0;
+}
+double getMagnification(uc_webview *) {
+    return 1.0;
+}
+void        destroy(uc_webview *) {
+    // like uc_webview_free(): pending render requests end as cancelled inside the call
+    const auto pending = std::exchange(renders, {});
+    for (const auto &render : pending) {
+        render.first(kView, UC_WEBVIEW_RENDERED_CANCELLED, render.second);
+    }
+}
+int whenRendered(uc_webview *, uc_webview_rendered_cb cb, void *u) {
+    renders.append(qMakePair(cb, u));
+    return 0;
+}
+// the page rendered: the oldest request ends (the item may issue the next one from the callback)
+void finishRender(int status = UC_WEBVIEW_RENDERED_DONE) {
+    QVERIFY(!renders.isEmpty());
+    const auto render = renders.takeFirst();
+    render.first(kView, status, render.second);
+}
 void        resize(uc_webview *, int, int) {}
 void        setInt(uc_webview *, int) {}
 void        setDouble(uc_webview *, double) {}
@@ -140,6 +178,7 @@ void        stop(uc_webview *) { calls.append(QStringLiteral("stop")); }
 void        goBack(uc_webview *) { calls.append(QStringLiteral("go_back")); }
 void        goForward(uc_webview *) { calls.append(QStringLiteral("go_forward")); }
 void        loadUri(uc_webview *, const char *uri) { calls.append(QStringLiteral("load_uri(%1)").arg(uri)); }
+void        setZoom(uc_webview *, double zoom) { calls.append(QStringLiteral("set_zoom(%1)").arg(zoom)); }
 int         canGoBack(uc_webview *) { return canBack ? 1 : 0; }
 int         canGoForward(uc_webview *) { return canForward ? 1 : 0; }
 const char *none(uc_webview *) { return nullptr; }
@@ -179,7 +218,7 @@ WebViewFunctions functions() {
     f.get_uri = &none;
     f.get_title = &none;
     f.run_javascript = &setString;
-    f.set_zoom = &setDouble;
+    f.set_zoom = &setZoom;
     f.set_background_rgba = &setBackground;
     f.frame_rendered = &frame;
     f.frame_release = &frame;
@@ -191,7 +230,17 @@ WebViewFunctions functions() {
     f.ime_commit = &setString;
     f.ime_preedit = &imePreedit;
     f.ime_delete_surrounding = &imeDeleteSurrounding;
+    f.when_rendered = &whenRendered;
+    f.create_sized = &createSized;
+    f.set_magnification = &setMagnification;
+    f.get_magnification = &getMagnification;
     return f;
+}
+
+// a two-finger pinch as the library reports it
+void firePinch(int phase, double scale) {
+    QVERIFY(callbacks.pinch != nullptr);
+    callbacks.pinch(kView, phase, scale, 200, 300, user);
 }
 
 void fireImeFocus(int focused, unsigned purpose) {
@@ -256,6 +305,16 @@ class testWebViewKeyboard : public QObject {
     void prevAndNextPassTheFocusedWebView();
     void heldPrevStepsOnce();
     void prevAndNextAreIgnoredWhileTheKeyboardIsUp();
+    void volumeZoomsThePageFromEveryControl();
+    void heldVolumeZoomsOneLevel();
+    void zoomLabelShowsTheLevelAndFades();
+    void zoomLabelStaysWithASpinnerWhileThePageRenders();
+    void quickZoomStepsShowNoSpinner();
+    void quickPressesDuringARenderCostTwoRelayouts();
+    void channelScrollsThePageFromEveryControl();
+    void heldChannelScrollsOnEveryRepeat();
+    void volumeAndChannelAreIgnoredWhileTheKeyboardIsUp();
+    void pinchShowsTheMagnificationNextToTheZoom();
 
  private:
     bool pressRemoteButton(Qt::Key key, int repeats = 0);
@@ -318,6 +377,7 @@ void testWebViewKeyboard::init() {
     webView = page->findChildren<WebViewItem *>().first();
     lib::calls.clear();
     lib::keys.clear();
+    lib::renders.clear();
     lib::canBack = lib::canForward = false;
 
     // both paths of a key press (docs/key-navigation.md section 1): the input controller filters the window's
@@ -843,6 +903,264 @@ void testWebViewKeyboard::prevAndNextAreIgnoredWhileTheKeyboardIsUp() {
     QTRY_VERIFY(!keyboard->property("active").toBool());
     pressRemoteButton(Qt::Key_AudioRewind);
     QCOMPARE(lib::calls, QStringList{QStringLiteral("go_back")});
+}
+
+void testWebViewKeyboard::volumeZoomsThePageFromEveryControl() {
+    // history in both directions, so that Back and Forward are enabled and the d-pad can be on them
+    lib::setHistory(true, true, "http://localhost/2");
+    QStringList expected;
+    QQuickItem *const webViewItem = webView;
+    for (QQuickItem *item : {loadButton, backButton, forwardButton, stopReloadButton, webViewItem}) {
+        item->forceActiveFocus();
+        QTRY_VERIFY(item->hasActiveFocus());
+        QVERIFY(!keyboard->property("active").toBool());
+
+        // VOLUME+ one level in, VOLUME- back out: the item's zoom, set in the library once the page rendered the step
+        QVERIFY2(!pressRemoteButton(Qt::Key_VolumeUp), qPrintable(item->objectName()));
+        expected << QStringLiteral("set_zoom(1.1)");
+        QCOMPARE(lib::calls, expected);
+        QCOMPARE(webView->zoom(), 1.1);
+        lib::finishRender();
+        QVERIFY2(!pressRemoteButton(Qt::Key_VolumeDown), qPrintable(item->objectName()));
+        expected << QStringLiteral("set_zoom(1)");
+        QCOMPARE(lib::calls, expected);
+        QCOMPARE(webView->zoom(), 1.0);
+        lib::finishRender();
+        QVERIFY(!webView->isZoomRendering());
+
+        // nothing else changes: the focus stays, the page gets no key
+        QVERIFY(item->hasActiveFocus());
+        QVERIFY(lib::keys.isEmpty());
+    }
+    QCOMPARE(ui->input()->activeItem(), page);
+}
+
+void testWebViewKeyboard::heldVolumeZoomsOneLevel() {
+    // a held button repeats every 150 ms on the device: one level per press, every level is a relayout
+    webView->forceActiveFocus();
+    pressRemoteButton(Qt::Key_VolumeUp, 5);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("set_zoom(1.1)")});
+    lib::finishRender();
+    pressRemoteButton(Qt::Key_VolumeDown, 5);
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("set_zoom(1.1)"), QStringLiteral("set_zoom(1)")}));
+    QCOMPARE(webView->zoom(), 1.0);
+}
+
+void testWebViewKeyboard::zoomLabelShowsTheLevelAndFades() {
+    QQuickItem *label = page->findChild<QQuickItem *>("zoomLabel");
+    QObject    *text = page->findChild<QObject *>("zoomText");
+    QVERIFY(label && text);
+    QVERIFY(!label->isVisible());
+
+    // the new level at once; the page renders it quickly: the label fades about a second after the press
+    pressRemoteButton(Qt::Key_VolumeUp);
+    QTRY_VERIFY(label->isVisible());
+    QCOMPARE(text->property("text").toString(), QStringLiteral("110 %"));
+    lib::finishRender();
+    QTRY_VERIFY_WITH_TIMEOUT(!label->isVisible(), 3000);
+
+    // down to 67 % (the zoom is 0.67), one rendered step per press
+    for (int i = 0; i < 5; ++i) {
+        pressRemoteButton(Qt::Key_VolumeDown);
+        lib::finishRender();
+    }
+    QCOMPARE(webView->zoom(), 0.67);
+    QCOMPARE(text->property("text").toString(), QStringLiteral("67 %"));
+    QVERIFY(label->isVisible());
+
+    // at the first level a press calls nothing, the label shows that the zoom ends there
+    pressRemoteButton(Qt::Key_VolumeDown);
+    lib::finishRender();
+    QTRY_VERIFY_WITH_TIMEOUT(!label->isVisible(), 3000);
+    const int calls = lib::calls.size();
+    pressRemoteButton(Qt::Key_VolumeDown);
+    QCOMPARE(lib::calls.size(), calls);
+    QVERIFY(lib::renders.isEmpty());
+    QCOMPARE(text->property("text").toString(), QStringLiteral("50 %"));
+    QTRY_VERIFY(label->isVisible());
+}
+
+void testWebViewKeyboard::zoomLabelStaysWithASpinnerWhileThePageRenders() {
+    // a large page takes seconds to render a zoom step: the level stays up with the app's
+    // spinner next to it until the page has rendered, then the label fades as after a quick step
+    QQuickItem *label = page->findChild<QQuickItem *>("zoomLabel");
+    QQuickItem *spinner = page->findChild<QQuickItem *>("zoomSpinner");
+    QVERIFY(label && spinner);
+    QVERIFY(!spinner->isVisible());
+
+    QElapsedTimer clock;
+    clock.start();
+    pressRemoteButton(Qt::Key_VolumeUp);
+    QVERIFY(webView->isZoomRendering());
+    QTRY_VERIFY(label->isVisible());
+    // the spinner comes after the page's zoomSpinnerDelay (150 ms), not before
+    QTRY_VERIFY_WITH_TIMEOUT(spinner->isVisible(), 1000);
+    QVERIFY(clock.elapsed() >= page->property("zoomSpinnerDelay").toInt());
+    // longer than the label's second: it stays while the page renders
+    QTest::qWait(1500);
+    QVERIFY(label->isVisible());
+    QCOMPARE(label->opacity(), 1.0);
+    QVERIFY(spinner->isVisible());
+
+    // rendered: the spinner goes at once, the label fades
+    lib::finishRender();
+    QVERIFY(!webView->isZoomRendering());
+    QVERIFY(!spinner->isVisible());
+    QTRY_VERIFY_WITH_TIMEOUT(!label->isVisible(), 1000);
+
+    // a timeout of the library ends the wait as well
+    pressRemoteButton(Qt::Key_VolumeUp);
+    QTRY_VERIFY_WITH_TIMEOUT(spinner->isVisible(), 1000);
+    lib::finishRender(UC_WEBVIEW_RENDERED_TIMEOUT);
+    QVERIFY(!spinner->isVisible());
+    QTRY_VERIFY_WITH_TIMEOUT(!label->isVisible(), 3000);
+}
+
+void testWebViewKeyboard::quickZoomStepsShowNoSpinner() {
+    // rendered within the spinner's delay: no spinner flickers up, the label shows the level for its second
+    QQuickItem *label = page->findChild<QQuickItem *>("zoomLabel");
+    QQuickItem *spinner = page->findChild<QQuickItem *>("zoomSpinner");
+    QVERIFY(label && spinner);
+    bool spinnerSeen = false;
+    QObject::connect(spinner, &QQuickItem::visibleChanged, spinner, [&] { spinnerSeen |= spinner->isVisible(); });
+
+    for (int i = 0; i < 3; ++i) {
+        pressRemoteButton(Qt::Key_VolumeUp);
+        QTest::qWait(50);
+        lib::finishRender();
+    }
+    QTest::qWait(300);
+    QVERIFY(!spinnerSeen);
+    QVERIFY(label->isVisible());
+    QTRY_VERIFY_WITH_TIMEOUT(!label->isVisible(), 3000);
+    QVERIFY(!spinnerSeen);
+}
+
+void testWebViewKeyboard::quickPressesDuringARenderCostTwoRelayouts() {
+    // three quick VOLUME+ on a large page: the level follows every press, WebKit gets the first and the last level
+    QObject *text = page->findChild<QObject *>("zoomText");
+    QVERIFY(text);
+    pressRemoteButton(Qt::Key_VolumeUp);
+    pressRemoteButton(Qt::Key_VolumeUp);
+    QCOMPARE(text->property("text").toString(), QStringLiteral("125 %"));
+    pressRemoteButton(Qt::Key_VolumeUp);
+    QCOMPARE(text->property("text").toString(), QStringLiteral("150 %"));
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("set_zoom(1.1)")});
+
+    lib::finishRender();
+    QCOMPARE(lib::calls, (QStringList{QStringLiteral("set_zoom(1.1)"), QStringLiteral("set_zoom(1.5)")}));
+    QVERIFY(webView->isZoomRendering());
+    lib::finishRender();
+    QVERIFY(!webView->isZoomRendering());
+    QVERIFY(lib::renders.isEmpty());
+    QCOMPARE(lib::calls.size(), 2);
+}
+
+void testWebViewKeyboard::channelScrollsThePageFromEveryControl() {
+    lib::setHistory(true, true, "http://localhost/2");
+    QList<uint32_t>   expected;
+    QQuickItem *const webViewItem = webView;
+    for (QQuickItem *item : {loadButton, backButton, forwardButton, stopReloadButton, webViewItem}) {
+        item->forceActiveFocus();
+        QTRY_VERIFY(item->hasActiveFocus());
+
+        // CHANNEL- a page down, CHANNEL+ a page up: Page_Down and Page_Up for the page
+        QVERIFY2(!pressRemoteButton(Qt::Key_ChannelDown), qPrintable(item->objectName()));
+        expected << 0xff56;  // WPE_KEY_Page_Down
+        QCOMPARE(lib::keys, expected);
+        QVERIFY2(!pressRemoteButton(Qt::Key_ChannelUp), qPrintable(item->objectName()));
+        expected << 0xff55;  // WPE_KEY_Page_Up
+        QCOMPARE(lib::keys, expected);
+
+        // the focus stays, no navigation, no zoom
+        QVERIFY(item->hasActiveFocus());
+        QVERIFY(lib::calls.isEmpty());
+    }
+}
+
+void testWebViewKeyboard::heldChannelScrollsOnEveryRepeat() {
+    // holding CHANNEL scrolls on: the press and every repeat are a page
+    webView->forceActiveFocus();
+    pressRemoteButton(Qt::Key_ChannelDown, 3);
+    QCOMPARE(lib::keys, (QList<uint32_t>{0xff56, 0xff56, 0xff56, 0xff56}));
+    lib::keys.clear();
+    pressRemoteButton(Qt::Key_ChannelUp, 2);
+    QCOMPARE(lib::keys, (QList<uint32_t>{0xff55, 0xff55, 0xff55}));
+}
+
+void testWebViewKeyboard::volumeAndChannelAreIgnoredWhileTheKeyboardIsUp() {
+    QQuickItem *label = page->findChild<QQuickItem *>("zoomLabel");
+    QVERIFY(label);
+    const Qt::Key keys[] = {Qt::Key_VolumeUp, Qt::Key_VolumeDown, Qt::Key_ChannelUp, Qt::Key_ChannelDown};
+
+    // typing into the address field
+    tapTheAddressField();
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    for (Qt::Key key : keys) {
+        pressRemoteButton(key);
+    }
+    QVERIFY(lib::calls.isEmpty());
+    QVERIFY(lib::keys.isEmpty());
+    QVERIFY(field->hasActiveFocus());
+    QVERIFY(keyboard->property("active").toBool());
+
+    // typing into an input of the page
+    tapTheWebView();
+    QTRY_VERIFY(webView->hasActiveFocus());
+    lib::fireImeFocus(1, UC_WEBVIEW_IME_PURPOSE_FREE_FORM);
+    QTRY_VERIFY(keyboard->property("active").toBool());
+    for (Qt::Key key : keys) {
+        pressRemoteButton(key);
+    }
+    QVERIFY(lib::calls.isEmpty());
+    QVERIFY(lib::keys.isEmpty());
+    QCOMPARE(webView->zoom(), 1.0);
+    QVERIFY(!label->isVisible());
+
+    // the keyboard is put away: the keys work again
+    pressTheHideKey();
+    QTRY_VERIFY(!keyboard->property("active").toBool());
+    pressRemoteButton(Qt::Key_VolumeUp);
+    QCOMPARE(lib::calls, QStringList{QStringLiteral("set_zoom(1.1)")});
+    pressRemoteButton(Qt::Key_ChannelDown);
+    QCOMPARE(lib::keys, QList<uint32_t>{0xff56});
+}
+
+void testWebViewKeyboard::pinchShowsTheMagnificationNextToTheZoom() {
+    // libucwebview 0.6.0: the label shows the magnification while the fingers move, stays while the page renders it
+    // (with the spinner), and shows both factors once the page zoom differs from 100 % as well
+    QQuickItem *label = page->findChild<QQuickItem *>("zoomLabel");
+    QObject    *text = page->findChild<QObject *>("zoomText");
+    QQuickItem *spinner = page->findChild<QQuickItem *>("zoomSpinner");
+    QVERIFY(label && text && spinner);
+    QVERIFY(webView->isPinchZoomAvailable());
+    QVERIFY(!label->isVisible());
+
+    lib::firePinch(UC_WEBVIEW_PINCH_BEGIN, 1.0);
+    lib::firePinch(UC_WEBVIEW_PINCH_UPDATE, 1.5);
+    QTRY_VERIFY(label->isVisible());
+    QCOMPARE(text->property("text").toString(), QStringLiteral("1.5\u00d7"));
+    lib::firePinch(UC_WEBVIEW_PINCH_UPDATE, 2.0);
+    QCOMPARE(text->property("text").toString(), QStringLiteral("2.0\u00d7"));
+    // a long pinch: the label stays while the fingers are down
+    QTest::qWait(1200);
+    QVERIFY(label->isVisible());
+
+    lib::firePinch(UC_WEBVIEW_PINCH_END, 2.0);
+    QCOMPARE(lib::calls.filter(QStringLiteral("set_magnification(")),
+             QStringList{QStringLiteral("set_magnification(2)")});
+    QVERIFY(webView->isZoomRendering());
+    QTRY_VERIFY_WITH_TIMEOUT(spinner->isVisible(), 1000);
+    lib::finishRender();
+    QVERIFY(!spinner->isVisible());
+    QTRY_VERIFY_WITH_TIMEOUT(!label->isVisible(), 3000);
+
+    // VOLUME zooms the page and keeps the magnification: both in the label
+    pressRemoteButton(Qt::Key_VolumeUp);
+    QTRY_VERIFY(label->isVisible());
+    QCOMPARE(text->property("text").toString(), QStringLiteral("110 % \u00b7 2.0\u00d7"));
+    QCOMPARE(webView->magnification(), 2.0);
+    lib::finishRender();
 }
 
 int main(int argc, char *argv[]) {
