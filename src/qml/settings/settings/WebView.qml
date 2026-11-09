@@ -31,7 +31,7 @@ Settings.Page {
 
     property string lastEvent: ""
 
-    // the square icon buttons of the second row
+    // the square icon buttons of the second row: the smallest hit target of the design system, an icon box of a row
     readonly property int toolButtonSize: 60
 
     // The spinner next to the zoom level appears only when the page takes longer than this to render a zoom step
@@ -234,8 +234,9 @@ Settings.Page {
 
     ColumnLayout {
         anchors { top: topNavigation.bottom; left: parent.left; right: parent.right; bottom: parent.bottom }
-        anchors.leftMargin: 10
-        anchors.rightMargin: 10
+        // the 20 px gutter of every page (docs/design-system.md section 5)
+        anchors.leftMargin: 20
+        anchors.rightMargin: 20
         spacing: 10
 
         RowLayout {
@@ -287,9 +288,9 @@ Settings.Page {
                 Layout.preferredWidth: webViewPage.toolButtonSize
                 Layout.preferredHeight: webViewPage.toolButtonSize
                 text: ""
-                // dimmed and skipped by the d-pad (KeyNavigation passes over disabled items) without history
+                // dimmed (Components.Button) and skipped by the d-pad (KeyNavigation passes over disabled items)
+                // without history
                 enabled: webView.canGoBack
-                opacity: enabled ? 1 : 0.3
                 trigger: function() {
                     webView.goBack();
                 }
@@ -301,7 +302,8 @@ Settings.Page {
                 Components.Icon {
                     anchors.centerIn: parent
                     size: 60
-                    color: colors.offwhite
+                    // inverted on the pressed button, like a label (docs/design-system.md section 6)
+                    color: backButton.pressed ? colors.bg : colors.textPrimary
                     icon: "uc:arrow-left"
                 }
             }
@@ -313,7 +315,6 @@ Settings.Page {
                 Layout.preferredHeight: webViewPage.toolButtonSize
                 text: ""
                 enabled: webView.canGoForward
-                opacity: enabled ? 1 : 0.3
                 trigger: function() {
                     webView.goForward();
                 }
@@ -326,7 +327,7 @@ Settings.Page {
                 Components.Icon {
                     anchors.centerIn: parent
                     size: 60
-                    color: colors.offwhite
+                    color: forwardButton.pressed ? colors.bg : colors.textPrimary
                     icon: "uc:arrow-right"
                 }
             }
@@ -353,7 +354,7 @@ Settings.Page {
                     objectName: "stopReloadIcon"
                     anchors.centerIn: parent
                     size: 60
-                    color: colors.offwhite
+                    color: stopReloadButton.pressed ? colors.bg : colors.textPrimary
                     icon: webView.loading ? "uc:xmark" : "uc:arrow-rotate-right"
                 }
             }
@@ -362,13 +363,19 @@ Settings.Page {
                 id: statusLine
                 objectName: "statusLine"
                 Layout.fillWidth: true
-                Layout.preferredHeight: webViewPage.toolButtonSize
+                // two lines of the caption role, the smallest text there is
+                Layout.preferredHeight: Math.max(webViewPage.toolButtonSize, Math.ceil(2 * statusMetrics.height))
                 verticalAlignment: Text.AlignVCenter
                 wrapMode: Text.Wrap
                 maximumLineCount: 2
                 elide: Text.ElideRight
-                color: colors.light
+                color: colors.textSecondary
                 font: fonts.caption()
+
+                FontMetrics {
+                    id: statusMetrics
+                    font: statusLine.font
+                }
                 text: {
                     if (!webView.available) {
                         //: Status line of the developer page when the firmware has no web view library
@@ -394,6 +401,11 @@ Settings.Page {
             onCrashed: webViewPage.lastEvent = "crashed (" + reason + ")"
             onLoadFailed: webViewPage.lastEvent = "load failed: " + url
 
+            // the d-pad is in the web view: the ring of the selected control (docs/design-system.md section 6)
+            Components.Selectable {
+                selected: webView.activeFocus
+            }
+
             // The zoom level after VOLUME+/- and the magnification of a pinch, at the top of the page: at once, while
             // the fingers move and the page renders it, and for about a second after the last press or pinch; then it
             // fades out. A render that takes longer than zoomSpinnerDelay adds a spinner next to the level.
@@ -406,7 +418,7 @@ Settings.Page {
                 width: zoomRow.implicitWidth + 40
                 height: zoomRow.implicitHeight + 20
                 radius: ui.cornerRadiusSmall
-                color: colors.black
+                color: colors.bg
                 opacity: 0
                 visible: opacity > 0
 
@@ -428,8 +440,9 @@ Settings.Page {
                         id: zoomText
                         objectName: "zoomText"
                         anchors.verticalCenter: parent.verticalCenter
-                        color: colors.offwhite
-                        font: fonts.secondaryFont(24)
+                        color: colors.textPrimary
+                        // a value with its unit: the value role
+                        font: fonts.value()
                         // "125 %", "2.0×" or both ("125 % · 2.0×"): the page zoom (VOLUME) and the magnification of
                         // a pinch are separate (docs/webview.md, "Pinch zoom")
                         text: {
