@@ -22,6 +22,8 @@ struct WebViewFunctions {
     void (*global_shutdown)(void) = nullptr;
     // optional, library 0.2.0: the display refresh rate WebKit paces animations with
     int (*global_set_refresh_rate)(double) = nullptr;
+    // optional, library 0.3.0: the touch drag threshold of the library's display (16 px by default)
+    int (*global_get_drag_threshold)(void) = nullptr;
     uc_webview *(*create)(int, int, const uc_webview_callbacks *, void *) = nullptr;
     void (*destroy)(uc_webview *) = nullptr;
     void (*resize)(uc_webview *, int, int) = nullptr;
@@ -80,6 +82,12 @@ class WebViewLibrary {
 
     const WebViewFunctions &functions() const { return m_functions; }
 
+    // WebKit's tap/drag distance in view pixels, as the library configured its display: what
+    // uc_webview_global_get_drag_threshold() reports (library 0.3.0, 16 px unless UC_WEBVIEW_DRAG_THRESHOLD), or for
+    // an older library UC_WEBVIEW_DRAG_THRESHOLD or WPE's 8 px (dragThresholdFromEnv). Read once the library is
+    // initialised; before that the fallback.
+    double dragThreshold();
+
     // The refresh rate of the screen the web views are shown on, for uc_webview_global_set_refresh_rate(): WebKit
     // ticks requestAnimationFrame and animations at this rate (60 Hz without it). Only after ensureInitialized()
     // and only with a library that has the function; a rate already passed is not passed again.
@@ -102,6 +110,7 @@ class WebViewLibrary {
     bool             m_available = false;
     bool             m_initialized = false;
     qreal            m_refreshRate = 0;  // last rate passed to the library, 0 = none yet
+    double           m_dragThreshold = 0;  // px, read by ensureInitialized(); 0 = not yet
 };
 
 }  // namespace webview

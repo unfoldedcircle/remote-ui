@@ -13,8 +13,9 @@ namespace webview {
 namespace {
 
 struct KeyMapping {
-    int      key;
-    uint32_t keysym;
+    int         key;
+    uint32_t    keysym;
+    const char *name;  // for the trace (specialKeyName)
 };
 
 // Qt::Key -> XKB keysym. The values are those of WPEPlatform's WPEKeysyms.h (identical to xkbcommon-keysyms.h):
@@ -24,30 +25,35 @@ struct KeyMapping {
 // (PREV and NEXT, Key_AudioRewind/Key_AudioForward, are the developer page's history keys), volume and power keys
 // (src/ui/inputController.h). They return 0, with or without text, and stay with the QML page.
 constexpr KeyMapping kKeyTable[] = {
-    {Qt::Key_Return, 0xff0d},    // WPE_KEY_Return
-    {Qt::Key_Enter, 0xff8d},     // WPE_KEY_KP_Enter
-    {Qt::Key_Backspace, 0xff08}, // WPE_KEY_BackSpace
-    {Qt::Key_Escape, 0xff1b},    // WPE_KEY_Escape (never reaches the item on the desktop model: it is BACK there)
-    {Qt::Key_Tab, 0xff09},       // WPE_KEY_Tab
-    {Qt::Key_Backtab, 0xfe20},   // WPE_KEY_ISO_Left_Tab
-    {Qt::Key_Delete, 0xffff},    // WPE_KEY_Delete
-    {Qt::Key_Insert, 0xff63},    // WPE_KEY_Insert
-    {Qt::Key_Left, 0xff51},      // WPE_KEY_Left
-    {Qt::Key_Up, 0xff52},        // WPE_KEY_Up
-    {Qt::Key_Right, 0xff53},     // WPE_KEY_Right
-    {Qt::Key_Down, 0xff54},      // WPE_KEY_Down
-    {Qt::Key_End, 0xff57},       // WPE_KEY_End
-    {Qt::Key_PageUp, 0xff55},    // WPE_KEY_Page_Up
-    {Qt::Key_PageDown, 0xff56},  // WPE_KEY_Page_Down
-    {Qt::Key_Shift, 0xffe1},     // WPE_KEY_Shift_L
-    {Qt::Key_Control, 0xffe3},   // WPE_KEY_Control_L
-    {Qt::Key_Alt, 0xffe9},       // WPE_KEY_Alt_L
-    {Qt::Key_Meta, 0xffe7},      // WPE_KEY_Meta_L
-    {Qt::Key_CapsLock, 0xffe5},  // WPE_KEY_Caps_Lock
+    {Qt::Key_Return, 0xff0d, "Return"},        // WPE_KEY_Return
+    {Qt::Key_Enter, 0xff8d, "KP_Enter"},       // WPE_KEY_KP_Enter
+    {Qt::Key_Backspace, 0xff08, "BackSpace"},  // WPE_KEY_BackSpace
+    {Qt::Key_Escape, 0xff1b, "Escape"},        // WPE_KEY_Escape (never reaches the item on the desktop model: it is BACK)
+    {Qt::Key_Tab, 0xff09, "Tab"},              // WPE_KEY_Tab
+    {Qt::Key_Backtab, 0xfe20, "ISO_Left_Tab"}, // WPE_KEY_ISO_Left_Tab
+    {Qt::Key_Delete, 0xffff, "Delete"},        // WPE_KEY_Delete
+    {Qt::Key_Insert, 0xff63, "Insert"},        // WPE_KEY_Insert
+    {Qt::Key_Left, 0xff51, "Left"},            // WPE_KEY_Left
+    {Qt::Key_Up, 0xff52, "Up"},                // WPE_KEY_Up
+    {Qt::Key_Right, 0xff53, "Right"},          // WPE_KEY_Right
+    {Qt::Key_Down, 0xff54, "Down"},            // WPE_KEY_Down
+    {Qt::Key_End, 0xff57, "End"},              // WPE_KEY_End
+    {Qt::Key_PageUp, 0xff55, "Page_Up"},       // WPE_KEY_Page_Up
+    {Qt::Key_PageDown, 0xff56, "Page_Down"},   // WPE_KEY_Page_Down
+    {Qt::Key_Shift, 0xffe1, "Shift_L"},        // WPE_KEY_Shift_L
+    {Qt::Key_Control, 0xffe3, "Control_L"},    // WPE_KEY_Control_L
+    {Qt::Key_Alt, 0xffe9, "Alt_L"},            // WPE_KEY_Alt_L
+    {Qt::Key_Meta, 0xffe7, "Meta_L"},          // WPE_KEY_Meta_L
+    {Qt::Key_CapsLock, 0xffe5, "Caps_Lock"},   // WPE_KEY_Caps_Lock
 };
 
 constexpr uint32_t kKeysymF1 = 0xffbe;             // WPE_KEY_F1 .. WPE_KEY_F12 are consecutive
 constexpr uint32_t kKeysymUnicodeFlag = 0x01000000;  // keysym of a Unicode code point above U+00FF
+
+constexpr const char *kFunctionKeyNames[] = {"F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12"};
+
+// the longest URL text a log line carries (the library's UC_LOGGABLE_MAX)
+constexpr int kLoggableUrlMax = 200;
 
 }  // namespace
 
@@ -212,6 +218,59 @@ QString urlRejectionReason(const QUrl &url, bool allowFileUrls) {
         return QStringLiteral("not an absolute URL");
     }
     return QStringLiteral("scheme not allowed (http, https, about, data; file with UC_WEBVIEW_ALLOW_FILE_URLS=1)");
+}
+
+const char *specialKeyName(uint32_t keysym) {
+    for (const KeyMapping &mapping : kKeyTable) {
+        if (mapping.keysym == keysym) {
+            return mapping.name;
+        }
+    }
+    if (keysym >= kKeysymF1 && keysym < kKeysymF1 + 12) {
+        return kFunctionKeyNames[keysym - kKeysymF1];
+    }
+    return nullptr;
+}
+
+QString loggableUrl(const QUrl &url, bool full) {
+    // the rules of the library's uc_uri_policy_loggable(), so that the item's and the library's lines agree
+    const QString scheme = url.scheme().toLower();
+    QString       text;
+    if (url.isEmpty()) {
+        text = QStringLiteral("(empty)");
+    } else if (scheme.isEmpty()) {
+        text = QStringLiteral("(no scheme):...");
+    } else if (!url.isValid()) {
+        text = scheme + QStringLiteral(":...");
+    } else if (full) {
+        text = url.toString(QUrl::RemoveUserInfo);
+    } else if (!url.host().isEmpty() || scheme == QLatin1String("file") || scheme == QLatin1String("about")) {
+        // a query and a fragment carry tokens: OAuth codes, session ids, reset links
+        text = url.toString(QUrl::RemoveUserInfo | QUrl::RemoveQuery | QUrl::RemoveFragment);
+        if (url.hasQuery()) {
+            text += QStringLiteral("?...");
+        }
+        if (url.hasFragment()) {
+            text += QStringLiteral("#...");
+        }
+    } else if (scheme == QLatin1String("data")) {
+        // data:[<media type>][;base64],<payload>: the payload is page content
+        const QString path = url.path(QUrl::FullyEncoded);
+        const int     comma = path.indexOf(QLatin1Char(','));
+        text = comma >= 0 ? QStringLiteral("data:") + path.left(comma) + QStringLiteral(",...")
+                          : QStringLiteral("data:...");
+    } else {
+        // javascript:, blob:, mailto: and the like: the rest is code or an address
+        text = scheme + QStringLiteral(":...");
+    }
+    if (text.size() > kLoggableUrlMax) {
+        int cut = kLoggableUrlMax;
+        if (text.at(cut - 1).isHighSurrogate()) {
+            --cut;
+        }
+        text = text.left(cut) + QStringLiteral("...");
+    }
+    return text;
 }
 
 double dragThresholdFromEnv(const QByteArray &value) {

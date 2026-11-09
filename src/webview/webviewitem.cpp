@@ -19,7 +19,6 @@
 
 #include <algorithm>
 #include <cmath>
-#include <cstring>
 #include <utility>
 
 #include "../logging.h"
@@ -45,10 +44,17 @@ uint32_t eventTime(const QInputEvent *event) {
 }
 
 // UC_WEBVIEW_TRACE=1: every forwarded input event and every input method callback at INFO level, which is what
-// the device journal keeps (docs/webview.md)
-bool traceEnabled() {
-    static const bool enabled = qEnvironmentVariableIntValue("UC_WEBVIEW_TRACE") > 0;
+// the device journal keeps. A trace is made to be shared, so it never carries what the user types or what the
+// page's editable element holds, whatever its input purpose: keys are "printable" or a named special key, input
+// method events and surrounding text updates appear without text, lengths and caret offsets (docs/webview.md,
+// "What the trace logs").
+bool &traceSwitch() {
+    static bool enabled = qEnvironmentVariableIntValue("UC_WEBVIEW_TRACE") > 0;
     return enabled;
+}
+
+bool traceEnabled() {
+    return traceSwitch();
 }
 
 // the same loop form as Qt's qCInfo(): the stream statement runs once when tracing is on
@@ -99,16 +105,26 @@ bool fileUrlsAllowed() {
     return envSwitchEnabled(qgetenv("UC_WEBVIEW_ALLOW_FILE_URLS"));
 }
 
-// WebKit's tap/drag distance in view pixels, as the library configured it (UC_WEBVIEW_DRAG_THRESHOLD or 8 px)
-double tapDistance() {
-    static const double distance = dragThresholdFromEnv(qgetenv("UC_WEBVIEW_DRAG_THRESHOLD"));
-    return distance;
+// URLs carry credentials, and tokens in their query and fragment: every log line shows them through
+// loggableUrl(), in full (without credentials) only with UC_WEBVIEW_LOG_FULL_URLS=1, which the library reads too
+QString logUrl(const QUrl &url) {
+    return loggableUrl(url, envSwitchEnabled(qgetenv("UC_WEBVIEW_LOG_FULL_URLS")));
 }
 
-// URLs may carry credentials: never log them in full
-QString loggableUrl(const QUrl &url) {
-    return url.toString(QUrl::RemoveUserInfo);
-}
+// Marks the library calls during which WebKit reports the page's focused element synchronously because the view's
+// focus changes (uc_webview.h threading contract, WPEWebViewPlatform.cpp:100-110): set_focused, and a touch or
+// pointer press with which WebKit focuses its view itself (WPEWebViewPlatform.cpp:368-370, 468). An ime_focus
+// callback inside such a call repeats the state WebKit stored when the element got its focus.
+class FocusReplayScope {
+ public:
+    explicit FocusReplayScope(int *depth) : m_depth(depth) { ++*m_depth; }
+    ~FocusReplayScope() { --*m_depth; }
+    FocusReplayScope(const FocusReplayScope &) = delete;
+    FocusReplayScope &operator=(const FocusReplayScope &) = delete;
+
+ private:
+    int *m_depth;
+};
 
 }  // namespace
 
@@ -135,6 +151,10 @@ void WebViewItem::registerQmlTypes() {
 
 void WebViewItem::setInputPanelHookForTest(std::function<void(bool)> hook) {
     inputPanelHook() = std::move(hook);
+}
+
+void WebViewItem::setTraceEnabledForTest(bool enabled) {
+    traceSwitch() = enabled;
 }
 
 // ---- callbacks (GUI thread, from the GLib main context) -------------------------------------------------------
@@ -227,10 +247,13 @@ void WebViewItem::onFrameReady(const uc_webview_frame &frame) {
 
 void WebViewItem::onLoadChanged(int event, const char *uri) {
     const QUrl url = QUrl::fromEncoded(uri ? QByteArray(uri) : QByteArray());
-    UC_WEBVIEW_TRACE_IF() << "load " << loadEventName(event) << " " << loggableUrl(url);
+    UC_WEBVIEW_TRACE_IF() << "load " << loadEventName(event) << " " << logUrl(url);
     switch (event) {
         case UC_WEBVIEW_LOAD_STARTED:
             m_loadFailed = false;
+            // a new document: what the item learnt about the old one's focused element is void (the page may
+            // focus another element while the view has no focus, which WebKit reports to nobody)
+            m_imeInhibitHonouredOnTap = false;
             setLoading(true);
             setUrlFromPage(url);
             break;
@@ -247,7 +270,7 @@ void WebViewItem::onLoadChanged(int event, const char *uri) {
             break;
         case UC_WEBVIEW_LOAD_FAILED:
             m_loadFailed = true;
-            qCWarning(lcWebView()) << "Load failed:" << loggableUrl(url);
+            qCWarning(lcWebView()) << "Load failed:" << logUrl(url);
             emit loadFailed(url);
             break;
         default:
@@ -257,7 +280,7 @@ void WebViewItem::onLoadChanged(int event, const char *uri) {
 }
 
 void WebViewItem::onWebProcessTerminated(int reason) {
-    qCWarning(lcWebView()) << "Web process terminated, reason" << reason << "while showing" << loggableUrl(m_url);
+    qCWarning(lcWebView()) << "Web process terminated, reason" << reason << "while showing" << logUrl(m_url);
     setLoading(false);
     emit crashed(reason);
 
@@ -282,8 +305,26 @@ void WebViewItem::onImeFocus(bool focused, unsigned hints, unsigned purpose, con
     // otherwise the keyboard of the item that took the focus (a TextField next to the view) would be closed, and
     // taking the focus back from here would start a show/hide loop.
     const bool owner = hasActiveFocus();
+    // a report inside a library call that changed the view's focus repeats the element's stored state; any other
+    // report comes from the web process and is a change of the page's focus (FocusReplayScope)
+    const bool replay = m_focusReplayDepth > 0;
+    const bool inhibit = focused && (hints & UC_WEBVIEW_IME_HINT_INHIBIT_OSK) != 0;
+    if (!replay) {
+        // WebKit sets INHIBIT_OSK for inputmode="none" and for an element focused without a user gesture, one bit
+        // for both (InputMethodState.cpp:38-39, WebPageGLib.cpp:212-217). A report that arrives within the tap
+        // window after the user's tap or key press follows a user gesture, which WebKit does not flag
+        // (m_userIsInteracting): then the bit means inputmode="none" and holds for taps too. Otherwise (the page
+        // focused the element itself: autofocus, a script) a tap on the element shows the keyboard.
+        const bool afterGesture = m_lastUserGesture.isValid() && m_lastUserGesture.elapsed() <= kTapInputPanelDelayMs;
+        m_imeInhibitHonouredOnTap = inhibit && afterGesture;
+    }
+    // the element's text and caret (surrounding, cursor) are never traced: in a password field the caret offset is
+    // the number of characters typed
     UC_WEBVIEW_TRACE_IF() << "ime_focus " << focused << " hints 0x" << Qt::hex << hints << Qt::dec << " purpose "
-                          << purpose << " cursor " << cursor << (surrounding ? " with surrounding text" : "")
+                          << purpose << (replay ? " replayed with the view's focus" : "")
+                          << (inhibit ? (m_imeInhibitHonouredOnTap ? " (keyboard inhibited, also on taps)"
+                                                                   : " (keyboard inhibited until a tap)")
+                                      : "")
                           << (owner ? " (focus owner)" : " (another item has the focus)");
 
     if (!focused) {
@@ -303,7 +344,7 @@ void WebViewItem::onImeFocus(bool focused, unsigned hints, unsigned purpose, con
     const bool wasEnabled = m_imeEnabled;
     m_imeEnabled = true;
     m_imeHints = inputMethodHintsForIme(hints, purpose);
-    m_imeInhibitOsk = (hints & UC_WEBVIEW_IME_HINT_INHIBIT_OSK) != 0;
+    m_imeInhibitOsk = inhibit;
     if (surrounding) {
         m_surroundingText = QString::fromUtf8(surrounding);
         m_cursorPosition = cursor;
@@ -316,9 +357,11 @@ void WebViewItem::onImeFocus(bool focused, unsigned hints, unsigned purpose, con
     updateInputMethod(Qt::ImEnabled | Qt::ImHints | Qt::ImQueryInput);
 
     if (m_imeInhibitOsk) {
-        // inputmode="none", or an element the page focused by script without a user gesture (WebPageGLib.cpp:
-        // 216-217); a user tap on it sends the hints again without the flag, and the keyboard follows below
-        qCDebug(lcWebView()) << "Page inhibits the on-screen keyboard";
+        // inputmode="none", or an element the page focused without a user gesture (WebPageGLib.cpp:216-217): no
+        // keyboard for the focus itself. A tap on the element brings no new report (FocusController.cpp:1175-1178:
+        // elementDidRefocus keeps the stored state), so onTap() decides about the keyboard then.
+        qCDebug(lcWebView()) << "Page inhibits the on-screen keyboard"
+                             << (m_imeInhibitHonouredOnTap ? "(inputmode none)" : "until a tap on the element");
         return;
     }
     if (!wasEnabled || !QGuiApplication::inputMethod()->isVisible()) {
@@ -327,6 +370,8 @@ void WebViewItem::onImeFocus(bool focused, unsigned hints, unsigned purpose, con
 }
 
 void WebViewItem::resetImeState() {
+    // m_imeInhibitHonouredOnTap stays: it describes the page's focused element, which keeps its focus when only the
+    // view loses it, and the replayed report on the way back cannot tell (onImeFocus)
     m_imeEnabled = false;
     m_imeInhibitOsk = false;
     m_tapInputPanelTimer.stop();
@@ -351,15 +396,20 @@ void WebViewItem::requestInputPanel(bool show) {
 
 void WebViewItem::onTap() {
     // WebKit reports the focus of the page's editable element only when it changes: the web process sends the
-    // input method state again only when it differs (WebPageGLib.cpp:212-223, FocusController.cpp:1209-1211 for a
-    // click into the element that already has the focus) and InputMethodFilter::setState notifies focus-in only
-    // when an element gains it (InputMethodFilter.cpp:91-102). After the keyboard's hide key a tap on the same
-    // field therefore produces no ime_focus callback. Qt's TextInput re-opens the input panel on a press into the
-    // field that already has the focus (qquicktextinput.cpp:1901-1913); this does the same for the page's field.
+    // input method state again only when it differs (WebPageGLib.cpp:212-223; a click into the element that
+    // already has the focus only refocuses it, FocusController.cpp:1175-1178) and InputMethodFilter::setState
+    // notifies focus-in only when an element gains it (InputMethodFilter.cpp:91-102). After the keyboard's hide key
+    // a tap on the same field therefore produces no ime_focus callback. Qt's TextInput re-opens the input panel on a
+    // press into the field that already has the focus (qquicktextinput.cpp:1901-1913); this does the same for the
+    // page's field.
     // Which element the tap hits is only known to WebKit, so the request waits until WebKit had the time to turn
     // the tap into a click: a tap on a button or the page background moves the page's focus away, ime_focus(0)
     // arrives first and resetImeState() cancels the request, no keyboard flashes up.
-    if (!m_imeEnabled || !hasActiveFocus() || m_imeInhibitOsk) {
+    // A page-inhibited keyboard (INHIBIT_OSK) holds for the tap only when it is the page's inputmode="none": an
+    // element the page focused by itself (an autofocused PIN field) is inhibited as well, and a tap on it is the
+    // user asking for the keyboard (onImeFocus has the distinction).
+    m_lastUserGesture.restart();
+    if (!m_imeEnabled || !hasActiveFocus() || keyboardInhibitedOnTap()) {
         return;
     }
     UC_WEBVIEW_TRACE_IF() << "tap with a focused editable element: keyboard request in " << kTapInputPanelDelayMs
@@ -367,8 +417,14 @@ void WebViewItem::onTap() {
     m_tapInputPanelTimer.start();
 }
 
+bool WebViewItem::keyboardInhibitedOnTap() const {
+    return m_imeInhibitOsk && m_imeInhibitHonouredOnTap;
+}
+
 void WebViewItem::onTapInputPanelTimeout() {
-    if (!m_imeEnabled || !hasActiveFocus() || m_imeInhibitOsk) {
+    // the tap may have focused another element by now: its report decides (a user-tapped inputmode="none" element
+    // is honoured, see onImeFocus)
+    if (!m_imeEnabled || !hasActiveFocus() || keyboardInhibitedOnTap()) {
         return;
     }
     // The keyboard's hide key hides the input method itself: HideKeyboardKey.qml's own handler runs
@@ -382,8 +438,8 @@ void WebViewItem::onTapInputPanelTimeout() {
 }
 
 void WebViewItem::onImeSurrounding(const char *text, int cursor, int anchor) {
-    UC_WEBVIEW_TRACE_IF() << "ime_surrounding cursor " << cursor << " anchor " << anchor << " length "
-                          << (text ? static_cast<int>(strlen(text)) : 0);
+    // text, length, caret and anchor offsets are never traced (in a password field they count the typed characters)
+    UC_WEBVIEW_TRACE_IF() << "ime_surrounding changed";
     m_surroundingText = QString::fromUtf8(text ? text : "");
     m_cursorPosition = cursor;
     m_anchorPosition = anchor;
@@ -480,6 +536,7 @@ void WebViewItem::itemChange(ItemChange change, const ItemChangeData &value) {
                 resetImeState();
             }
             if (m_view) {
+                FocusReplayScope replay(&m_focusReplayDepth);
                 lib().set_focused(m_view, value.boolValue ? 1 : 0);
             }
             break;
@@ -569,7 +626,10 @@ void WebViewItem::ensureView() {
 
     lib().set_scale(m_view, m_devicePixelRatio);
     lib().set_mapped(m_view, m_mapped ? 1 : 0);
-    lib().set_focused(m_view, hasActiveFocus() ? 1 : 0);
+    {
+        FocusReplayScope replay(&m_focusReplayDepth);
+        lib().set_focused(m_view, hasActiveFocus() ? 1 : 0);
+    }
     applyBackgroundColor();
 
     if (!m_pendingHtml.isEmpty()) {
@@ -582,6 +642,7 @@ void WebViewItem::ensureView() {
 
 void WebViewItem::destroyView() {
     m_tapInputPanelTimer.stop();
+    m_imeInhibitHonouredOnTap = false;
     m_tapTouchId = -1;
     m_mouseTapCandidate = false;
     if (m_imeEnabled) {
@@ -641,7 +702,7 @@ bool WebViewItem::loadAllowed(const QUrl &url, const char *what) {
     if (reason.isEmpty()) {
         return true;
     }
-    qCWarning(lcWebView()).noquote().nospace() << "Not loading " << what << " " << loggableUrl(url) << ": " << reason;
+    qCWarning(lcWebView()).noquote().nospace() << "Not loading " << what << " " << logUrl(url) << ": " << reason;
     emit loadFailed(url);
     return false;
 }
@@ -656,7 +717,7 @@ void WebViewItem::setUrl(const QUrl &url) {
         emit urlChanged();
     }
     if (m_view && !url.isEmpty()) {
-        UC_WEBVIEW_TRACE_IF() << "load_uri " << loggableUrl(url);
+        UC_WEBVIEW_TRACE_IF() << "load_uri " << logUrl(url);
         lib().load_uri(m_view, url.toEncoded().constData());
     }
 }
@@ -745,7 +806,7 @@ void WebViewItem::loadHtml(const QString &html, const QUrl &baseUrl) {
     m_pendingHtml = html;
     m_pendingBaseUrl = baseUrl;
     if (m_view) {
-        UC_WEBVIEW_TRACE_IF() << "load_html " << html.size() << " chars, base " << loggableUrl(baseUrl);
+        UC_WEBVIEW_TRACE_IF() << "load_html " << html.size() << " chars, base " << logUrl(baseUrl);
         const QByteArray base = baseUrl.toEncoded();
         lib().load_html(m_view, html.toUtf8().constData(), base.isEmpty() ? nullptr : base.constData());
     }
@@ -828,8 +889,9 @@ void WebViewItem::touchEvent(QTouchEvent *event) {
 }
 
 bool WebViewItem::exceedsTapDistance(const QPointF &from, const QPointF &to) const {
+    // WebKit's own drag threshold, which the library sets on its display (16 px from library 0.3.0)
     const QPointF delta = to - from;
-    return std::hypot(delta.x(), delta.y()) > tapDistance();
+    return std::hypot(delta.x(), delta.y()) > WebViewLibrary::instance()->dragThreshold();
 }
 
 int WebViewItem::allocateTouchSlot(int id) {
@@ -844,7 +906,7 @@ int WebViewItem::allocateTouchSlot(int id) {
 void WebViewItem::sendTouch(int id, int slot, int phase, const QPointF &devicePos, uint32_t time) {
     if (traceEnabled()) {
         // the distance from the press tells a tap from a drag: WebKit turns the sequence into a drag (no click)
-        // once a move is more than WPE_SETTING_DRAG_THRESHOLD (8 px) away from the press position
+        // once a move is more than WPE_SETTING_DRAG_THRESHOLD (WebViewLibrary::dragThreshold) away from the press
         const QPointF start = m_touchStarts.value(id, devicePos);
         const QPointF delta = devicePos - start;
         qCInfo(lcWebView()).nospace() << "trace " << static_cast<const void *>(this) << ": touch slot " << slot
@@ -853,6 +915,7 @@ void WebViewItem::sendTouch(int id, int slot, int phase, const QPointF &devicePo
                                       << std::hypot(delta.x(), delta.y()) << " px, " << m_touchSlots.size()
                                       << " down";
     }
+    FocusReplayScope replay(&m_focusReplayDepth);
     lib().touch(m_view, slot, phase, devicePos.x(), devicePos.y(), time);
 }
 
@@ -898,6 +961,7 @@ void WebViewItem::mousePressEvent(QMouseEvent *event) {
     }
     UC_WEBVIEW_TRACE_IF() << "pointer button " << button << " down " << pos.x() << "," << pos.y() << " ms "
                           << eventTime(event);
+    FocusReplayScope replay(&m_focusReplayDepth);
     lib().pointer_button(m_view, button, 1, pos.x(), pos.y(), modifiersForEvent(event->modifiers()), eventTime(event));
     event->accept();
 }
@@ -990,8 +1054,22 @@ void WebViewItem::keyEvent(QKeyEvent *event, bool pressed) {
         event->ignore();
         return;
     }
-    UC_WEBVIEW_TRACE_IF() << "key 0x" << Qt::hex << keysym << Qt::dec << (pressed ? " down" : " up") << " scancode "
-                          << event->nativeScanCode() << " ms " << eventTime(event);
+    if (traceEnabled()) {
+        // a character key appears as "printable" only: its keysym and its scan code (which names the key on a
+        // keyboard) would spell what was typed, a PIN into a password field just as well
+        if (const char *name = specialKeyName(keysym)) {
+            UC_WEBVIEW_TRACE_IF() << "key special " << name << (pressed ? " down" : " up") << " (keysym 0x"
+                                  << Qt::hex << keysym << Qt::dec << ", scancode " << event->nativeScanCode()
+                                  << ") ms " << eventTime(event);
+        } else {
+            UC_WEBVIEW_TRACE_IF() << "key printable" << (pressed ? " down" : " up") << " ms " << eventTime(event);
+        }
+    }
+    if (pressed) {
+        // a user gesture for the page, like a tap: an element it focuses in response is not flagged as
+        // script-focused by WebKit (onImeFocus)
+        m_lastUserGesture.restart();
+    }
     lib().key(m_view, keysym, event->nativeScanCode(), pressed ? 1 : 0, modifiersForEvent(event->modifiers()),
               eventTime(event));
     event->accept();
@@ -1019,9 +1097,17 @@ QVariant WebViewItem::inputMethodQuery(Qt::InputMethodQuery query) const {
 }
 
 void WebViewItem::inputMethodEvent(QInputMethodEvent *event) {
-    UC_WEBVIEW_TRACE_IF() << "input method event: commit " << event->commitString().size() << " chars, preedit "
-                          << event->preeditString().size() << " chars, replace " << event->replacementStart() << "/"
-                          << event->replacementLength() << (m_imeEnabled ? "" : " (ignored, no editable element)");
+    // which parts the event has, never their text, length or offsets
+    if (traceEnabled()) {
+        const bool commit = !event->commitString().isEmpty();
+        const bool preedit = !event->preeditString().isEmpty();
+        const bool replacement = event->replacementLength() > 0;
+        UC_WEBVIEW_TRACE_IF() << "input method event:" << (commit ? " commit" : "")
+                              << (preedit ? " preedit" : (m_preeditActive ? " preedit end" : ""))
+                              << (replacement ? " replacement" : "")
+                              << (commit || preedit || replacement || m_preeditActive ? "" : " empty")
+                              << (m_imeEnabled ? "" : " (ignored, no editable element)");
+    }
     if (!m_view || !m_imeEnabled) {
         event->ignore();
         return;

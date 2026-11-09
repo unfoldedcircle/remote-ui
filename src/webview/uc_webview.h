@@ -30,7 +30,15 @@
  * GUI thread; WPEPlatform and WebKit deliver all their events through it,
  * see WPEPlatform/docs/tutorial-browser.md). All callbacks arrive on that
  * thread while it iterates the context, never from inside a uc_webview_*
- * call. A host with a render thread (Qt's threaded scene graph) may touch the
+ * call, with one exception: a change of the view's focus reports the page's
+ * focused editable element at once, ime_focus(1) when the view gains the
+ * focus and ime_focus(0) when it loses it (WebKit notifies its input method
+ * from the view's has-focus change, WPEWebViewPlatform.cpp:100-110). That is
+ * uc_webview_set_focused(), and also the pointer press or touch tap with which
+ * WebKit focuses an unfocused view itself (WPEWebViewPlatform.cpp:368-370,
+ * 468). The hints of such a report are those WebKit computed when the element
+ * got its focus.
+ * A host with a render thread (Qt's threaded scene graph) may touch the
  * EGLImage and GL objects of a frame from the render thread, but must marshal
  * the uc_webview_frame_rendered()/uc_webview_frame_release() calls back to the
  * UI thread.
@@ -203,7 +211,10 @@ int uc_webview_api_version(void);
  * (page console to stderr), JavaScriptCoreUseJIT=0 (sandboxes with MemoryDenyWriteExecute),
  * UC_WEBVIEW_ALLOW_FILE_URLS=1 (lets uc_webview_load_uri()/load_html() use file: URIs; read here, once),
  * UC_WEBVIEW_REFRESH_RATE=<Hz> (display refresh rate, wins over uc_webview_global_set_refresh_rate(); read here,
- * once), UC_WEBVIEW_TRACE=1 (log lines about the display refresh ticks).
+ * once), UC_WEBVIEW_DRAG_THRESHOLD=<px> (touch drag threshold, see uc_webview_global_get_drag_threshold()),
+ * UC_WEBVIEW_TRACE=1 (log lines about the display refresh ticks, key events and text input; never with typed text,
+ * see the package README "What the logs carry"), UC_WEBVIEW_LOG_FULL_URLS=1 (log lines show URIs with query,
+ * fragment and data: payload; without it only scheme, host, port and path; credentials never).
  */
 int uc_webview_global_init(void *egl_display, const char *data_dir, const char *cache_dir);
 
@@ -239,6 +250,19 @@ int uc_webview_global_set_refresh_rate(double hz);
  * precedence above (the display link ticks 1 % faster; before uc_webview_global_init() the environment is not read
  * yet). */
 double uc_webview_global_get_refresh_rate(void);
+
+/*
+ * UI thread. Added in library 0.3.0 within API version 1: hosts resolve it with dlsym(); an older library lacks it
+ * and leaves WPE's 8 px unless UC_WEBVIEW_DRAG_THRESHOLD is set.
+ *
+ * The touch drag threshold of the library's display in view pixels: WebKit's gesture recogniser turns a touch
+ * sequence into a scroll instead of a click once a move is farther than this from the press position. 16 px
+ * (measured on the remote's panel, see the package README) unless UC_WEBVIEW_DRAG_THRESHOLD=<px> (1..200) is set;
+ * uc_webview_global_init() reads it once. A host that tells taps from drags itself (remote-ui asks for the
+ * keyboard on a tap into a focused field) uses this value. Before uc_webview_global_init() it returns the value
+ * the environment will give.
+ */
+int uc_webview_global_get_drag_threshold(void);
 
 /* ---- view lifecycle ------------------------------------------------------ */
 

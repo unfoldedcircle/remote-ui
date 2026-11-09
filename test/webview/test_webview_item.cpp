@@ -6,6 +6,7 @@
 #include <QtTest>
 #include <qpa/qwindowsysteminterface.h>
 
+#include "webview/webviewinput.h"
 #include "webview/webviewitem.h"
 #include "webview/webviewlibrary.h"
 
@@ -31,6 +32,12 @@ struct State {
     bool                 canGoForward = false;
     QList<double>        refreshRates;           // uc_webview_global_set_refresh_rate() arguments
     int                  refreshRateResult = 0;  // what the stub returns (-1: refused)
+    int                  dragThreshold = 16;     // uc_webview_global_get_drag_threshold() (library 0.3.0 default)
+    // WebKit reports the page's focused editable element synchronously when the view's focus changes
+    // (WPEWebViewPlatform.cpp:100-110): set_focused() fires ime_focus with these hints while replayFocus is set
+    bool                 replayFocus = false;
+    unsigned             replayHints = 0;
+    unsigned             replayPurpose = 0;
 };
 
 State s;
@@ -57,6 +64,10 @@ int globalSetRefreshRate(double hz) {
     s.refreshRates.append(hz);
     record(QStringLiteral("global_set_refresh_rate(%1)").arg(hz));
     return s.refreshRateResult;
+}
+
+int globalGetDragThreshold() {
+    return s.dragThreshold;
 }
 
 uc_webview *create(int w, int h, const uc_webview_callbacks *cb, void *user) {
@@ -87,6 +98,10 @@ void setMapped(uc_webview *, int mapped) {
 
 void setFocused(uc_webview *, int focused) {
     record(QStringLiteral("set_focused(%1)").arg(focused));
+    if (s.replayFocus && s.callbacks.ime_focus) {
+        s.callbacks.ime_focus(s.view, focused, s.replayHints, s.replayPurpose, focused ? "" : nullptr, focused ? 0 : -1,
+                              s.user);
+    }
 }
 
 void setScale(uc_webview *, double scale) {
@@ -189,6 +204,7 @@ WebViewFunctions functions() {
     f.global_init = &globalInit;
     f.global_shutdown = &globalShutdown;
     f.global_set_refresh_rate = &globalSetRefreshRate;
+    f.global_get_drag_threshold = &globalGetDragThreshold;
     f.create = &create;
     f.destroy = &destroy;
     f.resize = &resize;
@@ -274,9 +290,9 @@ struct Fixture {
     QQuickWindow window;
     ExposedItem *item;
 
-    Fixture() {
+    explicit Fixture(const WebViewFunctions &functions = stub::functions()) {
         stub::s = stub::State();
-        WebViewLibrary::instance()->setFunctionsForTest(stub::functions());
+        WebViewLibrary::instance()->setFunctionsForTest(functions);
         WebViewItem::setInputPanelHookForTest([](bool show) { stub::s.panel.append(show ? "show" : "hide"); });
         item = new ExposedItem(window.contentItem());
         item->setSize(QSizeF(300, 200));
@@ -321,8 +337,8 @@ struct Fixture {
     }
 
     void sendKey(QEvent::Type type, int key, const QString &text = QString(),
-                 Qt::KeyboardModifiers modifiers = Qt::NoModifier) {
-        QKeyEvent event(type, key, modifiers, text);
+                 Qt::KeyboardModifiers modifiers = Qt::NoModifier, quint32 scanCode = 0) {
+        QKeyEvent event(type, key, modifiers, scanCode, 0, 0, text);
         event.ignore();
         QCoreApplication::sendEvent(item, &event);
         lastAccepted = event.isAccepted();
@@ -347,6 +363,10 @@ class testWebViewItem : public QObject {
     void keyboardFollowsTheFocusOwnerNotTheImeCallbacks();
     void tapIntoTheFocusedFieldAsksForTheKeyboardAgain();
     void tapThatMovesThePageFocusDoesNotFlashTheKeyboard();
+    void tapShowsTheKeyboardOnAnElementThePageFocusedItself();
+    void inputmodeNoneHoldsForTapsAfterTheUsersFocus();
+    void tapDistanceIsTheLibrarysDragThreshold();
+    void traceCarriesNoTypedTextOrUrlSecrets();
     void urlsOutsideTheSchemeAllowlistAreRefused();
     void inputMethodEventsReachTheLibrary();
     void touchPointsAreForwardedAndCancelledWhenTheSequenceIsLost();
@@ -665,7 +685,9 @@ void testWebViewItem::tapIntoTheFocusedFieldAsksForTheKeyboardAgain() {
     QCoreApplication::sendEvent(f.item, &release);
     QTRY_COMPARE(stub::s.panel.size(), 3);
 
-    // the page asked for no on-screen keyboard (inputmode="none", a field focused by script): taps leave it alone
+    // the user taps an element with inputmode="none": WebKit reports it with INHIBIT_OSK right after the tap, and
+    // taps leave it alone (inputmodeNoneHoldsForTapsAfterTheUsersFocus, tapShowsTheKeyboardOnAnElementThePage...)
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
     stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_INHIBIT_OSK, UC_WEBVIEW_IME_PURPOSE_FREE_FORM, "", 0);
     f.touchTap(QPointF(100, 50), QPointF(100, 50));
     QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
@@ -712,6 +734,308 @@ void testWebViewItem::tapThatMovesThePageFocusDoesNotFlashTheKeyboard() {
     f.touchTap(QPointF(100, 50), QPointF(100, 90));
     QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 100);
     QCOMPARE(stub::s.panel.size(), scrolled);
+}
+
+void testWebViewItem::tapShowsTheKeyboardOnAnElementThePageFocusedItself() {
+    // Seen in a device trace: the login page focused its PIN field by itself while the view had no focus.
+    // When the d-pad moved into the view, WebKit reported the field with INHIBIT_OSK (focus without a user gesture,
+    // WebPageGLib.cpp:216-217) from inside set_focused(1), and taps on the field brought no new report.
+    const unsigned    autofocused = UC_WEBVIEW_IME_HINT_SPELLCHECK | UC_WEBVIEW_IME_HINT_INHIBIT_OSK;  // 0x81
+    const QStringList shown{QStringLiteral("show")};
+    Fixture           f;
+    f.focusWindow();
+    stub::s.replayFocus = true;
+    stub::s.replayHints = autofocused;
+    stub::s.replayPurpose = UC_WEBVIEW_IME_PURPOSE_PASSWORD;
+
+    // the d-pad moves into the view: the replayed report enables the input method but opens no keyboard
+    f.item->forceActiveFocus();
+    QVERIFY(f.item->inputMethodQuery(Qt::ImEnabled).toBool());
+    QVERIFY(Qt::InputMethodHints(f.item->inputMethodQuery(Qt::ImHints).toInt()) & Qt::ImhHiddenText);
+    QVERIFY(stub::s.panel.isEmpty());
+
+    // a tap on the field: no report from WebKit, the keyboard comes after the tap delay
+    f.touchTap(QPointF(100, 50), QPointF(102, 51));
+    QVERIFY(stub::s.panel.isEmpty());
+    QTRY_COMPARE(stub::s.panel, shown);
+
+    // the same when the first touch into the view lands on the field: the press gives the item the focus (the
+    // report is replayed inside set_focused(1)), the release is the tap
+    QQuickItem other(f.window.contentItem());
+    other.forceActiveFocus();
+    QVERIFY(!f.item->hasActiveFocus());
+    stub::s.panel.clear();
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QVERIFY(f.item->hasActiveFocus());
+    QTRY_COMPARE(stub::s.panel, shown);
+
+    // the page focuses an element by itself while the view has the focus (a report long after the user's last tap):
+    // no keyboard for the focus, but for a tap on it
+    stub::fireImeFocus(0, 0, 0, nullptr, -1);
+    stub::s.panel.clear();
+    QTest::qWait(WebViewItem::kTapInputPanelDelayMs + 50);
+    stub::fireImeFocus(1, autofocused, UC_WEBVIEW_IME_PURPOSE_PASSWORD, "", 0);
+    QVERIFY(stub::s.panel.isEmpty());
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QTRY_COMPARE(stub::s.panel, shown);
+}
+
+void testWebViewItem::inputmodeNoneHoldsForTapsAfterTheUsersFocus() {
+    // inputmode="none" (a page with a keypad of its own): WebKit reports the element with INHIBIT_OSK right after
+    // the tap that focused it. Taps on the element, or on the page's keypad, which keeps the focus in the element,
+    // open no keyboard.
+    const unsigned none = UC_WEBVIEW_IME_HINT_INHIBIT_OSK;
+    const int      settle = WebViewItem::kTapInputPanelDelayMs + 50;
+    Fixture        f;
+    f.focusWindow();
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    stub::fireImeFocus(1, none, UC_WEBVIEW_IME_PURPOSE_FREE_FORM, "", 0);
+    QVERIFY(f.item->inputMethodQuery(Qt::ImEnabled).toBool());
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QTest::qWait(settle);
+    f.touchTap(QPointF(100, 150), QPointF(100, 150));
+    QTest::qWait(settle);
+    QVERIFY(stub::s.panel.isEmpty());
+
+    // from a field with the keyboard to the inputmode="none" element: the tap's pending request is dropped once the
+    // element's report arrives
+    stub::fireImeFocus(0, 0, 0, nullptr, -1);
+    f.touchTap(QPointF(100, 20), QPointF(100, 20));
+    stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_FREE_FORM, "", 0);
+    QCOMPARE(stub::s.panel, (QStringList{QStringLiteral("hide"), QStringLiteral("show")}));
+    stub::s.panel.clear();
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    stub::fireImeFocus(1, none, UC_WEBVIEW_IME_PURPOSE_FREE_FORM, "", 0);
+    QTest::qWait(settle);
+    QVERIFY(stub::s.panel.isEmpty());
+
+    // leaving the view and coming back keeps it: the replayed report cannot tell, the item remembers the element
+    stub::s.replayFocus = true;
+    stub::s.replayHints = none;
+    stub::s.replayPurpose = UC_WEBVIEW_IME_PURPOSE_FREE_FORM;
+    QQuickItem other(f.window.contentItem());
+    other.forceActiveFocus();
+    QVERIFY(!f.item->hasActiveFocus());
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QVERIFY(f.item->hasActiveFocus());
+    QTest::qWait(settle);
+    QVERIFY(stub::s.panel.isEmpty());
+
+    // a new document forgets it: the element the next page focuses by itself gets the keyboard on a tap
+    other.forceActiveFocus();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "http://localhost/next");
+    stub::s.replayHints = UC_WEBVIEW_IME_HINT_SPELLCHECK | UC_WEBVIEW_IME_HINT_INHIBIT_OSK;
+    f.item->forceActiveFocus();
+    QVERIFY(stub::s.panel.isEmpty());
+    f.touchTap(QPointF(100, 50), QPointF(100, 50));
+    QTRY_COMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
+}
+
+void testWebViewItem::tapDistanceIsTheLibrarysDragThreshold() {
+    const int settle = WebViewItem::kTapInputPanelDelayMs + 50;
+    qunsetenv("UC_WEBVIEW_DRAG_THRESHOLD");
+    // library 0.3.0 reports its display's threshold (16 px): a press that moves 12 px is still a click for WebKit
+    // and a tap for the keyboard request, 20 px is a drag
+    {
+        Fixture f;
+        f.focusWindow();
+        QCOMPARE(WebViewLibrary::instance()->dragThreshold(), 16.0);
+        f.touchTap(QPointF(100, 50), QPointF(100, 50));
+        stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+        stub::s.panel.clear();
+        f.touchTap(QPointF(100, 50), QPointF(100, 62));
+        QTRY_COMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
+        f.touchTap(QPointF(100, 50), QPointF(100, 70));
+        QTest::qWait(settle);
+        QCOMPARE(stub::s.panel.size(), 1);
+    }
+    // a library before 0.3.0 reports nothing and leaves WPE's 8 px, or UC_WEBVIEW_DRAG_THRESHOLD
+    WebViewFunctions older = stub::functions();
+    older.global_get_drag_threshold = nullptr;
+    {
+        Fixture f(older);
+        f.focusWindow();
+        QCOMPARE(WebViewLibrary::instance()->dragThreshold(), 8.0);
+        f.touchTap(QPointF(100, 50), QPointF(100, 50));
+        stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_NONE, UC_WEBVIEW_IME_PURPOSE_PIN, "", 0);
+        stub::s.panel.clear();
+        f.touchTap(QPointF(100, 50), QPointF(100, 62));
+        QTest::qWait(settle);
+        QVERIFY(stub::s.panel.isEmpty());
+        f.touchTap(QPointF(100, 50), QPointF(100, 56));
+        QTRY_COMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
+    }
+    qputenv("UC_WEBVIEW_DRAG_THRESHOLD", "30");
+    {
+        Fixture f(older);
+        QCOMPARE(WebViewLibrary::instance()->dragThreshold(), 30.0);
+    }
+    // a library that reports its value wins: it read the variable itself (the stub says 16)
+    {
+        Fixture f;
+        QCOMPARE(WebViewLibrary::instance()->dragThreshold(), 16.0);
+    }
+    qunsetenv("UC_WEBVIEW_DRAG_THRESHOLD");
+}
+
+namespace {
+
+QStringList *capturedMessages = nullptr;
+
+void captureMessage(QtMsgType, const QMessageLogContext &context, const QString &message) {
+    capturedMessages->append(QString::fromLatin1(context.category ? context.category : "default") +
+                             QStringLiteral(": ") + message);
+}
+
+// the item's trace lines after "uc.ui.webview: trace 0x...: ", nothing else (docs/webview.md)
+const char *const kAllowedTraceLines[] = {
+    R"(^touch slot \d+ \(qt id \d+\) (down|move|up|cancel) -?[\d.e+-]+,-?[\d.e+-]+ ms \d+ moved [\d.e+-]+ px, \d+ down$)",
+    R"(^key printable (down|up) ms \d+$)",
+    R"(^key special [A-Za-z0-9_]+ (down|up) \(keysym 0x[0-9a-f]+, scancode \d+\) ms \d+$)",
+    R"(^ime_focus (true|false) hints 0x[0-9a-f]+ purpose \d+( replayed with the view's focus)?)"
+    R"(( \(keyboard inhibited(, also on taps| until a tap)\))? \((focus owner|another item has the focus)\)$)",
+    R"(^ime_cursor_area -?\d+,-?\d+ \d+x\d+ \(view px\)$)",
+    R"(^ime_surrounding changed$)",
+    R"(^input method event:( commit)?( preedit| preedit end)?( replacement)?( empty)?)"
+    R"(( \(ignored, no editable element\))?$)",
+    R"(^input panel (show|hide)$)",
+    R"(^tap with a focused editable element: keyboard request in \d+ ms unless the page moves its focus$)",
+    R"(^active focus (true|false)$)",
+    R"(^load (started|redirected|committed|finished|failed) ".*"$)",
+    R"(^load_uri ".*"$)",
+    R"(^load_html \d+ chars, base ".*"$)",
+    R"(^pointer button \d (down|up) -?[\d.]+,-?[\d.]+ ms \d+$)",
+    R"(^pointer move -?[\d.]+,-?[\d.]+ ms \d+$)",
+    R"(^cancelling \d+ touch point\(s\): .+$)",
+    R"(^mouse grab taken by another item, releasing buttons$)",
+    R"(^touch id \d+ (down|move|up|cancel) without a press, dropped$)",
+};
+
+bool traceLineAllowed(const QString &line) {
+    for (const char *pattern : kAllowedTraceLines) {
+        const QRegularExpressionMatch match = QRegularExpression(QString::fromLatin1(pattern)).match(line);
+        if (!match.hasMatch()) {
+            continue;
+        }
+        if (line.startsWith(QLatin1String("key special "))) {
+            // the keysym of a special line is one of the named keys, never a character's
+            const int at = line.indexOf(QLatin1String("keysym 0x")) + 9;
+            const uint32_t keysym = line.mid(at, line.indexOf(QLatin1Char(','), at) - at).toUInt(nullptr, 16);
+            return uc::webview::specialKeyName(keysym) != nullptr;
+        }
+        return true;
+    }
+    return false;
+}
+
+}  // namespace
+
+void testWebViewItem::traceCarriesNoTypedTextOrUrlSecrets() {
+    // A password session through the item with the trace on (UC_WEBVIEW_TRACE=1 on the device) and every message of
+    // the process captured. No message may carry a typed character, its keysym or scan code, the field's text, its
+    // length or caret offsets, or the credentials, query and fragment of a URL (docs/webview.md, "What the trace
+    // logs"). The typed characters never occur in the trace's own words.
+    const QStringList typed{QStringLiteral("Q"), QStringLiteral("J"), QStringLiteral("Z"),
+                            QStringLiteral("§"), QStringLiteral("€"), QStringLiteral("ж"),
+                            QStringLiteral("Ω"), QStringLiteral("¶")};
+    const QStringList secrets{QStringLiteral("hunter2"), QStringLiteral("alice"), QStringLiteral("pin="),
+                              QStringLiteral("token"), QStringLiteral("●")};
+    const QList<int>  keys{Qt::Key_Q,       Qt::Key_J,       Qt::Key_Z,       Qt::Key_section,
+                          Qt::Key_unknown, Qt::Key_unknown, Qt::Key_unknown, Qt::Key_paragraph};
+    QStringList       messages;
+    bool              committed = false;
+    capturedMessages = &messages;
+    WebViewItem::setTraceEnabledForTest(true);
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    {
+        Fixture f;
+        f.focusWindow();
+        const QUrl login(QStringLiteral("https://alice:hunter2@remote.local/login?pin=QJZ#token=x"));
+        f.item->setUrl(login);
+        stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, login.toEncoded().constData());
+        stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, login.toEncoded().constData());
+        stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, login.toEncoded().constData());
+
+        // the user taps the password field, which holds a saved password; WebKit reports the masked text
+        f.touchTap(QPointF(100, 50), QPointF(101, 50));
+        stub::fireImeFocus(1, UC_WEBVIEW_IME_HINT_PRIVATE, UC_WEBVIEW_IME_PURPOSE_PASSWORD, "QJZ", 3);
+        stub::fireImeCursorArea(60, 40, 1, 20);
+
+        // a hardware keyboard: characters with their scan codes, the field reports its text after each
+        QString text;
+        QString bullets;
+        for (int i = 0; i < typed.size(); ++i) {
+            const quint32 scanCode = 101 + i;
+            f.sendKey(QEvent::KeyPress, keys.at(i), typed.at(i), Qt::NoModifier, scanCode);
+            f.sendKey(QEvent::KeyRelease, keys.at(i), typed.at(i), Qt::NoModifier, scanCode);
+            text += typed.at(i);
+            bullets += QChar(0x25cf);
+            stub::fireImeSurrounding(text.toUtf8().constData(), i + 1, i + 1);
+            stub::fireImeSurrounding(bullets.toUtf8().constData(), i + 1, i + 1);
+        }
+        f.sendKey(QEvent::KeyPress, Qt::Key_Backspace, QStringLiteral("\b"), Qt::NoModifier, 22);
+
+        // the on-screen keyboard: commits, a composition, a correction, the end
+        QInputMethodEvent commit;
+        commit.setCommitString(typed.at(0) + typed.at(1));
+        QCoreApplication::sendEvent(f.item, &commit);
+        QList<QInputMethodEvent::Attribute> attributes{
+            QInputMethodEvent::Attribute(QInputMethodEvent::Cursor, 2, 1, QVariant())};
+        QInputMethodEvent preedit(typed.at(3) + typed.at(4), attributes);
+        QCoreApplication::sendEvent(f.item, &preedit);
+        QInputMethodEvent replace;
+        replace.setCommitString(typed.at(5) + typed.at(6), -1, 1);
+        QCoreApplication::sendEvent(f.item, &replace);
+        QInputMethodEvent empty;
+        QCoreApplication::sendEvent(f.item, &empty);
+        stub::fireImeSurrounding(text.toUtf8().constData(), 6, 2);
+        f.sendKey(QEvent::KeyPress, Qt::Key_Return, QStringLiteral("\r"), Qt::NoModifier, 36);
+        stub::fireImeFocus(0, 0, 0, nullptr, -1);
+        committed = stub::s.calls.contains(QStringLiteral("ime_commit(%1)").arg(typed.at(0) + typed.at(1)));
+    }
+    qInstallMessageHandler(previous);
+    WebViewItem::setTraceEnabledForTest(false);
+    capturedMessages = nullptr;
+
+    QVERIFY(committed);  // the library got the text: only the log does not
+    const QRegularExpression traceLine(QStringLiteral("^uc\\.ui\\.webview: trace 0x[0-9a-f]+: (.*)$"));
+    int                      traced = 0;
+    for (const QString &message : messages) {
+        for (const QString &secret : secrets) {
+            QVERIFY2(!message.contains(secret), qPrintable(message));
+        }
+        for (int i = 0; i < typed.size(); ++i) {
+            QVERIFY2(!message.contains(QStringLiteral("scancode %1").arg(101 + i)), qPrintable(message));
+            QVERIFY2(!message.contains(QStringLiteral("keysym 0x%1").arg(uc::webview::xkbKeysymForKey(keys.at(i),
+                                                                                                     typed.at(i)),
+                                                                         0, 16)),
+                     qPrintable(message));
+            if (typed.at(i).at(0).unicode() > 0x7f) {
+                QVERIFY2(!message.contains(typed.at(i)), qPrintable(message));  // in no message at all
+            }
+        }
+        const QRegularExpressionMatch match = traceLine.match(message);
+        if (!match.hasMatch()) {
+            continue;
+        }
+        ++traced;
+        QVERIFY2(traceLineAllowed(match.captured(1)), qPrintable(message));
+        for (const QString &character : typed) {
+            QVERIFY2(!match.captured(1).contains(character), qPrintable(message));
+        }
+    }
+    // the trace still tells what happened
+    const QString all = messages.join(QLatin1Char('\n'));
+    QVERIFY(traced > 30);
+    QCOMPARE(all.count(QStringLiteral(": key printable down")), typed.size());
+    QVERIFY(all.contains(QStringLiteral(": key special BackSpace down (keysym 0xff08, scancode 22)")));
+    QVERIFY(all.contains(QStringLiteral(": ime_focus true hints 0x800 purpose 8 (focus owner)")));
+    QCOMPARE(all.count(QStringLiteral(": ime_surrounding changed")), 2 * typed.size() + 1);
+    QVERIFY(all.contains(QStringLiteral(": input method event: commit\n")));
+    QVERIFY(all.contains(QStringLiteral(": input method event: preedit\n")));
+    QVERIFY(all.contains(QStringLiteral(": input method event: commit preedit end replacement\n")));
+    QVERIFY(all.contains(QStringLiteral(": load started \"https://remote.local/login?...#...\"")));
+    QVERIFY(all.contains(QStringLiteral("Load failed: \"https://remote.local/login?...#...\"")));
 }
 
 void testWebViewItem::urlsOutsideTheSchemeAllowlistAreRefused() {

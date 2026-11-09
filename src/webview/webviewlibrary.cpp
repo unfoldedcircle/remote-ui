@@ -12,6 +12,7 @@
 #include <type_traits>
 
 #include "../logging.h"
+#include "webviewinput.h"
 
 namespace uc {
 namespace webview {
@@ -25,6 +26,7 @@ UC_WEBVIEW_CHECK_SIGNATURE(api_version, uc_webview_api_version);
 UC_WEBVIEW_CHECK_SIGNATURE(global_init, uc_webview_global_init);
 UC_WEBVIEW_CHECK_SIGNATURE(global_shutdown, uc_webview_global_shutdown);
 UC_WEBVIEW_CHECK_SIGNATURE(global_set_refresh_rate, uc_webview_global_set_refresh_rate);
+UC_WEBVIEW_CHECK_SIGNATURE(global_get_drag_threshold, uc_webview_global_get_drag_threshold);
 UC_WEBVIEW_CHECK_SIGNATURE(create, uc_webview_new);
 UC_WEBVIEW_CHECK_SIGNATURE(destroy, uc_webview_free);
 UC_WEBVIEW_CHECK_SIGNATURE(resize, uc_webview_resize);
@@ -182,6 +184,8 @@ bool WebViewLibrary::resolveAll(QString *missing) {
     // functions; an older library simply lacks them.
     m_functions.global_set_refresh_rate = reinterpret_cast<decltype(m_functions.global_set_refresh_rate)>(
         m_library.resolve("uc_webview_global_set_refresh_rate"));
+    m_functions.global_get_drag_threshold = reinterpret_cast<decltype(m_functions.global_get_drag_threshold)>(
+        m_library.resolve("uc_webview_global_get_drag_threshold"));
     return ok;
 }
 
@@ -218,7 +222,19 @@ bool WebViewLibrary::ensureInitialized() {
     m_initialized = true;
     qCInfo(lcWebView()) << "Web view initialised" << (eglDisplay ? "with Qt's EGL display" : "without an EGL display")
                         << (dataDir.isEmpty() ? "and an ephemeral session" : "and persistent website data");
+
+    // the library sets the threshold on its display in uc_webview_global_init() and reports it from then on
+    const int  reported = m_functions.global_get_drag_threshold ? m_functions.global_get_drag_threshold() : 0;
+    const bool valid = reported >= 1 && reported <= 200;
+    m_dragThreshold = valid ? reported : dragThresholdFromEnv(qgetenv("UC_WEBVIEW_DRAG_THRESHOLD"));
+    qCInfo(lcWebView()) << "Touch drag threshold" << m_dragThreshold << "px"
+                        << (valid ? "(reported by the library)"
+                                  : "(not reported by the library: UC_WEBVIEW_DRAG_THRESHOLD or WPE's default)");
     return true;
+}
+
+double WebViewLibrary::dragThreshold() {
+    return m_dragThreshold > 0 ? m_dragThreshold : dragThresholdFromEnv(qgetenv("UC_WEBVIEW_DRAG_THRESHOLD"));
 }
 
 void WebViewLibrary::setDisplayRefreshRate(qreal hz) {
@@ -242,6 +258,7 @@ void WebViewLibrary::setFunctionsForTest(const WebViewFunctions &functions) {
     m_available = true;
     m_initialized = false;
     m_refreshRate = 0;
+    m_dragThreshold = 0;
     m_reason.clear();
 }
 

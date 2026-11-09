@@ -46,9 +46,23 @@ bool envSwitchEnabled(const QByteArray &value);
 QString urlRejectionReason(const QUrl &url, bool allowFileUrls);
 
 // The distance in view pixels after which WebKit's gesture controller turns a touch sequence into a drag instead
-// of a tap (WPEGestureDetector.cpp:63-69): UC_WEBVIEW_DRAG_THRESHOLD (a decimal 1..200, which the library sets as
-// WPE_SETTING_DRAG_THRESHOLD, uc_events_drag_threshold) or WPE's default of 8 px (WPESettings.cpp:106).
+// of a tap (WPEGestureDetector.cpp:63-69) as a library older than 0.3.0 sets it: UC_WEBVIEW_DRAG_THRESHOLD (a
+// decimal 1..200, set as WPE_SETTING_DRAG_THRESHOLD) or WPE's default of 8 px (WPESettings.cpp:106). Library 0.3.0
+// reports its value itself (uc_webview_global_get_drag_threshold(), 16 px by default; WebViewLibrary::dragThreshold).
 double dragThresholdFromEnv(const QByteArray &value);
+
+// The input trace's name of a key the item forwards that types no character (Return, BackSpace, the arrows, Tab,
+// Escape, Delete, Insert, End, Page_Up/Down, KP_Enter, the modifiers, F1..F12), or nullptr: every other keysym is a
+// character and appears in the trace as "printable" only, without keysym and scan code (docs/webview.md, "What the
+// trace logs").
+const char *specialKeyName(uint32_t keysym);
+
+// The URL for a log line: never with user info (credentials); unless full (UC_WEBVIEW_LOG_FULL_URLS=1) only
+// scheme, host, port and path of a URL with a host and of file: and about: URLs, a query and a fragment shown as
+// "?..." and "#..." (they carry tokens); "data:<media type>,..." for a data: URL, "<scheme>:..." for other URLs
+// without a host (javascript:, blob:, mailto:). At most 200 characters. The rules of the library's
+// uc_uri_policy_loggable().
+QString loggableUrl(const QUrl &url, bool full);
 
 }  // namespace webview
 }  // namespace uc

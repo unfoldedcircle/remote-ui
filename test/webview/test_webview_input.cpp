@@ -29,6 +29,10 @@ class testWebViewInput : public QObject {
     void urlSchemeAllowlist();
     void environmentSwitchLikeTheLibrary();
     void tapDistanceFromTheEnvironment();
+    void specialKeysHaveTraceNamesCharactersDoNot();
+    void loggableUrlDropsCredentialsQueryAndPayload_data();
+    void loggableUrlDropsCredentialsQueryAndPayload();
+    void loggableUrlIsCutAt200Characters();
 };
 
 void testWebViewInput::keysForThePage_data() {
@@ -66,6 +70,8 @@ void testWebViewInput::keysForThePage() {
     // the text of a special key (Qt sends "\r" for Return) must not turn it into a character
     QCOMPARE(xkbKeysymForKey(key, QString()), keysym);
     QCOMPARE(xkbKeysymForKey(key, QStringLiteral("\r")), keysym);
+    // and the trace names it (a character key would only be "printable")
+    QVERIFY(specialKeyName(keysym) != nullptr);
 }
 
 void testWebViewInput::remoteButtonsStayWithTheUi_data() {
@@ -246,6 +252,68 @@ void testWebViewInput::tapDistanceFromTheEnvironment() {
     QCOMPARE(dragThresholdFromEnv("0"), 8.0);
     QCOMPARE(dragThresholdFromEnv("201"), 8.0);
     QCOMPARE(dragThresholdFromEnv("12px"), 8.0);
+}
+
+void testWebViewInput::specialKeysHaveTraceNamesCharactersDoNot() {
+    QCOMPARE(QString::fromLatin1(specialKeyName(0xff0d)), QStringLiteral("Return"));
+    QCOMPARE(QString::fromLatin1(specialKeyName(0xff08)), QStringLiteral("BackSpace"));
+    QCOMPARE(QString::fromLatin1(specialKeyName(0xff52)), QStringLiteral("Up"));
+    QCOMPARE(QString::fromLatin1(specialKeyName(0xffbe)), QStringLiteral("F1"));
+    QCOMPARE(QString::fromLatin1(specialKeyName(0xffc9)), QStringLiteral("F12"));
+    // every character the item forwards, Latin-1 and Unicode, has no name: the trace shows it as "printable"
+    for (uint codePoint = 0x20; codePoint <= 0xff; ++codePoint) {
+        if (codePoint >= 0x7f && codePoint < 0xa0) {
+            continue;
+        }
+        const uint32_t keysym = xkbKeysymForKey(Qt::Key_unknown, QString(QChar(codePoint)));
+        QVERIFY2(keysym != 0 && specialKeyName(keysym) == nullptr, qPrintable(QString::number(codePoint, 16)));
+    }
+    QVERIFY(specialKeyName(xkbKeysymForKey(Qt::Key_unknown, QStringLiteral("\u20ac"))) == nullptr);
+    QVERIFY(specialKeyName(0xffb7) == nullptr);  // KP_7: a keypad digit is a character
+    QVERIFY(specialKeyName(0xfe51) == nullptr);  // dead_acute
+    QVERIFY(specialKeyName(0) == nullptr);
+}
+
+void testWebViewInput::loggableUrlDropsCredentialsQueryAndPayload_data() {
+    QTest::addColumn<QString>("url");
+    QTest::addColumn<bool>("full");
+    QTest::addColumn<QString>("expected");
+
+    // the cases of the library's own uc_uri_policy_loggable() tests
+    QTest::newRow("credentials and query") << "https://user:secret@example.com/path?q=1" << false
+                                           << "https://example.com/path?...";
+    QTest::newRow("full keeps the query, not the credentials")
+        << "https://user:secret@example.com/path?q=1" << true << "https://example.com/path?q=1";
+    QTest::newRow("oauth callback") << "https://example.com/cb?code=4/0AY0e-g7&state=xyz#access_token=ya29.a0Af"
+                                    << false << "https://example.com/cb?...#...";
+    QTest::newRow("spa route") << "http://localhost/configurator/#/login" << false
+                               << "http://localhost/configurator/#...";
+    QTest::newRow("port") << "http://localhost:8080" << false << "http://localhost:8080";
+    QTest::newRow("file") << "file:///app/data/emoji.html" << false << "file:///app/data/emoji.html";
+    QTest::newRow("about") << "about:blank" << false << "about:blank";
+    QTest::newRow("data payload") << "data:text/html,<input value=secret>" << false << "data:text/html,...";
+    QTest::newRow("data base64") << "data:text/html;base64,PGlucHV0Pg==" << false << "data:text/html;base64,...";
+    QTest::newRow("data full") << "data:text/html,hi" << true << "data:text/html,hi";
+    QTest::newRow("javascript") << "javascript:send('secret')" << false << "javascript:...";
+    QTest::newRow("mailto") << "mailto:someone@example.com" << false << "mailto:...";
+    QTest::newRow("no scheme") << "/app/data/emoji.html" << false << "(no scheme):...";
+    QTest::newRow("empty") << "" << false << "(empty)";
+}
+
+void testWebViewInput::loggableUrlDropsCredentialsQueryAndPayload() {
+    QFETCH(QString, url);
+    QFETCH(bool, full);
+    QFETCH(QString, expected);
+    QCOMPARE(loggableUrl(QUrl(url), full), expected);
+}
+
+void testWebViewInput::loggableUrlIsCutAt200Characters() {
+    const QUrl    url(QStringLiteral("https://example.com/") + QString(300, QLatin1Char('a')) +
+                   QStringLiteral("?token=secret"));
+    const QString text = loggableUrl(url, true);
+    QCOMPARE(text.size(), 203);
+    QVERIFY(text.endsWith(QStringLiteral("...")));
+    QVERIFY(!loggableUrl(url, false).contains(QStringLiteral("secret")));
 }
 
 QTEST_GUILESS_MAIN(testWebViewInput)

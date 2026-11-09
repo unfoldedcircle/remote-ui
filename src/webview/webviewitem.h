@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QColor>
+#include <QElapsedTimer>
 #include <QHash>
 #include <QMetaObject>
 #include <QPointF>
@@ -50,17 +51,25 @@ namespace webview {
  *   on-screen keyboard only while it has the active focus; an `ime_focus` callback that arrives while another
  *   item owns the focus (WebKit reports focus-out when the item itself loses the focus) changes the item's state
  *   and nothing else. Losing the active focus resets the input method state without touching the keyboard.
- * - A tap (press and release within WebKit's drag distance) while the page's editable element is focused asks for
- *   the keyboard again, like Qt's TextInput re-opens it on a press into the focused field: WebKit reports the
- *   element's focus only when it changes, so after the keyboard's hide key a tap on the same field would bring
- *   nothing. The request waits kTapInputPanelDelayMs; a tap that moves the page's focus elsewhere (a button, the
- *   page background) reports `ime_focus(0)` before that and cancels it.
+ * - A tap (press and release within WebKit's drag distance, WebViewLibrary::dragThreshold) while the page's
+ *   editable element is focused asks for the keyboard again, like Qt's TextInput re-opens it on a press into the
+ *   focused field: WebKit reports the element's focus only when it changes, so after the keyboard's hide key a tap
+ *   on the same field would bring nothing. The request waits kTapInputPanelDelayMs; a tap that moves the page's
+ *   focus elsewhere (a button, the page background) reports `ime_focus(0)` before that and cancels it.
+ * - WebKit's INHIBIT_OSK hint means inputmode="none" or "focused without a user gesture" (autofocus, a script).
+ *   The focus report itself never opens the keyboard then. A tap on the element does, unless the report came from
+ *   the web process within the tap window after the user's own tap or key press: that focus was the user's, so
+ *   the hint is inputmode="none" and holds for taps too. Reports WebKit repeats inside a library call that changes
+ *   the view's focus (set_focused, a press that focuses the view) are replays and keep what the item knew.
  * - canGoBack/canGoForward are read from the library again on every load event, frame and title change: a
  *   same-document navigation (history.pushState, a fragment link) changes the history without a load event.
  * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
  *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
  * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at
- *   INFO level (uc.ui.webview).
+ *   INFO level (uc.ui.webview), never what the user types or what the page's editable element holds: keys as
+ *   "printable" or a named special key, input method events and surrounding text updates without text, lengths
+ *   or caret offsets. URLs in every log line lose credentials, query and fragment (UC_WEBVIEW_LOG_FULL_URLS=1 keeps
+ *   the last two). docs/webview.md, "What the trace logs".
  *
  * Frame pacing: WebKit ticks requestAnimationFrame and animations at the refresh rate the library is given, 60 Hz
  * otherwise. The item passes QScreen::refreshRate() of its window's screen (eglfs_kms: the DRM mode's vrefresh, 50 on
@@ -115,6 +124,8 @@ class WebViewItem : public QQuickItem {
     // Tests: receives the item's QInputMethod::show() (true) / hide() (false) requests instead of the real input
     // method. nullptr restores the default.
     static void setInputPanelHookForTest(std::function<void(bool)> hook);
+    // Tests: switches the input trace on or off (default: UC_WEBVIEW_TRACE, read at the first trace line).
+    static void setTraceEnabledForTest(bool enabled);
 
     // How long a tap into the page waits before it asks for the keyboard again (see the class comment): enough
     // for WebKit to turn the tap into a click and report a focus change of the page (a few IPC round trips).
@@ -188,6 +199,7 @@ class WebViewItem : public QQuickItem {
     void   requestInputPanel(bool show);
     void   onTap();
     void   onTapInputPanelTimeout();
+    bool   keyboardInhibitedOnTap() const;
     bool   exceedsTapDistance(const QPointF &from, const QPointF &to) const;
     bool   loadAllowed(const QUrl &url, const char *what);
     void   resetImeState();
@@ -229,7 +241,12 @@ class WebViewItem : public QQuickItem {
     QRectF               m_cursorRectangle;
     bool                 m_preeditActive = false;
     bool                 m_imeInhibitOsk = false;  // UC_WEBVIEW_IME_HINT_INHIBIT_OSK of the focused element
+    // the page's focused element got INHIBIT_OSK with a focus the user gave it: inputmode="none", which also holds
+    // for taps. Set from fresh reports only (onImeFocus), kept while the view alone loses the focus.
+    bool                 m_imeInhibitHonouredOnTap = false;
     QTimer               m_tapInputPanelTimer;      // a tap's deferred keyboard request (kTapInputPanelDelayMs)
+    QElapsedTimer        m_lastUserGesture;         // the last tap or forwarded key press
+    int                  m_focusReplayDepth = 0;    // > 0 inside a library call that can change the view's focus
 
     // touch points that went down and were not released yet: id -> last position in device pixels; the position
     // the sequence started at, for the trace (tap or drag: WebKit's drag threshold is 8 px)

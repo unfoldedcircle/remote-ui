@@ -23,6 +23,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the remote's PREV and NEXT buttons go back and forward in the page's history, also while the d-pad is in the web
   view. BACK leaves the page. The address field can be reached with the d-pad and shows the address of the page on
   screen.
+- Taps in the web view with a slightly rolling finger count as taps: with the web view library 0.3.0 a press may
+  move 16 px instead of 8 px before it scrolls the page. A tap on a text field that the page selected by itself, such
+  as the PIN field of the web configurator's login, opens the on-screen keyboard. The web view's input trace for
+  device tests (`UC_WEBVIEW_TRACE=1`) records no typed text, and web addresses in the log lose user name, password,
+  query and fragment unless `UC_WEBVIEW_LOG_FULL_URLS=1` is set.
 
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on
