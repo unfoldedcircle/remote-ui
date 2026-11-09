@@ -9,6 +9,7 @@
 #include <QInputMethodEvent>
 #include <QKeyEvent>
 #include <QMouseEvent>
+#include <QPointer>
 #include <QQmlEngine>
 #include <QQuickWindow>
 #include <QScreen>
@@ -30,6 +31,10 @@
 
 namespace uc {
 namespace webview {
+
+// Library 0.7.0 appended the six request callbacks: 17 callbacks, 136 bytes on aarch64 (and x86_64). The item passes
+// this size to uc_webview_new_sized(); an older library copies only its own part (uc_webview.h, "Compatibility").
+static_assert(sizeof(uc_webview_callbacks) == 17 * sizeof(void (*)()), "uc_webview_callbacks of library 0.7.0");
 
 namespace {
 
@@ -120,6 +125,17 @@ QString zoomRenderEndName(int end) {
     }
 }
 
+const char *newWindowResultName(int result) {
+    switch (result) {
+        case UC_WEBVIEW_NEW_WINDOW_LOADED:
+            return "loaded into this view";
+        case UC_WEBVIEW_NEW_WINDOW_REFUSED:
+            return "refused";
+        default:
+            return "with an unknown result";
+    }
+}
+
 const char *loadEventName(int event) {
     switch (event) {
         case UC_WEBVIEW_LOAD_STARTED:
@@ -196,7 +212,9 @@ class FocusReplayScope {
 WebViewItem::WebViewItem(QQuickItem *parent)
     : QQuickItem(parent),
       m_available(WebViewLibrary::instance()->isAvailable()),
-      m_pinchZoomAvailable(m_available && WebViewLibrary::instance()->pinchZoomAvailable()) {
+      m_pinchZoomAvailable(m_available && WebViewLibrary::instance()->pinchZoomAvailable()),
+      m_requestsAvailable(m_available && WebViewLibrary::instance()->requestsAvailable()),
+      m_requests(this) {
     setFlag(ItemHasContents, true);
     setFlag(ItemAcceptsInputMethod, true);
     setFlag(ItemIsFocusScope, true);
@@ -209,6 +227,9 @@ WebViewItem::WebViewItem(QQuickItem *parent)
 
     m_zoomFallbackTimer.setSingleShot(true);
     connect(&m_zoomFallbackTimer, &QTimer::timeout, this, [this] { finishZoomRenderWait(kZoomNoFrame); });
+
+    // kind, id and outcome of every request: never its texts, the answer or the credentials
+    m_requests.setTrace([this](const QString &line) { UC_WEBVIEW_TRACE_IF() << qUtf8Printable(line); });
 }
 
 WebViewItem::~WebViewItem() {
@@ -217,6 +238,11 @@ WebViewItem::~WebViewItem() {
 
 void WebViewItem::registerQmlTypes() {
     qmlRegisterType<WebViewItem>("UC.WebView", 1, 0, "WebView");
+    // the requests of dialogRequested() and authenticationRequested(): typed QML properties and their enums
+    qmlRegisterUncreatableType<WebViewDialogRequest>("UC.WebView", 1, 0, "WebViewDialogRequest",
+                                                     QStringLiteral("created by the WebView item"));
+    qmlRegisterUncreatableType<WebViewAuthRequest>("UC.WebView", 1, 0, "WebViewAuthRequest",
+                                                   QStringLiteral("created by the WebView item"));
 }
 
 void WebViewItem::setInputPanelHookForTest(std::function<void(bool)> hook) {
@@ -316,6 +342,33 @@ void WebViewItem::onMagnificationChangedCb(uc_webview *, double magnification, v
 
 void WebViewItem::onMagnificationRenderedCb(uc_webview *, int status, void *user) {
     static_cast<WebViewItem *>(user)->finishMagnificationRender(status);
+}
+
+void WebViewItem::onScriptDialogCb(uc_webview *, uint64_t request, int type, const char *origin, const char *message,
+                                   const char *defaultText, void *user) {
+    static_cast<WebViewItem *>(user)->onScriptDialog(request, type, origin, message, defaultText);
+}
+
+void WebViewItem::onAuthenticateCb(uc_webview *, uint64_t request, const char *origin, const char *realm, int scheme,
+                                   unsigned flags, void *user) {
+    static_cast<WebViewItem *>(user)->onAuthenticate(request, origin, realm, scheme, flags);
+}
+
+void WebViewItem::onRequestCancelledCb(uc_webview *, uint64_t request, void *user) {
+    // a navigation call of the item (from an idle after it), a commit, a crash or WebKit ended it: close its dialog
+    static_cast<WebViewItem *>(user)->m_requests.cancel(request);
+}
+
+void WebViewItem::onCloseRequestedCb(uc_webview *, void *user) {
+    static_cast<WebViewItem *>(user)->onCloseRequested();
+}
+
+void WebViewItem::onNewWindowCb(uc_webview *, const char *uri, int result, void *user) {
+    static_cast<WebViewItem *>(user)->onNewWindow(uri, result);
+}
+
+void WebViewItem::onResponseRefusedCb(uc_webview *, const char *uri, const char *mimeType, int reason, void *user) {
+    static_cast<WebViewItem *>(user)->onResponseRefused(uri, mimeType, reason);
 }
 
 void WebViewItem::onFrameReady(const uc_webview_frame &frame) {
@@ -556,6 +609,62 @@ void WebViewItem::onImeSurrounding(const char *text, int cursor, int anchor) {
     updateInputMethod(Qt::ImSurroundingText | Qt::ImCursorPosition | Qt::ImAnchorPosition);
 }
 
+// ---- requests of the page (library 0.7.0) ------------------------------------------------------------------------
+
+void WebViewItem::onScriptDialog(quint64 id, int type, const char *origin, const char *message,
+                                 const char *defaultText) {
+    WebViewDialogRequest *request = m_requests.addDialog(id, type, origin, message, defaultText);
+    if (!request) {
+        return;  // a type of a newer library, answered "no"
+    }
+    // the item deletes it after it ended: QML must not collect it
+    QQmlEngine::setObjectOwnership(request, QQmlEngine::CppOwnership);
+    QPointer<WebViewDialogRequest> guard(request);
+    emit dialogRequested(request);
+    // answering from inside the library's callback is allowed: the library closes the dialog from an idle
+    m_requests.answerIfUnhandled(guard.data());
+}
+
+void WebViewItem::onAuthenticate(quint64 id, const char *origin, const char *realm, int scheme, unsigned flags) {
+    WebViewAuthRequest *request = m_requests.addAuth(id, origin, realm, scheme, flags);
+    if (!request) {
+        return;  // not a user name and password login, continued without credentials
+    }
+    QQmlEngine::setObjectOwnership(request, QQmlEngine::CppOwnership);
+    QPointer<WebViewAuthRequest> guard(request);
+    emit authenticationRequested(request);
+    m_requests.answerIfUnhandled(guard.data());
+}
+
+void WebViewItem::onCloseRequested() {
+    UC_WEBVIEW_TRACE_IF() << "close requested by the page (window.close())";
+    // not from inside the callback: a handler that leaves the page frees the view, which uc_webview_free() forbids
+    // there (uc_webview.h, "Host callbacks")
+    QTimer::singleShot(0, this, [this] {
+        if (m_view) {
+            emit closeRequested();
+        }
+    });
+}
+
+void WebViewItem::onNewWindow(const char *uri, int result) {
+    const QUrl url = QUrl::fromEncoded(uri ? QByteArray(uri) : QByteArray());
+    UC_WEBVIEW_TRACE_IF() << "new window " << newWindowResultName(result) << ": " << logUrl(url);
+    if (result == UC_WEBVIEW_NEW_WINDOW_LOADED || result == UC_WEBVIEW_NEW_WINDOW_REFUSED) {
+        emit newWindow(url, result == UC_WEBVIEW_NEW_WINDOW_LOADED);
+    }
+}
+
+void WebViewItem::onResponseRefused(const char *uri, const char *mimeType, int reason) {
+    const QUrl    url = QUrl::fromEncoded(uri ? QByteArray(uri) : QByteArray());
+    const QString type = QString::fromUtf8(mimeType ? mimeType : "");
+    const bool    download = reason == UC_WEBVIEW_RESPONSE_DOWNLOAD;
+    // a reason of a newer library counts as "cannot be shown"
+    UC_WEBVIEW_TRACE_IF() << "response refused, " << (download ? "download " : "cannot be shown ") << logUrl(url)
+                          << " (" << (type.isEmpty() ? "type unknown" : qUtf8Printable(type)) << ")";
+    emit responseRefused(url, type, download);
+}
+
 // ---- frames ------------------------------------------------------------------------------------------------------
 
 QSGNode *WebViewItem::updatePaintNode(QSGNode *oldNode, UpdatePaintNodeData *) {
@@ -745,6 +854,15 @@ void WebViewItem::ensureView() {
         cb.pinch = &WebViewItem::onPinchCb;
         cb.magnification_changed = &WebViewItem::onMagnificationChangedCb;
     }
+    // library 0.7.0: the page's requests reach the item only with these set; an older library never reads them
+    if (m_requestsAvailable) {
+        cb.script_dialog = &WebViewItem::onScriptDialogCb;
+        cb.authenticate = &WebViewItem::onAuthenticateCb;
+        cb.request_cancelled = &WebViewItem::onRequestCancelledCb;
+        cb.close_requested = &WebViewItem::onCloseRequestedCb;
+        cb.new_window = &WebViewItem::onNewWindowCb;
+        cb.response_refused = &WebViewItem::onResponseRefusedCb;
+    }
     if (lib().create_sized) {
         m_view = lib().create_sized(m_viewSize.width(), m_viewSize.height(), &cb, sizeof cb, this);
     } else {
@@ -755,6 +873,7 @@ void WebViewItem::ensureView() {
         return;
     }
     m_pinch.reset(1.0);
+    m_requests.setView(m_view, lib().request_reply, lib().request_auth);
     qCDebug(lcWebView()) << "Web view created" << m_viewSize << "at scale" << m_devicePixelRatio;
 
     lib().set_scale(m_view, m_devicePixelRatio);
@@ -809,6 +928,10 @@ void WebViewItem::destroyView() {
     m_magnificationRendering = false;
     m_pinch.reset(1.0);
     m_frames.setHeld(false);
+    // uc_webview_free() ends the pending requests without a callback: their objects go now, without a signal (QML
+    // properties that hold them turn null)
+    m_requests.clear();
+    m_requests.setView(nullptr, nullptr, nullptr);
     if (!m_view) {
         return;
     }
@@ -870,6 +993,8 @@ void WebViewItem::setUrl(const QUrl &url) {
         emit urlChanged();
     }
     if (m_view && !url.isEmpty()) {
+        // the user goes elsewhere: a pending leave-page question is answered "leave" (see the class comment)
+        m_requests.answerLeavePage(true);
         UC_WEBVIEW_TRACE_IF() << "load_uri " << logUrl(url);
         lib().load_uri(m_view, url.toEncoded().constData());
     }
@@ -1141,24 +1266,34 @@ void WebViewItem::zoomOut() {
 
 void WebViewItem::reload() {
     if (m_view) {
+        m_requests.answerLeavePage(true);
         lib().reload(m_view);
     }
 }
 
 void WebViewItem::stop() {
     if (m_view) {
+        // the user stays: the navigation that asked stops as well
+        m_requests.answerLeavePage(false);
         lib().stop(m_view);
     }
 }
 
 void WebViewItem::goBack() {
     if (m_view) {
+        // the library ends pending requests for back and forward only when there is somewhere to go
+        if (lib().can_go_back(m_view)) {
+            m_requests.answerLeavePage(true);
+        }
         lib().go_back(m_view);
     }
 }
 
 void WebViewItem::goForward() {
     if (m_view) {
+        if (lib().can_go_forward(m_view)) {
+            m_requests.answerLeavePage(true);
+        }
         lib().go_forward(m_view);
     }
 }
@@ -1176,6 +1311,7 @@ void WebViewItem::loadHtml(const QString &html, const QUrl &baseUrl) {
     m_pendingHtml = html;
     m_pendingBaseUrl = baseUrl;
     if (m_view) {
+        m_requests.answerLeavePage(true);
         UC_WEBVIEW_TRACE_IF() << "load_html " << html.size() << " chars, base " << logUrl(baseUrl);
         const QByteArray base = baseUrl.toEncoded();
         lib().load_html(m_view, html.toUtf8().constData(), base.isEmpty() ? nullptr : base.constData());

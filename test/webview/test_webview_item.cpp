@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QElapsedTimer>
+#include <QPointer>
+#include <QQmlEngine>
 #include <QQuickWindow>
 #include <QScreen>
 #include <QtTest>
@@ -16,9 +18,12 @@
 #include "webview/webviewitem.h"
 #include "webview/webviewlibrary.h"
 
+using uc::webview::WebViewAuthRequest;
+using uc::webview::WebViewDialogRequest;
 using uc::webview::WebViewFunctions;
 using uc::webview::WebViewItem;
 using uc::webview::WebViewLibrary;
+using uc::webview::WebViewRequest;
 
 // A fake libucwebview: records every call and lets the test fire the callbacks the real library would deliver
 // from the GLib main context on the GUI thread.
@@ -56,6 +61,8 @@ struct State {
     size_t               callbacksSize = 0;
     QList<double>        magnifications;
     int                  magnificationResult = 0;
+    // the page's requests (library 0.7.0): what uc_webview_request_reply()/_auth() return (-1: the request had ended)
+    int                  requestResult = 0;
 };
 
 State s;
@@ -122,6 +129,20 @@ int setMagnification(uc_webview *, double scale, double x, double y) {
 
 double getMagnification(uc_webview *) {
     return s.magnifications.isEmpty() ? 1.0 : s.magnifications.last();
+}
+
+QString orNull(const char *text) {
+    return text ? QStringLiteral("\"%1\"").arg(QString::fromUtf8(text)) : QStringLiteral("null");
+}
+
+int requestReply(uc_webview *, uint64_t id, int accept, const char *text) {
+    record(QStringLiteral("request_reply(%1,%2,%3)").arg(id).arg(accept).arg(orNull(text)));
+    return s.requestResult;
+}
+
+int requestAuth(uc_webview *, uint64_t id, const char *user, const char *password) {
+    record(QStringLiteral("request_auth(%1,%2,%3)").arg(id).arg(orNull(user), orNull(password)));
+    return s.requestResult;
 }
 
 void destroy(uc_webview *v) {
@@ -299,12 +320,22 @@ WebViewFunctions functions() {
     f.create_sized = &createSized;
     f.set_magnification = &setMagnification;
     f.get_magnification = &getMagnification;
+    f.request_reply = &requestReply;
+    f.request_auth = &requestAuth;
+    return f;
+}
+
+// a library 0.6.x: no requests of the page
+WebViewFunctions functionsWithoutRequests() {
+    WebViewFunctions f = functions();
+    f.request_reply = nullptr;
+    f.request_auth = nullptr;
     return f;
 }
 
 // a library 0.5.x: no pinch zoom
 WebViewFunctions functionsWithoutPinch() {
-    WebViewFunctions f = functions();
+    WebViewFunctions f = functionsWithoutRequests();
     f.set_magnification = nullptr;
     f.get_magnification = nullptr;
     return f;
@@ -383,6 +414,43 @@ void pinch(double scale, double x, double y) {
 void fireMagnificationChanged(double magnification) {
     s.magnifications.append(magnification);
     s.callbacks.magnification_changed(s.view, magnification, s.user);
+}
+
+void fireScriptDialog(uint64_t id, int type, const char *origin, const char *message,
+                      const char *defaultText = nullptr) {
+    QVERIFY(s.callbacks.script_dialog != nullptr);
+    s.callbacks.script_dialog(s.view, id, type, origin, message, defaultText, s.user);
+}
+
+void fireAuthenticate(uint64_t id, const char *origin, const char *realm,
+                      int scheme = UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC, unsigned flags = 0) {
+    QVERIFY(s.callbacks.authenticate != nullptr);
+    s.callbacks.authenticate(s.view, id, origin, realm, scheme, flags, s.user);
+}
+
+void fireRequestCancelled(uint64_t id) {
+    QVERIFY(s.callbacks.request_cancelled != nullptr);
+    s.callbacks.request_cancelled(s.view, id, s.user);
+}
+
+void fireCloseRequested() {
+    QVERIFY(s.callbacks.close_requested != nullptr);
+    s.callbacks.close_requested(s.view, s.user);
+}
+
+void fireNewWindow(const char *uri, int result) {
+    QVERIFY(s.callbacks.new_window != nullptr);
+    s.callbacks.new_window(s.view, uri, result, s.user);
+}
+
+void fireResponseRefused(const char *uri, const char *mimeType, int reason) {
+    QVERIFY(s.callbacks.response_refused != nullptr);
+    s.callbacks.response_refused(s.view, uri, mimeType, reason, s.user);
+}
+
+// the answers the item sent to the page's requests
+QStringList requestCalls() {
+    return s.calls.filter(QRegularExpression(QStringLiteral("^request_")));
 }
 
 // the calls of the pinch zoom
@@ -522,6 +590,16 @@ class testWebViewItem : public QObject {
     void twoFingersAreNoTapWithPinchZoom();
     void magnificationWaitEndsQuietlyWhenTheItemGoes();
     void pinchTraceLines();
+    void requestCallbacksNeedTheSizedViewAndTheReplyFunctions();
+    void olderLibrariesGetNoRequestCallbacks();
+    void dialogsAreRequestObjectsAnsweredOnce();
+    void unhandledRequestsGetTheDefaultAtOnce();
+    void cancelledRequestsEndWithoutAnAnswer();
+    void freedViewEndsRequestsWithoutSignals();
+    void leavePageIsAnsweredBeforeTheItemNavigates();
+    void newWindowsAndRefusedResponsesAreSignalled();
+    void closeRequestedComesAfterTheCallback();
+    void requestTraceLines();
     void framesArriveAndAreReleasedWhenTheItemGoes();
     void screenRefreshRateGoesToTheLibraryBeforeTheView();
     void refreshRateFollowsTheScreen();
@@ -1075,6 +1153,19 @@ const char *const kAllowedTraceLines[] = {
     R"(^magnification [\d.]+ -> [\d.]+ at -?[\d.]+,-?[\d.]+$)",
     R"(^magnification [\d.]+ rendered after \d+ ms \((done|timeout|cancelled|status -?\d+)\)$)",
     R"(^magnification changed to [\d.]+ by a navigation or history step$)",
+    R"(^request \d+: (alert|confirm|prompt|beforeunload)$)",
+    R"(^request \d+: auth scheme \d+(, retry)?(, proxy)?$)",
+    R"(^request \d+: answered (yes|yes with text|no|with credentials|without credentials|no \(not handled\)|)"
+    R"(leave \(not handled\)|without credentials \(not handled\)|leave \(the host navigates\)|)"
+    R"(stay \(the host stops\))$)",
+    R"(^request \d+: cancelled(, not pending here)?$)",
+    R"(^request \d+: ended \(view freed\)$)",
+    R"(^request \d+: answer refused by the library, the request had ended$)",
+    R"(^request \d+: dialog type -?\d+ unknown, answered no$)",
+    R"(^request \d+: auth scheme -?\d+ takes no user name, answered without credentials$)",
+    R"(^close requested by the page \(window\.close\(\)\)$)",
+    R"(^new window (loaded into this view|refused|with an unknown result): ".*"$)",
+    R"(^response refused, (download|cannot be shown) ".*" \((type unknown|[\w.+-]+/[\w.+-]+)\)$)",
 };
 
 bool traceLineAllowed(const QString &line) {
@@ -2281,6 +2372,395 @@ void testWebViewItem::pinchTraceLines() {
                           QStringLiteral("magnification changed to 1 by a navigation or history step")}));
     QVERIFY(pinchLines.at(3).startsWith(QLatin1String("magnification 2 rendered after ")));
     QVERIFY(pinchLines.at(3).endsWith(QLatin1String(" ms (done)")));
+}
+
+// ---- requests of the page (library 0.7.0) ------------------------------------------------------------------------
+
+namespace {
+
+// the handler a page with dialogs has: takes every request and keeps it for its dialog
+struct RequestCatcher {
+    QList<QPointer<WebViewDialogRequest>> dialogs;
+    QList<QPointer<WebViewAuthRequest>>   logins;
+
+    explicit RequestCatcher(WebViewItem *item) {
+        QObject::connect(item, &WebViewItem::dialogRequested, item, [this](WebViewDialogRequest *request) {
+            request->setHandled(true);
+            dialogs.append(request);
+        });
+        QObject::connect(item, &WebViewItem::authenticationRequested, item, [this](WebViewAuthRequest *request) {
+            request->setHandled(true);
+            logins.append(request);
+        });
+    }
+};
+
+}  // namespace
+
+void testWebViewItem::requestCallbacksNeedTheSizedViewAndTheReplyFunctions() {
+    // a 0.7.0 library: the view comes from uc_webview_new_sized() with this build's whole struct, the six request
+    // callbacks set
+    Fixture f;
+    QVERIFY(stub::s.createdSized);
+    QCOMPARE(stub::s.callbacksSize, sizeof(uc_webview_callbacks));
+    if (sizeof(void *) == 8) {
+        // aarch64 and x86_64: the size the library expects from a 0.7.0 host
+        QCOMPARE(stub::s.callbacksSize, size_t(136));
+    }
+    QVERIFY(stub::s.callbacks.script_dialog != nullptr);
+    QVERIFY(stub::s.callbacks.authenticate != nullptr);
+    QVERIFY(stub::s.callbacks.request_cancelled != nullptr);
+    QVERIFY(stub::s.callbacks.close_requested != nullptr);
+    QVERIFY(stub::s.callbacks.new_window != nullptr);
+    QVERIFY(stub::s.callbacks.response_refused != nullptr);
+    // the callbacks of the earlier releases stay
+    QVERIFY(stub::s.callbacks.frame_ready != nullptr);
+    QVERIFY(stub::s.callbacks.pinch != nullptr);
+    QVERIFY(stub::s.callbacks.magnification_changed != nullptr);
+}
+
+void testWebViewItem::olderLibrariesGetNoRequestCallbacks() {
+    auto noRequestCallbacks = [] {
+        return !stub::s.callbacks.script_dialog && !stub::s.callbacks.authenticate &&
+               !stub::s.callbacks.request_cancelled && !stub::s.callbacks.close_requested &&
+               !stub::s.callbacks.new_window && !stub::s.callbacks.response_refused;
+    };
+    {
+        // 0.6.x, no uc_webview_request_reply(): the struct of this build (the library copies its own 88 bytes), the
+        // request callbacks NULL; the library keeps its defaults and pinch zoom stays
+        Fixture f(stub::functionsWithoutRequests());
+        QVERIFY(stub::s.createdSized);
+        QCOMPARE(stub::s.callbacksSize, sizeof(uc_webview_callbacks));
+        QVERIFY(noRequestCallbacks());
+        QVERIFY(stub::s.callbacks.pinch != nullptr);
+        f.item->setUrl(QUrl(QStringLiteral("http://localhost/")));
+        f.item->reload();
+        f.item->stop();
+        QVERIFY(stub::requestCalls().isEmpty());
+        QCOMPARE(stub::s.calls.last(), QStringLiteral("stop"));
+    }
+    {
+        // half of the pair is no 0.7.0 library either
+        WebViewFunctions functions = stub::functions();
+        functions.request_auth = nullptr;
+        Fixture f(functions);
+        QVERIFY(noRequestCallbacks());
+    }
+    {
+        // older than 0.4.0: uc_webview_new(), which reads the API version 1 callbacks only
+        Fixture f(stub::functionsWithoutNewSized());
+        QVERIFY(!stub::s.createdSized);
+        QVERIFY(noRequestCallbacks());
+    }
+}
+
+void testWebViewItem::dialogsAreRequestObjectsAnsweredOnce() {
+    Fixture        f;
+    RequestCatcher catcher(f.item);
+    QSignalSpy     requested(f.item, &WebViewItem::dialogRequested);
+
+    stub::fireScriptDialog(7, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Delete the item?");
+    QCOMPARE(requested.count(), 1);
+    QCOMPARE(catcher.dialogs.size(), 1);
+    QPointer<WebViewDialogRequest> request = catcher.dialogs.first();
+    QVERIFY(request);
+    QCOMPARE(request->type(), WebViewDialogRequest::Confirm);
+    QCOMPARE(request->origin(), QStringLiteral("https://example.com"));
+    QCOMPARE(request->message(), QStringLiteral("Delete the item?"));
+    QVERIFY(request->isPending());
+    // the item owns it: QML never collects it, the item deletes it after it ended
+    QCOMPARE(request->parent(), f.item);
+    QCOMPARE(QQmlEngine::objectOwnership(request), QQmlEngine::CppOwnership);
+    // handled: no answer yet, the page waits
+    QVERIFY(stub::requestCalls().isEmpty());
+
+    QSignalSpy finished(request.data(), &WebViewRequest::finished);
+    QVERIFY(request->accept());
+    QCOMPARE(stub::requestCalls(), QStringList{QStringLiteral("request_reply(7,1,\"\")")});
+    QCOMPARE(finished.count(), 1);
+    QVERIFY(!request->isPending());
+    // double answers never reach the library
+    QVERIFY(!request->accept());
+    QVERIFY(!request->reject());
+    QCOMPARE(stub::requestCalls().size(), 1);
+    QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
+    QVERIFY(!request);
+
+    // a prompt's answer, and a login's credentials
+    stub::fireScriptDialog(8, UC_WEBVIEW_DIALOG_PROMPT, nullptr, "Name?", "preset");
+    QCOMPARE(catcher.dialogs.last()->defaultText(), QStringLiteral("preset"));
+    QVERIFY(catcher.dialogs.last()->origin().isEmpty());
+    QVERIFY(catcher.dialogs.last()->accept(QStringLiteral("Grüezi")));
+    QCOMPARE(stub::requestCalls().last(), QStringLiteral("request_reply(8,1,\"Grüezi\")"));
+
+    QSignalSpy authRequested(f.item, &WebViewItem::authenticationRequested);
+    stub::fireAuthenticate(9, "http://192.168.1.1", "Router", UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC, UC_WEBVIEW_AUTH_RETRY);
+    QCOMPARE(authRequested.count(), 1);
+    QPointer<WebViewAuthRequest> login = catcher.logins.first();
+    QCOMPARE(login->realm(), QStringLiteral("Router"));
+    QVERIFY(login->isRetry());
+    QVERIFY(login->isInsecure());
+    QCOMPARE(QQmlEngine::objectOwnership(login), QQmlEngine::CppOwnership);
+    QVERIFY(login->login(QStringLiteral("admin"), QStringLiteral("secret")));
+    QCOMPARE(stub::requestCalls().last(), QStringLiteral("request_auth(9,\"admin\",\"secret\")"));
+    QVERIFY(!login->cancel());
+    QCOMPARE(stub::requestCalls().size(), 3);
+}
+
+void testWebViewItem::unhandledRequestsGetTheDefaultAtOnce() {
+    // no handler took them: answered inside the callback like the library does without a host (the library defers the
+    // dialog's close itself)
+    Fixture    f;
+    QSignalSpy requested(f.item, &WebViewItem::dialogRequested);
+    stub::fireScriptDialog(1, UC_WEBVIEW_DIALOG_ALERT, "https://example.com", "Hi");
+    stub::fireScriptDialog(2, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Sure?");
+    stub::fireScriptDialog(3, UC_WEBVIEW_DIALOG_PROMPT, "https://example.com", "Name?", "preset");
+    stub::fireScriptDialog(4, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
+    stub::fireAuthenticate(5, "https://example.com", "Area");
+    QCOMPARE(requested.count(), 4);
+    QCOMPARE(stub::requestCalls(),
+             (QStringList{QStringLiteral("request_reply(1,0,null)"), QStringLiteral("request_reply(2,0,null)"),
+                          QStringLiteral("request_reply(3,0,null)"), QStringLiteral("request_reply(4,1,\"\")"),
+                          QStringLiteral("request_auth(5,null,null)")}));
+
+    // values of a newer library are answered "no" without a signal (uc_webview.h, "Compatibility")
+    QSignalSpy authRequested(f.item, &WebViewItem::authenticationRequested);
+    stub::fireScriptDialog(6, 42, "https://example.com", "?");
+    stub::fireAuthenticate(7, "https://example.com", "Area", UC_WEBVIEW_AUTH_SCHEME_UNKNOWN);
+    QCOMPARE(requested.count(), 4);
+    QCOMPARE(authRequested.count(), 0);
+    QCOMPARE(stub::requestCalls().mid(5),
+             (QStringList{QStringLiteral("request_reply(6,0,null)"), QStringLiteral("request_reply(7,0,null)")}));
+}
+
+void testWebViewItem::cancelledRequestsEndWithoutAnAnswer() {
+    Fixture        f;
+    RequestCatcher catcher(f.item);
+    stub::fireScriptDialog(10, UC_WEBVIEW_DIALOG_ALERT, "https://example.com", "Hi");
+    stub::fireAuthenticate(11, "https://example.com", "Area");
+    QPointer<WebViewDialogRequest> alert = catcher.dialogs.first();
+    QPointer<WebViewAuthRequest>   login = catcher.logins.first();
+    QSignalSpy                     alertCancelled(alert.data(), &WebViewRequest::cancelled);
+    QSignalSpy                     loginCancelled(login.data(), &WebViewRequest::cancelled);
+    QSignalSpy                     alertFinished(alert.data(), &WebViewRequest::finished);
+
+    // the library ended them (a navigation, a commit, a crash, WebKit gave the login up)
+    stub::fireRequestCancelled(10);
+    QCOMPARE(alertCancelled.count(), 1);
+    QCOMPARE(alertFinished.count(), 0);
+    QVERIFY(!alert->isPending());
+    QVERIFY(login->isPending());
+    QVERIFY(!alert->accept());
+    stub::fireRequestCancelled(11);
+    QCOMPARE(loginCancelled.count(), 1);
+    QVERIFY(!login->login(QStringLiteral("user"), QStringLiteral("password")));
+    // an id the item does not know, and the same one again
+    stub::fireRequestCancelled(4711);
+    stub::fireRequestCancelled(10);
+    QCOMPARE(alertCancelled.count(), 1);
+    QVERIFY(stub::requestCalls().isEmpty());
+
+    // an answer racing the library's end: -1, the request ends as cancelled, the report after it finds nothing
+    stub::fireScriptDialog(12, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Sure?");
+    QPointer<WebViewDialogRequest> late = catcher.dialogs.last();
+    QSignalSpy                     lateCancelled(late.data(), &WebViewRequest::cancelled);
+    stub::s.requestResult = -1;
+    QVERIFY(!late->accept());
+    QCOMPARE(lateCancelled.count(), 1);
+    stub::fireRequestCancelled(12);
+    QCOMPARE(lateCancelled.count(), 1);
+    QCOMPARE(stub::requestCalls(), QStringList{QStringLiteral("request_reply(12,1,\"\")")});
+}
+
+void testWebViewItem::freedViewEndsRequestsWithoutSignals() {
+    // uc_webview_free() ends pending requests without a callback: the item drops their objects before it, without
+    // signals from its destructor; QML properties that hold them turn null
+    auto          *f = new Fixture();
+    RequestCatcher catcher(f->item);
+    stub::fireScriptDialog(20, UC_WEBVIEW_DIALOG_PROMPT, "https://example.com", "Name?");
+    stub::fireAuthenticate(21, "https://example.com", "Area");
+    QPointer<WebViewDialogRequest> prompt = catcher.dialogs.first();
+    QPointer<WebViewAuthRequest>   login = catcher.logins.first();
+    QSignalSpy                     promptCancelled(prompt.data(), &WebViewRequest::cancelled);
+    QSignalSpy                     promptFinished(prompt.data(), &WebViewRequest::finished);
+    QSignalSpy                     loginCancelled(login.data(), &WebViewRequest::cancelled);
+    delete f;
+    QVERIFY(!prompt);
+    QVERIFY(!login);
+    QCOMPARE(promptCancelled.count(), 0);
+    QCOMPARE(promptFinished.count(), 0);
+    QCOMPARE(loginCancelled.count(), 0);
+    QVERIFY(stub::requestCalls().isEmpty());
+    QCOMPARE(stub::s.calls.count(QStringLiteral("free")), 1);
+}
+
+void testWebViewItem::leavePageIsAnsweredBeforeTheItemNavigates() {
+    // The user navigates while the page asks "leave this page?": the item answers "leave" itself before the
+    // navigation call (the library would answer "stay", and the next navigation would ask again); Stop answers "stay".
+    Fixture        f;
+    RequestCatcher catcher(f.item);
+    auto           ask = [](uint64_t id) {
+        stub::fireScriptDialog(id, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://example.com", nullptr);
+    };
+    auto lastCalls = [](int n) { return stub::s.calls.mid(stub::s.calls.size() - n); };
+
+    ask(30);
+    QSignalSpy finished(catcher.dialogs.last().data(), &WebViewRequest::finished);
+    f.item->setUrl(QUrl(QStringLiteral("http://localhost/next")));
+    QCOMPARE(lastCalls(2), (QStringList{QStringLiteral("request_reply(30,1,\"\")"),
+                                        QStringLiteral("load_uri(http://localhost/next)")}));
+    QCOMPARE(finished.count(), 1);
+
+    ask(31);
+    f.item->reload();
+    QCOMPARE(lastCalls(2), (QStringList{QStringLiteral("request_reply(31,1,\"\")"), QStringLiteral("reload")}));
+
+    ask(32);
+    f.item->loadHtml(QStringLiteral("<p>x</p>"));
+    QCOMPARE(lastCalls(2),
+             (QStringList{QStringLiteral("request_reply(32,1,\"\")"), QStringLiteral("load_html(<p>x</p>,null)")}));
+
+    stub::s.canGoBack = true;
+    ask(33);
+    f.item->goBack();
+    QCOMPARE(lastCalls(2), (QStringList{QStringLiteral("request_reply(33,1,\"\")"), QStringLiteral("go_back")}));
+
+    // without history the library does not navigate: the question stays for the user
+    stub::s.canGoBack = false;
+    ask(34);
+    f.item->goBack();
+    QCOMPARE(stub::s.calls.last(), QStringLiteral("go_back"));
+    QVERIFY(catcher.dialogs.last()->isPending());
+    stub::s.canGoForward = true;
+    f.item->goForward();
+    QCOMPARE(lastCalls(2), (QStringList{QStringLiteral("request_reply(34,1,\"\")"), QStringLiteral("go_forward")}));
+
+    // Stop: the user stays, the navigation that asked stops too
+    ask(35);
+    f.item->stop();
+    QCOMPARE(lastCalls(2), (QStringList{QStringLiteral("request_reply(35,0,null)"), QStringLiteral("stop")}));
+
+    // other dialogs are the library's to end: request_cancelled() follows the navigation call
+    stub::fireScriptDialog(36, UC_WEBVIEW_DIALOG_CONFIRM, "https://example.com", "Sure?");
+    QPointer<WebViewDialogRequest> confirm = catcher.dialogs.last();
+    QSignalSpy                     cancelled(confirm.data(), &WebViewRequest::cancelled);
+    f.item->reload();
+    QCOMPARE(stub::s.calls.last(), QStringLiteral("reload"));
+    QVERIFY(confirm->isPending());
+    stub::fireRequestCancelled(36);
+    QCOMPARE(cancelled.count(), 1);
+    QCOMPARE(stub::requestCalls().size(), 6);
+}
+
+void testWebViewItem::newWindowsAndRefusedResponsesAreSignalled() {
+    Fixture    f;
+    QSignalSpy windows(f.item, &WebViewItem::newWindow);
+    QSignalSpy refused(f.item, &WebViewItem::responseRefused);
+    QSignalSpy failed(f.item, &WebViewItem::loadFailed);
+
+    stub::fireNewWindow("https://example.com/popup", UC_WEBVIEW_NEW_WINDOW_LOADED);
+    stub::fireNewWindow("data:text/html,<p>x</p>", UC_WEBVIEW_NEW_WINDOW_REFUSED);
+    stub::fireNewWindow("https://example.com/other", 7);  // a result of a newer library: ignored
+    QCOMPARE(windows.count(), 2);
+    QCOMPARE(windows.at(0).at(0).toUrl(), QUrl(QStringLiteral("https://example.com/popup")));
+    QCOMPARE(windows.at(0).at(1).toBool(), true);
+    QCOMPARE(windows.at(1).at(0).toUrl().scheme(), QStringLiteral("data"));
+    QCOMPARE(windows.at(1).at(1).toBool(), false);
+
+    stub::fireResponseRefused("https://example.com/doc.pdf", "application/pdf", UC_WEBVIEW_RESPONSE_UNSUPPORTED);
+    stub::fireResponseRefused("https://example.com/file.zip", nullptr, UC_WEBVIEW_RESPONSE_DOWNLOAD);
+    stub::fireResponseRefused("https://example.com/x", "foo/bar", 9);  // a newer reason: cannot be shown
+    QCOMPARE(refused.count(), 3);
+    QCOMPARE(refused.at(0).at(0).toUrl(), QUrl(QStringLiteral("https://example.com/doc.pdf")));
+    QCOMPARE(refused.at(0).at(1).toString(), QStringLiteral("application/pdf"));
+    QCOMPARE(refused.at(0).at(2).toBool(), false);
+    QCOMPARE(refused.at(1).at(1).toString(), QString());
+    QCOMPARE(refused.at(1).at(2).toBool(), true);
+    QCOMPARE(refused.at(2).at(2).toBool(), false);
+    QCOMPARE(failed.count(), 0);
+}
+
+void testWebViewItem::closeRequestedComesAfterTheCallback() {
+    {
+        // a handler leaves the page and frees the view: never inside the library's callback
+        Fixture    f;
+        QSignalSpy closing(f.item, &WebViewItem::closeRequested);
+        stub::fireCloseRequested();
+        QCOMPARE(closing.count(), 0);
+        QTRY_COMPARE(closing.count(), 1);
+    }
+    {
+        // the item went before: nothing
+        auto *f = new Fixture();
+        int   closing = 0;
+        QObject::connect(f->item, &WebViewItem::closeRequested, [&closing] { ++closing; });
+        stub::fireCloseRequested();
+        delete f;
+        QTest::qWait(10);
+        QCOMPARE(closing, 0);
+    }
+}
+
+void testWebViewItem::requestTraceLines() {
+    // UC_WEBVIEW_TRACE=1: kind, id and outcome of every request, the new windows and refused responses with their
+    // loggable URL; never a dialog's text, an answer, a realm, an origin, a user name or a password
+    QStringList messages;
+    capturedMessages = &messages;
+    WebViewItem::setTraceEnabledForTest(true);
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    {
+        Fixture        f;
+        RequestCatcher catcher(f.item);
+        stub::fireScriptDialog(1, UC_WEBVIEW_DIALOG_PROMPT, "https://uc-origin.example", "uc-message", "uc-default");
+        catcher.dialogs.last()->accept(QStringLiteral("uc-answer"));
+        stub::fireScriptDialog(2, UC_WEBVIEW_DIALOG_BEFORE_UNLOAD, "https://uc-origin.example", nullptr);
+        f.item->reload();
+        stub::fireAuthenticate(3, "https://uc-origin.example", "uc-realm", UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST,
+                               UC_WEBVIEW_AUTH_RETRY);
+        catcher.logins.last()->login(QStringLiteral("ucuser"), QStringLiteral("ucsecret"));
+        stub::fireScriptDialog(4, UC_WEBVIEW_DIALOG_ALERT, "https://uc-origin.example", "uc-message");
+        stub::fireRequestCancelled(4);
+        stub::fireNewWindow("https://uc-origin.example/popup?token=uc-token", UC_WEBVIEW_NEW_WINDOW_LOADED);
+        stub::fireResponseRefused("https://uc-origin.example/doc.pdf#uc-fragment", "application/pdf",
+                                  UC_WEBVIEW_RESPONSE_UNSUPPORTED);
+        stub::fireResponseRefused("https://uc-origin.example/f.zip", nullptr, UC_WEBVIEW_RESPONSE_DOWNLOAD);
+        stub::fireCloseRequested();
+        QTest::qWait(10);
+        stub::fireScriptDialog(5, UC_WEBVIEW_DIALOG_CONFIRM, "https://uc-origin.example", "uc-message");
+    }
+    qInstallMessageHandler(previous);
+    WebViewItem::setTraceEnabledForTest(false);
+    capturedMessages = nullptr;
+
+    const QRegularExpression traceLine(QStringLiteral("^uc\\.ui\\.webview: trace 0x[0-9a-f]+: (.*)$"));
+    QStringList              traced;
+    for (const QString &message : messages) {
+        for (const char *secret :
+             {"uc-message", "uc-default", "uc-answer", "uc-realm", "ucuser", "ucsecret", "uc-token", "uc-fragment"}) {
+            QVERIFY2(!message.contains(QLatin1String(secret)), qPrintable(message));
+        }
+        const QRegularExpressionMatch match = traceLine.match(message);
+        if (match.hasMatch()) {
+            QVERIFY2(traceLineAllowed(match.captured(1)), qPrintable(message));
+            traced.append(match.captured(1));
+        }
+    }
+    const QStringList requestLines =
+        traced.filter(QRegularExpression(QStringLiteral("^(request|new window|response refused|close requested)")));
+    QCOMPARE(
+        requestLines,
+        (QStringList{
+            QStringLiteral("request 1: prompt"), QStringLiteral("request 1: answered yes with text"),
+            QStringLiteral("request 2: beforeunload"), QStringLiteral("request 2: answered leave (the host navigates)"),
+            QStringLiteral("request 3: auth scheme 3, retry"), QStringLiteral("request 3: answered with credentials"),
+            QStringLiteral("request 4: alert"), QStringLiteral("request 4: cancelled"),
+            QStringLiteral("new window loaded into this view: \"https://uc-origin.example/popup?...\""),
+            QStringLiteral("response refused, cannot be shown \"https://uc-origin.example/doc.pdf#...\" "
+                           "(application/pdf)"),
+            QStringLiteral("response refused, download \"https://uc-origin.example/f.zip\" "
+                           "(type unknown)"),
+            QStringLiteral("close requested by the page (window.close())"), QStringLiteral("request 5: confirm"),
+            QStringLiteral("request 5: ended (view freed)")}));
 }
 
 QTEST_MAIN(testWebViewItem)
