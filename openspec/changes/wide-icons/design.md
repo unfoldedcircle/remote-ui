@@ -77,14 +77,21 @@ fill mode, `loadSize` takes the *larger* of the two scale ratios (`:708`,
   aspect.
 - With `em`: the `viewBox` (the `em` values are ignored).
 - When root `width`/`height` disagree with the `viewBox` (viewBox 200 × 100, width = height = 100),
-  Qt reports 100 × 100. It does **not** letterbox: it **stretches** the viewBox content to that
-  ratio, so a circle in the 2:1 viewBox is drawn as an upright ellipse in a square. Measured with a
-  200 × 200 `PreserveAspectFit` `Image`: implicit and painted 200 × 200, circle squashed. The reason
-  is in Qt SVG 5.15 `qsvgtinydocument.cpp:470-480`: the image plugin's `QSvgRenderer` keeps the
-  default `preserveAspectRatio() == false` (`qsvgtinydocument_p.h:132`), so the viewBox is scaled
-  with separate x and y factors. The file's own `preserveAspectRatio` attribute is not read.
+  Qt reports 100 × 100 (`QImageReader::size()` and `QSvgRenderer::defaultSize()`; `viewBoxF()` is
+  200 × 100). It does **not** letterbox: it **stretches** the viewBox content onto whatever size it
+  rasterizes at, so a circle in the 2:1 viewBox is drawn as an upright ellipse in a square. Measured
+  with a 200 × 200 `PreserveAspectFit` `Image`: implicit and painted 200 × 200, circle squashed. The
+  reason is in Qt SVG 5.15 `qsvgtinydocument.cpp:470-480`: the image plugin's `QSvgRenderer` keeps
+  the default `preserveAspectRatio() == false` (`qsvgtinydocument_p.h:132`), so the viewBox is
+  scaled with separate x and y factors. The file's own `preserveAspectRatio` attribute is not read.
+- The other way round, a requested size with the viewBox ratio draws the content undistorted:
+  `QImageReader::setScaledSize(256 × 128)` on that file returns a 256 × 128 image with the viewBox
+  mapped onto it.
 
-In every case the reported size is the aspect ratio Qt actually draws.
+So the reported size is the ratio Qt draws only when nothing else is requested; the viewBox ratio is
+the only ratio that never distorts the artwork (D9). A user's 2:1 flag declared `width="100px"
+height="100px"` was drawn on a 2 × 1 button (276 × 128) as a squashed 128 × 128 square, by the code
+on `main` and by the first version of this change alike.
 
 **Other users of a user-chosen icon** (all with a square box `width = height = size`, so a wide SVG
 is drawn letterboxed, fitted to the width):
@@ -153,8 +160,13 @@ An icon smaller than its button stays centred on both axes (`anchors.centerIn`, 
 ### D5: The raster fix is in `Icon.qml`, for every SVG icon
 
 `Icon.qml` sets the `Image` width and height, and `sourceSize`, to the largest rectangle with the
-icon's aspect ratio that fits the box. Both scale ratios are then equal, `loadSize` returns that
-size, and the raster equals the drawn size.
+icon's aspect ratio (D9) that fits the box, with `fillMode: Image.Stretch`. Without a fit or crop
+mode, `loadSize` returns the requested size of a scalable format unchanged
+(`qquickimageprovider.cpp:693-694`), so the raster equals the drawn size exactly, and Qt maps the
+viewBox onto it. `PreserveAspectFit` would compute the cover size from the size the file declares:
+when that ratio differs from the viewBox, the content is squashed again. Stretch distorts nothing
+here, because the item already has the icon's ratio, up to rounding to whole pixels. When the size is
+not known, `Icon.qml` keeps `PreserveAspectFit` and the box (D8).
 
 *Rationale:* the drawn result is identical everywhere, and the `svg-custom-icons` rule "rasterized
 at the box size" then also holds for non-square SVGs. *Alternative:* page buttons only. That would
@@ -169,9 +181,14 @@ the lists. A wide icon is fitted to the width there, and the raster fix of D5 ap
 
 ### D7: The aspect ratio comes from a cached C++ lookup in `Resources`
 
-- `Resources::getIconSize(id, boxWidth, boxHeight)` (`Q_INVOKABLE`) reads the size of a `custom:` or
-  `ctv:` SVG that passes `checkSvgFile`, with `QImageReader::size()`. That is the size Qt reports and
-  draws.
+- `Resources::getIconSize(id, boxWidth, boxHeight)` (`Q_INVOKABLE`) reads the root `viewBox` of a
+  `custom:` or `ctv:` SVG that passes `checkSvgFile` (D9). It reads only the root element, with
+  `QXmlStreamReader` from Qt Core: `QSvgRenderer` would add QtSvg to the dynamic builds, which load
+  the SVG image plugin but do not link the module. The four values may be separated by white space
+  and / or commas.
+- Without a usable viewBox (missing, not four numbers, a width or height that is not positive), it
+  takes the size Qt reports, `QImageReader::size()`. When that cannot be read either, the size is
+  invalid (D8).
 - It caches the size per file path, keyed by modification time and file size.
 - It returns `ImageDecoder::fitSize(source, box)`: the largest size with the source's aspect ratio
   inside the box.
@@ -195,14 +212,24 @@ Alternatives considered:
 `Icon.qml` requests the box as today, and a file that then fails to decode shows the placeholder.
 *Rationale:* no new failure path (ADR 0018).
 
-### D9: The UI follows what Qt draws, also when width/height disagree with the viewBox
+### D9: The aspect ratio of an SVG icon is the ratio of its viewBox
 
-The UI adds no rejection of its own. Files whose root width/height ratio differs from the viewBox
-ratio are to be rejected at upload. That is tracked as a follow-up in remote-core and the web
-configurator, and is not part of this change (proposal.md, "Follow-ups outside this change").
+The root `width` and `height` are ignored for sizing; only the ratio of the root `viewBox` counts,
+not its absolute size. A 2:1 viewBox declared `width="100px" height="100px"` is drawn 2:1,
+undistorted.
 
-Qt 5.15 today reports the root width/height and stretches the viewBox content to that ratio (see
-Context), so such a file looks distorted. *Rationale:* validation belongs to the core (ADR 0005).
+*Rationale:*
+
+- The core requires a viewBox, and the aspect ratio check of remote-core and of the web configurator
+  uses the viewBox only.
+- Qt maps the viewBox onto whatever size is requested (see Context), so the viewBox ratio is the
+  only ratio that never distorts the artwork.
+- Real files often carry a width and height that disagree with the viewBox: written by generators
+  or edited by hand.
+
+This replaces an earlier decision: "the UI follows what Qt draws; such files are rejected at upload".
+That follow-up for remote-core and the web configurator is dropped. A file whose width/height
+ratio differs from the viewBox is drawn correctly, so there is nothing to reject.
 
 ### D10: No clamp of the aspect ratio
 
@@ -238,10 +265,11 @@ default grid stays 4 × 6, as the code and the specs say.
 
 Failure Mode Analysis (the change touches image loading, which is shared by about 200 `Icon` uses):
 
-- [The lookup parses the SVG once more, synchronously on the GUI thread (`QImageReader::size()`
-  loads the whole document)] → The core caps icon uploads at 32 KB and the UI at 256 KB. The result
-  is cached per file, so each file is parsed once per session. The cost is measured on a device
-  (task 4.2); above 1 ms for a 32 KB file it is raised before the merge.
+- [The lookup reads the SVG once more, synchronously on the GUI thread] → It reads only up to the
+  root element; only a file without a usable viewBox is parsed in full by `QImageReader::size()`.
+  The core caps icon uploads at 32 KB and the UI at 256 KB. The result is cached per file, so each
+  file is read once per session. The lookup time is not measured; task 4.2 checked on a Remote 3
+  that a 32 KB icon is shown sharp.
 - [The binding calls the lookup before the box has its final size (0 × 0)] → An empty box returns
   an invalid size, which means "use the box". The binding re-evaluates when width and height change.
 - [The cached size is stale after a file is replaced under the same name] → The cache is keyed by
@@ -253,7 +281,7 @@ Failure Mode Analysis (the change touches image loading, which is shared by abou
 
 **Resource impact.**
 
-- Memory per SVG icon goes down, to at most the box area. One cached `QSize` per SVG file is added,
+- Memory per SVG icon goes down, to at most the box area. One cached size per SVG file is added,
   which is negligible.
 - There are no new timers, polling, animations or Qt modules, and no effect on the frame rate or
   the input latency.

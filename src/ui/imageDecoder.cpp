@@ -102,6 +102,14 @@ QImage ImageDecoder::decode(const QByteArray& data, int maxDimension, QString* e
     return image;
 }
 
+QSize ImageDecoder::fitSize(const QSizeF& source, const QSizeF& box) {
+    if (source.isEmpty() || box.isEmpty()) {
+        return QSize();
+    }
+
+    return source.scaled(box, Qt::KeepAspectRatio).toSize().expandedTo(QSize(1, 1));
+}
+
 bool ImageDecoder::checkSvgFile(const QString& path, QString* error) {
     const QFileInfo info(path);
 

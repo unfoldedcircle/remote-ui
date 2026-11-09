@@ -4,9 +4,11 @@
 #include "resources.h"
 
 #include <QFileInfo>
+#include <QImageReader>
 #include <QRegularExpression>
 #include <QTextStream>
 #include <QUrl>
+#include <QXmlStreamReader>
 
 #include "../logging.h"
 #include "../util.h"
@@ -14,6 +16,50 @@
 
 namespace uc {
 namespace ui {
+
+namespace {
+
+/// The size of the root `viewBox` of an SVG file, or an empty size when the root element has none or an invalid one.
+QSizeF svgViewBoxSize(const QString& path) {
+    QFile file(path);
+
+    if (!file.open(QIODevice::ReadOnly)) {
+        return QSizeF();
+    }
+
+    QXmlStreamReader xml(&file);
+
+    // only the root element is read
+    while (!xml.atEnd() && !xml.isStartElement()) {
+        xml.readNext();
+    }
+
+    if (!xml.isStartElement() || xml.name() != QLatin1String("svg")) {
+        return QSizeF();
+    }
+
+    // "min-x min-y width height", separated by white space and / or a comma
+    const QStringList values = xml.attributes()
+                                   .value(QLatin1String("viewBox"))
+                                   .toString()
+                                   .split(QRegularExpression("[\\s,]+"), Qt::SkipEmptyParts);
+
+    if (values.size() != 4) {
+        return QSizeF();
+    }
+
+    bool         widthOk = false;
+    bool         heightOk = false;
+    const QSizeF size(values[2].toDouble(&widthOk), values[3].toDouble(&heightOk));
+
+    if (!widthOk || !heightOk || !qIsFinite(size.width()) || !qIsFinite(size.height())) {
+        return QSizeF();
+    }
+
+    return size.isEmpty() ? QSizeF() : size;
+}
+
+}  // namespace
 
 Resources::Resources(const QString& resourcePath, const QString& legalPath, QObject* parent)
     : QObject(parent), m_resourcePath(resourcePath), m_legalPath(legalPath) {
@@ -117,6 +163,49 @@ QString Resources::getIcon(const QString& id, const QString& suffix) {
 
     // The file name is used as is: whatever image format the image loader can decode is accepted.
     return getResource(id.contains("ctv:") ? TvChannelIcon : Icon, id);
+}
+
+QSize Resources::getIconSize(const QString& id, int boxWidth, int boxHeight) {
+    // the same file getIcon() resolves
+    const QStringList parts = id.split(":");
+
+    if (boxWidth <= 0 || boxHeight <= 0 || parts.size() < 2) {
+        return QSize();
+    }
+
+    const QString& prefix = parts[0];
+    const QString& name = parts[1];
+
+    if ((prefix != "custom" && prefix != "ctv") || !ImageDecoder::isSvgFileName(name)) {
+        return QSize();
+    }
+
+    const QString path = m_resourcePaths.value(prefix == "ctv" ? TvChannelIcon : Icon) + name;
+
+    if (!ImageDecoder::checkSvgFile(path)) {
+        return QSize();
+    }
+
+    const QFileInfo info(path);
+    SvgIconSize     cached = m_svgIconSizes.value(path);
+
+    if (cached.modified != info.lastModified() || cached.fileSize != info.size()) {
+        QSizeF size = svgViewBoxSize(path);
+
+        if (size.isEmpty()) {
+            // Parses the whole document: once per file and change.
+            size = QImageReader(path).size();
+        }
+
+        cached = {info.lastModified(), info.size(), size};
+        m_svgIconSizes.insert(path, cached);
+
+        if (!cached.size.isValid() || cached.size.isEmpty()) {
+            qCWarning(lcResources()) << "Cannot read the size of icon" << id;
+        }
+    }
+
+    return ImageDecoder::fitSize(cached.size, QSizeF(boxWidth, boxHeight));
 }
 
 void Resources::getAboutInfo(int type) {

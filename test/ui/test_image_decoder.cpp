@@ -33,6 +33,9 @@ class testImageDecoder : public QObject {
     void emptyDataIsRejected();
     void svgFileChecks();
     void svgFileNames();
+    void fitSize_data();
+    void fitSize();
+    void fitSizeOfNothingIsInvalid();
 
  private:
     bool m_svgSupported = false;
@@ -212,6 +215,76 @@ void testImageDecoder::svgFileNames() {
     QVERIFY(!ImageDecoder::isSvgFileName("icon.png"));
     QVERIFY(!ImageDecoder::isSvgFileName("svg"));
     QVERIFY(!ImageDecoder::isSvgFileName("icon.svg.png"));
+}
+
+void testImageDecoder::fitSize_data() {
+    QTest::addColumn<QSizeF>("source");
+    QTest::addColumn<QSizeF>("box");
+    QTest::addColumn<QSize>("fitted");
+
+    // the aspect ratios the core accepts for an SVG icon, in the button boxes of the default 4 x 6 grid
+    QTest::newRow("1:1 in 120 x 120") << QSizeF(100, 100) << QSizeF(120, 120) << QSize(120, 120);
+    QTest::newRow("1:1 in 240 x 120") << QSizeF(100, 100) << QSizeF(240, 120) << QSize(120, 120);
+    QTest::newRow("1:1 in 480 x 120") << QSizeF(100, 100) << QSizeF(480, 120) << QSize(120, 120);
+    QTest::newRow("1:1 in 480 x 240") << QSizeF(100, 100) << QSizeF(480, 240) << QSize(240, 240);
+    QTest::newRow("1:1 in 120 x 480") << QSizeF(100, 100) << QSizeF(120, 480) << QSize(120, 120);
+    QTest::newRow("1:1 in 480 x 720") << QSizeF(100, 100) << QSizeF(480, 720) << QSize(480, 480);
+    QTest::newRow("2:1 in 120 x 120") << QSizeF(200, 100) << QSizeF(120, 120) << QSize(120, 60);
+    QTest::newRow("2:1 in 240 x 120") << QSizeF(200, 100) << QSizeF(240, 120) << QSize(240, 120);
+    QTest::newRow("2:1 in 480 x 120") << QSizeF(200, 100) << QSizeF(480, 120) << QSize(240, 120);
+    QTest::newRow("2:1 in 480 x 240") << QSizeF(200, 100) << QSizeF(480, 240) << QSize(480, 240);
+    QTest::newRow("2:1 in 120 x 480") << QSizeF(200, 100) << QSizeF(120, 480) << QSize(120, 60);
+    QTest::newRow("2:1 in 480 x 720") << QSizeF(200, 100) << QSizeF(480, 720) << QSize(480, 240);
+    QTest::newRow("3:1 in 120 x 120") << QSizeF(300, 100) << QSizeF(120, 120) << QSize(120, 40);
+    QTest::newRow("3:1 in 240 x 120") << QSizeF(300, 100) << QSizeF(240, 120) << QSize(240, 80);
+    QTest::newRow("3:1 in 480 x 120") << QSizeF(300, 100) << QSizeF(480, 120) << QSize(360, 120);
+    QTest::newRow("3:1 in 480 x 240") << QSizeF(300, 100) << QSizeF(480, 240) << QSize(480, 160);
+    QTest::newRow("3:1 in 120 x 480") << QSizeF(300, 100) << QSizeF(120, 480) << QSize(120, 40);
+    QTest::newRow("3:1 in 480 x 720") << QSizeF(300, 100) << QSizeF(480, 720) << QSize(480, 160);
+    QTest::newRow("4:1 in 120 x 120") << QSizeF(400, 100) << QSizeF(120, 120) << QSize(120, 30);
+    QTest::newRow("4:1 in 240 x 120") << QSizeF(400, 100) << QSizeF(240, 120) << QSize(240, 60);
+    QTest::newRow("4:1 in 480 x 120") << QSizeF(400, 100) << QSizeF(480, 120) << QSize(480, 120);
+    QTest::newRow("4:1 in 480 x 240") << QSizeF(400, 100) << QSizeF(480, 240) << QSize(480, 120);
+    QTest::newRow("4:1 in 120 x 480") << QSizeF(400, 100) << QSizeF(120, 480) << QSize(120, 30);
+    QTest::newRow("4:1 in 480 x 720") << QSizeF(400, 100) << QSizeF(480, 720) << QSize(480, 120);
+    QTest::newRow("1:2 in 120 x 120") << QSizeF(100, 200) << QSizeF(120, 120) << QSize(60, 120);
+    QTest::newRow("1:2 in 240 x 120") << QSizeF(100, 200) << QSizeF(240, 120) << QSize(60, 120);
+    QTest::newRow("1:2 in 480 x 120") << QSizeF(100, 200) << QSizeF(480, 120) << QSize(60, 120);
+    QTest::newRow("1:2 in 480 x 240") << QSizeF(100, 200) << QSizeF(480, 240) << QSize(120, 240);
+    QTest::newRow("1:2 in 120 x 480") << QSizeF(100, 200) << QSizeF(120, 480) << QSize(120, 240);
+    QTest::newRow("1:2 in 480 x 720") << QSizeF(100, 200) << QSizeF(480, 720) << QSize(360, 720);
+    QTest::newRow("1:4 in 120 x 120") << QSizeF(100, 400) << QSizeF(120, 120) << QSize(30, 120);
+    QTest::newRow("1:4 in 240 x 120") << QSizeF(100, 400) << QSizeF(240, 120) << QSize(30, 120);
+    QTest::newRow("1:4 in 480 x 120") << QSizeF(100, 400) << QSizeF(480, 120) << QSize(30, 120);
+    QTest::newRow("1:4 in 480 x 240") << QSizeF(100, 400) << QSizeF(480, 240) << QSize(60, 240);
+    QTest::newRow("1:4 in 120 x 480") << QSizeF(100, 400) << QSizeF(120, 480) << QSize(120, 480);
+    QTest::newRow("1:4 in 480 x 720") << QSizeF(100, 400) << QSizeF(480, 720) << QSize(180, 720);
+
+    // an icon in a square box elsewhere in the UI, such as an entity tile
+    QTest::newRow("4:1 in 100 x 100") << QSizeF(400, 100) << QSizeF(100, 100) << QSize(100, 25);
+    // a Remote Two cell is not square
+    QTest::newRow("1:1 in 120 x 129") << QSizeF(24, 24) << QSizeF(120, 129) << QSize(120, 120);
+    QTest::newRow("viewBox 70 x 35 in 240 x 120") << QSizeF(70, 35) << QSizeF(240, 120) << QSize(240, 120);
+    // rounded to whole pixels, but never below one pixel per side
+    QTest::newRow("3:1 in 100 x 100") << QSizeF(300, 100) << QSizeF(100, 100) << QSize(100, 33);
+    QTest::newRow("viewBox 24.5 x 24 in 120 x 120") << QSizeF(24.5, 24) << QSizeF(120, 120) << QSize(120, 118);
+    QTest::newRow("1000:1 in 100 x 100") << QSizeF(1000, 1) << QSizeF(100, 100) << QSize(100, 1);
+}
+
+void testImageDecoder::fitSize() {
+    QFETCH(QSizeF, source);
+    QFETCH(QSizeF, box);
+    QFETCH(QSize, fitted);
+
+    QCOMPARE(ImageDecoder::fitSize(source, box), fitted);
+}
+
+void testImageDecoder::fitSizeOfNothingIsInvalid() {
+    QVERIFY(!ImageDecoder::fitSize(QSizeF(), QSizeF(120, 120)).isValid());
+    QVERIFY(!ImageDecoder::fitSize(QSizeF(0, 100), QSizeF(120, 120)).isValid());
+    QVERIFY(!ImageDecoder::fitSize(QSizeF(200, 100), QSizeF()).isValid());
+    QVERIFY(!ImageDecoder::fitSize(QSizeF(200, 100), QSizeF(0, 0)).isValid());
+    QVERIFY(!ImageDecoder::fitSize(QSizeF(200, 100), QSizeF(240, 0)).isValid());
 }
 
 QTEST_MAIN(testImageDecoder)
