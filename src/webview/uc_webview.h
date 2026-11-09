@@ -315,7 +315,10 @@ int uc_webview_api_version(void);
  * uc_webview_when_rendered(), pinch begin and end and magnification changes with their render time; never with
  * typed text, see the package README "What the logs carry"),
  * UC_WEBVIEW_LOG_FULL_URLS=1 (log lines show URIs with query, fragment and data: payload; without it only scheme,
- * host, port and path; credentials never).
+ * host, port and path; credentials never),
+ * UC_WEBVIEW_PDF_VIEWER=1 (keeps WebKit's PDF viewer on, for crash investigations; read here, once). Since library
+ * 0.6.1 the viewer is off: a PDF in the main frame fails like a download, load_changed(UC_WEBVIEW_LOAD_FAILED, the
+ * PDF's URI) and then FINISHED with the URI of the page that stays; a PDF in a frame stays empty.
  */
 int uc_webview_global_init(void *egl_display, const char *data_dir, const char *cache_dir);
 
@@ -465,7 +468,8 @@ int uc_webview_set_magnification(uc_webview *, double scale, double x, double y)
  * magnification_changed() reported last. 0.0 for an invalid view. */
 double uc_webview_get_magnification(uc_webview *);
 
-/* UI thread. Colour shown where the page is transparent (default opaque black); components 0..1. */
+/* UI thread. Colour shown where the page is transparent; components 0..1. Default opaque white (until library 0.6.1
+ * opaque black), like WebKit and the browsers: a page without a background of its own expects white behind its text. */
 void uc_webview_set_background_rgba(uc_webview *, float r, float g, float b, float a);
 
 /* ---- rendering ----------------------------------------------------------- */

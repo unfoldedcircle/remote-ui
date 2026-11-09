@@ -292,7 +292,9 @@ class WebViewItem : public QQuickItem {
     bool    m_canGoForward = false;
     bool    m_loadFailed = false;
     bool    m_reloadedAfterCrash = false;
-    QColor  m_backgroundColor = Qt::black;
+    // what WebKit shows where the page paints no background of its own: white like every browser, a page that
+    // relies on the default (black text, no background) stays readable
+    QColor  m_backgroundColor = Qt::white;
     qreal   m_zoom = 1.0;  // what WebKit uses for the view: its default until the item sets another one
     // the zoom render wait (class comment): the level last passed to WebKit, a wait running for it (a library
     // request or the fallback), the fallback's state, the time since the zoom for the trace
