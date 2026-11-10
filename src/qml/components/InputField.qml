@@ -102,9 +102,20 @@ Rectangle {
         target: keyboard
 
         function onClosed() {
-            inputField.focus = false;
+            // A form that manages its focus (ButtonNavigation.manageFocus) hands a focus that left its
+            // controls back to the control the user was last on, this field, and a field that follows
+            // the focus would bring the keyboard right back up: the hide key did nothing in the WiFi
+            // password dialog. The container keeps the focus instead and passes the d-pad on.
+            if (inputFieldContainer.keyboardFollowsFocus && inputField.activeFocus) {
+                inputFieldContainer.forceActiveFocus();
+            } else {
+                inputField.focus = false;
+            }
         }
     }
+
+    KeyNavigation.up: inputFieldContainer.navUp
+    KeyNavigation.down: inputFieldContainer.navDown
 
     Components.Selectable {
         selected: inputField.activeFocus

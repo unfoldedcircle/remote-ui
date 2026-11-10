@@ -14,6 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and centred. An SVG icon keeps the aspect ratio of its `viewBox`, also when its `width` and `height` declare
   another one, so it is no longer drawn squashed.
 
+### Fixed
+- The hide key of the on-screen keyboard closes the keyboard in the WiFi password dialog again. The keyboard came
+  straight back up.
+- The "Join other" button at the end of the WiFi network list is fully shown again. With a few networks in the list it
+  was cut off and could not be scrolled into view.
+
 ---
 
 ## v0.85.0 - 2026-11-06

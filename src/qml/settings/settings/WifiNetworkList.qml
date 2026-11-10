@@ -288,7 +288,9 @@ ListView {
     states: [
         State {
             name: "open"
-            PropertyChanges {target: wifiNetworkList; height: wifiNetworkList.count * 80 + wifiNetworkList.footerItem.height + wifiNetworkList.headerItem.height + 20 }
+            // the content holds the header, the rows and the footer: a row is taller than 80 px and
+            // the "Join other" button in the footer was cut off
+            PropertyChanges {target: wifiNetworkList; height: wifiNetworkList.contentHeight + 20 }
         },
         State {
             name: "closed"
