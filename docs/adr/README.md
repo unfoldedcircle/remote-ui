@@ -47,3 +47,4 @@ what is currently in force. See [docs/workflow.md](../workflow.md) and
 | [0018](0018-the-ui-tolerates-core-api-values-it-does-not-know.md) | The UI tolerates Core-API values it does not know | Accepted |
 | [0019](0019-the-design-system-owns-colours-type-and-selection.md) | The design system owns colours, text styles and the selection look; one palette for both remotes | Accepted |
 | [0020](0020-two-selection-styles-fill-in-menu-lists-ring-on-setting-screens.md) | Two selection styles: a fill in menu lists, a ring on setting screens | Accepted |
+| [0021](0021-web-engine-from-a-firmware-library-loaded-at-runtime.md) | The web engine comes from a firmware library, loaded at runtime through a versioned C interface | Proposed |
