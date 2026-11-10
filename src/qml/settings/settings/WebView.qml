@@ -67,8 +67,8 @@ Settings.Page {
         if (address === "") {
             return;
         }
-        // done typing: show the page, like WifiPassword's Join. The field keeps the focus (InputField with
-        // keyboardFollowsFocus); a tap on it or a d-pad walk back brings the keyboard again. Hidden before the
+        // done typing: show the page, like WifiPassword's Join. The field's frame keeps the focus (InputField with
+        // keyboardFollowsFocus); a tap on the field or a d-pad walk back brings the keyboard again. Hidden before the
         // load starts, so that the field shows the completed address (onUrlChanged below).
         if (typeof keyboard !== "undefined" && urlField.inputField.activeFocus) {
             keyboard.hide();

@@ -14,6 +14,7 @@
 // Regression 2: the keyboard's hide key did not close the keyboard while the address field had the focus. InputField
 // dropped the field's focus on keyboard.closed(), the page's ButtonNavigation handed it back, and TextInput's focus
 // gain re-showed the input method (qquicktextinput.cpp:2681), which the keyboard controller mirrors into show().
+// InputField now moves the focus to itself, around the text field, and passes the d-pad on.
 //
 // Regression 3: after the hide key, a tap on the web page's input that still had the DOM focus did not bring the
 // keyboard back: WebKit reports the element's focus only when it changes. The WebView item asks for the keyboard
@@ -330,6 +331,7 @@ class testWebViewKeyboard : public QObject {
     Fonts        fonts;
     QQuickItem  *page = nullptr;
     QQuickItem  *field = nullptr;
+    QQuickItem  *fieldFrame = nullptr;  // the InputField around the text field
     QQuickItem  *loadButton = nullptr;
     QQuickItem  *backButton = nullptr;
     QQuickItem  *forwardButton = nullptr;
@@ -367,12 +369,13 @@ void testWebViewKeyboard::init() {
     overlay = root->findChild<QObject *>("keyboardInputField");
     QVERIFY(page && keyboard && overlay);
     field = textFieldOf(page);
+    fieldFrame = field ? field->parentItem() : nullptr;
     loadButton = buttonOf(page, "Load");
     backButton = page->findChild<QQuickItem *>("backButton");
     forwardButton = page->findChild<QQuickItem *>("forwardButton");
     stopReloadButton = page->findChild<QQuickItem *>("stopReloadButton");
     stopReloadIcon = page->findChild<QQuickItem *>("stopReloadIcon");
-    QVERIFY(field && loadButton && backButton && forwardButton && stopReloadButton && stopReloadIcon);
+    QVERIFY(field && fieldFrame && loadButton && backButton && forwardButton && stopReloadButton && stopReloadIcon);
     QVERIFY(!page->findChildren<WebViewItem *>().isEmpty());
     webView = page->findChildren<WebViewItem *>().first();
     lib::calls.clear();
@@ -496,14 +499,16 @@ void testWebViewKeyboard::hideKeyClosesTheKeyboardAndItStaysClosed() {
 
     // The keyboard's hide key (bottom right) is the HideKeyboardKey of the app's own layouts
     // (src/qml/keyboard/layouts/*/main.qml) with `onClicked: root.keyboard.hide()`: main.qml's keyboard.hide(),
-    // not Qt.inputMethod.hide(). The field keeps the focus (InputField.qml onClosed); dropping it made the
-    // ButtonNavigation hand it back and TextInput's focus gain reopened the keyboard through Qt.inputMethod.visible.
+    // not Qt.inputMethod.hide(). The InputField around the text keeps the focus (InputField.qml onClosed):
+    // dropping it made the ButtonNavigation hand it back to the text field, whose focus gain reopened the keyboard
+    // through Qt.inputMethod.visible.
     QVERIFY(QMetaObject::invokeMethod(keyboard, "hide"));
     QTRY_COMPARE(closed->count(), 1);
     QTest::qWait(800);
     QCOMPARE(closed->count(), 1);
     QVERIFY(!keyboard->property("active").toBool());
-    QVERIFY(field->hasActiveFocus());
+    QVERIFY(fieldFrame->hasActiveFocus());
+    QVERIFY(!field->hasActiveFocus());
     QCOMPARE(ui->input()->activeItem(), page);
 
     // the next tap on the field opens it again
@@ -548,12 +553,19 @@ void testWebViewKeyboard::dpadReachesTheAddressFieldFromLoad() {
     QVERIFY(field->hasActiveFocus());
     QCOMPARE(field->property("cursorPosition").toInt(), field->property("text").toString().size() - 1);
 
-    // DPAD_MIDDLE is the field's Return: it loads the address and puts the keyboard away, the field keeps the focus
+    // DPAD_MIDDLE is the field's Return: it loads the address and puts the keyboard away, the InputField keeps the
+    // focus
     QTest::keyClick(view, Qt::Key_Return);
     QCOMPARE(lib::calls, QStringList{QStringLiteral("load_uri(http://localhost/)")});
     QTRY_VERIFY(!keyboard->property("active").toBool());
-    QVERIFY(field->hasActiveFocus());
+    QVERIFY(fieldFrame->hasActiveFocus());
     QCOMPARE(ui->input()->activeItem(), page);
+
+    // from there the d-pad goes on to Load without the keyboard
+    QTest::keyClick(view, Qt::Key_Right);
+    QTRY_VERIFY(loadButton->hasActiveFocus());
+    QTest::qWait(300);
+    QVERIFY(!keyboard->property("active").toBool());
 }
 
 void testWebViewKeyboard::dpadWalksBothRowsAndIntoTheWebView() {
@@ -685,12 +697,12 @@ void testWebViewKeyboard::addressFieldShowsThePageAddress() {
     lib::fireLoad(UC_WEBVIEW_LOAD_COMMITTED, "https://localhost/c");
     QCOMPARE(field->property("text").toString(), QStringLiteral("example.com"));
 
-    // Load (a tap, the field keeps the focus): the keyboard goes and the field shows the completed address
+    // Load (a tap, the InputField keeps the focus): the keyboard goes and the field shows the completed address
     click(loadButton);
     QCOMPARE(lib::calls, QStringList{QStringLiteral("load_uri(http://example.com)")});
     QTRY_VERIFY(!keyboard->property("active").toBool());
     QCOMPARE(field->property("text").toString(), QStringLiteral("http://example.com"));
-    QVERIFY(field->hasActiveFocus());
+    QVERIFY(fieldFrame->hasActiveFocus());
 
     // a refused address stays in the field
     field->setProperty("text", QStringLiteral("ftp://host/f"));

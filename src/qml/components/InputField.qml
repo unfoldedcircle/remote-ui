@@ -120,6 +120,8 @@ Rectangle {
 
     KeyNavigation.up: inputFieldContainer.navUp
     KeyNavigation.down: inputFieldContainer.navDown
+    KeyNavigation.left: inputFieldContainer.navLeft
+    KeyNavigation.right: inputFieldContainer.navRight
 
     Components.Selectable {
         selected: inputField.activeFocus
