@@ -47,12 +47,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   another one, so it is no longer drawn squashed.
 
 ### Fixed
+- The hide key of the on-screen keyboard closes the keyboard in the WiFi password dialog again. The keyboard came
+  straight back up.
+- The "Join other" button at the end of the WiFi network list is fully shown again. With a few networks in the list it
+  was cut off and could not be scrolled into view.
 - A rebuild on a new commit kept the version string of the previous build in the binary, so Settings, About and the
   core reported an older version than the one installed. The version now comes from a generated header that is
   recompiled whenever it changes; no `make clean` is needed.
-- The hide key of the on-screen keyboard closes the keyboard on forms that bring it up when a text field is selected,
-  such as the Wi-Fi password and Wi-Fi setup. The keyboard used to slide back in at once because the field was
-  selected again right after it had been dropped.
 
 ---
 

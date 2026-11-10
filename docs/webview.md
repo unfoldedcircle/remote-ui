@@ -10,9 +10,10 @@ placeholder with `available: false`, so the desktop simulator and a firmware wit
 The settings menu lists a developer page, Settings > Web view, only when the library loads. It is the one screen that
 uses the item so far: an address field, history and reload buttons, a status line and the web view.
 
-The requirements, the decisions and the open tasks of this work are the OpenSpec change
-[`web-view`](../openspec/changes/web-view/); [ADR 0021](adr/0021-web-engine-from-a-firmware-library-loaded-at-runtime.md)
-records why the web engine comes from a firmware library loaded at runtime.
+The requirements, the decisions and the open tasks of this work are the OpenSpec change `web-view`
+(`openspec/changes/web-view/`); ADR 0021 (`docs/adr/0021-web-engine-from-a-firmware-library-loaded-at-runtime.md`)
+records why the web engine comes from a firmware library loaded at runtime. Both are proposed in
+[#56](https://github.com/unfoldedcircle/remote-ui/pull/56); once that is merged, these become links to the files.
 
 ## The ABI dependency
 
@@ -121,11 +122,12 @@ visible while the focus object accepts input, the overlay hides and hands the co
 refocuses the field, and the overlay opens again: a show/hide loop that needs no web page at all.
 
 The keyboard's hide key (bottom right; the app's layouts call main.qml's `keyboard.hide()`, not
-`Qt.inputMethod.hide()`) closes the keyboard and the address field keeps the focus, like the password field of
-`WifiPassword.qml`. A field with `keyboardFollowsFocus` keeps its focus when the keyboard is dismissed under it:
-dropping it on a page whose `ButtonNavigation` manages the focus brought the focus straight back, and `TextInput`
-shows the input method whenever it gains the focus, so the keyboard reopened at once. A tap on the field or a d-pad
-walk away and back shows the keyboard again.
+`Qt.inputMethod.hide()`) closes the keyboard, like on the password field of `WifiPassword.qml`. When the keyboard
+is dismissed under a field with `keyboardFollowsFocus`, `InputField` moves the focus from the text field to itself
+(the frame around it) and passes the d-pad on (`navUp`, `navDown`, `navLeft`, `navRight`): dropping the focus on a
+page whose `ButtonNavigation` manages the focus brought it straight back to the text field, and `TextInput` shows
+the input method whenever it gains the focus, so the keyboard reopened at once. A tap on the field or a d-pad walk
+away and back shows the keyboard again.
 
 A tap on the page's input that still has the focus brings the keyboard back after its hide key closed it, like a
 tap into a focused `TextInput`. WebKit reports the editable element only when the focus changes (the web process
@@ -494,7 +496,8 @@ is, an absolute path becomes `file://<path>`, anything else (`example.com`, `loc
 - The status line shows the title or the load progress, the frame counters and the last crash or load failure.
 - The field shows the address of the page on screen (completed, redirected, after Back or Forward) except while the
   keyboard is up on it; a refused address stays in the field. Load (and DPAD_MIDDLE, the field's Return) puts the
-  keyboard away like Join on the Wi-Fi password form; the field keeps the focus.
+  keyboard away like Join on the Wi-Fi password form; the field's frame keeps the focus, and the d-pad goes on from
+  there.
 - The web view shows the selection ring of the design system while the d-pad is in it.
 
 Why two rows: two more buttons in the address row would leave the field about eight characters of an address. Back,
