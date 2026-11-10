@@ -10,6 +10,10 @@ placeholder with `available: false`, so the desktop simulator and a firmware wit
 The settings menu lists a developer page, Settings > Web view, only when the library loads. It is the one screen that
 uses the item so far: an address field, history and reload buttons, a status line and the web view.
 
+The requirements, the decisions and the open tasks of this work are the OpenSpec change
+[`web-view`](../openspec/changes/web-view/); [ADR 0021](adr/0021-web-engine-from-a-firmware-library-loaded-at-runtime.md)
+records why the web engine comes from a firmware library loaded at runtime.
+
 ## The ABI dependency
 
 - `src/webview/uc_webview.h` is a verbatim copy of the public header of the firmware's libucwebview library (MIT;
