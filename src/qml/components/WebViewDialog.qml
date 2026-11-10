@@ -64,9 +64,12 @@ Popup {
         promptField.inputValue = dialogRequest.type === WebViewDialogRequest.Prompt ? dialogRequest.defaultText : "";
         messageFlickable.contentY = 0;
         webViewDialog.request = dialogRequest;
-        // a reopened dialog starts on its initial control again
+        // a reopened dialog starts on its initial control again. The popup's focus scope also remembers the
+        // control that had the focus when it closed, and open() gives the focus back to it (Qt 5.15.2): point it
+        // at the initial control first, ButtonNavigation then finds it focused and leaves it.
         buttonNavigation.lastFocusItem = null;
         buttonNavigation.lastFocusAnchor = null;
+        webViewDialog.initialFocusItem.focus = true;
         webViewDialog.open();
     }
 

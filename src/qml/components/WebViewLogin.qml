@@ -64,6 +64,8 @@ Popup {
         webViewLogin.request = authRequest;
         buttonNavigation.lastFocusItem = null;
         buttonNavigation.lastFocusAnchor = null;
+        // the popup's focus scope gives the focus back to the control it had when it closed (Qt 5.15.2)
+        buttonNavigation.initialFocusItem.focus = true;
         webViewLogin.open();
     }
 
