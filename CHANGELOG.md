@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - The hide key of the on-screen keyboard closes the keyboard in the WiFi password dialog again. The keyboard came
   straight back up.
+- The "Join other" button at the end of the WiFi network list is fully shown again. With a few networks in the list it
+  was cut off and could not be scrolled into view.
 
 ---
 
