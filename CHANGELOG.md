@@ -8,19 +8,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.85.1 - 2026-11-11
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on
   memory. A wide SVG icon on an activity or remote page button uses the whole button, and a square one stays square
   and centred. An SVG icon keeps the aspect ratio of its `viewBox`, also when its `width` and `height` declare
-  another one, so it is no longer drawn squashed.
+  another one, so it is no longer drawn squashed ([#52](https://github.com/unfoldedcircle/remote-ui/pull/52)).
+- Updated translations ([#61](https://github.com/unfoldedcircle/remote-ui/pull/61)).
+- Updated GitHub Actions.
 
 ### Fixed
 - The hide key of the on-screen keyboard closes the keyboard in the WiFi password dialog again. The keyboard came
-  straight back up.
+  straight back up ([#55](https://github.com/unfoldedcircle/remote-ui/issues/55)).
 - The "Join other" button at the end of the WiFi network list is fully shown again. With a few networks in the list it
-  was cut off and could not be scrolled into view.
-
----
+  was cut off and could not be scrolled into view ([#55](https://github.com/unfoldedcircle/remote-ui/issues/55)).
 
 ## v0.85.0 - 2026-11-06
 ### Added
