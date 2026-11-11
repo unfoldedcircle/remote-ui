@@ -61,6 +61,10 @@ struct WebViewFunctions {
     // optional, library 0.6.0: pinch zoom, WebKit's page scale with a focal point
     int (*set_magnification)(uc_webview *, double, double, double) = nullptr;
     double (*get_magnification)(uc_webview *) = nullptr;
+    // optional, library 0.7.0: the answers to the page's script dialogs and logins (the request callbacks appended to
+    // uc_webview_callbacks, which reach the library only through uc_webview_new_sized())
+    int (*request_reply)(uc_webview *, uint64_t, int, const char *) = nullptr;
+    int (*request_auth)(uc_webview *, uint64_t, const char *, const char *) = nullptr;
 };
 
 /**
@@ -100,6 +104,13 @@ class WebViewLibrary {
     // (0.6.0) and when_rendered() (the hold of the scaled frame). Without, two fingers behave as before 0.6.0.
     bool pinchZoomAvailable() const {
         return m_functions.create_sized && m_functions.set_magnification && m_functions.when_rendered;
+    }
+
+    // The page's dialogs, logins, new windows and refused responses reach the item (library 0.7.0, detected by
+    // uc_webview_request_reply()): the request callbacks go through uc_webview_new_sized() and are answered with
+    // uc_webview_request_reply()/_auth(). Without, the library decides alone, as before 0.7.0.
+    bool requestsAvailable() const {
+        return m_functions.create_sized && m_functions.request_reply && m_functions.request_auth;
     }
 
     // The refresh rate of the screen the web views are shown on, for uc_webview_global_set_refresh_rate(): WebKit

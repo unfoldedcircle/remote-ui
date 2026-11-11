@@ -65,6 +65,22 @@ target_link_libraries(testWebViewPinch
     Qt5::Test
     )
 
+# the page's requests (library 0.7.0): the request objects and their table against stubbed reply functions
+add_executable (testWebViewRequests
+    "test_webview_requests.cpp"
+    "../../src/webview/webviewrequest.cpp"
+    "../../src/logging.cpp"
+    )
+
+add_test(NAME testWebViewRequests
+         COMMAND testWebViewRequests)
+
+target_link_libraries(testWebViewRequests
+    PUBLIC
+    Qt5::Core
+    Qt5::Test
+    )
+
 # the WebView item against a stubbed libucwebview function table: lifecycle, load events, crash recovery, input
 # method contract and key forwarding, without the library and without rendering (offscreen platform)
 add_executable (testWebViewItem
@@ -74,6 +90,7 @@ add_executable (testWebViewItem
     "../../src/webview/webviewinput.cpp"
     "../../src/webview/webviewframequeue.cpp"
     "../../src/webview/webviewpinch.cpp"
+    "../../src/webview/webviewrequest.cpp"
     "../../src/webview/webviewtexture.cpp"
     "../../src/logging.cpp"
     )
@@ -104,6 +121,7 @@ add_executable (testWebViewKeyboard
     "../../src/webview/webviewinput.cpp"
     "../../src/webview/webviewframequeue.cpp"
     "../../src/webview/webviewpinch.cpp"
+    "../../src/webview/webviewrequest.cpp"
     "../../src/webview/webviewtexture.cpp"
     "../../src/ui/inputController.cpp"
     "../../src/ui/colors.cpp"

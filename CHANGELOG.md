@@ -32,6 +32,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   up or down. A label shows the zoom level, with a spinner while a large page renders it. Two fingers pinch-zoom the
   page on a touch panel that reports two fingers, such as the Remote Two's. Needs the web view library 0.5.0 for the
   spinner and 0.6.0 for the pinch.
+- The web view shows a web page's messages, questions and text inputs (`alert()`, `confirm()`, `prompt()`), its
+  question before leaving a page with unsaved changes, and the login of a password-protected site as dialogs that
+  name the site and work with the d-pad, OK, BACK and the on-screen keyboard. A download, a PDF document or a new
+  window the remote cannot show is told with a notification instead of a "load failed" message, and a page that
+  closes itself leaves the developer page. The question before leaving starts on Stay, so that OK keeps the
+  page, after a wrong password the login asks again with the user name filled in, and every login opens with
+  the password hidden. Needs the web view library 0.7.0; with an older one nothing changes.
 
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on

@@ -31,10 +31,17 @@
  *    min(cb_size, its own size) bytes and treats the callbacks beyond cb_size
  *    as NULL. uc_webview_new() reads exactly the nine callbacks of API
  *    version 1 (frame_ready .. ime_surrounding), whatever header the host was
- *    built against. Library 0.6.0 appended pinch and magnification_changed.
+ *    built against. Library 0.6.0 appended pinch and magnification_changed,
+ *    library 0.7.0 the six request callbacks (script_dialog ..
+ *    response_refused). A host detects 0.7.0 with
+ *    dlsym("uc_webview_request_reply"); an older library never reads the
+ *    request callbacks, and the page's requests get the old behaviour.
  *  - New values of the constants the library reports (load events,
- *    termination reasons, IME purposes and hint bits): hosts ignore values
- *    they do not know. The library ignores input values it does not know
+ *    termination reasons, IME purposes and hint bits, dialog types,
+ *    authentication schemes and flags, new-window results, refusal reasons):
+ *    hosts ignore values they do not know (an unknown dialog type or
+ *    authentication scheme: answer it with uc_webview_request_reply(id, 0,
+ *    NULL)). The library ignores input values it does not know
  *    (touch phases, buttons) with a warning and drops unknown modifier bits.
  * Nothing else changes within API version 1: no field is inserted, reordered,
  * retyped or removed, and uc_webview_frame does not grow at all. The library
@@ -72,8 +79,10 @@
  * got its focus. The second exception: uc_webview_free() ends the view's
  * pending uc_webview_when_rendered() requests with
  * UC_WEBVIEW_RENDERED_CANCELLED inside the call (library 0.5.0). The pinch and
- * magnification_changed callbacks of library 0.6.0 follow the rule without
- * exception.
+ * magnification_changed callbacks of library 0.6.0 and the request callbacks
+ * of library 0.7.0 follow the rule without exception: uc_webview_free() ends
+ * pending requests without any callback, and a request a navigation call ends
+ * is reported with request_cancelled() from the main context after the call.
  * A host with a render thread (Qt's threaded scene graph) may touch the
  * EGLImage and GL objects of a frame from the render thread, but must marshal
  * the uc_webview_frame_rendered()/uc_webview_frame_release() calls back to the
@@ -131,6 +140,50 @@
  * history steps restore the magnification the page had when it was left, with
  * its scroll position (WebKit keeps both per history item,
  * HistoryController.cpp:133, 192-193). Both arrive as magnification_changed().
+ *
+ * Requests (library 0.7.0)
+ * ========================
+ * A page asks for things a browser shows outside the page. With the request
+ * callbacks set (uc_webview_new_sized()) the host gets them; without them the
+ * library decides alone (see the callbacks for each default):
+ *  - script_dialog(): alert(), confirm(), prompt() and the "leave this page?"
+ *    question of a beforeunload handler. The page's script waits until the
+ *    host answers with uc_webview_request_reply(): WebKit runs these dialogs
+ *    as synchronous calls, so no script, timer or rendering update of the page
+ *    runs meanwhile (uc_webview_when_rendered() waits as well).
+ *  - authenticate(): HTTP Basic, Digest and the other login schemes of a server
+ *    or proxy; the host answers with uc_webview_request_auth() (credentials, or
+ *    none: the server's 401 page loads). Credentials are kept for the session
+ *    (the process) only and never logged; client certificate and PIN requests
+ *    never reach the host (continued without a certificate).
+ *  - new_window(): window.open() and target=_blank. http and https load into
+ *    this view (the page's window.open() returns null); other schemes are
+ *    refused. close_requested(): window.close() of the page.
+ *  - response_refused(): a download (Content-Disposition: attachment, <a
+ *    download>) or a document WebKit cannot show (an unknown type, a PDF while
+ *    the PDF viewer is off) in the main frame. Nothing is saved, the page stays,
+ *    and no load_changed(UC_WEBVIEW_LOAD_FAILED) is reported for it.
+ * Every script dialog and authentication request has an id (uint64_t, unique in
+ * the process, never 0) and ends exactly once: by the host's answer, or by
+ * request_cancelled() when the request went away first, after which the host
+ * closes its dialog without answering. A request ends without request_cancelled
+ * when the host answers it and when uc_webview_free() frees the view. The
+ * library ends pending requests itself:
+ *  - before a navigation call of the host (uc_webview_load_uri(), _load_html(),
+ *    _reload(), _stop(), _go_back(), _go_forward()): dialogs get their "no"
+ *    answer, authentication requests are cancelled; request_cancelled() follows
+ *    from the main context (a pending beforeunload question answered this way
+ *    means "stay": the navigation that asked it stops, the host's goes on).
+ *    The page's script runs on after the dialog's "no" until the web process
+ *    takes the new load; dialogs it opens meanwhile (not beforeunload) close at
+ *    once with WebKit's default, until the next load event, at most 2 s;
+ *  - when a main-frame load commits (dialogs of the old document);
+ *  - when the web process terminates (all, before web_process_terminated());
+ *  - when WebKit gives up an authentication request: at the start, the end or
+ *    the failure of the next main-frame load, all pending ones.
+ * An answer to an ended or unknown id returns -1 and does nothing, so a late
+ * answer racing request_cancelled() is harmless. Strings passed to the request
+ * callbacks are valid during the call only, like all callback strings.
  */
 #ifndef UC_WEBVIEW_H
 #define UC_WEBVIEW_H
@@ -197,6 +250,37 @@ typedef struct {
 /* uc_webview_set_magnification() range (library 0.6.0); hosts pick their own limits inside it */
 #define UC_WEBVIEW_MAGNIFICATION_MIN 0.25
 #define UC_WEBVIEW_MAGNIFICATION_MAX 10.0
+
+/* script_dialog() types (library 0.7.0; values of WebKitScriptDialogType, WebKitScriptDialog.h.in:44-49) */
+#define UC_WEBVIEW_DIALOG_ALERT         0   /* uc_webview_request_reply(): any answer closes it */
+#define UC_WEBVIEW_DIALOG_CONFIRM       1   /* accept=1: confirm() returns true, 0: false */
+#define UC_WEBVIEW_DIALOG_PROMPT        2   /* accept=1: prompt() returns text (NULL = ""), 0: null */
+#define UC_WEBVIEW_DIALOG_BEFORE_UNLOAD 3   /* "leave this page?": accept=1 leave, 0 stay; message is NULL, show a
+                                               fixed text (pages cannot word it, browsers stopped showing their text) */
+
+/* authenticate() schemes (library 0.7.0; values of WebKitAuthenticationScheme, WebKitAuthenticationRequest.h.in:73-84).
+ * Client certificate (7) and PIN (9) requests never reach the host. */
+#define UC_WEBVIEW_AUTH_SCHEME_DEFAULT      1
+#define UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC   2   /* the password travels unencrypted unless the origin is https */
+#define UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST  3
+#define UC_WEBVIEW_AUTH_SCHEME_HTML_FORM    4
+#define UC_WEBVIEW_AUTH_SCHEME_NTLM         5
+#define UC_WEBVIEW_AUTH_SCHEME_NEGOTIATE    6
+#define UC_WEBVIEW_AUTH_SCHEME_SERVER_TRUST 8
+#define UC_WEBVIEW_AUTH_SCHEME_UNKNOWN      100
+
+/* authenticate() flags (library 0.7.0) */
+#define UC_WEBVIEW_AUTH_RETRY (1u << 0)     /* the previous credentials for this request were rejected */
+#define UC_WEBVIEW_AUTH_PROXY (1u << 1)     /* a proxy asks, origin is the proxy's */
+
+/* new_window() results (library 0.7.0) */
+#define UC_WEBVIEW_NEW_WINDOW_LOADED  0     /* http(s): the page loads into this view */
+#define UC_WEBVIEW_NEW_WINDOW_REFUSED 1     /* data:, javascript:, blob:, file:, about: and the like, or a form posted
+                                               to a new window: nothing happens */
+
+/* response_refused() reasons (library 0.7.0) */
+#define UC_WEBVIEW_RESPONSE_DOWNLOAD    0   /* Content-Disposition: attachment or <a download>: nothing is saved */
+#define UC_WEBVIEW_RESPONSE_UNSUPPORTED 1   /* a type WebKit cannot show, or a PDF while the PDF viewer is off */
 
 /* uc_webview_pointer_button() buttons (values of WPE_BUTTON_*, WPEEvent.h:138-153) */
 #define UC_WEBVIEW_BUTTON_PRIMARY   1   /* left */
@@ -289,6 +373,43 @@ typedef struct {
      * (back, forward, reload, a same-document history step). The new value, as uc_webview_get_magnification()
      * reports it from now on. */
     void (*magnification_changed)(uc_webview *, double magnification, void *user);
+
+    /* ---- library 0.7.0: only through uc_webview_new_sized(), see "Requests" and "Compatibility" ---- */
+
+    /* A script dialog: type UC_WEBVIEW_DIALOG_*; origin "scheme://host[:port]" of the page's last committed main-frame
+     * URI (NULL for pages without a host: about:blank, data:, uc_webview_load_html() without a base URI); WebKit does
+     * not say which frame asked, so a frame of another origin shows the main page's. message as the page wrote it,
+     * any length (NULL for BEFORE_UNLOAD); default_text the prompt's preset text (NULL for other types). Answer with
+     * uc_webview_request_reply(), from here or later; until then the page waits. Not set: alert, confirm and prompt
+     * close at once (WebKit's default: confirm() false, prompt() null) and BEFORE_UNLOAD leaves the page (library
+     * default; WebKit's own would stay). Dialog loop guard: after three dialogs of one document that each came less
+     * than 1 s after the previous answer, further dialogs of that document close at once with WebKit's default, until
+     * the user taps or presses a key in the page (library 0.7.2, see "input") or the next page commits (beforeunload
+     * excepted). */
+    void (*script_dialog)(uc_webview *, uint64_t request, int type, const char *origin,
+                          const char *message, const char *default_text, void *user);
+    /* A server or proxy asks for a login: origin "scheme://host[:port]" of the server (of the proxy with
+     * UC_WEBVIEW_AUTH_PROXY), realm the server's text for the protected area (may be "" or NULL), scheme
+     * UC_WEBVIEW_AUTH_SCHEME_*, flags UC_WEBVIEW_AUTH_*. Answer with uc_webview_request_auth(). Several can be
+     * pending (a page with several protected parts). Not set: the load continues without credentials and shows the
+     * server's 401 page (library default; WebKit's own would hang until the next load). */
+    void (*authenticate)(uc_webview *, uint64_t request, const char *origin, const char *realm,
+                         int scheme, unsigned flags, void *user);
+    /* A pending script dialog or authentication request went away before the host answered (see "Requests"): close
+     * its dialog and do not answer it (an answer now returns -1). Never called from inside uc_webview_free(). */
+    void (*request_cancelled)(uc_webview *, uint64_t request, void *user);
+    /* The page called window.close() and WebKit allows it (a page opened by script, or one with at most one history
+     * entry). The library does nothing else; a host may leave the page or go back. */
+    void (*close_requested)(uc_webview *, void *user);
+    /* The page asked for a new window (window.open(), target=_blank) with uri: UC_WEBVIEW_NEW_WINDOW_LOADED, it loads
+     * into this view now (load_changed follows); UC_WEBVIEW_NEW_WINDOW_REFUSED, nothing happens. The page's
+     * window.open() returns null either way. The same happens without the callback. */
+    void (*new_window)(uc_webview *, const char *uri, int result, void *user);
+    /* The main frame got a response the library does not show, reason UC_WEBVIEW_RESPONSE_*, mime_type as the server
+     * sent it (NULL when not known yet, e.g. for <a download>). The page stays, nothing is saved; for a load the host
+     * started, STARTED and FINISHED (with the URI of the page that stays) come without FAILED. The same happens without
+     * the callback. Frames: refused silently. */
+    void (*response_refused)(uc_webview *, const char *uri, const char *mime_type, int reason, void *user);
 } uc_webview_callbacks;
 
 /* ---- process-wide ------------------------------------------------------- */
@@ -312,13 +433,15 @@ int uc_webview_api_version(void);
  * UC_WEBVIEW_REFRESH_RATE=<Hz> (display refresh rate, wins over uc_webview_global_set_refresh_rate(); read here,
  * once), UC_WEBVIEW_DRAG_THRESHOLD=<px> (touch drag threshold, see uc_webview_global_get_drag_threshold()),
  * UC_WEBVIEW_TRACE=1 (log lines about the display refresh ticks, key events, text input, the results of
- * uc_webview_when_rendered(), pinch begin and end and magnification changes with their render time; never with
- * typed text, see the package README "What the logs carry"),
+ * uc_webview_when_rendered(), pinch begin and end and magnification changes with their render time, and requests by
+ * kind, id and outcome; never with typed text, dialog texts, answers, user names or passwords, see the package
+ * README "What the logs carry"),
  * UC_WEBVIEW_LOG_FULL_URLS=1 (log lines show URIs with query, fragment and data: payload; without it only scheme,
  * host, port and path; credentials never),
  * UC_WEBVIEW_PDF_VIEWER=1 (keeps WebKit's PDF viewer on, for crash investigations; read here, once). Since library
- * 0.6.1 the viewer is off: a PDF in the main frame fails like a download, load_changed(UC_WEBVIEW_LOAD_FAILED, the
- * PDF's URI) and then FINISHED with the URI of the page that stays; a PDF in a frame stays empty.
+ * 0.6.1 the viewer is off: a PDF in the main frame is refused like a download, since 0.7.0 as
+ * response_refused(UC_WEBVIEW_RESPONSE_UNSUPPORTED) without load_changed(UC_WEBVIEW_LOAD_FAILED) (0.6.1 reported
+ * FAILED with the PDF's URI); a PDF in a frame stays empty.
  */
 int uc_webview_global_init(void *egl_display, const char *data_dir, const char *cache_dir);
 
@@ -393,7 +516,9 @@ uc_webview *uc_webview_new(int width, int height, const uc_webview_callbacks *cb
  */
 uc_webview *uc_webview_new_sized(int width, int height, const uc_webview_callbacks *cb, size_t cb_size, void *user);
 
-/* UI thread, not from a callback. Releases held frames, destroys the WebKitWebView. NULL is ignored. */
+/* UI thread, not from a callback. Releases held frames, destroys the WebKitWebView. Pending requests end without a
+ * callback (script dialogs with their "no" answer, authentication requests cancelled; library 0.7.0). NULL is
+ * ignored. */
 void uc_webview_free(uc_webview *);
 
 /* UI thread. New size in device pixels (minimum 1x1); the next frame has the new size. */
@@ -423,6 +548,8 @@ void uc_webview_load_uri(uc_webview *, const char *uri);
  * A base_uri outside the allowlist of uc_webview_load_uri() refuses the load the same way (FAILED with
  * base_uri). */
 void uc_webview_load_html(uc_webview *, const char *html, const char *base_uri);
+/* UI thread. The navigation calls end pending script dialogs and authentication requests first (library 0.7.0,
+ * see "Requests"); go_back/go_forward only when there is somewhere to go. */
 void uc_webview_reload(uc_webview *);
 void uc_webview_stop(uc_webview *);
 void uc_webview_go_back(uc_webview *);
@@ -521,6 +648,36 @@ typedef void (*uc_webview_rendered_cb)(uc_webview *, int status, void *user);
  */
 int uc_webview_when_rendered(uc_webview *, uc_webview_rendered_cb cb, void *user);
 
+/* ---- requests (library 0.7.0) ------------------------------------------------ */
+
+/*
+ * UI thread. Added in library 0.7.0 within API version 1: hosts resolve it with dlsym() and set the request callbacks
+ * only when it exists (an older library ignores them anyway). May be called from inside a callback, also from the
+ * request's own script_dialog().
+ *
+ * Answers a pending request (see "Requests"). Script dialogs: accept=1 is the host's yes: alert closed, confirm()
+ * true, prompt() returns text (UTF-8; NULL = ""), beforeunload leaves the page. accept=0 is its no: alert closed,
+ * confirm() false, prompt() null, beforeunload stays. text is used for prompts only. Authentication requests:
+ * accept=0 continues without credentials (the server's 401 page loads), accept=1 is refused (use
+ * uc_webview_request_auth()).
+ * Returns 0 when answered, -1 when refused: invalid view, another thread, an unknown or ended id (also one that
+ * request_cancelled() reported or is about to report), accept=1 for an authentication request, text not UTF-8 (the
+ * request stays pending then).
+ */
+int uc_webview_request_reply(uc_webview *, uint64_t request, int accept, const char *text);
+
+/*
+ * UI thread. Added in library 0.7.0, like uc_webview_request_reply().
+ *
+ * Answers a pending authentication request: user and password (UTF-8; password NULL = "") go to the server; user
+ * NULL continues without credentials, the server's 401 page loads (password is ignored). Credentials are kept for
+ * the session only (WebKit's credential storage is in memory; nothing is written, the library never asks WebKit to
+ * save them) and never logged. When the server rejects them, authenticate() comes again with UC_WEBVIEW_AUTH_RETRY.
+ * Returns 0 when answered, -1 when refused: invalid view, another thread, an unknown or ended id, a script dialog's
+ * id, a string that is not UTF-8 (the request stays pending then).
+ */
+int uc_webview_request_auth(uc_webview *, uint64_t request, const char *user, const char *password);
+
 /* ---- frames -------------------------------------------------------------- */
 
 /* UI thread. The host has displayed the frame: WebKit may render the next one. Unknown or already
@@ -535,6 +692,10 @@ void uc_webview_frame_release(uc_webview *, void *frame_handle);
  * Coordinates are view pixels (origin top-left). ms is the event time in
  * milliseconds from any monotonic source (used for double-click and gesture
  * timing; 0 = now). mods are UC_WEBVIEW_MOD_* bits.
+ * Pass the user's input only: since library 0.7.2 a touch down, a button or
+ * key press and text input that reaches a focused element (ime_commit,
+ * ime_preedit with text, ime_delete_surrounding) end the dialog loop guard
+ * (script_dialog()). Releases, moves and scrolling do not.
  */
 
 /* UI thread. One touch point; id is the touch sequence (finger) id. Touches drive WebKit's own gesture
