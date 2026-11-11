@@ -46,8 +46,12 @@ Rectangle {
     // Neighbours in a keypad focus chain. An attached property (KeyNavigation) can only be set on
     // the item that declares it, so a form sets these instead of inputField.KeyNavigation.*.
     // DPAD_MIDDLE on the field is its Return key and submits through inputField.onAccepted.
+    // Left and right move the caret first: the field hands them to navLeft / navRight only at the
+    // start / end of its text (QQuickTextInput::keyPressEvent ignores them there).
     property Item navUp: null
     property Item navDown: null
+    property Item navLeft: null
+    property Item navRight: null
 
     // bring the on-screen keyboard up whenever the field gains the focus (a form walked with the
     // d-pad); Button / Switch / Checkbox hide it again when they take the focus
@@ -116,6 +120,8 @@ Rectangle {
 
     KeyNavigation.up: inputFieldContainer.navUp
     KeyNavigation.down: inputFieldContainer.navDown
+    KeyNavigation.left: inputFieldContainer.navLeft
+    KeyNavigation.right: inputFieldContainer.navRight
 
     Components.Selectable {
         selected: inputField.activeFocus
@@ -139,6 +145,8 @@ Rectangle {
 
         KeyNavigation.up: inputFieldContainer.navUp
         KeyNavigation.down: inputFieldContainer.navDown
+        KeyNavigation.left: inputFieldContainer.navLeft
+        KeyNavigation.right: inputFieldContainer.navRight
 
         onFocusChanged: {
             inputFieldContainer.border.width = focus ? 1 : 0;

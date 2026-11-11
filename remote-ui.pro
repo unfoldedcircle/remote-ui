@@ -64,7 +64,9 @@ isEmpty(UC_BUILD_VERSION) {
     }
 }
 REMOTE_VERSION = $$replace(GIT_VERSION, v, "")
-DEFINES += APP_VERSION=\\\"$$REMOTE_VERSION\\\"
+# APP_VERSION is generated into $$OUT_PWD/version.h (QMAKE_SUBSTITUTES below), not passed as a define: make does not
+# recompile an object whose DEFINES changed, so a rebuild on a new commit kept the old version string in the binary.
+# The build directory is in the include path of the generated Makefile.
 
 # TODO map REMOTE_VERSION to VERSION if format is X.Y.Z
 VERSION = 0.1.0
@@ -79,7 +81,7 @@ CONFIG(debug, debug|release) {
     DEBUG_BUILD = false
 }
 
-QMAKE_SUBSTITUTES += version.txt.in
+QMAKE_SUBSTITUTES += version.txt.in version.h.in
 
 HEADERS += \
     src/config/config.h \
@@ -231,6 +233,32 @@ SOURCES += \
         src/util.cpp \
         src/voice.cpp
 
+# === WebView (optional, Linux) ===============================
+# The WebView QML item (UC.WebView) shows a WPE WebKit page rendered by the firmware's libucwebview.so.1, loaded at
+# runtime with QLibrary (docs/webview.md). CONFIG+=no-webview leaves the item out of the binary entirely.
+!no-webview {
+    DEFINES += UC_WEBVIEW
+    # <qpa/qplatformnativeinterface.h> for Qt's EGLDisplay
+    QT += gui-private
+
+    HEADERS += \
+        src/webview/uc_webview.h \
+        src/webview/webviewframequeue.h \
+        src/webview/webviewinput.h \
+        src/webview/webviewitem.h \
+        src/webview/webviewlibrary.h \
+        src/webview/webviewpinch.h \
+        src/webview/webviewtexture.h
+
+    SOURCES += \
+        src/webview/webviewframequeue.cpp \
+        src/webview/webviewinput.cpp \
+        src/webview/webviewitem.cpp \
+        src/webview/webviewlibrary.cpp \
+        src/webview/webviewpinch.cpp \
+        src/webview/webviewtexture.cpp
+}
+
 # === QR code generator =======================================
 HEADERS += \
         3rd-party/QR-Code-generator/cpp/qrcodegen.hpp
@@ -326,7 +354,8 @@ macx {
 # === end CONFIG COPY section =======================================
 
 DISTFILES += \
-    version.txt.in
+    version.txt.in \
+    version.h.in
 
 # -----------------------------------------------------------------------------
 # DESTINATION PATH

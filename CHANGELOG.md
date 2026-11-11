@@ -8,6 +8,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- Web view (developer preview): on a firmware that provides the web view library (`libucwebview.so.1`, WPE WebKit),
+  a web page can be shown inside the user interface. The settings menu then lists a developer page, Web view, with an
+  address field and the page below it; touch, the d-pad and the on-screen keyboard work in the page like in the rest
+  of the interface. Without the library, and in the desktop simulator, nothing changes. See `docs/webview.md`.
+- The web view's developer page has a Stop/Reload button, and a path typed into the address field opens as a file
+  address. The web view loads only web (http, https), `about:` and `data:` addresses; file addresses are refused with
+  a "load failed" message unless `UC_WEBVIEW_ALLOW_FILE_URLS=1` is set. A tap on a text field of the page that is
+  still selected brings the on-screen keyboard back after its hide key closed it.
+- The web view tells the page the refresh rate of the display (50 Hz on the Remote 3) instead of 60 Hz, so page
+  animations that do not redraw on every frame keep step with the display. Needs the web view library 0.2.0.
+- The web view's developer page has Back and Forward buttons, dimmed while there is no page to go back or forward to,
+  and the remote's PREV and NEXT buttons go back and forward in the page's history, also while the d-pad is in the web
+  view. BACK leaves the page. The address field can be reached with the d-pad and shows the address of the page on
+  screen.
+- Taps in the web view with a slightly rolling finger count as taps: with the web view library 0.3.0 a press may
+  move 16 px instead of 8 px before it scrolls the page. A tap on a text field that the page selected by itself, such
+  as the PIN field of the web configurator's login, opens the on-screen keyboard. The web view's input trace for
+  device tests (`UC_WEBVIEW_TRACE=1`) records no typed text, and web addresses in the log lose user name, password,
+  query and fragment unless `UC_WEBVIEW_LOG_FULL_URLS=1` is set.
+- On the web view's developer page the remote's VOLUME buttons zoom the page and the CHANNEL buttons scroll it a page
+  up or down. A label shows the zoom level, with a spinner while a large page renders it. Two fingers pinch-zoom the
+  page on a touch panel that reports two fingers, such as the Remote Two's. Needs the web view library 0.5.0 for the
+  spinner and 0.6.0 for the pinch.
+
 ### Changed
 - SVG icons that are wider or taller than their box are rendered at the size they are shown: sharper and lighter on
   memory. A wide SVG icon on an activity or remote page button uses the whole button, and a square one stays square
@@ -19,6 +44,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   straight back up.
 - The "Join other" button at the end of the WiFi network list is fully shown again. With a few networks in the list it
   was cut off and could not be scrolled into view.
+- A rebuild on a new commit kept the version string of the previous build in the binary, so Settings, About and the
+  core reported an older version than the one installed. The version now comes from a generated header that is
+  recompiled whenever it changes; no `make clean` is needed.
 
 ---
 
