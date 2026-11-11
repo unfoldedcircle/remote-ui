@@ -2643,6 +2643,34 @@ Climate fan</translatorcomment>
         </message>
     </context>
     <context>
+        <name>Number state</name>
+        <message>
+            <location filename="../../src/ui/entity/number.h" line="41"/>
+            <source>Unavailable</source>
+            <translation>Ikke tilgængelig</translation>
+        </message>
+        <message>
+            <location filename="../../src/ui/entity/number.h" line="43"/>
+            <source>Unknown</source>
+            <translation>Ukendt</translation>
+        </message>
+        <message>
+            <location filename="../../src/ui/entity/number.h" line="46"/>
+            <source>On</source>
+            <extracomment>Device state: switched on. Not the preposition "on".</extracomment>
+            <translation>Tændt</translation>
+        </message>
+    </context>
+    <context>
+        <name>NumberWidget</name>
+        <message>
+            <location filename="../../src/qml/components/NumberWidget.qml" line="70"/>
+            <source>%1 is unavailable</source>
+            <extracomment>Notification when a number was changed but the command was not sent because the device is unavailable. %1 is the entity name</extracomment>
+            <translation>%1 er ikke tilgængelig</translation>
+        </message>
+    </context>
+    <context>
         <name>OnOff</name>
         <message>
             <location filename="../../src/qml/components/entities/light/OnOff.qml" line="18"/>
@@ -3692,6 +3720,15 @@ Webkonfiguratoren</translation>
         </message>
     </context>
     <context>
+        <name>SliderWidget</name>
+        <message>
+            <location filename="../../src/qml/components/SliderWidget.qml" line="144"/>
+            <source>%1 is unavailable</source>
+            <extracomment>Notification when a slider was moved but the command was not sent because the device is unavailable. %1 is the entity name</extracomment>
+            <translation>%1 er ikke tilgængelig</translation>
+        </message>
+    </context>
+    <context>
         <name>SoftwareUpdate</name>
         <message>
             <location filename="../../src/qml/settings/SoftwareUpdate.qml" line="67"/>
@@ -4091,6 +4128,36 @@ Tryk på QR-koden for at vise den på skærmen.</translation>
         <message>
             <location filename="../../src/qml/components/TouchSliderBrightness.qml" line="61"/>
             <source>%1 is not available. Please check your configuration.</source>
+            <translation>%1 er ikke tilgængelig. Kontrollér din konfiguration.</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSliderColorTemperature</name>
+        <message>
+            <location filename="../../src/qml/components/TouchSliderColorTemperature.qml" line="81"/>
+            <source>Touch slider is not available.</source>
+            <extracomment>Notification title when the Remote 3 touch slider controls a light that is unavailable</extracomment>
+            <translation>Berøringsskyderen er ikke tilgængelig.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/TouchSliderColorTemperature.qml" line="83"/>
+            <source>%1 is not available. Please check your configuration.</source>
+            <extracomment>Notification text when the touch slider's light is unavailable. %1 is the entity name</extracomment>
+            <translation>%1 er ikke tilgængelig. Kontrollér din konfiguration.</translation>
+        </message>
+    </context>
+    <context>
+        <name>TouchSliderNumber</name>
+        <message>
+            <location filename="../../src/qml/components/TouchSliderNumber.qml" line="86"/>
+            <source>Touch slider is not available.</source>
+            <extracomment>Notification title when the Remote 3 touch slider controls a number entity that is unavailable</extracomment>
+            <translation>Berøringsskyderen er ikke tilgængelig.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/TouchSliderNumber.qml" line="88"/>
+            <source>%1 is not available. Please check your configuration.</source>
+            <extracomment>Notification text when the touch slider's number entity is unavailable. %1 is the entity name</extracomment>
             <translation>%1 er ikke tilgængelig. Kontrollér din konfiguration.</translation>
         </message>
     </context>
