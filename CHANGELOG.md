@@ -8,13 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.85.2 - 2026-11-12
 ### Added
 - Display & Brightness has a "Selection background" setting: five steps from no background to the strong background
   of the selected tile or menu entry introduced with the design system. A preview under the slider shows the chosen
   background. The default is one step weaker than the background of v0.84.0 to v0.85.1
   ([#62](https://github.com/unfoldedcircle/remote-ui/pull/62)).
-
----
 
 ## v0.85.1 - 2026-11-11
 ### Changed
