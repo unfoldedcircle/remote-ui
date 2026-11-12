@@ -280,11 +280,11 @@ Components.Selectable {
 
 The style follows the kind of screen (`docs/design-system.md` section 6, ADR 0020):
 
-- **Fill** (`surfaceSelected`) on the main UI: entity and group tiles, popup menu rows, page selector
-  and profile switcher rows, the activity menu; in settings the menus of the profile page, Settings
-  and About (`MenuRow` with `selectionStyle: "fill"`); the picker lists (`PopupList`) in settings
-  and onboarding. Everything on the fill is drawn in `textPrimary`; bind secondary text to
-  `selection.shown ? colors.textPrimary : …`.
+- **Fill** (`selectionFill`, whose strength the user sets) on the main UI: entity and group tiles,
+  popup menu rows, page selector and profile switcher rows, the activity menu; in settings the menus
+  of the profile page, Settings and About (`MenuRow` with `selectionStyle: "fill"`); the picker lists
+  (`PopupList`) in settings and onboarding. Everything on the fill is drawn in `textPrimary`; bind
+  secondary text to `selection.shown ? colors.textPrimary : …`.
 - **Ring** (3 px `focusRing`) in settings and set-up flows and on buttons everywhere: around a row
   that OK activates as a whole, on the control of a setting with a switch, slider or field. The
   shared controls (`Button`, `Switch`, `Checkbox`, `Slider`, `InputField`, `SearchField`, the

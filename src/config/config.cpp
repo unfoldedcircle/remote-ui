@@ -479,6 +479,15 @@ void Config::setMediaCoverflowDefault(bool value) {
     emit mediaCoverflowDefaultChanged();
 }
 
+int Config::getSelectionFillLevel() {
+    return m_settings->value("ui/selectionFillLevel", ui::Colors::SELECTION_FILL_DEFAULT_LEVEL).toInt();
+}
+
+void Config::setSelectionFillLevel(int value) {
+    m_settings->setValue("ui/selectionFillLevel", value);
+    emit selectionFillLevelChanged(value);
+}
+
 int Config::getResumeTimeoutWindowSec() {
     return m_settings->value("ui/resumeTimeoutWindow", 2).toInt();
 }

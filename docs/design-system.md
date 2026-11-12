@@ -55,7 +55,8 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
 | `textOnButton`    | #FFFFFF | 6.9:1 on primary | offwhite label        | Primary and destructive button labels                      |
 | `surface`         | #1E1E1E | 1.26:1   | `dark` #161616, `secondaryButton` | Cards, fields, secondary buttons                       |
 | `surfaceRaised`   | #2C2C2C | 1.5:1    | `medium` #232323              | Popup cards over a dim, switch and slider tracks           |
-| `surfaceSelected` | #595959 | 3.0:1    | new                           | Fill of the selected tile or row in menu-like lists (section 6). Never with a ring. Decided for now, see Q-3 |
+| `surfaceSelected` | #595959 | 3.0:1    | new                           | The strongest selection fill; the fill behind the selected link of a license document and the selected alternate key of the on-screen keyboard. Decided for now, see Q-3 |
+| `selectionFill`   | user setting | -   | new                           | Fill of the selected tile or row in menu-like lists (section 6). Never with a ring. One of five levels the user sets in Display & Brightness (section 6, "Fill strength") |
 | `divider`         | #3A3A3A | 1.85:1   | `medium`                      | 2 px separators, secondary button outline, sheet edge      |
 | `focusRing`       | #D0D0D0 | 13.6:1   | `highlight` #C8C8C8           | 3 px ring on the selected settings row or control, and on buttons |
 | `buttonPrimary`   | #5A5A5A | -        | `primaryButton`               | Primary button fill                                        |
@@ -148,7 +149,7 @@ switches, sliders or fields, take the ring (ADR 0020).
 
 | Style | Looks like | Used on |
 | ----- | ---------- | ------- |
-| **Fill** | `surfaceSelected` fill on the whole tile or row, no ring, no border | Menu-like lists: entity and group tiles on a page, popup menu rows (page menu and every other `PopupMenu`), page selector rows, profile switcher rows; the menus whose rows open a page with a chevron: the profile page, Settings and About; the picker lists (`PopupList`: language, country, timezone, Wi-Fi country and band, integration dropdowns), in settings and in onboarding |
+| **Fill** | `selectionFill` on the whole tile or row, no ring, no border | Menu-like lists: entity and group tiles on a page, popup menu rows (page menu and every other `PopupMenu`), page selector rows, profile switcher rows; the menus whose rows open a page with a chevron: the profile page, Settings and About; the picker lists (`PopupList`: language, country, timezone, Wi-Fi country and band, integration dropdowns), in settings and in onboarding |
 | **Ring** | 3 px `focusRing` around the selected element, no fill | Setting screens and set-up steps with switches, sliders or fields: settings rows and controls (for example Localization and Display), dock and integration lists, onboarding steps; buttons everywhere |
 
 The mapping is decided (section 11, Q-1). Which style a screen takes is the designer's choice: a
@@ -162,6 +163,13 @@ not ADR 0020.
   readable on it: 3.0:1 against black on the OLED and about 2.4:1 on the LCD estimate. The
   designer's revision used #333333 (1.66:1 and about 1.5:1). #595959 is decided for now (section 11,
   Q-3); the device checks may still adjust it, here and in `Colors` only.
+- **Fill strength** (ADR 0021). The user sets the strength of `selectionFill` with a five-step slider
+  in Display & Brightness, under which a preview row shows the chosen fill. The levels are no fill,
+  #161616, #2D2D2D, #434343 and #595959 (`surfaceSelected`): equal grey steps from black. The default
+  is #434343, the second highest level. The UI stores the level on the remote, not in the core. At
+  the lowest level a fill-style selection is not drawn. Everything on the fill stays `textPrimary`;
+  it keeps at least 4.5:1 on every level. The link of a license document and the alternate keys of
+  the on-screen keyboard keep `surfaceSelected`, so they never lose their selection.
 - **Held while reordering** (page tiles, group rows, page selector rows): the ring marks the held
   element and the fill marks the selection, so a held element shows both while it moves. This is
   the one exception to "never both" (decided 2026-10-07, Q-5 of the change).
@@ -312,6 +320,6 @@ Close row instead of a secondary button. The page menu sheet is black with a div
 | --- | -------- | --------------- |
 | Q-1 | Which screens beyond the mockups use the fill style and which the ring style? | Decided 2026-10-12 by the maintainer, as implemented: the fill in menu-like lists, the ring on setting screens with switches, sliders or fields and on buttons (section 6). Moving a screen between the styles is the designer's choice and changes section 6 only |
 | Q-2 | Focus ring colour: the revised screens use #D0D0D0, once at 92 % opacity; the token sheet still shows #C8C8C8 | Decided 2026-10-12 by the maintainer: opaque #D0D0D0, the same value as `textPrimary` |
-| Q-3 | Is the provisional #595959 fill right on the devices? It replaces the designer's #333333 so the selection is easy to judge on a Remote 3 in a lit room | Decided 2026-10-12 by the maintainer: #595959 for now. The device checks may still adjust it, towards #333333 if it looks too heavy; the value is set in this document and `Colors` only, not in an ADR |
+| Q-3 | Is the provisional #595959 fill right on the devices? It replaces the designer's #333333 so the selection is easy to judge on a Remote 3 in a lit room | Decided 2026-10-12 by the maintainer: #595959 for now. The device checks may still adjust it, towards #333333 if it looks too heavy; the value is set in this document and `Colors` only, not in an ADR. Amended 2026-11-12 by the maintainer: users disagree on it, so #595959 is the strongest of five levels the user chooses from, and the default is the second highest (section 6, "Fill strength", ADR 0021) |
 | Q-4 | Do all bottom sheets become black with a divider edge, or only popup menus on the main UI? | Decided 2026-10-07 by the designer: all bottom sheets, one rule: WifiInfo, WifiJoin, DropDownMenu and the delete drawers too |
 | Q-8 | The mockups draw tile and list subtitles in Poppins 24 and the release-notes date in Space Mono 22; the type table has no such sizes | Decided 2026-10-12 by the maintainer, as implemented: subtitles and states use the help role (Poppins 26) on every screen, timestamps the caption role (Poppins 22); the release-notes date is part of the release notes text, in the prose role |

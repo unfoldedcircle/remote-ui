@@ -14,6 +14,7 @@
 
 #include "../core/core.h"
 #include "../translation/translation.h"
+#include "../ui/colors.h"
 #include "../ui/entity/voiceAssistant.h"
 #include "../ui/notification.h"
 #include "../util.h"
@@ -103,6 +104,9 @@ class Config : public QObject {
     Q_PROPERTY(bool fillMediaArtwork READ getFillMediaArtwork WRITE setFillMediaArtwork NOTIFY fillMediaArtworkChanged)
     Q_PROPERTY(bool mediaCoverflowDefault READ getMediaCoverflowDefault WRITE setMediaCoverflowDefault NOTIFY
                    mediaCoverflowDefaultChanged)
+    // stored by the UI only: the strength of the selection fill, from 0 (no fill) to Colors::SELECTION_FILL_MAX_LEVEL
+    Q_PROPERTY(
+        int selectionFillLevel READ getSelectionFillLevel WRITE setSelectionFillLevel NOTIFY selectionFillLevelChanged)
 
     Q_PROPERTY(int resumeTimeoutWindowSec READ getResumeTimeoutWindowSec WRITE setResumeTimeoutWindowSec NOTIFY
                    resumeTimeoutWindowSecChanged)
@@ -197,6 +201,8 @@ class Config : public QObject {
 
     bool getMediaCoverflowDefault();
     void setMediaCoverflowDefault(bool value);
+    int  getSelectionFillLevel();
+    void setSelectionFillLevel(int value);
 
     int  getResumeTimeoutWindowSec();
     void setResumeTimeoutWindowSec(int value);
@@ -369,6 +375,7 @@ class Config : public QObject {
     void openActivityOnApiStartChanged();
     void fillMediaArtworkChanged();
     void mediaCoverflowDefaultChanged();
+    void selectionFillLevelChanged(int value);
     void resumeTimeoutWindowSecChanged(int value);
     void touchSliderEnabledChanged();
     void touchSliderGainVolumeChanged();
