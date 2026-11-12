@@ -1257,6 +1257,30 @@ Climate fan</translatorcomment>
             <source>Button backlight brightness</source>
             <translation>Brilho da retroiluminação dos botões</translation>
         </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/Display.qml" line="140"/>
+            <source>Selection background</source>
+            <extracomment>Title of the setting for the background of the selected tile or menu row</extracomment>
+            <translation>Fundo da seleção</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/Display.qml" line="142"/>
+            <source>Background of the selected tile or menu entry when using the buttons.</source>
+            <extracomment>Help text of the "Selection background" setting</extracomment>
+            <translation>Fundo do mosaico ou da entrada de menu selecionados quando usas os botões.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/Display.qml" line="162"/>
+            <source>Off</source>
+            <extracomment>No background for the selected tile or menu row</extracomment>
+            <translation>Desligado</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/Display.qml" line="186"/>
+            <source>Selected entry</source>
+            <extracomment>Example text in the preview of the selection background</extracomment>
+            <translation>Entrada selecionada</translation>
+        </message>
     </context>
     <context>
         <name>Dock</name>
@@ -4694,12 +4718,12 @@ Toca no código QR para o mostrar no ecrã.</translation>
             <translation>Outras redes</translation>
         </message>
         <message>
-            <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="392"/>
+            <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="394"/>
             <source>No networks found</source>
             <translation>Nenhuma rede encontrada</translation>
         </message>
         <message>
-            <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="404"/>
+            <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="406"/>
             <source>Join other</source>
             <extracomment>Join other wifi network</extracomment>
             <translatorcomment>Join other wifi network</translatorcomment>
@@ -4747,13 +4771,13 @@ Toca no código QR para o mostrar no ecrã.</translation>
             <translation>Remover</translation>
         </message>
         <message>
-            <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="454"/>
+            <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="456"/>
             <source>Enabled</source>
             <extracomment>State of a saved WiFi network: the remote connects to it</extracomment>
             <translation>Ativado</translation>
         </message>
         <message>
-            <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="456"/>
+            <location filename="../../src/qml/settings/settings/WifiNetworkList.qml" line="458"/>
             <source>Disabled</source>
             <extracomment>State of a saved WiFi network: the remote does not connect to it</extracomment>
             <translation>Desativado</translation>
@@ -4973,91 +4997,91 @@ Toca no código QR para o mostrar no ecrã.</translation>
             <translation>Erro ao definir a retroiluminação dos botões: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="551"/>
+            <location filename="../../src/config/config.cpp" line="560"/>
             <source>Error setting wakeup sensitivity: %1</source>
             <extracomment>Notification: the wakeup sensitivity could not be changed. %1 is the core's error message</extracomment>
             <translation>Erro ao definir a sensibilidade de ativação: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="571"/>
+            <location filename="../../src/config/config.cpp" line="580"/>
             <source>Error setting sleep timeout: %1</source>
             <extracomment>Notification: the sleep timeout could not be changed. %1 is the core's error message</extracomment>
             <translation>Erro ao definir o tempo até suspender: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="591"/>
+            <location filename="../../src/config/config.cpp" line="600"/>
             <source>Error setting display sleep timeout: %1</source>
             <extracomment>Notification: the display timeout could not be changed. %1 is the core's error message</extracomment>
             <translation>Erro ao definir o tempo de suspensão do ecrã: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="611"/>
+            <location filename="../../src/config/config.cpp" line="620"/>
             <source>Error setting update config: %1</source>
             <extracomment>Notification: a software update setting could not be changed. %1 is the core's error message</extracomment>
             <translation>Erro ao definir as atualizações de software: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="651"/>
+            <location filename="../../src/config/config.cpp" line="660"/>
             <source>Error setting Bluetooth: %1</source>
             <extracomment>Notification: Bluetooth could not be switched on or off. %1 is the core's error message</extracomment>
             <translation>Erro ao definir o Bluetooth: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="671"/>
+            <location filename="../../src/config/config.cpp" line="680"/>
             <source>Error setting WiFi: %1</source>
             <extracomment>Notification: WiFi could not be switched on or off. %1 is the core's error message</extracomment>
             <translation>Erro ao definir o Wi-Fi: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="691"/>
+            <location filename="../../src/config/config.cpp" line="700"/>
             <source>Error setting WiFi in standby: %1</source>
             <extracomment>Notification: "Keep WiFi connected in standby" could not be changed. %1 is the core's error message</extracomment>
             <translation>Erro ao definir o Wi-Fi em espera: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="710"/>
+            <location filename="../../src/config/config.cpp" line="719"/>
             <source>Error setting WiFi band: %1</source>
             <extracomment>Notification: the WiFi band could not be changed. %1 is the core's error message</extracomment>
             <translation>Erro ao definir a banda Wi-Fi: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="729"/>
+            <location filename="../../src/config/config.cpp" line="738"/>
             <source>Error setting WiFi scan interval: %1</source>
             <extracomment>Notification: the WiFi scan interval could not be changed. %1 is the core's error message</extracomment>
             <translation>Erro ao definir o intervalo de procura Wi-Fi: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="766"/>
+            <location filename="../../src/config/config.cpp" line="775"/>
             <source>Error getting country list: %1</source>
             <extracomment>Notification: the list of countries could not be loaded. %1 is the core's error message</extracomment>
             <translation>Erro ao obter a lista de países: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="783"/>
+            <location filename="../../src/config/config.cpp" line="792"/>
             <source>Error getting timezones: %1</source>
             <extracomment>Notification: the list of time zones could not be loaded. %1 is the core's error message</extracomment>
             <translation>Erro ao obter os fusos horários: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="826"/>
+            <location filename="../../src/config/config.cpp" line="835"/>
             <source>Could not set the admin PIN: %1</source>
             <extracomment>Notification: the administrator PIN could not be set. %1 is the core's error message</extracomment>
             <translation>Não foi possível definir o PIN de administrador: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="846"/>
+            <location filename="../../src/config/config.cpp" line="855"/>
             <source>Error enabling the web configurator</source>
             <extracomment>Notification: the state of the web configurator could not be read</extracomment>
             <translation>Erro ao ativar o Configurador Web</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="894"/>
+            <location filename="../../src/config/config.cpp" line="903"/>
             <source>Error enabling the web configurator: %1</source>
             <extracomment>Notification: the web configurator could not be switched on or off. %1 is the core's error message</extracomment>
             <translation>Erro ao ativar o Configurador Web: %1</translation>
         </message>
         <message>
-            <location filename="../../src/config/config.cpp" line="972"/>
+            <location filename="../../src/config/config.cpp" line="981"/>
             <source>Error while loading configuration. Trying again.</source>
             <translation>Erro ao carregar a configuração. A tentar novamente.</translation>
         </message>
@@ -5393,69 +5417,69 @@ Toca no código QR para o mostrar no ecrã.</translation>
     <context>
         <name>uc::ui::Controller</name>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="302"/>
+            <location filename="../../src/ui/uiController.cpp" line="304"/>
             <source>Error adding profile: %1</source>
             <extracomment>Notification: a profile could not be created. %1 is the core's error message</extracomment>
             <translation>Erro ao adicionar perfil: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="321"/>
+            <location filename="../../src/ui/uiController.cpp" line="323"/>
             <source>Error</source>
             <translation>Erro</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="322"/>
+            <location filename="../../src/ui/uiController.cpp" line="324"/>
             <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
             <translation>Não é possível eliminar o perfil que está a ser utilizado. Muda para outro perfil e tenta novamente.</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="339"/>
+            <location filename="../../src/ui/uiController.cpp" line="341"/>
             <source>Error deleting profile: %1</source>
             <extracomment>Notification: a profile could not be deleted. %1 is the core's error message</extracomment>
             <translation>Erro ao eliminar perfil: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="359"/>
+            <location filename="../../src/ui/uiController.cpp" line="361"/>
             <source>Error adding page: %1</source>
             <extracomment>Notification: a page could not be created. %1 is the core's error message</extracomment>
             <translation>Erro ao adicionar página: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="382"/>
+            <location filename="../../src/ui/uiController.cpp" line="384"/>
             <source>Error renaming page: %1</source>
             <extracomment>Notification: a page could not be renamed. %1 is the core's error message</extracomment>
             <translation>Erro ao mudar o nome da página: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="401"/>
+            <location filename="../../src/ui/uiController.cpp" line="403"/>
             <source>Error deleting page: %1</source>
             <extracomment>Notification: a page could not be deleted. %1 is the core's error message</extracomment>
             <translation>Erro ao eliminar página: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="500"/>
+            <location filename="../../src/ui/uiController.cpp" line="502"/>
             <source>Error during factory reset: %1</source>
             <extracomment>Notification: the factory reset failed. %1 is the core's error message</extracomment>
             <translation>Erro durante a reposição de fábrica: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="644"/>
+            <location filename="../../src/ui/uiController.cpp" line="646"/>
             <source>Profile update error</source>
             <translation>Erro ao atualizar o perfil</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="705"/>
+            <location filename="../../src/ui/uiController.cpp" line="707"/>
             <source>Error updating page: %1</source>
             <extracomment>Notification: a change to a page could not be saved. %1 is the core's error message</extracomment>
             <translation>Erro ao atualizar a página: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="771"/>
+            <location filename="../../src/ui/uiController.cpp" line="773"/>
             <source>%1 error</source>
             <translation>Erro %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="771"/>
+            <location filename="../../src/ui/uiController.cpp" line="773"/>
             <source>Error while connecting to %1, with id %2</source>
             <translation>Erro ao ligar a %1, com o id %2</translation>
         </message>
