@@ -23,7 +23,7 @@ Rectangle {
 
     anchors.fill: parent
     radius: ui.cornerRadiusSmall
-    color: shown && style === "fill" ? colors.surfaceSelected : colors.transparent
+    color: shown && style === "fill" ? colors.selectionFill : colors.transparent
     border {
         width: style === "ring" ? 3 : 0
         color: shown && style === "ring" ? colors.focusRing : colors.transparent

@@ -50,7 +50,7 @@ context: |
   credentials in URLs), redact them; titles are single-line, other variable text wraps once and is
   then truncated, other line limits only as specified in the design system; text sizes, colours
   and the selection look follow the design system (`docs/design-system.md`, accepted 2026-10-07,
-  ADRs 0019 and 0020);
+  ADRs 0020 and 0021);
   `CHANGELOG.md` entry for every user-visible change, in the same commit; code style, coding
   conventions and commit messages as in docs/code_guidelines.md.
   Durable architecture decisions live in docs/adr/ (immutable — supersede, never edit).

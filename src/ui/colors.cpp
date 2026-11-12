@@ -6,7 +6,8 @@
 namespace uc {
 namespace ui {
 
-Colors::Colors(const QString &baseColor, QObject *parent) : QObject(parent) {
+Colors::Colors(const QString& baseColor, QObject* parent)
+    : QObject(parent), m_selectionFill(selectionFillAt(SELECTION_FILL_DEFAULT_LEVEL)) {
     generateColorPalette(QColor(baseColor));
 }
 
@@ -36,6 +37,26 @@ void Colors::generateColorPalette(QColor primaryColor) {
 
     m_primaryButton.setHsv(m_baseColor.hsvHue(), m_baseColor.hslSaturation() / 2, 90);  // buttonPrimary
     emit primaryButtonChanged();
+}
+
+QColor Colors::selectionFillAt(int level) const {
+    level = qBound(0, level, SELECTION_FILL_MAX_LEVEL);
+    if (level == 0) {
+        return transparent;
+    }
+
+    auto step = [level](int channel) {
+        return qRound(channel * level / static_cast<double>(SELECTION_FILL_MAX_LEVEL));
+    };
+    return QColor(step(surfaceSelected.red()), step(surfaceSelected.green()), step(surfaceSelected.blue()));
+}
+
+void Colors::setSelectionFillLevel(int level) {
+    const QColor fill = selectionFillAt(level);
+    if (fill != m_selectionFill) {
+        m_selectionFill = fill;
+        emit selectionFillChanged();
+    }
 }
 
 }  // namespace ui

@@ -7,7 +7,7 @@
 #include "ui/colors.h"
 
 /**
- * The colour tokens of the design system (docs/design-system.md, ADR 0019). The palette is chosen against the raised
+ * The colour tokens of the design system (docs/design-system.md, ADR 0021). The palette is chosen against the raised
  * black of the Remote 3 LCD, so text keeps its contrast there as well; the old colour names stay as aliases of the
  * tokens while the screens move to the token names.
  */
@@ -26,6 +26,12 @@ class testDesignTokens : public QObject {
 
     void contrast_meetsTheDesignSystem_data();
     void contrast_meetsTheDesignSystem();
+
+    void selectionFill_stepsFromNoneToSurfaceSelected_data();
+    void selectionFill_stepsFromNoneToSurfaceSelected();
+    void selectionFill_defaultsToTheSecondHighestLevel();
+    void selectionFill_followsTheLevel();
+    void selectionFill_keepsPrimaryTextReadable();
 
  private:
     static QColor token(const QObject& colors, const char* name) { return colors.property(name).value<QColor>(); }
@@ -155,6 +161,68 @@ void testDesignTokens::contrast_meetsTheDesignSystem() {
     const double   ratio =
         contrast(token(colors, foreground.toLatin1().constData()), token(colors, background.toLatin1().constData()));
     QVERIFY2(ratio >= minimum, qPrintable(QStringLiteral("%1:1 is below %2:1").arg(ratio, 0, 'f', 2).arg(minimum)));
+}
+
+void testDesignTokens::selectionFill_stepsFromNoneToSurfaceSelected_data() {
+    QTest::addColumn<int>("level");
+    QTest::addColumn<QString>("value");
+    QTest::addColumn<int>("alpha");
+
+    // five levels: no fill, then equal steps from black up to surfaceSelected
+    QTest::newRow("0: no fill") << 0 << "#000000" << 0;
+    QTest::newRow("1") << 1 << "#161616" << 255;
+    QTest::newRow("2") << 2 << "#2d2d2d" << 255;
+    QTest::newRow("3") << 3 << "#434343" << 255;
+    QTest::newRow("4: surfaceSelected") << 4 << "#595959" << 255;
+    // a stored level out of range is clamped
+    QTest::newRow("below the range") << -1 << "#000000" << 0;
+    QTest::newRow("above the range") << 9 << "#595959" << 255;
+}
+
+void testDesignTokens::selectionFill_stepsFromNoneToSurfaceSelected() {
+    QFETCH(int, level);
+    QFETCH(QString, value);
+    QFETCH(int, alpha);
+
+    uc::ui::Colors colors;
+    const QColor   fill = colors.selectionFillAt(level);
+    QCOMPARE(fill.name(), value);
+    QCOMPARE(fill.alpha(), alpha);
+}
+
+void testDesignTokens::selectionFill_defaultsToTheSecondHighestLevel() {
+    uc::ui::Colors colors;
+    QCOMPARE(uc::ui::Colors::SELECTION_FILL_DEFAULT_LEVEL, uc::ui::Colors::SELECTION_FILL_MAX_LEVEL - 1);
+    QCOMPARE(colors.property("selectionFillMaxLevel").toInt(), uc::ui::Colors::SELECTION_FILL_MAX_LEVEL);
+    QCOMPARE(token(colors, "selectionFill"), colors.selectionFillAt(uc::ui::Colors::SELECTION_FILL_DEFAULT_LEVEL));
+    // the highest level is the design system's selection fill
+    QCOMPARE(colors.selectionFillAt(uc::ui::Colors::SELECTION_FILL_MAX_LEVEL), token(colors, "surfaceSelected"));
+}
+
+void testDesignTokens::selectionFill_followsTheLevel() {
+    uc::ui::Colors colors;
+    QSignalSpy     changed(&colors, &uc::ui::Colors::selectionFillChanged);
+
+    colors.setSelectionFillLevel(0);
+    QCOMPARE(changed.count(), 1);
+    QCOMPARE(token(colors, "selectionFill").alpha(), 0);
+
+    colors.setSelectionFillLevel(4);
+    QCOMPARE(changed.count(), 2);
+    QCOMPARE(token(colors, "selectionFill"), token(colors, "surfaceSelected"));
+
+    // the same fill again is no change
+    colors.setSelectionFillLevel(4);
+    colors.setSelectionFillLevel(9);
+    QCOMPARE(changed.count(), 2);
+}
+
+void testDesignTokens::selectionFill_keepsPrimaryTextReadable() {
+    uc::ui::Colors colors;
+    for (int level = 1; level <= uc::ui::Colors::SELECTION_FILL_MAX_LEVEL; ++level) {
+        const double ratio = contrast(token(colors, "textPrimary"), colors.selectionFillAt(level));
+        QVERIFY2(ratio >= 4.5, qPrintable(QStringLiteral("level %1: %2:1 is below 4.5:1").arg(level).arg(ratio)));
+    }
 }
 
 QTEST_GUILESS_MAIN(testDesignTokens)

@@ -77,6 +77,8 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
 
     // make fonts, colors and resources globally available for qml
     m_engine->rootContext()->setContextProperty("fonts", &m_fonts);
+    m_colors.setSelectionFillLevel(m_config->getSelectionFillLevel());
+    QObject::connect(m_config, &Config::selectionFillLevelChanged, &m_colors, &Colors::setSelectionFillLevel);
     m_engine->rootContext()->setContextProperty("colors", &m_colors);
     // Markdown text takes the colour of its links from the application palette, not from Text.linkColor
     QPalette palette = QGuiApplication::palette();
