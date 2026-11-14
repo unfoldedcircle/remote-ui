@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- Sensors with the new device classes `timestamp`, `date` and `duration` show a readable value instead of the raw one.
+  A timestamp is shown as date and time in the time zone and time format of the Remote, e.g. "15.11.26 05:23" instead
+  of "2026-11-15T04:23:31+00:00". A duration in days, hours or minutes is shown as a time span, e.g. "1h 30m" instead
+  of "1.5 h", and so is a duration of 120 seconds or more, e.g. "7d 19h" instead of "673492 s". Requires an integration that provides these device classes, like the Home Assistant integration.
 
 ---
 

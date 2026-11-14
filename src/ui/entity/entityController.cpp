@@ -677,6 +677,17 @@ void EntityController::connectLazySignals(entity::Base* obj) {
             climate->onUnitSystemChanged(m_unitSystem);
         }
     }
+
+    // Sensor: format of a timestamp and a date — connect then sync to the current settings
+    if (obj->getType() == entity::Base::Type::Sensor) {
+        auto sensor = qobject_cast<entity::Sensor*>(obj);
+
+        if (sensor) {
+            QObject::connect(this, &EntityController::dateTimeFormatChanged, sensor,
+                             &entity::Sensor::onDateTimeFormatChanged);
+            sensor->onDateTimeFormatChanged(m_language, m_timezone, m_clock24h);
+        }
+    }
 }
 
 void EntityController::setAllEntitiesAvailable(bool value) {
@@ -1199,6 +1210,13 @@ void EntityController::handleCommandFailure(const QString& commandId, int reques
 void EntityController::onLanguageChanged(QString language) {
     m_language = language;
     emit languageChanged(m_language);
+    emit dateTimeFormatChanged(m_language, m_timezone, m_clock24h);
+}
+
+void EntityController::onTimeFormatChanged(const QString& timezone, bool clock24h) {
+    m_timezone = timezone;
+    m_clock24h = clock24h;
+    emit dateTimeFormatChanged(m_language, m_timezone, m_clock24h);
 }
 
 void EntityController::onUnitSystemChanged(Config::UnitSystems unitSystem) {
