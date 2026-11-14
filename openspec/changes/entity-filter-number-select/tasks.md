@@ -16,7 +16,7 @@ user-visible change and carries the `CHANGELOG.md` entry, in the same commit.
 - [x] 2.2 `./cpplint.sh` and `./design-check.sh` clean.
 - [x] 2.3 `make macos` builds; no translation churn other than `en_US.ts`. The static aarch64 build
       runs in the Build workflow of the pull request.
-- [ ] 2.4 Desktop simulator (`UC_MODEL=DEV`) against the core-simulator: the sheet shows nine rows
+- [x] 2.4 Desktop simulator (`UC_MODEL=DEV`) against the core-simulator: the sheet shows nine rows
       fully, ticking Number and Select sends `entity_types` [`number`, `select`], and the keys walk
       all nine rows.
 - [x] 2.5 `openspec validate entity-filter-number-select --strict`.
