@@ -37,6 +37,21 @@ class testSensorEntity : public QObject {
     void stateInfo_usesFormattedValue();
     void updateOptions_followsUserOverride();
 
+    void timeSpan_data();
+    void timeSpan();
+    void dateTime_data();
+    void dateTime();
+    void date_data();
+    void date();
+    void duration_isShownAsTimeSpanWithoutUnit();
+    void duration_inSecondsIsShownAsNumber();
+    void duration_unitFollowsTheValue();
+    void duration_decimalsRoundBeforeFormatting();
+    void duration_ignoresCustomUnit();
+    void timestamp_followsDateTimeFormat();
+    void timestamp_invalidValueIsShownAsReported();
+    void date_isShownInTheLanguageFormat();
+
  private:
     static uc::ui::entity::Sensor* makeSensor(QObject* parent, const QVariantMap& options = QVariantMap(),
                                               const QString& deviceClass = QStringLiteral("temperature")) {
@@ -228,6 +243,204 @@ void testSensorEntity::updateOptions_followsUserOverride() {
     sensor->updateOptions(QVariantMap());
 
     QCOMPARE(sensor->getValue(), QStringLiteral("21.46"));
+}
+
+void testSensorEntity::timeSpan_data() {
+    QTest::addColumn<double>("value");
+    QTest::addColumn<QString>("unit");
+    QTest::addColumn<int>("decimals");
+    QTest::addColumn<QString>("expected");
+
+    // the examples of the sensor entity documentation
+    QTest::newRow("hours and minutes") << 1.5 << "h" << -1 << "1h 30m";
+    QTest::newRow("no larger unit") << 93.0 << "h" << -1 << "93h";
+    QTest::newRow("rounded with decimals") << 2.75 << "h" << 0 << "3h";
+    QTest::newRow("days and hours") << 3.9 << "d" << -1 << "3d 21h";
+    QTest::newRow("minutes and seconds") << 90.5 << "min" << -1 << "90m 30s";
+    QTest::newRow("less than a minute") << 0.25 << "min" << -1 << "0m 15s";
+    QTest::newRow("negative") << -2.0 << "h" << -1 << "-2h";
+
+    QTest::newRow("zero") << 0.0 << "h" << -1 << "0h";
+    QTest::newRow("half is rounded up") << 2.5 << "h" << 0 << "3h";
+    QTest::newRow("negative half is rounded up") << -2.5 << "h" << 0 << "-2h";
+    QTest::newRow("decimals keep the fraction") << 1.26 << "h" << 1 << "1h 18m";
+
+    // not shown as a time span
+    QTest::newRow("negative with fraction") << -1.5 << "h" << -1 << "";
+    QTest::newRow("seconds") << 673492.0 << "s" << -1 << "";
+    QTest::newRow("milliseconds") << 5.0 << "ms" << -1 << "";
+    QTest::newRow("unknown unit") << 5.0 << "weeks" << -1 << "";
+    QTest::newRow("not a number") << qQNaN() << "h" << -1 << "";
+}
+
+void testSensorEntity::timeSpan() {
+    QFETCH(double, value);
+    QFETCH(QString, unit);
+    QFETCH(int, decimals);
+    QFETCH(QString, expected);
+
+    QCOMPARE(ValueFormat::timeSpan(value, unit, decimals), expected);
+}
+
+void testSensorEntity::dateTime_data() {
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("timezone");
+    QTest::addColumn<bool>("clock24h");
+    QTest::addColumn<QString>("language");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("24h") << "2026-11-15T04:23:31+00:00" << "Europe/Zurich" << true << "de_CH" << "15.11.26 05:23";
+    QTest::newRow("12h, previous day") << "2026-11-15T04:23:31+00:00" << "America/New_York" << false << "en_US"
+                                       << "11/14/26 11:23 pm";
+    QTest::newRow("Z") << "2026-11-15T04:23:31Z" << "Europe/Zurich" << true << "de_CH" << "15.11.26 05:23";
+    QTest::newRow("other offset") << "2026-07-01T12:00:00+02:00" << "UTC" << true << "en_GB" << "01/07/2026 10:00";
+    QTest::newRow("fraction of a second") << "2025-12-17T22:20:50.235033+00:00" << "UTC" << true << "de_CH"
+                                          << "17.12.25 22:20";
+
+    // not a point in time
+    QTest::newRow("without UTC offset") << "2026-11-15T04:23:31" << "UTC" << true << "de_CH" << "";
+    QTest::newRow("date only") << "2026-11-15" << "UTC" << true << "de_CH" << "";
+    QTest::newRow("text") << "tomorrow" << "UTC" << true << "de_CH" << "";
+    QTest::newRow("empty") << "" << "UTC" << true << "de_CH" << "";
+}
+
+void testSensorEntity::dateTime() {
+    QFETCH(QString, text);
+    QFETCH(QString, timezone);
+    QFETCH(bool, clock24h);
+    QFETCH(QString, language);
+    QFETCH(QString, expected);
+
+    QCOMPARE(ValueFormat::dateTime(text, QTimeZone(timezone.toLatin1()), clock24h, QLocale(language)), expected);
+}
+
+void testSensorEntity::date_data() {
+    QTest::addColumn<QString>("text");
+    QTest::addColumn<QString>("language");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("German") << "2026-11-15" << "de_CH" << "15.11.26";
+    QTest::newRow("US English") << "2026-11-15" << "en_US" << "11/15/26";
+    QTest::newRow("not a date") << "2026-13-45" << "de_CH" << "";
+    QTest::newRow("text") << "today" << "de_CH" << "";
+}
+
+void testSensorEntity::date() {
+    QFETCH(QString, text);
+    QFETCH(QString, language);
+    QFETCH(QString, expected);
+
+    QCOMPARE(ValueFormat::date(text, QLocale(language)), expected);
+}
+
+void testSensorEntity::duration_isShownAsTimeSpanWithoutUnit() {
+    QObject parent;
+    auto    sensor = makeSensor(&parent, QVariantMap(), QStringLiteral("duration"));
+
+    sensor->updateAttribute(QStringLiteral("unit"), QStringLiteral("h"));
+    sensor->updateAttribute(QStringLiteral("value"), 1.5);
+
+    QCOMPARE(sensor->getValue(), QStringLiteral("1h 30m"));
+    QCOMPARE(sensor->getUnit(), QString());
+    QCOMPARE(sensor->getStateInfo(), QStringLiteral("1h 30m "));
+}
+
+void testSensorEntity::duration_inSecondsIsShownAsNumber() {
+    QObject parent;
+    auto    sensor = makeSensor(&parent, QVariantMap(), QStringLiteral("duration"));
+
+    // seconds are the default unit
+    sensor->updateAttribute(QStringLiteral("value"), 673492);
+
+    QCOMPARE(sensor->getValue(), QStringLiteral("673492"));
+    QCOMPARE(sensor->getUnit(), QStringLiteral("s"));
+}
+
+void testSensorEntity::duration_unitFollowsTheValue() {
+    QObject parent;
+    auto    sensor = makeSensor(&parent, QVariantMap(), QStringLiteral("duration"));
+    sensor->updateAttribute(QStringLiteral("unit"), QStringLiteral("h"));
+    sensor->updateAttribute(QStringLiteral("value"), 2);
+    QCOMPARE(sensor->getUnit(), QString());
+
+    QSignalSpy unitSpy(sensor, &Sensor::unitChanged);
+    // a negative value with a fraction is not shown as a time span
+    sensor->updateAttribute(QStringLiteral("value"), -1.5);
+
+    QCOMPARE(unitSpy.count(), 1);
+    QCOMPARE(sensor->getValue(), QStringLiteral("-1.5"));
+    QCOMPARE(sensor->getUnit(), QStringLiteral("h"));
+
+    // a text value is shown as reported
+    sensor->updateAttribute(QStringLiteral("value"), QStringLiteral("soon"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("soon"));
+    QCOMPARE(sensor->getUnit(), QStringLiteral("h"));
+}
+
+void testSensorEntity::duration_decimalsRoundBeforeFormatting() {
+    QObject     parent;
+    QVariantMap options;
+    options.insert(QStringLiteral("decimals"), 2);
+    auto sensor = makeSensor(&parent, options, QStringLiteral("duration"));
+    sensor->updateAttribute(QStringLiteral("unit"), QStringLiteral("h"));
+    sensor->updateAttribute(QStringLiteral("value"), 2.75);
+    QCOMPARE(sensor->getValue(), QStringLiteral("2h 45m"));
+
+    QVariantMap user;
+    user.insert(QStringLiteral("decimals"), 0);
+    options.insert(QStringLiteral("user"), user);
+    sensor->updateOptions(options);
+
+    QCOMPARE(sensor->getValue(), QStringLiteral("3h"));
+}
+
+void testSensorEntity::duration_ignoresCustomUnit() {
+    QObject     parent;
+    QVariantMap options;
+    options.insert(QStringLiteral("custom_unit"), QStringLiteral("hours"));
+    auto sensor = makeSensor(&parent, options, QStringLiteral("duration"));
+
+    QCOMPARE(sensor->getCustomUnit(), QString());
+}
+
+void testSensorEntity::timestamp_followsDateTimeFormat() {
+    QObject parent;
+    auto    sensor = makeSensor(&parent, QVariantMap(), QStringLiteral("timestamp"));
+    sensor->onDateTimeFormatChanged(QStringLiteral("de_CH"), QStringLiteral("Europe/Zurich"), true);
+    sensor->updateAttribute(QStringLiteral("value"), QStringLiteral("2026-11-15T04:23:31+00:00"));
+
+    QCOMPARE(sensor->getValue(), QStringLiteral("15.11.26 05:23"));
+    QCOMPARE(sensor->getUnit(), QString());
+
+    QSignalSpy valueSpy(sensor, &Sensor::valueChanged);
+    sensor->onDateTimeFormatChanged(QStringLiteral("en_US"), QStringLiteral("America/New_York"), false);
+
+    QCOMPARE(valueSpy.count(), 1);
+    QCOMPARE(sensor->getValue(), QStringLiteral("11/14/26 11:23 pm"));
+}
+
+void testSensorEntity::timestamp_invalidValueIsShownAsReported() {
+    QObject parent;
+    auto    sensor = makeSensor(&parent, QVariantMap(), QStringLiteral("timestamp"));
+    sensor->onDateTimeFormatChanged(QStringLiteral("de_CH"), QStringLiteral("Europe/Zurich"), true);
+
+    sensor->updateAttribute(QStringLiteral("value"), QStringLiteral("2026-11-15T04:23:31"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("2026-11-15T04:23:31"));
+
+    sensor->updateAttribute(QStringLiteral("value"), 1794715411);
+    QCOMPARE(sensor->getValue(), QStringLiteral("1794715411"));
+}
+
+void testSensorEntity::date_isShownInTheLanguageFormat() {
+    QObject parent;
+    auto    sensor = makeSensor(&parent, QVariantMap(), QStringLiteral("date"));
+    sensor->onDateTimeFormatChanged(QStringLiteral("de_CH"), QStringLiteral("Europe/Zurich"), true);
+
+    sensor->updateAttribute(QStringLiteral("value"), QStringLiteral("2026-11-15"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("15.11.26"));
+
+    sensor->updateAttribute(QStringLiteral("value"), QStringLiteral("next week"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("next week"));
 }
 
 QTEST_GUILESS_MAIN(testSensorEntity)

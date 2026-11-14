@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <QLocale>
 #include <QString>
+#include <QTimeZone>
 #include <QVariant>
 
 namespace uc {
@@ -47,6 +49,37 @@ QString fixed(double value, int decimals);
  * decimals option. 21.40 is shown as 21.4, 1.499999999999997 as 1.5.
  */
 QString compact(double value);
+
+/**
+ * @brief A duration in days (`d`), hours (`h`) or minutes (`min`) as a time span in the unit of the value and the
+ * next smaller unit: 1.5 h is shown as "1h 30m".
+ *
+ * Same logic as the Home Assistant frontend. With decimals >= 0, the value is rounded to that many decimal places
+ * first. The fraction is rounded down to the next smaller unit, which is left out if it is zero. The value is not
+ * converted to a larger unit: 93 h is shown as "93h".
+ *
+ * @return the time span, or an empty text if the value is not shown as a time span: any other unit, a value that is
+ * not finite, and a negative value with a fraction.
+ * @see https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_sensor.md#duration-format
+ */
+QString timeSpan(double value, const QString& unit, int decimals);
+
+/**
+ * @brief A point in time in RFC 3339 format as short date and time of the locale, in the given time zone.
+ *
+ * The time is shown as in the status bar, in the 12 or 24 hour format and without seconds. An invalid time zone
+ * shows the system's local time.
+ *
+ * @return the date and time, or an empty text if the text is not a date and time with a UTC offset.
+ */
+QString dateTime(const QString& text, const QTimeZone& timeZone, bool clock24h, const QLocale& locale);
+
+/**
+ * @brief A calendar date in ISO 8601 format (YYYY-MM-DD) as short date of the locale.
+ *
+ * @return the date, or an empty text if the text is not a date.
+ */
+QString date(const QString& text, const QLocale& locale);
 
 }  // namespace ValueFormat
 

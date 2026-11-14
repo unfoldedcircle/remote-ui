@@ -3,6 +3,8 @@
 
 #include "valueFormat.h"
 
+#include <QCoreApplication>
+#include <QDateTime>
 #include <QLocale>
 #include <QtMath>
 #include <cmath>
@@ -65,6 +67,82 @@ QString compact(double value) {
         }
     }
     return text;
+}
+
+QString timeSpan(double value, const QString& unit, int decimals) {
+    enum Unit { Days, Hours, Minutes, Seconds };
+    // short unit labels, joined without a space to the value as in "3d 21h"
+    const auto label = [](Unit labelUnit, double amount) {
+        const QString number = fixed(amount, 0);
+        switch (labelUnit) {
+            case Days:
+                //: Time span of a sensor: number of days with a short unit label. %1 is the number. Example: 3d
+                return QCoreApplication::translate("Time span", "%1d").arg(number);
+            case Hours:
+                //: Time span of a sensor: number of hours with a short unit label. %1 is the number. Example: 21h
+                return QCoreApplication::translate("Time span", "%1h").arg(number);
+            case Minutes:
+                //: Time span of a sensor: number of minutes with a short unit label. %1 is the number. Example: 30m
+                return QCoreApplication::translate("Time span", "%1m").arg(number);
+            default:
+                //: Time span of a sensor: number of seconds with a short unit label. %1 is the number. Example: 15s
+                return QCoreApplication::translate("Time span", "%1s").arg(number);
+        }
+    };
+
+    Unit   first;
+    double factor;
+    if (unit == QLatin1String("d")) {
+        first = Days;
+        factor = 24;
+    } else if (unit == QLatin1String("h")) {
+        first = Hours;
+        factor = 60;
+    } else if (unit == QLatin1String("min")) {
+        first = Minutes;
+        factor = 60;
+    } else {
+        return QString();
+    }
+    if (!qIsFinite(value)) {
+        return QString();
+    }
+
+    if (decimals >= 0) {
+        // rounds a half up, as the reference implementation does
+        const double scale = qPow(10, qMin(decimals, MAX_DECIMALS));
+        value = std::floor(value * scale + 0.5) / scale;
+    }
+
+    const double whole = std::floor(value);
+    const double rest = std::floor((value - whole) * factor);
+    if (whole < 0 && rest > 0) {
+        // -1.5 h would be "-2h 30m": shown as a number
+        return QString();
+    }
+
+    QString text = label(first, whole);
+    if (rest > 0) {
+        text += QLatin1Char(' ') + label(static_cast<Unit>(first + 1), rest);
+    }
+    return text;
+}
+
+QString dateTime(const QString& text, const QTimeZone& timeZone, bool clock24h, const QLocale& locale) {
+    QDateTime dateTime = QDateTime::fromString(text, Qt::ISODateWithMs);
+    // without a UTC offset the point in time is not known
+    if (!dateTime.isValid() || dateTime.timeSpec() == Qt::LocalTime) {
+        return QString();
+    }
+
+    dateTime = timeZone.isValid() ? dateTime.toTimeZone(timeZone) : dateTime.toLocalTime();
+    return locale.toString(dateTime.date(), QLocale::ShortFormat) + QLatin1Char(' ') +
+           locale.toString(dateTime.time(), clock24h ? QStringLiteral("hh:mm") : QStringLiteral("hh:mm a"));
+}
+
+QString date(const QString& text, const QLocale& locale) {
+    const QDate date = QDate::fromString(text, Qt::ISODate);
+    return date.isValid() ? locale.toString(date, QLocale::ShortFormat) : QString();
 }
 
 }  // namespace ValueFormat

@@ -376,13 +376,13 @@
 <context>
     <name>Binary sensor state battery</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="143"/>
+        <location filename="../../src/ui/entity/sensor.h" line="159"/>
         <source>Normal</source>
         <extracomment>Battery sensor state: battery is normal.</extracomment>
         <translation>Normal</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="222"/>
+        <location filename="../../src/ui/entity/sensor.h" line="238"/>
         <source>Low</source>
         <extracomment>Battery sensor state: battery is low.</extracomment>
         <translation>Low</translation>
@@ -391,12 +391,12 @@
 <context>
     <name>Binary sensor state battery_charging</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="145"/>
+        <location filename="../../src/ui/entity/sensor.h" line="161"/>
         <source>Charging</source>
         <translation>Charging</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="224"/>
+        <location filename="../../src/ui/entity/sensor.h" line="240"/>
         <source>Not charging</source>
         <translation>Not charging</translation>
     </message>
@@ -404,13 +404,13 @@
 <context>
     <name>Binary sensor state cold</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="148"/>
+        <location filename="../../src/ui/entity/sensor.h" line="164"/>
         <source>Cold</source>
         <extracomment>Temperature sensor state: too cold.</extracomment>
         <translation>Cold</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="227"/>
+        <location filename="../../src/ui/entity/sensor.h" line="243"/>
         <source>Normal</source>
         <extracomment>Temperature sensor state: normal temperature.</extracomment>
         <translation>Normal</translation>
@@ -419,12 +419,12 @@
 <context>
     <name>Binary sensor state connectivity</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="150"/>
+        <location filename="../../src/ui/entity/sensor.h" line="166"/>
         <source>Connected</source>
         <translation>Connected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="229"/>
+        <location filename="../../src/ui/entity/sensor.h" line="245"/>
         <source>Disconnected</source>
         <translation>Disconnected</translation>
     </message>
@@ -432,13 +432,13 @@
 <context>
     <name>Binary sensor state door</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="154"/>
+        <location filename="../../src/ui/entity/sensor.h" line="170"/>
         <source>Opened</source>
         <extracomment>Door sensor state: the door is open. An adjective, not the action.</extracomment>
         <translation>Opened</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="233"/>
+        <location filename="../../src/ui/entity/sensor.h" line="249"/>
         <source>Closed</source>
         <extracomment>Door sensor state: the door is closed.</extracomment>
         <translation>Closed</translation>
@@ -447,13 +447,13 @@
 <context>
     <name>Binary sensor state gas</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="158"/>
+        <location filename="../../src/ui/entity/sensor.h" line="174"/>
         <source>Detected</source>
         <extracomment>Sensor state: the sensor has detected something. Pairs with &quot;Clear&quot;.</extracomment>
         <translation>Detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="237"/>
+        <location filename="../../src/ui/entity/sensor.h" line="253"/>
         <source>Clear</source>
         <extracomment>Gas sensor state: no gas detected. Not the verb &quot;to clear&quot;.</extracomment>
         <translation>Clear</translation>
@@ -462,13 +462,13 @@
 <context>
     <name>Binary sensor state heat</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="161"/>
+        <location filename="../../src/ui/entity/sensor.h" line="177"/>
         <source>Hot</source>
         <extracomment>Temperature sensor state: too hot. Not &quot;popular&quot; or &quot;trending&quot;.</extracomment>
         <translation>Hot</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="240"/>
+        <location filename="../../src/ui/entity/sensor.h" line="256"/>
         <source>Normal</source>
         <extracomment>Temperature sensor state: normal temperature.</extracomment>
         <translation>Normal</translation>
@@ -477,12 +477,12 @@
 <context>
     <name>Binary sensor state light</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="163"/>
+        <location filename="../../src/ui/entity/sensor.h" line="179"/>
         <source>Light detected</source>
         <translation>Light detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="242"/>
+        <location filename="../../src/ui/entity/sensor.h" line="258"/>
         <source>No light</source>
         <translation>No light</translation>
     </message>
@@ -490,13 +490,13 @@
 <context>
     <name>Binary sensor state lock</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="166"/>
+        <location filename="../../src/ui/entity/sensor.h" line="182"/>
         <source>Unlocked</source>
         <extracomment>Lock sensor state: the lock is unlocked.</extracomment>
         <translation>Unlocked</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="245"/>
+        <location filename="../../src/ui/entity/sensor.h" line="261"/>
         <source>Locked</source>
         <extracomment>Lock sensor state: the lock is locked.</extracomment>
         <translation>Locked</translation>
@@ -505,12 +505,12 @@
 <context>
     <name>Binary sensor state moisture</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="168"/>
+        <location filename="../../src/ui/entity/sensor.h" line="184"/>
         <source>Wet</source>
         <translation>Wet</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="247"/>
+        <location filename="../../src/ui/entity/sensor.h" line="263"/>
         <source>Dry</source>
         <translation>Dry</translation>
     </message>
@@ -518,13 +518,13 @@
 <context>
     <name>Binary sensor state motion</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="171"/>
+        <location filename="../../src/ui/entity/sensor.h" line="187"/>
         <source>Detected</source>
         <extracomment>Sensor state: the sensor has detected something. Pairs with &quot;Clear&quot;.</extracomment>
         <translation>Detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="250"/>
+        <location filename="../../src/ui/entity/sensor.h" line="266"/>
         <source>Clear</source>
         <extracomment>Motion sensor state: no motion detected. Not the verb &quot;to clear&quot;.</extracomment>
         <translation>Clear</translation>
@@ -533,13 +533,13 @@
 <context>
     <name>Binary sensor state moving</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="174"/>
+        <location filename="../../src/ui/entity/sensor.h" line="190"/>
         <source>Moving</source>
         <extracomment>Sensor state: the object is in motion. Not &quot;relocating&quot; or &quot;moving house&quot;.</extracomment>
         <translation>Moving</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="253"/>
+        <location filename="../../src/ui/entity/sensor.h" line="269"/>
         <source>Not moving</source>
         <extracomment>Sensor state: the object is stationary.</extracomment>
         <translation>Not moving</translation>
@@ -548,13 +548,13 @@
 <context>
     <name>Binary sensor state occupancy</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="177"/>
+        <location filename="../../src/ui/entity/sensor.h" line="193"/>
         <source>Detected</source>
         <extracomment>Sensor state: the sensor has detected something. Pairs with &quot;Clear&quot;.</extracomment>
         <translation>Detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="256"/>
+        <location filename="../../src/ui/entity/sensor.h" line="272"/>
         <source>Clear</source>
         <extracomment>Occupancy sensor state: the room is unoccupied. Not the verb &quot;to clear&quot;.</extracomment>
         <translation>Clear</translation>
@@ -563,13 +563,13 @@
 <context>
     <name>Binary sensor state opening</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="180"/>
+        <location filename="../../src/ui/entity/sensor.h" line="196"/>
         <source>Open</source>
         <extracomment>State: the cover, window or door is open. An adjective, not the action &quot;to open&quot;.</extracomment>
         <translation>Open</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="259"/>
+        <location filename="../../src/ui/entity/sensor.h" line="275"/>
         <source>Closed</source>
         <extracomment>State: the cover, window or door is closed.</extracomment>
         <translation>Closed</translation>
@@ -578,13 +578,13 @@
 <context>
     <name>Binary sensor state plug</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="183"/>
+        <location filename="../../src/ui/entity/sensor.h" line="199"/>
         <source>Plugged in</source>
         <extracomment>Plug sensor state: connected to mains power.</extracomment>
         <translation>Plugged in</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="262"/>
+        <location filename="../../src/ui/entity/sensor.h" line="278"/>
         <source>Unplugged</source>
         <extracomment>Plug sensor state: disconnected from mains power.</extracomment>
         <translation>Unplugged</translation>
@@ -593,13 +593,13 @@
 <context>
     <name>Binary sensor state power</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="186"/>
+        <location filename="../../src/ui/entity/sensor.h" line="202"/>
         <source>On</source>
         <extracomment>Device state: switched on. Not the preposition &quot;on&quot;.</extracomment>
         <translation>On</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="265"/>
+        <location filename="../../src/ui/entity/sensor.h" line="281"/>
         <source>Off</source>
         <extracomment>Device state: switched off.</extracomment>
         <translation>Off</translation>
@@ -608,13 +608,13 @@
 <context>
     <name>Binary sensor state presence</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="189"/>
+        <location filename="../../src/ui/entity/sensor.h" line="205"/>
         <source>Home</source>
         <extracomment>Presence sensor state: the person is at home. Not the Home screen or a home page.</extracomment>
         <translation>Home</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="268"/>
+        <location filename="../../src/ui/entity/sensor.h" line="284"/>
         <source>Not home</source>
         <extracomment>Presence sensor state: the person is away.</extracomment>
         <translation>Not home</translation>
@@ -623,12 +623,12 @@
 <context>
     <name>Binary sensor state problem</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="191"/>
+        <location filename="../../src/ui/entity/sensor.h" line="207"/>
         <source>Problem</source>
         <translation>Problem</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="270"/>
+        <location filename="../../src/ui/entity/sensor.h" line="286"/>
         <source>Ok</source>
         <translation>OK</translation>
     </message>
@@ -636,13 +636,13 @@
 <context>
     <name>Binary sensor state running</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="194"/>
+        <location filename="../../src/ui/entity/sensor.h" line="210"/>
         <source>Running</source>
         <extracomment>Sensor state: the machine is in operation. Not the sport.</extracomment>
         <translation>Running</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="273"/>
+        <location filename="../../src/ui/entity/sensor.h" line="289"/>
         <source>Not running</source>
         <extracomment>Sensor state: the machine is not in operation.</extracomment>
         <translation>Not running</translation>
@@ -651,13 +651,13 @@
 <context>
     <name>Binary sensor state safety</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="197"/>
+        <location filename="../../src/ui/entity/sensor.h" line="213"/>
         <source>Unsafe</source>
         <extracomment>Safety sensor state: a hazard is present.</extracomment>
         <translation>Unsafe</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="276"/>
+        <location filename="../../src/ui/entity/sensor.h" line="292"/>
         <source>Safe</source>
         <extracomment>Safety sensor state: no hazard.</extracomment>
         <translation>Safe</translation>
@@ -666,13 +666,13 @@
 <context>
     <name>Binary sensor state smoke</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="200"/>
+        <location filename="../../src/ui/entity/sensor.h" line="216"/>
         <source>Detected</source>
         <extracomment>Sensor state: the sensor has detected something. Pairs with &quot;Clear&quot;.</extracomment>
         <translation>Detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="279"/>
+        <location filename="../../src/ui/entity/sensor.h" line="295"/>
         <source>Clear</source>
         <extracomment>Smoke sensor state: no smoke detected. Not the verb &quot;to clear&quot;.</extracomment>
         <translation>Clear</translation>
@@ -681,13 +681,13 @@
 <context>
     <name>Binary sensor state sound</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="203"/>
+        <location filename="../../src/ui/entity/sensor.h" line="219"/>
         <source>Detected</source>
         <extracomment>Sensor state: the sensor has detected something. Pairs with &quot;Clear&quot;.</extracomment>
         <translation>Detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="282"/>
+        <location filename="../../src/ui/entity/sensor.h" line="298"/>
         <source>Clear</source>
         <extracomment>Sound sensor state: no sound detected. Not the verb &quot;to clear&quot;.</extracomment>
         <translation>Clear</translation>
@@ -696,12 +696,12 @@
 <context>
     <name>Binary sensor state tamper</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="205"/>
+        <location filename="../../src/ui/entity/sensor.h" line="221"/>
         <source>Tampering detected</source>
         <translation>Tampering detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="285"/>
+        <location filename="../../src/ui/entity/sensor.h" line="301"/>
         <source>Clear</source>
         <extracomment>Tamper sensor state: no tampering detected. Not the verb &quot;to clear&quot;.</extracomment>
         <translation>Clear</translation>
@@ -710,12 +710,12 @@
 <context>
     <name>Binary sensor state update</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="207"/>
+        <location filename="../../src/ui/entity/sensor.h" line="223"/>
         <source>Update detected</source>
         <translation>Update detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="287"/>
+        <location filename="../../src/ui/entity/sensor.h" line="303"/>
         <source>Up-to-date</source>
         <translation>Up-to-date</translation>
     </message>
@@ -723,13 +723,13 @@
 <context>
     <name>Binary sensor state vibration</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="210"/>
+        <location filename="../../src/ui/entity/sensor.h" line="226"/>
         <source>Detected</source>
         <extracomment>Sensor state: the sensor has detected something. Pairs with &quot;Clear&quot;.</extracomment>
         <translation>Detected</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="290"/>
+        <location filename="../../src/ui/entity/sensor.h" line="306"/>
         <source>Clear</source>
         <extracomment>Vibration sensor state: no vibration detected. Not the verb &quot;to clear&quot;.</extracomment>
         <translation>Clear</translation>
@@ -738,13 +738,13 @@
 <context>
     <name>Binary sensor state window</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="213"/>
+        <location filename="../../src/ui/entity/sensor.h" line="229"/>
         <source>Open</source>
         <extracomment>State: the cover, window or door is open. An adjective, not the action &quot;to open&quot;.</extracomment>
         <translation>Open</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="293"/>
+        <location filename="../../src/ui/entity/sensor.h" line="309"/>
         <source>Closed</source>
         <extracomment>State: the cover, window or door is closed.</extracomment>
         <translation>Closed</translation>
@@ -753,13 +753,13 @@
 <context>
     <name>Binary sensor state without device class</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="216"/>
+        <location filename="../../src/ui/entity/sensor.h" line="232"/>
         <source>On</source>
         <extracomment>Device state: switched on. Not the preposition &quot;on&quot;.</extracomment>
         <translation>On</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="296"/>
+        <location filename="../../src/ui/entity/sensor.h" line="312"/>
         <source>Off</source>
         <extracomment>Device state: switched off.</extracomment>
         <translation>Off</translation>
@@ -3427,17 +3427,17 @@ no return</translation>
 <context>
     <name>Sensor state</name>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="42"/>
+        <location filename="../../src/ui/entity/sensor.h" line="45"/>
         <source>Unavailable</source>
         <translation>Unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="44"/>
+        <location filename="../../src/ui/entity/sensor.h" line="47"/>
         <source>Unknown</source>
         <translation>Unknown</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/sensor.h" line="47"/>
+        <location filename="../../src/ui/entity/sensor.h" line="50"/>
         <source>On</source>
         <extracomment>Device state: switched on. Not the preposition &quot;on&quot;.</extracomment>
         <translation>On</translation>
@@ -3879,6 +3879,33 @@ Select the QR code to read them on the screen.</translation>
         <source>Agree</source>
         <extracomment>Agree to terms and conditions</extracomment>
         <translation>Agree</translation>
+    </message>
+</context>
+<context>
+    <name>Time span</name>
+    <message>
+        <location filename="../../src/ui/entity/valueFormat.cpp" line="80"/>
+        <source>%1d</source>
+        <extracomment>Time span of a sensor: number of days with a short unit label. %1 is the number. Example: 3d</extracomment>
+        <translation>%1d</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/valueFormat.cpp" line="83"/>
+        <source>%1h</source>
+        <extracomment>Time span of a sensor: number of hours with a short unit label. %1 is the number. Example: 21h</extracomment>
+        <translation>%1h</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/valueFormat.cpp" line="86"/>
+        <source>%1m</source>
+        <extracomment>Time span of a sensor: number of minutes with a short unit label. %1 is the number. Example: 30m</extracomment>
+        <translation>%1m</translation>
+    </message>
+    <message>
+        <location filename="../../src/ui/entity/valueFormat.cpp" line="89"/>
+        <source>%1s</source>
+        <extracomment>Time span of a sensor: number of seconds with a short unit label. %1 is the number. Example: 15s</extracomment>
+        <translation>%1s</translation>
     </message>
 </context>
 <context>
@@ -5271,69 +5298,69 @@ Select the QR code to read them on the screen.</translation>
 <context>
     <name>uc::ui::Controller</name>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="304"/>
+        <location filename="../../src/ui/uiController.cpp" line="310"/>
         <source>Error adding profile: %1</source>
         <extracomment>Notification: a profile could not be created. %1 is the core&apos;s error message</extracomment>
         <translation>Error adding profile: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="323"/>
+        <location filename="../../src/ui/uiController.cpp" line="329"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="324"/>
+        <location filename="../../src/ui/uiController.cpp" line="330"/>
         <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
         <translation>Deleting a current profile is not permitted. Please switch to another profile and try again.</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="341"/>
+        <location filename="../../src/ui/uiController.cpp" line="347"/>
         <source>Error deleting profile: %1</source>
         <extracomment>Notification: a profile could not be deleted. %1 is the core&apos;s error message</extracomment>
         <translation>Error deleting profile: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="361"/>
+        <location filename="../../src/ui/uiController.cpp" line="367"/>
         <source>Error adding page: %1</source>
         <extracomment>Notification: a page could not be created. %1 is the core&apos;s error message</extracomment>
         <translation>Error adding page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="384"/>
+        <location filename="../../src/ui/uiController.cpp" line="390"/>
         <source>Error renaming page: %1</source>
         <extracomment>Notification: a page could not be renamed. %1 is the core&apos;s error message</extracomment>
         <translation>Error renaming page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="403"/>
+        <location filename="../../src/ui/uiController.cpp" line="409"/>
         <source>Error deleting page: %1</source>
         <extracomment>Notification: a page could not be deleted. %1 is the core&apos;s error message</extracomment>
         <translation>Error deleting page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="502"/>
+        <location filename="../../src/ui/uiController.cpp" line="508"/>
         <source>Error during factory reset: %1</source>
         <extracomment>Notification: the factory reset failed. %1 is the core&apos;s error message</extracomment>
         <translation>Error during factory reset: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="646"/>
+        <location filename="../../src/ui/uiController.cpp" line="652"/>
         <source>Profile update error</source>
         <translation>Profile update error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="707"/>
+        <location filename="../../src/ui/uiController.cpp" line="713"/>
         <source>Error updating page: %1</source>
         <extracomment>Notification: a change to a page could not be saved. %1 is the core&apos;s error message</extracomment>
         <translation>Error updating page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="773"/>
+        <location filename="../../src/ui/uiController.cpp" line="779"/>
         <source>%1 error</source>
         <translation>%1 error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="773"/>
+        <location filename="../../src/ui/uiController.cpp" line="779"/>
         <source>Error while connecting to %1, with id %2</source>
         <translation>Error while connecting to %1, with id %2</translation>
     </message>
@@ -5399,38 +5426,38 @@ Select the QR code to read them on the screen.</translation>
         <translation>Could not delete the entities: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="941"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="952"/>
         <source>%1 is unavailable</source>
         <extracomment>Notification when a command was not sent because the device is unavailable. %1 is the entity name</extracomment>
         <translation>%1 is unavailable</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1135"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1146"/>
         <source>The device</source>
         <translation>The device</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1155"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1166"/>
         <source>%1 is not responding</source>
         <translation>%1 is not responding</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1156"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1167"/>
         <source>The command did not reach the device. Would you like to try again?</source>
         <translation>The command did not reach the device. Would you like to try again?</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1187"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1198"/>
         <source>Try again</source>
         <translation>Try again</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1193"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1204"/>
         <source>%1 is not responding. Error code: %2</source>
         <translation>%1 is not responding. Error code: %2</translation>
     </message>
     <message>
-        <location filename="../../src/ui/entity/entityController.cpp" line="1193"/>
+        <location filename="../../src/ui/entity/entityController.cpp" line="1204"/>
         <source>Error sending the command</source>
         <translation>Error sending the command</translation>
     </message>

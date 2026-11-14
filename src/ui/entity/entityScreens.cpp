@@ -77,7 +77,10 @@ const QHash<int, TypeScreens>& registry() {
            {"Power", "Power"},
            {"Temperature", "Temperature"},
            {"Voltage", "Voltage"},
-           {"Binary", "Binary"}}}},
+           {"Binary", "Binary"},
+           {"Date", "Custom"},
+           {"Duration", "Custom"},
+           {"Timestamp", "Custom"}}}},
         {Type::Switch, {"switch", "Switch", {{"Switch", "Switch"}, {"Outlet", "Outlet"}}}},
     };
     return table;
