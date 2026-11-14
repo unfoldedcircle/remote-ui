@@ -18,8 +18,11 @@ of the Remote.
 - A date is shown as short date of the display language: "15.11.26".
 - A duration in days, hours or minutes is shown as a time span in the unit of the sensor and the
   next smaller unit, without the unit after it: 1.5 h reads "1h 30m". The logic is the one of the
-  Home Assistant frontend, as the sensor entity documentation specifies. A duration in seconds or
-  milliseconds is shown as a number with the unit, as before.
+  Home Assistant frontend, as the sensor entity documentation specifies.
+- A duration of 120 seconds or more in the unit `s` is shown as a time span as well, in the largest
+  unit it fills and the next smaller one: 121 s reads "2m 1s", 673492 s reads "7d 19h". This goes
+  beyond the Home Assistant frontend, which shows seconds as a number. Less than 120 seconds and a
+  duration in milliseconds are shown as a number with the unit, as before.
 - The tile, the control screen and the sensor item show the same text, and it follows a change of
   the language, the time zone and the time format without a new value from the sensor.
 - A value that is not in the format of its device class is shown as it is today: a text as
@@ -37,7 +40,7 @@ None.
 
 - `entity-detail-controls`: "Sensor device classes and units" and "Sensor control screen" name the
   three device classes; new requirements "Sensor timestamp format", "Sensor date format", "Sensor
-  duration format" and "Duration shown as a number".
+  duration format", "Sensor duration in seconds" and "Duration shown as a number".
 
 ## Impact
 

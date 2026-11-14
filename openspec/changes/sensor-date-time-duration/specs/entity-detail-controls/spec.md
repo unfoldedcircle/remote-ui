@@ -77,12 +77,39 @@ A numeric `duration` sensor value in the unit `d`, `h` or `min` SHALL be shown a
 - **WHEN** a duration sensor with unit `h` reports -2
 - **THEN** it is shown as "-2h"
 
-### Requirement: Duration shown as a number
-A `duration` sensor value SHALL be shown as the requirement "Sensor value format" describes, followed by the unit, when it is not shown as a time span: a value in the unit `s`, `ms` or any other unit, a negative value with a fractional part, and a text value. The unit SHALL appear and disappear with the value, without a new `unit` attribute.
+### Requirement: Sensor duration in seconds
+A numeric `duration` sensor value in the unit `s` of 120 seconds or more, after rounding to the effective decimals, SHALL be shown as a time span in the largest unit it fills (days, hours or minutes) and the rest, rounded down, in the next smaller unit, which SHALL be left out when it is zero. No unit SHALL follow the time span. A negative value SHALL be shown as its amount with a leading minus sign.
 
-#### Scenario: Seconds
+#### Scenario: At the limit
+- **WHEN** a duration sensor with unit `s` reports 120
+- **THEN** it is shown as "2m"
+
+#### Scenario: Minutes and seconds
+- **WHEN** a duration sensor with unit `s` reports 121
+- **THEN** it is shown as "2m 1s"
+
+#### Scenario: Days and hours
 - **WHEN** a duration sensor with unit `s` reports 673492
-- **THEN** it is shown as "673492 s"
+- **THEN** it is shown as "7d 19h"
+
+#### Scenario: Smaller units are dropped
+- **WHEN** a duration sensor with unit `s` reports 3605
+- **THEN** it is shown as "1h"
+
+#### Scenario: Negative seconds
+- **WHEN** a duration sensor with unit `s` reports -33952
+- **THEN** it is shown as "-9h 25m"
+
+### Requirement: Duration shown as a number
+A `duration` sensor value SHALL be shown as the requirement "Sensor value format" describes, followed by the unit, when it is not shown as a time span: less than 120 seconds in the unit `s`, a value in the unit `ms` or any other unit, a negative value in `d`, `h` or `min` with a fractional part, and a text value. The unit SHALL appear and disappear with the value, without a new `unit` attribute.
+
+#### Scenario: Seconds below the limit
+- **WHEN** a duration sensor with unit `s` reports 119
+- **THEN** it is shown as "119 s"
+
+#### Scenario: Seconds reach the limit
+- **WHEN** a duration sensor with unit `s` that shows "119 s" reports 120
+- **THEN** it is shown as "2m" without a unit after it
 
 #### Scenario: Negative value with a fraction
 - **WHEN** a duration sensor with unit `h` that shows "2h" reports -1.5

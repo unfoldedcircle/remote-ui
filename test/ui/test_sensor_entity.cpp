@@ -265,9 +265,22 @@ void testSensorEntity::timeSpan_data() {
     QTest::newRow("negative half is rounded up") << -2.5 << "h" << 0 << "-2h";
     QTest::newRow("decimals keep the fraction") << 1.26 << "h" << 1 << "1h 18m";
 
+    // seconds are split from ValueFormat::SECONDS_SPLIT_LIMIT on
+    QTest::newRow("seconds at the limit") << 120.0 << "s" << -1 << "2m";
+    QTest::newRow("minutes and seconds from seconds") << 121.0 << "s" << -1 << "2m 1s";
+    QTest::newRow("hour from seconds") << 3600.0 << "s" << -1 << "1h";
+    QTest::newRow("hours and minutes from seconds") << 4056.0 << "s" << -1 << "1h 7m";
+    QTest::newRow("hour without minutes from seconds") << 3605.0 << "s" << -1 << "1h";
+    QTest::newRow("days and hours from seconds") << 673492.0 << "s" << -1 << "7d 19h";
+    QTest::newRow("fraction of a second") << 650428.4375 << "s" << -1 << "7d 12h";
+    QTest::newRow("negative seconds") << -33952.0 << "s" << -1 << "-9h 25m";
+    QTest::newRow("seconds rounded with decimals") << 119.6 << "s" << 0 << "2m";
+
     // not shown as a time span
     QTest::newRow("negative with fraction") << -1.5 << "h" << -1 << "";
-    QTest::newRow("seconds") << 673492.0 << "s" << -1 << "";
+    QTest::newRow("seconds below the limit") << 119.0 << "s" << -1 << "";
+    QTest::newRow("negative seconds below the limit") << -119.0 << "s" << -1 << "";
+    QTest::newRow("no seconds") << 0.0 << "s" << -1 << "";
     QTest::newRow("milliseconds") << 5.0 << "ms" << -1 << "";
     QTest::newRow("unknown unit") << 5.0 << "weeks" << -1 << "";
     QTest::newRow("not a number") << qQNaN() << "h" << -1 << "";
@@ -350,10 +363,16 @@ void testSensorEntity::duration_inSecondsIsShownAsNumber() {
     auto    sensor = makeSensor(&parent, QVariantMap(), QStringLiteral("duration"));
 
     // seconds are the default unit
+    sensor->updateAttribute(QStringLiteral("value"), 90);
+
+    QCOMPARE(sensor->getValue(), QStringLiteral("90"));
+    QCOMPARE(sensor->getUnit(), QStringLiteral("s"));
+
+    // from ValueFormat::SECONDS_SPLIT_LIMIT on they are shown as a time span
     sensor->updateAttribute(QStringLiteral("value"), 673492);
 
-    QCOMPARE(sensor->getValue(), QStringLiteral("673492"));
-    QCOMPARE(sensor->getUnit(), QStringLiteral("s"));
+    QCOMPARE(sensor->getValue(), QStringLiteral("7d 19h"));
+    QCOMPARE(sensor->getUnit(), QString());
 }
 
 void testSensorEntity::duration_unitFollowsTheValue() {

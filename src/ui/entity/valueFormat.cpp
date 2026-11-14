@@ -90,18 +90,15 @@ QString timeSpan(double value, const QString& unit, int decimals) {
         }
     };
 
-    Unit   first;
-    double factor;
+    const bool seconds = unit == QLatin1String("s");
+    Unit       first = Minutes;
+    double     factor = 60;
     if (unit == QLatin1String("d")) {
         first = Days;
         factor = 24;
     } else if (unit == QLatin1String("h")) {
         first = Hours;
-        factor = 60;
-    } else if (unit == QLatin1String("min")) {
-        first = Minutes;
-        factor = 60;
-    } else {
+    } else if (unit != QLatin1String("min") && !seconds) {
         return QString();
     }
     if (!qIsFinite(value)) {
@@ -112,6 +109,25 @@ QString timeSpan(double value, const QString& unit, int decimals) {
         // rounds a half up, as the reference implementation does
         const double scale = qPow(10, qMin(decimals, MAX_DECIMALS));
         value = std::floor(value * scale + 0.5) / scale;
+    }
+
+    if (seconds) {
+        // not part of the reference implementation, which shows seconds as a number: the largest unit the value
+        // fills and the next smaller one. A negative value is split like a positive one.
+        const double amount = std::floor(qAbs(value));
+        if (amount < SECONDS_SPLIT_LIMIT) {
+            return QString();
+        }
+        static const double unitSeconds[] = {86400, 3600, 60, 1};
+        first = amount >= unitSeconds[Days] ? Days : amount >= unitSeconds[Hours] ? Hours : Minutes;
+
+        const double whole = std::floor(amount / unitSeconds[first]);
+        const double rest = std::floor((amount - whole * unitSeconds[first]) / unitSeconds[first + 1]);
+        QString      text = label(first, value < 0 ? -whole : whole);
+        if (rest > 0) {
+            text += QLatin1Char(' ') + label(static_cast<Unit>(first + 1), rest);
+        }
+        return text;
     }
 
     const double whole = std::floor(value);

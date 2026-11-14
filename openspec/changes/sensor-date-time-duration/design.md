@@ -38,7 +38,7 @@ Remote, in the tile, the control screen and the sensor item alike.
 
 - A time relative to now ("in 3 hours"). It needs a timer per visible sensor and a text for every
   language; the documentation allows it and does not require it.
-- A time span for a duration in seconds or milliseconds: the reference shows a number.
+- A time span for a duration in milliseconds: the reference shows a number.
 - The `duration` device class of the number entity.
 - Headings ("Timestamp", "Duration") on the control screen: the entity name is the title.
 
@@ -73,6 +73,18 @@ would read "-2h 30m" for -1.5 h; the reference refuses mixed signs and shows the
 does the UI. The unit labels are four translated texts ("%1d", "%1h", "%1m", "%1s") joined with a
 space, in place of the narrow CLDR unit patterns of the reference.
 
+### D4a — Seconds are split from 120 seconds on, beyond the reference
+
+The reference shows a duration in seconds as a number, which reads badly for the values sensors
+report: "673492 s" for a remaining maintenance time. From `ValueFormat::SECONDS_SPLIT_LIMIT` (120)
+seconds on, the UI shows the largest unit the value fills and the next smaller one, as for the
+other units: "7d 19h". Smaller units are dropped, so the text stays short and does not change
+every second. Below the limit the number of seconds is exact and short ("90 s"). The amount of a
+negative value is split and the minus sign put in front ("-9h 25m" for an overdue interval);
+whole seconds have no mixed signs to refuse. The limit is one constant, to be changed in one place.
+Alternative: every unit down to the seconds ("7d 19h 4m 52s"); rejected, too long for the tile and
+the sensor item.
+
 ### D5 — Short date of the language, time as in the status bar
 
 `QLocale(language).toString(date, QLocale::ShortFormat)` and the time as "hh:mm" or "hh:mm a". The
@@ -92,6 +104,9 @@ system. A date or timestamp sensor emits `valueChanged` then. Alternative: readi
 
 - [Risk] A binary fraction rounds down one unit: 2.3 h is 2 h and 17.99… min and reads "2h 17m" →
   the same as the reference; accepted to keep one logic. See Open Questions.
+- [Risk] A duration in seconds reads differently than in Home Assistant, and the sensor entity
+  documentation says a value in `s` is shown as a number → a deliberate deviation (D4a); the
+  documentation is to be updated.
 - [Risk] The short date has a two-digit year in most languages ("15.11.26") → readable for the
   near dates sensors report; the long format does not fit.
 - [Risk] An unknown time zone name makes `QTimeZone` invalid → the system's local time is used
@@ -105,7 +120,8 @@ string format per value change, and one signal connection per sensor entity in u
 ## Migration Plan
 
 Verification on the desktop simulator against the core-simulator with the Home Assistant
-integration: a timestamp sensor (next backup), a duration sensor in hours and one in seconds, in
+integration: a timestamp sensor (next backup), a duration sensor in hours and one in seconds (below
+and above 120 seconds), in
 the tile, the control screen and a sensor item; then a change of the time zone, the time format and
 the language while they are shown. No hardware involved; the time zone data on the device is the
 one the status bar clock uses.

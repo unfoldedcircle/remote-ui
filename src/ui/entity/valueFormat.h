@@ -24,6 +24,9 @@ namespace ValueFormat {
 // Largest number of decimal places an entity option or user override may ask for.
 constexpr int MAX_DECIMALS = 6;
 
+// A duration in seconds is shown as a time span from this number of seconds on, below it as a number of seconds.
+constexpr int SECONDS_SPLIT_LIMIT = 120;
+
 /**
  * @brief The number of decimal places of a `decimals` entity option or user override, -1 if it is missing or not an
  * integer in 0..MAX_DECIMALS.
@@ -58,8 +61,12 @@ QString compact(double value);
  * first. The fraction is rounded down to the next smaller unit, which is left out if it is zero. The value is not
  * converted to a larger unit: 93 h is shown as "93h".
  *
- * @return the time span, or an empty text if the value is not shown as a time span: any other unit, a value that is
- * not finite, and a negative value with a fraction.
+ * A duration in seconds (`s`) of SECONDS_SPLIT_LIMIT or more is shown in the largest unit it fills and the next
+ * smaller unit: 121 s is shown as "2m 1s", 673492 s as "7d 19h". The reference implementation shows it as a number.
+ * A negative number of seconds is split like a positive one: -33952 s is shown as "-9h 25m".
+ *
+ * @return the time span, or an empty text if the value is not shown as a time span: any other unit, less than
+ * SECONDS_SPLIT_LIMIT seconds, a value that is not finite, and a negative value in d, h or min with a fraction.
  * @see https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_sensor.md#duration-format
  */
 QString timeSpan(double value, const QString& unit, int decimals);

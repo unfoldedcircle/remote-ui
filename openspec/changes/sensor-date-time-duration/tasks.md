@@ -16,6 +16,8 @@ user-visible change and carries the `CHANGELOG.md` entry, in the same commit.
       documentation, and the sensor's value, unit and signals.
 - [x] 1.6 `en_US.ts` regenerated with the four unit labels; `CHANGELOG.md`, "Unreleased", "Added".
       No new files, so no change to `remote-ui.pro`, a `.qrc` or a test CMakeLists.
+- [x] 1.7 `ValueFormat::SECONDS_SPLIT_LIMIT`: a duration of 120 seconds or more in the unit `s` is
+      shown as a time span; unit tests for the limit, the units and a negative value.
 
 ## 2. Verification
 
