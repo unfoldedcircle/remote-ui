@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Fixed
+- The "Filters" sheet of the entity lists offers the Number and Select types, so number and select entities can be
+  filtered when adding entities to a page or group and in an integration's entity lists
+  ([#65](https://github.com/unfoldedcircle/remote-ui/issues/65)).
 
 ---
 
