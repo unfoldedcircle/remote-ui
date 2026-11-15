@@ -555,7 +555,7 @@ Rectangle {
                         ListView {
                             id: filterTypesListView
                             Layout.fillWidth: true
-                            Layout.preferredHeight: (count + 1) * 60
+                            Layout.preferredHeight: count * (60 + spacing) - spacing
                             Layout.topMargin: 10
                             Layout.leftMargin: 20
                             Layout.rightMargin: 20
@@ -595,6 +595,20 @@ Rectangle {
                                     typeName: qsTr("Media player")
                                     typeIcon: "uc:music"
                                     typeValue: EntityTypes.Media_player
+                                    typeChecked: false
+                                }
+                                ListElement {
+                                    //: Entity type: a numeric value with a range, for example a fan speed. Not a phone number.
+                                    typeName: qsTr("Number")
+                                    typeIcon: "uc:input-numeric"
+                                    typeValue: EntityTypes.Number
+                                    typeChecked: false
+                                }
+                                ListElement {
+                                    //: Entity type: a choice of one option from a list, for example an input source. A noun, not the verb.
+                                    typeName: qsTr("Select")
+                                    typeIcon: "uc:list-dropdown"
+                                    typeValue: EntityTypes.Select
                                     typeChecked: false
                                 }
                                 ListElement {
