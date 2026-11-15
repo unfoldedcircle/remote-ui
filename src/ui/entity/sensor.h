@@ -7,6 +7,9 @@
  * @see https://github.com/unfoldedcircle/core-api/blob/main/doc/entities/entity_sensor.md
  */
 
+#include <QLocale>
+#include <QTimeZone>
+
 #include "entity.h"
 
 namespace uc {
@@ -63,7 +66,20 @@ class SensorDeviceClass : public QObject {
  public:
     // Supported sensor device classes.
     // WARNING: changing device classes requires QML screen support! The screen is registered in entityScreens.cpp
-    enum Enum { Custom, Battery, Current, Energy, Humidity, Power, Temperature, Voltage, Binary };
+    enum Enum {
+        Custom,
+        Battery,
+        Current,
+        Energy,
+        Humidity,
+        Power,
+        Temperature,
+        Voltage,
+        Binary,
+        Date,
+        Duration,
+        Timestamp
+    };
     Q_ENUM(Enum)
 
     /**
@@ -322,9 +338,12 @@ class Sensor : public Base {
 
     // The value as it is shown. A binary sensor's on/off is translated here, with the binary device class that is
     // current, so a language change and a later unit (device class) change are reflected. A numeric value is
-    // formatted with the effective decimals, a text value is shown as reported.
+    // formatted with the effective decimals, a text value is shown as reported. A timestamp, a date and a duration
+    // in d, h or min are formatted as date, time or time span; a value that is not in their format is shown as any
+    // other value.
     QString getValue();
-    QString getUnit() { return m_unit; }
+    // The unit to show after the value: empty for a duration that is shown as a time span, which names its units.
+    QString getUnit() { return timeSpan().isEmpty() ? m_unit : QString(); }
 
     // options
     QString getCustomLabel() { return m_customLabel; }
@@ -341,19 +360,31 @@ class Sensor : public Base {
         if (m_sensorDeviceClass == SensorDeviceClass::Binary) {
             return getValue();
         } else {
-            return getValue() + " " + m_unit;
+            return getValue() + " " + getUnit();
         }
     }
 
     void onLanguageChangedTypeSpecific() override;
+
+ public slots:
+    // Language, time zone and 12 / 24 hour format of the Remote: the format of a timestamp and a date.
+    void onDateTimeFormatChanged(const QString& language, const QString& timezone, bool clock24h);
 
  signals:
     void valueChanged();
     void unitChanged();
 
  private:
+    // The duration as time span, empty if the sensor is not a duration or the value is not shown as a time span.
+    QString timeSpan() const;
+
     QVariant m_value;
     QString  m_unit;
+
+    // format of a timestamp and a date
+    QLocale   m_locale;
+    QTimeZone m_timeZone;
+    bool      m_clock24h = true;
 
     SensorDeviceClass::Enum       m_sensorDeviceClass;
     BinarySensorDeviceClass::Enum m_binarySensorDeviceClass;

@@ -207,6 +207,7 @@ class EntityController : public QObject {
     void activityRemoved(QString entityId);
     void languageChanged(QString language);
     void unitSystemChanged(Config::UnitSystems unitSystem);
+    void dateTimeFormatChanged(QString language, QString timezone, bool clock24h);
     void activityStartedRunning(QString entityId, QString cmdId);
     void activityStartedExternally(QString entityId);
     void voiceAssistantCommandError(QString entityId, int code);
@@ -225,6 +226,7 @@ class EntityController : public QObject {
 
     void onLanguageChanged(QString language);
     void onUnitSystemChanged(Config::UnitSystems unitSystem);
+    void onTimeFormatChanged(const QString& timezone, bool clock24h);
     void onEntityAdded(core::Entity entity);
     void onEntityChanged(const QString& entityId, core::Entity entity);
 
@@ -237,6 +239,10 @@ class EntityController : public QObject {
     static EntityController*   s_instance;
     static QString             m_language;    // FIXME(#279) because of static createEntityObject
     static Config::UnitSystems m_unitSystem;  // FIXME(#279) because of static createEntityObject
+
+    // time zone and 12 / 24 hour format of the Remote, for the sensor entities
+    QString m_timezone;
+    bool    m_clock24h = true;
 
     core::Api*                    m_core;
     QHash<QString, entity::Base*> m_entities;

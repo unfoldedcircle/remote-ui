@@ -128,6 +128,12 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     QObject::connect(m_entityController, &EntityController::allEntitiesLoaded, this, &Controller::getProfilesFromCore);
     QObject::connect(m_config, &Config::languageChanged, m_entityController, &EntityController::onLanguageChanged);
     QObject::connect(m_config, &Config::unitSystemChanged, m_entityController, &EntityController::onUnitSystemChanged);
+    const auto onTimeFormatChanged = [this] {
+        m_entityController->onTimeFormatChanged(m_config->getTimezone(), m_config->getClock24h());
+    };
+    onTimeFormatChanged();
+    QObject::connect(m_config, &Config::timezoneChanged, m_entityController, onTimeFormatChanged);
+    QObject::connect(m_config, &Config::clock24hChanged, m_entityController, onTimeFormatChanged);
     QObject::connect(m_core, &core::Api::powerModeChanged, m_entityController, &EntityController::onPowerModeChanged);
     QObject::connect(m_config, &Config::resumeTimeoutWindowSecChanged, m_entityController, &EntityController::onResumeTimeoutWindowSecChanged);
 
