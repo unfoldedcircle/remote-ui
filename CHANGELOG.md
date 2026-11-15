@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The "Filters" sheet of the entity lists offers the Number and Select types, so number and select entities can be
   filtered when adding entities to a page or group and in an integration's entity lists
   ([#65](https://github.com/unfoldedcircle/remote-ui/issues/65)).
+- Number entity ([#67](https://github.com/unfoldedcircle/remote-ui/issues/67)):
+  - The d-pad and volume buttons no longer send a step when the value is already at its minimum or maximum, like the
+    minus and plus buttons of the screen. The minus and plus buttons of a number widget, and of a slider widget with
+    buttons for a number, are dimmed and inactive at the limit as well.
+  - A value that the device refused is no longer shown for three seconds next to the error message. The value of the
+    device is shown again at once.
+  - A number whose device does not report its value changes by one step for every step the device carried out, no
+    longer for every button press. Quick presses and a held button moved the shown value further than the device.
+  - The slider of the number screen stops at the same values as a slider widget for the same number: counted from
+    the minimum, with the maximum as the last stop. With a range that is not a whole number of steps the minimum
+    could not be reached by dragging.
 
 ---
 

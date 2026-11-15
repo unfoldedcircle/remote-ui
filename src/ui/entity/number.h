@@ -114,6 +114,9 @@ class Number : public Base {
     Q_PROPERTY(bool hasValue READ hasValue NOTIFY valueChanged)
     // the value with the effective decimals, empty without a value
     Q_PROPERTY(QString formattedValue READ getFormattedValue NOTIFY valueChanged)
+    // the value shown is at a limit that is set: a step towards it sends nothing
+    Q_PROPERTY(bool atMin READ isAtMin NOTIFY valueChanged)
+    Q_PROPERTY(bool atMax READ isAtMax NOTIFY valueChanged)
 
     // options
     Q_PROPERTY(double min READ getMin NOTIFY optionsChanged)
@@ -142,6 +145,8 @@ class Number : public Base {
     double  getValue() { return m_pending ? m_pendingValue : m_value; }
     bool    hasValue() { return m_pending || m_hasValue; }
     QString getFormattedValue() { return hasValue() ? formatValue(getValue()) : QString(); }
+    bool    isAtMin() { return m_hasMin && hasValue() && getValue() <= m_min; }
+    bool    isAtMax() { return m_hasMax && hasValue() && getValue() >= m_max; }
 
     // options
     double  getMin() { return m_min; }
@@ -169,15 +174,16 @@ class Number : public Base {
     Q_INVOKABLE QString formatValue(double value);
 
     /**
-     * @brief Send the set_value command. The value is shown until the driver reports a value, or for
-     * CONFIRMATION_TIMEOUT_MS. With option readable false the value is kept.
+     * @brief Send the set_value command. The value is shown until the driver reports a value, the command fails, or
+     * for CONFIRMATION_TIMEOUT_MS. With option readable false the value is kept.
      */
     Q_INVOKABLE void setValue(double value);
 
     /**
      * @brief Send increment or decrement, with the step parameter when step is greater than 0, as a number widget
-     * with its own step does; without it the driver steps by its step. With option readable false the value shown
-     * changes by that step within the range.
+     * with its own step does; without it the driver steps by its step. Nothing is sent towards a limit the value
+     * shown has reached. With option readable false the value shown changes by that step within the range once the
+     * command was executed.
      */
     Q_INVOKABLE void increment(double step = 0);
     Q_INVOKABLE void decrement(double step = 0);
@@ -186,6 +192,7 @@ class Number : public Base {
     void sendCommand(NumberCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
     bool updateOptions(QVariant data) override;
+    void commandFinished(const QString& command, const QVariantMap& params, bool success) override;
 
     QString getStateInfo() override;
 
@@ -197,7 +204,7 @@ class Number : public Base {
 
  private:
     void    applyOptions(const QVariantMap &options);
-    void    stepBy(NumberCommands::Enum cmd, double step, int direction);
+    void    stepBy(NumberCommands::Enum cmd, double step);
     void    setKnownValue(double value);
     void    clearPending();
     QString defaultUnit();

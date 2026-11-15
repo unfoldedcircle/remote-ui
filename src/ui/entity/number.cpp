@@ -98,44 +98,72 @@ void Number::setValue(double value) {
 
     QVariantMap params;
     params.insert("value", value);
-    sendCommand(NumberCommands::Set_value, params);
 
     if (!m_readable) {
         // the driver never reports the value: keep the last sent value
+        sendCommand(NumberCommands::Set_value, params);
         setKnownValue(value);
         return;
     }
 
-    // show the value of the user until the driver reports one
+    // Show the value of the user until the driver reports one. The wait starts before the command is sent: a
+    // command that cannot be sent fails while it is being sent, and that failure has to end the wait.
     m_pendingValue = value;
     m_pending = true;
     m_confirmationTimer.start();
     emit valueChanged();
     emit stateInfoChanged();
+
+    sendCommand(NumberCommands::Set_value, params);
 }
 
 void Number::increment(double step) {
-    stepBy(NumberCommands::Increment, step, 1);
+    stepBy(NumberCommands::Increment, step);
 }
 
 void Number::decrement(double step) {
-    stepBy(NumberCommands::Decrement, step, -1);
+    stepBy(NumberCommands::Decrement, step);
 }
 
-void Number::stepBy(NumberCommands::Enum cmd, double step, int direction) {
+void Number::stepBy(NumberCommands::Enum cmd, double step) {
+    // nothing to step towards a limit the value has reached, for a key as for a disabled button
+    if (cmd == NumberCommands::Increment ? isAtMax() : isAtMin()) {
+        return;
+    }
+
     QVariantMap params;
     if (step > 0) {
-        step = qMax(MIN_STEP, step);
-        params.insert("step", step);
-    } else {
-        step = m_step;
+        params.insert("step", qMax(MIN_STEP, step));
     }
     sendCommand(cmd, params);
+}
+
+void Number::commandFinished(const QString& command, const QVariantMap& params, bool success) {
+    if (command == QLatin1String("number.set_value")) {
+        // no confirmation can follow a failed command: show the reported value again. A value set after the
+        // failed one is still waiting for its own answer.
+        if (!success && m_pending && params.value("value").toDouble() == m_pendingValue) {
+            clearPending();
+        }
+        return;
+    }
+
+    int direction = 0;
+    if (command == QLatin1String("number.increment")) {
+        direction = 1;
+    } else if (command == QLatin1String("number.decrement")) {
+        direction = -1;
+    }
+
+    // The driver never reports the value of a write-only number: the value shown follows the commands the
+    // driver executed, one step each. A command that was dropped or failed moved nothing.
+    if (direction == 0 || !success || m_readable || !m_hasValue) {
+        return;
+    }
 
     // the widget's step is not rounded to the step of the entity
-    if (!m_readable && m_hasValue) {
-        setKnownValue(clamp(m_value + direction * step));
-    }
+    const double step = params.value("step").toDouble();
+    setKnownValue(clamp(m_value + direction * (step > 0 ? step : m_step)));
 }
 
 void Number::sendCommand(NumberCommands::Enum cmd, QVariantMap params) {

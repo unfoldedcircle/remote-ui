@@ -10,6 +10,7 @@
 #include "ui/entity/entityController.h"
 #include "ui/entity/light.h"
 #include "ui/entity/mediaPlayer.h"
+#include "ui/entity/number.h"
 #include "ui/entity/sensor.h"
 #include "ui/mediaImageProvider.h"
 #include "ui/notification.h"
@@ -72,6 +73,8 @@ class testEntityController : public QObject {
 
     void mediaPlayer_embeddedArtwork_isDecodedOnAWorkerThread();
     void mediaPlayer_deletedWhileArtworkIsDecoded_doesNotCrash();
+
+    void number_failedSetValue_showsTheReportedValueAgain();
 
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
@@ -688,6 +691,32 @@ void testEntityController::climate_modelIndex_isTheNearestTemperature() {
     // outside the range: the end of the list
     QCOMPARE(valueAt(climate->getModelIndexFromTemperature(35.0f)), 30.0f);
     QCOMPARE(valueAt(climate->getModelIndexFromTemperature(-5.0f)), 10.0f);
+}
+
+/**
+ * A number shows the value set until the driver confirms it. A command that failed is never confirmed: the
+ * controller tells the entity, and the reported value shows again next to the error message instead of three
+ * seconds later.
+ */
+void testEntityController::number_failedSetValue_showsTheReportedValueAgain() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+    uc::ui::Notification     notification;
+
+    uc::core::Entity entity = makeEntity(QStringLiteral("number-1"));
+    entity.type = QStringLiteral("Number");
+    entity.attributes.insert(QStringLiteral("state"), QStringLiteral("ON"));
+    entity.attributes.insert(QStringLiteral("value"), 10);
+    controller.onEntityAdded(entity);
+
+    auto* number = qobject_cast<uc::ui::entity::Number*>(controller.get(entity.id));
+    QVERIFY(number);
+    QCOMPARE(number->getValue(), 10.0);
+
+    // the core is not connected in a test: the command fails while it is being sent
+    number->setValue(40);
+
+    QCOMPARE(number->getValue(), 10.0);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

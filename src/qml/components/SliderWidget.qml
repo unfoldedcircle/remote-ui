@@ -26,7 +26,8 @@
  - default: a thin track with the label and value above it. A press moves the value to the finger.
  - bar: the whole item is the track, with label, value and icons inside. A drag moves the value by the dragged
    distance; a tap changes nothing.
- - buttons: minus, value, plus. A press sends the value one step further; increment and decrement for a number.
+ - buttons: minus, value, plus. A press sends the value one step further; increment and decrement for a number,
+   whose button towards a limit it has reached is disabled.
 
  The media player's seek feature is a touch slider target only, and an unbounded number entity has no slider range:
  both are shown as unsupported: the red mark and "—", with the reason in the log.
@@ -863,6 +864,12 @@ Item {
                 model: sliderWidget.buttons ? (sliderWidget.vertical ? ["up", "value", "down"] : ["down", "value", "up"]) : []
 
                 Item {
+                    // a number at a limit that is set: the button is disabled and dimmed, as on the number screen.
+                    // An unavailable entity keeps its buttons pressable: the press is refused with a notification.
+                    readonly property bool atLimit: entityObj !== null && entityObj.type === EntityTypes.Number
+                                                    && !sliderWidget.unavailable
+                                                    && (modelData === "up" ? entityObj.atMax : entityObj.atMin)
+
                     Layout.fillWidth: modelData === "value"
                     Layout.fillHeight: true
                     Layout.minimumWidth: ui.sliderButtonSize
@@ -889,7 +896,7 @@ Item {
                         visible: modelData !== "value"
                         radius: width / 2
                         color: stepMouseArea.pressed ? colors.textPrimary : colors.surfaceRaised
-                        opacity: sliderWidget.unavailable ? ui.unavailableOpacity : 1
+                        opacity: sliderWidget.unavailable ? ui.unavailableOpacity : (parent.atLimit ? ui.disabledOpacity : 1)
 
                         Components.Icon {
                             anchors.centerIn: parent
@@ -901,7 +908,7 @@ Item {
                         Components.HapticMouseArea {
                             id: stepMouseArea
                             anchors.fill: parent
-                            enabled: sliderWidget.supported && entityObj !== null
+                            enabled: sliderWidget.supported && entityObj !== null && !parent.parent.atLimit
                             onClicked: sliderWidget.stepBy(modelData === "up")
                         }
                     }
