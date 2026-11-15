@@ -10,7 +10,8 @@
  ********************************************************************
  CONFIGURABLE PROPERTIES AND OVERRIDES:
  ********************************************************************
- - width / height: the orientation is derived from the size (height > width: vertical)
+ - vertical: the orientation. An activity page sets it from the item's size in grid cells; without it the widget is
+   vertical if height > width
  - entityId, feature (optional, defaults to the entity type's default slider feature)
  - customText (label), showName, showValue
  - iconMin, iconMax
@@ -29,8 +30,9 @@
  - buttons: minus, value, plus. A press sends the value one step further; increment and decrement for a number,
    whose button towards a limit it has reached is disabled.
 
- The media player's seek feature is a touch slider target only, and an unbounded number entity has no slider range:
- both are shown as unsupported: the red mark and "—", with the reason in the log.
+ The media player's seek feature is a touch slider target only, an unbounded number entity has no slider range, and a
+ feature may be missing from the entity's features: all are shown as unsupported: the red mark and "—", with the reason
+ in the log. The value feature of a number is always present.
 
  A value the slider cannot show, of a missing entity or a number without a value, reads "—" without a unit.
 
@@ -46,6 +48,9 @@ import QtQuick.Layouts 1.15
 import Haptic 1.0
 import Entity.Controller 1.0
 import Entity.Light 1.0
+import Entity.Cover 1.0
+import Entity.Climate 1.0
+import Entity.MediaPlayer 1.0
 import SliderStyle 1.0
 
 import "qrc:/components" as Components
@@ -72,7 +77,7 @@ Item {
 
     property QtObject entityObj
 
-    readonly property bool vertical: height > width
+    property bool vertical: height > width
     readonly property bool live: updateMode === "live"
     readonly property bool bar: SliderStyle.style(sliderStyle) === SliderStyle.Bar
     readonly property bool buttons: SliderStyle.style(sliderStyle) === SliderStyle.Buttons
@@ -89,9 +94,18 @@ Item {
     // the change of a minus or plus button
     property real buttonStepSize: 1
 
+    // Configured entities are loaded without their features, only get_entity delivers them: they are fetched once
+    // before a feature is judged as missing.
+    property bool featuresRequested: false
+    property bool featuresAnswered: false
+    // counts the feature updates of the entity: hasFeature() is a function and notifies no binding
+    property int featuresRevision: 0
+
     // resolved look
-    readonly property bool entityColorKnown: entityObj !== null && entityObj.type === EntityTypes.Light
-                                             && entityObj.hasFeature(LightFeatures.Color)
+    // the colour of a light is known once it has reported hue and saturation
+    readonly property bool entityColorKnown: featuresRevision >= 0 && entityObj !== null
+                                             && entityObj.type === EntityTypes.Light
+                                             && entityObj.hasFeature(LightFeatures.Color) && entityObj.colorKnown
     readonly property int paint: entityObj ? SliderStyle.color(entityObj.type, resolvedFeature, sliderColor, entityColorKnown)
                                            : SliderStyle.Neutral
     readonly property int fillMode: entityObj ? SliderStyle.fill(entityObj.type, resolvedFeature, sliderFill, rangeMin, rangeMax)
@@ -147,8 +161,27 @@ Item {
     }
 
     function ensureEntityLoaded() {
+        sliderWidget.featuresRequested = false;
+        sliderWidget.featuresAnswered = false;
         entityObj = EntityController.get(entityId);
         resolveBinding();
+    }
+
+    // The feature must be in the features of the entity. As long as the features are not loaded the feature counts
+    // as present, and the binding is resolved again when they arrive.
+    function hasEntityFeature(entityFeature) {
+        if (entityObj.featuresLoaded()) {
+            return entityObj.hasFeature(entityFeature);
+        }
+        if (sliderWidget.featuresAnswered) {
+            // the entity has no features at all
+            return false;
+        }
+        if (!sliderWidget.featuresRequested) {
+            sliderWidget.featuresRequested = true;
+            EntityController.refreshEntity(entityObj.id);
+        }
+        return true;
     }
 
     function defaultFeatureForType(type) {
@@ -197,30 +230,30 @@ Item {
                 min = 0; max = 255; step = 1;
                 // the brightness is shown in percent: a button changes it by one
                 buttonStep = 255 / 100;
-                sliderWidget.supported = true;
+                sliderWidget.supported = hasEntityFeature(LightFeatures.Dim);
             } else if (sliderWidget.resolvedFeature === "color_temperature") {
                 // slider positions: the color_temperature_steps option spread over 0..100, see Light
                 min = 0; max = entityObj.colorTempPositionMax; step = 1;
-                sliderWidget.supported = true;
+                sliderWidget.supported = hasEntityFeature(LightFeatures.Color_temperature);
             }
             break;
         case EntityTypes.Media_player:
             if (sliderWidget.resolvedFeature === "volume") {
                 min = 0; max = 100; step = 1;
-                sliderWidget.supported = true;
+                sliderWidget.supported = hasEntityFeature(MediaPlayerFeatures.Volume);
             }
             break;
         case EntityTypes.Cover:
             if (sliderWidget.resolvedFeature === "position") {
                 min = 0; max = 100; step = 1;
-                sliderWidget.supported = true;
+                sliderWidget.supported = hasEntityFeature(CoverFeatures.Position);
             }
             break;
         case EntityTypes.Climate:
             if (sliderWidget.resolvedFeature === "target_temperature") {
                 min = entityObj.minTemperature; max = entityObj.maxTemperature;
                 step = entityObj.targetTemperatureStep > 0 ? entityObj.targetTemperatureStep : 0.5;
-                sliderWidget.supported = true;
+                sliderWidget.supported = hasEntityFeature(ClimateFeatures.Target_temperature);
             }
             break;
         }
@@ -748,6 +781,9 @@ Item {
                 property real startValue: 0
                 property real startPosition: 0
                 property bool moved: false
+                // The value lies outside the range and is shown at the nearest end. A bar drag starts from that end
+                // and changes nothing until it leaves it: a drag towards the end must not send the end.
+                property bool outside: false
 
                 // the position along the track, growing towards the maximum
                 function along(mouse) {
@@ -765,6 +801,8 @@ Item {
                     interaction.startValue = sliderWidget.displayValue;
                     interaction.startPosition = along(mouse);
                     interaction.moved = false;
+                    interaction.outside = interaction.startValue < sliderWidget.rangeMin
+                            || interaction.startValue > sliderWidget.rangeMax;
                     if (sliderWidget.refused) {
                         return;
                     }
@@ -790,9 +828,18 @@ Item {
                         return;
                     }
                     interaction.moved = true;
-                    sliderWidget.dragTo(SliderStyle.dragValue(interaction.startValue, distance,
-                                                              sliderWidget.vertical ? track.height : track.width,
-                                                              sliderWidget.rangeMin, sliderWidget.rangeMax));
+                    const value = SliderStyle.dragValue(interaction.startValue, distance,
+                                                        sliderWidget.vertical ? track.height : track.width,
+                                                        sliderWidget.rangeMin, sliderWidget.rangeMax);
+                    if (interaction.outside) {
+                        const end = SliderStyle.snap(interaction.startValue, sliderWidget.rangeMin, sliderWidget.rangeMax,
+                                                     sliderWidget.stepSize);
+                        if (SliderStyle.snap(value, sliderWidget.rangeMin, sliderWidget.rangeMax, sliderWidget.stepSize) === end) {
+                            return;
+                        }
+                        interaction.outside = false;
+                    }
+                    sliderWidget.dragTo(value);
                 }
 
                 onReleased: sliderWidget.endDrag(sliderWidget.displayValue !== interaction.startValue)
@@ -954,5 +1001,11 @@ Item {
         function onModelChanged() { sliderWidget.resolveBinding(); }
 
         function onEntityEnabledChanged() { sliderWidget.syncFromEntity(); }
+
+        function onFeaturesChanged() {
+            sliderWidget.featuresAnswered = true;
+            sliderWidget.featuresRevision++;
+            sliderWidget.resolveBinding();
+        }
     }
 }

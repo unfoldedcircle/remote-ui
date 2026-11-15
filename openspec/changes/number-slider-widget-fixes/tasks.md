@@ -18,15 +18,15 @@ tests and passes `make test`, `./cpplint.sh` and `./design-check.sh`.
 
 ## 2. Slider widget (findings 7 to 10)
 
-- [ ] 2.1 `SliderWidget.qml`: a feature missing from `features` is unsupported; features are
+- [x] 2.1 `SliderWidget.qml`: a feature missing from `features` is unsupported; features are
       fetched once when they are not loaded.
-- [ ] 2.2 `Light::colorKnown`; the slider widget uses it for `color: entity`.
-- [ ] 2.3 `SliderStyle::dragValue` clamps the start; the bar ignores a drag towards the end it is
+- [x] 2.2 `Light::colorKnown`; the slider widget uses it for `color: entity`.
+- [x] 2.3 `SliderStyle::dragValue` clamps the start; the bar ignores a drag towards the end it is
       shown at.
-- [ ] 2.4 `vertical` set by `Activity.qml` from the item's `size`; the number widget passes it on.
-- [ ] 2.5 Unit tests: `test_slider_style.cpp` (drag from outside the range), `test_light_entity.cpp`
+- [x] 2.4 `vertical` set by `Activity.qml` from the item's `size`; the number widget passes it on.
+- [x] 2.5 Unit tests: `test_slider_style.cpp` (drag from outside the range), `test_light_entity.cpp`
       (colour known).
-- [ ] 2.6 `CHANGELOG.md`, "Unreleased", "Fixed".
+- [x] 2.6 `CHANGELOG.md`, "Unreleased", "Fixed".
 
 ## 3. Activity pages (findings 11 and 12)
 

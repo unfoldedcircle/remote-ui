@@ -24,6 +24,8 @@ class testLightEntity : public QObject {
     void positionRoundTrip();
     void positionsPerSweep_data();
     void positionsPerSweep();
+    void colorKnown_needsHueAndSaturation();
+    void colorKnown_firstReportOfZero();
 
  private:
     static uc::ui::entity::Light* makeLight(QObject* parent, const QVariant& steps) {
@@ -148,6 +150,44 @@ void testLightEntity::positionsPerSweep() {
     auto    light = makeLight(&parent, steps);
 
     QVERIFY(qFuzzyCompare(light->colorTempPositionsPerSweep(gain), positions));
+}
+
+/**
+ * A slider item with the colour `entity` paints its fill in the light's colour. Before the light has reported hue
+ * and saturation there is none: the colour object is not valid, and must not be used.
+ */
+void testLightEntity::colorKnown_needsHueAndSaturation() {
+    QObject parent;
+    auto    light = makeLight(&parent, QVariant());
+
+    QCOMPARE(light->isColorKnown(), false);
+
+    QSignalSpy spy(light, &uc::ui::entity::Light::colorChanged);
+    light->updateAttribute(QStringLiteral("Hue"), 120);
+    QCOMPARE(light->isColorKnown(), false);
+
+    light->updateAttribute(QStringLiteral("Saturation"), 255);
+    QCOMPARE(light->isColorKnown(), true);
+    QCOMPARE(light->getColor(), QColor::fromHsv(120, 255, 255));
+    QVERIFY(spy.count() >= 1);
+
+    // a value that is no longer known
+    light->updateAttribute(QStringLiteral("Hue"), QVariant());
+    QCOMPARE(light->isColorKnown(), false);
+}
+
+void testLightEntity::colorKnown_firstReportOfZero() {
+    QObject parent;
+    auto    light = makeLight(&parent, QVariant());
+
+    // red without saturation: both values are the ones a light starts with
+    QSignalSpy spy(light, &uc::ui::entity::Light::colorChanged);
+    light->updateAttribute(QStringLiteral("Hue"), 0);
+    light->updateAttribute(QStringLiteral("Saturation"), 0);
+
+    QCOMPARE(light->isColorKnown(), true);
+    QVERIFY(light->getColor().isValid());
+    QVERIFY(spy.count() >= 1);
 }
 
 QTEST_MAIN(testLightEntity)

@@ -187,6 +187,9 @@ EntityComponents.BaseDetail {
                                                  "y": gridSizeH * item.location.y,
                                                  "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
                                                  "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
+                                                 // the orientation follows the size in cells, not in pixels
+                                                 "vertical": (item.size && item.size.height ? item.size.height : 1)
+                                                             > (item.size && item.size.width ? item.size.width : 1),
                                                  "entityId": item.slider.entity_id,
                                                  "feature": item.slider.feature ? item.slider.feature : "",
                                                  "customText": item.text ? item.text : "",
@@ -209,6 +212,8 @@ EntityComponents.BaseDetail {
                                                  "y": gridSizeH * item.location.y,
                                                  "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
                                                  "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
+                                                 "vertical": (item.size && item.size.height ? item.size.height : 1)
+                                                             > (item.size && item.size.width ? item.size.width : 1),
                                                  "entityId": item.number.number_id,
                                                  "customText": item.text ? item.text : "",
                                                  "showName": item.number.show_name ? item.number.show_name : false,
