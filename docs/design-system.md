@@ -271,7 +271,7 @@ not used. Poppins and Space Mono both have the glyph.
 | `ui.unavailableMarkSize` | 30 | The red link-slash mark (`uc:link-slash` in `red`) before the label |
 | `ui.unavailableOpacity`, `ui.unavailableLabelOpacity` | 0.15, 0.5 | Track, value, icons and buttons, and the label, of an unavailable entity |
 
-The slider and number items use these tokens today.
+The sensor, select, slider and number items use these tokens.
 
 ## 8. Checklist for a new screen
 
