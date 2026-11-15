@@ -38,20 +38,20 @@ tests and passes `make test`, `./cpplint.sh` and `./design-check.sh`.
 
 ## 4. Entity options (finding 13)
 
-- [ ] 4.1 `Switch`, `Light`, `Climate`, `MediaPlayer`, `Sensor`: `applyOptions()` for the
+- [x] 4.1 `Switch`, `Light`, `Climate`, `MediaPlayer`, `Sensor`: `applyOptions()` for the
       constructor and `updateOptions()`, with notify signals for the properties that follow.
-- [ ] 4.2 Unit tests: an option update per type, and an update without the option.
-- [ ] 4.3 `CHANGELOG.md`, "Unreleased", "Fixed".
+- [x] 4.2 Unit tests: an option update per type, and an update without the option.
+- [x] 4.3 `CHANGELOG.md`, "Unreleased", "Fixed".
 
 ## 5. Verification
 
-- [ ] 5.1 `make macos` builds; no translation churn. The static aarch64 build runs in the Build
+- [x] 5.1 `make macos` builds; no translation churn. The static aarch64 build runs in the Build
       workflow of each pull request.
 - [ ] 5.2 Desktop simulator (`UC_MODEL=DEV`) against the core-simulator: the number screen's keys
       and slider at the limits, the number and slider widgets at a limit, a bar with a value
       outside its range, a 2 × 2 slider on a 6 × 6 grid, unavailable sensor, select, slider and
       number widgets side by side.
-- [ ] 5.3 `openspec validate number-slider-widget-fixes --strict`.
+- [x] 5.3 `openspec validate number-slider-widget-fixes --strict`.
 
 ## Workflow follow-up
 

@@ -43,18 +43,33 @@ Light::Light(const QString &id, QVariantMap nameI18n, const QString &language, c
         m_deviceClass = QVariant::fromValue(LightDeviceClass::Light).toString();
     }
 
-    // options
-    // n steps are n positions, e.g. 3 steps: 0, 50, 100. Without the option, or with more positions than whole
-    // numbers in the range, every value of 0..100 is a position. A single position is no range.
-    const int colorTempSteps = options.value("color_temperature_steps").toInt();
-    if (colorTempSteps >= 2 && colorTempSteps <= COLOR_TEMP_MAX) {
-        m_colorTempPositionMax = colorTempSteps - 1;
-    }
+    applyOptions(options);
 
     // Registered once: a type registration is never released, and every light entity ran this line.
     // It stays here so that the type is registered before the first light screen can be loaded, as before.
     static const int colorWheelTypeId = qmlRegisterType<LightColorWheel>("Entity.Light", 1, 0, "ColorWheel");
     Q_UNUSED(colorWheelTypeId)
+}
+
+bool Light::updateOptions(QVariant data) {
+    applyOptions(data.toMap());
+    return true;
+}
+
+void Light::applyOptions(const QVariantMap& options) {
+    // The core delivers the complete options: a missing option has its default value.
+    // n steps are n positions, e.g. 3 steps: 0, 50, 100. Without the option, or with more positions than whole
+    // numbers in the range, every value of 0..100 is a position. A single position is no range.
+    const int colorTempSteps = options.value("color_temperature_steps").toInt();
+    const int positionMax =
+        colorTempSteps >= 2 && colorTempSteps <= COLOR_TEMP_MAX ? colorTempSteps - 1 : COLOR_TEMP_MAX;
+
+    if (m_colorTempPositionMax != positionMax) {
+        m_colorTempPositionMax = positionMax;
+        emit colorTempPositionMaxChanged();
+        // the position of the same colour temperature changed with the positions
+        emit colorTempChanged();
+    }
 }
 
 Light::~Light() {

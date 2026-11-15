@@ -992,6 +992,7 @@ Item {
         // light
         function onBrightnessChanged() { sliderWidget.syncFromEntity(); }
         function onColorTempChanged() { sliderWidget.syncFromEntity(); }
+        function onColorTempPositionMaxChanged() { sliderWidget.resolveBinding(); }
         // media player
         function onVolumeChanged() { sliderWidget.syncFromEntity(); }
         // cover

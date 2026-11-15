@@ -44,13 +44,11 @@ ColumnLayout {
     }
 
     function evaluateSensor() {
-        // sensor label
-        if (sensorWidget.customText !== "") {
-            sensorLabelText.text = sensorWidget.customText;
-        }
-
+        // sensor label: the custom label may be removed by an option update
         if (sensorWidget.showLabel && entityObj && entityObj.customLabel && entityObj.customLabel !== "") {
             sensorLabelText.text =  entityObj.customLabel;
+        } else {
+            sensorLabelText.text = sensorWidget.customText;
         }
 
         // sensor value: "—" without a unit for a missing or unavailable entity and a sensor without a value

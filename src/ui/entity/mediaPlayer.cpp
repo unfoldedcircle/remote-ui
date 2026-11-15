@@ -185,14 +185,7 @@ MediaPlayer::MediaPlayer(const QString &id, QVariantMap nameI18n, const QString 
         m_deviceClass = QVariant::fromValue(MediaPlayerDeviceClass::Speaker).toString();
     }
 
-            // options
-    if (options.contains("volume_steps")) {
-        m_volumeSteps = options.value("volume_steps").toInt();
-    }
-
-    if (options.contains("simple_commands")) {
-        m_simpleCommands = options.value("simple_commands").toStringList();
-    }
+    applyOptions(options);
 
             // setup position timer
     m_positionTimer.setInterval(1000);
@@ -203,6 +196,22 @@ MediaPlayer::MediaPlayer(const QString &id, QVariantMap nameI18n, const QString 
 
     QObject::connect(&m_nam, QOverload<QNetworkReply *, const QList<QSslError> &>::of(&QNetworkAccessManager::sslErrors),
             this, &MediaPlayer::onSslErrors);
+}
+
+bool MediaPlayer::updateOptions(QVariant data) {
+    applyOptions(data.toMap());
+    return true;
+}
+
+void MediaPlayer::applyOptions(const QVariantMap& options) {
+    // the core delivers the complete options: a missing option has its default value
+    const int volumeSteps = options.contains("volume_steps") ? options.value("volume_steps").toInt() : 100;
+    if (m_volumeSteps != volumeSteps) {
+        m_volumeSteps = volumeSteps;
+        emit volumeStepsChanged();
+    }
+
+    m_simpleCommands = options.value("simple_commands").toStringList();
 }
 
 MediaPlayer::~MediaPlayer() {

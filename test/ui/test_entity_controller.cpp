@@ -76,6 +76,10 @@ class testEntityController : public QObject {
 
     void number_failedSetValue_showsTheReportedValueAgain();
 
+    void entityChange_climateOptions_areApplied();
+    void entityChange_mediaPlayerOptions_areApplied();
+    void entityChange_withoutOptions_keepsTheOptions();
+
     void activity_readyCheck_isOnUnlessItIsFalse_data();
     void activity_readyCheck_isOnUnlessItIsFalse();
 
@@ -770,6 +774,115 @@ void testEntityController::activity_readyCheck_isOnUnlessItIsFalse() {
         activity->updateOptions(options);
         QCOMPARE(activity->getReadyCheck(), expected);
     }
+}
+
+/**
+ * The options of an entity change event were only applied by a few entity types. A climate entity kept the unit,
+ * range and step it was loaded with until it was deleted or the UI restarted.
+ */
+void testEntityController::entityChange_climateOptions_areApplied() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    uc::core::Entity entity = makeEntity(QStringLiteral("climate.living_room"));
+    entity.type = QStringLiteral("Climate");
+    entity.attributes = QVariantMap({{QStringLiteral("current_temperature"), 72}});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entity.id));
+    QVERIFY(climate);
+    QCOMPARE(climate->getTemperatureLabel(), QStringLiteral("°C"));
+    QCOMPARE(climate->getFanModes(), QStringList());
+
+    QSignalSpy modelSpy(climate, &uc::ui::entity::Climate::modelChanged);
+    QSignalSpy fanModesSpy(climate, &uc::ui::entity::Climate::fanModesChanged);
+
+    uc::core::Entity change;
+    change.id = entity.id;
+    change.type = entity.type;
+    change.optionsProvided = true;
+    change.options = QVariantMap({{QStringLiteral("temperature_unit"), QStringLiteral("FAHRENHEIT")},
+                                  {QStringLiteral("min_temperature"), 60},
+                                  {QStringLiteral("max_temperature"), 80},
+                                  {QStringLiteral("target_temperature_step"), 2},
+                                  {QStringLiteral("fan_modes"), QStringList({QStringLiteral("AUTO")})}});
+    controller.onEntityChanged(entity.id, change);
+
+    QCOMPARE(climate->getTemperatureLabel(), QStringLiteral("°F"));
+    QCOMPARE(climate->getMinTemperature(), 60.0f);
+    QCOMPARE(climate->getMaxTemperature(), 80.0f);
+    QCOMPARE(climate->getTargetTemperatureStep(), 2.0f);
+    QCOMPARE(climate->getModel().size(), 11);
+    QCOMPARE(climate->getFanModes(), QStringList({QStringLiteral("AUTO")}));
+    QVERIFY(climate->getStateInfo().contains(QStringLiteral("°F")));
+    QCOMPARE(modelSpy.count(), 1);
+    QCOMPARE(fanModesSpy.count(), 1);
+
+    // the options are complete: without them the entity follows the unit system of the Remote again
+    change.options = QVariantMap();
+    controller.onEntityChanged(entity.id, change);
+    QCOMPARE(climate->getTemperatureLabel(), QStringLiteral("°C"));
+    QCOMPARE(climate->getFanModes(), QStringList());
+}
+
+void testEntityController::entityChange_mediaPlayerOptions_areApplied() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    // the command of this test fails without a core and is reported in a notification
+    uc::ui::Notification notification;
+
+    uc::core::Entity entity = makeEntity(QStringLiteral("media_player.amp"));
+    entity.type = QStringLiteral("Media_player");
+    controller.onEntityAdded(entity);
+
+    auto player = qobject_cast<uc::ui::entity::MediaPlayer*>(controller.get(entity.id));
+    QVERIFY(player);
+    QCOMPARE(player->getVolumeSteps(), 100);
+
+    // a simple command the entity does not list is not sent
+    QSignalSpy commandSpy(player, &uc::ui::entity::Base::command);
+    player->sendSimpleCommand(QStringLiteral("MODE_GAME"));
+    QCOMPARE(commandSpy.count(), 0);
+
+    QSignalSpy stepsSpy(player, &uc::ui::entity::MediaPlayer::volumeStepsChanged);
+
+    uc::core::Entity change;
+    change.id = entity.id;
+    change.type = entity.type;
+    change.optionsProvided = true;
+    change.options = QVariantMap({{QStringLiteral("volume_steps"), 50},
+                                  {QStringLiteral("simple_commands"), QStringList({QStringLiteral("MODE_GAME")})}});
+    controller.onEntityChanged(entity.id, change);
+
+    QCOMPARE(player->getVolumeSteps(), 50);
+    QCOMPARE(stepsSpy.count(), 1);
+    player->sendSimpleCommand(QStringLiteral("MODE_GAME"));
+    QCOMPARE(commandSpy.count(), 1);
+}
+
+/**
+ * Most change events carry attributes only. They must not reset the options to their defaults.
+ */
+void testEntityController::entityChange_withoutOptions_keepsTheOptions() {
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    uc::core::Entity entity = makeEntity(QStringLiteral("climate.living_room"));
+    entity.type = QStringLiteral("Climate");
+    entity.options = QVariantMap({{QStringLiteral("temperature_unit"), QStringLiteral("FAHRENHEIT")}});
+    controller.onEntityAdded(entity);
+
+    auto climate = qobject_cast<uc::ui::entity::Climate*>(controller.get(entity.id));
+    QVERIFY(climate);
+
+    uc::core::Entity change;
+    change.id = entity.id;
+    change.type = entity.type;
+    change.attributes = QVariantMap({{QStringLiteral("current_temperature"), 70}});
+    controller.onEntityChanged(entity.id, change);
+
+    QCOMPARE(climate->getTemperatureLabel(), QStringLiteral("°F"));
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

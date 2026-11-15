@@ -81,11 +81,16 @@ class Switch : public Base {
     void sendCommand(SwitchCommands::Enum cmd, QVariantMap params);
     void sendCommand(SwitchCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+    bool updateOptions(QVariant data) override;
 
     void onLanguageChangedTypeSpecific() override;
 
+    bool isReadable() { return m_readable; }
+
     // Options
  private:
+    void applyOptions(const QVariantMap& options);
+
     bool m_readable;
 };
 

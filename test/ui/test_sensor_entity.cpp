@@ -36,6 +36,7 @@ class testSensorEntity : public QObject {
     void value_noValue();
     void stateInfo_usesFormattedValue();
     void updateOptions_followsUserOverride();
+    void updateOptions_followsDriverOptions();
 
     void timeSpan_data();
     void timeSpan();
@@ -460,6 +461,42 @@ void testSensorEntity::date_isShownInTheLanguageFormat() {
 
     sensor->updateAttribute(QStringLiteral("value"), QStringLiteral("next week"));
     QCOMPARE(sensor->getValue(), QStringLiteral("next week"));
+}
+
+/**
+ * A sensor read its label, units and range once, when it was loaded: an integration that changed them was only
+ * followed after the entity was deleted or the UI restarted.
+ */
+void testSensorEntity::updateOptions_followsDriverOptions() {
+    QObject parent;
+    auto    sensor = makeSensor(&parent, {{QStringLiteral("custom_label"), QStringLiteral("Room")},
+                                          {QStringLiteral("custom_unit"), QStringLiteral("K")}});
+    QCOMPARE(sensor->getCustomLabel(), QStringLiteral("Room"));
+    QCOMPARE(sensor->getCustomUnit(), QStringLiteral("K"));
+
+    QSignalSpy optionsSpy(sensor, &Sensor::optionsChanged);
+    QSignalSpy unitSpy(sensor, &Sensor::unitChanged);
+
+    sensor->updateOptions(QVariantMap{{QStringLiteral("custom_label"), QStringLiteral("Outside")},
+                                      {QStringLiteral("custom_unit"), QStringLiteral("°F")},
+                                      {QStringLiteral("native_unit"), QStringLiteral("°C")},
+                                      {QStringLiteral("min_value"), -20},
+                                      {QStringLiteral("max_value"), 50}});
+
+    QCOMPARE(sensor->getCustomLabel(), QStringLiteral("Outside"));
+    QCOMPARE(sensor->getCustomUnit(), QStringLiteral("°F"));
+    QCOMPARE(sensor->getNativeUnit(), QStringLiteral("°C"));
+    QCOMPARE(sensor->getMinValue(), -20);
+    QCOMPARE(sensor->getMaxValue(), 50);
+    QCOMPARE(optionsSpy.count(), 1);
+    QCOMPARE(unitSpy.count(), 1);
+
+    // the options are complete: an option that is no longer delivered is gone
+    sensor->updateOptions(QVariantMap());
+    QCOMPARE(sensor->getCustomLabel(), QString());
+    QCOMPARE(sensor->getCustomUnit(), QString());
+    QCOMPARE(sensor->getMinValue(), 0);
+    QCOMPARE(sensor->getMaxValue(), 0);
 }
 
 QTEST_GUILESS_MAIN(testSensorEntity)
