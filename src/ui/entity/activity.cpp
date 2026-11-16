@@ -10,6 +10,12 @@ namespace uc {
 namespace ui {
 namespace entity {
 
+// ready_check is a boolean with the default true: null, or a value that is not a boolean, is the default and
+// must not turn the readiness check off
+static bool readyCheckOption(const QVariant& value) {
+    return value.type() != QVariant::Bool || value.toBool();
+}
+
 Activity::Activity(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
                    const QString &area, const QString &deviceClass, const QStringList &features, bool enabled,
                    QVariantMap attributes, QVariantMap options, const QString &integrationId, QObject *parent)
@@ -65,7 +71,7 @@ Activity::Activity(const QString &id, QVariantMap nameI18n, const QString &langu
     }
 
     if (options.contains("ready_check")) {
-        updateReadyCheck(options.value("ready_check").toBool());
+        updateReadyCheck(readyCheckOption(options.value("ready_check")));
     }
 }
 
@@ -285,7 +291,7 @@ bool Activity::updateOptions(QVariant data) {
     }
 
     if (options.contains("ready_check")) {
-        updateReadyCheck(options.value("ready_check").toBool());
+        updateReadyCheck(readyCheckOption(options.value("ready_check")));
         ok = true;
     }
 

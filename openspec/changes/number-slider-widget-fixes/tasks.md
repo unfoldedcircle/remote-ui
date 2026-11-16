@@ -30,11 +30,11 @@ tests and passes `make test`, `./cpplint.sh` and `./design-check.sh`.
 
 ## 3. Activity pages (findings 11 and 12)
 
-- [ ] 3.1 `SensorWidget.qml`, `SelectWidget.qml`: the unavailable look of the slider and number
+- [x] 3.1 `SensorWidget.qml`, `SelectWidget.qml`: the unavailable look of the slider and number
       widgets, with the design system tokens.
-- [ ] 3.2 `Activity`: `ready_check` is true unless it is the boolean `false`.
-- [ ] 3.3 Unit test for `ready_check` `null`, missing and not a boolean.
-- [ ] 3.4 `CHANGELOG.md`, "Unreleased", "Fixed".
+- [x] 3.2 `Activity`: `ready_check` is true unless it is the boolean `false`.
+- [x] 3.3 Unit test for `ready_check` `null`, missing and not a boolean.
+- [x] 3.4 `CHANGELOG.md`, "Unreleased", "Fixed".
 
 ## 4. Entity options (finding 13)
 

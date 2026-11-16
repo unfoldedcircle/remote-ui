@@ -76,8 +76,12 @@ A slider item and a number item SHALL be vertical only when the item's `size.hei
 - **THEN** it is drawn horizontal
 
 ### Requirement: Unavailable look of page widgets
-Every page widget of an unavailable entity SHALL have the same look: a red link-slash mark of the same size before the label, the label at 50 % opacity, and the value and the other content at 15 % opacity. This SHALL apply to the sensor and select items as it does to the slider and number items.
+Every page widget of an unavailable entity SHALL have the same look: a red link-slash mark of the same size before the label, the label at 50 % opacity, and the value "—" and the other content at 15 % opacity. This SHALL apply to the sensor and select items as it does to the slider and number items.
 
 #### Scenario: Sensor and slider on one page
 - **WHEN** a sensor item and a slider item on the same page show unavailable entities
 - **THEN** both show the red mark, a label at 50 % opacity and "—" at 15 % opacity
+
+#### Scenario: Unavailable select
+- **WHEN** the entity of a select item becomes unavailable
+- **THEN** the item reads "—" instead of its option, with the option and the chevron at 15 % opacity

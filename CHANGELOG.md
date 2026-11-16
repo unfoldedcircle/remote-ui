@@ -38,6 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     moves the value at once.
   - Slider and number widgets are horizontal unless they are taller than wide in grid cells. On a page grid with
     more columns than rows a square widget was drawn vertical.
+- A sensor or select widget of a device that is unavailable is dimmed like a slider or number widget, with the same
+  red mark, and a select widget reads "—" instead of its last option. On the same page an unavailable device looked
+  different depending on the widget ([#67](https://github.com/unfoldedcircle/remote-ui/issues/67)).
+- An activity whose readiness check option is not set is started and stopped with the readiness check. An option
+  that was sent without a value turned the check off ([#67](https://github.com/unfoldedcircle/remote-ui/issues/67)).
 
 ---
 

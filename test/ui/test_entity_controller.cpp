@@ -76,6 +76,9 @@ class testEntityController : public QObject {
 
     void number_failedSetValue_showsTheReportedValueAgain();
 
+    void activity_readyCheck_isOnUnlessItIsFalse_data();
+    void activity_readyCheck_isOnUnlessItIsFalse();
+
  private:
     static uc::core::Entity makeEntity(const QString& entityId);
     static QVariantMap      voiceStartParams(int sessionId);
@@ -717,6 +720,56 @@ void testEntityController::number_failedSetValue_showsTheReportedValueAgain() {
     number->setValue(40);
 
     QCOMPARE(number->getValue(), 10.0);
+}
+
+/**
+ * ready_check is a boolean option with the default true. A core that sends it as null, or a value of another
+ * type, means the default: reading it as false would start and stop the activity without the readiness check.
+ */
+void testEntityController::activity_readyCheck_isOnUnlessItIsFalse_data() {
+    QTest::addColumn<bool>("provided");
+    QTest::addColumn<QVariant>("value");
+    QTest::addColumn<bool>("expected");
+
+    QTest::newRow("missing") << false << QVariant() << true;
+    QTest::newRow("null") << true << QVariant() << true;
+    QTest::newRow("null pointer") << true << QVariant::fromValue(nullptr) << true;
+    QTest::newRow("true") << true << QVariant(true) << true;
+    QTest::newRow("false") << true << QVariant(false) << false;
+    QTest::newRow("not a boolean") << true << QVariant(QStringLiteral("false")) << true;
+    QTest::newRow("a number") << true << QVariant(0) << true;
+}
+
+void testEntityController::activity_readyCheck_isOnUnlessItIsFalse() {
+    QFETCH(bool, provided);
+    QFETCH(QVariant, value);
+    QFETCH(bool, expected);
+
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    QVariantMap options;
+    if (provided) {
+        options.insert(QStringLiteral("ready_check"), value);
+    }
+
+    // the options the activity is loaded with
+    uc::core::Entity entity = makeEntity(QStringLiteral("activity.watch_tv"));
+    entity.type = QStringLiteral("Activity");
+    entity.options = options;
+    controller.onEntityAdded(entity);
+
+    auto activity = qobject_cast<uc::ui::entity::Activity*>(controller.get(entity.id));
+    QVERIFY(activity);
+    QCOMPARE(activity->getReadyCheck(), expected);
+
+    // an option update, after the check was turned off
+    activity->updateOptions(QVariantMap({{QStringLiteral("ready_check"), false}}));
+    QCOMPARE(activity->getReadyCheck(), false);
+    if (provided) {
+        activity->updateOptions(options);
+        QCOMPARE(activity->getReadyCheck(), expected);
+    }
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

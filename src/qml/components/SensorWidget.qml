@@ -35,6 +35,9 @@ ColumnLayout {
     property bool showLabel: true
     property bool showUnit: true
 
+    // the unavailable look of every page widget: the red mark, a dimmed label and a dimmed value (docs/design-system.md)
+    readonly property bool unavailable: entityObj !== null && !entityObj.enabled
+
     function ensureEntityLoaded() {
         entityObj = EntityController.get(entityId);
         evaluateSensor();
@@ -75,11 +78,11 @@ ColumnLayout {
         Components.Icon {
             color: colors.red
             icon: "uc:link-slash"
-            size: 40
-            visible: entityObj && !entityObj.enabled
+            size: ui.unavailableMarkSize
+            visible: sensorWidget.unavailable
         }
 
-        Item { Layout.preferredWidth: (entityObj && !entityObj.enabled) ? 2 : 0 }
+        Item { Layout.preferredWidth: sensorWidget.unavailable ? 2 : 0 }
 
         Text {
             id: sensorLabelText
@@ -88,6 +91,7 @@ ColumnLayout {
             maximumLineCount: 1
             elide: Text.ElideRight
             color: colors.textSecondary
+            opacity: sensorWidget.unavailable ? ui.unavailableLabelOpacity : 1
             verticalAlignment: Text.AlignVCenter
             font: fonts.help()
         }
@@ -105,6 +109,7 @@ ColumnLayout {
         maximumLineCount: 2
         elide: Text.ElideRight
         color: colors.offwhite
+        opacity: sensorWidget.unavailable ? ui.unavailableOpacity : 1
         verticalAlignment: Text.AlignVCenter; horizontalAlignment: Text.AlignHCenter
         font: fonts.primaryFont(36)
     }
