@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+
+---
+
+## v0.85.3 - 2026-11-16
 ### Added
 - Sensors with the new device classes `timestamp`, `date` and `duration` show a readable value instead of the raw one.
   A timestamp is shown as date and time in the time zone and time format of the Remote, e.g. "15.11.26 05:23" instead
@@ -48,8 +52,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   volume steps and simple commands of a media player, and the label, units and range of a sensor. The Remote kept the
   options it had read when the device was loaded until the device was removed or the user interface restarted
   ([#67](https://github.com/unfoldedcircle/remote-ui/issues/67)).
-
----
 
 ## v0.85.2 - 2026-11-12
 ### Added
