@@ -20,10 +20,10 @@ static constexpr float MAX_TEMP_CELSIUS = 30;
 static constexpr float MIN_TEMP_FAHRENHEIT = 50;
 static constexpr float MAX_TEMP_FAHRENHEIT = 86;
 
-Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon, const QString &area,
-                 const QString &deviceClass, const QStringList &features, bool enabled, QVariantMap attributes,
-                 QVariantMap options, const QString &integrationId, const Config::UnitSystems unitSystem,
-                 QObject *parent)
+Climate::Climate(const QString& id, QVariantMap nameI18n, const QString& language, const QString& icon,
+                 const QString& area, const QString& deviceClass, const QStringList& features, bool enabled,
+                 QVariantMap attributes, QVariantMap options, const QString& integrationId,
+                 const Config::UnitSystems unitSystem, QObject* parent)
     : Base(id, nameI18n, language, icon, area, Type::Climate, enabled, attributes, integrationId, false, parent),
       // set defaults for Celsius
       m_temperatureUnit(TemperatureUnit::CELSIUS),
@@ -33,6 +33,7 @@ Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &languag
       m_targetTemperatureLow(MIN_TEMP_CELSIUS),
       m_options(options),
       m_useSystemUnit(true),
+      m_unitSystem(unitSystem),
       m_temperatureLabel(UNIT_LABEL_CELSIUS),
       m_targetTemperatureStep(TEMP_STEP_CELSIUS) {
     qCDebug(lcClimate()) << "Climate entity constructor";
@@ -59,7 +60,27 @@ Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &languag
         m_deviceClass = QVariant::fromValue(ClimateDeviceClass::Climate).toString();
     }
 
-    // options
+    applyOptions(options);
+}
+
+bool Climate::updateOptions(QVariant data) {
+    applyOptions(data.toMap());
+
+    // the unit, the range and the step of the temperatures may all have changed
+    emit targetTemperatureChanged();
+    emit targetTemperatureLowChanged();
+    emit targetTemperatureHighChanged();
+    emit modelChanged();
+    emit fanModesChanged();
+    return true;
+}
+
+void Climate::applyOptions(const QVariantMap& options) {
+    // the core delivers the complete options: a missing option has its default value
+    m_options = options;
+    m_temperatureUnit = TemperatureUnit::CELSIUS;
+    m_useSystemUnit = true;
+
     if (options.contains("temperature_unit")) {
         bool ok = false;
         auto value = options.value("temperature_unit").toString();
@@ -76,16 +97,14 @@ Climate::Climate(const QString &id, QVariantMap nameI18n, const QString &languag
         qCInfo(lcClimate()) << "Climate entity" << m_id
                             << "has no temperature_unit option. Using localization settings.";
         m_temperatureUnit =
-            unitSystem == Config::UnitSystems::Us ? TemperatureUnit::FAHRENHEIT : TemperatureUnit::CELSIUS;
+            m_unitSystem == Config::UnitSystems::Us ? TemperatureUnit::FAHRENHEIT : TemperatureUnit::CELSIUS;
     }
 
     updateTemperaturUnitValues();
-    // the attributes were applied above with the default unit label: the unit is only known now
+    // the attributes are applied with the unit label of that moment: the unit is only known now
     updateCurrentTemperatureInfo();
 
-    if (options.contains("fan_modes")) {
-        m_fanModes = options.value("fan_modes").toStringList();
-    }
+    m_fanModes = options.value("fan_modes").toStringList();
 }
 
 Climate::~Climate() {
@@ -352,6 +371,8 @@ void Climate::onLanguageChangedTypeSpecific()
 }
 
 void Climate::onUnitSystemChanged(Config::UnitSystems unitSystem) {
+    m_unitSystem = unitSystem;
+
     if (!m_useSystemUnit) {
         return;
     }

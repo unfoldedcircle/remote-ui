@@ -322,13 +322,13 @@ class Sensor : public Base {
     Q_PROPERTY(QString unit READ getUnit NOTIFY unitChanged)
 
     // options
-    Q_PROPERTY(QString customLabel READ getCustomLabel CONSTANT)
-    Q_PROPERTY(QString customUnit READ getCustomUnit CONSTANT)
-    Q_PROPERTY(QString nativeUnit READ getNativeUnit CONSTANT)
+    Q_PROPERTY(QString customLabel READ getCustomLabel NOTIFY optionsChanged)
+    Q_PROPERTY(QString customUnit READ getCustomUnit NOTIFY optionsChanged)
+    Q_PROPERTY(QString nativeUnit READ getNativeUnit NOTIFY optionsChanged)
     // effective number of decimal places of a numeric value, -1 for the automatic format
     Q_PROPERTY(int decimals READ getDecimals NOTIFY valueChanged)
-    Q_PROPERTY(int minValue READ getMinValue CONSTANT)
-    Q_PROPERTY(int maxValue READ getMaxValue CONSTANT)
+    Q_PROPERTY(int minValue READ getMinValue NOTIFY optionsChanged)
+    Q_PROPERTY(int maxValue READ getMaxValue NOTIFY optionsChanged)
 
  public:
     explicit Sensor(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
@@ -373,6 +373,7 @@ class Sensor : public Base {
  signals:
     void valueChanged();
     void unitChanged();
+    void optionsChanged();
 
  private:
     // The duration as time span, empty if the sensor is not a duration or the value is not shown as a time span.
@@ -390,6 +391,8 @@ class Sensor : public Base {
     BinarySensorDeviceClass::Enum m_binarySensorDeviceClass;
 
     // options
+    void applyOptions(const QVariantMap& options);
+
     QString m_customLabel;
     QString m_customUnit;
     QString m_nativeUnit;

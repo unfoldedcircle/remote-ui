@@ -42,28 +42,7 @@ Sensor::Sensor(const QString& id, QVariantMap nameI18n, const QString& language,
     m_sensorDeviceClass = SensorDeviceClass::fromString(deviceClass);
     m_deviceClass = SensorDeviceClass::toString(m_sensorDeviceClass);
 
-    // options
-    if (options.contains("custom_label")) {
-        m_customLabel = options.value("custom_label").toString();
-    }
-    // a timestamp and a date have no unit, and a duration is formatted with the unit it is measured in
-    const bool dateTimeClass = m_sensorDeviceClass == SensorDeviceClass::Date ||
-                               m_sensorDeviceClass == SensorDeviceClass::Duration ||
-                               m_sensorDeviceClass == SensorDeviceClass::Timestamp;
-    if (options.contains("custom_unit") && !dateTimeClass) {
-        m_customUnit = options.value("custom_unit").toString();
-    }
-    if (options.contains("native_unit")) {
-        m_nativeUnit = options.value("native_unit").toString();
-    }
-    m_decimals = ValueFormat::decimalsOption(options.value("decimals"));
-    m_userDecimals = ValueFormat::decimalsOption(options.value("user").toMap().value("decimals"));
-    if (options.contains("min_value")) {
-        m_minValue = options.value("min_value").toInt();
-    }
-    if (options.contains("max_value")) {
-        m_maxValue = options.value("max_value").toInt();
-    }
+    applyOptions(options);
 
     // set default unit based on device class
     switch (m_sensorDeviceClass) {
@@ -214,17 +193,29 @@ QString Sensor::timeSpan() const {
     return ValueFormat::timeSpan(m_value.toDouble(), m_unit, m_userDecimals >= 0 ? m_userDecimals : m_decimals);
 }
 
-bool Sensor::updateOptions(QVariant data) {
-    // only the display format follows an option update, the other options are read once
-    const QVariantMap options = data.toMap();
+void Sensor::applyOptions(const QVariantMap& options) {
+    // the core delivers the complete options: a missing option has its default value
+    m_customLabel = options.value("custom_label").toString();
+    // a timestamp and a date have no unit, and a duration is formatted with the unit it is measured in
+    const bool dateTimeClass = m_sensorDeviceClass == SensorDeviceClass::Date ||
+                               m_sensorDeviceClass == SensorDeviceClass::Duration ||
+                               m_sensorDeviceClass == SensorDeviceClass::Timestamp;
+    m_customUnit = dateTimeClass ? QString() : options.value("custom_unit").toString();
+    m_nativeUnit = options.value("native_unit").toString();
     m_decimals = ValueFormat::decimalsOption(options.value("decimals"));
     m_userDecimals = ValueFormat::decimalsOption(options.value("user").toMap().value("decimals"));
+    m_minValue = options.value("min_value").toInt();
+    m_maxValue = options.value("max_value").toInt();
+}
 
+bool Sensor::updateOptions(QVariant data) {
+    applyOptions(data.toMap());
+
+    emit optionsChanged();
     emit valueChanged();
-    if (m_sensorDeviceClass == SensorDeviceClass::Duration) {
-        // the decimals round a duration before it is formatted: it may no longer be shown as a time span
-        emit unitChanged();
-    }
+    // the custom unit may have changed, and the decimals round a duration before it is formatted: it may no
+    // longer be shown as a time span
+    emit unitChanged();
     emit stateInfoChanged();
     return true;
 }

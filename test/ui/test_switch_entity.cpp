@@ -20,6 +20,7 @@ class testUiSwitch : public QObject {
     void toggle_sendsCommandForFeaturesAndState();
     void toggle_followsReportedState();
     void turnOnAndOff_ignoreToggleFeature();
+    void updateOptions_followsReadable();
 
  private:
     static uc::ui::entity::Switch* makeSwitch(QObject* parent, const QStringList& features,
@@ -116,6 +117,19 @@ void testUiSwitch::turnOnAndOff_ignoreToggleFeature() {
     spy.clear();
     entity->turnOff();
     QCOMPARE(sentCommand(spy), QStringLiteral("switch.off"));
+}
+
+void testUiSwitch::updateOptions_followsReadable() {
+    QObject parent;
+    auto    entity = makeSwitch(&parent, {QStringLiteral("on_off")});
+    QCOMPARE(entity->isReadable(), true);
+
+    entity->updateOptions(QVariantMap{{QStringLiteral("readable"), false}});
+    QCOMPARE(entity->isReadable(), false);
+
+    // the options are complete: a missing option has its default
+    entity->updateOptions(QVariantMap());
+    QCOMPARE(entity->isReadable(), true);
 }
 
 QTEST_MAIN(testUiSwitch)

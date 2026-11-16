@@ -104,7 +104,7 @@ class Climate : public Base {
     Q_PROPERTY(float targetTemperatureStep READ getTargetTemperatureStep NOTIFY modelChanged)
     Q_PROPERTY(float maxTemperature READ getMaxTemperature NOTIFY modelChanged)
     Q_PROPERTY(float minTemperature READ getMinTemperature NOTIFY modelChanged)
-    Q_PROPERTY(QStringList fanModes READ getFanModes CONSTANT)
+    Q_PROPERTY(QStringList fanModes READ getFanModes NOTIFY fanModesChanged)
 
     Q_PROPERTY(QVariantList model READ getModel NOTIFY modelChanged)
 
@@ -145,6 +145,7 @@ class Climate : public Base {
     void sendCommand(ClimateCommands::Enum cmd, QVariantMap params);
     void sendCommand(ClimateCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+    bool updateOptions(QVariant data) override;
 
     void onLanguageChangedTypeSpecific() override;
 
@@ -154,12 +155,14 @@ class Climate : public Base {
     void targetTemperatureHighChanged();
     void targetTemperatureLowChanged();
     void fanModeChanged();
+    void fanModesChanged();
     void modelChanged();
 
  public slots:
     void onUnitSystemChanged(Config::UnitSystems unitSystem);
 
  private:
+    void applyOptions(const QVariantMap& options);
     void updateTemperaturUnitValues();
     // builds the temperature part of the state info, with the unit label that is current
     void updateCurrentTemperatureInfo();
@@ -181,6 +184,8 @@ class Climate : public Base {
     // options
     QVariantMap m_options;
     bool        m_useSystemUnit;
+    // the unit of the Remote, used without a temperature_unit option
+    Config::UnitSystems m_unitSystem;
     QString     m_temperatureLabel;
     float       m_targetTemperatureStep;
     float       m_maxTemperature;

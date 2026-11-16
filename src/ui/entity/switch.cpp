@@ -39,10 +39,17 @@ Switch::Switch(const QString &id, QVariantMap nameI18n, const QString &language,
         m_deviceClass = QVariant::fromValue(SwitchDeviceClass::Switch).toString();
     }
 
-    // options
-    if (options.contains("readable")) {
-        m_readable = options.value("readable").toBool();
-    }
+    applyOptions(options);
+}
+
+bool Switch::updateOptions(QVariant data) {
+    applyOptions(data.toMap());
+    return true;
+}
+
+void Switch::applyOptions(const QVariantMap& options) {
+    // the core delivers the complete options: a missing option has its default value
+    m_readable = options.value("readable", true).toBool();
 }
 
 Switch::~Switch() {

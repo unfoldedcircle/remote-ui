@@ -26,6 +26,7 @@ class testLightEntity : public QObject {
     void positionsPerSweep();
     void colorKnown_needsHueAndSaturation();
     void colorKnown_firstReportOfZero();
+    void updateOptions_followsColorTemperatureSteps();
 
  private:
     static uc::ui::entity::Light* makeLight(QObject* parent, const QVariant& steps) {
@@ -188,6 +189,31 @@ void testLightEntity::colorKnown_firstReportOfZero() {
     QCOMPARE(light->isColorKnown(), true);
     QVERIFY(light->getColor().isValid());
     QVERIFY(spy.count() >= 1);
+}
+
+/**
+ * The positions of a colour temperature slider were read once, when the light was loaded.
+ */
+void testLightEntity::updateOptions_followsColorTemperatureSteps() {
+    QObject parent;
+    auto    light = makeLight(&parent, 3);
+    QCOMPARE(light->getColorTempPositionMax(), 2);
+
+    QSignalSpy spy(light, &uc::ui::entity::Light::colorTempPositionMaxChanged);
+
+    light->updateOptions(QVariantMap{{QStringLiteral("color_temperature_steps"), 5}});
+    QCOMPARE(light->getColorTempPositionMax(), 4);
+    QCOMPARE(light->colorTempFromPosition(1), 25);
+    QCOMPARE(spy.count(), 1);
+
+    // unchanged options announce nothing
+    light->updateOptions(QVariantMap{{QStringLiteral("color_temperature_steps"), 5}});
+    QCOMPARE(spy.count(), 1);
+
+    // the options are complete: without the option every value of 0..100 is a position
+    light->updateOptions(QVariantMap());
+    QCOMPARE(light->getColorTempPositionMax(), 100);
+    QCOMPARE(spy.count(), 2);
 }
 
 QTEST_MAIN(testLightEntity)

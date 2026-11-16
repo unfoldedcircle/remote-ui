@@ -43,6 +43,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   different depending on the widget ([#67](https://github.com/unfoldedcircle/remote-ui/issues/67)).
 - An activity whose readiness check option is not set is started and stopped with the readiness check. An option
   that was sent without a value turned the check off ([#67](https://github.com/unfoldedcircle/remote-ui/issues/67)).
+- Options an integration changes for a device are applied right away for every device type, not only for numbers:
+  the temperature unit, range, step and fan modes of a climate device, the colour temperature steps of a light, the
+  volume steps and simple commands of a media player, and the label, units and range of a sensor. The Remote kept the
+  options it had read when the device was loaded until the device was removed or the user interface restarted
+  ([#67](https://github.com/unfoldedcircle/remote-ui/issues/67)).
 
 ---
 

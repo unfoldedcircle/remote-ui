@@ -286,7 +286,7 @@ class MediaPlayer : public Base {
     Q_PROPERTY(QStringList searchMediaClasses READ getSearchMediaClasses NOTIFY searchMediaClassesChanged)
 
     // options
-    Q_PROPERTY(int volumeSteps READ getVolumeSteps CONSTANT)
+    Q_PROPERTY(int volumeSteps READ getVolumeSteps NOTIFY volumeStepsChanged)
 
  public:
     explicit MediaPlayer(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
@@ -393,6 +393,7 @@ class MediaPlayer : public Base {
     void sendCommand(MediaPlayerCommands::Enum cmd);
     void sendSimpleCommand(QString command);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+    bool updateOptions(QVariant data) override;
 
     void onLanguageChangedTypeSpecific() override;
 
@@ -414,6 +415,7 @@ class MediaPlayer : public Base {
     void onSearchMediaError(int requestId, int code, const QString &message);
 
  signals:
+    void volumeStepsChanged();
     void volumeChanged();
     void mutedChanged();
     void mediaDurationChanged();
@@ -473,6 +475,8 @@ class MediaPlayer : public Base {
     int m_lastBrowseRequestId = -1;
 
     // options
+    void applyOptions(const QVariantMap& options);
+
     int         m_volumeSteps;
     QStringList m_simpleCommands;
 

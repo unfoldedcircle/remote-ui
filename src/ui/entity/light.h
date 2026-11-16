@@ -105,7 +105,7 @@ class Light : public Base {
     // options
     // A color temperature slider offers the positions 0..colorTempPositionMax. The attribute and the command are
     // 0..100: with the color_temperature_steps option the positions are spread evenly over that range.
-    Q_PROPERTY(int colorTempPositionMax READ getColorTempPositionMax CONSTANT)
+    Q_PROPERTY(int colorTempPositionMax READ getColorTempPositionMax NOTIFY colorTempPositionMaxChanged)
 
  public:
     explicit Light(const QString &id, QVariantMap nameI18n, const QString &language, const QString &icon,
@@ -153,10 +153,12 @@ class Light : public Base {
     void sendCommand(LightCommands::Enum cmd, QVariantMap params);
     void sendCommand(LightCommands::Enum cmd);
     bool updateAttribute(const QString &attribute, QVariant data) override;
+    bool updateOptions(QVariant data) override;
 
     void onLanguageChangedTypeSpecific() override;
 
  signals:
+    void colorTempPositionMaxChanged();
     void brightnessChanged();
     void colorChanged();
     void colorTempChanged();
@@ -176,6 +178,7 @@ class Light : public Base {
     QString m_stateInfo2;
 
     void calculateQColor();
+    void applyOptions(const QVariantMap& options);
 
     // options
     int m_colorTempPositionMax;
