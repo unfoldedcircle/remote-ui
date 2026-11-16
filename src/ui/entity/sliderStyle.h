@@ -70,7 +70,8 @@ class SliderStyle : public QObject {
 
     /**
      * @brief Relative drag: the value moved by the dragged distance, in proportion to the track length, within the
-     * range. The value is not snapped to a step.
+     * range. A start value outside the range starts at the nearest end, where the bar shows it. The value is not
+     * snapped to a step.
      */
     Q_INVOKABLE static double dragValue(double startValue, double distance, double length, double min, double max);
 

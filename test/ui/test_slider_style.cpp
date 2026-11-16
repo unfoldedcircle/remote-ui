@@ -202,6 +202,11 @@ void testSliderStyle::dragValue_data() {
     QTest::newRow("not snapped") << 0.0 << 1.0 << 400.0 << 0.0 << 255.0 << 0.6375;
     QTest::newRow("negative range") << -5.0 << 100.0 << 200.0 << -10.0 << 10.0 << 5.0;
     QTest::newRow("no length") << 30.0 << 50.0 << 0.0 << 0.0 << 100.0 << 30.0;
+    // a value outside the range is shown at the nearest end: the drag starts there
+    QTest::newRow("above the range, towards min") << 80.0 << -100.0 << 400.0 << 0.0 << 60.0 << 45.0;
+    QTest::newRow("above the range, towards max") << 80.0 << 100.0 << 400.0 << 0.0 << 60.0 << 60.0;
+    QTest::newRow("below the range, towards max") << 5.0 << 100.0 << 400.0 << 20.0 << 60.0 << 30.0;
+    QTest::newRow("below the range, towards min") << 5.0 << -100.0 << 400.0 << 20.0 << 60.0 << 20.0;
 }
 
 void testSliderStyle::dragValue() {

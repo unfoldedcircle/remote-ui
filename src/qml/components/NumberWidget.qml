@@ -14,7 +14,8 @@
  ********************************************************************
  CONFIGURABLE PROPERTIES AND OVERRIDES:
  ********************************************************************
- - width / height: a slider or stepper is vertical if height > width
+ - vertical: the orientation of the slider or stepper. An activity page sets it from the item's size in grid cells;
+   without it the widget is vertical if height > width
  - entityId
  - customText (label), showName
  - displayMode: auto (default), slider or stepper
@@ -42,7 +43,7 @@ Item {
 
     property QtObject entityObj
 
-    readonly property bool vertical: height > width
+    property bool vertical: height > width
     readonly property bool isNumber: entityObj !== null && entityObj.type === EntityTypes.Number
     // resolved by the entity from the widget's display mode and the entity options
     property bool slider: false
@@ -84,6 +85,7 @@ Item {
         sourceComponent: Components.SliderWidget {
             entityId: numberWidget.entityId
             feature: "value"
+            vertical: numberWidget.vertical
             customText: numberWidget.customText
             showName: numberWidget.showName
         }

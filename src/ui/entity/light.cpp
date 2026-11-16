@@ -154,20 +154,25 @@ bool Light::updateAttribute(const QString &attribute, QVariant data) {
             break;
         }
         case LightAttributes::Hue: {
-            int newHue = data.toInt();
+            int        newHue = data.toInt();
+            const bool known = !data.isNull();
 
-            if (m_hue != newHue) {
+            // a first report of 0 changes no value, but makes the colour known
+            if (m_hue != newHue || m_hueKnown != known) {
                 m_hue = newHue;
+                m_hueKnown = known;
                 ok = true;
                 calculateQColor();
             }
             break;
         }
         case LightAttributes::Saturation: {
-            int newSaturation = data.toInt();
+            int        newSaturation = data.toInt();
+            const bool known = !data.isNull();
 
-            if (m_saturation != newSaturation) {
+            if (m_saturation != newSaturation || m_saturationKnown != known) {
                 m_saturation = newSaturation;
+                m_saturationKnown = known;
                 ok = true;
                 calculateQColor();
             }
@@ -218,9 +223,11 @@ void Light::onLanguageChangedTypeSpecific()
 void Light::calculateQColor() {
     QColor color;
     color.setHsv(m_hue, m_saturation, 255);
+    const bool known = m_hueKnown && m_saturationKnown;
 
-    if (m_color != color) {
+    if (m_color != color || m_colorKnown != known) {
         m_color = color;
+        m_colorKnown = known;
         emit colorChanged();
     }
 }

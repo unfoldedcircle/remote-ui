@@ -98,6 +98,8 @@ class Light : public Base {
 
     Q_PROPERTY(int brightness READ getBrightness NOTIFY brightnessChanged)
     Q_PROPERTY(QColor color READ getColor NOTIFY colorChanged)
+    // the light has reported both hue and saturation: until then color is not the colour of the light
+    Q_PROPERTY(bool colorKnown READ isColorKnown NOTIFY colorChanged)
     Q_PROPERTY(int colorTemp READ getColorTemp NOTIFY colorTempChanged)
 
     // options
@@ -113,6 +115,7 @@ class Light : public Base {
 
     int    getBrightness() { return m_brightness; }
     QColor getColor() { return m_color; }
+    bool   isColorKnown() { return m_colorKnown; }
     int    getColorTemp() { return m_colorTemp; }
 
     // options
@@ -162,6 +165,9 @@ class Light : public Base {
  private:
     int    m_hue = 0;
     int    m_saturation = 0;
+    bool   m_hueKnown = false;
+    bool   m_saturationKnown = false;
+    bool   m_colorKnown = false;
     int    m_brightness = 0;
     QColor m_color;
     int    m_colorTemp = 0;

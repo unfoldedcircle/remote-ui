@@ -116,7 +116,7 @@ double SliderStyle::dragValue(double startValue, double distance, double length,
     if (length <= 0 || max <= min) {
         return qBound(min, startValue, qMax(min, max));
     }
-    return qBound(min, startValue + distance / length * (max - min), max);
+    return qBound(min, qBound(min, startValue, max) + distance / length * (max - min), max);
 }
 
 double SliderStyle::snap(double value, double min, double max, double step) {

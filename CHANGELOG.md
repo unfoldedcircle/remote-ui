@@ -28,6 +28,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The slider of the number screen stops at the same values as a slider widget for the same number: counted from
     the minimum, with the maximum as the last stop. With a range that is not a whole number of steps the minimum
     could not be reached by dragging.
+- Slider widget ([#67](https://github.com/unfoldedcircle/remote-ui/issues/67)):
+  - A slider for a feature the device no longer has, for example the position of a cover that lost it, is shown as
+    unsupported with the red mark and "—" instead of as a working slider that sends commands the device refuses.
+  - A slider that follows the colour of a light uses that colour only once the light has reported it. Until then it
+    is filled in the neutral colour instead of black.
+  - A bar whose value lies outside its range, such as a volume bar limited to 60 while the volume is 80, is moved
+    from the end it is shown at. Dragging it towards that end no longer changes the value, and dragging it away
+    moves the value at once.
+  - Slider and number widgets are horizontal unless they are taller than wide in grid cells. On a page grid with
+    more columns than rows a square widget was drawn vertical.
 
 ---
 
