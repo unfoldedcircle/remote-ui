@@ -42,6 +42,12 @@ class testNumberEntity : public QObject {
     void stepCommands_withoutStepParameter();
     void stepCommands_widgetStep();
     void stepCommands_widgetStepNotReadable();
+    void stepCommands_notReadableFollowsExecutedCommandsOnly();
+    void stepCommands_nothingSentAtALimit();
+    void atLimit_data();
+    void atLimit();
+    void setValue_failedCommandEndsTheWait();
+    void setValue_failureOfAnEarlierValueKeepsTheWait();
 
     void updateOptions_followsUserOverrides();
 
@@ -367,6 +373,12 @@ void testNumberEntity::stepCommands_widgetStepNotReadable() {
         &parent, {{QStringLiteral("step"), 5}, {QStringLiteral("max"), 52}, {QStringLiteral("readable"), false}},
         {{QStringLiteral("value"), 50}});
 
+    // the entity controller reports every command the driver executed
+    QObject::connect(number, &Base::command, number,
+                     [number](const QString&, const QString& command, const QVariantMap& params) {
+                         number->commandFinished(command, params, true);
+                     });
+
     // the widget's step, not rounded to the entity's step of 5
     number->decrement(1.5);
     QCOMPARE(number->getValue(), 48.5);
@@ -378,6 +390,142 @@ void testNumberEntity::stepCommands_widgetStepNotReadable() {
     // without a widget step the entity's step
     number->decrement();
     QCOMPARE(number->getValue(), 47.0);
+}
+
+/**
+ * The driver of a write-only number never reports the value, so the value shown has to follow the commands the
+ * driver executed. The entity controller drops a step while an identical one is still being executed, and a
+ * command can fail: neither moved the device.
+ */
+void testNumberEntity::stepCommands_notReadableFollowsExecutedCommandsOnly() {
+    QObject parent;
+    auto    number = makeNumber(&parent, {{QStringLiteral("step"), 5}, {QStringLiteral("readable"), false}},
+                                {{QStringLiteral("value"), 50}});
+
+    // three quick presses: the commands are issued, nothing was executed yet
+    QSignalSpy commandSpy(number, &Base::command);
+    number->increment();
+    number->increment();
+    number->increment();
+    QCOMPARE(commandSpy.count(), 3);
+    QCOMPARE(number->getValue(), 50.0);
+
+    // the controller sent the first one and dropped the other two as duplicates
+    number->commandFinished(QStringLiteral("number.increment"), QVariantMap(), true);
+    QCOMPARE(number->getValue(), 55.0);
+
+    // a failed command moved nothing
+    number->commandFinished(QStringLiteral("number.decrement"), QVariantMap(), false);
+    QCOMPARE(number->getValue(), 55.0);
+
+    // a readable number waits for the reported value
+    auto readable = makeNumber(&parent, {{QStringLiteral("step"), 5}}, {{QStringLiteral("value"), 50}});
+    readable->commandFinished(QStringLiteral("number.increment"), QVariantMap(), true);
+    QCOMPARE(readable->getValue(), 50.0);
+}
+
+void testNumberEntity::stepCommands_nothingSentAtALimit() {
+    QObject parent;
+    auto    number =
+        makeNumber(&parent, {{QStringLiteral("min"), 0}, {QStringLiteral("max"), 10}}, {{QStringLiteral("value"), 10}});
+
+    QSignalSpy commandSpy(number, &Base::command);
+    number->increment();
+    number->increment(2);
+    QCOMPARE(commandSpy.count(), 0);
+
+    number->decrement();
+    QCOMPARE(commandSpy.count(), 1);
+    QCOMPARE(commandSpy.at(0).at(1).toString(), QStringLiteral("number.decrement"));
+
+    number->updateAttribute(QStringLiteral("Value"), 0);
+    number->decrement();
+    QCOMPARE(commandSpy.count(), 1);
+    number->increment();
+    QCOMPARE(commandSpy.count(), 2);
+
+    // a value set by the user that waits for its confirmation counts as the value
+    number->setValue(10);
+    commandSpy.clear();
+    number->increment();
+    QCOMPARE(commandSpy.count(), 0);
+}
+
+void testNumberEntity::atLimit_data() {
+    QTest::addColumn<QVariantMap>("options");
+    QTest::addColumn<QVariant>("value");
+    QTest::addColumn<bool>("atMin");
+    QTest::addColumn<bool>("atMax");
+
+    const QVariantMap range = {{QStringLiteral("min"), -5}, {QStringLiteral("max"), 5}};
+    const QVariantMap noMax = {{QStringLiteral("min"), -5}, {QStringLiteral("max"), QVariant()}};
+    const QVariantMap noMin = {{QStringLiteral("min"), QVariant()}, {QStringLiteral("max"), 5}};
+
+    QTest::newRow("inside") << range << QVariant(0) << false << false;
+    QTest::newRow("at min") << range << QVariant(-5) << true << false;
+    QTest::newRow("at max") << range << QVariant(5) << false << true;
+    QTest::newRow("below min") << range << QVariant(-8) << true << false;
+    QTest::newRow("above max") << range << QVariant(8) << false << true;
+    // a limit that is not set is never reached
+    QTest::newRow("no max") << noMax << QVariant(1000000) << false << false;
+    QTest::newRow("no min") << noMin << QVariant(-1000000) << false << false;
+    // without a value nothing is known about the limits
+    QTest::newRow("no value") << range << QVariant() << false << false;
+}
+
+void testNumberEntity::atLimit() {
+    QFETCH(QVariantMap, options);
+    QFETCH(QVariant, value);
+    QFETCH(bool, atMin);
+    QFETCH(bool, atMax);
+
+    QObject parent;
+    auto    number = makeNumber(&parent, options, {{QStringLiteral("value"), value}});
+
+    QCOMPARE(number->isAtMin(), atMin);
+    QCOMPARE(number->isAtMax(), atMax);
+}
+
+/**
+ * The confirmation time is for a value the driver may still report. After a failed command none can come: the
+ * value set would contradict the error message for up to three seconds.
+ */
+void testNumberEntity::setValue_failedCommandEndsTheWait() {
+    QObject parent;
+    auto    number = makeNumber(&parent, QVariantMap(), {{QStringLiteral("value"), 10}});
+
+    number->setValue(40);
+    QCOMPARE(number->getValue(), 40.0);
+
+    QSignalSpy spy(number, &Number::valueChanged);
+    number->commandFinished(QStringLiteral("number.set_value"), {{QStringLiteral("value"), 40.0}}, false);
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(number->getValue(), 10.0);
+
+    // a command that cannot be sent fails while it is being sent
+    QObject::connect(number, &Base::command, number,
+                     [number](const QString&, const QString& command, const QVariantMap& params) {
+                         number->commandFinished(command, params, false);
+                     });
+    number->setValue(40);
+    QCOMPARE(number->getValue(), 10.0);
+
+    // an executed command keeps the wait for the reported value
+    QObject::disconnect(number, &Base::command, number, nullptr);
+    number->setValue(40);
+    number->commandFinished(QStringLiteral("number.set_value"), {{QStringLiteral("value"), 40.0}}, true);
+    QCOMPARE(number->getValue(), 40.0);
+}
+
+void testNumberEntity::setValue_failureOfAnEarlierValueKeepsTheWait() {
+    QObject parent;
+    auto    number = makeNumber(&parent, QVariantMap(), {{QStringLiteral("value"), 10}});
+
+    number->setValue(40);
+    number->setValue(60);
+    number->commandFinished(QStringLiteral("number.set_value"), {{QStringLiteral("value"), 40.0}}, false);
+
+    QCOMPARE(number->getValue(), 60.0);
 }
 
 void testNumberEntity::updateOptions_followsUserOverrides() {

@@ -14,6 +14,7 @@ import QtQuick.Controls 2.15
 
 import Haptic 1.0
 import Entity.Number 1.0
+import SliderStyle 1.0
 
 import "qrc:/components" as Components
 import "qrc:/components/entities" as EntityComponents
@@ -25,7 +26,7 @@ EntityComponents.BaseDetail {
     function displayText() {
         let value;
         if (entityObj.sliderRepresentation && valueSlider.pressed) {
-            value = entityObj.formatValue(valueSlider.value);
+            value = entityObj.formatValue(valueSlider.snappedValue);
         } else if (entityObj.hasValue && entityObj.enabled) {
             value = entityObj.formattedValue;
         } else {
@@ -102,7 +103,6 @@ EntityComponents.BaseDetail {
         live: true
         width: parent.width - 60
         height: 500
-        snapMode: Slider.SnapAlways
         padding: 0
         orientation: Qt.Vertical
 
@@ -113,8 +113,11 @@ EntityComponents.BaseDetail {
         // rotated by 180 degrees: from is the top, to the bottom
         from: entityObj.max
         to: entityObj.min
-        stepSize: entityObj.step
         value: entityObj.value
+
+        // Slider counts its steps from `from`, which is max here. The positions count from min, with max as the
+        // last one, as on a slider widget: the track follows the finger and the value snaps.
+        readonly property real snappedValue: SliderStyle.snap(value, entityObj.min, entityObj.max, entityObj.step)
 
         background: Item {
             implicitWidth: valueSlider.width; implicitHeight: valueSlider.height
@@ -141,11 +144,15 @@ EntityComponents.BaseDetail {
             implicitWidth: 40; implicitHeight: 40
         }
 
-        onMoved: Haptic.play(Haptic.Bump)
+        onSnappedValueChanged: {
+            if (valueSlider.pressed) {
+                Haptic.play(Haptic.Bump);
+            }
+        }
 
         onPressedChanged: {
             if (!valueSlider.pressed) {
-                entityObj.setValue(value);
+                entityObj.setValue(snappedValue);
             }
         }
 
@@ -174,8 +181,8 @@ EntityComponents.BaseDetail {
 
         Repeater {
             model: [
-                { "icon": "uc:minus", "atLimit": entityObj.hasMin && entityObj.hasValue && entityObj.value <= entityObj.min },
-                { "icon": "uc:plus", "atLimit": entityObj.hasMax && entityObj.hasValue && entityObj.value >= entityObj.max }
+                { "icon": "uc:minus", "atLimit": entityObj.atMin },
+                { "icon": "uc:plus", "atLimit": entityObj.atMax }
             ]
 
             Rectangle {

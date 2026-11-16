@@ -131,6 +131,11 @@ Item {
                 model: numberWidget.vertical ? ["up", "value", "down"] : ["down", "value", "up"]
 
                 Item {
+                    // at a limit that is set the button is disabled and dimmed, as on the number screen. An
+                    // unavailable entity keeps its buttons pressable: the press is refused with a notification.
+                    readonly property bool atLimit: numberWidget.isNumber && !numberWidget.unavailable
+                                                    && (modelData === "up" ? entityObj.atMax : entityObj.atMin)
+
                     Layout.fillWidth: modelData === "value"
                     Layout.fillHeight: true
                     Layout.minimumWidth: 60
@@ -160,7 +165,7 @@ Item {
                         visible: modelData !== "value"
                         radius: ui.cornerRadiusSmall
                         color: stepMouseArea.pressed ? colors.textPrimary : colors.surface
-                        opacity: numberWidget.unavailable ? ui.unavailableOpacity : 1
+                        opacity: numberWidget.unavailable ? ui.unavailableOpacity : (parent.atLimit ? ui.disabledOpacity : 1)
 
                         Components.Icon {
                             anchors.centerIn: parent
@@ -172,7 +177,7 @@ Item {
                         Components.HapticMouseArea {
                             id: stepMouseArea
                             anchors.fill: parent
-                            enabled: numberWidget.isNumber
+                            enabled: numberWidget.isNumber && !parent.parent.atLimit
                             onClicked: numberWidget.step(modelData === "up")
                         }
                     }

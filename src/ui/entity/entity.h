@@ -135,6 +135,17 @@ class Base : public QObject {
         return false;
     }
 
+    /**
+     * @brief A command of this entity has been answered: executed, or failed for good, after the last attempt.
+     * A command that was never sent, such as a duplicate of a command still being executed, is not reported.
+     * @param command the command as sent, with the entity type prefix, e.g. `number.set_value`
+     */
+    virtual void commandFinished(const QString& command, const QVariantMap& params, bool success) {
+        Q_UNUSED(command)
+        Q_UNUSED(params)
+        Q_UNUSED(success)
+    }
+
     QString getIntegration() { return m_integration; }
     QString getSorting() { return m_name.toLower() + m_integration.toLower() + m_id.toLower() + m_area.toLower(); }
     bool    getSelected() { return m_selected; }

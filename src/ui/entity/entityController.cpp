@@ -1083,7 +1083,11 @@ void EntityController::retrySendAttempt(const QString& commandId) {
             }
 
             qCDebug(lcEntityController()) << "Command executed successfully" << commandId << "attempt" << attemptCount;
+            const pendingCommand executed = current.value();
             removePendingCommand(commandId);
+            if (entity::Base* e = m_entities.value(executed.entityId)) {
+                e->commandFinished(executed.command, executed.params, true);
+            }
         },
         // failure
         [this, commandId, id](int code, QString message) { handleCommandFailure(commandId, id, code, message); });
@@ -1126,6 +1130,11 @@ void EntityController::handleCommandFailure(const QString& commandId, int reques
             retrySendAttempt(commandId);
         });
         return;
+    }
+
+    // the command failed for good: the entity stops showing what it expected the command to do
+    if (entity::Base* failed = m_entities.value(live.entityId)) {
+        failed->commandFinished(live.command, live.params, false);
     }
 
     // we ignore voice commands as they have their own error handling
