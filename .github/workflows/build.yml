@@ -98,7 +98,7 @@ jobs:
           modules: 'qtvirtualkeyboard'
           # qtbase: qmake
           # qttools: lrelease & lupdate
-          archives: 'qtbase qtdeclarative qtmultimedia qtquickcontrols2 qtsvg qttools qtwebsockets'
+          archives: 'qtbase qtdeclarative qtgraphicaleffects qtmultimedia qtquickcontrols2 qtsvg qttools qtwebsockets'
           cache: true
           cache-key-prefix: ${{ env.QT_VERSION }}-${{ matrix.config.artifact }}
 
