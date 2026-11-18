@@ -15,6 +15,7 @@
  - text
  - highlight
  - trigger
+ - pressed (read only): the finger is on the button, e.g. to invert an icon put on it like the label
 **/
 
 import QtQuick 2.15
@@ -57,6 +58,7 @@ Rectangle {
     property alias text: title.text
     property bool highlight: activeFocus && ui.keyNavigationActive
     property var trigger
+    readonly property alias pressed: mouseArea.pressed
 
     function activate() {
         if (!button.enabled) {

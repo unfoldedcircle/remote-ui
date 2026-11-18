@@ -266,9 +266,6 @@ add_executable (testEntityController
     "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
     )
 
-# uc::Config reports the UI version in its settings
-target_compile_definitions(testEntityController PRIVATE APP_VERSION="test")
-
 add_test(NAME testEntityController
          COMMAND testEntityController)
 

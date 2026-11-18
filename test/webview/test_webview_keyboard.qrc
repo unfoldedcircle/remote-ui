@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/test">
+        <file alias="KeyboardHost.qml">qml/KeyboardHost.qml</file>
+    </qresource>
+</RCC>
