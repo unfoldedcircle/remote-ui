@@ -22,6 +22,7 @@ Popup {
 
     onClosed: {
         buttonNavigation.releaseControl();
+        console.info("Charging screen closed, back to", ui.inputController.activeItem);
     }
 
     Components.ButtonNavigation {

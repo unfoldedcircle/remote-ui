@@ -346,7 +346,18 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
   object tree. Keep such hooks out of commits.
 - Watch the QML log for `Unable to assign a function`, `Binding loop detected`,
   `ReferenceError`; each of these hid a real breakage during this work. `uc.ui.input` at info
-  level logs every owner change (`ACTIVE CONTROL -> …`), at debug level every key with its owner.
+  level logs every owner change (`ACTIVE CONTROL -> <item> <its QML file>`; a popup's content item
+  is named by the file of its first QML child) and every BACK and HOME press with its owner, at
+  debug level every other key with its owner.
+- The screen stack logs at info level as well (`qml` category): the screens main.qml loads into
+  its second and third containers and closes (`Loading second container …`, `Third container
+  closed …`), the charging screen with the reason it came up and the owner it returns to, and the
+  main screen's state and opacity whenever it gets the input back or HOME reaches it. Every entity
+  screen hides the main screen while it is open (`entities/BaseDetail.qml`); one opened on top of
+  another screen shows it again only if it found it shown. A main screen that owns the input with
+  nothing open on top of it while it is hidden is a black screen that no key and no touch leaves:
+  it shows itself and logs the warning `Main screen hidden with nothing open on top of it`, which
+  names a path that is still broken.
 
 ## 9. Checklist for a new keypad-navigable screen
 

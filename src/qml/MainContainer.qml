@@ -267,6 +267,34 @@ Item {
 //        }
 //    }
     
+    // The main screen is hidden while an entity screen covers it (entities/BaseDetail.qml). When it owns the input with
+    // nothing open on top of it, it must be shown: hidden, it is a black screen, disabled for touches, that no key
+    // leaves. Whatever left it hidden, it is shown here, with a warning that names the state for the log.
+    function showWhenUncovered() {
+        if (ui.inputController.activeItem !== mainContainerRoot) {
+            return;
+        }
+
+        const covered = containerSecond.loader.active || containerThird.loaderThird.active;
+        console.info("Main screen owns the input: state", mainContainerRoot.state, "opacity", mainContainerRoot.opacity,
+                     covered ? "- a screen is open on top" : "");
+
+        if (mainContainerRoot.state !== "visible" && !covered) {
+            console.warn("Main screen hidden with nothing open on top of it: showing it");
+            mainContainerRoot.state = "visible";
+        }
+    }
+
+    Connections {
+        target: ui.inputController
+        ignoreUnknownSignals: true
+
+        // deferred: the input comes back while the screen on top is still being destroyed
+        function onActiveItemChanged() {
+            Qt.callLater(mainContainerRoot.showWhenUncovered);
+        }
+    }
+
     // Edit mode (reorder, entered from the page menu): DPAD_MIDDLE picks the selected tile up
     // and drops it, UP / DOWN move a picked-up tile, LEFT / RIGHT are ignored (a page change ends
     // the edit mode), BACK leaves the edit mode and saves the order.
@@ -460,6 +488,8 @@ Item {
             },
             "HOME": {
                 "pressed": function() {
+                    mainContainerRoot.showWhenUncovered();
+
                     if (mainContainerBlockingMouseArea.enabled) {
                         mainContainerRoot.closeMenu();
                         return;

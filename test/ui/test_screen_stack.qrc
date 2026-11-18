@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/test">
+        <file alias="ScreenStackHost.qml">qml/ScreenStackHost.qml</file>
+    </qresource>
+</RCC>

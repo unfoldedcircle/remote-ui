@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Fixed
+- The remote no longer ends up on a black screen that no button and no touch leaves. Closing an entity screen that
+  was opened on top of another screen, such as an entity from an activity's list, could leave the main screen hidden,
+  for example when the activity had been turned off with POWER in the meantime. HOME, and returning from the charging
+  screen, now always show the main screen.
 
 ---
 
