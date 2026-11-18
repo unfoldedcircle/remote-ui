@@ -60,6 +60,8 @@ UC_WEBVIEW_CHECK_SIGNATURE(when_rendered, uc_webview_when_rendered);
 UC_WEBVIEW_CHECK_SIGNATURE(create_sized, uc_webview_new_sized);
 UC_WEBVIEW_CHECK_SIGNATURE(set_magnification, uc_webview_set_magnification);
 UC_WEBVIEW_CHECK_SIGNATURE(get_magnification, uc_webview_get_magnification);
+UC_WEBVIEW_CHECK_SIGNATURE(request_reply, uc_webview_request_reply);
+UC_WEBVIEW_CHECK_SIGNATURE(request_auth, uc_webview_request_auth);
 
 #undef UC_WEBVIEW_CHECK_SIGNATURE
 
@@ -153,6 +155,10 @@ bool WebViewLibrary::load() {
         qCInfo(lcWebView()) << m_library.fileName()
                             << "has no uc_webview_set_magnification (older than 0.6.0): no pinch zoom";
     }
+    if (!m_functions.request_reply) {
+        qCInfo(lcWebView()) << m_library.fileName()
+                            << "has no uc_webview_request_reply (older than 0.7.0): no dialogs or logins of the page";
+    }
     return true;
 }
 
@@ -207,6 +213,11 @@ bool WebViewLibrary::resolveAll(QString *missing) {
         reinterpret_cast<decltype(m_functions.set_magnification)>(m_library.resolve("uc_webview_set_magnification"));
     m_functions.get_magnification =
         reinterpret_cast<decltype(m_functions.get_magnification)>(m_library.resolve("uc_webview_get_magnification"));
+    // library 0.7.0: uc_webview_request_reply() is the one the header names for detecting it
+    m_functions.request_reply =
+        reinterpret_cast<decltype(m_functions.request_reply)>(m_library.resolve("uc_webview_request_reply"));
+    m_functions.request_auth =
+        reinterpret_cast<decltype(m_functions.request_auth)>(m_library.resolve("uc_webview_request_auth"));
     return ok;
 }
 
