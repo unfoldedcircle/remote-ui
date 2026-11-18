@@ -56,6 +56,8 @@
         <file alias="components/Prose.qml">../../src/qml/components/Prose.qml</file>
         <file alias="components/FormDialog.qml">../../src/qml/components/FormDialog.qml</file>
         <file alias="components/ScrollIndicator.qml">../../src/qml/components/ScrollIndicator.qml</file>
+        <file alias="components/WebViewDialog.qml">../../src/qml/components/WebViewDialog.qml</file>
+        <file alias="components/WebViewLogin.qml">../../src/qml/components/WebViewLogin.qml</file>
         <file alias="settings/Page.qml">../../src/qml/settings/Page.qml</file>
         <file alias="settings/About.qml">../../src/qml/settings/About.qml</file>
         <file alias="settings/about/AboutPage.qml">../../src/qml/settings/about/AboutPage.qml</file>
