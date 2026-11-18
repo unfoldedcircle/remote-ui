@@ -100,6 +100,16 @@ ApplicationWindow {
             containerSecond.loader.active = false;
             root.isActivityOpen = false;
         }
+
+        // A screen on top moves the second container out of view (containerSecondHideAnimation), and only its closing
+        // moves it back. A dropped screen does not close: the next screen would open out of view, a black screen.
+        containerSecondHideAnimation.complete();
+        containerSecondShowAnimation.complete();
+        if (containerSecond.x !== 0 || containerSecond.scale !== 1) {
+            console.info("Second container moved back into view");
+            containerSecond.x = 0;
+            containerSecond.scale = 1;
+        }
     }
 
     /**

@@ -1,10 +1,10 @@
 // Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// The screen stack of main.qml with the real main screen (MainContainer.qml), the real profile page and settings
-// (Profile.qml, settings/Settings.qml), a real entity screen (the button screen, a BaseDetail) for a real
-// entity::Button and the real charging screen, in copies of main.qml's containers (qml/ScreenStackHost.qml), with the
-// real InputController behind ui.inputController. The keys are sent to the window like the device delivers them.
+// The screen stack of the real main.qml: its containers with the real main screen (MainContainer.qml), the real
+// profile page and settings (Profile.qml, settings/Settings.qml), a real entity screen (the button screen, a
+// BaseDetail) for a real entity::Button and the real charging screen, with the real InputController behind
+// ui.inputController and stubs for the rest. The keys are sent to the window like the device delivers them.
 //
 // Regression: a black screen after HOME that no key and no touch left. An entity screen opened on top of another
 // screen (main.qml's third container, open(true)) hid the main screen when it opened and hid it again when it closed,
@@ -13,11 +13,18 @@
 // profile page and the main screen owned the input while it was hidden - transparent, shrunk and disabled for
 // touches. The charging screen returned to it as well. The same happened when the screen
 // below closed first (an activity turned off from its POWER button while an entity of its menu was open).
+//
+// Regression: an activity started through the Core-API, with "Open activities started with the API" on, replaced the
+// open screens while an entity screen was open on top of an activity's screen, and opened out of view: the screen on
+// top had moved the second container aside, and only its closing moved it back. A black screen until BACK, and the
+// next screens of the container out of view as well.
 
+#include <QQmlApplicationEngine>
 #include <QQmlContext>
 #include <QQmlEngine>
+#include <QQmlExpression>
 #include <QQuickItem>
-#include <QQuickView>
+#include <QQuickWindow>
 #include <QStringListModel>
 #include <QTime>
 #include <QTimer>
@@ -82,6 +89,11 @@ class UiStub : public QObject {
     Q_PROPERTY(int cornerRadiusSmall READ cornerRadiusSmall CONSTANT)
     Q_PROPERTY(int cornerRadiusLarge READ cornerRadiusLarge CONSTANT)
     Q_PROPERTY(QTime time READ time CONSTANT)
+    Q_PROPERTY(double globalBrightness READ zero CONSTANT)
+    Q_PROPERTY(double ratio READ one CONSTANT)
+    // hides the button simulator window of main.qml
+    Q_PROPERTY(bool showRegulatoryInfo READ yes CONSTANT)
+    Q_PROPERTY(QObject *notification READ notification CONSTANT)
 
  public:
     explicit UiStub(QObject *parent = nullptr)
@@ -98,6 +110,9 @@ class UiStub : public QObject {
     int      cornerRadiusSmall() const { return 10; }
     int      cornerRadiusLarge() const { return 20; }
     QTime    time() const { return QTime(12, 0); }
+    double   zero() const { return 0; }
+    double   one() const { return 1; }
+    QObject *notification() { return nullptr; }
 
     Q_INVOKABLE QString createQrCode(const QString &) { return QString(); }
     Q_INVOKABLE void    createNotification(const QString &, bool = false) {}
@@ -112,6 +127,8 @@ class UiStub : public QObject {
  signals:
     void editModeChanged();
     void showHelpChanged();
+    // main.qml loads the main screen, the start-up screen closes
+    void configLoaded();
 
  private:
     InputController  m_input;
@@ -126,7 +143,11 @@ class UiStub : public QObject {
 class ResourceStub : public QObject {
     Q_OBJECT
  public:
-    Q_INVOKABLE QString     getIcon(const QString &, const QString &) { return QString(); }
+    Q_INVOKABLE QString getIcon(const QString &id, const QString &suffix = QString()) {
+        Q_UNUSED(id)
+        Q_UNUSED(suffix)
+        return QString();
+    }
     Q_INVOKABLE QSize       getIconSize(const QString &, int, int) { return QSize(-1, -1); }
     Q_INVOKABLE QStringList getIconList() { return {}; }
     Q_INVOKABLE QStringList getCustomIconList() { return {}; }
@@ -153,12 +174,16 @@ class ConfigStub : public QObject {
     Q_PROPERTY(bool showBatteryPercentage READ no CONSTANT)
     Q_PROPERTY(bool showBatteryEveryWhere READ no CONSTANT)
     Q_PROPERTY(QString currentProfileId READ empty CONSTANT)
+    Q_PROPERTY(bool openActivityOnApiStart READ yes CONSTANT)
+    Q_PROPERTY(QString language READ language CONSTANT)
+    Q_PROPERTY(QString voiceAssistantId READ empty CONSTANT)
 
  public:
     bool    yes() const { return true; }
     bool    no() const { return false; }
     QString empty() const { return QString(); }
     QString pin() const { return QStringLiteral("0000"); }
+    QString language() const { return QStringLiteral("en_US"); }
 
     Q_INVOKABLE void    getConfig() {}
     Q_INVOKABLE void    generateNewWebConfigPin() {}
@@ -191,16 +216,59 @@ class WifiStub : public QObject {
     NetworkStub m_network;
 };
 
+// Battery: the power supply brings up the charging screen (main.qml)
 class BatteryStub : public QObject {
     Q_OBJECT
     Q_PROPERTY(int level READ level CONSTANT)
     Q_PROPERTY(bool isCharging READ yes CONSTANT)
     Q_PROPERTY(bool low READ no CONSTANT)
+    Q_PROPERTY(bool powerSupply MEMBER m_powerSupply NOTIFY powerSupplyChanged)
 
  public:
     int  level() const { return 80; }
     bool yes() const { return true; }
     bool no() const { return false; }
+
+    void setPowerSupply(bool value) {
+        m_powerSupply = value;
+        emit powerSupplyChanged(value);
+    }
+
+    // the instance of the current engine
+    static BatteryStub *s_current;
+    static QObject     *qmlInstance(QQmlEngine *, QJSEngine *) {
+        s_current = new BatteryStub;
+        return s_current;
+    }
+
+ signals:
+    void powerSupplyChanged(bool value);
+
+ private:
+    bool m_powerSupply = false;
+};
+
+BatteryStub *BatteryStub::s_current = nullptr;
+
+// Power: main.qml shows its window while the display is on
+class PowerStub : public QObject {
+    Q_OBJECT
+    Q_PROPERTY(bool windowShown READ yes CONSTANT)
+
+ public:
+    bool yes() const { return true; }
+
+ signals:
+    void powerModeChanged(int fromPowerMode, int toPowerMode);
+};
+
+class SoundEffectsStub : public QObject {
+    Q_OBJECT
+ public:
+    enum Effects { BatteryCharge = 0, Confirm = 1, Error = 2 };
+    Q_ENUM(Effects)
+
+    Q_INVOKABLE void play(int) {}
 };
 
 class SoftwareUpdateStub : public QObject {
@@ -211,17 +279,41 @@ class SoftwareUpdateStub : public QObject {
     bool no() const { return false; }
 };
 
-// Entity.Controller: BaseDetail fetches the entity when its screen opens
+// Entity.Controller: BaseDetail fetches the entity when its screen opens, main.qml opens an activity the core reports
+// as started through the API. Every entity of the test has the button screen.
 class EntityControllerStub : public QObject {
     Q_OBJECT
     Q_PROPERTY(bool resumePending READ no CONSTANT)
+    Q_PROPERTY(bool resumeWindow READ no CONSTANT)
+    Q_PROPERTY(int resumeTimeout READ zero CONSTANT)
     Q_PROPERTY(bool commandInProgress READ no CONSTANT)
 
  public:
     bool                 no() const { return false; }
+    int                  zero() const { return 0; }
     Q_INVOKABLE void     refreshEntity(const QString &) {}
-    Q_INVOKABLE QObject *get(const QString &) { return nullptr; }
+    Q_INVOKABLE QObject *get(const QString &id) { return s_entities.value(id); }
+    Q_INVOKABLE QUrl     screenUrl(QObject *) {
+        return QUrl(QStringLiteral("qrc:/components/entities/button/deviceclass/Button.qml"));
+    }
+    Q_INVOKABLE int checkSequenceReadiness(const QString &, const QString &) { return -1; }
+
+    // the entities of the current test, owned by the test
+    static QHash<QString, QObject *> s_entities;
+
+    // the instance of the current engine
+    static EntityControllerStub *s_current;
+    static QObject              *qmlInstance(QQmlEngine *, QJSEngine *) {
+        s_current = new EntityControllerStub;
+        return s_current;
+    }
+
+ signals:
+    void activityStartedExternally(QString entityId);
 };
+
+QHash<QString, QObject *> EntityControllerStub::s_entities;
+EntityControllerStub     *EntityControllerStub::s_current = nullptr;
 
 class IntegrationControllerStub : public QObject {
     Q_OBJECT
@@ -295,30 +387,50 @@ class testScreenStack : public QObject {
     void aScreenOnTheMainScreenShowsItWhenItCloses();
     void aScreenOnTopOfAnEntityScreenKeepsTheMainScreenHidden();
     void aScreenOnTopOfAnEntityScreenThatClosedFirstLeavesTheMainScreenShown();
+    void anActivityStartedThroughTheApiOverAScreenOnTopOpensInView();
     void homeShowsAHiddenMainScreen();
     void theChargingScreenReturnsToAShownMainScreen();
 
  private:
-    QQuickItem *hostItem(const char *name) const;
-    QQuickItem *mainScreen() const { return hostItem("containerMainItem"); }
+    Button     *createEntity(const QString &id);
+    QQuickItem *mainScreen() const;
+    // main.qml's containerSecond and containerThird (Popups) and their loaders
+    QObject    *container(const char *name) const { return window->findChild<QObject *>(name); }
+    QObject    *loader(const char *name, const char *alias) const;
+    QObject    *secondLoader() const { return loader("containerSecond", "loader"); }
+    QObject    *thirdLoader() const { return loader("containerThird", "loaderThird"); }
+    QQuickItem *secondScreen() const {
+        return qobject_cast<QQuickItem *>(secondLoader()->property("item").value<QObject *>());
+    }
+    QQuickItem *thirdScreen() const {
+        return qobject_cast<QQuickItem *>(thirdLoader()->property("item").value<QObject *>());
+    }
+    bool        secondActive() const { return secondLoader()->property("active").toBool(); }
+    bool        thirdActive() const { return thirdLoader()->property("active").toBool(); }
+    QObject    *chargingScreen() const;
     QObject    *owner() const { return ui->input()->activeItem(); }
     bool        ownerIs(const char *qmlType) const;
     void        pressButton(Qt::Key key);
     void        tap(QQuickItem *item);
+    bool        call(const QString &expression, const QVariantMap &arguments);
+    bool        load(const QString &source, Button *screenEntity, const char *function = "loadSecondContainer");
+    QQuickItem *openEntityScreen(Button *screenEntity);
     void        openProfileSettings();
     QQuickItem *openScreenOnTop();
     void        closeScreen(QQuickItem *screen, bool withCloseButton);
     void        verifyMainScreenShownAndInFront();
     bool        shownWarning() const { return warnings.contains(kShownWarning); }
 
-    QQuickView  *view = nullptr;
-    UiStub      *ui = nullptr;
-    ResourceStub resource;
-    Colors       colors;
-    Fonts        fonts;
-    QQuickItem  *host = nullptr;
-    Button      *entity = nullptr;
-    Button      *entityBelow = nullptr;
+    QQmlApplicationEngine *engine = nullptr;
+    QQuickWindow          *window = nullptr;
+    QObject               *stackRoot = nullptr;
+    UiStub                *ui = nullptr;
+    ResourceStub           resource;
+    Colors                 colors;
+    Fonts                  fonts;
+    Button                *entity = nullptr;
+    Button                *entityBelow = nullptr;
+    Button                *activity = nullptr;
 };
 
 void testScreenStack::initTestCase() {
@@ -330,57 +442,82 @@ void testScreenStack::cleanupTestCase() {
     qInstallMessageHandler(previousHandler);
 }
 
+Button *testScreenStack::createEntity(const QString &id) {
+    auto *created = new Button(id, QVariantMap{{QStringLiteral("en"), id}}, QStringLiteral("en"), QString(), QString(),
+                               QString(), QStringList(), true, available(), QStringLiteral("test"), this);
+    QQmlEngine::setObjectOwnership(created, QQmlEngine::CppOwnership);
+    EntityControllerStub::s_entities.insert(id, created);
+    return created;
+}
+
 void testScreenStack::init() {
     warnings.clear();
     ui = new UiStub(this);
-    entity = new Button(QStringLiteral("button.top"), QVariantMap{{QStringLiteral("en"), QStringLiteral("Top")}},
-                        QStringLiteral("en"), QString(), QString(), QString(), QStringList(), true, available(),
-                        QStringLiteral("test"), this);
-    entityBelow =
-        new Button(QStringLiteral("button.below"), QVariantMap{{QStringLiteral("en"), QStringLiteral("Below")}},
-                   QStringLiteral("en"), QString(), QString(), QString(), QStringList(), true, available(),
-                   QStringLiteral("test"), this);
-    QQmlEngine::setObjectOwnership(entity, QQmlEngine::CppOwnership);
-    QQmlEngine::setObjectOwnership(entityBelow, QQmlEngine::CppOwnership);
+    entity = createEntity(QStringLiteral("button.top"));
+    entityBelow = createEntity(QStringLiteral("button.below"));
+    activity = createEntity(QStringLiteral("button.activity"));
 
-    view = new QQuickView;
-    view->rootContext()->setContextProperty("ui", ui);
-    view->rootContext()->setContextProperty("colors", &colors);
-    view->rootContext()->setContextProperty("fonts", &fonts);
-    view->rootContext()->setContextProperty("resource", &resource);
-    view->setResizeMode(QQuickView::SizeRootObjectToView);
-    view->resize(480, 850);
-    // the button simulator of the desktop: the keys of the computer keyboard (docs/key-navigation.md section 8)
-    ui->input()->setSource(view);
-    view->setSource(QUrl("qrc:/test/ScreenStackHost.qml"));
-    QStringList errors;
-    for (const QQmlError &error : view->errors()) {
-        errors.append(error.toString());
-    }
-    QVERIFY2(view->status() == QQuickView::Ready, qPrintable(errors.join("\n")));
-    view->show();
-    QVERIFY(QTest::qWaitForWindowExposed(view));
-    host = view->rootObject();
+    engine = new QQmlApplicationEngine;
+    engine->rootContext()->setContextProperty("ui", ui);
+    engine->rootContext()->setContextProperty("colors", &colors);
+    engine->rootContext()->setContextProperty("fonts", &fonts);
+    engine->rootContext()->setContextProperty("resource", &resource);
+    engine->load(QUrl("qrc:/main.qml"));
+    QVERIFY(!engine->rootObjects().isEmpty());
+    window = qobject_cast<QQuickWindow *>(engine->rootObjects().first());
+    QVERIFY(window);
+    // the size of the display, which main.qml sets as the window's minimum and maximum: the offscreen platform does
+    // not apply them
+    window->resize(480, 850);
+    stackRoot = window->findChild<QObject *>("root");
+    QVERIFY(stackRoot);
+    // the on-screen keyboard out of view below the display, where the UI controller puts it (uiController.cpp)
+    QObject *keyboard = window->findChild<QObject *>("keyboard");
+    QVERIFY(keyboard);
+    keyboard->setProperty("hiddenY", 850);
+    keyboard->setProperty("visibleY", 850 - keyboard->property("height").toInt() + 2);
+    QVERIFY(container("containerSecond") && container("containerThird"));
+    QVERIFY(QTest::qWaitForWindowExposed(window));
 
-    QVERIFY(mainScreen());
+    // the configuration arrived: main.qml loads the main screen
+    emit ui->configLoaded();
+    QTRY_VERIFY(mainScreen());
     QTRY_COMPARE(owner(), static_cast<QObject *>(mainScreen()));
     QCOMPARE(mainScreen()->state(), QStringLiteral("visible"));
 }
 
 void testScreenStack::cleanup() {
-    delete view;
-    view = nullptr;
-    host = nullptr;
+    delete engine;
+    engine = nullptr;
+    window = nullptr;
+    stackRoot = nullptr;
+    EntityControllerStub::s_entities.clear();
     delete entity;
     entity = nullptr;
     delete entityBelow;
     entityBelow = nullptr;
+    delete activity;
+    activity = nullptr;
     delete ui;
     ui = nullptr;
 }
 
-QQuickItem *testScreenStack::hostItem(const char *name) const {
-    return qobject_cast<QQuickItem *>(host->property(name).value<QObject *>());
+QQuickItem *testScreenStack::mainScreen() const {
+    return qobject_cast<QQuickItem *>(stackRoot->property("containerMainItem").value<QObject *>());
+}
+
+QObject *testScreenStack::loader(const char *name, const char *alias) const {
+    return container(name)->property(alias).value<QObject *>();
+}
+
+QObject *testScreenStack::chargingScreen() const {
+    for (QObject *object : window->findChildren<QObject *>()) {
+        if (QString::fromLatin1(object->metaObject()->className())
+                .startsWith(QLatin1String("ChargingScreen_QMLTYPE"))) {
+            return object;
+        }
+    }
+    return nullptr;
 }
 
 bool testScreenStack::ownerIs(const char *qmlType) const {
@@ -391,22 +528,64 @@ bool testScreenStack::ownerIs(const char *qmlType) const {
 // controller (event filter, path 1) and the focused item (path 2) see it.
 void testScreenStack::pressButton(Qt::Key key) {
     QKeyEvent press(QEvent::KeyPress, key, Qt::NoModifier);
-    QCoreApplication::sendEvent(view, &press);
+    QCoreApplication::sendEvent(window, &press);
     QKeyEvent release(QEvent::KeyRelease, key, Qt::NoModifier);
-    QCoreApplication::sendEvent(view, &release);
+    QCoreApplication::sendEvent(window, &release);
 }
 
 void testScreenStack::tap(QQuickItem *item) {
     const QPoint center = item->mapToScene(QPointF(item->width() / 2, item->height() / 2)).toPoint();
-    QTest::mouseClick(view, Qt::LeftButton, Qt::NoModifier, center);
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, center);
+}
+
+// Evaluates a JavaScript expression in main.qml, with the arguments as names: its functions take default
+// arguments, which leaves them out of the meta-object.
+bool testScreenStack::call(const QString &expression, const QVariantMap &arguments) {
+    QQmlContext context(qmlContext(window));
+    for (auto i = arguments.cbegin(); i != arguments.cend(); ++i) {
+        context.setContextProperty(i.key(), i.value());
+    }
+    QQmlExpression evaluation(&context, window, expression);
+    evaluation.evaluate();
+    if (evaluation.hasError()) {
+        qWarning() << evaluation.error().toString();
+        return false;
+    }
+    return true;
+}
+
+// main.qml loadSecondContainer() or loadThirdContainer(), with the parameters of an entity screen
+bool testScreenStack::load(const QString &source, Button *screenEntity, const char *function) {
+    QVariantMap parameters;
+    if (screenEntity) {
+        parameters.insert(QStringLiteral("entityId"), screenEntity->getId());
+        parameters.insert(QStringLiteral("entityObj"), QVariant::fromValue<QObject *>(screenEntity));
+    }
+    return call(QString::fromLatin1(function) + QStringLiteral("(testSource, testParameters)"),
+                {{QStringLiteral("testSource"), QUrl(source)}, {QStringLiteral("testParameters"), parameters}});
+}
+
+// An entity screen as a page tile opens it (Page.qml, entities/Base.qml): in the second container. It slides up.
+QQuickItem *testScreenStack::openEntityScreen(Button *screenEntity) {
+    if (!load(QStringLiteral("qrc:/components/entities/button/deviceclass/Button.qml"), screenEntity)) {
+        return nullptr;
+    }
+    if (!QTest::qWaitFor([&]() { return secondScreen() && owner() == secondScreen(); })) {
+        return nullptr;
+    }
+    QQuickItem *screen = secondScreen();
+    if (!QTest::qWaitFor([&]() { return screen->y() == 0.0; })) {
+        return nullptr;
+    }
+    return screen;
 }
 
 // Profiles, then Settings with the keypad: the profile page as the status bar's profile icon opens it, DOWN shows the
 // selection on its first entry, DOWN moves it to Settings, OK opens Settings.
 void testScreenStack::openProfileSettings() {
-    QVERIFY(QMetaObject::invokeMethod(host, "openProfilePage"));
+    QVERIFY(load(QStringLiteral("qrc:/components/Profile.qml"), nullptr));
     QTRY_VERIFY(ownerIs("Profile_QMLTYPE"));
-    QQuickItem *profile = hostItem("secondScreen");
+    QQuickItem *profile = secondScreen();
     QVERIFY(profile);
     // the menu fades in
     QTRY_COMPARE(profile->property("settingsSwipeView").value<QQuickItem *>()->opacity(), 1.0);
@@ -421,14 +600,13 @@ void testScreenStack::openProfileSettings() {
 // An entity screen on top of the screen that is open, as an activity's menu opens it (main.qml loadThirdContainer()).
 QQuickItem *testScreenStack::openScreenOnTop() {
     QObject *ownerBefore = owner();
-    if (!QMetaObject::invokeMethod(host, "openEntityScreenOnTop",
-                                   Q_ARG(QVariant, QVariant::fromValue<QObject *>(entity)))) {
+    if (!load(QStringLiteral("qrc:/components/entities/button/deviceclass/Button.qml"), entity, "loadThirdContainer")) {
         return nullptr;
     }
-    if (!QTest::qWaitFor([&]() { return hostItem("thirdScreen") && owner() == hostItem("thirdScreen"); })) {
+    if (!QTest::qWaitFor([&]() { return thirdScreen() && owner() == thirdScreen(); })) {
         return nullptr;
     }
-    QQuickItem *screen = hostItem("thirdScreen");
+    QQuickItem *screen = thirdScreen();
     // the third container slides in
     if (!QTest::qWaitFor([&]() { return screen->mapToScene(QPointF(0, 0)) == QPointF(0, 0); })) {
         return nullptr;
@@ -454,8 +632,8 @@ void testScreenStack::closeScreen(QQuickItem *screen, bool withCloseButton) {
 
 void testScreenStack::verifyMainScreenShownAndInFront() {
     QTRY_COMPARE(owner(), static_cast<QObject *>(mainScreen()));
-    QVERIFY(!host->property("secondActive").toBool());
-    QVERIFY(!host->property("thirdActive").toBool());
+    QVERIFY(!secondActive());
+    QVERIFY(!thirdActive());
     QTRY_COMPARE(mainScreen()->state(), QStringLiteral("visible"));
     QTRY_COMPARE(mainScreen()->opacity(), 1.0);
     QTRY_COMPARE(mainScreen()->scale(), 1.0);
@@ -482,7 +660,7 @@ void testScreenStack::homeAfterAScreenOnTopOfTheSettingsShowsTheMainScreen() {
 
     closeScreen(screen, withCloseButton);
     QTRY_VERIFY(ownerIs("Settings_QMLTYPE"));
-    QTRY_VERIFY(!host->property("thirdActive").toBool());
+    QTRY_VERIFY(!thirdActive());
     // the screen on top found the main screen shown, and shows it again
     QTRY_COMPARE(mainScreen()->state(), QStringLiteral("visible"));
 
@@ -507,13 +685,9 @@ void testScreenStack::aScreenOnTheMainScreenShowsItWhenItCloses_data() {
 void testScreenStack::aScreenOnTheMainScreenShowsItWhenItCloses() {
     QFETCH(int, how);
 
-    QVERIFY(
-        QMetaObject::invokeMethod(host, "openEntityScreen", Q_ARG(QVariant, QVariant::fromValue<QObject *>(entity))));
-    QTRY_VERIFY(hostItem("secondScreen") && owner() == hostItem("secondScreen"));
-    QQuickItem *screen = hostItem("secondScreen");
+    QQuickItem *screen = openEntityScreen(entity);
+    QVERIFY(screen);
     QCOMPARE(mainScreen()->state(), QStringLiteral("hidden"));
-    // the screen slides up
-    QTRY_COMPARE(screen->y(), 0.0);
 
     if (how == 2) {
         pressButton(Qt::Key_Home);
@@ -527,18 +701,15 @@ void testScreenStack::aScreenOnTheMainScreenShowsItWhenItCloses() {
 // An entity screen on top of another entity screen (an entity of an activity's menu): the main screen stays hidden
 // until the screen below closes as well.
 void testScreenStack::aScreenOnTopOfAnEntityScreenKeepsTheMainScreenHidden() {
-    QVERIFY(QMetaObject::invokeMethod(host, "openEntityScreen",
-                                      Q_ARG(QVariant, QVariant::fromValue<QObject *>(entityBelow))));
-    QTRY_VERIFY(hostItem("secondScreen") && owner() == hostItem("secondScreen"));
-    QQuickItem *below = hostItem("secondScreen");
-    QTRY_COMPARE(below->y(), 0.0);
+    QQuickItem *below = openEntityScreen(entityBelow);
+    QVERIFY(below);
 
     QQuickItem *screen = openScreenOnTop();
     QVERIFY(screen);
 
     pressButton(Qt::Key_Exit);
     QTRY_COMPARE(owner(), static_cast<QObject *>(below));
-    QTRY_VERIFY(!host->property("thirdActive").toBool());
+    QTRY_VERIFY(!thirdActive());
     // the screen below is shown again, the main screen stays behind it, hidden
     QTest::qWait(800);
     QCOMPARE(mainScreen()->state(), QStringLiteral("hidden"));
@@ -552,26 +723,50 @@ void testScreenStack::aScreenOnTopOfAnEntityScreenKeepsTheMainScreenHidden() {
 // The screen below closes while the entity screen on top is still open (an activity turned off from its POWER
 // button, the core's readiness check took its time): it shows the main screen, and the screen on top leaves it shown.
 void testScreenStack::aScreenOnTopOfAnEntityScreenThatClosedFirstLeavesTheMainScreenShown() {
-    QVERIFY(QMetaObject::invokeMethod(host, "openEntityScreen",
-                                      Q_ARG(QVariant, QVariant::fromValue<QObject *>(entityBelow))));
-    QTRY_VERIFY(hostItem("secondScreen") && owner() == hostItem("secondScreen"));
-    QQuickItem *below = hostItem("secondScreen");
-    QTRY_COMPARE(below->y(), 0.0);
+    QQuickItem *below = openEntityScreen(entityBelow);
+    QVERIFY(below);
 
     QQuickItem *screen = openScreenOnTop();
     QVERIFY(screen);
 
     QVERIFY(QMetaObject::invokeMethod(below, "close"));
-    QTRY_VERIFY(!host->property("secondActive").toBool());
+    QTRY_VERIFY(!secondActive());
     QCOMPARE(owner(), static_cast<QObject *>(screen));
     QCOMPARE(mainScreen()->state(), QStringLiteral("visible"));
 
     pressButton(Qt::Key_Exit);
-    QTRY_VERIFY(!host->property("thirdActive").toBool());
+    QTRY_VERIFY(!thirdActive());
     verifyMainScreenShownAndInFront();
     // past the screen's close animation
     QTest::qWait(800);
     QCOMPARE(mainScreen()->state(), QStringLiteral("visible"));
+    QVERIFY2(!shownWarning(), "the main screen was left hidden");
+}
+
+// An activity started through the Core-API, with "open activity on API start", while an entity screen is open on top
+// of an activity's screen: both are dropped and the started activity's screen opens in view, where the screen on top
+// had moved the second container away from.
+void testScreenStack::anActivityStartedThroughTheApiOverAScreenOnTopOpensInView() {
+    QQuickItem *below = openEntityScreen(entityBelow);
+    QVERIFY(below);
+    QVERIFY(openScreenOnTop());
+    QObject *second = container("containerSecond");
+    QTRY_COMPARE(second->property("x").toReal(), -480.0);
+
+    emit EntityControllerStub::s_current->activityStartedExternally(activity->getId());
+    QTRY_VERIFY(secondScreen() && secondScreen() != below && owner() == secondScreen());
+    QQuickItem *screen = secondScreen();
+    QCOMPARE(screen->property("entityId").toString(), activity->getId());
+    QVERIFY(!thirdActive());
+    QTRY_COMPARE(screen->y(), 0.0);
+    // in view, at full size
+    QCOMPARE(second->property("x").toReal(), 0.0);
+    QCOMPARE(second->property("scale").toReal(), 1.0);
+    QCOMPARE(screen->mapToScene(QPointF(0, 0)), QPointF(0, 0));
+    QCOMPARE(mainScreen()->state(), QStringLiteral("hidden"));
+
+    pressButton(Qt::Key_Exit);
+    verifyMainScreenShownAndInFront();
     QVERIFY2(!shownWarning(), "the main screen was left hidden");
 }
 
@@ -586,21 +781,21 @@ void testScreenStack::homeShowsAHiddenMainScreen() {
     verifyMainScreenShownAndInFront();
 }
 
-// Whatever left the main screen hidden with nothing on top of it: the charging screen, closed with a tap, returns to
-// it shown.
+// Whatever left the main screen hidden with nothing on top of it: the charging screen, which the power supply brings
+// up and a tap closes, returns to it shown.
 void testScreenStack::theChargingScreenReturnsToAShownMainScreen() {
     mainScreen()->setState(QStringLiteral("hidden"));
     QTRY_COMPARE(mainScreen()->opacity(), 0.0);
 
-    QVERIFY(QMetaObject::invokeMethod(host, "showChargingScreen"));
-    QTRY_VERIFY(host->property("chargingScreen").value<QObject *>());
+    BatteryStub::s_current->setPowerSupply(true);
+    QTRY_VERIFY(chargingScreen());
     QTRY_VERIFY(owner() && owner() != mainScreen());
     // fully faded in
     QTest::qWait(600);
 
     QTest::ignoreMessage(QtWarningMsg, qPrintable(kShownWarning));
-    QTest::mouseClick(view, Qt::LeftButton, Qt::NoModifier, QPoint(240, 425));
-    QTRY_VERIFY(!host->property("chargingScreen").value<QObject *>());
+    QTest::mouseClick(window, Qt::LeftButton, Qt::NoModifier, QPoint(240, 425));
+    QTRY_VERIFY(!chargingScreen());
     verifyMainScreenShownAndInFront();
 }
 
@@ -609,26 +804,35 @@ int main(int argc, char *argv[]) {
     if (qEnvironmentVariableIsEmpty("QT_QUICK_BACKEND")) {
         qputenv("QT_QUICK_BACKEND", QByteArray("software"));
     }
+    // main.qml's on-screen keyboard, as on the device
+    qputenv("QT_IM_MODULE", QByteArray("qtvirtualkeyboard"));
     QGuiApplication app(argc, argv);
 
     qmlRegisterSingletonType<HapticStub>("Haptic", 1, 0, "Haptic", &singleton<HapticStub>);
     qmlRegisterSingletonType<ConfigStub>("Config", 1, 0, "Config", &singleton<ConfigStub>);
     qmlRegisterSingletonType<WifiStub>("Wifi", 1, 0, "Wifi", &singleton<WifiStub>);
     qmlRegisterUncreatableType<EnumStub>("Wifi.SignalStrength", 1, 0, "SignalStrength", "Enum is not a type");
-    qmlRegisterSingletonType<BatteryStub>("Battery", 1, 0, "Battery", &singleton<BatteryStub>);
+    qmlRegisterSingletonType<BatteryStub>("Battery", 1, 0, "Battery", &BatteryStub::qmlInstance);
+    qmlRegisterSingletonType<PowerStub>("Power", 1, 0, "Power", &singleton<PowerStub>);
+    qmlRegisterUncreatableType<EnumStub>("Power.Modes", 1, 0, "PowerModes", "Enum is not a type");
+    qmlRegisterSingletonType<SoundEffectsStub>("SoundEffects", 1, 0, "SoundEffects", &singleton<SoundEffectsStub>);
     qmlRegisterSingletonType<SoftwareUpdateStub>("SoftwareUpdate", 1, 0, "SoftwareUpdate",
                                                  &singleton<SoftwareUpdateStub>);
     qmlRegisterSingletonType<EmptyStub>("HwInfo", 1, 0, "HwInfo", &singleton<EmptyStub>);
+    qmlRegisterSingletonType<EmptyStub>("Voice", 1, 0, "Voice", &singleton<EmptyStub>);
     qmlRegisterSingletonType<EntityControllerStub>("Entity.Controller", 1, 0, "EntityController",
-                                                   &singleton<EntityControllerStub>);
+                                                   &EntityControllerStub::qmlInstance);
     qmlRegisterUncreatableType<uc::ui::entity::Base>("Entity.Controller", 1, 0, "EntityTypes", "Enum is not a type");
     qmlRegisterUncreatableType<uc::ui::entity::ButtonStates>("Entity.Button", 1, 0, "ButtonStates",
                                                              "Enum is not a type");
-    // imported by the page delegates of the main screen (Page.qml), which the test creates none of
+    // imported by screens the test creates none of: the page delegates of the main screen (Page.qml), the activity
+    // loading screen, the volume overlay
     qmlRegisterUncreatableType<EnumStub>("Entity.MediaPlayer", 1, 0, "MediaPlayerFeatures", "Enum is not a type");
     qmlRegisterUncreatableType<EnumStub>("Entity.Activity", 1, 0, "ActivityStates", "Enum is not a type");
+    qmlRegisterUncreatableType<EnumStub>("Entity.Macro", 1, 0, "MacroStates", "Enum is not a type");
     qmlRegisterUncreatableType<EnumStub>("Entity.Cover", 1, 0, "CoverStates", "Enum is not a type");
     qmlRegisterUncreatableType<EnumStub>("Entity.Light", 1, 0, "LightStates", "Enum is not a type");
+    qmlRegisterUncreatableType<EnumStub>("SequenceStep.Type", 1, 0, "SequenceStep", "Enum is not a type");
     qmlRegisterSingletonType<EmptyStub>("Group.Controller", 1, 0, "GroupController", &singleton<EmptyStub>);
     qmlRegisterSingletonType<IntegrationControllerStub>("Integration.Controller", 1, 0, "IntegrationController",
                                                         &singleton<IntegrationControllerStub>);

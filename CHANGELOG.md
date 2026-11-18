@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   was opened on top of another screen, such as an entity from an activity's list, could leave the main screen hidden,
   for example when the activity had been turned off with POWER in the meantime. HOME, and returning from the charging
   screen, now always show the main screen.
+- An activity started outside of the remote, with "Open activities started with the API" on, no longer opens out of
+  view, as a black screen until BACK, when an entity from another activity's list was open. The screens opened after
+  it are no longer out of view either.
 
 ---
 

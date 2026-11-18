@@ -357,7 +357,10 @@ up in front; `LEFT`/`RIGHT` page, `OK`/`BACK`/`HOME` close. Tips are QML (`Tip.q
   another screen shows it again only if it found it shown. A main screen that owns the input with
   nothing open on top of it while it is hidden is a black screen that no key and no touch leaves:
   it shows itself and logs the warning `Main screen hidden with nothing open on top of it`, which
-  names a path that is still broken.
+  names a path that is still broken. A screen in the third container moves the second container out
+  of view while it is open, and only its closing moves it back: main.qml's
+  `unloadSecondAndThirdContainer()`, which drops both screens without closing them (an activity
+  started through the API), moves it back itself and logs `Second container moved back into view`.
 
 ## 9. Checklist for a new keypad-navigable screen
 

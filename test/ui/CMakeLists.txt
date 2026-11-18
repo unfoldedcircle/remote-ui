@@ -519,11 +519,10 @@ target_link_libraries(testInputController
     Qt5::Test
     )
 
-# The screen stack of main.qml: the real main screen, profile page, settings, an entity screen and the charging screen
-# in copies of main.qml's containers (qml/ScreenStackHost.qml), with the real InputController (offscreen platform)
+# The screen stack of the real main.qml: its containers with the real main screen, profile page, settings, an entity
+# screen and the charging screen, with the real InputController (offscreen platform)
 add_executable (testScreenStack
     "test_screen_stack.cpp"
-    "test_screen_stack.qrc"
     "../../resources/qrc/main.qrc"
     # the spinners of the status bar and the entity screen title (loader_small.png)
     "../../resources/qrc/images.qrc"
