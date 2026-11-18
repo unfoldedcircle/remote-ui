@@ -53,7 +53,7 @@ Rectangle {
                 ParallelAnimation {
                     PropertyAnimation { target: entityBaseDetailContainer; properties: "y"; easing.type: Easing.InExpo; duration: 300 }
                     PropertyAnimation { target: iconClose; properties: "opacity"; easing.type: Easing.InExpo; duration: 200 }
-                    PropertyAction { target: containerMain.item; property: "state"; value: entityBaseDetailContainer.skipAnimation ? "hidden" : "visible" }
+                    ScriptAction { script: entityBaseDetailContainer.restoreMainScreen() }
                 }
             }
 
@@ -78,6 +78,29 @@ Rectangle {
     property bool skipAnimation: false
     property var overrideConfig: ([])
 
+    // The main screen was not hidden when this screen opened. Every entity screen hides the main screen while it is
+    // open. One opened on top of another screen (skipAnimation: an entity of an activity's menu) shows it again on
+    // closing only if it found it shown; otherwise the screen below hid it and shows it again when it closes. That
+    // screen may have closed first (an activity turned off from its POWER button while an entity of its menu is open),
+    // or may never have hidden it (a settings page): hiding it again left a black screen that no key and no touch left.
+    property bool mainScreenShown: true
+
+    function restoreMainScreen() {
+        const mainScreen = containerMain.item;
+
+        if (entityBaseDetailContainer.skipAnimation) {
+            console.info("Entity screen on top of another screen closed:", entityBaseDetailContainer.entityId,
+                         entityBaseDetailContainer.mainScreenShown ? "- showing the main screen"
+                                                                   : "- the main screen stays hidden");
+        }
+
+        if (!mainScreen || (entityBaseDetailContainer.skipAnimation && !entityBaseDetailContainer.mainScreenShown)) {
+            return;
+        }
+
+        mainScreen.state = "visible";
+    }
+
     /**
       Whether the screen may still send a command. An unavailable entity accepts none, except while
       the remote is coming back from a wakeup, when every entity carries that state until they have
@@ -94,6 +117,7 @@ Rectangle {
         EntityController.refreshEntity(entityId);
 
         buttonNavigation.takeControl();
+        entityBaseDetailContainer.mainScreenShown = !containerMain.item || containerMain.item.state !== "hidden";
         entityBaseDetailContainer.skipAnimation = skipAnimation;
         entityBaseDetailContainer.state = "open";
     }

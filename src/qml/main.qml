@@ -64,7 +64,7 @@ ApplicationWindow {
         }
 
         if (!containerSecond.loader.active) {
-            console.debug("Loading second container", source);
+            console.info("Loading second container", source, parameters.entityId ? parameters.entityId : "");
             containerSecond.loader.openAfterLoad = openAfterLoad;
             containerSecond.loader.active = true;
             containerSecond.loader.setSource(source, parameters);
@@ -84,6 +84,10 @@ ApplicationWindow {
       animations. Used when a screen has to be replaced by something else right away.
       */
     function unloadSecondAndThirdContainer() {
+        if (containerSecond.loader.active || containerThird.loaderThird.active) {
+            console.info("Dropping the open screens", containerSecond.loader.source, containerThird.loaderThird.source);
+        }
+
         if (containerThird.loaderThird.active) {
             containerThird.close();
             containerThird.loaderThird.source = "";
@@ -95,6 +99,16 @@ ApplicationWindow {
             containerSecond.loader.source = "";
             containerSecond.loader.active = false;
             root.isActivityOpen = false;
+        }
+
+        // A screen on top moves the second container out of view (containerSecondHideAnimation), and only its closing
+        // moves it back. A dropped screen does not close: the next screen would open out of view, a black screen.
+        containerSecondHideAnimation.complete();
+        containerSecondShowAnimation.complete();
+        if (containerSecond.x !== 0 || containerSecond.scale !== 1) {
+            console.info("Second container moved back into view");
+            containerSecond.x = 0;
+            containerSecond.scale = 1;
         }
     }
 
@@ -119,7 +133,8 @@ ApplicationWindow {
         }
 
         if (!containerThird.loaderThird.active) {
-            console.debug("Loading third container", source);
+            console.info("Loading third container", source, parameters.entityId ? parameters.entityId : "",
+                         "on top of", containerSecond.loader.source);
             containerThird.loaderThird.openAfterLoad = openAfterLoad;
             containerThird.loaderThird.active = true;
             containerThird.loaderThird.setSource(source, parameters);
@@ -474,7 +489,7 @@ ApplicationWindow {
                 ignoreUnknownSignals: true
 
                 function onClosed() {
-                    console.debug("Second container closed signal called");
+                    console.info("Second container closed", loader.source);
                     loader.source = "";
                     loader.active = false
                     containerSecond.close();
@@ -556,7 +571,7 @@ ApplicationWindow {
                 ignoreUnknownSignals: true
 
                 function onClosed() {
-                    console.debug("Third container closed signal called");
+                    console.info("Third container closed", loaderThird.source);
                     containerThird.close();
                     containerSecondShowAnimation.start();
                 }
@@ -605,6 +620,7 @@ ApplicationWindow {
 
                 function onPowerSupplyChanged(value) {
                     if (value) {
+                        console.info("Charging screen: power supply connected");
                         chargingScreenLoader.active = true;
                         SoundEffects.play(SoundEffects.BatteryCharge);
                     } else {
@@ -621,6 +637,7 @@ ApplicationWindow {
 
                 function onPowerModeChanged(fromPowerMode, toPowerMode) {
                     if (toPowerMode === PowerModes.Normal && fromPowerMode !== PowerModes.Idle && Battery.isCharging && Battery.powerSupply) {
+                        console.info("Charging screen: woke up while charging");
                         chargingScreenLoader.active = true;
                     }
                 }

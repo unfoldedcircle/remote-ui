@@ -519,6 +519,38 @@ target_link_libraries(testInputController
     Qt5::Test
     )
 
+# The screen stack of the real main.qml: its containers with the real main screen, profile page, settings, an entity
+# screen and the charging screen, with the real InputController (offscreen platform)
+add_executable (testScreenStack
+    "test_screen_stack.cpp"
+    "../../resources/qrc/main.qrc"
+    # the spinners of the status bar and the entity screen title (loader_small.png)
+    "../../resources/qrc/images.qrc"
+    "../../src/ui/inputController.cpp"
+    "../../src/ui/colors.cpp"
+    "../../src/ui/entity/entity.cpp"
+    "../../src/ui/entity/button.cpp"
+    # header only: contains the Q_OBJECT / Q_GADGET classes moc has to process
+    "../../src/ui/fonts.h"
+    "../../src/core/enums.h"
+    "../../src/hardware/hardwareModel.h"
+    "../../src/util.cpp"
+    "../../src/logging.cpp"
+    "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
+    )
+
+add_test(NAME testScreenStack
+         COMMAND testScreenStack)
+
+target_link_libraries(testScreenStack
+    PUBLIC
+    Qt5::Core
+    Qt5::Gui
+    Qt5::Qml
+    Qt5::Quick
+    Qt5::Test
+    )
+
 # The colour tokens of the design system: values, the old names as aliases and the contrast pairs.
 add_executable (testDesignTokens
     "test_design_tokens.cpp"

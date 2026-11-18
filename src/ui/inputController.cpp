@@ -3,6 +3,8 @@
 
 #include "inputController.h"
 
+#include <QQmlContext>
+
 #include "../logging.h"
 
 namespace uc {
@@ -23,6 +25,26 @@ static bool isActuallyVisible(QQuickItem* it) {
         if (!p->isEnabled()) return false;
     }
     return true;
+}
+
+// The QML file an input owner comes from, for the log: the owner's own, or for an item created in C++ (the content item
+// of a popup) the one of its first child declared in QML.
+static QString qmlSourceOf(QObject* owner) {
+    if (!owner) return QString();
+
+    if (const QQmlContext* context = qmlContext(owner)) {
+        return context->baseUrl().toString();
+    }
+
+    if (auto* item = qobject_cast<QQuickItem*>(owner)) {
+        for (QQuickItem* child : item->childItems()) {
+            if (const QQmlContext* context = qmlContext(child)) {
+                return context->baseUrl().toString();
+            }
+        }
+    }
+
+    return QString();
 }
 
 InputController* InputController::s_instance = nullptr;
@@ -295,11 +317,19 @@ bool InputController::eventFilter(QObject* obj, QEvent* event) {
                 m_keyOwner[key] = owner;
             }
 
+            // BACK and HOME change the screen: logged at info, ahead of the owner changes they cause
+            const bool navigationKey = (key == Qt::Key_Exit || key == Qt::Key_Home) && !keyEvent->isAutoRepeat();
+            if (navigationKey) {
+                qCInfo(lcInput()) << "Key pressed:" << mappedKey << owner.data() << qUtf8Printable(qmlSourceOf(owner));
+            }
+
             m_pressActivatedKeypad = activated;
             emit keyPressed(mappedKey);
             emit keyPressedFor(owner.data(), mappedKey);
             m_pressActivatedKeypad = false;
-            qCDebug(lcInput()) << "Key pressed:" << mappedKey << owner.data();
+            if (!navigationKey) {
+                qCDebug(lcInput()) << "Key pressed:" << mappedKey << owner.data();
+            }
             break;
         }
         case QEvent::KeyRelease: {
@@ -418,7 +448,7 @@ bool InputController::updateActive() {
 void InputController::notifyActiveChanged(bool changed) {
     if (!changed) return;
 
-    qCInfo(lcInput()) << "ACTIVE CONTROL ->" << m_activeItem.data();
+    qCInfo(lcInput()) << "ACTIVE CONTROL ->" << m_activeItem.data() << qUtf8Printable(qmlSourceOf(m_activeItem));
     emit activeItemChanged();
 }
 
