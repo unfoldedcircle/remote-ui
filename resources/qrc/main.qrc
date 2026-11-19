@@ -57,7 +57,12 @@
         <file alias="components/FormDialog.qml">../../src/qml/components/FormDialog.qml</file>
         <file alias="components/ScrollIndicator.qml">../../src/qml/components/ScrollIndicator.qml</file>
         <file alias="components/WebViewDialog.qml">../../src/qml/components/WebViewDialog.qml</file>
+        <file alias="components/WebViewLoadIndicator.qml">../../src/qml/components/WebViewLoadIndicator.qml</file>
+        <file alias="components/WebViewPage.qml">../../src/qml/components/WebViewPage.qml</file>
+        <file alias="components/WebViewRequests.qml">../../src/qml/components/WebViewRequests.qml</file>
+        <file alias="components/WebViewWidget.qml">../../src/qml/components/WebViewWidget.qml</file>
         <file alias="components/WebViewLogin.qml">../../src/qml/components/WebViewLogin.qml</file>
+        <file alias="components/WebViewZoomLabel.qml">../../src/qml/components/WebViewZoomLabel.qml</file>
         <file alias="settings/Page.qml">../../src/qml/settings/Page.qml</file>
         <file alias="settings/About.qml">../../src/qml/settings/About.qml</file>
         <file alias="settings/about/AboutPage.qml">../../src/qml/settings/about/AboutPage.qml</file>
@@ -85,6 +90,8 @@
         <file alias="settings/settings/Reset.qml">../../src/qml/settings/settings/Reset.qml</file>
         <file alias="settings/settings/AdminPin.qml">../../src/qml/settings/settings/AdminPin.qml</file>
         <file alias="settings/settings/WebView.qml">../../src/qml/settings/settings/WebView.qml</file>
+        <file alias="settings/settings/WebViewButtons.qml">../../src/qml/settings/settings/WebViewButtons.qml</file>
+        <file alias="settings/settings/WebViewTest.qml">../../src/qml/settings/settings/WebViewTest.qml</file>
         <file alias="settings/Activities.qml">../../src/qml/settings/Activities.qml</file>
         <file alias="keypad/Key.qml">../../src/qml/keypad/Key.qml</file>
         <file alias="keypad/KeyPad.qml">../../src/qml/keypad/KeyPad.qml</file>
@@ -143,6 +150,7 @@
         <file alias="components/entities/macro/deviceclass/Macro.qml">../../src/qml/components/entities/macro/deviceclass/Macro.qml</file>
         <file alias="components/entities/select/deviceclass/Select.qml">../../src/qml/components/entities/select/deviceclass/Select.qml</file>
         <file alias="components/entities/number/deviceclass/Number.qml">../../src/qml/components/entities/number/deviceclass/Number.qml</file>
+        <file alias="components/entities/webview/deviceclass/Webview.qml">../../src/qml/components/entities/webview/deviceclass/Webview.qml</file>
         <file alias="components/integrations/AddEntities.qml">../../src/qml/components/integrations/AddEntities.qml</file>
         <file alias="components/integrations/Setup.qml">../../src/qml/components/integrations/Setup.qml</file>
         <file alias="components/integrations/Discovery.qml">../../src/qml/components/integrations/Discovery.qml</file>

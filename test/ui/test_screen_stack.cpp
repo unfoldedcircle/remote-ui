@@ -315,6 +315,14 @@ class EntityControllerStub : public QObject {
 QHash<QString, QObject *> EntityControllerStub::s_entities;
 EntityControllerStub     *EntityControllerStub::s_current = nullptr;
 
+// WebView.Controller: main.qml opens the web view that the core's `open` command asks for
+class WebViewControllerStub : public QObject {
+    Q_OBJECT
+
+ signals:
+    void openRequested(QString entityId);
+};
+
 class IntegrationControllerStub : public QObject {
     Q_OBJECT
     Q_PROPERTY(QObject *integrationsModel READ model CONSTANT)
@@ -823,6 +831,8 @@ int main(int argc, char *argv[]) {
     qmlRegisterSingletonType<EntityControllerStub>("Entity.Controller", 1, 0, "EntityController",
                                                    &EntityControllerStub::qmlInstance);
     qmlRegisterUncreatableType<uc::ui::entity::Base>("Entity.Controller", 1, 0, "EntityTypes", "Enum is not a type");
+    qmlRegisterSingletonType<WebViewControllerStub>("WebView.Controller", 1, 0, "WebViewController",
+                                                    &singleton<WebViewControllerStub>);
     qmlRegisterUncreatableType<uc::ui::entity::ButtonStates>("Entity.Button", 1, 0, "ButtonStates",
                                                              "Enum is not a type");
     // imported by screens the test creates none of: the page delegates of the main screen (Page.qml), the activity

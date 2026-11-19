@@ -879,6 +879,99 @@ int Api::getVoiceAssistants() {
     return sendRequest(RequestTypes::get_voice_assistants);
 }
 
+int Api::getWebviewCfg() {
+    return sendRequest(RequestTypes::get_webview_cfg);
+}
+
+int Api::setWebviewCfg(const QVariantMap &update) {
+    return sendRequest(RequestTypes::set_webview_cfg, update);
+}
+
+QVariantMap Api::uiInfoMsgData(const QString& version, const QStringList& entityTypes) {
+    QVariantMap msgData;
+    msgData.insert("version", version);
+    msgData.insert("entity_types", entityTypes);
+    return msgData;
+}
+
+int Api::setUiInfo(const QString& version, const QStringList& entityTypes) {
+    return sendRequest(RequestTypes::set_ui_info, uiInfoMsgData(version, entityTypes));
+}
+
+QVariantMap Api::resultResponse(int reqId, int code, const QString& message) {
+    QVariantMap msgData;
+    if (code != 200) {
+        // the error object of the Core-API: a code word and the message
+        QString codeWord;
+        switch (code) {
+            case 400:
+                codeWord = QStringLiteral("BAD_REQUEST");
+                break;
+            case 404:
+                codeWord = QStringLiteral("NOT_FOUND");
+                break;
+            case 500:
+                codeWord = QStringLiteral("INTERNAL_SERVER_ERROR");
+                break;
+            case 501:
+                codeWord = QStringLiteral("NOT_IMPLEMENTED");
+                break;
+            case 503:
+                codeWord = QStringLiteral("SERVICE_UNAVAILABLE");
+                break;
+            default:
+                codeWord = QStringLiteral("ERROR");
+                break;
+        }
+        msgData.insert("code", codeWord);
+        msgData.insert("message", message);
+    }
+
+    QVariantMap map;
+    map.insert("kind", "resp");
+    map.insert("req_id", reqId);
+    map.insert("msg", "result");
+    map.insert("code", code);
+    map.insert("msg_data", msgData);
+    return map;
+}
+
+void Api::respondResult(int reqId, int code, const QString& message) {
+    const QString response =
+        QJsonDocument::fromVariant(resultResponse(reqId, code, message)).toJson(QJsonDocument::JsonFormat::Compact);
+    qCDebug(lcCore()).noquote() << "Sending response:" << response;
+    sendMessage(response);
+}
+
+UiEntityCommand Api::parseUiEntityCommand(int reqId, const QVariantMap& msgData) {
+    UiEntityCommand command;
+    command.reqId = reqId;
+    command.entityId = msgData.value("entity_id").toString();
+    command.entityType = msgData.value("entity_type").toString();
+    command.cmdId = msgData.value("cmd_id").toString();
+    command.params = msgData.value("params").toMap();
+    return command;
+}
+
+cfgWebview Api::parseWebviewCfg(const QVariantMap& map) {
+    cfgWebview cfg;
+    cfg.allowInvalidCertificates = map.value("allow_invalid_certificates").toBool();
+
+    // a value of a newer core keeps the default (ADR 0018)
+    const QString colorScheme = map.value("color_scheme").toString();
+    if (colorScheme == QLatin1String("light") || colorScheme == QLatin1String("dark")) {
+        cfg.colorScheme = colorScheme;
+    }
+    const QString websiteData = map.value("website_data").toString();
+    if (websiteData == QLatin1String("keep") || websiteData == QLatin1String("clear_cache_on_close") ||
+        websiteData == QLatin1String("clear_all_on_close")) {
+        cfg.websiteData = websiteData;
+    }
+    // the actions are validated button by button where they are used (WebViewController)
+    cfg.buttons = map.value("buttons").toMap();
+    return cfg;
+}
+
 int Api::wifiGetStatus() {
     return sendRequest(RequestTypes::get_wifi_status);
 }
@@ -1771,6 +1864,10 @@ void Api::processResponseMessage(QVariantMap map) {
             processResponseSequenceReadiness(reqId, code, msgData);
             break;
         }
+        case MsgResponse::webview_cfg: {
+            emit respWebviewCfg(reqId, code, parseWebviewCfg(msgData.toMap()));
+            break;
+        }
         case MsgResponse::pong:
         case MsgResponse::entity_types:
         case MsgResponse::entity_features:
@@ -1800,6 +1897,9 @@ void Api::processRequestMessage(QVariantMap map)
     switch (req) {
         case RequestTypes::get_localization_languages:
             processRequestGetLocalizationLanguages(reqId);
+            break;
+        case RequestTypes::entity_command:
+            emit uiEntityCommand(parseUiEntityCommand(reqId, msgData.toMap()));
             break;
         default:
             break;
@@ -2774,6 +2874,10 @@ void Api::processConfigChange(QVariant msgData) {
         voiceControl.voiceAsssistant = cfgVoiceAssistant;
 
         emit cfgVoiceControlChanged(voiceControl);
+    }
+
+    if (newState.contains("webview")) {
+        emit cfgWebviewChanged(parseWebviewCfg(newState.value("webview").toMap()));
     }
 }
 

@@ -56,6 +56,13 @@ ListView {
     property QtObject items: pageItems
     property bool _isCurrentItem: pages.currentItem._id === page._id
 
+    // The button mapping of the header's current activity or media player, which takes VOLUME, MUTE, PLAY, ... while
+    // the main screen has the input; null without one. For a screen over the main screen that passes such a button on:
+    // the fullscreen web view when the volume buttons keep their function (Webview.qml).
+    function headerButtonConfig() {
+        return page.headerItem && page.headerItem.buttonConfig ? page.headerItem.buttonConfig() : null;
+    }
+
     property bool blockDraggedDownSignal: false
     // Disables the contentY animation so the header resize logic can follow the
     // top of the view instantly, frame by frame, instead of lagging behind.
@@ -173,6 +180,11 @@ ListView {
             // already keeps the items in place when the header resizes.
             property bool pinToTop: false
             //            clip: true
+
+            // the button mapping of the current activity or media player of the header (headerButtonConfig())
+            function buttonConfig() {
+                return activityList.currentItem ? activityList.currentItem.buttonNavigation.defaultConfig : null;
+            }
 
             function reCalculateHeaderHeight() {
                 const hasMediaComponent = activityList.currentItem && activityList.currentItem.hasMediaComponent;
@@ -343,6 +355,7 @@ ListView {
                         }
 
                         property alias entityIcon: entityIcon
+                        property alias buttonNavigation: headerButtonNavigation
                         property bool hasMediaComponent: false
                         property int mediaComponentHeight: hasMediaComponent ? 420 : 180
 
@@ -451,6 +464,7 @@ ListView {
                         // TODO: map buttons to activity button mapping if exists
 
                         Components.ButtonNavigation {
+                            id: headerButtonNavigation
                             overrideActive: page._isCurrentItem && activityListItem._isCurrentItem && ui.inputController.activeItem == mainContainerRoot
                             defaultConfig: {
                                 "VOLUME_UP": {

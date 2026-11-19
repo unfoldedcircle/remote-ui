@@ -47,7 +47,9 @@
  * retyped or removed, and uc_webview_frame does not grow at all. The library
  * allocates the frame and the host copies it with the sizeof of its own
  * header, which can be newer than the library's; per-frame data added later
- * come from new functions that take the frame handle.
+ * come from new functions that take the frame handle. uc_webview_cookie
+ * (library 0.8.0) does not grow either: the host passes an array of them, and
+ * the library steps through it with its own sizeof.
  * Hosts therefore
  *  - zero-initialise uc_webview_callbacks (C: = { 0 }, C++: {}) before setting
  *    fields and create views with uc_webview_new_sized(..., cb,
@@ -76,7 +78,8 @@
  * uc_webview_set_focused(), and also the pointer press or touch tap with which
  * WebKit focuses an unfocused view itself (WPEWebViewPlatform.cpp:368-370,
  * 468). The hints of such a report are those WebKit computed when the element
- * got its focus. The second exception: uc_webview_free() ends the view's
+ * got its focus; since library 0.7.5 there is none for an element whose web
+ * process is gone. The second exception: uc_webview_free() ends the view's
  * pending uc_webview_when_rendered() requests with
  * UC_WEBVIEW_RENDERED_CANCELLED inside the call (library 0.5.0). The pinch and
  * magnification_changed callbacks of library 0.6.0 and the request callbacks
@@ -184,6 +187,28 @@
  * An answer to an ended or unknown id returns -1 and does nothing, so a late
  * answer racing request_cancelled() is harmless. Strings passed to the request
  * callbacks are valid during the call only, like all callback strings.
+ *
+ * Site settings (library 0.8.0)
+ * =============================
+ * What a host configures per site (a remote-ui web view entity) or for the
+ * whole process, on top of the address:
+ *  - uc_webview_set_origin_headers(): extra request headers for one origin
+ *    (a bearer token, an API key), added by the library's web process
+ *    extension to the page, its subresources, fetch() and XMLHttpRequest;
+ *  - uc_webview_set_user_agent(): the User-Agent of one view;
+ *  - uc_webview_global_set_cookies(): cookies in the cookie jar of the
+ *    process' network session;
+ *  - uc_webview_global_allow_certificate(): a TLS certificate exception for
+ *    one host, uc_webview_global_set_tls_errors_policy() for all hosts;
+ *  - uc_webview_global_set_color_scheme(): prefers-color-scheme of every page;
+ *  - uc_webview_global_clear_data(): the HTTP cache or all website data.
+ * The process has one network session, one display and one set of system
+ * settings, so the uc_webview_global_* functions act on every view. With a
+ * data_dir (uc_webview_global_init()) cookies persist across restarts since
+ * library 0.8.0 (data_dir/cookies.sqlite), as local storage, IndexedDB and the
+ * HTTP cache did before. The asynchronous calls report with a
+ * uc_webview_done_cb from the main context, never from inside a uc_webview_*
+ * call. Secrets (header values, cookie values) are never logged.
  */
 #ifndef UC_WEBVIEW_H
 #define UC_WEBVIEW_H
@@ -350,7 +375,9 @@ typedef struct {
     /* An editable element gained (focused=1) or lost (0) focus. hints/purpose are UC_WEBVIEW_IME_*;
      * surrounding/cursor are the text around the caret and the caret's character offset if known
      * (surrounding may be NULL, cursor -1). Called again with focused=1 when hints or purpose change
-     * while focused. The host shows/hides its keyboard here. */
+     * while focused. The host shows/hides its keyboard here. Since library 0.7.5 also focused=0 when
+     * the element's web process is gone: at a navigation to another site (before its COMMITTED) and
+     * before web_process_terminated (package README, "Text input (IME)"). */
     void (*ime_focus)(uc_webview *, int focused, unsigned hints, unsigned purpose,
                       const char *surrounding, int cursor, void *user);
     /* Caret rectangle in view pixels (for keyboards that avoid covering the field). */
@@ -422,7 +449,8 @@ int uc_webview_api_version(void);
  * in-process WPEDisplay and the shared WebKit network session.
  *   egl_display  the host's EGLDisplay (Qt: nativeResourceForIntegration("egldisplay")); frames are
  *                imported on it. NULL selects the shared memory path (frames carry pixels, no EGLImage).
- *   data_dir     website data directory (cookies, local storage); NULL or unwritable = ephemeral session.
+ *   data_dir     website data directory (local storage, IndexedDB, ...; since library 0.8.0 also the cookies with an
+ *                expiry time, data_dir/cookies.sqlite); NULL or unwritable = ephemeral session.
  *   cache_dir    HTTP cache directory; NULL = data_dir/cache (ignored for an ephemeral session).
  * Returns 0 on success, -1 if the display could not be connected (EGL display unusable), 0 when
  * already initialised (the arguments of the second call are ignored).
@@ -678,6 +706,189 @@ int uc_webview_request_reply(uc_webview *, uint64_t request, int accept, const c
  */
 int uc_webview_request_auth(uc_webview *, uint64_t request, const char *user, const char *password);
 
+/* ---- site settings (library 0.8.0) --------------------------------------- */
+/*
+ * Every function of this section was added in library 0.8.0 within API version 1: hosts resolve each with dlsym()
+ * and leave the setting alone (WebKit's default) when an older library lacks it. They return 0 when the setting is
+ * taken and -1 when it is refused (a warning names the reason, never a secret); a refused call changes nothing.
+ */
+
+/* The end of an asynchronous request (uc_webview_global_set_cookies(), uc_webview_global_clear_data()): status
+ * UC_WEBVIEW_DONE_OK or UC_WEBVIEW_DONE_FAILED, user as passed. Called exactly once for an accepted request, on the
+ * UI thread from the main context, never from inside a uc_webview_* call; never for a refused one. */
+typedef void (*uc_webview_done_cb)(int status, void *user);
+#define UC_WEBVIEW_DONE_OK     0
+#define UC_WEBVIEW_DONE_FAILED 1
+
+/*
+ * UI thread. Extra request headers for the requests of this view to origin: names[i]: values[i], i < count;
+ * count 0 removes the view's headers for origin. For the "bearer" and "header" authentication of a site:
+ * {"Authorization"}, {"Bearer <token>"}, or an API key header.
+ *   origin  "http(s)://host[:port]" (an http or https URL is reduced to its origin; the default port is left out,
+ *           so "https://host:443" is "https://host")
+ *   names   header names (RFC 9110 tokens of at most 64 bytes); not Host, Cookie (use
+ *           uc_webview_global_set_cookies()), Cookie2, Content-Length, Content-Type, Connection, Keep-Alive,
+ *           Transfer-Encoding, Upgrade, TE, Trailer, Expect, Origin, Referer, User-Agent (use
+ *           uc_webview_set_user_agent()) and no name starting with Proxy- or Sec- (case-insensitive; library 0.8.3,
+ *           the Core-API's list and a few more); no name twice
+ *   values  visible ASCII, spaces and tabs, at most 8192 bytes, no white space at either end; never logged
+ * At most 32 headers per origin. The strings are copied. A later call for the same origin replaces the headers.
+ * What gets them (the library's web process extension decides per request, WebKitWebPage::send-request):
+ *  - the main resource of a document of origin, its subresources, and its fetch() and XMLHttpRequest calls to
+ *    origin, while the view's top-level document is of origin. A redirect of another origin into origin gets them
+ *    only where WebKit starts the redirected load in another web process, with origin's URI as the page URI: on WPE
+ *    a cross-site redirect from a page whose web process has committed a document. A redirect in one process
+ *    (same-site, the view's first navigation, the first load of a freshly started web process) starts origin's page
+ *    without them (library 0.8.3: before, every request whose redirecting response had the page URI got them, also
+ *    an image or frame of another site's page that loads its own URL, redirected into origin);
+ *  - not a request of a page of another site to origin (an image, a frame, a fetch), not a request whose Origin
+ *    header names another origin (a form another site posts to origin), not a request to another origin, and not
+ *    the next hop of a redirect away from origin (the library removes the headers WebKit carries over);
+ *  - they replace a header of the same name the page sets itself;
+ *  - since library 0.8.1 a request that does not get them loses every header with the name and the exact value of
+ *    one of them: WebKit copies headers into a redirect, and at a redirect to another site WPE moves the load to
+ *    another web process, where it starts as a first request (0.8.0 leaked custom headers there). A page of another
+ *    site that sends exactly a configured value itself loses it too.
+ * While the main frame loads a new page of origin, the old document still runs and its requests to origin are
+ * judged by the new page URI (WebKit sets it when the load starts); on WPE that old document is of the same site,
+ * else it runs in another web process.
+ * The headers take effect for the requests after the call: set them before uc_webview_load_uri(). Not covered:
+ * WebSocket handshakes, requests of service workers and of the WebKit network process itself (favicon, DNS
+ * prefetch), and the redirects of a keep-alive request (sendBeacon(), fetch(..., {keepalive: true})) that WebKit's
+ * network process completes after its page went away, which no web process sees. Every web process gets the headers
+ * of every view's origins in its memory (the library cannot tell which process a site will use); a page never sees
+ * them, it can only send requests that carry them.
+ * The headers of all views of the process go into one table; when two views set headers for the same origin, the
+ * later call counts for both until one of them changes or is freed. uc_webview_free() removes the view's headers.
+ * Returns 0, -1 when refused: invalid view, another thread, origin not http(s), an invalid name or value, more than
+ * 32 headers, or the library's web process extension is not installed (then no headers are sent at all).
+ */
+int uc_webview_set_origin_headers(uc_webview *, const char *origin, const char *const *names,
+                                  const char *const *values, size_t count);
+
+/* uc_webview_set_user_agent() presets */
+#define UC_WEBVIEW_USER_AGENT_DEFAULT 0   /* the Remote's: WebKit's own with the token UCRemote/<firmware version>
+                                             ("Mozilla/5.0 (X11; Linux aarch64) AppleWebKit/605.1.15 (KHTML, like
+                                             Gecko) Version/60.5 Safari/605.1.15 UCRemote/2.13.2" on the remote; up
+                                             to library 0.8.1 WebKit's own without the token) */
+#define UC_WEBVIEW_USER_AGENT_MOBILE  1   /* Safari on an iPhone: sites serve their phone layout */
+#define UC_WEBVIEW_USER_AGENT_DESKTOP 2   /* Safari on a Mac: sites serve their desktop layout */
+#define UC_WEBVIEW_USER_AGENT_CUSTOM  3   /* the custom text */
+
+/*
+ * UI thread. The User-Agent the view sends (and navigator.userAgent) from the next request on; reload or load the
+ * page for a page that is already shown. preset UC_WEBVIEW_USER_AGENT_*; custom is used for CUSTOM only: 1..512
+ * bytes of visible ASCII and spaces. The setting belongs to the view (the view gets WebKit settings of its own,
+ * with the library's other settings unchanged).
+ * DEFAULT, also the user agent of a view that never calls this function (library 0.8.2), identifies the Remote and
+ * its firmware version: WebKit's own user agent, which keeps WebKit's platform part, followed by the product token
+ * "UCRemote/<version>". The version is UC_OS_VERSION of the firmware's /etc/uc-release when the process can read it,
+ * else UC_OS_VERSION of the environment (remote-ui's units load the file with EnvironmentFile=, their sandbox hides
+ * the file itself); without a valid version (1..64 RFC 9110 tchar bytes) the token is "UCRemote". Read once per
+ * process, by uc_webview_global_init(), which logs the result. MOBILE, DESKTOP and CUSTOM carry no token.
+ * Returns 0, -1 when refused: invalid view, another thread, unknown preset, CUSTOM without a valid text.
+ */
+int uc_webview_set_user_agent(uc_webview *, int preset, const char *custom);
+
+/*
+ * One cookie of uc_webview_global_set_cookies(). The host allocates arrays of it; the layout is fixed for API
+ * version 1 (see "Compatibility").
+ *   name, value  name: an RFC 6265 token of 1..256 bytes; value: at most 4096 bytes of RFC 6265 cookie-octets
+ *                (visible ASCII without '"', ',', ';' and '\'), optionally in double quotes; "" is valid
+ *                (library 0.8.3; before, other bytes passed and WebKit dropped such a cookie silently). The value is
+ *                never logged.
+ *   domain       NULL or "": a host-only cookie of the URL's host. Else the URL's host or a domain it is in
+ *                ("example.com" and ".example.com" both mean the domain and its subdomains, as the Domain attribute
+ *                does); an IP address only as itself.
+ *   path         NULL or "": "/". Else starts with '/', ASCII without ';' or control characters.
+ *   secure       1: sent over https only. http_only 1: hidden from the page's scripts (document.cookie).
+ *   expires      seconds since 1970-01-01 UTC; -1: a session cookie (until the host process ends; not written to
+ *                the data directory). A time in the past deletes the cookie of that name, domain and path.
+ * SameSite is Lax (libsoup's default since 3.4.0).
+ */
+typedef struct {
+    const char *name, *value, *domain, *path;
+    int secure, http_only;
+    int64_t expires;
+} uc_webview_cookie;
+
+/*
+ * UI thread, after uc_webview_global_init(). Puts count cookies for url (an http or https URL of the site they
+ * belong to; its host decides host-only cookies and which domains are allowed) into the cookie jar of the process'
+ * network session, which every view uses. A cookie with the name, domain and path of an existing one replaces it.
+ * With a data_dir (uc_webview_global_init()) cookies with an expiry time are written to data_dir/cookies.sqlite and
+ * come back after a restart. Asynchronous: cb (may be NULL) reports when WebKit's network process has them; load
+ * the page in cb, a request made before can go without them. count 0: nothing to set, cb reports OK.
+ * Returns 0 when the request is accepted, -1 when refused: another thread, before uc_webview_global_init(), url not
+ * http(s), cookies NULL with a count, more than 64 cookies, a cookie that breaks a rule above, or a cookie for a public
+ * suffix ("com", "co.uk"), which the cookie jar would drop (none is set then).
+ * The cookie file is mode 0600 inside the 0700 data directory (library 0.8.3); its database overwrites deleted
+ * cookies (libsoup's SQLite secure_delete), but SQLite's temporary journal and the flash storage are not wiped.
+ */
+int uc_webview_global_set_cookies(const char *url, const uc_webview_cookie *cookies, size_t count,
+                                  uc_webview_done_cb cb, void *user);
+
+/*
+ * UI thread (may be called before uc_webview_global_init(); the exception is kept). Accepts an invalid TLS
+ * certificate of host for page loads: the certificate whose DER encoding has the SHA-256 fingerprint sha256 (64 hex
+ * digits; upper case and ':' between bytes, as openssl prints it, are accepted), or any certificate of host with
+ * sha256 NULL. host: a host name or an IP address (IPv6 with or without brackets), no scheme, port or path; an
+ * exception covers every port of the host. Calls add up: up to 16 fingerprints per host, 64 hosts.
+ * How: when a main-frame load of host fails on its certificate (WebKit's load-failed-with-tls-errors), the library
+ * checks the certificate against the exceptions, tells WebKit to accept it for host
+ * (webkit_network_session_allow_tls_certificate_for_host()) and loads the URI again: the host sees STARTED, FINISHED
+ * (no FAILED) and then the new load. Without a match the load fails as before (UC_WEBVIEW_LOAD_FAILED). Once
+ * accepted, WebKit trusts that certificate for host for the rest of the process, for subresources too; a
+ * subresource of host requested before the main frame accepted its certificate fails. A load the library repeats
+ * is a GET of the URI (a form posted to such a host is not sent again). Exceptions cannot be removed.
+ * Returns 0 (also for an exception that exists already), -1 when refused: another thread, invalid host or
+ * fingerprint, too many.
+ */
+int uc_webview_global_allow_certificate(const char *host, const char *sha256);
+
+/*
+ * UI thread (may be called before uc_webview_global_init(); the value is kept for it). ignore=1: every host's
+ * invalid certificate is accepted (WebKit's WEBKIT_TLS_ERRORS_POLICY_IGNORE for the network session); ignore=0
+ * (WebKit's default): certificates are checked, uc_webview_global_allow_certificate() exceptions apply. Takes effect
+ * for new connections: a connection that is open already (HTTP keep-alive) keeps the decision it was opened with.
+ * Returns 0, -1 when refused (another thread).
+ */
+int uc_webview_global_set_tls_errors_policy(int ignore);
+
+/* uc_webview_global_set_color_scheme() schemes */
+#define UC_WEBVIEW_COLOR_SCHEME_LIGHT 0   /* WebKit's default */
+#define UC_WEBVIEW_COLOR_SCHEME_DARK  1
+
+/*
+ * UI thread (may be called before uc_webview_global_init(); the value is kept for it). The color scheme every page
+ * of the process sees: the CSS media feature prefers-color-scheme and the default colors of pages that declare
+ * "color-scheme: light dark" (WPE's dark-mode setting, WPE_SETTING_DARK_MODE of the library's display, which WebKit
+ * reads for the whole process, SystemSettingsManagerProxyWPE.cpp:103-106). Shown pages follow at once
+ * (matchMedia() change events fire). Pages without a color-scheme of their own keep their look: their background is
+ * uc_webview_set_background_rgba().
+ * Returns 0, -1 when refused: another thread, unknown scheme.
+ */
+int uc_webview_global_set_color_scheme(int scheme);
+
+/* uc_webview_global_clear_data() types */
+#define UC_WEBVIEW_DATA_CACHE 0x1u          /* the memory cache (also pages kept for back/forward and cached web
+                                               processes) and the HTTP disk cache */
+#define UC_WEBVIEW_DATA_ALL   0xffffffffu   /* all website data: caches, cookies, local and session storage,
+                                               IndexedDB, service workers, HSTS, ... (WEBKIT_WEBSITE_DATA_ALL) */
+
+/*
+ * UI thread, after uc_webview_global_init(). Clears website data of the process' network session (every view, every
+ * site), in memory and in the data directory. types: UC_WEBVIEW_DATA_CACHE or UC_WEBVIEW_DATA_ALL. Shown pages stay
+ * as they are; reload them for a fresh start. Not cleared, also with ALL: the credentials of logins answered with
+ * uc_webview_request_auth() (kept in memory until the process ends; WebKit 2.54 has no API to drop them), the
+ * certificate exceptions and the origin headers. Cleared cookies are overwritten in data_dir/cookies.sqlite (libsoup's
+ * SQLite secure_delete); SQLite's temporary journal and the flash storage are not wiped (the 0700 directory and the
+ * 0600 file keep them from other users). Asynchronous: cb (may be NULL) reports when WebKit is done.
+ * Returns 0 when the request is accepted, -1 when refused: another thread, before uc_webview_global_init(), types
+ * not one of the two values (a bit a later release defines).
+ */
+int uc_webview_global_clear_data(unsigned types, uc_webview_done_cb cb, void *user);
+
 /* ---- frames -------------------------------------------------------------- */
 
 /* UI thread. The host has displayed the frame: WebKit may render the next one. Unknown or already
@@ -719,7 +930,10 @@ void uc_webview_ime_commit(uc_webview *, const char *utf8);
 /* UI thread. Shows utf8 as composition text with the caret at character offset cursor; "" or NULL ends the
  * pre-edit without inserting. */
 void uc_webview_ime_preedit(uc_webview *, const char *utf8, int cursor);
-/* UI thread. Deletes n_chars characters starting offset characters from the caret (offset -1, n 1 = backspace). */
+/* UI thread. Deletes n_chars characters starting offset characters from the caret (offset -1, n 1 = backspace).
+ * WebKit counts both in UTF-16 code units, from the start of the selection when there is one (WebPage::
+ * deleteSurrounding, documented on WPEInputMethodContext::delete-surrounding since 2.54.2): a character outside the
+ * Basic Multilingual Plane, like most emoji, counts 2, as in a QString. n_chars <= 0 does nothing. */
 void uc_webview_ime_delete_surrounding(uc_webview *, int offset, int n_chars);
 
 #ifdef __cplusplus

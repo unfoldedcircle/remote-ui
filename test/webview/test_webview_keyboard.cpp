@@ -1,9 +1,10 @@
 // Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// The on-screen keyboard on the WebView settings page: the page as the app loads it (qrc:/settings/settings/
-// WebView.qml) under a copy of main.qml's keyboard controller (qml/KeyboardHost.qml), with the real Qt Virtual
-// Keyboard input context (QT_IM_MODULE=qtvirtualkeyboard) and the real InputController behind ui.inputController.
+// The on-screen keyboard on the web view test page (Settings > Web view > Web view test): the page as the app loads it
+// (qrc:/settings/settings/WebViewTest.qml) under a copy of main.qml's keyboard controller (qml/KeyboardHost.qml), with
+// the real Qt Virtual Keyboard input context (QT_IM_MODULE=qtvirtualkeyboard) and the real InputController behind
+// ui.inputController.
 //
 // Regression: tapping the address field made the keyboard show and hide forever, with no web page loaded. The
 // field used InputField's default moveInput (the full-screen keyboardInputField overlay), whose takeControl() made
@@ -937,8 +938,8 @@ void testWebViewKeyboard::prevAndNextPassTheFocusedWebView() {
                                       QStringLiteral("go_back"), QStringLiteral("go_forward")}));
     QVERIFY(lib::keys.isEmpty());
 
-    // BACK leaves the page from inside the web view (Settings.Page: profileRoot.goBack()), also not forwarded.
-    // Last: the BACK handler restores the page's original button configuration.
+    // BACK leaves the page from inside the web view (done(), which the host counts as profileRoot.goBack()), also not
+    // forwarded.
     QObject *profileRoot = view->rootObject()->findChild<QObject *>("profileRoot");
     QVERIFY(profileRoot);
     QVERIFY(!pressRemoteButton(Qt::Key_Exit));
@@ -1079,9 +1080,10 @@ void testWebViewKeyboard::zoomLabelStaysWithASpinnerWhileThePageRenders() {
     pressRemoteButton(Qt::Key_VolumeUp);
     QVERIFY(webView->isZoomRendering());
     QTRY_VERIFY(label->isVisible());
-    // the spinner comes after the page's zoomSpinnerDelay (150 ms), not before
+    // the spinner comes after the label's spinnerDelay (150 ms), not before
     QTRY_VERIFY_WITH_TIMEOUT(spinner->isVisible(), 1000);
-    QVERIFY(clock.elapsed() >= page->property("zoomSpinnerDelay").toInt());
+    QVERIFY(label->property("spinnerDelay").toInt() == 150);
+    QVERIFY(clock.elapsed() >= label->property("spinnerDelay").toInt());
     // longer than the label's second: it stays while the page renders
     QTest::qWait(1500);
     QVERIFY(label->isVisible());

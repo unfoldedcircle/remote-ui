@@ -5,11 +5,18 @@
 
 #include <QAbstractEventDispatcher>
 #include <QCoreApplication>
+#include <QDir>
+#include <QFileInfo>
 #include <QGuiApplication>
+#include <QMetaObject>
+#include <QPointer>
 #include <QThread>
 #include <qpa/qplatformnativeinterface.h>
 
+#include <memory>
 #include <type_traits>
+#include <utility>
+#include <vector>
 
 #include "../logging.h"
 #include "webviewinput.h"
@@ -62,6 +69,13 @@ UC_WEBVIEW_CHECK_SIGNATURE(set_magnification, uc_webview_set_magnification);
 UC_WEBVIEW_CHECK_SIGNATURE(get_magnification, uc_webview_get_magnification);
 UC_WEBVIEW_CHECK_SIGNATURE(request_reply, uc_webview_request_reply);
 UC_WEBVIEW_CHECK_SIGNATURE(request_auth, uc_webview_request_auth);
+UC_WEBVIEW_CHECK_SIGNATURE(set_origin_headers, uc_webview_set_origin_headers);
+UC_WEBVIEW_CHECK_SIGNATURE(set_user_agent, uc_webview_set_user_agent);
+UC_WEBVIEW_CHECK_SIGNATURE(global_set_cookies, uc_webview_global_set_cookies);
+UC_WEBVIEW_CHECK_SIGNATURE(global_allow_certificate, uc_webview_global_allow_certificate);
+UC_WEBVIEW_CHECK_SIGNATURE(global_set_tls_errors_policy, uc_webview_global_set_tls_errors_policy);
+UC_WEBVIEW_CHECK_SIGNATURE(global_set_color_scheme, uc_webview_global_set_color_scheme);
+UC_WEBVIEW_CHECK_SIGNATURE(global_clear_data, uc_webview_global_clear_data);
 
 #undef UC_WEBVIEW_CHECK_SIGNATURE
 
@@ -74,6 +88,12 @@ constexpr int         kLibraryVersion = 1;
 // qeventdispatcher_glib_p.h:61) and QXcbGlibEventDispatcher (xcb). Both derive from QEventDispatcherGlib.
 constexpr const char *kGlibDispatcherMarker = "Glib";
 
+// the class name of this thread's event dispatcher, empty without one
+QString eventDispatcherName() {
+    QAbstractEventDispatcher *dispatcher = QAbstractEventDispatcher::instance();
+    return dispatcher ? QLatin1String(dispatcher->metaObject()->className()) : QString();
+}
+
 template <typename F>
 bool resolveSymbol(QLibrary *library, F *target, const char *symbol, QString *missing) {
     *target = reinterpret_cast<F>(library->resolve(symbol));
@@ -85,6 +105,49 @@ bool resolveSymbol(QLibrary *library, F *target, const char *symbol, QString *mi
     }
     missing->append(QLatin1String(symbol));
     return false;
+}
+
+// An asynchronous request of the library (uc_webview_done_cb): the library calls onDone() exactly once for an accepted
+// request, on the GUI thread from an idle of the GLib main context, never for a refused one.
+struct DoneCall {
+    QPointer<QObject>    context;
+    WebViewLibrary::Done done;
+    quint64             *clearedGeneration = nullptr;  // a clear of all website data: counted when it ends
+};
+
+void onDone(int status, void *user) {
+    std::unique_ptr<DoneCall> call(static_cast<DoneCall *>(user));
+    if (call->clearedGeneration) {
+        ++*call->clearedGeneration;
+    }
+    if (!call->context || !call->done) {
+        return;  // the requester went meanwhile
+    }
+    // Into Qt's event loop: the handler runs on the context's thread after the GLib dispatch of the library's idle
+    // has returned, and Qt drops the call when the context goes before it runs.
+    const bool ok = status == UC_WEBVIEW_DONE_OK;
+    QMetaObject::invokeMethod(
+        call->context.data(), [done = std::move(call->done), ok] { done(ok); }, Qt::QueuedConnection);
+}
+
+// the library functions of the site settings (library 0.8.0) that are missing, for the log
+QStringList missingSiteFunctions(const WebViewFunctions &f) {
+    QStringList missing;
+    const std::pair<bool, const char *> functions[] = {
+        {f.set_origin_headers != nullptr, "uc_webview_set_origin_headers"},
+        {f.set_user_agent != nullptr, "uc_webview_set_user_agent"},
+        {f.global_set_cookies != nullptr, "uc_webview_global_set_cookies"},
+        {f.global_allow_certificate != nullptr, "uc_webview_global_allow_certificate"},
+        {f.global_set_tls_errors_policy != nullptr, "uc_webview_global_set_tls_errors_policy"},
+        {f.global_set_color_scheme != nullptr, "uc_webview_global_set_color_scheme"},
+        {f.global_clear_data != nullptr, "uc_webview_global_clear_data"},
+    };
+    for (const auto &function : functions) {
+        if (!function.first) {
+            missing.append(QLatin1String(function.second));
+        }
+    }
+    return missing;
 }
 
 }  // namespace
@@ -103,15 +166,38 @@ bool WebViewLibrary::isAvailable() {
         } else {
             qCInfo(lcWebView()) << "Web view unavailable:" << m_reason;
         }
+        if (m_availabilityHandler) {
+            m_availabilityHandler(m_available);
+        }
     }
     return m_available;
+}
+
+bool WebViewLibrary::isInstalled() const {
+    if (m_probed) {
+        return m_available;
+    }
+    return eventDispatcherName().contains(QLatin1String(kGlibDispatcherMarker)) && !installedPath().isEmpty();
+}
+
+QString WebViewLibrary::installedPath() {
+    // QLibrary passes the bare file name to dlopen(), which looks in the directories of LD_LIBRARY_PATH first
+    QStringList directories =
+        QString::fromLocal8Bit(qgetenv("LD_LIBRARY_PATH")).split(QLatin1Char(':'), Qt::SkipEmptyParts);
+    directories << QStringLiteral("/usr/lib") << QStringLiteral("/lib");
+    for (const QString &directory : directories) {
+        const QFileInfo file(QDir(directory), QLatin1String(UC_WEBVIEW_SONAME));
+        if (file.isFile() && file.isReadable()) {
+            return file.absoluteFilePath();
+        }
+    }
+    return QString();
 }
 
 bool WebViewLibrary::load() {
     Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
 
-    QAbstractEventDispatcher *dispatcher = QAbstractEventDispatcher::instance();
-    const QString dispatcherName = dispatcher ? QLatin1String(dispatcher->metaObject()->className()) : QString();
+    const QString dispatcherName = eventDispatcherName();
     if (!dispatcherName.contains(QLatin1String(kGlibDispatcherMarker))) {
         m_reason = QStringLiteral("the event dispatcher is %1, WebKit needs Qt's GLib dispatcher (is QT_NO_GLIB set?)")
                        .arg(dispatcherName.isEmpty() ? QStringLiteral("missing") : dispatcherName);
@@ -158,6 +244,11 @@ bool WebViewLibrary::load() {
     if (!m_functions.request_reply) {
         qCInfo(lcWebView()) << m_library.fileName()
                             << "has no uc_webview_request_reply (older than 0.7.0): no dialogs or logins of the page";
+    }
+    const QStringList missingSite = missingSiteFunctions(m_functions);
+    if (!missingSite.isEmpty()) {
+        qCInfo(lcWebView()).noquote() << m_library.fileName() << "has no" << missingSite.join(QStringLiteral(", "))
+                                      << "(older than 0.8.0): web view entities load without these site settings";
     }
     return true;
 }
@@ -218,6 +309,21 @@ bool WebViewLibrary::resolveAll(QString *missing) {
         reinterpret_cast<decltype(m_functions.request_reply)>(m_library.resolve("uc_webview_request_reply"));
     m_functions.request_auth =
         reinterpret_cast<decltype(m_functions.request_auth)>(m_library.resolve("uc_webview_request_auth"));
+    // library 0.8.0: the site settings, each on its own (the header names no detection function for them)
+    m_functions.set_origin_headers =
+        reinterpret_cast<decltype(m_functions.set_origin_headers)>(m_library.resolve("uc_webview_set_origin_headers"));
+    m_functions.set_user_agent =
+        reinterpret_cast<decltype(m_functions.set_user_agent)>(m_library.resolve("uc_webview_set_user_agent"));
+    m_functions.global_set_cookies =
+        reinterpret_cast<decltype(m_functions.global_set_cookies)>(m_library.resolve("uc_webview_global_set_cookies"));
+    m_functions.global_allow_certificate = reinterpret_cast<decltype(m_functions.global_allow_certificate)>(
+        m_library.resolve("uc_webview_global_allow_certificate"));
+    m_functions.global_set_tls_errors_policy = reinterpret_cast<decltype(m_functions.global_set_tls_errors_policy)>(
+        m_library.resolve("uc_webview_global_set_tls_errors_policy"));
+    m_functions.global_set_color_scheme = reinterpret_cast<decltype(m_functions.global_set_color_scheme)>(
+        m_library.resolve("uc_webview_global_set_color_scheme"));
+    m_functions.global_clear_data =
+        reinterpret_cast<decltype(m_functions.global_clear_data)>(m_library.resolve("uc_webview_global_clear_data"));
     return ok;
 }
 
@@ -248,6 +354,9 @@ bool WebViewLibrary::ensureInitialized() {
         m_available = false;
         m_reason = QStringLiteral("uc_webview_global_init failed (%1)").arg(result);
         qCWarning(lcWebView()) << "Web view unavailable:" << m_reason;
+        if (m_availabilityHandler) {
+            m_availabilityHandler(false);
+        }
         return false;
     }
 
@@ -262,7 +371,127 @@ bool WebViewLibrary::ensureInitialized() {
     qCInfo(lcWebView()) << "Touch drag threshold" << m_dragThreshold << "px"
                         << (valid ? "(reported by the library)"
                                   : "(not reported by the library: UC_WEBVIEW_DRAG_THRESHOLD or WPE's default)");
+    applyGlobalSettings();
     return true;
+}
+
+void WebViewLibrary::setGlobalSettings(const QString &colorScheme, bool allowInvalidCertificates) {
+    Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
+
+    if (colorScheme == m_colorScheme && allowInvalidCertificates == m_allowInvalidCertificates) {
+        return;
+    }
+    m_colorScheme = colorScheme;
+    m_allowInvalidCertificates = allowInvalidCertificates;
+    if (m_initialized) {
+        applyGlobalSettings();
+    }
+}
+
+void WebViewLibrary::applyGlobalSettings() {
+    const bool dark = m_colorScheme == QLatin1String("dark");
+    if (m_functions.global_set_color_scheme) {
+        if (m_functions.global_set_color_scheme(dark ? UC_WEBVIEW_COLOR_SCHEME_DARK : UC_WEBVIEW_COLOR_SCHEME_LIGHT) !=
+            0) {
+            qCWarning(lcWebView()) << "The web view library refused the colour scheme" << m_colorScheme;
+        }
+    } else if (dark) {
+        // WebKit's default needs nothing
+        qCInfo(lcWebView()) << "The web view library cannot set the colour scheme dark (older than 0.8.0): pages see "
+                               "the light scheme";
+    }
+    if (m_functions.global_set_tls_errors_policy) {
+        if (m_functions.global_set_tls_errors_policy(m_allowInvalidCertificates ? 1 : 0) != 0) {
+            qCWarning(lcWebView()) << "The web view library refused the policy for invalid certificates";
+        }
+    } else if (m_allowInvalidCertificates) {
+        qCInfo(lcWebView()) << "The web view library cannot accept invalid certificates of all hosts (older than "
+                               "0.8.0): the certificate check stays on";
+    }
+}
+
+bool WebViewLibrary::allowCertificate(const QString &host, const QString &sha256) {
+    Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
+
+    if (!m_available || !m_functions.global_allow_certificate || host.isEmpty()) {
+        return false;
+    }
+    const QString key = host + QLatin1Char(' ') + sha256;
+    if (m_certificateExceptions.contains(key)) {
+        return true;
+    }
+    const QByteArray hostBytes = host.toUtf8();
+    const QByteArray sha256Bytes = sha256.toLatin1();
+    // the library logs the exception it takes, or why it refused it
+    if (m_functions.global_allow_certificate(hostBytes.constData(),
+                                             sha256.isEmpty() ? nullptr : sha256Bytes.constData()) != 0) {
+        qCWarning(lcWebView()) << "The web view library refused the certificate exception of a web view";
+        return false;
+    }
+    m_certificateExceptions.insert(key);
+    return true;
+}
+
+bool WebViewLibrary::setCookies(const QUrl &url, const QList<WebViewSite::Cookie> &cookies, QObject *context,
+                                Done done) {
+    Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
+
+    if (!m_initialized || !m_functions.global_set_cookies) {
+        return false;
+    }
+    // the library copies the strings during the call
+    std::vector<QByteArray>        strings;
+    std::vector<uc_webview_cookie> list(static_cast<size_t>(cookies.size()));
+    strings.reserve(list.size() * 4);
+    auto keep = [&strings](const QString &text) {
+        strings.push_back(text.toUtf8());
+        return strings.back().constData();
+    };
+    for (int i = 0; i < cookies.size(); ++i) {
+        const WebViewSite::Cookie &cookie = cookies.at(i);
+        uc_webview_cookie         &c = list[static_cast<size_t>(i)];
+        c.name = keep(cookie.name);
+        c.value = keep(cookie.value);
+        c.domain = cookie.domain.isEmpty() ? nullptr : keep(cookie.domain);
+        c.path = cookie.path.isEmpty() ? nullptr : keep(cookie.path);
+        c.secure = cookie.secure ? 1 : 0;
+        c.http_only = cookie.httpOnly ? 1 : 0;
+        c.expires = cookie.expires.isValid() ? cookie.expires.toSecsSinceEpoch() : -1;
+    }
+    const QByteArray address = url.toEncoded();
+    auto            *call = new DoneCall{context, std::move(done), nullptr};
+    // the library logs the URL and the count, or the rule a cookie breaks, never a value
+    if (m_functions.global_set_cookies(address.constData(), list.data(), list.size(), &onDone, call) != 0) {
+        delete call;
+        return false;
+    }
+    return true;
+}
+
+WebViewLibrary::ClearStart WebViewLibrary::clearWebsiteData(bool all, QObject *context, Done done) {
+    Q_ASSERT(QThread::currentThread() == QCoreApplication::instance()->thread());
+
+    if (!isAvailable() || !m_functions.global_clear_data) {
+        bool &logged = all ? m_clearAllGapLogged : m_clearCacheGapLogged;
+        if (!logged) {
+            logged = true;
+            qCInfo(lcWebView()) << "The web view library cannot clear" << (all ? "the website data" : "the HTTP cache")
+                                << "(older than 0.8.0): nothing is cleared";
+        }
+        return ClearStart::Unsupported;
+    }
+    if (!ensureInitialized()) {
+        return ClearStart::Refused;
+    }
+    auto *call = new DoneCall{context, std::move(done), all ? &m_websiteDataGeneration : nullptr};
+    if (m_functions.global_clear_data(all ? UC_WEBVIEW_DATA_ALL : UC_WEBVIEW_DATA_CACHE, &onDone, call) != 0) {
+        delete call;
+        qCWarning(lcWebView()) << "The web view library refused to clear"
+                               << (all ? "the website data" : "the HTTP cache");
+        return ClearStart::Refused;
+    }
+    qCInfo(lcWebView()) << "Clearing" << (all ? "the website data" : "the HTTP cache") << "of every web view";
+    return ClearStart::Started;
 }
 
 double WebViewLibrary::dragThreshold() {
@@ -292,6 +521,12 @@ void WebViewLibrary::setFunctionsForTest(const WebViewFunctions &functions) {
     m_refreshRate = 0;
     m_dragThreshold = 0;
     m_reason.clear();
+    m_colorScheme = QStringLiteral("light");
+    m_allowInvalidCertificates = false;
+    m_clearCacheGapLogged = false;
+    m_clearAllGapLogged = false;
+    m_certificateExceptions.clear();
+    m_websiteDataGeneration = 0;
 }
 
 }  // namespace webview

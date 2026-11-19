@@ -410,6 +410,14 @@ Rectangle {
             entityBaseContainer.iconOn = true;
             button.checked = false;
             break;
+        case EntityTypes.Webview:
+            // the icon opens the web page like the rest of the tile
+            entityBaseContainer.iconOn = true;
+            entityBaseContainer.controlTrigger = function() {
+                entityBaseContainer.open();
+            }
+            button.checked = false;
+            break;
         }
     }
 

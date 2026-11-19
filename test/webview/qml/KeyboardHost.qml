@@ -1,7 +1,7 @@
 // Copyright (c) 2026 Unfolded Circle ApS and/or its affiliates. <hello@unfoldedcircle.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
-// Test host for the WebView settings page: the page as the app loads it (qrc:/settings/settings/WebView.qml,
+// Test host for the web view test page: the page as the app loads it (qrc:/settings/settings/WebViewTest.qml,
 // with its Settings.Page button navigation) under a copy of main.qml's keyboard controller - the InputPanel
 // `keyboard` with show()/hide()/opened()/closed() mirroring Qt.inputMethod.visible, and the `keyboardInputField`
 // overlay an InputField with moveInput opens. The ids keyboard, keyboardInputField and profileRoot are resolved
@@ -26,9 +26,12 @@ Item {
         function goHome() {}
     }
 
-    SettingsPages.WebView {
+    // the Web view settings page closes the test page when it is done (BACK, window.close() of the page); here that
+    // counts as going back, like on any other settings page
+    SettingsPages.WebViewTest {
         id: page
         objectName: "page"
+        onDone: profileRoot.goBack()
     }
 
     // ---- copy of main.qml ------------------------------------------------------------------------------------

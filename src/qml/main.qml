@@ -16,6 +16,7 @@ import Power.Modes 1.0
 import SoundEffects 1.0
 import SoftwareUpdate 1.0
 import Entity.Controller 1.0
+import WebView.Controller 1.0
 
 import "qrc:/components" as Components
 import "qrc:/settings/softwareupdate" as Softwareupdate
@@ -138,6 +139,99 @@ ApplicationWindow {
             containerThird.loaderThird.openAfterLoad = openAfterLoad;
             containerThird.loaderThird.active = true;
             containerThird.loaderThird.setSource(source, parameters);
+        }
+    }
+
+    // A web view the `open` command asked for while it cannot be shown yet: an activity's loading screen is up (open is
+    // a step of its sequence), or the screen it goes on top of is still loading. Opened once that is done.
+    property string pendingWebViewId: ""
+
+    /**
+      Shows a web view entity fullscreen on top of the current screen (core-api entity_webview.md "Open"): a tap on its
+      tile or on a web view widget that is not interactive, or the `open` command (WebViewController.openRequested).
+      Closing it returns to that screen. An open fullscreen web view stays as it is for the same web view, another
+      web view replaces its page.
+      */
+    function openWebView(entityId) {
+        const entityObj = EntityController.get(entityId);
+
+        if (!entityObj) {
+            console.warn("Cannot open an unknown web view:", entityId);
+            return;
+        }
+
+        if (ui.isOnboarding) {
+            console.warn("No web view during the onboarding:", entityId);
+            return;
+        }
+
+        if (activityLoading.visible || containerSecond.loader.status === Loader.Loading
+                || containerThird.loaderThird.status === Loader.Loading) {
+            applicationWindow.pendingWebViewId = entityId;
+            return;
+        }
+        applicationWindow.pendingWebViewId = "";
+
+        for (const screen of [containerThird.loaderThird.item, containerSecond.loader.item]) {
+            if (screen && screen.isWebViewScreen === true) {
+                screen.showEntity(entityObj);
+                return;
+            }
+        }
+
+        const source = EntityController.screenUrl(entityObj);
+        if (!containerSecond.loader.active) {
+            loadSecondContainer(source, { "entityId": entityObj.id, "entityObj": entityObj });
+        } else if (!containerThird.loaderThird.active) {
+            // on top of the screen that is open, whose button mapping the other buttons keep
+            loadThirdContainer(source, { "entityId": entityObj.id, "entityObj": entityObj,
+                                         "underlyingScreen": containerSecond.loader.item });
+        } else {
+            // an entity of the activity is open on top of it (its menu): that screen closes first, the web view
+            // follows once the container is free (loaderThird's onActiveChanged)
+            applicationWindow.pendingWebViewId = entityId;
+            if (containerThird.loaderThird.item) {
+                containerThird.loaderThird.item.close();
+            }
+        }
+    }
+
+    function openPendingWebView() {
+        if (applicationWindow.pendingWebViewId !== "") {
+            openWebView(applicationWindow.pendingWebViewId);
+        }
+    }
+
+    /**
+      HOME on a fullscreen web view on top of another screen closes that screen as well (Webview.qml goHome()). A
+      screen with a close() of its own closes as on BACK; the others (the rename dialogs, the profile switcher) are
+      dropped the way a closed screen is.
+      */
+    function closeScreenBelowWebView() {
+        const screen = containerSecond.loader.item;
+
+        if (!screen) {
+            return;
+        }
+
+        if (typeof screen.close === "function") {
+            screen.close();
+            return;
+        }
+
+        console.info("Dropping the screen below the web view:", containerSecond.loader.source);
+        keyboard.hide();
+        containerSecond.loader.source = "";
+        containerSecond.loader.active = false;
+        containerSecond.close();
+        root.isActivityOpen = false;
+    }
+
+    Connections {
+        target: WebViewController
+
+        function onOpenRequested(entityId) {
+            applicationWindow.openWebView(entityId);
         }
     }
 
@@ -484,6 +578,17 @@ ApplicationWindow {
                 }
             }
 
+            // a web view waits for the screen it opens on top of (openWebView())
+            Connections {
+                target: loader
+
+                function onStatusChanged() {
+                    if (loader.status === Loader.Ready) {
+                        Qt.callLater(applicationWindow.openPendingWebView);
+                    }
+                }
+            }
+
             Connections {
                 target: loader.item
                 ignoreUnknownSignals: true
@@ -566,20 +671,39 @@ ApplicationWindow {
                 }
             }
 
+            // a web view waits for the screen it replaces (openWebView())
+            Connections {
+                target: loaderThird
+
+                function onActiveChanged() {
+                    if (!loaderThird.active) {
+                        Qt.callLater(applicationWindow.openPendingWebView);
+                    }
+                }
+            }
+
             Connections {
                 target: loaderThird.item
                 ignoreUnknownSignals: true
 
                 function onClosed() {
                     console.info("Third container closed", loaderThird.source);
+                    // HOME on a fullscreen web view: the screen below it closes as well
+                    const toHome = loaderThird.item && loaderThird.item.closeToHome === true;
                     containerThird.close();
                     containerSecondShowAnimation.start();
+                    if (toHome) {
+                        applicationWindow.closeScreenBelowWebView();
+                    }
                 }
             }
         }
 
         ActivityComponents.LoadingScreen {
             id: activityLoading
+
+            // a web view opened by a step of the sequence waits for the activity screen (openWebView())
+            onClosed: Qt.callLater(applicationWindow.openPendingWebView)
         }
 
         Components.LoadingScreen {
