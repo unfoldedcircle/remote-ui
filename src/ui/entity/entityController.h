@@ -30,6 +30,7 @@
 #include "sensor.h"
 #include "switch.h"
 #include "voiceAssistant.h"
+#include "webview.h"
 
 namespace uc {
 namespace ui {
@@ -325,6 +326,17 @@ class EntityController : public QObject {
     void setAllEntitiesAvailable(bool value);
 
     void retrySendAttempt(const QString& commandId);
+
+    /**
+     * @brief Fetches a web view entity again for the secret values of its options.
+     *
+     * entity_change events never carry the secrets of a web view (its password, token, header value and cookie
+     * values), only the core's answer to the UI session's get_entity does. An event that changed the options is
+     * therefore not applied: the entity is fetched instead. Only the answer of the latest fetch of an entity is
+     * applied (ADR 0017).
+     */
+    void                refreshWebviewOptions(const QString& entityId);
+    QHash<QString, int> m_webviewRefreshRequests;
 
  private slots:
     void onCoreConnected();

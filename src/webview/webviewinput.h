@@ -24,6 +24,19 @@ namespace webview {
 // the key's name).
 uint32_t xkbKeysymForKey(int key, const QString &text);
 
+// A key of the page that the item sends itself (WebViewItem::sendKey(), the remote's buttons in the fullscreen web
+// view, core-api WebviewButtonKey): the XKB keysym WebKit derives KeyboardEvent.key and keyCode from, and the XKB
+// keycode (evdev + 8) it derives KeyboardEvent.code from. Exit and MediaPlayPause need exactly their keycode: WebKit
+// tells them from Close and MediaPlay by it (docs/webview.md, "Keys of the page").
+struct PageKey {
+    uint32_t keysym;
+    uint32_t keycode;
+};
+
+// The page key of a KeyboardEvent.key name of core-api WebviewButtonKey ("ArrowUp", "ChannelUp", "ColorF0Red", ...),
+// or nullptr for any other name.
+const PageKey *pageKeyForName(const QString &name);
+
 // UC_WEBVIEW_MOD_* bits for the keyboard modifiers and the held mouse buttons of an event.
 unsigned modifiersForEvent(Qt::KeyboardModifiers modifiers, Qt::MouseButtons buttons = Qt::NoButton);
 

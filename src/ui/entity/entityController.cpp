@@ -200,6 +200,12 @@ EntityController::EntityController(core::Api* core, const QString& language, con
     qmlRegisterUncreatableType<entity::NumberDeviceClass>("Entity.Number", 1, 0, "NumberDeviceClasses",
                                                           "Enum is not a type");
 
+    // web view enums
+    qRegisterMetaType<entity::WebviewStates::Enum>("Webview States");
+    qmlRegisterUncreatableType<entity::WebviewStates>("Entity.Webview", 1, 0, "WebviewStates", "Enum is not a type");
+    // the `site` property QML hands from a web view entity to the WebView item
+    qRegisterMetaType<uc::webview::WebViewSite>();
+
     QObject::connect(m_core, &core::Api::connected, this, &EntityController::onCoreConnected);
     QObject::connect(m_core, &core::Api::disconnected, this, &EntityController::onCoreDisconnected);
 
@@ -281,6 +287,9 @@ entity::Base* EntityController::createEntityObject(const QString& type, const QS
         case entity::Base::Type::Number:
             return new entity::Number(id, name, m_language, icon, area, deviceClass, enabled, attributes, options,
                                       integrationId, parent);
+        case entity::Base::Type::Webview:
+            return new entity::Webview(id, name, m_language, icon, area, enabled, attributes, options, integrationId,
+                                       parent);
         default:
             return new entity::Base(id, name, m_language, icon, area, entity::Base::Type::Unsupported, true,
                                     QVariantMap(), integrationId, false, parent);
@@ -791,6 +800,7 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
 
             case entity::Base::Type::Sensor:
             case entity::Base::Type::Select:
+            case entity::Base::Type::Webview:
                 // no features, the core sends an empty list
                 break;
             default:
@@ -799,10 +809,42 @@ void EntityController::onEntityChanged(const QString& entityId, core::Entity ent
         }
     }
 
+    // the options of a web view in a change event lack its secrets: fetch it instead (refreshWebviewOptions())
+    if (entity.optionsProvided && entityObj->getType() == entity::Base::Type::Webview &&
+        !entity::Webview::secretsInOptions(entity.options)) {
+        refreshWebviewOptions(entityId);
+        return;
+    }
+
     // empty options of a change event still count: removing the last user override leaves no options
     if (entity.optionsProvided || entity.options.size() > 0) {
         entityObj->updateOptions(entity.options);
     }
+}
+
+void EntityController::refreshWebviewOptions(const QString& entityId) {
+    const int id = m_core->getEntity(entityId);
+    if (id < 0) {
+        return;
+    }
+    m_webviewRefreshRequests.insert(entityId, id);
+
+    m_core->onResponseWithErrorResult(
+        id, &core::Api::respEntity,
+        [this, entityId, id](core::Entity entity) {
+            if (m_webviewRefreshRequests.value(entityId, -1) != id) {
+                qCDebug(lcEntityController()) << "Dropping the answer of an earlier web view fetch:" << entityId;
+                return;
+            }
+            m_webviewRefreshRequests.remove(entityId);
+            onEntityChanged(entityId, entity);
+        },
+        [this, entityId, id](int code, QString message) {
+            if (m_webviewRefreshRequests.value(entityId, -1) == id) {
+                m_webviewRefreshRequests.remove(entityId);
+            }
+            qCWarning(lcEntityController()) << "Cannot get the web view options:" << entityId << code << message;
+        });
 }
 
 void EntityController::onEntityDeleted(const QString& entityId) {

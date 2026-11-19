@@ -11,12 +11,15 @@ import "qrc:/components" as Components
 // One row of a menu (docs/design-system.md sections 5 to 7): 80 px, an optional 60 px icon box, the label, and at
 // the end a value, a badge, a check mark for the current value, or a chevron for a row that opens another screen.
 // The selection spans 8 px to width - 8, the content keeps the 20 px gutter. Pressed inverts the row.
+// With a description (a picker row of a setting screen) a second text in the help role says what the row does: the
+// label then wraps once instead of eliding, the value and chevron stay on its first line, and the row grows to fit
+// with the 14 px vertical padding of a setting section.
 // It only renders and reports taps: the host list keeps the selection and the keys.
 Item {
     id: menuRow
     width: parent ? parent.width : 0
-    height: 80
-    implicitHeight: 80
+    height: implicitHeight
+    implicitHeight: described ? Math.max(80, descriptionText.y + descriptionText.height + 14) : 80
 
     Layout.fillWidth: true
 
@@ -41,6 +44,9 @@ Item {
     property bool popup: false
     // a destructive action, e.g. "Delete page"
     property bool destructive: false
+    // what the row does, under the label in the help role, e.g. on a picker row of a setting screen; empty: one line
+    property string description: ""
+    readonly property bool described: description !== ""
 
     // set when the row is part of a keypad focus chain: OK (Return) while focused activates it like a tap
     property bool keypadActivatable: false
@@ -92,13 +98,34 @@ Item {
 
     Text {
         id: label
-        width: Math.min(implicitWidth, trailing.x - x - (badgeItem.visible ? badgeItem.width + 10 : 0) - 10)
+        objectName: "menuRowLabel"
+        width: menuRow.described
+               ? trailing.x - x - 10
+               : Math.min(implicitWidth, trailing.x - x - (badgeItem.visible ? badgeItem.width + 10 : 0) - 10)
         anchors { left: iconItem.visible ? iconItem.right : parent.left; leftMargin: iconItem.visible ? 10 : 20;
-                  verticalCenter: parent.verticalCenter }
+                  verticalCenter: menuRow.described ? undefined : parent.verticalCenter;
+                  top: menuRow.described ? parent.top : undefined; topMargin: 14 }
         elide: Text.ElideRight
-        maximumLineCount: 1
+        wrapMode: menuRow.described ? Text.WordWrap : Text.NoWrap
+        maximumLineCount: menuRow.described ? 2 : 1
         color: menuRow.contentColor
         font: menuRow.popup ? fonts.menuRow() : fonts.label()
+    }
+
+    FontMetrics {
+        id: labelMetrics
+        font: label.font
+    }
+
+    Text {
+        id: descriptionText
+        objectName: "menuRowDescription"
+        visible: menuRow.described
+        anchors { left: label.left; right: parent.right; rightMargin: 20; top: label.bottom; topMargin: 6 }
+        text: menuRow.description
+        wrapMode: Text.WordWrap
+        color: menuRow.secondaryColor
+        font: fonts.help()
     }
 
     Rectangle {
@@ -123,7 +150,10 @@ Item {
     Row {
         id: trailing
         spacing: 10
-        anchors { right: parent.right; rightMargin: 20; verticalCenter: parent.verticalCenter }
+        // with a description on the label's first line, else in the middle of the row
+        y: menuRow.described ? label.y + (labelMetrics.height - height) / 2 : 0
+        anchors { right: parent.right; rightMargin: 20;
+                  verticalCenter: menuRow.described ? undefined : parent.verticalCenter }
 
         Text {
             visible: menuRow.value !== ""

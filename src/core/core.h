@@ -187,6 +187,51 @@ class Api : public QObject {
     int getVoiceControlCfg();
     int setVoiceControlCfg(bool microphoneEnabled, const QString& entityId, const QString& profileId, bool speechResponse);
     int getVoiceAssistants();
+    int getWebviewCfg();
+    /**
+     * @brief Change global web view settings (set_webview_cfg, admin scope): update holds only the settings to change,
+     * `allow_invalid_certificates`, `color_scheme`, `website_data` or `buttons` (the changed buttons only, merged
+     * button by button by the core); a missing one keeps its value.
+     * The core answers with all settings (respWebviewCfg()) and reports the change with a configuration_change event.
+     * @return request id, or -1 if the request could not be sent
+     */
+    int setWebviewCfg(const QVariantMap &update);
+
+    // the UI app
+    /**
+     * @brief Declare the UI app to the core (set_ui_info): its version and the entity types whose commands it
+     * executes. The core routes the commands of these types to this session as `entity_command` requests
+     * (uiEntityCommand()). A new request replaces the previous one, an empty list withdraws it.
+     * @return request id, or -1 if the request could not be sent
+     */
+    int setUiInfo(const QString &version, const QStringList &entityTypes);
+    /**
+     * @brief Answer a request of the core with a `result` response: code 200 without data, any other code with the
+     * message in `msg_data`.
+     */
+    void respondResult(int reqId, int code, const QString &message = QString());
+
+    /**
+     * @brief The `msg_data` of set_ui_info. Public for the unit tests.
+     */
+    static QVariantMap uiInfoMsgData(const QString &version, const QStringList &entityTypes);
+    /**
+     * @brief The `result` response to a request of the core. Public for the unit tests.
+     */
+    static QVariantMap resultResponse(int reqId, int code, const QString &message);
+    /**
+     * @brief Parse the `msg_data` of an `entity_command` request of the core. Public for the unit tests.
+     */
+    static UiEntityCommand parseUiEntityCommand(int reqId, const QVariantMap &msgData);
+    /**
+     * @brief Parse the global web view settings (`webview_cfg` response, `webview` of a configuration change).
+     * Public for the unit tests.
+     */
+    static cfgWebview parseWebviewCfg(const QVariantMap &map);
+    /**
+     * @brief Dispatches a request message of the core. Public for the unit tests, which have no core to send one.
+     */
+    void processRequestMessage(QVariantMap map);
 
     // wifi handling
     int wifiGetStatus();
@@ -403,6 +448,8 @@ class Api : public QObject {
     // request signals
  signals:
     void reqGetLocalizationLanguages(int reqId);
+    // an entity command for an entity type the UI declared with setUiInfo(); answer it with respondResult()
+    void uiEntityCommand(uc::core::UiEntityCommand command);
 
     // response signals
  signals:
@@ -464,6 +511,8 @@ class Api : public QObject {
 
     void respSequenceReadiness(int reqId, int code, core::SequenceReadiness report);
 
+    void respWebviewCfg(int reqId, int code, core::cfgWebview config);
+
     // event signals
  signals:
     void connected();
@@ -493,6 +542,7 @@ class Api : public QObject {
     void cfgSoftwareUpdateChanged(cfgSoftwareUpdate config);
     void cfgSoundChanged(cfgSound config);
     void cfgVoiceControlChanged(cfgVoiceControl config);
+    void cfgWebviewChanged(cfgWebview config);
 
     void profileAdded(QString profileId, Profile profile);
     void profileChanged(QString profileId, Profile profile);
@@ -584,7 +634,6 @@ class Api : public QObject {
     int sendRequest(RequestTypes::Enum type, const QVariantMap msgData = QVariantMap());
 
     void processEventMessage(QVariantMap map);
-    void processRequestMessage(QVariantMap map);
 
     void                 setupTimerForRequest(int requestId);
     void                 removeRequestTimer(int requestId);

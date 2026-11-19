@@ -24,6 +24,7 @@
 #include "ui/entity/sensor.h"
 #include "ui/entity/switch.h"
 #include "ui/entity/voiceAssistant.h"
+#include "ui/entity/webview.h"
 
 using uc::ui::EntityScreens;
 using Type = uc::ui::entity::Base::Type;
@@ -65,6 +66,7 @@ class testEntityScreens : public QObject {
             {Type::Select, QMetaEnum::fromType<SelectDeviceClass::Enum>()},
             {Type::Sensor, QMetaEnum::fromType<SensorDeviceClass::Enum>()},
             {Type::Switch, QMetaEnum::fromType<SwitchDeviceClass::Enum>()},
+            {Type::Webview, QMetaEnum::fromType<WebviewDeviceClass::Enum>()},
         };
     }
 

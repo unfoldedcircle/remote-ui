@@ -4,10 +4,12 @@
 #include <QKeySequence>
 #include <QtTest>
 
+#include "ui/entity/webviewButtons.h"
 #include "webview/uc_webview.h"
 #include "webview/webviewinput.h"
 
 using namespace uc::webview;
+using uc::ui::entity::WebviewButtons;
 
 class testWebViewInput : public QObject {
     Q_OBJECT
@@ -33,6 +35,9 @@ class testWebViewInput : public QObject {
     void loggableUrlDropsCredentialsQueryAndPayload_data();
     void loggableUrlDropsCredentialsQueryAndPayload();
     void loggableUrlIsCutAt200Characters();
+    void pageKeysByName_data();
+    void pageKeysByName();
+    void everyKeyOfTheButtonMappingHasItsKeysymAndKeycode();
 };
 
 void testWebViewInput::keysForThePage_data() {
@@ -314,6 +319,75 @@ void testWebViewInput::loggableUrlIsCutAt200Characters() {
     QCOMPARE(text.size(), 203);
     QVERIFY(text.endsWith(QStringLiteral("...")));
     QVERIFY(!loggableUrl(url, false).contains(QStringLiteral("secret")));
+}
+
+void testWebViewInput::pageKeysByName_data() {
+    QTest::addColumn<QString>("name");
+    QTest::addColumn<uint32_t>("keysym");
+    QTest::addColumn<uint32_t>("keycode");
+
+    // the keysym WebKit 2.54.2 takes KeyboardEvent.key and keyCode from, the XKB keycode (evdev + 8) it takes
+    // KeyboardEvent.code from
+    QTest::newRow("ArrowUp") << QStringLiteral("ArrowUp") << 0xff52u << 111u;
+    QTest::newRow("ArrowDown") << QStringLiteral("ArrowDown") << 0xff54u << 116u;
+    QTest::newRow("ArrowLeft") << QStringLiteral("ArrowLeft") << 0xff51u << 113u;
+    QTest::newRow("ArrowRight") << QStringLiteral("ArrowRight") << 0xff53u << 114u;
+    QTest::newRow("Enter") << QStringLiteral("Enter") << 0xff0du << 36u;
+    QTest::newRow("Escape") << QStringLiteral("Escape") << 0xff1bu << 9u;
+    QTest::newRow("Backspace") << QStringLiteral("Backspace") << 0xff08u << 22u;
+    QTest::newRow("Tab") << QStringLiteral("Tab") << 0xff09u << 23u;
+    QTest::newRow("PageUp") << QStringLiteral("PageUp") << 0xff55u << 112u;
+    QTest::newRow("PageDown") << QStringLiteral("PageDown") << 0xff56u << 117u;
+    QTest::newRow("Home") << QStringLiteral("Home") << 0xff50u << 110u;
+    QTest::newRow("End") << QStringLiteral("End") << 0xff57u << 115u;
+    // the PC menu key: KEY_COMPOSE, not KEY_MENU, whose keysym WebKit does not map
+    QTest::newRow("ContextMenu") << QStringLiteral("ContextMenu") << 0xff67u << 135u;
+    QTest::newRow("BrowserBack") << QStringLiteral("BrowserBack") << 0x1008ff26u << 166u;
+    QTest::newRow("BrowserForward") << QStringLiteral("BrowserForward") << 0x1008ff27u << 167u;
+    QTest::newRow("BrowserRefresh") << QStringLiteral("BrowserRefresh") << 0x1008ff29u << 181u;
+    QTest::newRow("BrowserStop") << QStringLiteral("BrowserStop") << 0x1008ff28u << 136u;
+    // XF86Close is also KEY_CLOSE's keysym: Exit needs KEY_EXIT's keycode
+    QTest::newRow("Exit") << QStringLiteral("Exit") << 0x1008ff56u << 182u;
+    QTest::newRow("AudioVolumeUp") << QStringLiteral("AudioVolumeUp") << 0x1008ff13u << 123u;
+    QTest::newRow("AudioVolumeDown") << QStringLiteral("AudioVolumeDown") << 0x1008ff11u << 122u;
+    QTest::newRow("AudioVolumeMute") << QStringLiteral("AudioVolumeMute") << 0x1008ff12u << 121u;
+    QTest::newRow("ChannelUp") << QStringLiteral("ChannelUp") << 0x10081192u << 410u;
+    QTest::newRow("ChannelDown") << QStringLiteral("ChannelDown") << 0x10081193u << 411u;
+    // one keysym for both: MediaPlayPause is told from MediaPlay by KEY_PLAYPAUSE's keycode
+    QTest::newRow("MediaPlayPause") << QStringLiteral("MediaPlayPause") << 0x1008ff14u << 172u;
+    QTest::newRow("MediaPlay") << QStringLiteral("MediaPlay") << 0x1008ff14u << 215u;
+    QTest::newRow("MediaPause") << QStringLiteral("MediaPause") << 0x1008ff31u << 209u;
+    QTest::newRow("MediaStop") << QStringLiteral("MediaStop") << 0x1008ff15u << 174u;
+    QTest::newRow("MediaRecord") << QStringLiteral("MediaRecord") << 0x1008ff1cu << 175u;
+    QTest::newRow("MediaRewind") << QStringLiteral("MediaRewind") << 0x1008ff3eu << 176u;
+    QTest::newRow("MediaFastForward") << QStringLiteral("MediaFastForward") << 0x1008ff97u << 216u;
+    QTest::newRow("MediaTrackPrevious") << QStringLiteral("MediaTrackPrevious") << 0x1008ff16u << 173u;
+    QTest::newRow("MediaTrackNext") << QStringLiteral("MediaTrackNext") << 0x1008ff17u << 171u;
+    QTest::newRow("ColorF0Red") << QStringLiteral("ColorF0Red") << 0x1008ffa3u << 406u;
+    QTest::newRow("ColorF1Green") << QStringLiteral("ColorF1Green") << 0x1008ffa4u << 407u;
+    QTest::newRow("ColorF2Yellow") << QStringLiteral("ColorF2Yellow") << 0x1008ffa5u << 408u;
+    QTest::newRow("ColorF3Blue") << QStringLiteral("ColorF3Blue") << 0x1008ffa6u << 409u;
+}
+
+void testWebViewInput::pageKeysByName() {
+    QFETCH(QString, name);
+    QFETCH(uint32_t, keysym);
+    QFETCH(uint32_t, keycode);
+    const PageKey *key = pageKeyForName(name);
+    QVERIFY(key);
+    QCOMPARE(key->keysym, keysym);
+    QCOMPARE(key->keycode, keycode);
+}
+
+void testWebViewInput::everyKeyOfTheButtonMappingHasItsKeysymAndKeycode() {
+    // every KeyboardEvent.key of core-api WebviewButtonKey, and nothing else
+    for (const QString &name : WebviewButtons::keys()) {
+        QVERIFY2(pageKeyForName(name) != nullptr, qPrintable(name));
+    }
+    QVERIFY(pageKeyForName(QStringLiteral("arrowup")) == nullptr);
+    QVERIFY(pageKeyForName(QStringLiteral("F5")) == nullptr);
+    QVERIFY(pageKeyForName(QString()) == nullptr);
+    QVERIFY(pageKeyForName(QStringLiteral("Close")) == nullptr);
 }
 
 QTEST_GUILESS_MAIN(testWebViewInput)

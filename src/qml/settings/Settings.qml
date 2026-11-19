@@ -99,7 +99,15 @@ Settings.Page {
                     itemTitle: QT_TR_NOOP("Wifi & Bluetooth"),
                     page: "Wifi",
                     icon: "uc:wifi"
-                },
+                }
+            ].concat(ui.webViewAvailable ? [
+                {
+                    //: Settings page of the web pages shown on the remote: their global settings and a test page; listed only when the firmware provides the web view library
+                    itemTitle: QT_TR_NOOP("Web view"),
+                    page: "WebView",
+                    icon: "uc:globe"
+                }
+            ] : []).concat([
                 {
                     //: Settings page for the language, country, time zone, units and clock format of the remote.
                     itemTitle: QT_TR_NOOP("Localization"),
@@ -116,14 +124,7 @@ Settings.Page {
                     page: "Reset",
                     icon: "uc:triangle-exclamation"
                 }
-            ].concat(ui.webViewAvailable ? [
-                {
-                    //: Developer page with a web page shown inside the user interface; listed only when the firmware provides the web view library
-                    itemTitle: QT_TR_NOOP("Web view"),
-                    page: "WebView",
-                    icon: "uc:globe"
-                }
-            ] : [])
+            ])
 
             delegate: menuItem
 
