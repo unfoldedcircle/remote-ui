@@ -4586,9 +4586,9 @@ Web view settings: button that deletes the cookies, cache and stored data of all
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/WebView.qml" line="209"/>
-        <source>For pages with a light and a dark design</source>
-        <extracomment>Web view settings: second line of &quot;Color scheme&quot;: only web pages with a light and a dark design follow the setting; keep it short</extracomment>
-        <translation>For pages with a light and a dark design</translation>
+        <source>For pages with a dark design</source>
+        <extracomment>Web view settings: second line of &quot;Color scheme&quot;: only web pages that also have a dark design follow the setting; keep it short (one line)</extracomment>
+        <translation>For pages with a dark design</translation>
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/WebView.qml" line="229"/>
