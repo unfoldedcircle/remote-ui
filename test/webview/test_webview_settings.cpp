@@ -706,12 +706,9 @@ void testWebViewSettings::noTitleOrTextIsCutOff() {
         QVERIFY(label && description && description->isVisible());
         QVERIFY2(!label->property("truncated").toBool(), entry.first);
         QVERIFY2(!description->property("truncated").toBool(), entry.first);
-        // in the firmware's font (UC_TEST_FONT_DIR) the description is one line on the 480 px panel; the colour
-        // scheme's has the web configurator's text, which takes two
+        // in the firmware's font (UC_TEST_FONT_DIR) the description is one line on the 480 px panel
         if (QFontInfo(fonts.help()).family() == QLatin1String("Poppins")) {
-            QVERIFY2(description->property("lineCount").toInt()
-                         == (qstrcmp(entry.first, "colorSchemeRow") == 0 ? 2 : 1),
-                     entry.first);
+            QVERIFY2(description->property("lineCount").toInt() == 1, entry.first);
         }
         // inside the row, the description under the title
         QVERIFY(description->y() >= label->y() + label->height());

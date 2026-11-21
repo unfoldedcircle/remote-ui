@@ -205,8 +205,8 @@ Settings.Page {
                 objectName: "colorSchemeRow"
                 //: Web view settings: the colour scheme (light or dark) the web pages are asked to use
                 text: qsTr("Color scheme")
-                //: Web view settings: second line of "Color scheme": only web pages with a light and a dark design follow the setting; keep it short
-                description: qsTr("For pages with a light and a dark design")
+                //: Web view settings: second line of "Color scheme": only web pages that also have a dark design follow the setting; keep it short (one line)
+                description: qsTr("For pages with a dark design")
                 value: webViewSettings.colorSchemeName(WebViewController.colorScheme)
                 chevron: true
                 selected: activeFocus
