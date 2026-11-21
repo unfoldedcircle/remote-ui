@@ -295,7 +295,7 @@ Settings.Page {
                 color: colors.textSecondary
                 font: fonts.help()
                 //: Web view settings, Buttons: the text above the list of the remote's buttons
-                text: qsTr("What the buttons do in a full-screen web page, for all web views. A web view can bring its own buttons, which go before these.")
+                text: qsTr("What the buttons do in a full-screen web page, for all web views. A web view can change single buttons.")
             }
 
             Repeater {

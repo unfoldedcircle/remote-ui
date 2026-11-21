@@ -4467,62 +4467,69 @@ Select the QR code to read them on the screen.</translation>
         <translation>Dark</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="69"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="70"/>
         <source>Clear cache</source>
         <comment>website data on close</comment>
         <extracomment>Web view settings: the cached files of the web pages are deleted whenever a web page is closed (a setting, not the button that clears them now)</extracomment>
         <translation>Clear cache</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="72"/>
-        <source>Clear all</source>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="74"/>
+        <source>Clear all data</source>
         <comment>website data on close</comment>
-        <extracomment>Web view settings: all website data (cookies, cache, storage) is deleted whenever a web page is closed (a setting)</extracomment>
-        <translation>Clear all</translation>
+        <extracomment>Web view settings: all website data (cookies, cache, storage) is deleted whenever a web page is closed (a setting); the short form shown in the settings row, keep it short</extracomment>
+        <translation>Clear all data</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="75"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="77"/>
+        <source>Clear all website data</source>
+        <comment>website data on close</comment>
+        <extracomment>Web view settings: all website data (cookies, cache, storage) is deleted whenever a web page is closed (a setting)</extracomment>
+        <translation>Clear all website data</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="80"/>
         <source>Keep</source>
         <comment>website data on close</comment>
         <extracomment>Web view settings: the website data (cookies, cache, storage) of the web pages is kept when a web page is closed (a setting)</extracomment>
         <translation>Keep</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="95"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="100"/>
         <source>Select color scheme</source>
         <extracomment>Title of the list to choose the colour scheme of the web pages (Settings &gt; Web view)</extracomment>
         <translation>Select color scheme</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="105"/>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="222"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="110"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="227"/>
         <source>Website data on close</source>
         <extracomment>Title of the list to choose what happens with the website data when a web page is closed (Settings &gt; Web view)
 ----------
-Web view settings: what happens with the website data (cookies, cache, storage) when a web page is closed; the row shows Keep, Clear cache or Clear all</extracomment>
+Web view settings: what happens with the website data (cookies, cache, storage) when a web page is closed; the row shows Keep, Clear cache or Clear all data</extracomment>
         <translation>Website data on close</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="107"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="112"/>
         <source>Stay signed in to pages</source>
         <extracomment>Web view settings: second line of &quot;Keep&quot; in the list of what happens with the website data when a web page closes; keep it short</extracomment>
         <translation>Stay signed in to pages</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="109"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="114"/>
         <source>Delete cached files</source>
         <extracomment>Web view settings: second line of &quot;Clear cache&quot; in the list of what happens with the website data when a web page closes; keep it short</extracomment>
         <translation>Delete cached files</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="111"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="116"/>
         <source>Signs you out of pages</source>
-        <extracomment>Web view settings: second line of &quot;Clear all&quot; in the list of what happens with the website data when a web page closes: cookies and stored data are deleted too; keep it short</extracomment>
+        <extracomment>Web view settings: second line of &quot;Clear all website data&quot; in the list of what happens with the website data when a web page closes: cookies and stored data are deleted too; keep it short</extracomment>
         <translation>Signs you out of pages</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="136"/>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="319"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="141"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="324"/>
         <source>Clear website data</source>
         <extracomment>Title of the question before all website data of the web pages is deleted (Settings &gt; Web view)
 ----------
@@ -4530,121 +4537,121 @@ Web view settings: button that deletes the cookies, cache and stored data of all
         <translation>Clear website data</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="138"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="143"/>
         <source>This deletes the cookies, the cache and the stored data of all web pages. Pages you signed in to ask you to sign in again.</source>
         <extracomment>Question before all website data of the web pages is deleted (Settings &gt; Web view)</extracomment>
         <translation>This deletes the cookies, the cache and the stored data of all web pages. Pages you signed in to ask you to sign in again.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="144"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="149"/>
         <source>Clear</source>
         <extracomment>Button of the question before all website data of the web pages is deleted</extracomment>
         <translation>Clear</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="155"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="160"/>
         <source>Website data cleared</source>
         <extracomment>Notification: all website data of the web pages was deleted (Settings &gt; Web view)</extracomment>
         <translation>Website data cleared</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="157"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="162"/>
         <source>Cache cleared</source>
         <extracomment>Notification: the cache of the web pages was deleted (Settings &gt; Web view)</extracomment>
         <translation>Cache cleared</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="160"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="165"/>
         <source>Clearing website data is not supported by this firmware</source>
         <extracomment>Notification: the firmware&apos;s web view cannot delete website data</extracomment>
         <translation>Clearing website data is not supported by this firmware</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="164"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="169"/>
         <source>The website data could not be cleared</source>
         <extracomment>Notification: deleting all website data of the web pages failed (Settings &gt; Web view)</extracomment>
         <translation>The website data could not be cleared</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="166"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="171"/>
         <source>The cache could not be cleared</source>
         <extracomment>Notification: deleting the cache of the web pages failed (Settings &gt; Web view)</extracomment>
         <translation>The cache could not be cleared</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="202"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="207"/>
         <source>Color scheme</source>
         <extracomment>Web view settings: the colour scheme (light or dark) the web pages are asked to use</extracomment>
         <translation>Color scheme</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="204"/>
-        <source>For pages that support it</source>
-        <extracomment>Web view settings: second line of &quot;Color scheme&quot;: only web pages with a light and a dark design follow the setting; keep it short (one line)</extracomment>
-        <translation>For pages that support it</translation>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="209"/>
+        <source>For pages with a light and a dark design</source>
+        <extracomment>Web view settings: second line of &quot;Color scheme&quot;: only web pages with a light and a dark design follow the setting; keep it short</extracomment>
+        <translation>For pages with a light and a dark design</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="224"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="229"/>
         <source>What closing a page deletes</source>
         <extracomment>Web view settings: second line of &quot;Website data on close&quot;: what is deleted when a web page closes (nothing, the cache or all website data); keep it short (one line)</extracomment>
         <translation>What closing a page deletes</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="243"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="248"/>
         <source>Buttons</source>
         <extracomment>Web view settings: opens the page of what the remote&apos;s buttons do in a full-screen web page</extracomment>
         <translation>Buttons</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="245"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="250"/>
         <source>In a full-screen web page</source>
         <extracomment>Web view settings: second line of &quot;Buttons&quot;; keep it short (one line)</extracomment>
         <translation>In a full-screen web page</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="261"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="266"/>
         <source>Allow invalid certificates</source>
         <extracomment>Web view settings: switch that lets every web page load with a self-signed, expired or otherwise invalid TLS certificate</extracomment>
         <translation>Allow invalid certificates</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="263"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="268"/>
         <source>Accept self-signed, expired and other invalid certificates on all web pages. Their connections are then not protected against attackers.</source>
         <extracomment>Web view settings: help text of &quot;Allow invalid certificates&quot;</extracomment>
         <translation>Accept self-signed, expired and other invalid certificates on all web pages. Their connections are then not protected against attackers.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="284"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="289"/>
         <source>Cache and website data</source>
         <extracomment>Web view settings: section with the buttons that delete the cache and the website data of all web pages</extracomment>
         <translation>Cache and website data</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="287"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="292"/>
         <source>All web pages share their cache, cookies and stored data.</source>
         <extracomment>Web view settings: help text of the buttons that delete the cache and the website data</extracomment>
         <translation>All web pages share their cache, cookies and stored data.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="289"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="294"/>
         <source>Clearing needs a newer firmware.</source>
         <extracomment>Web view settings: the firmware&apos;s web view cannot delete the cache and the website data</extracomment>
         <translation>Clearing needs a newer firmware.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="302"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="307"/>
         <source>Clear cache</source>
         <extracomment>Web view settings: button that deletes the cached files of all web pages</extracomment>
         <translation>Clear cache</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="336"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="341"/>
         <source>Web view test</source>
         <extracomment>Web view settings: opens a test page to load any web address in the web view</extracomment>
         <translation>Web view test</translation>
     </message>
     <message>
-        <location filename="../../src/qml/settings/settings/WebView.qml" line="338"/>
+        <location filename="../../src/qml/settings/settings/WebView.qml" line="343"/>
         <source>Load any web address to try it</source>
         <extracomment>Web view settings: second line of &quot;Web view test&quot;, which opens a page with an address field; keep it short (one line)</extracomment>
         <translation>Load any web address to try it</translation>
@@ -4952,9 +4959,9 @@ Web view settings, Buttons: second line of the default key in the list of keys a
     </message>
     <message>
         <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="298"/>
-        <source>What the buttons do in a full-screen web page, for all web views. A web view can bring its own buttons, which go before these.</source>
+        <source>What the buttons do in a full-screen web page, for all web views. A web view can change single buttons.</source>
         <extracomment>Web view settings, Buttons: the text above the list of the remote&apos;s buttons</extracomment>
-        <translation>What the buttons do in a full-screen web page, for all web views. A web view can bring its own buttons, which go before these.</translation>
+        <translation>What the buttons do in a full-screen web page, for all web views. A web view can change single buttons.</translation>
     </message>
 </context>
 <context>

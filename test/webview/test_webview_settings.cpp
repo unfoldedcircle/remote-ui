@@ -420,7 +420,7 @@ void testWebViewSettings::settingsShowWhatTheCoreReports() {
     reportSettings(
         R"({"color_scheme": "light", "website_data": "clear_all_on_close", "allow_invalid_certificates": true})");
     QCOMPARE(colorScheme->property("value").toString(), QStringLiteral("Light"));
-    QCOMPARE(websiteData->property("value").toString(), QStringLiteral("Clear all"));
+    QCOMPARE(websiteData->property("value").toString(), QStringLiteral("Clear all data"));
     QVERIFY(certificates->property("checked").toBool());
     reportSettings(R"({"color_scheme": "dark", "website_data": "clear_cache_on_close"})");
     QCOMPARE(websiteData->property("value").toString(), QStringLiteral("Clear cache"));
@@ -478,7 +478,7 @@ void testWebViewSettings::colorSchemeAndWebsiteDataArePickedFromAList() {
     // the core's answer shows
     reportSettings(R"({"color_scheme": "light", "website_data": "clear_all_on_close"})");
     QCOMPARE(row("colorSchemeRow")->property("value").toString(), QStringLiteral("Light"));
-    QCOMPARE(row("websiteDataRow")->property("value").toString(), QStringLiteral("Clear all"));
+    QCOMPARE(row("websiteDataRow")->property("value").toString(), QStringLiteral("Clear all data"));
 }
 
 void testWebViewSettings::refusedSwitchShowsTheSettingAsItIs() {
@@ -706,9 +706,12 @@ void testWebViewSettings::noTitleOrTextIsCutOff() {
         QVERIFY(label && description && description->isVisible());
         QVERIFY2(!label->property("truncated").toBool(), entry.first);
         QVERIFY2(!description->property("truncated").toBool(), entry.first);
-        // in the firmware's font (UC_TEST_FONT_DIR) the description is one line on the 480 px panel
+        // in the firmware's font (UC_TEST_FONT_DIR) the description is one line on the 480 px panel; the colour
+        // scheme's has the web configurator's text, which takes two
         if (QFontInfo(fonts.help()).family() == QLatin1String("Poppins")) {
-            QVERIFY2(description->property("lineCount").toInt() == 1, entry.first);
+            QVERIFY2(description->property("lineCount").toInt()
+                         == (qstrcmp(entry.first, "colorSchemeRow") == 0 ? 2 : 1),
+                     entry.first);
         }
         // inside the row, the description under the title
         QVERIFY(description->y() >= label->y() + label->height());
@@ -717,7 +720,7 @@ void testWebViewSettings::noTitleOrTextIsCutOff() {
     }
     QCOMPARE(row("websiteDataRow")->property("value").toString(),
              settings.contains("clear_cache") ? QStringLiteral("Clear cache")
-             : settings.contains("clear_all") ? QStringLiteral("Clear all")
+             : settings.contains("clear_all") ? QStringLiteral("Clear all data")
                                               : QStringLiteral("Keep"));
 }
 
