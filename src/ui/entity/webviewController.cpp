@@ -191,6 +191,12 @@ void WebViewController::execute(const core::UiEntityCommand &command, const Answ
         return;
     }
 
+    // main.qml opens no web view over the onboarding screens; checked first, the library need not load for it
+    if (cmd == entity::WebviewCommands::Open && m_onboarding) {
+        answer(503, QStringLiteral("The user interface can't show a web view during the onboarding of the Remote"));
+        return;
+    }
+
     if (!available()) {
         answer(503, QStringLiteral("This user interface cannot show web pages"));
         return;

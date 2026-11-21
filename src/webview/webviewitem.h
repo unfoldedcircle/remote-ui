@@ -50,6 +50,8 @@ namespace webview {
  *   event at all) ends the sequence in WebKit with a touch-cancel; moves and releases of points whose press was
  *   not seen are dropped like the DRM platform does. WebKit's gesture controller keys its sequence by id, and a
  *   point that is never released would otherwise block every later tap.
+ * - The item keeps its touch and mouse grabs (keepTouchGrab, keepMouseGrab): a drag that starts on the page scrolls
+ *   the page, a filtering parent such as the PathView of an activity's pages does not take it over.
  * - The item takes the keyboard focus only on a user press. It asks the global QInputMethod to show or hide the
  *   on-screen keyboard only while it has the active focus; an `ime_focus` callback that arrives while another
  *   item owns the focus (WebKit reports focus-out when the item itself loses the focus) changes the item's state

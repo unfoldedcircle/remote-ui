@@ -73,11 +73,16 @@ initialisation succeeded, and a change SHALL be sent at once.
 The UI SHALL answer every `entity_command` request of the core exactly once with a `result` under the request's id: 400
 for another entity type or an unknown command, 404 for an unknown web view, 503 when the UI cannot show web pages, at
 once. `open` SHALL open the fullscreen web view and `reload` SHALL reload the page of that web view where it is shown
-and do nothing otherwise; both SHALL be answered 200 at once.
+and do nothing otherwise; both SHALL be answered 200 at once. During the onboarding of the remote `open` SHALL be
+answered 503 and SHALL open nothing.
 
 #### Scenario: Open from another system
 - **WHEN** the core sends `entity_command` with `cmd_id` `open` for a configured web view
 - **THEN** the UI answers 200 and shows the web view fullscreen
+
+#### Scenario: Open during the onboarding
+- **WHEN** the core sends `entity_command` with `cmd_id` `open` while the remote shows its onboarding
+- **THEN** the UI answers 503 and the onboarding stays on screen
 
 #### Scenario: Unknown web view
 - **WHEN** the core sends `entity_command` for an entity id the UI does not know
@@ -105,7 +110,10 @@ SHALL they be answered with 501.
 ### Requirement: Opening the fullscreen web view
 The fullscreen web view SHALL open on top of the current screen; closing it SHALL return to that screen. While an
 activity's loading screen is shown, the web view SHALL open after it, on top of the activity screen. An open
-fullscreen web view SHALL stay as it is for the same web view and show the other page for another web view.
+fullscreen web view SHALL stay as it is for the same web view; another web view SHALL replace it like a close and an
+open: the replaced page goes with its history, the website data setting applies to it, and the other web view starts
+with a new page. A web view in the included entities of an activity's menu SHALL open like the `open` command, on top
+of the activity screen.
 
 #### Scenario: Open as a step of an activity's on-sequence
 - **WHEN** an activity starts and its on-sequence contains `webview.open`
@@ -115,11 +123,21 @@ fullscreen web view SHALL stay as it is for the same web view and show the other
 - **WHEN** `open` arrives for the web view that is shown fullscreen
 - **THEN** the page stays as it is, without a reload
 
+#### Scenario: Open while another web view is shown
+- **WHEN** `open` arrives for another web view while one is shown fullscreen and the website data setting is
+  `clear_cache_on_close`
+- **THEN** the cache is cleared, the other web view's start page loads in a new page, and BACK with `back_or_close`
+  closes the web view instead of going back to the replaced page
+
+#### Scenario: Open from the menu of an activity
+- **WHEN** the user picks a web view in the included entities of an activity's menu
+- **THEN** the web view opens on top of the activity screen, and POWER turns the activity off
+
 ### Requirement: Fullscreen web view keys and controls
 The fullscreen web view SHALL cover the screen. With `show_navigation` it SHALL show Back, Forward, Reload and Close.
 HOME SHALL close it and the screen it was opened on; POWER, VOICE and every button the button mapping does not name
-SHALL keep the button mapping of the screen below. Every other button of the remote SHALL have the action of the
-button mapping of the fullscreen web view.
+SHALL keep the button mapping of the screen below; opened from a profile page, POWER SHALL do what it does on the main
+screen. Every other button of the remote SHALL have the action of the button mapping of the fullscreen web view.
 
 #### Scenario: Volume on top of an activity
 - **WHEN** a web view is shown fullscreen on top of an activity whose VOLUME_UP is mapped to its receiver, and neither
@@ -129,6 +147,10 @@ button mapping of the fullscreen web view.
 #### Scenario: Other buttons on top of an activity
 - **WHEN** a web view is shown fullscreen on top of an activity whose MUTE is mapped to its receiver
 - **THEN** MUTE mutes the receiver
+
+#### Scenario: POWER on a profile page
+- **WHEN** an activity is running and the user presses POWER in a fullscreen web view opened from a profile page
+- **THEN** the "Turn off" menu of the running activities opens over the web view
 
 #### Scenario: HOME
 - **WHEN** the user presses HOME in a fullscreen web view opened on top of an activity

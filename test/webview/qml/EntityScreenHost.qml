@@ -41,6 +41,13 @@ Item {
                     "MUTE": { "pressed": function() { host.countMain("MUTE"); } },
                     "PLAY": { "pressed": function() { host.countMain("PLAY"); } }
                 };
+                // POWER: the "Turn off" menu, in the menu it is given (Page.qml), the main screen's without one
+                config["POWER"] = {
+                    "pressed": function(menu) {
+                        host.countMain("POWER");
+                        host.powerMenu = menu ? menu : null;
+                    }
+                };
                 if (host.headerMapsChannel) {
                     config["CHANNEL_UP"] = { "pressed": function() { host.countMain("CHANNEL_UP"); } };
                     config["CHANNEL_DOWN"] = { "pressed": function() { host.countMain("CHANNEL_DOWN"); } };
@@ -51,6 +58,8 @@ Item {
     }
 
     property bool headerHasActivity: true
+    // the menu the last POWER of the page header was to open its "Turn off" menu in
+    property QtObject powerMenu: null
     property bool headerMapsChannel: false
     property var mainPresses: ({})
 
@@ -143,6 +152,70 @@ Item {
         widgetLoader.setSource("qrc:/components/WebViewWidget.qml",
                                { "entityId": entityId, "interactive": interactive, "width": width, "height": height });
         return widgetLoader.item;
+    }
+
+    // The pages of an activity screen as Activity.qml shows them (uiPages): a PathView of two pages, swiped
+    // horizontally, with the web view widget on the first page at the size of 3 x 3 fields.
+    property bool pagedWidgetInteractive: true
+
+    Loader {
+        id: pagesLoader
+        objectName: "pagesLoader"
+        anchors.fill: parent
+        active: false
+
+        sourceComponent: PathView {
+            id: activityPages
+            objectName: "activityPages"
+            interactive: activityPages.count > 1
+
+            snapMode: PathView.SnapToItem
+            highlightRangeMode: PathView.StrictlyEnforceRange
+            highlightMoveDuration: 200
+
+            maximumFlickVelocity: 6000
+            flickDeceleration: 1000
+
+            model: 2
+            delegate: Item {
+                width: activityPages.width
+                height: activityPages.height
+
+                Loader {
+                    x: 60; y: 100
+                    active: index === 0
+                    sourceComponent: Components.WebViewWidget {
+                        objectName: "pagedWidget"
+                        width: 360; height: 348
+                        entityId: host.pagedWidgetEntityId
+                        interactive: host.pagedWidgetInteractive
+                    }
+                }
+            }
+
+            path: Path {
+                startX: -activityPages.width / 2 * (activityPages.count - 1)
+                startY: activityPages.height / 2
+
+                PathLine {
+                    x: -(activityPages.width / 2 * (activityPages.count - 1))
+                       + (activityPages.width * activityPages.count)
+                    y: activityPages.height / 2
+                }
+            }
+
+            preferredHighlightEnd: 0.5
+            preferredHighlightBegin: 0.5
+        }
+    }
+
+    property string pagedWidgetEntityId: ""
+
+    function openPagedWidget(entityId, interactive) {
+        host.pagedWidgetEntityId = entityId;
+        host.pagedWidgetInteractive = interactive;
+        pagesLoader.active = true;
+        return pagesLoader.item;
     }
 
     // main.qml's openWebView(): a tap on a widget that is not interactive opens the fullscreen web view

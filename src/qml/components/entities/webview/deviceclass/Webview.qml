@@ -20,7 +20,9 @@
 //   and CHANNEL (between its tiles and groups) are not passed on: the tiles are hidden behind the web view.
 // A change of an action applies at once, also while the web view is open: keyConfig() is a binding.
 // Fixed: HOME closes the web view and, when it was opened on top of another screen, that screen too; POWER, VOICE and
-// every other button the mapping does not name keep the button mapping of the screen below.
+// every other button the mapping does not name keep the button mapping of the screen below. Opened from a profile page,
+// POWER opens the "Turn off" menu of the page header's activities, like on the main screen, and VOICE starts the voice
+// assistant (main.qml).
 // While the on-screen keyboard is up the d-pad and OK go to the text field of the page whatever their action: the
 // WebView forwards them on the focus chain (WebViewPage.qml), as it does with the keyboard's own Enter. While a failed
 // load shows its message, OK tries again. The page's dialogs and logins (WebViewRequests.qml) own the keys while they
@@ -55,15 +57,29 @@ EntityComponents.BaseDetail {
     readonly property bool navigationShown: navigationByButton !== undefined ? navigationByButton
                                                                               : !!(entityObj && entityObj.showNavigation)
 
-    // Another web view while this one is open (the `open` command): it replaces the page, the screen stays.
+    // the page is unloaded while showEntity() replaces it
+    property bool replacingPage: false
+
+    // The `open` command while this screen is open (core-api entity_webview.md "Open": "If the web view is already
+    // open, it stays as is. Another open web view is replaced."). The same web view stays as it is: page, history and
+    // zoom, without a reload. Another one is like closing this one and opening that one, the screen stays: the page
+    // goes with its history, dialogs and zoom, the website data setting applies to it as on a close, and the other
+    // web view starts with a new page.
     function showEntity(obj) {
         if (!obj || obj.id === webviewScreen.entityId) {
             return;
         }
+        // until the Loader has destroyed it, the page keeps this web view: its binding would load the other one into it
+        if (pageLoader.item) {
+            pageLoader.item.entityObj = webviewScreen.entityObj;
+        }
+        webviewScreen.replacingPage = true;
+        WebViewController.viewClosed();
         webviewScreen.entityId = obj.id;
         webviewScreen.entityObj = obj;
         webviewScreen.navigationByButton = undefined;
         WebViewController.fullscreenEntityId = obj.id;
+        webviewScreen.replacingPage = false;
     }
 
     function focusPage() {
@@ -179,13 +195,13 @@ EntityComponents.BaseDetail {
 
     // A button with `pass`, opened from a profile page: the mapping of the page header's current activity or media
     // player, looked up at the press (the header changes while the web view is open). false without one, or for a
-    // button it does not map.
-    function mainScreenButton(key, type) {
+    // button it does not map. argument goes to the handler: the menu that POWER opens (keyConfig()).
+    function mainScreenButton(key, type, argument) {
         const main = containerMain.item;
         const page = main && main.currentPage ? main.currentPage : null;
         const config = page && page.headerButtonConfig ? page.headerButtonConfig() : null;
         if (config && config[key] && config[key][type]) {
-            config[key][type]();
+            config[key][type](argument);
             return true;
         }
         return false;
@@ -299,6 +315,12 @@ EntityComponents.BaseDetail {
                     config[key] = below[key];
                 }
             }
+        } else {
+            // POWER on the main screen: the "Turn off" menu of the page header's activities (Page.qml), shown in this
+            // screen's own menu, since the main screen's is hidden behind the web view; nothing without an activity
+            config["POWER"] = {
+                "pressed": function() { webviewScreen.mainScreenButton("POWER", "pressed", turnOffMenu); }
+            };
         }
         // By index: on Qt 5.15.2 a garbage collection during a for-of loop over a C++ list (buttonIds is a QStringList)
         // corrupts the JavaScript heap; the loop then yields other values, or the UI crashes.
@@ -367,7 +389,7 @@ EntityComponents.BaseDetail {
     Loader {
         id: pageLoader
         anchors { top: parent.top; left: parent.left; right: parent.right; bottom: navigationBar.top }
-        active: ui.webViewAvailable && webviewScreen.hasStartPage
+        active: ui.webViewAvailable && webviewScreen.hasStartPage && !webviewScreen.replacingPage
         source: "qrc:/components/WebViewPage.qml"
 
         onLoaded: {
@@ -494,5 +516,11 @@ EntityComponents.BaseDetail {
         onLoaded: {
             requestsLoader.item.webView = Qt.binding(function() { return webviewScreen.webView; });
         }
+    }
+
+    // the "Turn off" menu of POWER, opened from a profile page (keyConfig())
+    Components.PopupMenu {
+        id: turnOffMenu
+        objectName: "turnOffMenu"
     }
 }

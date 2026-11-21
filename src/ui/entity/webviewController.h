@@ -31,7 +31,8 @@ class EntityController;
  *   reports web views as ON only while a UI declared them.
  * - Commands: the core's entity_command requests for web views are answered when the command is accepted, not when a
  *   page has loaded: 200, 400 for an unknown command or entity type, 404 for an unknown web view, 503 without a web
- *   view in this UI. `open` and `reload` are passed to QML (openRequested(), reloadRequested()) and answered at once.
+ *   view in this UI, and for `open` during the onboarding (setOnboarding()): the onboarding screens show no web view.
+ *   `open` and `reload` are passed to QML (openRequested(), reloadRequested()) and answered at once.
  *   `clear_cache` and `clear_data` are answered when the library reports the end of the clear (library 0.8.0): 200
  *   and the shown pages reload, or 500 when it failed or was refused; 501 only when the library cannot clear website
  *   data (older than 0.8.0).
@@ -105,6 +106,9 @@ class WebViewController : public QObject {
 
     QString fullscreenEntityId() const { return m_fullscreenEntityId; }
     void    setFullscreenEntityId(const QString &entityId);
+
+    // the UI shows the onboarding of the remote (UiController isOnboarding): `open` is refused
+    void setOnboarding(bool onboarding) { m_onboarding = onboarding; }
 
     // the UI declared `webview` to the core with its last set_ui_info
     bool declaresWebviews() const { return m_declaredTypes.contains(QStringLiteral("webview")); }
@@ -216,6 +220,7 @@ class WebViewController : public QObject {
     // every button of the model with its action: the core's, else the default
     QVariantMap m_buttons;
     QString     m_fullscreenEntityId;
+    bool        m_onboarding = false;
 };
 
 }  // namespace ui

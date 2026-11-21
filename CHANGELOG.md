@@ -45,9 +45,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   screen. With its navigation option a bar at the bottom has Back, Forward, Reload and Close. By default BACK closes
   the page, HOME goes back to the home screen, the d-pad and OK work in the page, CHANNEL scrolls it, VOLUME zooms it
   one level per press, starting at the web view's zoom, MENU opens the page's context menu, and the other buttons keep
-  their functions, also on top of an activity. While the on-screen keyboard is up, the d-pad and OK always go to the
-  text field. Activity sequences, macros, buttons and other systems can open and reload a web view; opened as a step of
-  an activity's start, the page appears on top of the activity screen. A
+  their functions, also on top of an activity; on a profile page POWER opens the Turn off menu of the running
+  activities. While the on-screen keyboard is up, the d-pad and OK always go to the text field. Activity sequences,
+  macros, buttons and other systems can open and reload a web view; opened as a step of an activity's start, or from
+  the activity's menu, the page appears on top of the activity screen and keeps its buttons. Opening another web view
+  while one is shown is like closing it and opening the other one: Back does not lead back to the first one. During the
+  remote's onboarding no web view opens. A
   password-protected start page logs in with the configured user name and password. Needs a firmware with the web
   view library. With the web view library 0.8.0 a web view also logs in with a token or an API key, sets its cookies
   before the start page loads, accepts the configured certificate of a self-signed site and sends the chosen user

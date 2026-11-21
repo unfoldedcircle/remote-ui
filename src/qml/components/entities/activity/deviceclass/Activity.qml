@@ -811,6 +811,12 @@ EntityComponents.BaseDetail {
             property QtObject entity
 
             function activate() {
+                // a web view opens like its `open` command (main.qml): on top of the activity, whose button mapping it
+                // keeps for the `pass` buttons, POWER and VOICE
+                if (entity.type === EntityTypes.Webview) {
+                    openWebView(entity.id);
+                    return;
+                }
                 loadThirdContainer(EntityController.screenUrl(entity), { "entityId": entity.id, "entityObj": entity });
             }
 

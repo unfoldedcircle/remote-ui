@@ -124,6 +124,7 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
 
     QString onBoardingPath = qgetenv("UC_ONBOARDING_PATH");
     m_isOnboarding = QFile::exists(onBoardingPath);
+    m_webViewController->setOnboarding(m_isOnboarding);
 
     if (m_isOnboarding) {
         qCDebug(lcUi()) << "ONBOARDING";
@@ -578,6 +579,7 @@ QString Controller::createQrCode(const QString &message) {
 void Controller::setOnboarding(bool value) {
     if (m_isOnboarding != value) {
         m_isOnboarding = value;
+        m_webViewController->setOnboarding(m_isOnboarding);
         emit isOnboardingChanged();
 
         if (!m_isOnboarding) {

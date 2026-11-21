@@ -254,6 +254,10 @@ WebViewItem::WebViewItem(QQuickItem *parent)
     setFlag(ItemIsFocusScope, true);
     setAcceptTouchEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
+    // a drag on the page is the page's: a filtering parent (the PathView of an activity's pages, a Flickable) does not
+    // take a touch or a mouse press over once it moves far enough (core-api ui-widgets.md "Web view", "Behaviour")
+    setKeepTouchGrab(true);
+    setKeepMouseGrab(true);
 
     m_tapInputPanelTimer.setSingleShot(true);
     m_tapInputPanelTimer.setInterval(kTapInputPanelDelayMs);

@@ -106,6 +106,9 @@ and logs `Touch drag threshold 16 px (reported by the library)`. With an older l
 - remembers every point until its release, cancels them all on a `TouchCancel` (Qt delivers it without points) and
   in `touchUngrabEvent()` (another item took the grab; Qt 5 sends no cancel then), and drops moves or releases
   whose press it never saw. A point that is never released would block every later tap in WebKit;
+- keeps its touch and mouse grabs (`setKeepTouchGrab()`, `setKeepMouseGrab()`): a filtering parent does not take a
+  drag that started on the page over. Without them the `PathView` of an activity's pages took a sideways swipe on an
+  interactive widget once it had moved past Qt's drag distance, cancelled it in WebKit and showed the next page;
 - skips stationary points and passes Qt's event timestamp (ms, monotonic); WebKit measures from the first event it
   sees and uses no time for tap detection.
 
@@ -734,7 +737,7 @@ else 100 % (25 to 400 %). The keys step from there (60 % zooms in to 67 %, 400 %
 50 %) and never write the entity's options. `WebViewPage.qml` keeps the keys' level (`keyZoom`) over the option's
 (`optionZoom`): an update of the entity that leaves its zoom as it is (the fetch when the screen opens, a changed
 reload interval) keeps the level, a changed zoom option applies, and another web view in the same screen (`open` of
-another web view) starts at its own zoom.
+another web view, which gets a new page) starts at its own zoom.
 
 In the fullscreen web view `zoom_reset` goes back to the start value, and the zoom functions can be on any button;
 `testWebViewEntityScreen` checks the keys on their own and on top of an activity's mapping.
@@ -771,7 +774,10 @@ button.
 | MUTE, PREV, PLAY, NEXT, STOP, RECORD (Remote 3), RED, GREEN, YELLOW, BLUE (Remote Two) | `pass` |
 
 Fixed: HOME closes the web view and, opened on top of another screen, that screen too; POWER, VOICE and every button
-the mapping does not name (the other model's) keep the mapping of the screen below, as before.
+the mapping does not name (the other model's) keep the mapping of the screen below, as before. Opened from a profile
+page, POWER does what it does on the main screen: the page header's activity opens the "Turn off" menu (`Page.qml`),
+in the web view's own menu (`turnOffMenu`), since the main screen's menu is hidden behind the web view; VOICE starts
+the voice assistant (`main.qml`).
 
 **The actions:**
 
@@ -1084,7 +1090,10 @@ service reads optional variables from `/var/uc/ui/custom/config/env`; restart th
     change of the global setting while the web view is open, the web view's option and user override before the
     global setting, every function, held buttons (keys and the scroll and page functions repeat, the others not, a
     held BACK with another action does not close), the buttons of each model, the d-pad and OK to the text field while
-    the on-screen keyboard is up, a dialog of the page owning the buttons.
+    the on-screen keyboard is up, a dialog of the page owning the buttons; POWER on a profile page (the header's
+    "Turn off" menu in the screen's own menu), another web view replacing the page (a new page, the website data
+    setting applied, the same web view left as it is); a sideways swipe on an interactive widget in an activity's
+    `PathView` of pages stays with the page, on a widget that is not interactive it switches the page.
 - **Desktop simulator** (`make linux`): the Settings menu has no "Web view" entry (no library), nothing is logged
   until a `WebView` is created.
 - **Device**: a firmware with the web view library. Install the build as a custom UI
@@ -1359,8 +1368,14 @@ and decisions are the OpenSpec change `webview-entity` (`openspec/changes/webvie
   A library the check missed is declared when a use loaded it. The desktop simulator has no library, so it does not
   declare web views and the core reports them `UNAVAILABLE`.
 - **Commands.** `entity_command` is answered when the command is accepted, not when a page has loaded: 200, 400
-  (another entity type, an unknown command), 404 (an unknown web view), 503 (no web view in this UI). `open` and
-  `reload` are answered at once and reach QML as `WebViewController.openRequested` and `reloadRequested`.
+  (another entity type, an unknown command), 404 (an unknown web view), 503 (no web view in this UI, and `open`
+  during the onboarding of the remote, `WebViewController::setOnboarding()`: the onboarding screens show no web view).
+  `open` and `reload` are answered at once and reach QML as `WebViewController.openRequested` and `reloadRequested`.
+  `open` while another web view is shown fullscreen is like closing that one and opening the other one
+  (`Webview.qml` `showEntity()`): the screen stays, the page goes with its history and dialogs, the website data
+  setting applies to it, and a new page loads the other web view. `open` of the web view that is shown leaves it as
+  it is. A web view in the included entities of an activity's menu opens with `openWebView()` like the command, on top
+  of the activity with its button mapping.
   `clear_cache` and `clear_data` are answered when the library reports the end of the clear
   (`uc_webview_global_clear_data()`, library 0.8.0): 200, and every shown page reloads; 500 when the library refused
   the request or reports a failure. Only a library older than 0.8.0, which cannot clear website data, gets 501.
@@ -1373,7 +1388,7 @@ and decisions are the OpenSpec change `webview-entity` (`openspec/changes/webvie
   of the fullscreen web view"): by default BACK closes, the d-pad and OK send the arrow keys and Enter, CHANNEL
   scrolls a screen, VOLUME zooms, MENU sends ContextMenu, and the other buttons pass: on top of an activity its
   button mapping (MUTE, the colour keys, PREV, NEXT, ...). HOME closes it and the screen below; POWER and VOICE keep
-  the `overrideConfig` of the screen below.
+  the `overrideConfig` of the screen below, on a profile page the main screen's function.
 - **Widget keys.** A touch gives the WebView the focus; the widget sets `keysToPage: false`, so the item's `Keys`
   accept every key before the page: the activity's `ButtonNavigation` has it already.
 - **One page at a time.** While `WebViewController.fullscreenEntityId` is set the widgets unload their page.
@@ -1488,7 +1503,9 @@ for (const type of ['keydown', 'keyup']) {
    activity's functions, HOME goes home. `webview.open` as an on-sequence step opens the page after the loading screen,
    and VOLUME zooms there as well.
 4. A `webview` widget: the page shows on its activity page, unloads on another page and while the fullscreen web
-   view is open; a widget with `interactive: false` opens fullscreen on a tap.
+   view is open; a widget with `interactive: false` opens fullscreen on a tap. A sideways swipe on an interactive
+   widget of an activity with several pages scrolls the page (or does nothing) and stays on the activity page; a swipe
+   outside the widget switches the page.
 5. `auth.type` `basic` with a protected page: it loads without a dialog; a wrong password shows the login dialog.
 6. `PUT /api/entities/<id>/command` with `webview.reload` reloads the shown page; `webview.clear_cache` and
    `webview.clear_data` answer 200 and reload it (with library 0.7.x: 501).
