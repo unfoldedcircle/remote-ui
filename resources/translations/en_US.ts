@@ -1301,7 +1301,7 @@ Climate fan</extracomment>
         <translation>Add</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="828"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="843"/>
         <source>Select all</source>
         <translation>Select all</translation>
     </message>
@@ -1312,7 +1312,7 @@ Climate fan</extracomment>
     </message>
     <message>
         <location filename="../../src/qml/components/entities/EntityList.qml" line="519"/>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="828"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="843"/>
         <source>Clear</source>
         <extracomment>Button that clears the active filters in the entity list.</extracomment>
         <translation>Clear</translation>
@@ -1328,61 +1328,67 @@ Climate fan</extracomment>
         <translation>Done</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="570"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="572"/>
         <source>Button</source>
         <translation>Button</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="576"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="578"/>
         <source>Climate</source>
         <translation>Climate</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="583"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="585"/>
         <source>Cover</source>
         <extracomment>Entity type: blinds, shades, curtains. Not a lid or a book cover.</extracomment>
         <translation>Cover</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="589"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="591"/>
         <source>Light</source>
         <translation>Light</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="595"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="597"/>
         <source>Media player</source>
         <translation>Media player</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="602"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="604"/>
         <source>Number</source>
         <extracomment>Entity type: a numeric value with a range, for example a fan speed. Not a phone number.</extracomment>
         <translation>Number</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="609"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="611"/>
         <source>Select</source>
         <extracomment>Entity type: a choice of one option from a list, for example an input source. A noun, not the verb.</extracomment>
         <translation>Select</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="615"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="617"/>
         <source>Sensor</source>
         <translation>Sensor</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="621"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="623"/>
         <source>Switch</source>
         <translation>Switch</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="755"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="634"/>
+        <source>Web view</source>
+        <extracomment>Entity type: a web page shown on the remote</extracomment>
+        <translation>Web view</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="770"/>
         <source>No entities</source>
         <extracomment>No entities are in this list</extracomment>
         <translation>No entities</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/EntityList.qml" line="892"/>
+        <location filename="../../src/qml/components/entities/EntityList.qml" line="907"/>
         <source>Loading</source>
         <extracomment>The application is loading</extracomment>
         <translation>Loading</translation>
