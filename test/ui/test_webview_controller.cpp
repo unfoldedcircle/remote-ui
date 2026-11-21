@@ -146,6 +146,7 @@ class testWebviewController : public QObject {
     void commands_unknownWebviewIsNotFound();
     void commands_refusedWithoutTheWebView();
     void open_isPassedToQml();
+    void open_isRefusedDuringTheOnboarding();
     void reload_isPassedToQml();
     void clear_isNotImplementedWithoutLibrarySupport();
     void clear_answersWhenTheLibraryIsDoneAndReloadsEveryShownPage();
@@ -317,6 +318,28 @@ void testWebviewController::open_isPassedToQml() {
     QCOMPARE(f.run(command(QStringLiteral("open")), &message), 200);
     QCOMPARE(open.count(), 1);
     QCOMPARE(open.first().first().toString(), kWebviewId);
+}
+
+void testWebviewController::open_isRefusedDuringTheOnboarding() {
+    // the onboarding screens show no web view: `open` is answered 503, which the core passes on to its caller, and
+    // nothing opens; the library is not loaded for it. The other commands work as always.
+    Fixture f;
+    f.addWebview();
+    f.controller.setOnboarding(true);
+    QSignalSpy open(&f.controller, &WebViewController::openRequested);
+    QSignalSpy reload(&f.controller, &WebViewController::reloadRequested);
+    QString    message;
+    QCOMPARE(f.run(command(QStringLiteral("open")), &message), 503);
+    QCOMPARE(message, QStringLiteral("The user interface can't show a web view during the onboarding of the Remote"));
+    QCOMPARE(open.count(), 0);
+    QCOMPARE(f.loads, 0);
+    QCOMPARE(f.run(command(QStringLiteral("reload")), &message), 200);
+    QCOMPARE(reload.count(), 1);
+
+    // after the onboarding
+    f.controller.setOnboarding(false);
+    QCOMPARE(f.run(command(QStringLiteral("open")), &message), 200);
+    QCOMPARE(open.count(), 1);
 }
 
 void testWebviewController::reload_isPassedToQml() {

@@ -147,8 +147,10 @@ class WebViewControllerStub : public QObject {
     Q_PROPERTY(QVariantMap buttons READ buttons NOTIFY webviewCfgChanged)
 
  public:
-    QString          fullscreenEntityId;
-    Q_INVOKABLE void viewClosed() {}
+    QString fullscreenEntityId;
+    // how often a web view closed: the website data setting applies then
+    int              viewsClosed = 0;
+    Q_INVOKABLE void viewClosed() { ++viewsClosed; }
 
     QStringList      buttonIds() const { return WebviewButtons::ofModel(s_model); }
     QVariantMap      buttons() const { return WebviewButtons::withDefaults(buttonIds(), m_configured); }
@@ -215,6 +217,8 @@ QList<uint32_t> keys;  // keysyms forwarded to the page (uc_webview_key presses)
 QStringList keyEvents;
 bool        canGoBack = false;
 bool        canGoForward = false;
+// the phases of every uc_webview_touch() call (UC_WEBVIEW_TOUCH_DOWN, ...)
+QList<int> touches;
 // uc_webview_when_rendered() requests (library 0.5.0) the page waits for, oldest first: the test ends them
 QList<QPair<uc_webview_rendered_cb, void *>> renders;
 
@@ -289,7 +293,9 @@ const char *none(uc_webview *) {
 }
 void setBackground(uc_webview *, float, float, float, float) {}
 void frame(uc_webview *, void *) {}
-void touch(uc_webview *, int, int, double, double, uint32_t) {}
+void touch(uc_webview *, int, int phase, double, double, uint32_t) {
+    touches.append(phase);
+}
 void pointerButton(uc_webview *, int, int pressed, double, double, unsigned, uint32_t) {
     if (pressed) {
         calls.append(QStringLiteral("pointer_button"));
@@ -427,12 +433,14 @@ class testWebViewEntityScreen : public QObject {
     void heldVolumeZoomsOneLevel();
     void keyZoomLastsForTheVisitAndLeavesTheEntityAsItIs();
     void anotherWebViewStartsAtItsZoom();
+    void anotherWebViewReplacesThePageLikeACloseAndAnOpen();
     void zoomLabelShowsTheLevel();
     void volumeDoesNothingWhileADialogOrTheKeyboardIsUp();
     void screenIsOpaqueAndThePageShowsItsBackgroundBeforeTheFirstFrame_data();
     void passKeepsTheFunctionOfTheLayerBelow_data();
     void passKeepsTheFunctionOfTheLayerBelow();
     void passOnAProfilePageWithoutAnActivityDoesNothing();
+    void powerFromAProfilePageOpensTheTurnOffMenuOverTheWebView();
     void aChangeOfTheButtonSettingAppliesAtOnce();
     void channelPassKeepsTheActivitysMappingAndItsRepeat();
     void channelPassFromAProfilePageGoesToThePageHeader();
@@ -454,6 +462,8 @@ class testWebViewEntityScreen : public QObject {
     void indicatorLetsTouchesAndKeysThroughToThePage();
     void widgetShowsTheIndicatorAndTheFailure_data();
     void widgetShowsTheIndicatorAndTheFailure();
+    void swipeOnAnInteractiveWidgetDoesNotSwitchTheActivityPage_data();
+    void swipeOnAnInteractiveWidgetDoesNotSwitchTheActivityPage();
 
  private:
     Webview     *createEntity(const QVariantMap &options);
@@ -509,6 +519,7 @@ void testWebViewEntityScreen::init() {
     lib::keys.clear();
     lib::keyEvents.clear();
     lib::renders.clear();
+    lib::touches.clear();
     lib::views = 0;
     lib::canGoBack = false;
     lib::canGoForward = false;
@@ -781,6 +792,63 @@ void testWebViewEntityScreen::anotherWebViewStartsAtItsZoom() {
     QTRY_VERIFY(screen.isNull());
 }
 
+void testWebViewEntityScreen::anotherWebViewReplacesThePageLikeACloseAndAnOpen() {
+    // The `open` command of another web view while one is shown: like closing it and opening the other one (core-api
+    // entity_webview.md "Open"). Regression: the other page was loaded into the same WebView, so BACK went back to the
+    // first web view's page, and the website data setting of a closed web view was not applied.
+    entity = createEntity(QVariantMap{{"url", "https://a.example/"}});
+    QVERIFY(openScreen(true));
+    QTRY_VERIFY(webView() != nullptr);
+    QPointer<WebViewItem> first = webView();
+    QTRY_VERIFY(lib::calls.contains(QStringLiteral("load_uri(https://a.example/)")));
+    lib::loadQuickly("https://a.example/");
+    lib::canGoBack = true;
+    lib::loadQuickly("https://a.example/next");
+    QVERIFY(first->canGoBack());
+    QCOMPARE(lib::views, 1);
+    WebViewControllerStub *controller = WebViewControllerStub::s_current;
+    QVERIFY(controller);
+    QCOMPARE(controller->viewsClosed, 0);
+
+    QScopedPointer<Webview> other(new Webview(
+        QStringLiteral("uc_web.main.2"), QVariantMap{{QStringLiteral("en"), QStringLiteral("Status")}},
+        QStringLiteral("en"), QString(), QString(), true, QVariantMap{{QStringLiteral("state"), QStringLiteral("ON")}},
+        QVariantMap{{"url", "https://b.example/"}}, QStringLiteral("uc_web.main"), nullptr));
+    // the other page has a history of its own: none yet
+    lib::canGoBack = false;
+    lib::calls.clear();
+    QVERIFY(
+        QMetaObject::invokeMethod(screen, "showEntity", Q_ARG(QVariant, QVariant::fromValue<QObject *>(other.data()))));
+    // the website data setting applied to the replaced web view, its page went and a new one has the other web view
+    QCOMPARE(controller->viewsClosed, 1);
+    QCOMPARE(controller->fullscreenEntityId, QStringLiteral("uc_web.main.2"));
+    QTRY_VERIFY(first.isNull());
+    QVERIFY(webView() != nullptr);
+    QTRY_COMPARE(lib::views, 2);
+    QTRY_VERIFY(lib::calls.contains(QStringLiteral("load_uri(https://b.example/)")));
+    // the replaced page never loaded the other web view
+    QTest::qWait(50);
+    QCOMPARE(lib::calls.count(QStringLiteral("load_uri(https://b.example/)")), 1);
+    QVERIFY(!lib::calls.contains(QStringLiteral("load_uri(https://a.example/)")));
+    lib::loadQuickly("https://b.example/");
+    QVERIFY(!webView()->canGoBack());
+    QTRY_VERIFY(webView()->hasActiveFocus());
+
+    // back_or_close on the other web view's first page closes it, as after an open: no way back to the first one
+    setButtons(R"({"BACK": {"action": "function", "function": "back_or_close"}})");
+    lib::calls.clear();
+    // the same web view again: it stays as it is, no new page, no reload, the website data stays
+    QVERIFY(
+        QMetaObject::invokeMethod(screen, "showEntity", Q_ARG(QVariant, QVariant::fromValue<QObject *>(other.data()))));
+    QTest::qWait(50);
+    QCOMPARE(lib::views, 2);
+    QVERIFY(lib::calls.isEmpty());
+    QCOMPARE(controller->viewsClosed, 1);
+    pressRemoteButton(Qt::Key_Exit);
+    QVERIFY(!lib::calls.contains(QStringLiteral("go_back")));
+    QTRY_COMPARE(screen->property("state").toString(), QStringLiteral("closed"));
+}
+
 void testWebViewEntityScreen::zoomLabelShowsTheLevel() {
     entity = createEntity(QVariantMap{{"url", "https://a.example/"}});
     QVERIFY(openScreen(false));
@@ -925,6 +993,38 @@ void testWebViewEntityScreen::passOnAProfilePageWithoutAnActivityDoesNothing() {
     QCOMPARE(presses("mainScreenPresses", "VOLUME_UP"), 0);
     QVERIFY(lib::keyEvents.isEmpty());
     QCOMPARE(screen->property("state").toString(), QStringLiteral("open"));
+}
+
+void testWebViewEntityScreen::powerFromAProfilePageOpensTheTurnOffMenuOverTheWebView() {
+    // POWER keeps its function (core-api entity_webview.md "Buttons"): on a profile page the "Turn off" menu of the
+    // page header's activities. The main screen's menu is hidden behind the web view: the screen hands its own to the
+    // header. Regression: POWER did nothing in a web view opened from a profile page.
+    entity = createEntity(QVariantMap{{"url", "https://a.example/"}});
+    QVERIFY(openScreen(false));
+    QTRY_VERIFY(webView() != nullptr);
+    QObject *menu = screen->findChild<QObject *>(QStringLiteral("turnOffMenu"));
+    QVERIFY(menu);
+
+    pressRemoteButton(Qt::Key_PowerOff);
+    QCOMPARE(presses("mainScreenPresses", "POWER"), 1);
+    QCOMPARE(host->property("powerMenu").value<QObject *>(), menu);
+    QVERIFY(lib::keyEvents.isEmpty());
+    QCOMPARE(screen->property("state").toString(), QStringLiteral("open"));
+
+    // without an activity in the header: nothing, as on the main screen
+    host->setProperty("headerHasActivity", false);
+    pressRemoteButton(Qt::Key_PowerOff);
+    QCOMPARE(presses("mainScreenPresses", "POWER"), 1);
+
+    // on top of an activity: the activity's POWER, not the main screen's
+    host->setProperty("headerHasActivity", true);
+    QVERIFY(QMetaObject::invokeMethod(host, "closeScreen"));
+    QTRY_VERIFY(screen.isNull());
+    QVERIFY(openScreen(true));
+    QTRY_VERIFY(webView() != nullptr);
+    pressRemoteButton(Qt::Key_PowerOff);
+    QCOMPARE(presses("activityPresses", "POWER"), 1);
+    QCOMPARE(presses("mainScreenPresses", "POWER"), 1);
 }
 
 void testWebViewEntityScreen::aChangeOfTheButtonSettingAppliesAtOnce() {
@@ -1731,6 +1831,54 @@ void testWebViewEntityScreen::widgetShowsTheIndicatorAndTheFailure() {
         QCOMPARE(callCount("reload"), 0);
         QVERIFY(text->isVisible());
         QCOMPARE(host->property("fullscreenOpens").toInt(), 1);
+    }
+}
+
+void testWebViewEntityScreen::swipeOnAnInteractiveWidgetDoesNotSwitchTheActivityPage_data() {
+    QTest::addColumn<bool>("interactive");
+    QTest::newRow("interactive") << true;
+    QTest::newRow("not interactive") << false;
+}
+
+void testWebViewEntityScreen::swipeOnAnInteractiveWidgetDoesNotSwitchTheActivityPage() {
+    // core-api ui-widgets.md "Behaviour": swiping on an interactive widget scrolls the page and doesn't switch the user
+    // interface page. Regression: the PathView of the activity's pages took the touch over from the WebView once the
+    // finger had moved far enough sideways, cancelled it in WebKit and showed the next page. A widget that is not
+    // interactive is only shown: the swipe is the PathView's.
+    QFETCH(bool, interactive);
+    entity = createEntity(QVariantMap{{"url", "https://a.example/"}});
+    EntityControllerStub::s_entity = entity;
+    QVariant result;
+    QVERIFY(QMetaObject::invokeMethod(host, "openPagedWidget", Q_RETURN_ARG(QVariant, result),
+                                      Q_ARG(QVariant, kEntityId), Q_ARG(QVariant, interactive)));
+    auto *pages = qobject_cast<QQuickItem *>(result.value<QObject *>());
+    QVERIFY(pages);
+    QTRY_VERIFY(lib::calls.contains(QStringLiteral("load_uri(https://a.example/)")));
+    lib::loadQuickly("https://a.example/");
+    QCOMPARE(pages->property("currentIndex").toInt(), 0);
+
+    // a swipe to the left over the widget, finger by finger like the touch screen reports it
+    static QTouchDevice *device = QTest::createTouchDevice();
+    const QPoint         start(400, 250);
+    QTest::touchEvent(view, device).press(0, start, view);
+    for (int step = 1; step <= 16; ++step) {
+        QTest::qWait(10);
+        QTest::touchEvent(view, device).move(0, start - QPoint(20 * step, 0), view);
+    }
+    QTest::touchEvent(view, device).release(0, start - QPoint(320, 0), view);
+    QTest::qWait(500);
+
+    if (interactive) {
+        // the page got the whole drag, and the activity page stays
+        QCOMPARE(pages->property("currentIndex").toInt(), 0);
+        QCOMPARE(pages->property("offset").toReal(), 0.0);
+        QVERIFY(lib::touches.size() > 2);
+        QCOMPARE(lib::touches.first(), static_cast<int>(UC_WEBVIEW_TOUCH_DOWN));
+        QCOMPARE(lib::touches.last(), static_cast<int>(UC_WEBVIEW_TOUCH_UP));
+        QVERIFY(!lib::touches.contains(UC_WEBVIEW_TOUCH_CANCEL));
+    } else {
+        QCOMPARE(pages->property("currentIndex").toInt(), 1);
+        QVERIFY(lib::touches.isEmpty());
     }
 }
 

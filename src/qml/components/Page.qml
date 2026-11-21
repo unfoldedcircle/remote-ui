@@ -572,7 +572,9 @@ ListView {
                                     }
                                 },
                                 "POWER": {
-                                    "pressed": function() {
+                                    // menu: the popup that shows the "Turn off" menu, the main screen's when not given;
+                                    // the fullscreen web view on top of the main screen passes its own (Webview.qml)
+                                    "pressed": function(menu) {
                                         if (mainContainerBlockingMouseArea.enabled) {
                                             mainContainerRoot.closeMenu();
                                             return;
@@ -582,7 +584,8 @@ ListView {
                                             return;
                                         }
 
-                                        popupMenu.title = qsTr("Turn off");
+                                        const turnOffMenu = menu ? menu : popupMenu;
+                                        turnOffMenu.title = qsTr("Turn off");
                                         let menuItems = [];
 
                                         for (let i = 0; i<EntityController.activities.length; i++) {
@@ -627,8 +630,8 @@ ListView {
                                                            });
                                         }
 
-                                        popupMenu.menuItems = menuItems;
-                                        popupMenu.open();
+                                        turnOffMenu.menuItems = menuItems;
+                                        turnOffMenu.open();
                                     }
                                 }
                             }

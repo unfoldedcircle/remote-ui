@@ -113,7 +113,10 @@ start page the screen says why.
 ### D5 — `open` goes on top of what is shown
 
 `main.qml openWebView()`: an open fullscreen web view gets `showEntity()` (the same web view stays, another one
-replaces the page); otherwise the screen opens in the second container, or in the third on top of the second. An
+replaces it like a close and an open: the page `Loader` unloads the page with its history, `viewClosed()` applies the
+website data setting, a new page loads the other web view); otherwise the screen opens in the second container, or in
+the third on top of the second, with the screen below as `underlyingScreen`. A web view in the included entities of
+an activity's menu takes the same path (`Activity.qml`), so it keeps the activity's button mapping. An
 entity screen in the third container (opened from an activity's menu) closes first. While the activity loading screen
 is up or a container is still loading, the request waits (`pendingWebViewId`) and is opened when the loading screen
 closes or the container is ready: a `webview.open` step of an on-sequence lands on top of the activity screen.
@@ -123,7 +126,9 @@ closes or the container is ready: a `webview.open` step of an on-sequence lands 
 The screen's `ButtonNavigation` (path 1) owns every button: HOME (close, and the screen below too: `closeToHome`, read
 by the third container's close handler), and every button of the button mapping with its action (D17), the d-pad and
 OK included. POWER, VOICE and the buttons the mapping does not name take the `overrideConfig` of the screen below (an
-activity's button mapping), so a key is never handled twice. On path 2 the WebView's `Keys` (`WebViewPage.qml`) accept
+activity's button mapping), so a key is never handled twice. On the main screen POWER goes to the page header like a
+`pass` button: its activity opens the "Turn off" menu, in the screen's own `PopupMenu`, since the main screen's menu
+is hidden behind the web view. On path 2 the WebView's `Keys` (`WebViewPage.qml`) accept
 the remote's d-pad and OK, except while the on-screen keyboard is up (D17). Alternative: forwarding unhandled keys to
 the activity's `ButtonNavigation` would need a change of the shared input ownership.
 
@@ -391,7 +396,7 @@ registration):
   say so.
 - [A library 0.7.x] → every 0.8.0 function is optional; the page loads without the site settings, the clear commands
   answer 501.
-- [`open` during the onboarding] → answered 200 and ignored with a log line (Open Questions).
+- [`open` during the onboarding] → answered 503 (`WebViewController::setOnboarding()`, Open Questions 3).
 - [A secret in the log] → incoming messages are not logged, the entity and the item never log options, the item logs
   option names only; addresses are not logged by the entity (a token may be in the query).
 - [A fetch loop for the secrets] → only events fetch; the answer of a fetch is applied whatever it contains.
@@ -486,7 +491,8 @@ Trade-offs:
 2. ~~Result code of a command the firmware cannot execute (`clear_cache`, `clear_data` without library support): 503
    is the closest code the spec lists; 501 would say "not implemented" and the core maps it.~~ Decided by the
    maintainer on 2026-11-17: 501, without a change of the Core-API.
-3. `open` during the onboarding or without a profile: answered 200 and ignored; 503 would tell the caller.
+3. ~~`open` during the onboarding or without a profile: answered 200 and ignored; 503 would tell the caller.~~
+   Decided: `open` during the onboarding is answered 503, which the core passes on to its caller.
 4. The `web-view` change's requirement "The web view costs nothing before it is used" names the Settings menu as the
    moment the library loads; with web view entities it also loads at the first use of one (a command, its page or its
    widget). Its scenario needs that amendment when both changes are archived.
