@@ -610,7 +610,11 @@ int  uc_webview_can_go_forward(uc_webview *);
 const char *uc_webview_get_uri(uc_webview *);
 const char *uc_webview_get_title(uc_webview *);
 
-/* UI thread. Runs script in the page's main world, result discarded (errors go to the log). */
+/* UI thread. Runs script in the page's main world, result discarded (errors go to the log). With WebKit's
+ * webkit_web_view_evaluate_javascript(), so the script runs as a user gesture (ForceUserGesture::Yes,
+ * WebKitWebView.cpp:4500): the page gets sticky user activation (navigator.userActivation.hasBeenActive), as if the
+ * user had touched it, and from then on asks its "leave this page?" question (beforeunload) when the user leaves it.
+ * The transient activation ends with the script. The library's own scripts never run this way (since 0.9.0). */
 void uc_webview_run_javascript(uc_webview *, const char *script);
 
 /* UI thread. Page zoom factor (1.0 = 100 %, > 0): CSS pixels grow and the page is laid out again. WebKit keeps it
@@ -634,8 +638,9 @@ void uc_webview_set_zoom(uc_webview *, double zoom);
  * the view's (ScrollView.cpp:367-370), so line breaks stay, while innerWidth and visualViewport report the smaller
  * visible part. On a large page that takes seconds. Call uc_webview_when_rendered() right after it to learn when the new scale is on
  * screen; it runs after the change. No magnification_changed() follows for the call itself. The library runs two
- * small scripts in its own script world around WebKit's change (it reads and sets the scroll position); like every
- * script of WebKit's API they count as a user gesture for the page (see uc_webview_when_rendered()).
+ * small scripts in its own script world around WebKit's change (it reads and sets the scroll position), through its
+ * web process extension: they are no user gesture for the page (up to library 0.8.x they were, like every script of
+ * WebKit's API). Before the view's first load and while its web process is gone only WebKit's scale changes.
  */
 int uc_webview_set_magnification(uc_webview *, double scale, double x, double y);
 
@@ -666,12 +671,13 @@ typedef void (*uc_webview_rendered_cb)(uc_webview *, int status, void *user);
  * call, e.g. the relayout of a uc_webview_set_zoom() made just before it) and a frame has reached the host since
  * the call: status UC_WEBVIEW_RENDERED_DONE. For a busy indicator while a zoom step re-renders a large page.
  *
- * How: the library runs a small script in a script world of its own, which the page's scripts can neither see
- * nor change, and the script reports back after two requestAnimationFrame callbacks. WebKit runs the script after
- * every message the view sent to the page before it (a zoom rebuilds the style and lays the page out right in its
- * message, LocalFrame.cpp:1085-1130), runs requestAnimationFrame callbacks at the start of a rendering update
- * (Page.cpp:2329-2337) and starts the next update only after the compositor took the previous one
- * (LayerTreeHost.cpp:141-153, 438-457): the second callback means painted and composited. The update's frame can
+ * How: the library's web process extension runs a small script in the library's own script world, which the
+ * page's scripts can neither see nor change, and the script reports back after two requestAnimationFrame callbacks.
+ * The extension runs the script inside the library's message to the page, after every message the view sent to the
+ * page before it (a zoom rebuilds the style and lays the page out right in its message, LocalFrame.cpp:1085-1130).
+ * WebKit runs requestAnimationFrame callbacks at the start of a rendering update (Page.cpp:2329-2337) and starts the
+ * next update only after the compositor took the previous one (LayerTreeHost.cpp:141-153, 438-457): the second
+ * callback means painted and composited. The update's frame can
  * reach the host shortly after the report (WebKit waits for its GPU fence, AcceleratedBackingStore.cpp:194-210),
  * so when no frame came since the call the library waits for the next one, at most 100 ms (an update that changes
  * nothing produces no frame). On a page that animates, a frame already on its way can count: DONE may come one
@@ -684,15 +690,17 @@ typedef void (*uc_webview_rendered_cb)(uc_webview *, int status, void *user);
  *    mode), so 15 s was too short. A host shows the next frame as it comes after a timeout.
  *  - UC_WEBVIEW_RENDERED_CANCELLED when a navigation commits (reported before load_changed(COMMITTED): the
  *    document the request waited in is gone), the web process terminates (before web_process_terminated()), the
- *    page refuses the script, or the view is freed. For the last one cb runs inside uc_webview_free() (see the
- *    threading contract) and must not call any function on that view.
+ *    script did not run (before the view's first load, after its web process terminated until the next load, no web
+ *    process extension; up to library 0.8.x a request before the first load started a web process for about:blank),
+ *    or the view is freed. For the last one cb runs inside uc_webview_free() (see the threading contract) and must not
+ *    call any function on that view.
  * Returns 0 when the request is pending, -1 when it is refused (invalid view, cb NULL, another thread, from inside
  * uc_webview_free(), 32 requests of the view pending); cb is never called for a refused request.
  *
- * The script counts as a user gesture for the page, like every script of WebKit's JavaScript API (WebKit forces
- * one, WebKitWebView.cpp:4494-4502, ScriptController.cpp:654-663): the page gets sticky and history-action user
- * activation (LocalDOMWindow.h:145-150); the transient activation ends with the script. UC_WEBVIEW_TRACE=1 logs
- * one line per result with the time since the call, "ucwebview: trace <view>: rendered after 2840 ms (done)".
+ * The script is no user gesture for the page (since library 0.9.0; up to 0.8.x the library ran it with WebKit's
+ * JavaScript API, which forces one, WebKitWebView.cpp:4494-4502, ScriptController.cpp:654-663, and every page a host
+ * waited for got sticky user activation and its "leave this page?" question armed). UC_WEBVIEW_TRACE=1 logs one line
+ * per result with the time since the call, "ucwebview: trace <view>: rendered after 2840 ms (done)".
  */
 int uc_webview_when_rendered(uc_webview *, uc_webview_rendered_cb cb, void *user);
 
@@ -915,14 +923,17 @@ int uc_webview_global_clear_data(unsigned types, uc_webview_done_cb cb, void *us
  * and give pages no device state when one is missing. They return 0 when taken and -1 when refused (a warning names
  * the reason); a refused call changes nothing.
  *
- * How it reaches the page: while the device API is on, the library's script (device-host-shim.js, compiled in) runs
- * at the start of every document of the view's top frame, in the page's own script world, with the view's current
- * state; frames get nothing. A change of the state or an event goes to the page that is shown, through the script's
- * internal entry point with the values as arguments (WebKit's call_async_javascript_function, never script text), and
- * after every finished load the state goes there once more (a page from the back/forward cache kept the state of its
- * first load). Like every script of WebKit's API, such a delivery counts as a user gesture for the page: it gets
- * sticky user activation (see uc_webview_when_rendered()); the page's event handlers run later, in a task of their
- * own, without transient activation. The page sees events only for values that really change.
+ * How it reaches the page: through the library's web process extension (libucwebview-extension.so, package README
+ * "Device state for web pages"), never through a script of WebKit's UI process API, which would count as a user
+ * gesture for the page. While the device API is on, the extension runs the library's script (device-host-shim.js,
+ * compiled into the extension) at the start of every document of the view's top frame, in the page's own script
+ * world and before the page's first script, with the view's current state; frames get nothing. A change of the state
+ * or an event goes to the page that is shown as a message to the extension, which hands it to that document's update
+ * function (the page has no way to call it), and after every finished load the state goes there once more (a page
+ * from the back/forward cache kept the state of its first load). The page's event handlers run later, in a task of
+ * their own; none of it is a user gesture (navigator.userActivation stays as the user left it). The page sees events
+ * only for values that really change. Without the extension (a library installed without it) pages get no device
+ * state. Nothing is sent to a view before its first load or after its web process terminated, until it loads again.
  */
 
 /*
