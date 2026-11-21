@@ -164,7 +164,8 @@ Item {
     WebView {
         id: webView
         anchors.fill: parent
-        site: webViewPage.entityObj.site
+        // the entity is null after its deletion while the page is shown: keep the last site
+        site: webViewPage.entityObj ? webViewPage.entityObj.site : webView.site
         deviceApi: webViewPage.deviceApi
         // the option, else white (core-api "Display")
         backgroundColor: webViewPage.entityObj ? webViewPage.entityObj.backgroundColor : colors.white
