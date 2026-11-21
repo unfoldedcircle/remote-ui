@@ -62,14 +62,19 @@ Settings.Page {
         return qsTr("Dark");
     }
 
-    function websiteDataName(value) {
+    // the name of a website data setting; shortForm: the value of the settings row, which has no room for the long name
+    function websiteDataName(value, shortForm) {
         switch (value) {
         case "clear_cache_on_close":
             //: Web view settings: the cached files of the web pages are deleted whenever a web page is closed (a setting, not the button that clears them now)
             return qsTr("Clear cache", "website data on close");
         case "clear_all_on_close":
+            if (shortForm) {
+                //: Web view settings: all website data (cookies, cache, storage) is deleted whenever a web page is closed (a setting); the short form shown in the settings row, keep it short
+                return qsTr("Clear all data", "website data on close");
+            }
             //: Web view settings: all website data (cookies, cache, storage) is deleted whenever a web page is closed (a setting)
-            return qsTr("Clear all", "website data on close");
+            return qsTr("Clear all website data", "website data on close");
         default:
             //: Web view settings: the website data (cookies, cache, storage) of the web pages is kept when a web page is closed (a setting)
             return qsTr("Keep", "website data on close");
@@ -107,7 +112,7 @@ Settings.Page {
             { "name": webViewSettings.websiteDataName("keep"), "value": "keep", "secondary": qsTr("Stay signed in to pages") },
             //: Web view settings: second line of "Clear cache" in the list of what happens with the website data when a web page closes; keep it short
             { "name": webViewSettings.websiteDataName("clear_cache_on_close"), "value": "clear_cache_on_close", "secondary": qsTr("Delete cached files") },
-            //: Web view settings: second line of "Clear all" in the list of what happens with the website data when a web page closes: cookies and stored data are deleted too; keep it short
+            //: Web view settings: second line of "Clear all website data" in the list of what happens with the website data when a web page closes: cookies and stored data are deleted too; keep it short
             { "name": webViewSettings.websiteDataName("clear_all_on_close"), "value": "clear_all_on_close", "secondary": qsTr("Signs you out of pages") }
         ], WebViewController.websiteData, function(value) {
             WebViewController.websiteData = value;
@@ -200,8 +205,8 @@ Settings.Page {
                 objectName: "colorSchemeRow"
                 //: Web view settings: the colour scheme (light or dark) the web pages are asked to use
                 text: qsTr("Color scheme")
-                //: Web view settings: second line of "Color scheme": only web pages with a light and a dark design follow the setting; keep it short (one line)
-                description: qsTr("For pages that support it")
+                //: Web view settings: second line of "Color scheme": only web pages with a light and a dark design follow the setting; keep it short
+                description: qsTr("For pages with a light and a dark design")
                 value: webViewSettings.colorSchemeName(WebViewController.colorScheme)
                 chevron: true
                 selected: activeFocus
@@ -218,11 +223,11 @@ Settings.Page {
             Components.MenuRow {
                 id: websiteDataRow
                 objectName: "websiteDataRow"
-                //: Web view settings: what happens with the website data (cookies, cache, storage) when a web page is closed; the row shows Keep, Clear cache or Clear all
+                //: Web view settings: what happens with the website data (cookies, cache, storage) when a web page is closed; the row shows Keep, Clear cache or Clear all data
                 text: qsTr("Website data on close")
                 //: Web view settings: second line of "Website data on close": what is deleted when a web page closes (nothing, the cache or all website data); keep it short (one line)
                 description: qsTr("What closing a page deletes")
-                value: webViewSettings.websiteDataName(WebViewController.websiteData)
+                value: webViewSettings.websiteDataName(WebViewController.websiteData, true)
                 chevron: true
                 selected: activeFocus
                 keypadActivatable: true
