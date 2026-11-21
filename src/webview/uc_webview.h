@@ -1,7 +1,7 @@
 /* remote-ui copy of uc_webview.h of the firmware's libucwebview library (Unfolded OS): the libucwebview ABI contract. Keep it identical to the firmware header apart from this line; UC_WEBVIEW_API_VERSION is checked at runtime. */
 /*
  * SPDX-License-Identifier: MIT
- * Copyright (c) 2026 Unfolded Circle AG
+ * Copyright (c) 2026 Unfolded Circle ApS
  *
  * libucwebview: an in-process WPE WebKit (WPEPlatform) web view with a plain C ABI.
  *
