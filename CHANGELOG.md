@@ -9,17 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 ### Added
-- Web view (developer preview): on a firmware that provides the web view library (`libucwebview.so.1`, WPE WebKit),
-  a web page can be shown inside the user interface. The settings menu then lists a developer page, Web view, with an
-  address field and the page below it; touch, the d-pad and the on-screen keyboard work in the page like in the rest
-  of the interface. Without the library, and in the desktop simulator, nothing changes. See `docs/webview.md`.
-- The web view's developer page has a Stop/Reload button, and a path typed into the address field opens as a file
+- Web view (developer preview): on a firmware that provides the web view library (`libucwebview.so.1`, WPE WebKit), a
+  web page can be shown inside the user interface. The settings menu then lists Web view, right below Wifi & Bluetooth,
+  whose Web view test opens a test page with an address field and the page below it; touch, the d-pad and the on-screen
+  keyboard work in the page like in the rest of the interface. Without the library, and in the desktop simulator,
+  nothing changes. See `docs/webview.md`.
+- The web view's test page has a Stop/Reload button, and a path typed into the address field opens as a file
   address. The web view loads only web (http, https), `about:` and `data:` addresses; file addresses are refused with
   a "load failed" message unless `UC_WEBVIEW_ALLOW_FILE_URLS=1` is set. A tap on a text field of the page that is
   still selected brings the on-screen keyboard back after its hide key closed it.
 - The web view tells the page the refresh rate of the display (50 Hz on the Remote 3) instead of 60 Hz, so page
   animations that do not redraw on every frame keep step with the display. Needs the web view library 0.2.0.
-- The web view's developer page has Back and Forward buttons, dimmed while there is no page to go back or forward to,
+- The web view's test page has Back and Forward buttons, dimmed while there is no page to go back or forward to,
   and the remote's PREV and NEXT buttons go back and forward in the page's history, also while the d-pad is in the web
   view. BACK leaves the page. The address field can be reached with the d-pad and shows the address of the page on
   screen.
@@ -28,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as the PIN field of the web configurator's login, opens the on-screen keyboard. The web view's input trace for
   device tests (`UC_WEBVIEW_TRACE=1`) records no typed text, and web addresses in the log lose user name, password,
   query and fragment unless `UC_WEBVIEW_LOG_FULL_URLS=1` is set.
-- On the web view's developer page the remote's VOLUME buttons zoom the page and the CHANNEL buttons scroll it a page
+- On the web view's test page the remote's VOLUME buttons zoom the page and the CHANNEL buttons scroll it a page
   up or down. A label shows the zoom level, with a spinner while a large page renders it. Two fingers pinch-zoom the
   page on a touch panel that reports two fingers, such as the Remote Two's. Needs the web view library 0.5.0 for the
   spinner and 0.6.0 for the pinch.
@@ -36,9 +37,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   question before leaving a page with unsaved changes, and the login of a password-protected site as dialogs that
   name the site and work with the d-pad, OK, BACK and the on-screen keyboard. A download, a PDF document or a new
   window the remote cannot show is told with a notification instead of a "load failed" message, and a page that
-  closes itself leaves the developer page. The question before leaving starts on Stay, so that OK keeps the
+  closes itself closes the test page. The question before leaving starts on Stay, so that OK keeps the
   page, after a wrong password the login asks again with the user name filled in, and every login opens with
   the password hidden. Needs the web view library 0.7.0; with an older one nothing changes.
+- Web view entities: a web page made for the remote, such as a dashboard or a device's status page, defined in the
+  web configurator or provided by an integration, shows as a tile on a profile page, and a tap opens it on the whole
+  screen. With its navigation option a bar at the bottom has Back, Forward, Reload and Close. By default BACK closes
+  the page, HOME goes back to the home screen, the d-pad and OK work in the page, CHANNEL scrolls it, VOLUME zooms it
+  one level per press, starting at the web view's zoom, MENU opens the page's context menu, and the other buttons keep
+  their functions, also on top of an activity; on a profile page POWER opens the Turn off menu of the running
+  activities. While the on-screen keyboard is up, the d-pad and OK always go to the text field. Activity sequences,
+  macros, buttons and other systems can open and reload a web view; opened as a step of an activity's start, or from
+  the activity's menu, the page appears on top of the activity screen and keeps its buttons. Opening another web view
+  while one is shown is like closing it and opening the other one: Back does not lead back to the first one. During the
+  remote's onboarding no web view opens. A
+  password-protected start page logs in with the configured user name and password. Needs a firmware with the web
+  view library. With the web view library 0.8.0 a web view also logs in with a token or an API key, sets its cookies
+  before the start page loads, accepts the configured certificate of a self-signed site and sends the chosen user
+  agent; the colour scheme and the setting for invalid certificates of all web views apply, and the cache and the
+  website data can be cleared. Clearing all website data keeps a login made in the login dialog until the user
+  interface restarts. With an older library the page loads without these settings.
+- Settings > Web view sets the color scheme of the web pages, what happens with their website data when a page
+  closes, and whether pages with invalid certificates load, for all web views, like the web configurator. A change
+  made in the web configurator shows at once, and a change the remote cannot save is told. Clear cache and Clear
+  website data clear the data of all web views; Clear website data asks first, because it signs you out of pages you
+  signed in to. Both need the web view library 0.8.0. Buttons sets what each button of the remote does in a
+  full-screen web page, for all web views: its normal function (the activity's button mapping, or on a profile page
+  what the page header's activity or media player does with it), a function of the web view (zoom in, out or reset,
+  scroll, page up or down, top or bottom, back, forward, back or close, reload, stop, close, show or hide the
+  navigation, next or previous element, nothing), or a key sent to the page, such as the channel, colour or media
+  keys of a TV app. Held buttons repeat keys and scrolling. A web view can bring its own buttons, which go before
+  these.
+- The web view widget of an activity page shows the page of a web view entity in the page grid while that page of the
+  activity is shown. An interactive widget takes touch (a swipe scrolls the page, not the activity), a widget that is
+  not interactive opens the page on the whole screen with a tap; the remote's buttons keep the activity's functions.
+- A web view with the device state option gives its pages the state of the remote, for dashboards that pause while
+  the display is off, show the battery or reconnect after a standby: the display (on, dimmed or off), the power
+  source and the battery level, a power profile, and events before a standby and after the wake-up with the time
+  slept. A web view from an integration can be switched by the user. Needs the web view library 0.9.0, which also
+  slows down the timers and stops the animations of every page while the display is off; with an older library the
+  pages get no device state.
+- A web view page that takes a while to load shows that it loads, on the whole screen and in the widget of an activity
+  page: after a moment a spinner with the percentage loaded until the page appears, then a thin bar at the top until it
+  is complete. Reload shows only the bar, the automatic reload nothing. A page that cannot be loaded says so instead of
+  showing a technical error text, and OK, or a tap, tries again.
 
 ### Fixed
 - The remote no longer ends up on a black screen that no button and no touch leaves. Closing an entity screen that

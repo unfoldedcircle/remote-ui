@@ -4,9 +4,17 @@
 #pragma once
 
 #include <QLibrary>
+#include <QList>
+#include <QObject>
+#include <QSet>
 #include <QString>
+#include <QUrl>
+
+#include <functional>
+#include <utility>
 
 #include "uc_webview.h"
+#include "webviewsite.h"
 
 namespace uc {
 namespace webview {
@@ -65,6 +73,20 @@ struct WebViewFunctions {
     // uc_webview_callbacks, which reach the library only through uc_webview_new_sized())
     int (*request_reply)(uc_webview *, uint64_t, int, const char *) = nullptr;
     int (*request_auth)(uc_webview *, uint64_t, const char *, const char *) = nullptr;
+    // optional, library 0.8.0: the site settings of a web view entity, each resolved on its own (docs/webview.md,
+    // "Options and the library")
+    int (*set_origin_headers)(uc_webview *, const char *, const char *const *, const char *const *, size_t) = nullptr;
+    int (*set_user_agent)(uc_webview *, int, const char *) = nullptr;
+    int (*global_set_cookies)(const char *, const uc_webview_cookie *, size_t, uc_webview_done_cb, void *) = nullptr;
+    int (*global_allow_certificate)(const char *, const char *) = nullptr;
+    int (*global_set_tls_errors_policy)(int) = nullptr;
+    int (*global_set_color_scheme)(int) = nullptr;
+    int (*global_clear_data)(unsigned, uc_webview_done_cb, void *) = nullptr;
+    // optional, library 0.9.0: the device state for the pages of a web view entity with `device_api` (docs/webview.md,
+    // "Device state for web pages"); used only when all three are there
+    int (*set_device_api)(uc_webview *, int) = nullptr;
+    int (*set_device_state)(uc_webview *, const char *) = nullptr;
+    int (*device_event)(uc_webview *, const char *, int64_t) = nullptr;
 };
 
 /**
@@ -87,6 +109,21 @@ class WebViewLibrary {
     bool isAvailable();
     // Why isAvailable() is false (empty when it is true).
     QString unavailableReason() const { return m_reason; }
+
+    // Whether the web view can be expected to work, without loading the library: before the first load, Qt's GLib
+    // dispatcher runs and installedPath() finds the library; after it, whether the library loaded (and initialised).
+    bool isInstalled() const;
+    // The path of libucwebview.so.1 in the directories the dynamic linker searches, in its order: those of
+    // LD_LIBRARY_PATH, then /usr/lib, where the firmware installs it, and /lib. The first readable file counts; empty
+    // without one. A stat() per directory, the library is not opened. Not checked: directories that only
+    // /etc/ld.so.cache names, and a RUNPATH (the device's binary has none).
+    static QString installedPath();
+
+    // Called with the outcome of the first load (isAvailable()), and with false when uc_webview_global_init() fails
+    // later: the web view controller declares web views to the core while the library is usable. Called on the GUI
+    // thread from inside the call that found it; one handler, nullptr removes it.
+    using AvailabilityHandler = std::function<void(bool available)>;
+    void setAvailabilityHandler(AvailabilityHandler handler) { m_availabilityHandler = std::move(handler); }
 
     // uc_webview_global_init() once, with Qt's EGLDisplay; false when the library is unavailable or the display
     // could not be used (the web view is unavailable from then on).
@@ -113,10 +150,69 @@ class WebViewLibrary {
         return m_functions.create_sized && m_functions.request_reply && m_functions.request_auth;
     }
 
+    // The pages of a view can get the device state (library 0.9.0): the three device functions are there. Without, the
+    // `deviceApi` of a WebView item does nothing and its pages have no device state API.
+    bool deviceApiAvailable() const {
+        return m_functions.set_device_api && m_functions.set_device_state && m_functions.device_event;
+    }
+
     // The refresh rate of the screen the web views are shown on, for uc_webview_global_set_refresh_rate(): WebKit
     // ticks requestAnimationFrame and animations at this rate (60 Hz without it). Only after ensureInitialized()
     // and only with a library that has the function; a rate already passed is not passed again.
     void setDisplayRefreshRate(qreal hz);
+
+    // ---- web view entity (docs/webview.md, "Web view entity") -------------------------------------------------------
+    // The site settings of library 0.8.0. Each function is optional: what a 0.7.x library lacks degrades to a log line.
+    // The asynchronous ones report through `done` on the context's thread, from Qt's event loop: never from inside
+    // the call, and not at all once the context is gone.
+
+    // the outcome of an asynchronous library request: true when the library reported UC_WEBVIEW_DONE_OK
+    using Done = std::function<void(bool ok)>;
+
+    /**
+     * @brief The global web view settings of the core (get_webview_cfg): the colour scheme pages see in the CSS media
+     * feature prefers-color-scheme ("light" or "dark") and whether invalid TLS certificates of every host are
+     * accepted. Kept until the library is initialised, never a reason to load it; applied then and on every change
+     * (uc_webview_global_set_color_scheme(), uc_webview_global_set_tls_errors_policy()). Without these functions the
+     * page keeps WebKit's light scheme and the certificate check: logged.
+     */
+    void setGlobalSettings(const QString &colorScheme, bool allowInvalidCertificates);
+
+    /**
+     * @brief Accepts an invalid TLS certificate of host for page loads (uc_webview_global_allow_certificate()): the one
+     * whose SHA-256 fingerprint is sha256 (64 hex digits), any with an empty sha256. Exceptions add up for the rest of
+     * the process, the library cannot remove them; one passed before is not passed again.
+     * @return false when the library lacks the function or refused the exception
+     */
+    bool allowCertificate(const QString &host, const QString &sha256);
+
+    /**
+     * @brief Puts cookies for url into the cookie jar every web view shares (uc_webview_global_set_cookies()); needs
+     * the initialised library. done(true) once WebKit has them, done(false) when it failed.
+     * @return false when the library lacks the function, is not initialised or refused the cookies; done is not
+     * called then
+     */
+    bool setCookies(const QUrl &url, const QList<WebViewSite::Cookie> &cookies, QObject *context, Done done);
+
+    enum class ClearStart {
+        Started,      // done reports the outcome
+        Unsupported,  // the library has no uc_webview_global_clear_data() (older than 0.8.0)
+        Refused,      // the library refused the request, or could not be initialised
+    };
+
+    /**
+     * @brief Clears the website data of every web view (uc_webview_global_clear_data()): the HTTP cache (all false), or
+     * all website data (all true). The credentials of logins answered in a dialog stay until the process ends, the
+     * library cannot drop them. Initialises the library first: the data of an earlier run is on disk. done(ok) when
+     * WebKit is done; not called unless Started.
+     */
+    ClearStart clearWebsiteData(bool all, QObject *context, Done done);
+
+    // clearWebsiteData() can start: the library is available and has uc_webview_global_clear_data() (0.8.0). Loads the
+    // library on the first call, like isAvailable().
+    bool canClearWebsiteData() { return isAvailable() && m_functions.global_clear_data; }
+    // Counts the clears of all website data that ended: the cookies a web view set before are gone after one.
+    quint64 websiteDataGeneration() const { return m_websiteDataGeneration; }
 
     // Unit tests: use this function table instead of loading the library. The table counts as available and not
     // yet initialised, so ensureInitialized() calls its global_init.
@@ -127,6 +223,7 @@ class WebViewLibrary {
 
     bool load();
     bool resolveAll(QString *missing);
+    void applyGlobalSettings();
 
     QLibrary         m_library;
     WebViewFunctions m_functions;
@@ -136,6 +233,16 @@ class WebViewLibrary {
     bool             m_initialized = false;
     qreal            m_refreshRate = 0;  // last rate passed to the library, 0 = none yet
     double           m_dragThreshold = 0;  // px, read by ensureInitialized(); 0 = not yet
+    // told the outcome of the load (setAvailabilityHandler)
+    AvailabilityHandler m_availabilityHandler;
+    // the global settings of the core (setGlobalSettings), WebKit's defaults until the core's arrive
+    QString m_colorScheme = QStringLiteral("light");
+    bool    m_allowInvalidCertificates = false;
+    bool    m_clearCacheGapLogged = false;
+    bool    m_clearAllGapLogged = false;
+    // the certificate exceptions passed to the library, "host sha256" (allowCertificate)
+    QSet<QString> m_certificateExceptions;
+    quint64       m_websiteDataGeneration = 0;
 };
 
 }  // namespace webview

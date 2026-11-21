@@ -7,8 +7,13 @@ library `libucwebview.so.1`. The remote-ui binary stays one static Qt binary
 `QLibrary` and talks to it through a small, versioned, plain C ABI. Without the library the item is an empty
 placeholder with `available: false`, so the desktop simulator and a firmware without the web view are unaffected.
 
-The settings menu lists a developer page, Settings > Web view, only when the library loads. It is the one screen that
-uses the item so far: an address field, history and reload buttons, a status line and the web view.
+The settings menu lists Settings > Web view, right below Wifi & Bluetooth, only when the library loads: the global
+web view settings, buttons that clear the cache and the website data of all web views, and Web view test, the test
+page with an address field, history and reload buttons, a status line and the web view (see "Settings > Web view" and
+"The test page" below). Web view entities show their page fullscreen and in the web view widget of an activity page
+(see "Web view entity" below). VOLUME zooms the page of every web view that takes the keys (see "Zoom with VOLUME").
+While the page of a web view entity loads, a spinner and a thin bar show that it does, and a failed load says so (see
+"Load indicator").
 
 The requirements, the decisions and the open tasks of this work are the OpenSpec change `web-view`
 (`openspec/changes/web-view/`); ADR 0022 (`docs/adr/0022-web-engine-from-a-firmware-library-loaded-at-runtime.md`)
@@ -18,7 +23,7 @@ records why the web engine comes from a firmware library loaded at runtime. Both
 ## The ABI dependency
 
 - `src/webview/uc_webview.h` is a verbatim copy of the public header of the firmware's libucwebview library (MIT;
-  currently the one of library 0.7.2) with one comment line on top. Keep it identical to the firmware's header;
+  currently the one of library 0.8.0) with one comment line on top. Keep it identical to the firmware's header;
   `src/webview/CPPLINT.cfg` excludes it from the lint because it keeps its C include guard.
 - `WebViewLibrary` (`webviewlibrary.{h,cpp}`) loads `libucwebview.so.1` on first use (GUI thread), resolves every
   function once into a table (`static_assert`ed against the header), and refuses the library unless
@@ -35,6 +40,7 @@ records why the web engine comes from a firmware library loaded at runtime. Both
   | `uc_webview_when_rendered()` | 0.5.0 | a zoom step counts as rendered at the first frame after it (see "Zoom render wait") |
   | `uc_webview_set_magnification()`, `uc_webview_get_magnification()` | 0.6.0 | no pinch zoom |
   | `uc_webview_request_reply()`, `uc_webview_request_auth()` | 0.7.0 | no dialogs and logins of the page |
+  | `uc_webview_set_origin_headers()`, `uc_webview_set_user_agent()`, `uc_webview_global_set_cookies()`, `uc_webview_global_allow_certificate()`, `uc_webview_global_set_tls_errors_policy()`, `uc_webview_global_set_color_scheme()`, `uc_webview_global_clear_data()` | 0.8.0 | the site settings of web view entities, each function on its own: what is missing is ignored, the load logs it once by name (see "Web view entity") |
 
 - The item creates its view with `uc_webview_new_sized(..., sizeof(uc_webview_callbacks), ...)` when the library has
   it, else with `uc_webview_new()`; both read the nine callbacks of API version 1. The two callbacks library 0.6.0
@@ -52,7 +58,7 @@ records why the web engine comes from a firmware library loaded at runtime. Both
   (`nativeResourceForIntegration("egldisplay")`, `QT += gui-private`). Without an EGLDisplay (desktop, offscreen) the
   library produces shared memory frames instead of DMA-BUFs.
 - `CONFIG+=no-webview` leaves the item, its sources and the `gui-private` dependency out of the binary; the
-  developer page then never appears because `ui.webViewAvailable` is false.
+  test page then never appears because `ui.webViewAvailable` is false.
 
 ## How it works
 
@@ -80,6 +86,10 @@ keymap sends these keys without text, but the button simulator sends the key's n
 "Media Rewind" for PREV, "Exit" for BACK), so `xkbKeysymForKey()` treats every Qt special key outside its table
 (`Qt::Key_Escape` and above, except `Qt::Key_unknown`) as no character.
 
+The fullscreen web view of a web view entity sends the remote's buttons to the page itself, by their
+`KeyboardEvent.key` name and with the keycodes of a keyboard (`sendKey()`, see "Buttons of the fullscreen web view");
+its `WebView` then forwards the d-pad and OK from the focus chain only while the on-screen keyboard is up.
+
 ### Touch
 
 Touch goes to the library point by point as the WPE DRM platform would send it (`WPEDRMSeat.cpp`): WebKit's own
@@ -96,6 +106,9 @@ and logs `Touch drag threshold 16 px (reported by the library)`. With an older l
 - remembers every point until its release, cancels them all on a `TouchCancel` (Qt delivers it without points) and
   in `touchUngrabEvent()` (another item took the grab; Qt 5 sends no cancel then), and drops moves or releases
   whose press it never saw. A point that is never released would block every later tap in WebKit;
+- keeps its touch and mouse grabs (`setKeepTouchGrab()`, `setKeepMouseGrab()`): a filtering parent does not take a
+  drag that started on the page over. Without them the `PathView` of an activity's pages took a sideways swipe on an
+  interactive widget once it had moved past Qt's drag distance, cancelled it in WebKit and showed the next page;
 - skips stationary points and passes Qt's event timestamp (ms, monotonic); WebKit measures from the first event it
   sees and uses no time for tap detection.
 
@@ -114,7 +127,7 @@ touching the keyboard; WebKit reports the resulting focus-out of the element (th
 it) and that report changes nothing. Otherwise the item would close the keyboard the other field just opened and,
 on the next focus-in report, pull the focus back: an endless show/hide loop.
 
-The address field of the developer page is a `Components.InputField` with `moveInput: false` and
+The address field of the test page is a `Components.InputField` with `moveInput: false` and
 `keyboardFollowsFocus: true`, like every form field of a page whose `ButtonNavigation` manages the focus
 (`WifiPassword.qml`). The default `moveInput` opens main.qml's full-screen input overlay, which takes the input
 control: the page's `ButtonNavigation` then parks the focus, the virtual keyboard closes because its panel is only
@@ -174,10 +187,14 @@ element.
 
 | Kind | Members |
 |------|---------|
-| Properties | `url`, `title`, `loading`, `loadProgress`, `canGoBack`, `canGoForward`, `available`, `backgroundColor` (white by default, like a browser: what WebKit shows where the page paints no background), `zoom`, `zoomRendering`, `magnification`, `pinching`, `pinchZoomAvailable`, `framesReceived`, `framesReleased` |
-| Methods | `reload()`, `stop()`, `goBack()`, `goForward()`, `runJavaScript(script)`, `loadHtml(html, baseUrl)`, `zoomIn()`, `zoomOut()`, `pageUp()`, `pageDown()` |
+| Properties | `url`, `title`, `loading`, `loadProgress`, `canGoBack`, `canGoForward`, `available`, `backgroundColor` (white by default, like a browser: what WebKit shows where the page paints no background), `zoom`, `zoomRendering`, `magnification`, `pinching`, `pinchZoomAvailable`, `framesReceived`, `framesReleased`, `loadIndicator` (`WebView.LoadIndicatorNone`, `LoadIndicatorSpinner`, `LoadIndicatorBar`, `LoadIndicatorFailed`) and `pageFailed` (see "Load indicator") |
+| Methods | `reload()`, `reloadQuietly()` (a reload without the load indicator), `stop()`, `goBack()`, `goForward()`, `runJavaScript(script)`, `loadHtml(html, baseUrl)`, `zoomIn()`, `zoomOut()`, `pageUp()`, `pageDown()` |
 | Signals | `crashed(reason)`, `loadFailed(url)` (also for a URL outside the scheme allowlist), `dialogRequested(request)`, `authenticationRequested(request)`, `newWindow(url, loaded)`, `responseRefused(url, mimeType, download)`, `closeRequested()` |
 | Types | `WebViewDialogRequest`, `WebViewAuthRequest` (uncreatable, see "Dialogs and logins") |
+
+The item draws nothing before its first frame (and around a frame that a pinch shrank): the pages that use it put a
+rectangle in its `backgroundColor` below it (`webViewBackground`, `z` -1, in `WebViewTest.qml` and `WebViewPage.qml`),
+so that area shows the page's background, white by default, not the screen behind.
 
 `zoom` is the page zoom factor WebKit uses for the view (1 = 100 %, `uc_webview_set_zoom()`, which calls
 `webkit_web_view_set_zoom_level()`: a zoom of the whole page with a new layout, not a magnification of the frame).
@@ -188,7 +205,7 @@ view exists is applied right after the view is created, before its first load. `
 through the levels 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250 and 300 % (the table `kZoomStepsPercent` in
 `webviewitem.cpp`, the only copy) and do nothing beyond the first or last one; from a zoom between two levels they go
 to the next level in their direction. `pageUp()`/`pageDown()` send `Page_Up`/`Page_Down` to the page, see "Keys of the
-remote on the developer page".
+remote on the test page".
 
 `canGoBack` and `canGoForward` are read from the library on every load event (started, redirected, committed,
 finished, failed), and also on every frame and title change: a same-document navigation (`history.pushState` of a
@@ -201,7 +218,7 @@ navigation (see "Known limitations").
 ### Zoom render wait
 
 On a large page a zoom step takes a few seconds to re-render. WebKit does that work in the web process; the UI thread
-stays free, so a Qt animation runs meanwhile and the developer page shows a busy indicator.
+stays free, so a Qt animation runs meanwhile and the test page shows a busy indicator.
 
 - `zoomRendering` is true from a zoom change until the page has rendered the latest level. The item asks the library
   with `uc_webview_when_rendered()` (library 0.5.0) right after `uc_webview_set_zoom()`. The library reports when the
@@ -281,7 +298,7 @@ Rules:
 - **Navigation**, as WebKit does it: a new address or a followed link starts at 1× (WebKit resets the page scale at
   the commit); PREV/NEXT (back and forward), Reload and same-document history steps restore the magnification the page
   had when it was left, with its scroll position, like a phone's browser. The library reports these as
-  `magnification_changed`; the item takes the value and drops a pinch picture or hold. BACK leaves the developer page,
+  `magnification_changed`; the item takes the value and drops a pinch picture or hold. BACK leaves the test page,
   and its next visit starts at 1× with a new view.
 - **Taps.** With pinch zoom a second finger ends the first finger's tap candidate (no keyboard request at its
   release): the library gives WebKit no click for it either. One-finger taps and the 16 px drag threshold are
@@ -301,7 +318,7 @@ difference is smaller.
 Up to library 0.6.x a page's `alert()`, `confirm()`, `prompt()`, its "leave this page?" question and an HTTP login
 went nowhere: WebKit's WPE defaults close the dialogs at once (`confirm()` is false), a login hangs until the next load,
 a `target=_blank` link does nothing, a download or a PDF shows "load failed". Library 0.7.0 passes them to the host.
-The item turns them into request objects and signals, and the developer page shows them with two dialogs from
+The item turns them into request objects and signals, and the test page shows them with two dialogs from
 `components/`.
 
 | Library callback | Item | Developer page |
@@ -347,7 +364,7 @@ credentials.
 it answers a pending leave-page question "leave" itself: the user wants to go elsewhere. `stop()` answers it "stay".
 Otherwise the library would answer "stay" for every navigation call: the navigation that asked would stop and the next
 navigation would ask again. Other pending dialogs and logins are the library's to end ("no", cancelled), reported with
-`request_cancelled()` from an idle right after the call. On the developer page this matters little: the dialog owns the
+`request_cancelled()` from an idle right after the call. On the test page this matters little: the dialog owns the
 keys and covers the page, so PREV/NEXT, Load, Back, Forward and Reload cannot be used while it is open.
 
 **The dialogs** follow the Wi-Fi screens:
@@ -425,7 +442,7 @@ session (the remote-ui process) and never writes them.
 
 1. The leave-page question shows a fixed text, not the page's (`WebViewDialog.qml`, `messageText`; the library passes
    none).
-2. A PDF says "PDF documents cannot be shown here" instead of "load failed" (`WebView.qml`, `onResponseRefused`; the
+2. A PDF says "PDF documents cannot be shown here" instead of "load failed" (`WebViewTest.qml`, `onResponseRefused`; the
    library reports it as `response_refused(UNSUPPORTED)`, no `FAILED`).
 3. Cancel on a login shows the server's 401 page (`WebViewLogin.qml`, `cancel()`: without credentials, not a cancelled
    load).
@@ -442,8 +459,8 @@ session (the remote-ui process) and never writes them.
    (`WebViewDialog.qml`, `WebViewLogin.qml`, the `HOME` entry of their `ButtonNavigation`).
 9. The leave-page question opens with Stay selected: OK stays, leaving needs a d-pad move to Leave first; taps work as
    before (`WebViewDialog.qml`, `initialFocusItem`). The other dialogs open on OK.
-10. `window.close()` of the page goes one step back, or leaves the developer page when there is no history
-    (`WebView.qml`, `onCloseRequested`).
+10. `window.close()` of the page goes one step back, or closes the test page when there is no history
+    (`WebViewTest.qml`, `onCloseRequested`).
 11. After a wrong login (retry) the user name stays filled in; only the password is cleared, with the focus on the
     password field (`WebViewRequests`, "Retry" in `webviewrequest.h`; `WebViewLogin.qml`, `show()`).
 12. "Leave this page?" does not appear for a link to another site: WPE moves a cross-site navigation to a new web
@@ -462,16 +479,72 @@ The library loads only `http`, `https`, `about` and `data` URLs; `file` only whe
 `UC_WEBVIEW_ALLOW_FILE_URLS=1` (also `true`, `yes`, `on`; blocked by default, so in production). Other schemes and
 strings without a scheme are refused. The item applies the same rule in its `url` setter and to the base URL of
 `loadHtml()`: a refused URL is not loaded, `url` keeps its value, the item logs `Not loading URL <url>: <reason>`
-(warning, `uc.ui.webview`) and emits `loadFailed(url)`, which the developer page shows in its status line. Should the
+(warning, `uc.ui.webview`) and emits `loadFailed(url)`, which the test page shows in its status line. Should the
 library refuse a load anyway (another environment), it reports a failed load without started or finished events; the
 item emits `loadFailed(url)` for it as well.
 
-The developer page completes what is typed in the address field: a URL with one of the schemes above stays as it
+The test page completes what is typed in the address field: a URL with one of the schemes above stays as it
 is, an absolute path becomes `file://<path>`, anything else (`example.com`, `localhost:8080/x`) gets `http://`.
 
-## The developer page
+## Settings > Web view
 
-`src/qml/settings/settings/WebView.qml`, two rows above the web view on the 480 px panel (20 px gutter, 10 px gaps):
+`src/qml/settings/settings/WebView.qml`, the settings page of all web views, in the settings menu right below Wifi &
+Bluetooth while the library loads (`Settings.qml`). It uses the components of the other settings pages and walks with
+the d-pad from top to bottom (QML focus chain, `initialFocusItem` the first row):
+
+| Row (second line) | What it does |
+|-------------------|--------------|
+| Color scheme: Dark, Light ("For pages that support it") | `color_scheme` of the core's global web view settings: a picker list (`PopupList`) |
+| Website data on close: Keep, Clear cache, Clear all ("What closing a page deletes") | `website_data`: `keep`, `clear_cache_on_close`, `clear_all_on_close`, a picker list whose rows say what each one means ("Signs you out of pages") |
+| Buttons ("In a full-screen web page") | `buttons`: opens the page of the remote's buttons in the fullscreen web view (below) |
+| Allow invalid certificates (a help text that names the risk) | `allow_invalid_certificates`: a switch |
+| Cache and website data: Clear cache, Clear website data (a help text) | clear the HTTP cache or all website data of every web view now; Clear website data asks first |
+| Web view test ("Load any web address to try it") | opens the test page (below) |
+
+The picker rows, Buttons and Web view test are `MenuRow`s with a `description`: the whole title (it wraps once, as "Website
+data on close" does next to its value), the current value and the chevron on its first line, and one line in the help
+role that says what the row does, like the help text of a setting with a switch (docs/design-system.md, section 5).
+
+- **The settings are the core's.** `WebViewController` reads them with `get_webview_cfg` after every authentication
+  and from every `configuration_change` event, so a change in the web configurator shows at once, and writes them
+  with `set_webview_cfg`: only the changed setting, which needs the `admin` scope (the UI's session has it). The row
+  shows the core's answer, not the choice: like the settings of `Config`, the property changes when the core answers
+  (`webview_cfg`, latest request wins). A refused change (403 without the admin scope, a core that is not connected)
+  is told with a notification ("Error setting web view settings: ...", the core's message) and the property reports
+  its old value again, so a switch that toggled under the finger switches back. What the settings do in the web view
+  is in "Options and the library" below.
+- **Clearing.** Both buttons run `WebViewController::clearData()`, the clear of the `clear_cache` and `clear_data`
+  commands (`uc_webview_global_clear_data()` with `UC_WEBVIEW_DATA_CACHE` or `UC_WEBVIEW_DATA_ALL`, library 0.8.0):
+  every shown page reloads afterwards. Clear website data first asks (the warning question of the app with Cancel and
+  Clear) because it signs the user out of pages with a cookie login. When the library is done a notification says
+  "Cache cleared" or "Website data cleared", or as a warning that it could not be cleared. While a clear runs, the
+  buttons do nothing; they stay enabled, since a button that turns disabled under the d-pad takes the focus with it.
+- **Older library.** With a library without `uc_webview_global_clear_data()` (0.7.x,
+  `WebViewController::canClearWebsiteData()`) both buttons are disabled, the d-pad passes over them, and the help text
+  says "Clearing needs a newer firmware."
+- **Buttons** (`settings/settings/WebViewButtons.qml`): one row per button of the remote model
+  (`WebViewController.buttonIds`: the Remote Two with RED, GREEN, YELLOW and BLUE, the Remote 3 with STOP, RECORD and
+  MENU, the desktop simulator like the Remote Two), its name as the title and its action as the second line: "Close",
+  "Zoom in", "Sends ArrowUp", "Normal function", ... HOME, POWER and VOICE are not listed: their function is fixed. OK
+  or a tap opens the list of the actions on the current one (`PopupList`): Normal function (`pass`), the 19 functions
+  and, last, Send key to page, which opens the list of the 36 keys, named as the page receives them in
+  `KeyboardEvent.key` (`ArrowUp`, `ChannelUp`, `ColorF0Red`, ...). Each list marks the button's default action or key
+  with "Default". A choice is `WebViewController.setButtonAction()`: `set_webview_cfg` with that one button, which the
+  core merges into its buttons; the row shows the core's answer, and a change made in the web configurator shows at
+  once. A text above the rows says that a web view can bring its own buttons, which go before these. The d-pad walks the
+  rows (QML focus chain).
+- **The test page and the buttons page** open over the whole screen, above this page and its title bar (one `Loader`,
+  `z` 500). A settings page draws no background of its own (the settings overlay does), so they bring one: an opaque
+  rectangle in `colors.bg` below their controls (`webViewTestBackground`, `webViewButtonsBackground`), with a
+  `MouseArea` that takes every touch their controls leave. This page hides its content and title bar while one of them
+  is open, so nothing of it shows or reacts. The page takes the input while it is loaded; BACK and the arrow of its
+  title bar close it (`done()`), and the d-pad is back on the row that opened it. HOME closes the settings as on every
+  settings page.
+
+## The test page
+
+`src/qml/settings/settings/WebViewTest.qml`, Settings > Web view > Web view test, on the whole screen. Two rows above
+the web view on the 480 px panel (20 px gutter, 10 px gaps):
 
 ```
    0                                                                   480
@@ -491,7 +564,7 @@ is, an absolute path becomes `file://<path>`, anything else (`example.com`, `loc
   direction they are disabled, dimmed like every disabled button of the app, ignore taps and are skipped by the d-pad
   (`KeyNavigation` passes over disabled items).
 - The remote's PREV and NEXT go back and forward like Back and Forward, VOLUME +/- zoom the page, CHANNEL +/- scroll
-  it a page up or down, wherever the d-pad is (see "Keys of the remote on the developer page").
+  it a page up or down, wherever the d-pad is (see "Keys of the remote on the test page").
 - Stop/Reload is one button: a cross while a page loads (stops it), a circular arrow otherwise (reloads).
 - The status line shows the title or the load progress, the frame counters and the last crash or load failure.
 - The field shows the address of the page on screen (completed, redirected, after Back or Forward) except while the
@@ -540,12 +613,12 @@ is its Return and loads, like it joins on the Wi-Fi password form. The field sit
 between the other controls (Load to the second row is one step down); only the way from the second row to Load leads
 over it (up, right), and the keyboard then shows for that moment.
 
-### Keys of the remote on the developer page
+### Keys of the remote on the test page
 
 | Key | Action | Held | While the on-screen keyboard is up |
 |-----|--------|------|------------------------------------|
 | d-pad, OK in the web view | to the page (scrolling, the page's own key navigation, form submit) | repeats | to the page |
-| BACK | leaves the page | | |
+| BACK | closes the page, back to Settings > Web view | | |
 | PREV / NEXT | wherever the d-pad is: one step back / forward in the history, nothing without history in that direction | one step | nothing |
 | VOLUME + / - | wherever the d-pad is: page zoom one level in / out (50 to 300 %), the new level shows while the page renders it (with a spinner after 150 ms) and for a second after the press; a pinch's magnification stays | one level | nothing |
 | CHANNEL + / - | wherever the d-pad is: `Page_Up` / `Page_Down` for the page, a page up / down | scrolls on with every repeat | nothing |
@@ -553,12 +626,12 @@ over it (up, right), and the keyboard then shows for that moment.
 
 - **Leaving the web view: BACK.** Inside the web view every arrow key and OK go to the page (scrolling, a web app's
   own key navigation, form submit), so the d-pad focus stays in the web view until a tap on a control or BACK, which
-  leaves the page as on every settings page. Whether the page handled a key is known to WebKit but not passed on (WPE
-  leaves `PageClient::doneWithKeyEvent()` empty and the GLib API has no signal for it), so moving the focus out on an
-  unhandled key would need a WebKit change or a user script.
+  closes the page, back to Settings > Web view (`done()`, also the arrow of the title bar). Whether the page handled a
+  key is known to WebKit but not passed on (WPE leaves `PageClient::doneWithKeyEvent()` empty and the GLib API has no
+  signal for it), so moving the focus out on an unhandled key would need a WebKit change or a user script.
 - **PREV and NEXT go back and forward in the history.** BACK is not mapped to history back. The page's
-  `ButtonNavigation` (`Settings.Page`, extended in `WebView.qml`) maps PREV (`Qt::Key_AudioRewind`) to `goBack()` and
-  NEXT (`Qt::Key_AudioForward`) to `goForward()` when `canGoBack`/`canGoForward` say there is history in that
+  `ButtonNavigation` (`Settings.Page`, extended in `WebViewTest.qml`) maps PREV (`Qt::Key_AudioRewind`) to `goBack()`
+  and NEXT (`Qt::Key_AudioForward`) to `goForward()` when `canGoBack`/`canGoForward` say there is history in that
   direction; otherwise the key does nothing, like an unused key anywhere in the app.
 
 How the keys get there: the remote's buttons arrive as `KEY_REWIND` and `KEY_FASTFORWARD`, Qt's evdev keymap turns
@@ -581,7 +654,8 @@ keysym, the event stays unaccepted, see "Keys"), and nothing else on the page ac
 `ButtonNavigation` like PREV and NEXT and reach it the same way, wherever the d-pad focus is: `KEY_VOLUMEUP`/
 `KEY_VOLUMEDOWN` and `KEY_CHANNELUP`/`KEY_CHANNELDOWN` become `Key_VolumeUp`/`Key_VolumeDown` and
 `Key_ChannelUp`/`Key_ChannelDown` without text, the input controller maps them to `VOLUME_UP`/`VOLUME_DOWN` and
-`CHANNEL_UP`/`CHANNEL_DOWN`, and the `WebView` item ignores them on the focus chain. They are mapped on this page only.
+`CHANNEL_UP`/`CHANNEL_DOWN`, and the `WebView` item ignores them on the focus chain. They are mapped on this page and,
+the same way, on the fullscreen web view of a web view entity (see "Zoom with VOLUME").
 
 **Volume control is not available while this page is open.** The page takes VOLUME for the zoom; it overrides
 nothing that works there today: on a settings page VOLUME +/- (and CHANNEL +/-) do nothing at all. The page owns the
@@ -594,8 +668,9 @@ input, and `MainContainer.qml`'s CHANNEL handlers (open and close a group) need 
 `pressed_repeat`: every level is a new layout of the page, and the remote's auto-repeat would rush through levels the
 user never saw. After every press, also at either end, a small label with the level ("125 %") appears at the top of
 the web view. It stays while the page renders the level (`zoomRendering`, see "Zoom render wait") and for about a
-second after the last press, then fades out. A render that takes longer than 150 ms (`zoomSpinnerDelay` of the
-page) adds the app's spinner next to the level (the command-in-progress spinner of the status bar), so a quick step
+second after the last press, then fades out. A render that takes longer than 150 ms (`spinnerDelay` of
+`components/WebViewZoomLabel.qml`, the label of every web view that zooms with VOLUME) adds the app's spinner next to
+the level (the command-in-progress spinner of the status bar), so a quick step
 does not flicker. Presses during a render move the level in the label at once; the page gets the latest one when it
 is done.
 
@@ -632,6 +707,224 @@ and would bypass the page's own key handling.
 form of the page. A zoom step relayouts the page under the keyboard and can move the field out of sight, a page step
 would move the caret of a text area or scroll the field away. The four keys do nothing then; they work again once the
 keyboard is put away.
+
+## Zoom with VOLUME
+
+VOLUME + and - zoom the page one level in and out in every web view that takes the remote's keys. The table says
+where:
+
+| Web view | VOLUME + / - | Where it is mapped |
+|----------|--------------|--------------------|
+| The test page (Settings > Web view > Web view test) | zoom | `WebViewTest.qml`, its `ButtonNavigation` (see "Keys of the remote on the test page") |
+| The fullscreen web view of a web view entity, opened from its tile or icon on a profile page, by the `open` command (from another system, a button, a text or icon item of an activity, a step of an activity's sequence) or by a tap on a widget that is not interactive | zoom by default, also on top of an activity: the activity's volume does not change while the web view is open; any other action of the button mapping instead, and the zoom functions on other buttons (see "Buttons of the fullscreen web view") | `components/entities/webview/deviceclass/Webview.qml`, `keyConfig()` |
+| The web view widget of an activity page | the activity's mapping (the receiver's volume): the widget takes no keys | `components/WebViewWidget.qml`, `keysToPage: false` |
+
+The same rules everywhere:
+
+- **Levels:** the `WebView` item's `zoomIn()` and `zoomOut()`, one of 50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200,
+  250 and 300 % per press (`kZoomStepsPercent`); nothing beyond the first or last level. From a zoom between two
+  levels the next level in the key's direction.
+- **One level per press.** The handlers do not repeat: every level is a new layout of the page.
+- **The label** (`components/WebViewZoomLabel.qml`) shows the level at the top of the page after every press, also at
+  either end, while the page renders it (with the spinner after 150 ms) and for a second after.
+- **Not while** a dialog or login of the page is open (its keys) or the on-screen keyboard is up (a new layout would
+  move the field the user types into).
+- **For the visit only.** The level lasts while the page is shown, across its navigations; the next visit starts
+  again from the start value. Nothing is stored and nothing is sent to the core.
+
+In the fullscreen web view the start value is the entity's effective zoom: the user override, else the `zoom` option,
+else 100 % (25 to 400 %). The keys step from there (60 % zooms in to 67 %, 400 % zooms out to 300 %, 25 % zooms in to
+50 %) and never write the entity's options. `WebViewPage.qml` keeps the keys' level (`keyZoom`) over the option's
+(`optionZoom`): an update of the entity that leaves its zoom as it is (the fetch when the screen opens, a changed
+reload interval) keeps the level, a changed zoom option applies, and another web view in the same screen (`open` of
+another web view, which gets a new page) starts at its own zoom.
+
+In the fullscreen web view `zoom_reset` goes back to the start value, and the zoom functions can be on any button;
+`testWebViewEntityScreen` checks the keys on their own and on top of an activity's mapping.
+
+## Buttons of the fullscreen web view
+
+The remote's buttons in the fullscreen web view of a web view entity (core-api `entity_webview.md`, "Buttons" and
+"Button settings") have the action of a button mapping. `keyConfig()` of
+`components/entities/webview/deviceclass/Webview.qml` builds the screen's key configuration from it, a binding: a
+changed action applies at the next press, also while the web view is open.
+
+| Part | Where |
+|------|-------|
+| The buttons of a model, the defaults, the valid actions, which actions repeat | `entity::WebviewButtons` (`src/ui/entity/webviewButtons.*`) |
+| The web view's own buttons: the user override (`options.user.buttons`) over the option (`options.buttons`) | `entity::Webview::buttons` |
+| The global setting `buttons` (`get_webview_cfg`, `configuration_change`, `set_webview_cfg`): every button of the model with the core's action or its default | `WebViewController.buttonIds`, `buttons`, `setButtonAction()` |
+| The dispatcher: press, repeat and release of every mapped button | `Webview.qml`, `pressButton()`, `repeatButton()`, `releaseButton()`, `runFunction()` |
+| A key of the page by name | `WebViewItem::sendKey()`, the table in `webviewinput.cpp` (`pageKeyForName()`) |
+| The settings page | Settings > Web view > Buttons, `settings/settings/WebViewButtons.qml` |
+
+**The action of a button** is the first of: the web view's user override, its `buttons` option, the global setting.
+The global setting has every button of the model; a button the core does not report, or with an action the UI does not
+know, has its default (ADR 0018). An invalid entry of a web view is left out, and the global setting applies to that
+button.
+
+| Button | Default |
+|--------|---------|
+| DPAD_UP, DOWN, LEFT, RIGHT | key `ArrowUp`, `ArrowDown`, `ArrowLeft`, `ArrowRight` |
+| DPAD_MIDDLE (OK) | key `Enter` |
+| BACK | function `close` |
+| VOLUME_UP, VOLUME_DOWN | function `zoom_in`, `zoom_out` |
+| CHANNEL_UP, CHANNEL_DOWN | function `page_up`, `page_down` |
+| MENU (Remote 3) | key `ContextMenu` |
+| MUTE, PREV, PLAY, NEXT, STOP, RECORD (Remote 3), RED, GREEN, YELLOW, BLUE (Remote Two) | `pass` |
+
+Fixed: HOME closes the web view and, opened on top of another screen, that screen too; POWER, VOICE and every button
+the mapping does not name (the other model's) keep the mapping of the screen below, as before. Opened from a profile
+page, POWER does what it does on the main screen: the page header's activity opens the "Turn off" menu (`Page.qml`),
+in the web view's own menu (`turnOffMenu`), since the main screen's menu is hidden behind the web view; VOICE starts
+the voice assistant (`main.qml`).
+
+**The actions:**
+
+- `key`: the key goes to the page with `WebViewItem::sendKey()`: a press at the button's press, a further press at
+  every auto-repeat of a held button (WebKit flags them as `repeat`), a release at its release. The release goes to the
+  page also when the mapping changed or a dialog opened meanwhile: the press is remembered (`pressedButtons`).
+- `function`: `runFunction()` below, at the press. `scroll_up`, `scroll_down`, `page_up` and `page_down` run again at
+  every auto-repeat, every other function once per press (`WebViewController.buttonRepeats()`).
+- `pass`: on top of an activity the activity's mapping of the button as it is, with its own repeat and long press
+  (the entry of its `overrideConfig`); opened from a profile page what the page header's activity or media player does
+  with it (`Page.qml` `headerButtonConfig()`, looked up at every press, a held button repeats its press), else
+  nothing. BACK with `pass` and nothing below that maps BACK closes the web view. What the main screen itself does
+  with the d-pad and CHANNEL (move between its tiles, open and close a group) is not passed on: the tiles are hidden
+  behind the web view.
+
+| Function | What the screen calls |
+|----------|-----------------------|
+| `zoom_in`, `zoom_out`, `zoom_reset` | `WebViewPage.qml` `zoomIn()`, `zoomOut()`, `zoomReset()` and the zoom label (see "Zoom with VOLUME"); nothing while the on-screen keyboard is up |
+| `scroll_up`, `scroll_down` | `WebViewItem::scrollUp()`/`scrollDown()`: two wheel notches (`kScrollStepTicks`, 40 px each in WebKit) with `uc_webview_scroll()` at the centre of the view. WebKit scrolls the scroller under that point, else the document; a page that takes wheel events itself (a map) gets them as from a mouse wheel |
+| `page_up`, `page_down` | `pageUp()`/`pageDown()`: Page_Up/Page_Down pressed and released (see "Page scroll") |
+| `top`, `bottom` | `scrollToTop()`/`scrollToBottom()`: Home/End pressed and released (keycodes 110/115); like the page keys they scroll the scroller around the focused element, else the document, and in a focused text field move the caret |
+| `back`, `forward` | `goBack()`/`goForward()` while there is history in that direction |
+| `back_or_close` | `goBack()`, or the web view closes on its first page |
+| `reload`, `stop` | `reload()` (the bar of the load indicator), `stop()` |
+| `close` | the screen closes |
+| `toggle_navigation` | the navigation bar shows or hides for the visit (`navigationByButton`); the entity's `show_navigation` stays, another web view starts from its own |
+| `focus_next`, `focus_previous` | `focusNext()`/`focusPrevious()`: Tab pressed and released, for the previous element with the Shift modifier (no Shift key event, and not `ISO_Left_Tab`, which WebKit reports as `Unidentified`) |
+| `none` | nothing; the button does not pass on either |
+
+**The d-pad and OK, and the on-screen keyboard.** The screen's mapping sends them, and the `WebView` does not forward
+the remote's d-pad and OK from the focus chain a second time (`WebViewPage.qml` accepts them in its `Keys`). While the
+on-screen keyboard is up the user types into a text field of the page: then the d-pad and OK go to the field whatever
+their action, forwarded by the `WebView` on the focus chain as before, and the mapping steps aside (`typing()`); the
+keyboard's own key events (sent to the window, so the input controller names the keyboard's Return DPAD_MIDDLE as
+well) reach the field the same way. Both decide at the press, so that the press, its repeats and its release go one
+way. Exactly one of the two paths acts on a press (ADR 0007).
+
+**OK on a failed load** tries again whatever its action, while the message "Press OK to try again" shows.
+
+**Dialogs of the page** take the input when they are open, so the buttons are theirs. While one fades in, the
+screen still has the input: its keys and functions do nothing then (`requestShown()`), `pass` still passes.
+
+**While the entity is unavailable** BaseDetail drops the screen's key configuration: BACK and HOME close, the other
+buttons do nothing. BACK is the screen's default without the long press of BaseDetail's default
+(`extendDefaultConfig()`), so that a mapped BACK acts at its press and a held one repeats instead of closing after
+800 ms.
+
+**Keys of the page.** `sendKey()` passes the keysym WebKit takes `KeyboardEvent.key` and `keyCode` from and the XKB
+keycode (evdev + 8) it takes `KeyboardEvent.code` from, without modifiers. `code` is the UI Events code where one
+exists, else `Unidentified`.
+
+| Key | Keysym | Keycode | | Key | Keysym | Keycode |
+|-----|--------|---------|-|-----|--------|---------|
+| ArrowUp | `Up` 0xff52 | 111 | | AudioVolumeUp | `XF86AudioRaiseVolume` 0x1008ff13 | 123 |
+| ArrowDown | `Down` 0xff54 | 116 | | AudioVolumeDown | `XF86AudioLowerVolume` 0x1008ff11 | 122 |
+| ArrowLeft | `Left` 0xff51 | 113 | | AudioVolumeMute | `XF86AudioMute` 0x1008ff12 | 121 |
+| ArrowRight | `Right` 0xff53 | 114 | | ChannelUp | `XF86ChannelUp` 0x10081192 | 410 |
+| Enter | `Return` 0xff0d | 36 | | ChannelDown | `XF86ChannelDown` 0x10081193 | 411 |
+| Escape | `Escape` 0xff1b | 9 | | MediaPlayPause | `XF86AudioPlay` 0x1008ff14 | 172 |
+| Backspace | `BackSpace` 0xff08 | 22 | | MediaPlay | `XF86AudioPlay` 0x1008ff14 | 215 |
+| Tab | `Tab` 0xff09 | 23 | | MediaPause | `XF86AudioPause` 0x1008ff31 | 209 |
+| PageUp | `Page_Up` 0xff55 | 112 | | MediaStop | `XF86AudioStop` 0x1008ff15 | 174 |
+| PageDown | `Page_Down` 0xff56 | 117 | | MediaRecord | `XF86AudioRecord` 0x1008ff1c | 175 |
+| Home | `Home` 0xff50 | 110 | | MediaRewind | `XF86AudioRewind` 0x1008ff3e | 176 |
+| End | `End` 0xff57 | 115 | | MediaFastForward | `XF86AudioForward` 0x1008ff97 | 216 |
+| ContextMenu | `Menu` 0xff67 | 135 | | MediaTrackPrevious | `XF86AudioPrev` 0x1008ff16 | 173 |
+| BrowserBack | `XF86Back` 0x1008ff26 | 166 | | MediaTrackNext | `XF86AudioNext` 0x1008ff17 | 171 |
+| BrowserForward | `XF86Forward` 0x1008ff27 | 167 | | ColorF0Red | `XF86Red` 0x1008ffa3 | 406 |
+| BrowserRefresh | `XF86Refresh` 0x1008ff29 | 181 | | ColorF1Green | `XF86Green` 0x1008ffa4 | 407 |
+| BrowserStop | `XF86Stop` 0x1008ff28 | 136 | | ColorF2Yellow | `XF86Yellow` 0x1008ffa5 | 408 |
+| Exit | `XF86Close` 0x1008ff56 | 182 | | ColorF3Blue | `XF86Blue` 0x1008ffa6 | 409 |
+
+- `ChannelUp`, `ChannelDown`, `Exit` and `MediaPlayPause` arrive as these keys only with the firmware's WebKit patch;
+  WebKit 2.54.2 alone gives `Unidentified`, `Unidentified`, `Close` and `MediaPlay`. Exit and MediaPlayPause depend on
+  their keycode: xkeyboard-config gives KEY_EXIT and KEY_PLAYPAUSE the keysyms of KEY_CLOSE and KEY_PLAY, the patch
+  tells them apart by the keycode.
+- `ContextMenu` is the PC menu key (KEY_COMPOSE): KEY_MENU's keysym `XF86MenuKB` is `Unidentified` in WebKit.
+  `BrowserRefresh` and `BrowserStop` use `XF86Refresh` and `XF86Stop`, which WebKit maps (an XKB keymap would give
+  `XF86Reload` and `Cancel`).
+- WebKit's default actions: the arrows, Page Up/Down, Home and End scroll or move the caret, Tab moves the focus, Enter
+  activates a link or submits a form, Escape closes a modal dialog, Backspace deletes in a field (it does not go back).
+  The browser, media, channel, colour and Exit keys have no default action: the page handles them.
+
+`testWebViewInput` checks the table, `testWebViewItem` the calls, `testWebViewEntityScreen` the dispatcher.
+
+## Load indicator
+
+A heavy or slow page takes seconds before WebKit shows anything of it, and until then the page's area shows only its
+background, white by default: it looks as if the web view did not work. The fullscreen web view and the web view widget
+show that the page loads (`components/WebViewLoadIndicator.qml` over the `WebView` in `components/WebViewPage.qml`).
+The `WebView` item decides what they show, from its own calls and the library's load events, progress and frames
+(`loadIndicator`, `pageFailed`; `WebViewItem::updateLoadIndicator()`); the QML draws it at the page's size. The test
+page keeps its status line and shows none of it.
+
+| `loadIndicator` | When | What the page shows |
+|-----------------|------|---------------------|
+| `LoadIndicatorNone` | for the first 400 ms of every load (`WebViewItem::kLoadIndicatorDelayMs`, counted from the item's call that starts it), so that a quick page does not flicker; during a reload of the reload interval (`reloadQuietly()`); when nothing loads | nothing |
+| `LoadIndicatorSpinner` | a new page: the start page (also while it waits for its cookies), a new start page, Back and Forward of the navigation bar, a link, a script or a new window of the page itself; from the delay until the page's first frame after its `COMMITTED` event, also when that frame comes after `FINISHED` | the card of the zoom label (black, `ui.cornerRadiusSmall`), centred on the page, with a turning three-quarter ring that fades to its tail, like the app's small spinner, and below it the load progress (`loadProgress`, "45 %", value role) |
+| `LoadIndicatorBar` | after that first frame, while the page loads on, until `FINISHED`; and for `reload()`, the `reload` command, Reload of the navigation bar and the reload after a clear of website data, from the delay until `FINISHED`: the old page stays until the new one commits, over it the bar only | a 6 px bar at the top edge of the page, the progress in `textPrimary` on a `bg` track |
+| `LoadIndicatorFailed` | at once when the load fails (`FAILED`), until a load starts that the user waits for | "The page could not be loaded" in the card and, in the fullscreen web view, "Press OK to try again" below it, over the page's background colour (`pageFailed`) |
+
+Black card and track with the light colour of the design system: readable on white, on any `background_color` of the
+web view and over any page. A reload before a new page showed its first frame keeps the spinner (nothing of the page
+to see yet), and the reload interval during a reload of the user keeps the bar.
+
+**The first frame of the new page.** The spinner ends with the first frame the library delivers after the
+`COMMITTED` event (`frame_ready` after `load_changed(COMMITTED)`): WebKit freezes the old page's frames when a
+navigation starts (`WebLocalFrameLoaderClient::provisionalLoadStarted()`, the layer tree's `PageTransition` freeze) and
+renders again at the new page's first visually non-empty layout, at the end of its load, or when the load fails
+(`completePageTransitionIfNeeded()`). So the first frame after the commit is the first that shows the new page, and
+the spinner is hidden in the same render that shows it. `FINISHED` alone is not the end: it can come before that frame,
+and a page that has painted while its images still load is shown long before it. A load that ends without a commit (a
+download, a refused response) ends the spinner at `FINISHED`; the old page stays.
+
+**A failed load.** Before, the screens did nothing with it: the item logged `Load failed: <address>` (a warning,
+`uc.ui.webview`), the library `ucwebview: load failed: <address>: <error>`, and WebKit loaded its own error page for
+the address: the raw error text of the network library on the page's background (`Error resolving "nas.local": Name
+or service not known`), in English and the same for every kind of failure (WebKitWebView.cpp
+`webkitWebViewLoadFail()`, which the library lets run). The log lines stay. The error page stays below the message
+too: it loads as a document of its own, `STARTED` for the failed address right after the failure's `FINISHED`, without
+a call of the item, which the item takes for the error page and keeps out of the indicator. `pageFailed` covers it
+with the page's background until another page shows its first frame; neither the address nor WebKit's text reaches
+the user.
+
+- **OK and a tap try again** (`WebViewPage.retry()`, `reload()`; WebKit reloads the failed address of its error page):
+  the message gives way at once, the spinner follows after the delay over the cover until the page's first frame, and
+  a failure that comes again shows the message again at once. OK goes to the `Keys` of the `WebView`, which take Return
+  while the failure shows (the focus chain, the screen's idiom for OK); the cover takes every touch, and a tap on it
+  while the message shows tries again. BACK and HOME close the web view as always.
+- **The reload interval** goes on behind the message: its reloads try again without hiding it, and a success removes it.
+- **A navigation away** removes the message: Back of the navigation bar, a new start page, the `open` command of
+  another web view; the cover goes with that page's first frame.
+- **A crash:** the item reloads the page after the first crash of the web process by itself, with the spinner (the
+  view is blank). A second crash without a completed load in between is not reloaded and shows the failure; OK reloads.
+
+**The widget** shows the same, at its size (at least 3 x 3 fields of the activity page): the ring between 40 and 72 px,
+the percentage only where it fits below the ring within the 20 px gutter, the message in the widest card the widget has
+room for, cut off with an ellipsis beyond the lines that fit. The widget takes no keys: the message has no OK hint. A
+tap on it tries again when the widget is interactive; a widget that is not interactive opens the fullscreen web view
+with a tap, as always.
+
+**Input.** The spinner and the bar take no touch and no key: touches and the d-pad reach the page below them, once it
+has its first frame and before (when nothing useful can be tapped yet). Only the failure's cover takes the touches.
+
+Edge: the library reports no navigation ids. A `FINISHED` of an earlier load that WebKit reports after the next load's
+`STARTED` ends the indicator of that next load early; a page of the same address that WebKit loads by itself right
+after a failure is taken for the error page and keeps the message, until a page shows.
 
 ## Frame pacing
 
@@ -676,11 +969,14 @@ depend on `type="password"`.
 | `ime_cursor_area 67,324 1x24 (view px)` | the caret rectangle | |
 | `touch slot 0 (qt id 33554433) down 152,321 ms 747251 moved 0 px, 1 down` | every touch point with its position and its distance from the press | |
 | `load started "https://example.com/login?..."`, `load_uri ...`, `load_html N chars, base ...` | load requests and events | user name and password, query, fragment (see below) |
+| `load indicator LoadIndicatorSpinner` (`, page failed`) | what the item tells its host to show while the page loads (see "Load indicator") | |
 | `input panel show`, `tap with a focused editable element: ...`, `active focus true`, `cancelling ...` | the item's keyboard and focus decisions | |
-| `zoom 1.25 (125 %)` | a zoom set in the library (`zoom`, VOLUME on the developer page) | |
+| `zoom 1.25 (125 %)` | a zoom set in the library (`zoom`, VOLUME on the test page) | |
 | `zoom 1.5 (150 %) waits until the page rendered 125 %` | a zoom change while the page renders the level before (passed on later) | |
 | `zoom 125 % rendered after 2840 ms (done)` | the end of a zoom render wait with its time since the zoom: `done`, `timeout`, `cancelled`, or with an older library `first frame after the zoom`, `no frame within 5000 ms` | |
-| `page down: Page_Down press and release (keysym 0xff56, scancode 117)` | `pageUp()`/`pageDown()` (CHANNEL on the developer page) | |
+| `page down: Page_Down press and release (keysym 0xff56, scancode 117)`, `top: Home ...`, `bottom: End ...`, `focus next: Tab ...`, `focus previous: Tab with Shift ...` | `pageUp()`/`pageDown()` (CHANNEL on the test page), `scrollToTop()`/`scrollToBottom()`, `focusNext()`/`focusPrevious()` | |
+| `page key ChannelUp down (keysym 0x10081192, keycode 410)` | `sendKey()`: a key of the page by its `KeyboardEvent.key` name (the buttons of the fullscreen web view); none of these types a character | |
+| `scroll down: 2 wheel notches at 240,400` | `scrollUp()`/`scrollDown()` | |
 | `pinch begin at 240,400, magnification 1`, `pinch end, scale 2.1, magnification 2.1` (optionally `(after the running render)` or `(no change)`), `pinch cancelled` | a pinch the library reported (no line per update) | |
 | `magnification 1 -> 2.1 at 240,400`, `magnification 2.1 rendered after 2840 ms (done)` | the magnification passed to the library with its focal point, and the end of its render wait (`done`, `timeout`, `cancelled`) | |
 | `magnification changed to 1 by a navigation or history step` | WebKit's own change, reported by the library | |
@@ -740,8 +1036,8 @@ service reads optional variables from `/var/uc/ui/custom/config/env`; restart th
 
 - **Unit tests** in `test/webview/` (`make test`) run without the library, against a stubbed function table:
   - `testWebViewInput`: the key table (the remote's buttons stay with the UI, also with the simulator's key names as
-    text) and the trace's key names, the input method hint mapping, the URL allowlist, URL redaction and the tap
-    distance.
+    text) and the trace's key names, the keys of the page by name with their keysyms and keycodes (every key of the
+    button mapping), the input method hint mapping, the URL allowlist, URL redaction and the tap distance.
   - `testWebViewFrameQueue`: the frame queue state machine, including the held queue of a pinch.
   - `testWebViewPinch`: the pinch transform and its inverse, the node geometry (zoom in, zoom out with a border, device
     pixel ratio, a texture of the old size, a frame pushed out), the commit around the begin point, the limits 1 to 4
@@ -753,15 +1049,17 @@ service reads optional variables from `/var/uc/ui/custom/config/env`; restart th
     key forwarding, frame release, the screen's refresh rate passed before the view and on a rate change, a library
     without the refresh rate function, the history read on frames and title changes, the zoom levels and the zoom
     render wait (coalescing, timeout, cancellation, the fallback), `Page_Up`/`Page_Down` with their keysyms, keycodes
-    and event times, the `uc_webview_new_sized()` path with the pinch and request callbacks and the older libraries
+    and event times, the keys of the page by name (pressed, repeated, released, a name outside the table), Home/End,
+    Tab and Shift+Tab, the scroll steps at the centre, the `uc_webview_new_sized()` path with the pinch and request callbacks and the older libraries
     without them, the held frame of a pinch, the page's requests (defaults of unhandled requests, unknown types and
     schemes, the 10000 character cut, the leave-page question answered before a navigation, the view freed with
     requests pending, the new-window and refused-response signals, `closeRequested()` after the callback, the trace
-    without texts or credentials).
+    without texts or credentials), the installation check (the directories of `LD_LIBRARY_PATH` in their order, without
+    opening the library) and the report of a failed load or initialisation.
   - `testWebViewRequests`: the request objects and their table: accept, reject, a prompt's text, login and cancel, each
     answer sent once and a second one refused, `request_cancelled()` and a late answer racing it, deletion after the
     end, the user name kept for the retry of the same origin, realm and proxy only.
-  - `testWebViewKeyboard`: the developer page under main.qml's keyboard controller with the real Qt Virtual Keyboard
+  - `testWebViewKeyboard`: the test page under main.qml's keyboard controller with the real Qt Virtual Keyboard
     and the real input controller on the window: the keyboard of the address field (no show/hide loop, the hide key),
     the d-pad map of both rows, Back/Forward enabled by the history and skipped while disabled, the focus hand-over
     from a button that turns disabled, Stop/Reload, the field following the page's address, address completion,
@@ -769,14 +1067,41 @@ service reads optional variables from `/var/uc/ui/custom/config/env`; restart th
     up, BACK from the web view, the zoom label with its spinner, three quick presses with two `set_zoom` calls, and
     the dialogs and the login with OK, BACK, HOME, the d-pad and taps (leave page on Stay, the login retry with the
     user name filled in, the password masked again, the queue, the notifications, `window.close()`).
+  - `testWebViewSettings`: Settings > Web view with the real `WebViewController` on a core that is not connected: the
+    rows show the core's settings and follow a change, the d-pad walks the rows and buttons, the picker lists start on
+    the current value and pass the choice on, a refused switch switches back, Clear cache, Clear website data after its
+    question, the notifications of the outcome, the disabled buttons of an older library, Buttons and Web view test
+    opening over the page and closing with BACK and the title bar's arrow, the d-pad back on its row; the buttons page
+    with the buttons of each model in order and their actions, the d-pad down to the last row, the list of the actions
+    and the list of the keys with the current and the default one, a choice passed on, a change made elsewhere, no
+    action text cut; the test page opaque in the
+    theme's background over the whole window, the web view's white background, the page below hidden, and a tap beside
+    the test page's controls not reaching it; no text of the page elided or cut at 480 px, and the rows with their
+    whole titles, values and descriptions (one line in the firmware's fonts: `UC_TEST_FONT_DIR` names a directory with
+    their `.ttf` files, else the system's fallback font draws the texts).
+  - `testWebViewEntityScreen`: the fullscreen web view of a real web view entity, on its own and on top of an
+    activity's button mapping: VOLUME zooms one level per press from the entity's zoom (60, 100, 400, 25 % and a user
+    override), held VOLUME, the level kept over an update without a zoom change and dropped by a new zoom option,
+    another web view and the next visit, the label, nothing while a dialog or the keyboard is up, and MUTE, CHANNEL,
+    the d-pad and BACK with their own functions; the screen opaque over the whole window, on its own and on top of an
+    activity, and the page's background (white, or the option) before the first frame; the button mapping: the
+    defaults (the d-pad's keys with their keycodes once per press, MENU, PLAY and MUTE passed, POWER kept), `pass` on
+    top of an activity and on a profile page (the header's mapping, nothing without one, BACK closing without one), a
+    change of the global setting while the web view is open, the web view's option and user override before the
+    global setting, every function, held buttons (keys and the scroll and page functions repeat, the others not, a
+    held BACK with another action does not close), the buttons of each model, the d-pad and OK to the text field while
+    the on-screen keyboard is up, a dialog of the page owning the buttons; POWER on a profile page (the header's
+    "Turn off" menu in the screen's own menu), another web view replacing the page (a new page, the website data
+    setting applied, the same web view left as it is); a sideways swipe on an interactive widget in an activity's
+    `PathView` of pages stays with the page, on a widget that is not interactive it switches the page.
 - **Desktop simulator** (`make linux`): the Settings menu has no "Web view" entry (no library), nothing is logged
   until a `WebView` is created.
 - **Device**: a firmware with the web view library. Install the build as a custom UI
-  ([cross-compile.md](cross-compile.md)), open Settings > Web view (the entry appears only when the library loads),
-  enter an address and press Load. The status line shows title or progress, the frame counters (received/released
-  must be equal once the page is still) and the last crash or load failure. Check touch scrolling, a page with
-  `<input>`, `<input inputmode="numeric">` and `<input type="password">` for the keyboard layouts, and that BACK
-  leaves the page. If the page appears upside down, start remote-ui with `UC_WEBVIEW_FLIP=1`.
+  ([cross-compile.md](cross-compile.md)), open Settings > Web view > Web view test (the entry appears only when the
+  library loads), enter an address and press Load. The status line shows title or progress, the frame counters
+  (received/released must be equal once the page is still) and the last crash or load failure. Check touch scrolling, a
+  page with `<input>`, `<input inputmode="numeric">` and `<input type="password">` for the keyboard layouts, and that
+  BACK closes the test page. If the page appears upside down, start remote-ui with `UC_WEBVIEW_FLIP=1`.
 
 The device checks below read trace lines. Take a trace only on a test device: it logs touch positions (see "What the
 trace logs"). Without the trace, check what the screen shows and the journal lines that are no trace lines.
@@ -956,12 +1281,12 @@ document.addEventListener('click', e => line('click ' + e.target.tagName + ' "' 
 
 The `ucuser`/`ucsecret` pair is httpbin's test login, defined by the address itself; it protects nothing.
 
-Open Settings > Web view and load `http://<host>:8000/requests.html` as the first address (step 8 needs a view with one
-history entry). The page has no background of its own and must show black text on white (the item's default
-background). The box at the bottom is the page's own log, newest line first: `load N` counts the loads of the page in
-this view (a reload adds one), `history` is `history.length`, and every click the page receives is listed with its
-target, mouse button (0 = primary) and `trusted` (a real input event). A tap that lists no click did not reach the page
-as a click. "local link" loads the same page again (`load N+1`, history +1) without internet. Expected:
+Open Settings > Web view > Web view test and load `http://<host>:8000/requests.html` as the first address (step 8 needs
+a view with one history entry). The page has no background of its own and must show black text on white (the item's
+default background). The box at the bottom is the page's own log, newest line first: `load N` counts the loads of the
+page in this view (a reload adds one), `history` is `history.length`, and every click the page receives is listed with
+its target, mouse button (0 = primary) and `trusted` (a real input event). A tap that lists no click did not reach the
+page as a click. "local link" loads the same page again (`load N+1`, history +1) without internet. Expected:
 
 1. **alert**: a sheet at the bottom, "http://<host>:8000 says", the text, OK selected. OK closes it. With the trace on,
    the journal has `trace ...: request N: alert` and `request N: answered yes` from the item and
@@ -983,8 +1308,9 @@ as a click. "local link" loads the same page again (`load N+1`, history +1) with
    the question; PREV again while it shows: nothing; OK: the page stays. PREV again, the question, a tap on Leave: the
    previous page. Tick, Reload button: the question; BACK: the page stays. Ticked, "link" (another site): Wikipedia
    opens without the question, as WebKit does (see "Behaviour in detail", 12).
-8. **close** on the test page as the first address after opening the developer page: "The web page closed itself",
-   the settings list. Open the page again, load the test page, follow "local link", "close": back to the first entry
+8. **close** on `requests.html` as the first address after opening the test page: "The web page closed itself",
+   back on Settings > Web view. Open the test page again, load `requests.html`, follow "local link", "close": back to
+   the first entry
    (the item goes back while there is history); at the first entry after "link" and PREV, "close": nothing (WebKit
    refuses with more than one history entry).
 9. **_blank** and **open**: Wikipedia loads in the view without a notification, PREV returns. **open data:**: "The
@@ -1010,6 +1336,306 @@ as a click. "local link" loads the same page again (`load N+1`, history +1) with
 13. With a firmware whose library is 0.6.x: the page loads and works as before, no dialog appears (alert and confirm
     close at once, "confirm false"), and the journal has `has no uc_webview_request_reply (older than 0.7.0)` once.
 
+## Web view entity
+
+The web view entity of the Core-API (core-api `doc/entities/entity_webview.md`, the widget in `doc/ui-widgets.md`) is a
+web page the UI shows; the core routes its commands to the UI instead of an integration (ADR 0023). The requirements
+and decisions are the OpenSpec change `webview-entity` (`openspec/changes/webview-entity/`).
+
+| Part | Where |
+|------|-------|
+| Options, user overrides, secrets | `entity::Webview` (`src/ui/entity/webview.*`) |
+| What the WebView item applies beyond address, zoom and background | `WebViewSite` (`src/webview/webviewsite.*`), the item's `site` property |
+| set_ui_info, entity_command, global settings (read and changed), clearing from the settings, the open fullscreen web view | `WebViewController` (`src/ui/entity/webviewController.*`), QML singleton `WebView.Controller` |
+| The global settings, Clear cache, Clear website data | Settings > Web view, `settings/settings/WebView.qml` (see "Settings > Web view") |
+| Fullscreen web view (the entity's screen) | `components/entities/webview/deviceclass/Webview.qml` |
+| The page: address, zoom, background, site, device state API, reload interval | `components/WebViewPage.qml` |
+| The device state for the pages (power mode, battery, standby) | `DeviceStateSource` (`src/webview/devicestatesource.*`), connected in `main.cpp`; the item's `deviceApi` property (see "Device state for web pages") |
+| The page's dialogs and logins, refused content | `components/WebViewRequests.qml` |
+| Activity page widget | `components/WebViewWidget.qml`, the `webview` item in `Activity.qml` |
+| While the page loads, a failed load | `components/WebViewLoadIndicator.qml` in `WebViewPage.qml`, decided by the item (see "Load indicator") |
+| Where `open` puts the page | `openWebView()` in `main.qml` |
+
+- **Declaration.** After every authentication the UI sends `set_ui_info` with its version. It names `webview` when the
+  library is installed, before any web view entity is known, so the core reports a web view `ON` from its creation.
+  `WebViewLibrary::isInstalled()` finds that out without loading the library: Qt's GLib dispatcher runs and
+  `WebViewLibrary::installedPath()` finds `libucwebview.so.1` as a readable file in a directory of `LD_LIBRARY_PATH`,
+  in `/usr/lib` (where the firmware installs it) or in `/lib`, a `stat()` per directory. Directories that only
+  `/etc/ld.so.cache` names and a RUNPATH are not checked; the device's binary has none. The library still loads at
+  its first use: a command, the fullscreen page, a widget, the Settings menu. From then on the outcome of that load
+  decides (`WebViewLibrary::setAvailabilityHandler()`, and the command itself): a library that fails to load or to
+  initialise withdraws the declaration with `set_ui_info` without `webview`, the command that found it is answered
+  503, and the core reports the web views `UNAVAILABLE`; a failed library is not loaded again until the UI restarts.
+  A library the check missed is declared when a use loaded it. The desktop simulator has no library, so it does not
+  declare web views and the core reports them `UNAVAILABLE`.
+- **Commands.** `entity_command` is answered when the command is accepted, not when a page has loaded: 200, 400
+  (another entity type, an unknown command), 404 (an unknown web view), 503 (no web view in this UI, and `open`
+  during the onboarding of the remote, `WebViewController::setOnboarding()`: the onboarding screens show no web view).
+  `open` and `reload` are answered at once and reach QML as `WebViewController.openRequested` and `reloadRequested`.
+  `open` while another web view is shown fullscreen is like closing that one and opening the other one
+  (`Webview.qml` `showEntity()`): the screen stays, the page goes with its history and dialogs, the website data
+  setting applies to it, and a new page loads the other web view. `open` of the web view that is shown leaves it as
+  it is. A web view in the included entities of an activity's menu opens with `openWebView()` like the command, on top
+  of the activity with its button mapping.
+  `clear_cache` and `clear_data` are answered when the library reports the end of the clear
+  (`uc_webview_global_clear_data()`, library 0.8.0): 200, and every shown page reloads; 500 when the library refused
+  the request or reports a failure. Only a library older than 0.8.0, which cannot clear website data, gets 501.
+- **Secrets.** The UI's session gets `auth.password`, `auth.token`, `auth.header_value` and `cookies[].value` in
+  `get_entity` and `get_entities`; `entity_change` events carry only `has_*` flags. Such an event is not applied: the
+  entity is fetched again (`EntityController::refreshWebviewOptions()`, latest answer wins). The secrets live in the
+  `WebViewSite` value only, whose secret fields are no Q_PROPERTY; nothing logs them, and the entity does not log the
+  start page address either (it may carry a token in its query).
+- **Buttons of the fullscreen web view.** Every button of the model has the action of the button mapping (see "Buttons
+  of the fullscreen web view"): by default BACK closes, the d-pad and OK send the arrow keys and Enter, CHANNEL
+  scrolls a screen, VOLUME zooms, MENU sends ContextMenu, and the other buttons pass: on top of an activity its
+  button mapping (MUTE, the colour keys, PREV, NEXT, ...). HOME closes it and the screen below; POWER and VOICE keep
+  the `overrideConfig` of the screen below, on a profile page the main screen's function.
+- **Widget keys.** A touch gives the WebView the focus; the widget sets `keysToPage: false`, so the item's `Keys`
+  accept every key before the page: the activity's `ButtonNavigation` has it already.
+- **One page at a time.** While `WebViewController.fullscreenEntityId` is set the widgets unload their page.
+
+### Options and the library
+
+Library 0.8.0 has a function for every option. Each one is resolved on its own (`WebViewLibrary`); with library 0.7.x
+the page loads without what the library lacks (see "With an older library").
+
+| Option | Applied with |
+|--------|--------------|
+| `url` | `uc_webview_load_uri()` (http and https only; the entity refuses other schemes and user names in the address) |
+| `zoom`, the widget's `zoom` | `uc_webview_set_zoom()` (25..400 % as 0.25..4) |
+| `background_color` | `uc_webview_set_background_rgba()`; without it white `#FFFFFF` |
+| `auth` `basic` | the login callback: `uc_webview_request_auth()` with the configured credentials for the start page's origin (Basic and Digest, not a proxy, not a retry) |
+| `auth` `bearer`, `header` | `uc_webview_set_origin_headers()` with the start page's origin and one header, `Authorization: Bearer <token>` or the configured name and value; set when the view is created and when the site changes, before the load |
+| `cookies` | `uc_webview_global_set_cookies()` with the start page's address before every load of an address of its origin through the item's `url`; the load waits for the library's report (see "Cookies before the start page") |
+| `tls` | `uc_webview_global_allow_certificate()` with the start page's host and the fingerprint in lower case hex, or NULL for `allow_invalid_certificate`; once per exception and UI process (`WebViewLibrary::allowCertificate()`) |
+| `user_agent` | `uc_webview_set_user_agent()`: `default`, `mobile` and `desktop` as the presets `UC_WEBVIEW_USER_AGENT_DEFAULT` (0), `_MOBILE` (1), `_DESKTOP` (2), any other text as `_CUSTOM` (3); a refused custom text falls back to the default |
+| `show_navigation`, `reload_interval` | the UI (navigation bar, a `Timer` while the page is shown and the display is on) |
+| `device_api`, the user override `device_api` | library 0.9.0: `uc_webview_set_device_api()`, with `uc_webview_set_device_state()` and `uc_webview_device_event()` from `DeviceStateSource` (see "Device state for web pages") |
+| `buttons`, the user override `buttons` | the UI: the button mapping of the fullscreen web view (see "Buttons of the fullscreen web view") |
+| `color_scheme` (global, Settings > Web view) | `uc_webview_global_set_color_scheme()`, `light` 0, `dark` 1: `WebViewLibrary::setGlobalSettings()` keeps it until the library is initialised and passes it then and on every change |
+| `allow_invalid_certificates` (global, Settings > Web view) | `uc_webview_global_set_tls_errors_policy()`, the same way |
+| `buttons` (global, Settings > Web view > Buttons) | the UI: the button mapping of the fullscreen web view, where the web view sets nothing |
+| the keys of `buttons` | `uc_webview_key()` with the keysym and keycode of the key (see "Keys of the page"); the scroll steps `uc_webview_scroll()` |
+| `clear_cache`, `clear_data`, `website_data` (global, Settings > Web view), Clear cache and Clear website data of Settings > Web view | `uc_webview_global_clear_data()` with `UC_WEBVIEW_DATA_CACHE` (0x1) or `UC_WEBVIEW_DATA_ALL` (0xffffffff): `WebViewLibrary::clearWebsiteData()`, which initialises the library first (the data of an earlier run is on disk) |
+| `website_data` `keep` across restarts | the data directory of `uc_webview_global_init()` (`UC_WEBVIEW_DATA_DIR`): local storage, IndexedDB, the HTTP cache and, since library 0.8.0, the cookies with an expiry time |
+
+### What the library does with them
+
+- **Asynchronous reports.** `uc_webview_global_set_cookies()` and `uc_webview_global_clear_data()` report once,
+  through a `uc_webview_done_cb`, from an idle of the GLib main context and never from inside the call; a refused
+  request (-1) never reports. `WebViewLibrary` passes a heap context with a `QPointer` to the requester and hands the
+  report on with a queued `QMetaObject::invokeMethod()`: it runs from Qt's event loop on the requester's thread after
+  the library's idle has returned, and not at all once the requester is gone. Every site function returns 0 or -1; a
+  refused call changes nothing. The library's warning names the reason, the UI's names the option, neither a secret.
+- **Cookies before the start page.** A load of an address of the start page's origin through `url` (opening the web
+  view, a changed start page or site) sets the site's cookies first and loads when the library reports them. When it
+  reports a failure or refuses them, or no report comes within 5 s (`WebViewItem::kCookieTimeoutMs`; WebKit's
+  network process may have to start first), the page loads without that certainty and a warning says why. A load,
+  HTML, Back, Forward or Stop during the wait cancels it; a reload during the wait waits with it. A reload does not
+  set the cookies again, so a cookie the page changed stays until the web view opens again (core-api "Cookies"),
+  except the first reload after a clear of all website data (`WebViewLibrary::websiteDataGeneration()`): after
+  `clear_data` the configured cookies come back with the reloaded page.
+- **One header table for the whole process.** The library keeps the headers of all views in one table: when two views
+  set headers for the same origin, the later call counts for both, until one of them changes them or is freed. The UI
+  shows one page at a time, so this happens only for a moment, when the fullscreen web view opens while a widget of
+  another web view with the same origin still has its page; the widget's page is unloaded right after, and its
+  headers go with its view.
+- **Headers only for the start page's site.** The library adds the header to the requests to the start page's origin
+  only while the view's top-level document is of that origin: the page, its resources, `fetch()` and
+  `XMLHttpRequest`. Not to a page of another site, not to a form another site posts there, and not after a redirect
+  away. A start page that redirects to another origin, a login host for example, gets no header there. WebSocket
+  handshakes and service worker requests are not covered.
+- **Certificate exceptions stay.** Exceptions add up for the rest of the UI process: the library cannot remove them,
+  and WebKit keeps a certificate it accepted for the host. A changed or removed `tls` option adds the new exception at
+  once, the old one goes with a restart of the UI. An exception covers page loads of the host; a resource of the host
+  requested before its page accepted the certificate fails. `allow_invalid_certificates` can be switched both ways;
+  it applies to new connections.
+- **What clearing leaves.** `UC_WEBVIEW_DATA_ALL` clears caches, cookies, local and session storage, IndexedDB,
+  service workers and HSTS of every web view, in memory and on disk. It does not clear the credentials of HTTP logins
+  answered in the session (the login dialog or the configured Basic credentials): WebKit keeps them in memory until
+  the UI process ends and has no function to drop them. After `clear_data` a page with a cookie login asks again, a
+  site with an HTTP login does not, until the UI restarts, as the Core-API states. The certificate exceptions and the
+  request headers stay as well. Shown pages are reloaded.
+- **User agent.** `default` is the library's default user agent: WebKit's own on the remote, which names WebKit and
+  Linux on aarch64, with a token of the Remote and its firmware version that the library adds (library 0.8.x; an
+  older library sends WebKit's alone). `mobile` and `desktop` claim Safari on an iPhone and on a Mac. It applies from
+  the next request: the page loads its start page again when the site changes.
+- **Colour scheme.** Pages that support `prefers-color-scheme` follow a change at once; other pages keep their look,
+  with the `background_color` behind them where they are transparent.
+
+### With an older library
+
+A library 0.7.x keeps working. The load logs once which of the seven functions are missing, and a site logs the options
+it cannot apply by name, never with a value: `auth.bearer` or `auth.header`, `cookies`, `tls`, `user_agent`. The page
+loads at once without them. The `dark` colour scheme and `allow_invalid_certificates` are logged and not applied,
+`clear_cache` and `clear_data` are answered with 501, and `website_data` clears nothing.
+
+### Device state for web pages
+
+A web view with the `device_api` option (core-api `entity_webview.md`, "Device state for web pages"; a web view of
+an integration takes the user's override `options.user.device_api` over its option) gives its pages the state of
+the remote: `navigator.getBattery()`, `window.deviceHost` with the display state, the power source and the power
+profile, the standby events `freeze` / `resume` on `document` and `suspend` / `resume` on `deviceHost`, and the
+`data-screen` / `data-power-profile` attributes of `<html>`. The library injects the API into every top-level page
+of the view (library 0.9.0, package README "Device state for web pages (0.9.0)"); the UI reports the state.
+
+- **The effective value.** `entity::Webview::deviceApi`: `options.user.device_api` when it is there and not null,
+  else `options.device_api`, else false, like `show_navigation`. `WebViewPage.qml` binds the WebView item's
+  `deviceApi` to it, for the fullscreen web view and the widget (which shows its page with `WebViewPage.qml`).
+- **The item.** With `deviceApi` and a library that has the three functions (`WebViewLibrary::deviceApiAvailable()`)
+  the item passes the current state (`uc_webview_set_device_state()`) and switches the view's API on
+  (`uc_webview_set_device_api(1)`) before its first load, then forwards every state change and standby event of
+  `DeviceStateSource`. The library gives the API to the documents that start afterwards, so a change of the option
+  loads the start page again (`WebViewPage.qml`, like a change of the site). Off: `uc_webview_set_device_api(0)` and
+  nothing more; a web view without the option gets no device call at all.
+- **The state.** `DeviceStateSource` builds the JSON from the power mode (`hw::Power`) and the battery
+  (`hw::Battery`), one source for every web view:
+
+  | Power mode | `screen` | `powerProfile` |
+  |------------|----------|----------------|
+  | NORMAL | `on` | `balanced` |
+  | IDLE | `dim` | `balanced` |
+  | LOW_POWER | `off` | `power-saver` |
+  | SUSPEND | `off` | `power-saver` |
+
+  `powerSource` is `ac` while `Battery.powerSupply` is true (the page's battery is charging then, also at full
+  level), else `battery`; `level` is `Battery.level` in percent. A change goes to the library only when the JSON
+  changes; the library fires the page's events only for values that change.
+- **Standby.** The change to SUSPEND sends its state (display off), then the `suspend` event. The core's
+  `power_mode_change` with `wakeup` (it comes only with NORMAL) is parsed (`Api::parsePowerModeWakeup()`) and emitted
+  as `Api::resumedFromSuspend()` right before the NORMAL mode change, and `Power::resumedFromSuspend()` passes it on:
+  `DeviceStateSource` sends `resume` with the time slept, then the change to NORMAL its state. The time slept is the
+  growth of `CLOCK_BOOTTIME - CLOCK_MONOTONIC` since the `suspend` (the monotonic clock stops in a standby). Leaving
+  SUSPEND without the flag (the core did not go through with it) sends `resume` too, so that a page that got
+  `suspend` always gets `resume`; a flag without a `suspend` before it (the UI missed it) sends `resume` only when the
+  system slept since the last standby. Best effort: the standby is never delayed for a page, and the UI may get the
+  SUSPEND mode only shortly before the remote sleeps.
+- **Hidden pages.** Independent of the option: the window is hidden while the display is off (`Power.windowShown`),
+  the item unmaps the view, and the page is hidden (`visibilitychange`). Since library 0.9.0 a hidden page's timers
+  run at most once a second and its CSS animations stop.
+- **With an older library** (0.8.x and older) the option is ignored, logged once: the pages have no device state API.
+
+A test page for the device, served like `keys.html` as `device.html`; it shows the state and lists the events
+newest first:
+
+```html
+<!doctype html><meta name=viewport content="width=device-width"><title>device</title>
+<style>body{font:20px sans-serif}#log{font:17px monospace;line-height:1.4;white-space:pre}
+html[data-screen=dim] body{background:#ddd}html[data-power-profile=power-saver] body{background:#999}</style>
+<div id=state></div><div id=log></div>
+<script>
+const log = document.getElementById('log'), state = document.getElementById('state');
+const line = t => { log.textContent = (new Date().toLocaleTimeString() + ' ' + t + '\n' + log.textContent)
+  .split('\n').slice(0, 16).join('\n'); };
+const show = b => { state.textContent = 'deviceHost' in window ? deviceHost.screen + ' ' + deviceHost.powerSource + ' '
+  + deviceHost.powerProfile + (b ? ' battery ' + Math.round(b.level * 100) + ' % charging ' + b.charging : '')
+  : 'no deviceHost'; };
+if ('deviceHost' in window) {
+  for (const t of ['suspend', 'resume', 'on-ac', 'on-battery', 'screenchange', 'powerprofilechange'])
+    deviceHost.addEventListener(t, e => { line('deviceHost ' + t + (e.detail ? ' ' + JSON.stringify(e.detail) : ''));
+      navigator.getBattery().then(show); });
+  navigator.getBattery().then(b => { show(b);
+    for (const t of ['chargingchange', 'levelchange']) b.addEventListener(t, () => { line('battery ' + t); show(b); }); });
+  document.onfreeze = () => line('document freeze');
+  document.onresume = () => line('document resume');
+} else show();
+document.addEventListener('visibilitychange', () => line('visibility ' + document.visibilityState));
+let ticks = 0; setInterval(() => { ticks++; }, 100);
+setInterval(() => { if (!document.hidden) { line('100 ms interval: ' + ticks + ' runs in 5 s'); } ticks = 0; }, 5000);
+</script>
+```
+
+With `device_api` on: the state line shows `on ac balanced` (on the charger); after the dim timeout
+`screenchange {"state":"dim"}` and a grey page; display off: `screenchange {"state":"off"}`, `powerprofilechange
+{"profile":"power-saver"}` and `visibility hidden`; the display on again: the reverse. Standby and wake:
+`document freeze`, `deviceHost suspend`, then `document resume`, `deviceHost resume {"sleptMs":...}` with about the
+time in standby, then the state. Off the charger: `battery chargingchange` and `deviceHost on-battery`. Without the
+option: `no deviceHost`. While the display is off the 100 ms interval runs about once a second: the first line after
+the display comes back counts fewer runs than the about 50 of a 5 s window with the display on.
+
+### Device test
+
+On a remote with a firmware that ships the library, with a user-defined web view (web-configurator, or
+`POST /api/webviews`). For the buttons, a web view of this page, served as `keys.html` from a host on the network
+(`python3 -m http.server 8000`): it lists the newest key events first with `key`, `code`, `keyCode`, the repeat and
+Shift flags and the focused element, and Tab moves between its three buttons.
+
+```html
+<!doctype html><meta name=viewport content="width=device-width"><title>keys</title>
+<style>body{font:22px sans-serif}button{font:22px sans-serif;margin:6px}
+#log{font:18px monospace;line-height:1.4;white-space:pre}</style>
+<button>one</button><button>two</button><button>three</button>
+<div id=log></div>
+<script>
+const log = document.getElementById('log');
+const line = t => { log.textContent = (t + '\n' + log.textContent).split('\n').slice(0, 14).join('\n'); };
+for (const type of ['keydown', 'keyup']) {
+  addEventListener(type, e => line(type + ' ' + e.key + ' ' + e.code + ' ' + e.keyCode + (e.repeat ? ' repeat' : '') +
+    (e.shiftKey ? ' shift' : '') + ' on ' + (document.activeElement.tagName === 'BUTTON'
+    ? document.activeElement.textContent : document.activeElement.tagName)), true);
+}
+</script>
+```
+
+1. The tile shows the globe icon or the configured one; a tap opens the page on the whole screen; BACK returns.
+2. `show_navigation`: Back, Forward, Reload and Close work; the d-pad and OK act in the page; CHANNEL scrolls it;
+   VOLUME + and - zoom it a level in and out from the entity's `zoom` with the level at the top, one level per press
+   also when held; the next opening starts at the entity's zoom again. On `keys.html` the d-pad and OK arrive as
+   `ArrowUp` ... `ArrowRight` and `Enter` with the same `code` (`keyCode` 38, 40, 37, 39, 13), once per press, a held
+   one with `repeat`; MENU (Remote 3) as `ContextMenu` (93).
+3. An activity with the web view as an included entity: a text item with `webview.open` opens the page on top of the
+   activity, VOLUME zooms the page and the receiver's volume stays as it is, MUTE and the other buttons keep the
+   activity's functions, HOME goes home. `webview.open` as an on-sequence step opens the page after the loading screen,
+   and VOLUME zooms there as well.
+4. A `webview` widget: the page shows on its activity page, unloads on another page and while the fullscreen web
+   view is open; a widget with `interactive: false` opens fullscreen on a tap. A sideways swipe on an interactive
+   widget of an activity with several pages scrolls the page (or does nothing) and stays on the activity page; a swipe
+   outside the widget switches the page.
+5. `auth.type` `basic` with a protected page: it loads without a dialog; a wrong password shows the login dialog.
+6. `PUT /api/entities/<id>/command` with `webview.reload` reloads the shown page; `webview.clear_cache` and
+   `webview.clear_data` answer 200 and reload it (with library 0.7.x: 501).
+7. With library 0.8.0, against a local server that prints the request headers it gets: `auth.type` `bearer` sends
+   `Authorization: Bearer <token>` with the page, its resources and its `fetch()` calls, and a link to another site
+   goes without it. `cookies`: a cookie that is not `http_only` is in `document.cookie` at the first load; after
+   `webview.clear_data` the reloaded page has it again.
+8. `tls` with a self-signed certificate: its fingerprint loads the page, another fingerprint shows the error page.
+   `allow_invalid_certificates` in the global settings loads both.
+9. `user_agent` `mobile` on a page that shows `navigator.userAgent`: Safari on an iPhone. The global `color_scheme`
+   `dark` switches a page with a `prefers-color-scheme` theme at once.
+10. The journal (`uc.entity.webview`, `uc.ui.webview`) names options and functions without values and logs no
+    secret: no token, header value, cookie value or password.
+11. Settings > Web view > Buttons lists the model's buttons (Remote Two: the colour buttons, Remote 3: STOP, RECORD,
+    MENU). VOLUME up and down "Normal function": on top of an activity VOLUME changes the receiver's volume with the
+    volume overlay and the page does not zoom; from a tile on a profile page whose header shows a playing media player
+    VOLUME changes that player's volume; back to "Zoom in" / "Zoom out", VOLUME zooms again, also in a web view that is
+    open. CHANNEL up "Send key to page", `ChannelUp`: `keys.html` shows `ChannelUp Unidentified 427` (with the WebKit
+    patch), held it repeats; PLAY with `MediaPlayPause` shows `MediaPlayPause MediaPlayPause 179`, BACK with `Exit`
+    `Exit Unidentified 0`. BACK "Back or close" goes back in the history, on the first page it closes. A held CHANNEL with
+    `scroll_down` scrolls on; `toggle_navigation` shows and hides the bar; `focus_next` and `focus_previous` move the
+    focus between the buttons of `keys.html` (`keydown Tab Tab 9`, with `shift` for the previous one). A web view with
+    its own `buttons` option (with the Core-API, `PATCH /api/webviews/<id>`) overrides the setting for its buttons
+    only. With the on-screen keyboard up on a field of the page, the d-pad moves the caret and OK submits, whatever
+    their actions.
+12. Settings: "Web view" is right below "Wifi & Bluetooth". Settings > Web view shows the global settings as the web
+    configurator does; a change there (Color scheme, Website data, Allow invalid certificates) shows in the
+    web configurator after a reload of its page, and a change in the web configurator shows on the open page at once.
+    Clear cache: "Cache cleared". Clear website data: the question first, Cancel changes nothing, Clear: "Website data
+    cleared", and a page with a cookie login asks to sign in again. With library 0.7.x both buttons are disabled and
+    the help text says "Clearing needs a newer firmware." Web view test opens the test page on the whole screen, with
+    nothing of the settings page showing through, also before a page is loaded (the web view is white); BACK and the
+    title bar's arrow return to Settings > Web view.
+13. Load indicator, with a start page on a local server that answers late (a few seconds of delay before the answer, then a
+    page with an image that comes a few seconds later as well): the page is white, after about 0.4 s the spinner with
+    the percentage shows in the middle, at the page's first content the spinner goes and the thin bar at the top shows
+    the progress until the image is there. A quick page shows neither. Reload of the navigation bar and
+    `webview.reload` show only the bar over the page; the reload interval shows nothing; Back of the navigation bar shows
+    the spinner after the delay. Taps and the d-pad reach the page while the bar shows.
+14. A start page that cannot load (a host name that does not resolve, a port nobody listens on, a wrong certificate):
+    "The page could not be loaded" and "Press OK to try again" on the page's background, no error text of WebKit; the
+    journal has `Load failed:` with the address. With the server up again, OK and a tap load the page (spinner, then
+    the page); BACK closes. A widget of the same web view shows the message without the OK hint, a tap tries again
+    (interactive) or opens the page on the whole screen (not interactive).
+
 ## Known limitations
 
 - **The address after a same-document navigation.** A same-document navigation leaves the item's `url` (and the
@@ -1018,7 +1644,8 @@ as a click. "local link" loads the same page again (`load N+1`, history +1) with
   no frame-time history reads.
 - **No Enter key on the on-screen keyboard.** The app's keyboard layouts (`src/qml/keyboard/layouts/*/main.qml`) have
   no Enter key, so a web form cannot be submitted from the on-screen keyboard; the remote's DPAD_MIDDLE is
-  `Qt::Key_Return` for the focused item and reaches the page as `XKB_KEY_Return`. The Qt Virtual Keyboard's
+  `Qt::Key_Return` for the focused item and reaches the page as `XKB_KEY_Return` (in the fullscreen web view while the
+  keyboard is up; otherwise its action, `Enter` by default). The Qt Virtual Keyboard's
   `EnterKey` in the bottom row of the layouts would close the gap: it sends `Qt::Key_Return` with text `"\n"`, which the
   item forwards as `XKB_KEY_Return`, so WebKit dispatches keydown "Enter" and performs the implicit form submission.
   Mapping the keyboard's hide action to Return instead would submit half-filled forms whenever the user only wants

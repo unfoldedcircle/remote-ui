@@ -123,6 +123,10 @@ Rules:
 - **Row heights** 80 (one line), 110 (two lines), 130 (tiles). Setting sections with help text size
   to content with 14 px vertical padding. Reorder rows with a handle may be 150. The page selector's
   rows are 150 with the page name centred in the display role at 56 px, up to two lines.
+- **Picker rows with a description** on a setting screen (`MenuRow` with `description`): the label, the
+  value and the chevron on the first line, a line in the help role under it that says what the row does.
+  The label wraps once instead of eliding, and the row sizes to content with 14 px vertical padding,
+  like a setting section with help text. Every picker row of such a screen gets one.
 - **Dividers** 2 px `divider`, inset 20, between sections and between rows that are not cards.
 - **Radii** `ui.cornerRadiusSmall` (8) for rows, tiles, buttons, cards; `ui.cornerRadiusLarge` (22)
   for fields, sheets, popups. No literals.

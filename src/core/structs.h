@@ -254,6 +254,27 @@ struct cfgVoiceControl {
     cfgVoiceAssistant   voiceAsssistant;
 };
 
+// The global web view settings (get_webview_cfg, the `webview` object of a configuration_change event): every web view
+// of the remote applies them. A value the UI does not know keeps the default (ADR 0018).
+struct cfgWebview {
+    bool    allowInvalidCertificates = false;
+    QString colorScheme = QStringLiteral("dark");  // "light" or "dark"
+    QString websiteData = QStringLiteral("keep");  // "keep", "clear_cache_on_close" or "clear_all_on_close"
+    // the function of the physical buttons in the fullscreen web view as the core delivers it: button identifier ->
+    // action object (core-api "Button settings"); WebViewController validates it and adds the defaults
+    QVariantMap buttons;
+};
+
+// An entity command the core routes to the UI app (the `entity_command` request of the core), for the entity types
+// the UI declared with set_ui_info. Answered with Api::respondResult() under the request's id.
+struct UiEntityCommand {
+    int         reqId = -1;
+    QString     entityId;
+    QString     entityType;
+    QString     cmdId;  // without the entity type prefix: "open" for "webview.open"
+    QVariantMap params;
+};
+
 struct Config {
     cfgButton         buttonCfg;
     cfgDisplay        displayCfg;

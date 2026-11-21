@@ -5,25 +5,31 @@
 #include <QPointer>
 #include <QQmlEngine>
 #include <QQuickWindow>
+#include <QScopeGuard>
 #include <QScreen>
+#include <QTemporaryDir>
 #include <QtTest>
 #include <qpa/qwindowsysteminterface.h>
 #include <qpa/qwindowsysteminterface_p.h>
 
 #include <algorithm>
 #include <cstring>
+#include <functional>
 #include <utility>
 
+#include "webview/devicestatesource.h"
 #include "webview/webviewinput.h"
 #include "webview/webviewitem.h"
 #include "webview/webviewlibrary.h"
 
+using uc::webview::DeviceStateSource;
 using uc::webview::WebViewAuthRequest;
 using uc::webview::WebViewDialogRequest;
 using uc::webview::WebViewFunctions;
 using uc::webview::WebViewItem;
 using uc::webview::WebViewLibrary;
 using uc::webview::WebViewRequest;
+using uc::webview::WebViewSite;
 
 // A fake libucwebview: records every call and lets the test fire the callbacks the real library would deliver
 // from the GLib main context on the GUI thread.
@@ -51,6 +57,8 @@ struct State {
     unsigned             replayPurpose = 0;
     QList<uint32_t>      keycodes;  // the keycode of every uc_webview_key() call
     QList<uint32_t>      keyTimes;  // and its event time
+    QList<QPointF>       scrollPoints;  // the position of every uc_webview_scroll() call
+    QList<uint32_t>      scrollTimes;   // and its event time
     // uc_webview_when_rendered() requests (library 0.5.0) not ended yet, oldest first; renderResult is what the
     // stub returns (-1: refused)
     QList<QPair<uc_webview_rendered_cb, void *>> renders;
@@ -63,6 +71,14 @@ struct State {
     int                  magnificationResult = 0;
     // the page's requests (library 0.7.0): what uc_webview_request_reply()/_auth() return (-1: the request had ended)
     int                  requestResult = 0;
+    // site settings (library 0.8.0): what the functions return (-1: refused); userAgentResult for the CUSTOM preset
+    // only; the asynchronous requests the library accepted and has not reported yet, oldest first
+    int                  siteResult = 0;
+    int                  headersResult = 0;  // set_origin_headers() with headers; a removal (count 0) succeeds
+    int                  userAgentResult = 0;
+    int                  cookiesResult = 0;
+    int                  clearResult = 0;
+    QList<QPair<uc_webview_done_cb, void *>> dones;
 };
 
 State s;
@@ -143,6 +159,88 @@ int requestReply(uc_webview *, uint64_t id, int accept, const char *text) {
 int requestAuth(uc_webview *, uint64_t id, const char *user, const char *password) {
     record(QStringLiteral("request_auth(%1,%2,%3)").arg(id).arg(orNull(user), orNull(password)));
     return s.requestResult;
+}
+
+QString joined(const char *const *names, const char *const *values, size_t count) {
+    QStringList pairs;
+    for (size_t i = 0; i < count; ++i) {
+        pairs.append(QString::fromUtf8(names[i]) + QLatin1Char('=') + QString::fromUtf8(values[i]));
+    }
+    return pairs.join(QLatin1Char(';'));
+}
+
+int setOriginHeaders(uc_webview *, const char *origin, const char *const *names, const char *const *values,
+                     size_t count) {
+    record(QStringLiteral("set_origin_headers(%1,%2)").arg(QString::fromUtf8(origin), joined(names, values, count)));
+    return count > 0 ? s.headersResult : 0;
+}
+
+int setUserAgent(uc_webview *, int preset, const char *custom) {
+    record(QStringLiteral("set_user_agent(%1,%2)").arg(preset).arg(orNull(custom)));
+    return preset == UC_WEBVIEW_USER_AGENT_CUSTOM ? s.userAgentResult : s.siteResult;
+}
+
+int globalSetCookies(const char *url, const uc_webview_cookie *cookies, size_t count, uc_webview_done_cb cb,
+                     void *user) {
+    QStringList list;
+    for (size_t i = 0; i < count; ++i) {
+        const uc_webview_cookie &c = cookies[i];
+        list.append(QStringLiteral("%1=%2 %3 %4 %5%6 %7")
+                        .arg(QString::fromUtf8(c.name), QString::fromUtf8(c.value), orNull(c.domain), orNull(c.path))
+                        .arg(QLatin1String(c.secure ? "secure" : "-"), QLatin1String(c.http_only ? ",http_only" : ""))
+                        .arg(c.expires));
+    }
+    record(QStringLiteral("global_set_cookies(%1,[%2])").arg(QString::fromUtf8(url), list.join(QStringLiteral(", "))));
+    if (s.cookiesResult == 0) {
+        s.dones.append(qMakePair(cb, user));
+    }
+    return s.cookiesResult;
+}
+
+int globalAllowCertificate(const char *host, const char *sha256) {
+    record(QStringLiteral("global_allow_certificate(%1,%2)").arg(QString::fromUtf8(host), orNull(sha256)));
+    return s.siteResult;
+}
+
+int globalSetTlsErrorsPolicy(int ignore) {
+    record(QStringLiteral("global_set_tls_errors_policy(%1)").arg(ignore));
+    return s.siteResult;
+}
+
+int globalSetColorScheme(int scheme) {
+    record(QStringLiteral("global_set_color_scheme(%1)").arg(scheme));
+    return s.siteResult;
+}
+
+int globalClearData(unsigned types, uc_webview_done_cb cb, void *user) {
+    record(QStringLiteral("global_clear_data(0x%1)").arg(types, 0, 16));
+    if (s.clearResult == 0) {
+        s.dones.append(qMakePair(cb, user));
+    }
+    return s.clearResult;
+}
+
+// device state for web pages (library 0.9.0)
+int setDeviceApi(uc_webview *, int enabled) {
+    record(QStringLiteral("set_device_api(%1)").arg(enabled));
+    return 0;
+}
+
+int setDeviceState(uc_webview *, const char *json) {
+    record(QStringLiteral("set_device_state(%1)").arg(QString::fromUtf8(json)));
+    return 0;
+}
+
+int deviceEvent(uc_webview *, const char *type, int64_t sleptMs) {
+    record(QStringLiteral("device_event(%1,%2)").arg(QString::fromUtf8(type)).arg(sleptMs));
+    return 0;
+}
+
+// the oldest asynchronous request ends, as the library reports it from an idle of the main context
+void finishDone(int status = UC_WEBVIEW_DONE_OK) {
+    QVERIFY(!s.dones.isEmpty());
+    const auto done = s.dones.takeFirst();
+    done.first(status, done.second);
 }
 
 void destroy(uc_webview *v) {
@@ -258,7 +356,9 @@ void pointerMove(uc_webview *, double x, double y, unsigned, uint32_t) {
     record(QStringLiteral("pointer_move(%1,%2)").arg(x).arg(y));
 }
 
-void scroll(uc_webview *, double dx, double dy, double, double, int precise, uint32_t) {
+void scroll(uc_webview *, double dx, double dy, double x, double y, int precise, uint32_t ms) {
+    s.scrollPoints.append(QPointF(x, y));
+    s.scrollTimes.append(ms);
     record(QStringLiteral("scroll(%1,%2,%3)").arg(dx).arg(dy).arg(precise));
 }
 
@@ -322,15 +422,64 @@ WebViewFunctions functions() {
     f.get_magnification = &getMagnification;
     f.request_reply = &requestReply;
     f.request_auth = &requestAuth;
+    f.set_origin_headers = &setOriginHeaders;
+    f.set_user_agent = &setUserAgent;
+    f.global_set_cookies = &globalSetCookies;
+    f.global_allow_certificate = &globalAllowCertificate;
+    f.global_set_tls_errors_policy = &globalSetTlsErrorsPolicy;
+    f.global_set_color_scheme = &globalSetColorScheme;
+    f.global_clear_data = &globalClearData;
+    f.set_device_api = &setDeviceApi;
+    f.set_device_state = &setDeviceState;
+    f.device_event = &deviceEvent;
+    return f;
+}
+
+// a library 0.8.x: no device state for web pages
+WebViewFunctions functionsWithoutDeviceApi() {
+    WebViewFunctions f = functions();
+    f.set_device_api = nullptr;
+    f.set_device_state = nullptr;
+    f.device_event = nullptr;
+    return f;
+}
+
+// a library 0.7.x: no site settings
+WebViewFunctions functionsWithoutSite() {
+    WebViewFunctions f = functionsWithoutDeviceApi();
+    f.set_origin_headers = nullptr;
+    f.set_user_agent = nullptr;
+    f.global_set_cookies = nullptr;
+    f.global_allow_certificate = nullptr;
+    f.global_set_tls_errors_policy = nullptr;
+    f.global_set_color_scheme = nullptr;
+    f.global_clear_data = nullptr;
     return f;
 }
 
 // a library 0.6.x: no requests of the page
 WebViewFunctions functionsWithoutRequests() {
-    WebViewFunctions f = functions();
+    WebViewFunctions f = functionsWithoutSite();
     f.request_reply = nullptr;
     f.request_auth = nullptr;
     return f;
+}
+
+// the calls of the site settings
+QStringList siteCalls() {
+    return s.calls.filter(QRegularExpression(QStringLiteral(
+        "^(set_origin_headers|set_user_agent|global_(set_cookies|allow_certificate|set_tls_errors_policy|"
+        "set_color_scheme|clear_data))\\(")));
+}
+
+// the calls of the device state
+QStringList deviceCalls() {
+    return s.calls.filter(QRegularExpression(QStringLiteral("^(set_device_api|set_device_state|device_event)\\(")));
+}
+
+// the loads and reloads
+QStringList loadCalls() {
+    return s.calls.filter(QRegularExpression(QStringLiteral("^(load_uri|load_html|reload)")));
 }
 
 // a library 0.5.x: no pinch zoom
@@ -546,12 +695,20 @@ class testWebViewItem : public QObject {
  private slots:
     void realLibraryIsAbsentOnTheHost();
     void availableWithTheFunctionTable();
+    void installedPathIsFoundWithoutOpeningTheLibrary();
+    void failedInitialisationIsReported();
     void viewIsCreatedInDevicePixelsOnceItHasWindowAndSize();
     void pendingUrlIsLoadedWhenTheViewExists();
     void loadEventsDriveTheProperties();
     void historyFollowsSameDocumentNavigations();
     void loadFailureIsSignalled();
     void crashReloadsOnceUntilALoadFinishes();
+    void loadIndicatorShowsTheSpinnerAfterTheDelayUntilTheFirstFrame();
+    void loadIndicatorSpinnerWaitsForTheFirstFrameAfterTheLoad();
+    void reloadShowsOnlyTheBarAndAQuietReloadNothing();
+    void failedLoadShowsTheFailureOverWebKitsErrorPage();
+    void failureEndsWithAnotherPageOrASuccessfulQuietReload();
+    void secondCrashShowsTheFailure();
     void imeFocusEnablesTheInputMethodWithTheMappedHints();
     void keyboardFollowsTheFocusOwnerNotTheImeCallbacks();
     void tapIntoTheFocusedFieldAsksForTheKeyboardAgain();
@@ -577,6 +734,9 @@ class testWebViewItem : public QObject {
     void refusedWhenRenderedFallsBackToTheFirstFrame();
     void zoomRenderTraceLines();
     void pageUpAndDownPressAndReleaseThePageKeys();
+    void pageKeysByNameArePressedRepeatedAndReleased();
+    void topBottomAndFocusPressAndReleaseTheirKeys();
+    void scrollStepsAreWheelNotchesAtTheCentre();
     void pinchCallbacksNeedTheSizedViewAndTheMagnificationFunctions();
     void olderLibrariesHaveNoPinchZoom();
     void pinchScalesTheFrameAndCommitsOnceAtTheEnd();
@@ -596,6 +756,24 @@ class testWebViewItem : public QObject {
     void unhandledRequestsGetTheDefaultAtOnce();
     void cancelledRequestsEndWithoutAnAnswer();
     void loginRetryGetsTheUserNameUntilALoadEvent();
+    void configuredCredentialsAnswerTheStartPagesLogin();
+    void siteSettingsReachTheViewBeforeItsFirstLoad();
+    void siteChangeReplacesTheRequestHeaderAndUserAgent();
+    void refusedSiteSettingsLeaveNothingStale();
+    void startPageLoadsAfterTheLibraryReportsTheCookies();
+    void cookieWaitEndsOnFailureTimeoutAndRefusal();
+    void navigationCancelsTheCookieWait();
+    void reloadAfterAClearOfAllWebsiteDataSetsTheCookiesAgain();
+    void olderLibraryLoadsWithoutTheSiteSettings();
+    void deviceApiStartsWithTheStateBeforeTheFirstLoad();
+    void deviceApiFollowsTheStateAndTheStandby();
+    void deviceApiOffSendsNothing();
+    void deviceApiSwitchedOffAndOnAgain();
+    void deviceApiEndsWithTheItem();
+    void olderLibraryIgnoresTheDeviceApi();
+    void globalSettingsGoToTheLibraryOnceItIsInitialised();
+    void clearWebsiteDataReportsThroughTheEventLoop();
+    void certificateExceptionsArePassedOnce();
     void freedViewEndsRequestsWithoutSignals();
     void leavePageIsAnsweredBeforeTheItemNavigates();
     void newWindowsAndRefusedResponsesAreSignalled();
@@ -611,9 +789,22 @@ class testWebViewItem : public QObject {
 void testWebViewItem::realLibraryIsAbsentOnTheHost() {
     // runs first, before a Fixture installs the stub table: the real probe on a build host without
     // libucwebview.so.1 (or without Qt's GLib dispatcher, as with the offscreen platform) reports why
-    QVERIFY(!WebViewLibrary::instance()->isAvailable());
-    QVERIFY(!WebViewLibrary::instance()->unavailableReason().isEmpty());
-    QVERIFY(!WebViewLibrary::instance()->ensureInitialized());
+    WebViewLibrary *library = WebViewLibrary::instance();
+    QList<bool>     reports;
+    library->setAvailabilityHandler([&reports](bool available) { reports.append(available); });
+    auto removeHandler = qScopeGuard([library] { library->setAvailabilityHandler(nullptr); });
+
+    // the installation check does not load the library
+    QVERIFY(!library->isInstalled());
+    QVERIFY(library->unavailableReason().isEmpty());
+    QVERIFY(reports.isEmpty());
+
+    QVERIFY(!library->isAvailable());
+    QVERIFY(!library->unavailableReason().isEmpty());
+    QVERIFY(!library->ensureInitialized());
+    // the load reports its outcome once
+    QCOMPARE(reports, QList<bool>{false});
+    QVERIFY(!library->isInstalled());
 
     // an item created without the library is a placeholder: no view, no library calls, events are ignored
     QQuickWindow window;
@@ -639,6 +830,61 @@ void testWebViewItem::availableWithTheFunctionTable() {
     Fixture f;
     QVERIFY(f.item->isAvailable());
     QVERIFY(WebViewLibrary::instance()->isAvailable());
+}
+
+void testWebViewItem::installedPathIsFoundWithoutOpeningTheLibrary() {
+    const bool       wasSet = qEnvironmentVariableIsSet("LD_LIBRARY_PATH");
+    const QByteArray saved = qgetenv("LD_LIBRARY_PATH");
+    auto             restore = qScopeGuard([wasSet, saved] {
+        if (wasSet) {
+            qputenv("LD_LIBRARY_PATH", saved);
+        } else {
+            qunsetenv("LD_LIBRARY_PATH");
+        }
+    });
+
+    QTemporaryDir empty;
+    QTemporaryDir directory;
+    QVERIFY(empty.isValid() && directory.isValid());
+    // an empty file: a load would fail, the check only looks for it
+    QFile library(directory.filePath(QStringLiteral(UC_WEBVIEW_SONAME)));
+    QVERIFY(library.open(QIODevice::WriteOnly));
+    library.close();
+
+    // the build host has no library in /usr/lib or /lib (see realLibraryIsAbsentOnTheHost)
+    qputenv("LD_LIBRARY_PATH", QFile::encodeName(empty.path()));
+    QCOMPARE(WebViewLibrary::installedPath(), QString());
+
+    // the directories of LD_LIBRARY_PATH in their order, empty entries skipped
+    qputenv("LD_LIBRARY_PATH", QFile::encodeName(empty.path() + QStringLiteral("::") + directory.path()));
+    QCOMPARE(WebViewLibrary::installedPath(), QFileInfo(library).absoluteFilePath());
+
+    // a file that cannot be read is no library
+    QVERIFY(library.setPermissions(QFileDevice::WriteOwner));
+    if (!QFileInfo(library).isReadable()) {
+        QCOMPARE(WebViewLibrary::installedPath(), QString());
+    }
+}
+
+void testWebViewItem::failedInitialisationIsReported() {
+    WebViewFunctions functions = stub::functions();
+    functions.global_init = [](void *, const char *, const char *) { return -1; };
+    WebViewLibrary *library = WebViewLibrary::instance();
+    library->setFunctionsForTest(functions);
+    QList<bool> reports;
+    library->setAvailabilityHandler([&reports](bool available) { reports.append(available); });
+    auto removeHandler = qScopeGuard([library] { library->setAvailabilityHandler(nullptr); });
+
+    // loaded, not yet initialised: usable as far as anyone knows
+    QVERIFY(library->isInstalled());
+
+    // the first view's initialisation fails: reported once, unavailable from then on
+    QVERIFY(!library->ensureInitialized());
+    QCOMPARE(reports, QList<bool>{false});
+    QVERIFY(!library->isAvailable());
+    QVERIFY(!library->isInstalled());
+    QVERIFY(!library->ensureInitialized());
+    QCOMPARE(reports, QList<bool>{false});
 }
 
 void testWebViewItem::viewIsCreatedInDevicePixelsOnceItHasWindowAndSize() {
@@ -833,7 +1079,7 @@ void testWebViewItem::keyboardFollowsTheFocusOwnerNotTheImeCallbacks() {
     QCOMPARE(stub::s.panel, QStringList{QStringLiteral("show")});
     QVERIFY(f.item->inputMethodQuery(Qt::ImEnabled).toBool());
 
-    // a TextField next to the view takes the focus (the address field of the developer page)
+    // a TextField next to the view takes the focus (the address field of the test page)
     QQuickItem other(f.window.contentItem());
     other.setFlag(QQuickItem::ItemAcceptsInputMethod);
     other.forceActiveFocus();
@@ -1137,6 +1383,7 @@ const char *const kAllowedTraceLines[] = {
     R"(^active focus (true|false)$)",
     R"(^load (started|redirected|committed|finished|failed) ".*"$)",
     R"(^load_uri ".*"$)",
+    R"(^load indicator LoadIndicator(None|Spinner|Bar|Failed)(, page failed)?$)",
     R"(^load_html \d+ chars, base ".*"$)",
     R"(^pointer button \d (down|up) -?[\d.]+,-?[\d.]+ ms \d+$)",
     R"(^pointer move -?[\d.]+,-?[\d.]+ ms \d+$)",
@@ -1147,7 +1394,10 @@ const char *const kAllowedTraceLines[] = {
     R"(^zoom [\d.]+ \(\d+ %\) waits until the page rendered \d+ %$)",
     R"(^zoom \d+ % rendered after \d+ ms \((done|timeout|cancelled|status -?\d+|first frame after the zoom|)"
     R"(no frame within \d+ ms)\)$)",
-    R"(^page (up|down): Page_(Up|Down) press and release \(keysym 0x[0-9a-f]+, scancode \d+\)$)",
+    R"(^(page up|page down|top|bottom|focus next|focus previous): [A-Za-z_]+( with Shift)? press and release )"
+    R"(\(keysym 0x[0-9a-f]+, scancode \d+\)$)",
+    R"(^page key [A-Za-z0-9]+ (down|up) \(keysym 0x[0-9a-f]+, keycode \d+\)$)",
+    R"(^scroll (up|down): \d+ wheel notches at -?[\d.]+,-?[\d.]+$)",
     R"(^pinch begin at -?[\d.]+,-?[\d.]+, magnification [\d.]+$)",
     R"(^pinch end, scale [\d.e+-]+, magnification [\d.]+( \(after the running render\)| \(no change\))?$)",
     R"(^pinch cancelled$)",
@@ -1416,7 +1666,7 @@ void testWebViewItem::pageKeysAreForwardedRemoteButtonsAreNot() {
     QVERIFY(!f.lastAccepted);
     f.sendKey(QEvent::KeyPress, Qt::Key_VolumeUp);
     QVERIFY(!f.lastAccepted);
-    // VOLUME and CHANNEL as well: the developer page zooms and scrolls with them through zoomIn() and pageDown()
+    // VOLUME and CHANNEL as well: the test page and the fullscreen web view zoom and scroll with them
     f.sendKey(QEvent::KeyPress, Qt::Key_VolumeDown);
     QVERIFY(!f.lastAccepted);
     f.sendKey(QEvent::KeyPress, Qt::Key_ChannelUp);
@@ -1790,6 +2040,111 @@ void testWebViewItem::pageUpAndDownPressAndReleaseThePageKeys() {
     QCOMPARE(traced,
              (QStringList{QStringLiteral("page down: Page_Down press and release (keysym 0xff56, scancode 117)"),
                           QStringLiteral("page up: Page_Up press and release (keysym 0xff55, scancode 112)")}));
+}
+
+void testWebViewItem::pageKeysByNameArePressedRepeatedAndReleased() {
+    // the remote's buttons in the fullscreen web view: a key of the page by its KeyboardEvent.key name, whichever item
+    // has the focus, with the keysym and keycode of the table (webviewinput.cpp), no modifiers
+    Fixture f;
+    QVERIFY(!f.item->hasActiveFocus());
+    const int before = stub::s.calls.size();
+
+    QStringList messages;
+    capturedMessages = &messages;
+    WebViewItem::setTraceEnabledForTest(true);
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    const qint64           start = QWindowSystemInterfacePrivate::eventTime.elapsed();
+    QVERIFY(f.item->sendKey(QStringLiteral("ChannelUp"), true));
+    // a held button: more presses before its release
+    QVERIFY(f.item->sendKey(QStringLiteral("ChannelUp"), true));
+    QVERIFY(f.item->sendKey(QStringLiteral("ChannelUp"), false));
+    QVERIFY(f.item->sendKey(QStringLiteral("Exit"), true));
+    QVERIFY(f.item->sendKey(QStringLiteral("Exit"), false));
+    const qint64 end = QWindowSystemInterfacePrivate::eventTime.elapsed();
+    // a name outside the table: nothing reaches the page
+    QVERIFY(!f.item->sendKey(QStringLiteral("F5"), true));
+    qInstallMessageHandler(previous);
+    WebViewItem::setTraceEnabledForTest(false);
+    capturedMessages = nullptr;
+
+    QCOMPARE(stub::s.calls.mid(before),
+             (QStringList{QStringLiteral("key(0x10081192,1,0)"), QStringLiteral("key(0x10081192,1,0)"),
+                          QStringLiteral("key(0x10081192,0,0)"), QStringLiteral("key(0x1008ff56,1,0)"),
+                          QStringLiteral("key(0x1008ff56,0,0)")}));
+    QCOMPARE(stub::s.keycodes, (QList<uint32_t>{410, 410, 410, 182, 182}));
+    for (const uint32_t ms : stub::s.keyTimes) {
+        QVERIFY2(ms >= std::max<qint64>(1, start) && ms <= std::max<qint64>(1, end),
+                 qPrintable(QStringLiteral("%1 not in %2..%3").arg(ms).arg(start).arg(end)));
+    }
+    QVERIFY(!f.item->hasActiveFocus());
+
+    const QRegularExpression traceLine(QStringLiteral("^uc\\.ui\\.webview: trace 0x[0-9a-f]+: (.*)$"));
+    QStringList              traced;
+    for (const QString &message : messages) {
+        const QRegularExpressionMatch match = traceLine.match(message);
+        if (match.hasMatch()) {
+            QVERIFY2(traceLineAllowed(match.captured(1)), qPrintable(message));
+            traced << match.captured(1);
+        }
+    }
+    QCOMPARE(traced.first(), QStringLiteral("page key ChannelUp down (keysym 0x10081192, keycode 410)"));
+    QCOMPARE(traced.size(), 5);
+    QVERIFY(messages.last().contains(QStringLiteral("Not a key of the page: \"F5\"")));
+}
+
+void testWebViewItem::topBottomAndFocusPressAndReleaseTheirKeys() {
+    Fixture     f;
+    const int   before = stub::s.calls.size();
+    QStringList messages;
+    capturedMessages = &messages;
+    WebViewItem::setTraceEnabledForTest(true);
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    f.item->scrollToTop();
+    f.item->scrollToBottom();
+    f.item->focusNext();
+    f.item->focusPrevious();
+    qInstallMessageHandler(previous);
+    WebViewItem::setTraceEnabledForTest(false);
+    capturedMessages = nullptr;
+
+    // Home and End; Tab, and for the previous element Tab with the Shift modifier (UC_WEBVIEW_MOD_SHIFT), no Shift key
+    QCOMPARE(stub::s.calls.mid(before),
+             (QStringList{QStringLiteral("key(0xff50,1,0)"), QStringLiteral("key(0xff50,0,0)"),
+                          QStringLiteral("key(0xff57,1,0)"), QStringLiteral("key(0xff57,0,0)"),
+                          QStringLiteral("key(0xff09,1,0)"), QStringLiteral("key(0xff09,0,0)"),
+                          QStringLiteral("key(0xff09,1,2)"), QStringLiteral("key(0xff09,0,2)")}));
+    QCOMPARE(stub::s.keycodes, (QList<uint32_t>{110, 110, 115, 115, 23, 23, 23, 23}));
+
+    QStringList traced;
+    for (const QString &message : messages) {
+        const int at = message.indexOf(QStringLiteral(": trace 0x"));
+        if (at >= 0) {
+            const QString line = message.mid(message.indexOf(QStringLiteral(": "), at + 2) + 2);
+            QVERIFY2(traceLineAllowed(line), qPrintable(message));
+            traced << line;
+        }
+    }
+    QCOMPARE(traced, (QStringList{QStringLiteral("top: Home press and release (keysym 0xff50, scancode 110)"),
+                                  QStringLiteral("bottom: End press and release (keysym 0xff57, scancode 115)"),
+                                  QStringLiteral("focus next: Tab press and release (keysym 0xff09, scancode 23)"),
+                                  QStringLiteral("focus previous: Tab with Shift press and release (keysym 0xff09, "
+                                                 "scancode 23)")}));
+}
+
+void testWebViewItem::scrollStepsAreWheelNotchesAtTheCentre() {
+    Fixture     f;
+    const qreal r = f.window.effectiveDevicePixelRatio();
+    const int   before = stub::s.calls.size();
+    f.item->scrollUp();
+    f.item->scrollDown();
+    // two notches each (positive: towards the top), not precise, at the centre of the 300 x 200 item in view pixels
+    QCOMPARE(stub::s.calls.mid(before),
+             (QStringList{QStringLiteral("scroll(0,%1,0)").arg(WebViewItem::kScrollStepTicks),
+                          QStringLiteral("scroll(0,%1,0)").arg(-WebViewItem::kScrollStepTicks)}));
+    QCOMPARE(stub::s.scrollPoints, (QList<QPointF>{QPointF(150 * r, 100 * r), QPointF(150 * r, 100 * r)}));
+    for (const uint32_t ms : stub::s.scrollTimes) {
+        QVERIFY(ms >= 1);
+    }
 }
 
 void testWebViewItem::touchPointsAreForwardedAndCancelledWhenTheSequenceIsLost() {
@@ -2595,6 +2950,39 @@ void testWebViewItem::loginRetryGetsTheUserNameUntilALoadEvent() {
     }
 }
 
+void testWebViewItem::configuredCredentialsAnswerTheStartPagesLogin() {
+    // A web view entity's basic credentials (`site`) answer the login of its start page's origin without a dialog;
+    // a retry (the server rejected them), a proxy, another origin and a scheme without a user name get the dialog.
+    Fixture        f;
+    RequestCatcher catcher(f.item);
+    QSignalSpy     siteChanged(f.item, &WebViewItem::siteChanged);
+    WebViewSite    site;
+    site.setUrl(QUrl("https://nas.home.arpa:5001/status"));
+    site.setAuth(WebViewSite::Auth::Basic, QStringLiteral("viewer"), QStringLiteral("pw"));
+    f.item->setSite(site);
+    f.item->setSite(site);
+    QCOMPARE(siteChanged.count(), 1);
+    QVERIFY(f.item->site() == site);
+
+    stub::fireAuthenticate(1, "https://nas.home.arpa:5001", "NAS");
+    QCOMPARE(stub::requestCalls().last(), QStringLiteral("request_auth(1,\"viewer\",\"pw\")"));
+    stub::fireAuthenticate(2, "https://nas.home.arpa:5001", "NAS", UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST);
+    QCOMPARE(stub::requestCalls().last(), QStringLiteral("request_auth(2,\"viewer\",\"pw\")"));
+    QVERIFY(catcher.logins.isEmpty());
+
+    // rejected: the user's login dialog, with the configured user name filled in
+    stub::fireAuthenticate(3, "https://nas.home.arpa:5001", "NAS", UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC,
+                           UC_WEBVIEW_AUTH_RETRY);
+    QCOMPARE(catcher.logins.size(), 1);
+    QCOMPARE(catcher.logins.last()->previousUser(), QStringLiteral("viewer"));
+    stub::fireAuthenticate(4, "https://cdn.example.com", "CDN");
+    stub::fireAuthenticate(5, "https://nas.home.arpa:5001", "Proxy", UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC,
+                           UC_WEBVIEW_AUTH_PROXY);
+    stub::fireAuthenticate(6, "https://nas.home.arpa:5001", "NAS", UC_WEBVIEW_AUTH_SCHEME_NTLM);
+    QCOMPARE(catcher.logins.size(), 4);
+    QCOMPARE(stub::requestCalls().size(), 2);
+}
+
 void testWebViewItem::freedViewEndsRequestsWithoutSignals() {
     // uc_webview_free() ends pending requests without a callback: the item drops their objects before it, without
     // signals from its destructor; QML properties that hold them turn null
@@ -2789,6 +3177,849 @@ void testWebViewItem::requestTraceLines() {
                            "(type unknown)"),
             QStringLiteral("close requested by the page (window.close())"), QStringLiteral("request 5: confirm"),
             QStringLiteral("request 5: ended (view freed)")}));
+}
+
+namespace {
+
+// A web view entity's site: the start page, and per test the authentication, cookies, TLS exception and user agent
+WebViewSite siteOf(const char *url) {
+    WebViewSite site;
+    site.setUrl(QUrl(QString::fromLatin1(url)));
+    return site;
+}
+
+WebViewSite::Cookie cookie(const char *name, const char *value, const char *domain = "", const char *path = "/") {
+    WebViewSite::Cookie c;
+    c.name = QString::fromLatin1(name);
+    c.value = QString::fromLatin1(value);
+    c.domain = QString::fromLatin1(domain);
+    c.path = QString::fromLatin1(path);
+    return c;
+}
+
+const char *const kSha256 = "3fa9125c770be4219d6ac80f41b293ee58170cd42a9b61f07e3c8815a6d24bc9";
+
+}  // namespace
+
+void testWebViewItem::siteSettingsReachTheViewBeforeItsFirstLoad() {
+    // the item has no view yet (no size): the site waits for it, and goes to the view before its first request
+    Fixture     f(stub::functions(), QSizeF());
+    WebViewSite site = siteOf("https://ha.home.arpa:8123/lovelace/0");
+    site.setAuth(WebViewSite::Auth::Bearer, QString(), QStringLiteral("t0ken"));
+    site.setUserAgent(QStringLiteral("mobile"));
+    site.setTlsException(QString::fromLatin1(kSha256), false);
+    f.item->setSite(site);
+    f.item->setUrl(site.url());
+    QVERIFY(stub::siteCalls().isEmpty());
+
+    f.item->setSize(QSizeF(300, 200));
+    QVERIFY(stub::s.view != nullptr);
+    // the global settings of the library's initialisation first (WebKit's defaults until the core's arrive)
+    QCOMPARE(
+        stub::siteCalls(),
+        (QStringList{QStringLiteral("global_set_color_scheme(0)"), QStringLiteral("global_set_tls_errors_policy(0)"),
+                     QStringLiteral("set_origin_headers(https://ha.home.arpa:8123,Authorization=Bearer t0ken)"),
+                     QStringLiteral("set_user_agent(1,null)"),
+                     QStringLiteral("global_allow_certificate(ha.home.arpa,\"%1\")").arg(kSha256)}));
+    // no cookies: the start page loads at once, after the settings
+    QCOMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://ha.home.arpa:8123/lovelace/0)")});
+    QVERIFY(stub::s.calls.indexOf(QStringLiteral("load_uri(https://ha.home.arpa:8123/lovelace/0)")) >
+            stub::s.calls.indexOf(QStringLiteral("set_user_agent(1,null)")));
+}
+
+void testWebViewItem::siteChangeReplacesTheRequestHeaderAndUserAgent() {
+    Fixture     f;
+    WebViewSite a = siteOf("https://a.example/");
+    a.setAuth(WebViewSite::Auth::Header, QString(), QStringLiteral("k1"), QStringLiteral("X-Api-Key"));
+    f.item->setSite(a);
+    stub::s.calls.clear();
+
+    // a rotated key for the same origin replaces the header (the library keeps one entry per origin)
+    WebViewSite rotated = a;
+    rotated.setAuth(WebViewSite::Auth::Header, QString(), QStringLiteral("k2"), QStringLiteral("X-Api-Key"));
+    f.item->setSite(rotated);
+    QCOMPARE(stub::siteCalls(), (QStringList{QStringLiteral("set_origin_headers(https://a.example,X-Api-Key=k2)"),
+                                             QStringLiteral("set_user_agent(0,null)")}));
+    stub::s.calls.clear();
+
+    // another start page: the old origin's header goes, the new one's comes; a custom user agent
+    WebViewSite b = siteOf("http://b.example:8080/");
+    b.setAuth(WebViewSite::Auth::Bearer, QString(), QStringLiteral("t"));
+    b.setUserAgent(QStringLiteral("Dashboard/1.0"));
+    f.item->setSite(b);
+    QCOMPARE(stub::siteCalls(),
+             (QStringList{QStringLiteral("set_origin_headers(https://a.example,)"),
+                          QStringLiteral("set_origin_headers(http://b.example:8080,Authorization=Bearer t)"),
+                          QStringLiteral("set_user_agent(3,\"Dashboard/1.0\")")}));
+    stub::s.calls.clear();
+
+    // no authentication any more: the header goes; the user agent back to the default
+    f.item->setSite(siteOf("http://b.example:8080/"));
+    QCOMPARE(stub::siteCalls(), (QStringList{QStringLiteral("set_origin_headers(http://b.example:8080,)"),
+                                             QStringLiteral("set_user_agent(0,null)")}));
+    // the settings take effect with the next load: setting the site loads nothing itself
+    QVERIFY(stub::loadCalls().isEmpty());
+
+    // uc_webview_free() removes the view's headers itself
+    stub::s.calls.clear();
+    f.item->setSite(b);
+    delete f.item;
+    f.item = nullptr;
+    QCOMPARE(stub::s.calls.filter(QStringLiteral("set_origin_headers")).size(), 1);
+    QCOMPARE(stub::s.calls.last(), QStringLiteral("free"));
+}
+
+void testWebViewItem::refusedSiteSettingsLeaveNothingStale() {
+    Fixture     f;
+    WebViewSite a = siteOf("https://a.example/");
+    a.setAuth(WebViewSite::Auth::Bearer, QString(), QStringLiteral("good"));
+    f.item->setSite(a);
+    stub::s.calls.clear();
+
+    // the library refuses the new header (a value outside its rules): the old one must not stay
+    stub::s.headersResult = -1;
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("refused the request header of auth.bearer")));
+    WebViewSite bad = a;
+    bad.setAuth(WebViewSite::Auth::Bearer, QString(), QStringLiteral("bad\ttoken"));
+    f.item->setSite(bad);
+    QCOMPARE(stub::siteCalls().mid(0, 2),
+             (QStringList{QStringLiteral("set_origin_headers(https://a.example,Authorization=Bearer bad\ttoken)"),
+                          QStringLiteral("set_origin_headers(https://a.example,)")}));
+
+    // a custom user agent the library refuses: the default, not the previous one
+    stub::s.calls.clear();
+    stub::s.userAgentResult = -1;
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("refused the user agent")));
+    WebViewSite agent = siteOf("https://a.example/");
+    agent.setUserAgent(QStringLiteral("Bad\x01"));
+    f.item->setSite(agent);
+    QCOMPARE(stub::siteCalls(),
+             (QStringList{QStringLiteral("set_user_agent(3,\"Bad\x01\")"), QStringLiteral("set_user_agent(0,null)")}));
+}
+
+void testWebViewItem::startPageLoadsAfterTheLibraryReportsTheCookies() {
+    Fixture     f;
+    WebViewSite site = siteOf("https://nas.example:5001/status");
+    auto        session = cookie("sid", "s3cret");
+    auto        layout = cookie("layout", "wide", ".example", "/ui");
+    layout.secure = true;
+    layout.httpOnly = true;
+    layout.expires = QDateTime(QDate(2027, 1, 1), QTime(0, 0), Qt::UTC);
+    site.setCookies({session, layout});
+    f.item->setSite(site);
+    stub::s.calls.clear();
+
+    f.item->setUrl(site.url());
+    QCOMPARE(stub::siteCalls(), QStringList{QStringLiteral(
+                                    "global_set_cookies(https://nas.example:5001/status,[sid=s3cret null \"/\" - -1, "
+                                    "layout=wide \".example\" \"/ui\" secure,http_only 1798761600])")});
+    // the start page waits for the library's report
+    QVERIFY(stub::loadCalls().isEmpty());
+    // the report comes from the library's idle; the item loads from Qt's event loop, not inside the callback
+    stub::finishDone();
+    QVERIFY(stub::loadCalls().isEmpty());
+    QTRY_COMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example:5001/status)")});
+
+    // another address of the start page's origin: the cookies are set again first (each time the page is opened)
+    stub::s.calls.clear();
+    f.item->setUrl(QUrl(QStringLiteral("https://nas.example:5001/other")));
+    QCOMPARE(stub::siteCalls().size(), 1);
+    stub::finishDone();
+    QTRY_COMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example:5001/other)")});
+
+    // an address of another origin gets no cookies and loads at once
+    stub::s.calls.clear();
+    f.item->setUrl(QUrl(QStringLiteral("https://other.example/")));
+    QVERIFY(stub::siteCalls().isEmpty());
+    QCOMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://other.example/)")});
+    // a plain reload sets nothing
+    f.item->reload();
+    QVERIFY(stub::siteCalls().isEmpty());
+    QCOMPARE(stub::loadCalls().last(), QStringLiteral("reload"));
+}
+
+void testWebViewItem::cookieWaitEndsOnFailureTimeoutAndRefusal() {
+    Fixture     f;
+    WebViewSite site = siteOf("https://nas.example/");
+    site.setCookies({cookie("sid", "s3cret")});
+    f.item->setSite(site);
+    stub::s.calls.clear();
+
+    // the library could not set them: the page loads without them
+    f.item->setUrl(site.url());
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("not set: the library could not set them")));
+    stub::finishDone(UC_WEBVIEW_DONE_FAILED);
+    QTRY_COMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example/)")});
+
+    // no report in time: the page loads; the late report loads nothing again
+    stub::s.calls.clear();
+    WebViewItem::setCookieTimeoutForTest(50);
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("did not report them in time")));
+    f.item->setUrl(site.url());
+    QVERIFY(stub::loadCalls().isEmpty());
+    QTRY_COMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example/)")});
+    stub::finishDone();
+    QTest::qWait(20);
+    QCOMPARE(stub::loadCalls().size(), 1);
+    WebViewItem::setCookieTimeoutForTest(0);
+
+    // refused (a cookie outside the library's rules): the page loads at once
+    stub::s.calls.clear();
+    stub::s.cookiesResult = -1;
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("refused the cookies")));
+    f.item->setUrl(site.url());
+    QCOMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example/)")});
+    QVERIFY(stub::s.dones.isEmpty());
+}
+
+void testWebViewItem::navigationCancelsTheCookieWait() {
+    Fixture     f;
+    WebViewSite site = siteOf("https://nas.example/");
+    site.setCookies({cookie("sid", "s3cret")});
+    f.item->setSite(site);
+
+    // a second load of the start page during the wait: only the latest report loads it, once
+    stub::s.calls.clear();
+    f.item->setUrl(site.url());
+    f.item->setUrl(QUrl(QStringLiteral("https://nas.example/b")));
+    QCOMPARE(stub::s.dones.size(), 2);
+    stub::finishDone();
+    QTest::qWait(10);
+    QVERIFY(stub::loadCalls().isEmpty());
+    stub::finishDone();
+    QTRY_COMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example/b)")});
+
+    // HTML, stop, back and forward during the wait: the start page does not follow; a reload waits with it
+    for (const auto &navigate : QList<std::function<void(WebViewItem *)>>{
+             [](WebViewItem *item) { item->loadHtml(QStringLiteral("<p>x</p>")); },
+             [](WebViewItem *item) { item->stop(); }, [](WebViewItem *item) { item->goBack(); },
+             [](WebViewItem *item) { item->goForward(); }}) {
+        stub::s.calls.clear();
+        f.item->setUrl(site.url());
+        navigate(f.item);
+        stub::finishDone();
+        QTest::qWait(10);
+        QVERIFY2(stub::s.calls.filter(QStringLiteral("load_uri")).isEmpty(), qPrintable(stub::s.calls.join(' ')));
+    }
+    stub::s.calls.clear();
+    f.item->setUrl(site.url());
+    f.item->reload();
+    stub::finishDone();
+    QTRY_COMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example/)")});
+
+    // the item goes during the wait: the report finds nothing, no call on a freed view
+    f.item->setUrl(site.url());
+    delete f.item;
+    f.item = nullptr;
+    stub::s.calls.clear();
+    stub::finishDone();
+    QTest::qWait(10);
+    QVERIFY(stub::s.calls.isEmpty());
+}
+
+void testWebViewItem::reloadAfterAClearOfAllWebsiteDataSetsTheCookiesAgain() {
+    Fixture     f;
+    WebViewSite site = siteOf("https://nas.example/");
+    site.setCookies({cookie("sid", "s3cret")});
+    f.item->setSite(site);
+    f.item->setUrl(site.url());
+    stub::finishDone();
+    QTRY_COMPARE(stub::loadCalls().size(), 1);
+
+    // the cache only: the cookies stay, a plain reload
+    QObject context;
+    QCOMPARE(WebViewLibrary::instance()->clearWebsiteData(false, &context, nullptr),
+             WebViewLibrary::ClearStart::Started);
+    stub::finishDone();
+    stub::s.calls.clear();
+    f.item->reload();
+    QCOMPARE(stub::loadCalls(), QStringList{QStringLiteral("reload")});
+    QVERIFY(stub::siteCalls().isEmpty());
+
+    // all website data, the configured cookies with it: set again before the reload (once)
+    QCOMPARE(WebViewLibrary::instance()->clearWebsiteData(true, &context, nullptr),
+             WebViewLibrary::ClearStart::Started);
+    stub::finishDone();
+    stub::s.calls.clear();
+    f.item->reload();
+    QCOMPARE(stub::siteCalls().size(), 1);
+    QVERIFY(stub::loadCalls().isEmpty());
+    stub::finishDone();
+    QTRY_COMPARE(stub::loadCalls(), QStringList{QStringLiteral("reload")});
+    f.item->reload();
+    QCOMPARE(stub::siteCalls().size(), 1);
+    QCOMPARE(stub::loadCalls(), (QStringList{QStringLiteral("reload"), QStringLiteral("reload")}));
+}
+
+// the device state JSON of a source in a power mode, on battery at 42 %
+static QString deviceState(DeviceStateSource::PowerMode mode, int level = 42, bool powerSupply = false) {
+    return QStringLiteral("set_device_state(%1)")
+        .arg(QString::fromUtf8(DeviceStateSource::stateJson(mode, level, powerSupply)));
+}
+
+void testWebViewItem::deviceApiStartsWithTheStateBeforeTheFirstLoad() {
+    DeviceStateSource source;
+    source.setBattery(42, false);
+    // no view yet (no size): the API waits for it and goes to the view before its first load, after the state
+    Fixture f(stub::functions(), QSizeF());
+    f.item->setDeviceApi(true);
+    QVERIFY(f.item->deviceApi());
+    f.item->setUrl(QUrl(QStringLiteral("http://dash.home.arpa/")));
+    QVERIFY(stub::deviceCalls().isEmpty());
+
+    f.item->setSize(QSizeF(300, 200));
+    QCOMPARE(stub::deviceCalls(),
+             (QStringList{deviceState(DeviceStateSource::Normal), QStringLiteral("set_device_api(1)")}));
+    QVERIFY(stub::s.calls.indexOf(QStringLiteral("set_device_api(1)")) <
+            stub::s.calls.indexOf(QStringLiteral("load_uri(http://dash.home.arpa/)")));
+}
+
+void testWebViewItem::deviceApiFollowsTheStateAndTheStandby() {
+    DeviceStateSource source;
+    qint64            clock = 0;
+    source.setSleepClockForTest([&clock] { return clock; });
+    Fixture f;
+    f.item->setDeviceApi(true);
+    stub::s.calls.clear();
+
+    // dim, display off, standby, wake after 61 s: the states and events in the source's order
+    source.setPowerMode(DeviceStateSource::Idle);
+    source.setPowerMode(DeviceStateSource::LowPower);
+    source.setPowerMode(DeviceStateSource::Suspend);
+    clock = 61234;
+    source.resumedFromSuspend();
+    source.setPowerMode(DeviceStateSource::Normal);
+    source.setBattery(41, true);
+    QCOMPARE(stub::deviceCalls(),
+             (QStringList{deviceState(DeviceStateSource::Idle, 100, true),
+                          deviceState(DeviceStateSource::LowPower, 100, true),
+                          QStringLiteral("device_event(suspend,0)"), QStringLiteral("device_event(resume,61234)"),
+                          deviceState(DeviceStateSource::Normal, 100, true),
+                          deviceState(DeviceStateSource::Normal, 41, true)}));
+    // no other library call for any of it (no reload, no load)
+    QCOMPARE(stub::s.calls, stub::deviceCalls());
+}
+
+void testWebViewItem::deviceApiOffSendsNothing() {
+    // a web view without device_api: not a single device call, whatever the source reports
+    DeviceStateSource source;
+    Fixture           f;
+    f.item->setUrl(QUrl(QStringLiteral("http://dash.home.arpa/")));
+    QVERIFY(!f.item->deviceApi());
+    source.setPowerMode(DeviceStateSource::Suspend);
+    source.resumedFromSuspend();
+    source.setPowerMode(DeviceStateSource::Normal);
+    source.setBattery(10, false);
+    QVERIFY(stub::deviceCalls().isEmpty());
+}
+
+void testWebViewItem::deviceApiSwitchedOffAndOnAgain() {
+    DeviceStateSource source;
+    Fixture           f;
+    QSignalSpy        changed(f.item, &WebViewItem::deviceApiChanged);
+    f.item->setDeviceApi(true);
+    f.item->setDeviceApi(true);
+    QCOMPARE(changed.count(), 1);
+    stub::s.calls.clear();
+
+    // off: the library's switch, then nothing more reaches the view
+    f.item->setDeviceApi(false);
+    QCOMPARE(stub::deviceCalls(), QStringList{QStringLiteral("set_device_api(0)")});
+    source.setPowerMode(DeviceStateSource::Idle);
+    source.setPowerMode(DeviceStateSource::Suspend);
+    QCOMPARE(stub::deviceCalls(), QStringList{QStringLiteral("set_device_api(0)")});
+
+    // on again: the state of now first, the item reloads nothing itself (the page does, WebViewPage.qml)
+    stub::s.calls.clear();
+    f.item->setDeviceApi(true);
+    QCOMPARE(stub::s.calls,
+             (QStringList{deviceState(DeviceStateSource::Suspend, 100, true), QStringLiteral("set_device_api(1)")}));
+    QCOMPARE(changed.count(), 3);
+}
+
+void testWebViewItem::deviceApiEndsWithTheItem() {
+    DeviceStateSource source;
+    {
+        Fixture f;
+        f.item->setDeviceApi(true);
+        QCOMPARE(stub::deviceCalls().count(), 2);
+    }
+    // the view went with the item: what the source reports later reaches no view
+    stub::s.calls.clear();
+    source.setPowerMode(DeviceStateSource::Suspend);
+    source.resumedFromSuspend();
+    QVERIFY(stub::s.calls.isEmpty());
+}
+
+void testWebViewItem::olderLibraryIgnoresTheDeviceApi() {
+    // a library 0.8.x: the property is kept, the view gets nothing, the load is unaffected; one log line
+    QStringList messages;
+    capturedMessages = &messages;
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    {
+        DeviceStateSource source;
+        Fixture           f(stub::functionsWithoutDeviceApi());
+        f.item->setDeviceApi(true);
+        f.item->setUrl(QUrl(QStringLiteral("http://dash.home.arpa/")));
+        source.setPowerMode(DeviceStateSource::Suspend);
+        source.resumedFromSuspend();
+        QVERIFY(f.item->deviceApi());
+        QVERIFY(stub::deviceCalls().isEmpty());
+        QCOMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(http://dash.home.arpa/)")});
+    }
+    qInstallMessageHandler(previous);
+    capturedMessages = nullptr;
+    const QString all = messages.join(QLatin1Char('\n'));
+    QVERIFY2(all.contains(QStringLiteral("older than 0.9.0")), qPrintable(all));
+}
+
+void testWebViewItem::olderLibraryLoadsWithoutTheSiteSettings() {
+    // a library 0.7.x: every option of the site is named in one log line, without a value, and the page loads at once
+    QStringList messages;
+    capturedMessages = &messages;
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    {
+        Fixture     f(stub::functionsWithoutSite());
+        WebViewSite site = siteOf("https://nas.example/");
+        site.setAuth(WebViewSite::Auth::Bearer, QString(), QStringLiteral("t0ken"));
+        site.setCookies({cookie("sid", "s3cret")});
+        site.setTlsException(QString(), true);
+        site.setUserAgent(QStringLiteral("desktop"));
+        f.item->setSite(site);
+        f.item->setUrl(site.url());
+        QCOMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example/)")});
+        QVERIFY(stub::siteCalls().isEmpty());
+        f.item->reload();
+        QCOMPARE(stub::loadCalls().last(), QStringLiteral("reload"));
+        // nothing to clear with
+        QObject context;
+        QCOMPARE(WebViewLibrary::instance()->clearWebsiteData(true, &context, nullptr),
+                 WebViewLibrary::ClearStart::Unsupported);
+        QVERIFY(!WebViewLibrary::instance()->allowCertificate(QStringLiteral("nas.example"), QString()));
+    }
+    qInstallMessageHandler(previous);
+    capturedMessages = nullptr;
+    const QString all = messages.join(QLatin1Char('\n'));
+    QVERIFY2(all.contains(QStringLiteral("ignored: \"auth.bearer, cookies, tls, user_agent\"")), qPrintable(all));
+    QVERIFY(!all.contains(QStringLiteral("t0ken")));
+    QVERIFY(!all.contains(QStringLiteral("s3cret")));
+}
+
+void testWebViewItem::globalSettingsGoToTheLibraryOnceItIsInitialised() {
+    // kept until the library is initialised, never a reason to initialise it
+    {
+        stub::s = stub::State();
+        WebViewLibrary::instance()->setFunctionsForTest(stub::functions());
+        WebViewLibrary::instance()->setGlobalSettings(QStringLiteral("dark"), true);
+        QVERIFY(stub::siteCalls().isEmpty());
+        QCOMPARE(stub::s.initCalls, 0);
+        QVERIFY(WebViewLibrary::instance()->ensureInitialized());
+        QCOMPARE(stub::siteCalls(), (QStringList{QStringLiteral("global_set_color_scheme(1)"),
+                                                 QStringLiteral("global_set_tls_errors_policy(1)")}));
+        // every change from then on; an unchanged one is not passed again
+        stub::s.calls.clear();
+        WebViewLibrary::instance()->setGlobalSettings(QStringLiteral("light"), false);
+        WebViewLibrary::instance()->setGlobalSettings(QStringLiteral("light"), false);
+        QCOMPARE(stub::siteCalls(), (QStringList{QStringLiteral("global_set_color_scheme(0)"),
+                                                 QStringLiteral("global_set_tls_errors_policy(0)")}));
+    }
+    // a library 0.7.x: logged, nothing called
+    {
+        stub::s = stub::State();
+        WebViewLibrary::instance()->setFunctionsForTest(stub::functionsWithoutSite());
+        WebViewLibrary::instance()->setGlobalSettings(QStringLiteral("dark"), true);
+        QVERIFY(WebViewLibrary::instance()->ensureInitialized());
+        QVERIFY(stub::siteCalls().isEmpty());
+    }
+}
+
+void testWebViewItem::clearWebsiteDataReportsThroughTheEventLoop() {
+    // without a view: the library is initialised first, the data of an earlier run is on disk
+    stub::s = stub::State();
+    WebViewLibrary::instance()->setFunctionsForTest(stub::functions());
+    WebViewLibrary *library = WebViewLibrary::instance();
+    QList<bool>     reports;
+    auto            report = [&reports](bool ok) { reports.append(ok); };
+    QObject         context;
+
+    QCOMPARE(library->clearWebsiteData(true, &context, report), WebViewLibrary::ClearStart::Started);
+    QCOMPARE(stub::s.initCalls, 1);
+    QCOMPARE(stub::siteCalls().last(), QStringLiteral("global_clear_data(0xffffffff)"));
+    QCOMPARE(library->websiteDataGeneration(), quint64(0));
+    // the library's idle: counted at once, reported through Qt's event loop
+    stub::finishDone();
+    QCOMPARE(library->websiteDataGeneration(), quint64(1));
+    QVERIFY(reports.isEmpty());
+    QTRY_COMPARE(reports, QList<bool>{true});
+
+    QCOMPARE(library->clearWebsiteData(false, &context, report), WebViewLibrary::ClearStart::Started);
+    QCOMPARE(stub::siteCalls().last(), QStringLiteral("global_clear_data(0x1)"));
+    stub::finishDone(UC_WEBVIEW_DONE_FAILED);
+    QTRY_COMPARE(reports, (QList<bool>{true, false}));
+    QCOMPARE(library->websiteDataGeneration(), quint64(1));
+
+    // the requester goes before the report: nothing reported, the clear still counts
+    auto *gone = new QObject;
+    QCOMPARE(library->clearWebsiteData(true, gone, report), WebViewLibrary::ClearStart::Started);
+    delete gone;
+    stub::finishDone();
+    QTest::qWait(10);
+    QCOMPARE(reports.size(), 2);
+    QCOMPARE(library->websiteDataGeneration(), quint64(2));
+    // gone after the report, before the event loop ran it
+    gone = new QObject;
+    QCOMPARE(library->clearWebsiteData(false, gone, report), WebViewLibrary::ClearStart::Started);
+    stub::finishDone();
+    delete gone;
+    QTest::qWait(10);
+    QCOMPARE(reports.size(), 2);
+
+    // refused: no report ever
+    stub::s.clearResult = -1;
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("refused to clear")));
+    QCOMPARE(library->clearWebsiteData(true, &context, report), WebViewLibrary::ClearStart::Refused);
+    QVERIFY(stub::s.dones.isEmpty());
+}
+
+void testWebViewItem::certificateExceptionsArePassedOnce() {
+    // exceptions add up in the library and cannot be removed: each is passed once per process
+    Fixture     f;
+    WebViewSite site = siteOf("https://[fd00::20]:8443/");
+    site.setTlsException(QString(), true);
+    f.item->setSite(site);
+    QCOMPARE(stub::siteCalls().filter(QStringLiteral("allow_certificate")),
+             QStringList{QStringLiteral("global_allow_certificate(fd00::20,null)")});
+    // the same exception from another item (a widget of the same web view) or again: nothing new
+    QQuickWindow window;
+    WebViewItem  other(window.contentItem());
+    other.setSite(site);
+    other.setSize(QSizeF(100, 100));
+    f.item->setSite(siteOf("https://[fd00::20]:8443/"));
+    f.item->setSite(site);
+    QCOMPARE(stub::siteCalls().filter(QStringLiteral("allow_certificate")).size(), 1);
+    // a fingerprint for the host is another exception
+    WebViewSite pinned = site;
+    pinned.setTlsException(QString::fromLatin1(kSha256), false);
+    f.item->setSite(pinned);
+    QCOMPARE(stub::siteCalls().filter(QStringLiteral("allow_certificate")).last(),
+             QStringLiteral("global_allow_certificate(fd00::20,\"%1\")").arg(kSha256));
+}
+
+namespace {
+
+using Indicator = WebViewItem::LoadIndicator;
+
+// every value loadIndicator reported, in order
+struct IndicatorLog {
+    explicit IndicatorLog(WebViewItem *item) {
+        QObject::connect(item, &WebViewItem::loadIndicatorChanged, item,
+                         [this, item] { values.append(item->loadIndicator()); });
+    }
+    QList<Indicator> values;
+};
+
+// Holds while less than the load indicator's delay has passed on clock (started before the host's call), checking
+// `indicator` meanwhile: the check only runs on a time read before the event loop could run the item's timer.
+void expectNothingDuringTheDelay(WebViewItem *item, const QElapsedTimer &clock) {
+    while (clock.elapsed() < WebViewItem::kLoadIndicatorDelayMs - 50) {
+        QCOMPARE(item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+        QTest::qWait(20);
+    }
+}
+
+}  // namespace
+
+void testWebViewItem::loadIndicatorShowsTheSpinnerAfterTheDelayUntilTheFirstFrame() {
+    Fixture      f;
+    IndicatorLog log(f.item);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    QVERIFY(!f.item->isPageFailed());
+
+    // a quick page shows nothing: started, committed and shown before the event loop ran the delay
+    f.item->setUrl(QUrl(QStringLiteral("https://quick.example/")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://quick.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://quick.example/");
+    stub::fireFrame(1);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://quick.example/");
+    QTest::qWait(WebViewItem::kLoadIndicatorDelayMs + 100);
+    QVERIFY(log.values.isEmpty());
+
+    // a slow page: nothing for the delay from the host's call, then the spinner, also before WebKit's first event
+    QElapsedTimer clock;
+    clock.start();
+    f.item->setUrl(QUrl(QStringLiteral("https://slow.example/")));
+    expectNothingDuringTheDelay(f.item, clock);
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    QVERIFY(clock.elapsed() >= WebViewItem::kLoadIndicatorDelayMs);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://slow.example/");
+    stub::fireProgress(0.3);
+    // a frame before the commit is the old document's: the new page is not shown yet
+    stub::fireFrame(2);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://slow.example/");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    // the first frame after the commit: the page is on screen and loads on, the bar shows the progress
+    stub::fireFrame(3);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorBar);
+    stub::fireProgress(0.8);
+    QCOMPARE(f.item->loadProgress(), 80);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://slow.example/");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    QCOMPARE(log.values, (QList<Indicator>{WebViewItem::LoadIndicatorSpinner, WebViewItem::LoadIndicatorBar,
+                                           WebViewItem::LoadIndicatorNone}));
+    QVERIFY(!f.item->isPageFailed());
+
+    // a start page that waits for its cookies: the spinner during the wait as well
+    WebViewSite site = siteOf("https://nas.example/");
+    site.setCookies({cookie("sid", "s3cret")});
+    f.item->setSite(site);
+    stub::s.calls.clear();
+    clock.restart();
+    f.item->setUrl(site.url());
+    QVERIFY(stub::loadCalls().isEmpty());
+    expectNothingDuringTheDelay(f.item, clock);
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    stub::finishDone();
+    QTRY_COMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(https://nas.example/)")});
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+}
+
+void testWebViewItem::loadIndicatorSpinnerWaitsForTheFirstFrameAfterTheLoad() {
+    // a navigation of the page itself (a link, a script): a new page, the delay counts from its start
+    Fixture       f;
+    QElapsedTimer clock;
+    clock.start();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/next");
+    expectNothingDuringTheDelay(f.item, clock);
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+
+    // WebKit may send the page's first frame after the end of its load (no visually non-empty layout before it)
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://a.example/next");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://a.example/next");
+    QVERIFY(!f.item->isLoading());
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    stub::fireFrame(1);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+
+    // a load that ends without a commit (a download, a refused response): the old page stays, nothing to wait for
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/file.zip");
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://a.example/file.zip");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+
+    // stop() ends it as well
+    f.item->setUrl(QUrl(QStringLiteral("https://a.example/slow")));
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    f.item->stop();
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+}
+
+void testWebViewItem::reloadShowsOnlyTheBarAndAQuietReloadNothing() {
+    Fixture f;
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://a.example/");
+    stub::fireFrame(1);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://a.example/");
+    IndicatorLog log(f.item);
+
+    // a reload of the user or the `reload` command: the old page stays until the new one commits, only the bar
+    QElapsedTimer clock;
+    clock.start();
+    f.item->reload();
+    QCOMPARE(stub::loadCalls().last(), QStringLiteral("reload"));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/");
+    stub::fireProgress(0.2);
+    expectNothingDuringTheDelay(f.item, clock);
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorBar);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://a.example/");
+    stub::fireFrame(2);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorBar);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://a.example/");
+    QCOMPARE(log.values, (QList<Indicator>{WebViewItem::LoadIndicatorBar, WebViewItem::LoadIndicatorNone}));
+
+    // the reload interval during a reload the user waits for: the bar stays
+    f.item->reload();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/");
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorBar);
+    f.item->reloadQuietly();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorBar);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://a.example/");
+    stub::fireFrame(10);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://a.example/");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+
+    // the reload interval: nothing at all, however long it takes
+    log.values.clear();
+    f.item->reloadQuietly();
+    QCOMPARE(stub::loadCalls().last(), QStringLiteral("reload"));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/");
+    QTest::qWait(WebViewItem::kLoadIndicatorDelayMs + 100);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://a.example/");
+    stub::fireFrame(3);
+    QTest::qWait(50);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://a.example/");
+    QVERIFY(log.values.isEmpty());
+
+    // Back and Forward show another page: like a new one, the spinner until its first frame
+    stub::s.canGoBack = true;
+    f.item->goBack();
+    QCOMPARE(stub::s.calls.last(), QStringLiteral("go_back"));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/before");
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://a.example/before");
+    stub::fireFrame(4);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorBar);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://a.example/before");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    // without history in that direction nothing loads, nothing shows
+    stub::s.canGoForward = false;
+    f.item->goForward();
+    QTest::qWait(WebViewItem::kLoadIndicatorDelayMs + 100);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+
+    // a reload or the interval before a new page showed a frame: still nothing of it to see, the spinner stays
+    f.item->setUrl(QUrl(QStringLiteral("https://a.example/slow")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/slow");
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    f.item->reload();
+    f.item->reloadQuietly();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://a.example/slow");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+}
+
+void testWebViewItem::failedLoadShowsTheFailureOverWebKitsErrorPage() {
+    Fixture      f;
+    QSignalSpy   failed(f.item, &WebViewItem::loadFailed);
+    IndicatorLog log(f.item);
+
+    // the failure at once, without the delay: a final state does not flicker
+    f.item->setUrl(QUrl(QStringLiteral("https://down.example/")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Load failed")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, "https://down.example/");
+    QCOMPARE(failed.count(), 1);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    QVERIFY(f.item->isPageFailed());
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://down.example/");
+
+    // WebKit's error page for the same address, without a call of the host: the failure stays over it
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://down.example/");
+    stub::fireFrame(1);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://down.example/");
+    QTest::qWait(WebViewItem::kLoadIndicatorDelayMs + 100);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    QVERIFY(f.item->isPageFailed());
+    QCOMPARE(log.values, QList<Indicator>{WebViewItem::LoadIndicatorFailed});
+
+    // OK tries again (reload(): WebKit reloads the address that failed): the message gives way, the error page stays
+    // covered, the spinner after the delay until the page's first frame
+    QElapsedTimer clock;
+    clock.start();
+    f.item->reload();
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    QVERIFY(f.item->isPageFailed());
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    expectNothingDuringTheDelay(f.item, clock);
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://down.example/");
+    QVERIFY(f.item->isPageFailed());
+    stub::fireFrame(2);
+    QVERIFY(!f.item->isPageFailed());
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorBar);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://down.example/");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+
+    // a retry that fails again: the failure again, at once
+    f.item->reload();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Load failed")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, "https://down.example/");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    QVERIFY(f.item->isPageFailed());
+}
+
+void testWebViewItem::failureEndsWithAnotherPageOrASuccessfulQuietReload() {
+    Fixture f;
+    auto    fail = [](const char *url) {
+        stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, url);
+        QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Load failed")));
+        stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, url);
+        stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, url);
+    };
+
+    // a navigation away (a load of another address the host did not ask for) removes the message; the cover stays
+    // until that page's first frame
+    fail("https://down.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://other.example/");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    QVERIFY(f.item->isPageFailed());
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://other.example/");
+    stub::fireFrame(1);
+    QVERIFY(!f.item->isPageFailed());
+
+    // Back from a failed page: a new load, the spinner over the cover
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://other.example/");
+    fail("https://down.example/");
+    stub::s.canGoBack = true;
+    f.item->goBack();
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    QVERIFY(f.item->isPageFailed());
+
+    // the reload interval tries again behind the message, which stays until a page shows
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://other.example/");
+    fail("https://down.example/");
+    f.item->reloadQuietly();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    QTest::qWait(WebViewItem::kLoadIndicatorDelayMs + 100);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://down.example/");
+    stub::fireFrame(2);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    QVERIFY(!f.item->isPageFailed());
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://down.example/");
+
+    // OK while WebKit's error page still loads: the retry shows the spinner after the delay all the same
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Load failed")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, "https://down.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://down.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    f.item->reload();
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://down.example/");
+    stub::fireFrame(3);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://down.example/");
+    QVERIFY(f.item->isPageFailed());
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://down.example/");
+    stub::fireFrame(4);
+    QVERIFY(!f.item->isPageFailed());
+}
+
+void testWebViewItem::secondCrashShowsTheFailure() {
+    Fixture f;
+    // the first crash reloads by itself: the view is blank, like a new page
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Web process terminated")));
+    stub::fireTerminated(UC_WEBVIEW_TERMINATED_CRASHED);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    QTRY_COMPARE(stub::s.calls.count(QStringLiteral("reload")), 1);
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+    QVERIFY(!f.item->isPageFailed());
+
+    // a second crash before a load completed is not reloaded: the failure, which reload() recovers
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Web process terminated")));
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Not reloading again")));
+    stub::fireTerminated(UC_WEBVIEW_TERMINATED_EXCEEDED_MEMORY_LIMIT);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    QVERIFY(f.item->isPageFailed());
+    f.item->reload();
+    QCOMPARE(stub::s.calls.count(QStringLiteral("reload")), 2);
+    QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
 }
 
 QTEST_MAIN(testWebViewItem)

@@ -47,7 +47,8 @@ class Base : public QObject {
         Macro,
         Voice_assistant,
         Select,
-        Number
+        Number,
+        Webview
     };
     Q_ENUM(Type)
 

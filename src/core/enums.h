@@ -206,6 +206,12 @@ class RequestTypes {
         get_voice_control_cfg,
         set_voice_control_cfg,
         get_voice_assistants,
+        get_webview_cfg,
+        set_webview_cfg,
+
+        // the UI app: the entity types it executes, and the entity commands the core routes to it
+        set_ui_info,
+        entity_command,
 
         // wifi handling
         get_wifi_status,
@@ -325,6 +331,7 @@ class MsgResponse {
         sound_cfg,
         voice_control_cfg,
         voice_assistants,
+        webview_cfg,
 
         // wifi handling
         wifi_status,

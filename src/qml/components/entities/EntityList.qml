@@ -555,13 +555,15 @@ Rectangle {
                         ListView {
                             id: filterTypesListView
                             Layout.fillWidth: true
-                            Layout.preferredHeight: count * (60 + spacing) - spacing
+                            // all rows, or scrolling below the header when the screen is too low for them
+                            Layout.preferredHeight: Math.min(count * (60 + spacing) - spacing, entityFilterPopup.height - 160)
                             Layout.topMargin: 10
                             Layout.leftMargin: 20
                             Layout.rightMargin: 20
                             Layout.bottomMargin: 20
 
-                            interactive: false
+                            interactive: contentHeight > height
+                            clip: interactive
                             spacing: 10
                             model: ListModel {
                                 id: filterTypesListModel
@@ -622,6 +624,19 @@ Rectangle {
                                     typeIcon: "uc:light-switch"
                                     typeValue: EntityTypes.Switch
                                     typeChecked: false
+                                }
+
+                                // web views only with the firmware's web view library, like Settings > Web view
+                                Component.onCompleted: {
+                                    if (ui.webViewAvailable) {
+                                        filterTypesListModel.append({
+                                            //: Entity type: a web page shown on the remote
+                                            typeName: qsTr("Web view"),
+                                            typeIcon: "uc:globe",
+                                            typeValue: EntityTypes.Webview,
+                                            typeChecked: false
+                                        });
+                                    }
                                 }
                             }
 

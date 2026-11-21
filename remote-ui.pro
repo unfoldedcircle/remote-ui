@@ -139,6 +139,9 @@ HEADERS += \
     src/ui/entity/valueFormat.h \
     src/ui/entity/voiceAssistant.h \
     src/ui/entity/voiceSession.h \
+    src/ui/entity/webview.h \
+    src/ui/entity/webviewButtons.h \
+    src/ui/entity/webviewController.h \
     src/ui/fonts.h \
     src/ui/iconFont.h \
     src/ui/group/group.h \
@@ -211,6 +214,9 @@ SOURCES += \
         src/ui/entity/valueFormat.cpp \
         src/ui/entity/voiceAssistant.cpp \
         src/ui/entity/voiceSession.cpp \
+        src/ui/entity/webview.cpp \
+        src/ui/entity/webviewButtons.cpp \
+        src/ui/entity/webviewController.cpp \
         src/ui/group/group.cpp \
         src/ui/group/groupController.cpp \
         src/ui/group/groupItem.cpp \
@@ -233,6 +239,11 @@ SOURCES += \
         src/util.cpp \
         src/voice.cpp
 
+# The site settings of a web view entity (credentials, cookies, TLS exception, user agent): a value type without the
+# library that the entity layer builds, so it is part of every build, CONFIG+=no-webview included.
+HEADERS += src/webview/webviewsite.h
+SOURCES += src/webview/webviewsite.cpp
+
 # === WebView (optional, Linux) ===============================
 # The WebView QML item (UC.WebView) shows a WPE WebKit page rendered by the firmware's libucwebview.so.1, loaded at
 # runtime with QLibrary (docs/webview.md). CONFIG+=no-webview leaves the item out of the binary entirely.
@@ -243,6 +254,7 @@ SOURCES += \
 
     HEADERS += \
         src/webview/uc_webview.h \
+        src/webview/devicestatesource.h \
         src/webview/webviewframequeue.h \
         src/webview/webviewinput.h \
         src/webview/webviewitem.h \
@@ -252,6 +264,7 @@ SOURCES += \
         src/webview/webviewtexture.h
 
     SOURCES += \
+        src/webview/devicestatesource.cpp \
         src/webview/webviewframequeue.cpp \
         src/webview/webviewinput.cpp \
         src/webview/webviewitem.cpp \

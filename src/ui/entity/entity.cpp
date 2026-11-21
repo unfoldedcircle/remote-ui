@@ -73,6 +73,9 @@ Base::Base(const QString &id, QVariantMap nameI18n, const QString &language, con
             case Number:
                 m_icon.append("input-numeric");
                 break;
+            case Webview:
+                m_icon.append("globe");
+                break;
             default:
                 m_icon.append("warning");
                 break;
