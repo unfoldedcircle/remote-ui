@@ -209,6 +209,24 @@
  * HTTP cache did before. The asynchronous calls report with a
  * uc_webview_done_cb from the main context, never from inside a uc_webview_*
  * call. Secrets (header values, cookie values) are never logged.
+ *
+ * Device state for web pages (library 0.9.0)
+ * ==========================================
+ * A view whose host switches the device API on (uc_webview_set_device_api())
+ * gives every page of its top frame, from the page's start, the state of the
+ * device as the host reports it (uc_webview_set_device_state(),
+ * uc_webview_device_event()):
+ *  - navigator.getBattery(): a BatteryManager as in the W3C Battery Status
+ *    API (WebKit has none);
+ *  - window.deviceHost: version 1, screen ("on", "dim", "off"), powerSource
+ *    ("ac", "battery") and powerProfile ("power-saver", "balanced",
+ *    "performance"), with the events suspend, resume (detail.sleptMs), on-ac,
+ *    on-battery, screenchange and powerprofilechange;
+ *  - the events freeze and resume on document around a standby;
+ *  - <html data-screen data-power-profile> for CSS.
+ * Pages of a view without it have none of these. The package README ("Device
+ * state for web pages") has the page side. Independent of it, every view's
+ * hidden page (uc_webview_set_mapped(0)) is throttled since 0.9.0.
  */
 #ifndef UC_WEBVIEW_H
 #define UC_WEBVIEW_H
@@ -552,8 +570,10 @@ void uc_webview_free(uc_webview *);
 /* UI thread. New size in device pixels (minimum 1x1); the next frame has the new size. */
 void uc_webview_resize(uc_webview *, int width, int height);
 
-/* UI thread. mapped=0 tells WebKit the view is hidden: rendering stops and timers throttle (display off,
- * item invisible); mapped=1 resumes and triggers a new frame. */
+/* UI thread. mapped=0 tells WebKit the view is hidden (display off, item invisible): the page's document becomes
+ * hidden (visibilitychange), rendering and requestAnimationFrame stop, and since library 0.9.0 its timers fire at most
+ * once a second and its CSS animations stop (WebKit's hidden page throttling; up to 0.8.x it was off on WPE and a
+ * hidden page's timers kept their rate). mapped=1 resumes and triggers a new frame. */
 void uc_webview_set_mapped(uc_webview *, int mapped);
 
 /* UI thread. Keyboard focus of the view: unfocused views do not get IME focus and their caret blinks off. */
@@ -888,6 +908,57 @@ int uc_webview_global_set_color_scheme(int scheme);
  * not one of the two values (a bit a later release defines).
  */
 int uc_webview_global_clear_data(unsigned types, uc_webview_done_cb cb, void *user);
+
+/* ---- device state for web pages (library 0.9.0) ------------------------------ */
+/*
+ * Every function of this section was added in library 0.9.0 within API version 1: hosts resolve each with dlsym()
+ * and give pages no device state when one is missing. They return 0 when taken and -1 when refused (a warning names
+ * the reason); a refused call changes nothing.
+ *
+ * How it reaches the page: while the device API is on, the library's script (device-host-shim.js, compiled in) runs
+ * at the start of every document of the view's top frame, in the page's own script world, with the view's current
+ * state; frames get nothing. A change of the state or an event goes to the page that is shown, through the script's
+ * internal entry point with the values as arguments (WebKit's call_async_javascript_function, never script text), and
+ * after every finished load the state goes there once more (a page from the back/forward cache kept the state of its
+ * first load). Like every script of WebKit's API, such a delivery counts as a user gesture for the page: it gets
+ * sticky user activation (see uc_webview_when_rendered()); the page's event handlers run later, in a task of their
+ * own, without transient activation. The page sees events only for values that really change.
+ */
+
+/*
+ * UI thread. enabled=1 switches the device API of the view on, 0 off (the default). It takes effect at the next page
+ * load: a page that is shown keeps what it has (on: none; off: the API, without further updates). Switching it on
+ * also sends the current state to a shown page that has the API from an earlier time.
+ * Returns 0, -1 when refused: invalid view, another thread.
+ */
+int uc_webview_set_device_api (uc_webview *, int enabled);
+
+/*
+ * UI thread. The device state of the view as a JSON object (UTF-8, at most 4096 bytes), every member optional:
+ *   {"screen": "on" | "dim" | "off", "powerSource": "ac" | "battery",
+ *    "powerProfile": "power-saver" | "balanced" | "performance", "level": 0 .. 100}
+ * level is the battery level in percent, an integer (the page sees 0.42 for 42). The page's battery is charging while
+ * powerSource is "ac", also at full level (the Battery Status API's charging), and has no time estimates
+ * (chargingTime 0 on power at level 100, else Infinity; dischargingTime Infinity). A member that is left out keeps its
+ * value; a member with an invalid value too (a warning names it); unknown members are ignored. A new view starts with
+ * screen "on", "ac", "balanced", level 100. The view keeps the state also while the device API is off and starts its
+ * pages with it when it is switched on.
+ * Returns 0 when json is taken (also with ignored members), -1 when refused: invalid view, another thread, json NULL,
+ * longer than 4096 bytes, not UTF-8, not one JSON object (RFC 8259, no member name twice, at most 16 levels deep).
+ */
+int uc_webview_set_device_state (uc_webview *, const char *json);
+
+/*
+ * UI thread. A standby of the device, for the page that is shown while the device API is on (else nothing happens):
+ *   "suspend"  right before the standby, after the state of the standby (uc_webview_set_device_state()): document
+ *              freeze, then deviceHost suspend. The library does not delay the standby; a page has the time until the
+ *              device sleeps (best effort).
+ *   "resume"   after the wake, before the new state: document resume, then deviceHost resume with detail.sleptMs =
+ *              slept_ms, the time the device slept in milliseconds (0 when unknown).
+ * slept_ms is ignored for "suspend".
+ * Returns 0, -1 when refused: invalid view, another thread, another type, slept_ms < 0 with "resume".
+ */
+int uc_webview_device_event (uc_webview *, const char *type, int64_t slept_ms);
 
 /* ---- frames -------------------------------------------------------------- */
 

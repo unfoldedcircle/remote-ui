@@ -33,6 +33,8 @@ class testPower : public QObject {
     void startWhileTheDisplayIsOff_hidesTheWindow();
     void sameMode_announcesNothing();
     void desktop_neverHidesTheWindow();
+    void wakeup_isParsedFromThePowerModeChange();
+    void resumedFromSuspend_comesBeforeTheModeItBrings();
 };
 
 void testPower::displayOff_hidesTheWindowWhateverTheModeBefore_data() {
@@ -141,6 +143,38 @@ void testPower::desktop_neverHidesTheWindow() {
         QVERIFY(power.isWindowShown());
     }
     QCOMPARE(windowShownChanged.count(), 0);
+}
+
+void testPower::wakeup_isParsedFromThePowerModeChange() {
+    // the core sends `wakeup` only as true, together with NORMAL, and leaves it out otherwise (PowerModeChangeEvent)
+    QVERIFY(uc::core::Api::parsePowerModeWakeup(QVariantMap{{"mode", "NORMAL"}, {"wakeup", true}}));
+    QVERIFY(!uc::core::Api::parsePowerModeWakeup(QVariantMap{{"mode", "NORMAL"}}));
+    QVERIFY(!uc::core::Api::parsePowerModeWakeup(QVariantMap{{"mode", "NORMAL"}, {"wakeup", false}}));
+    QVERIFY(!uc::core::Api::parsePowerModeWakeup(QVariantMap{{"mode", "SUSPEND"}}));
+}
+
+void testPower::resumedFromSuspend_comesBeforeTheModeItBrings() {
+    uc::core::Api api(kTestUrl);
+    uc::hw::Power power(&api, true);
+    QStringList   order;
+    connect(&power, &uc::hw::Power::resumedFromSuspend, this,
+            [&] { order.append(QStringLiteral("resumed in %1").arg(power.getPowerMode())); });
+    connect(&power, &uc::hw::Power::powerModeChanged, this,
+            [&](Mode, Mode to) { order.append(QStringLiteral("mode %1").arg(to)); });
+
+    emit api.powerModeChanged(CoreMode::SUSPEND);
+    // processPowerModeChange(): the resume flag first, then the mode
+    emit api.resumedFromSuspend();
+    emit api.powerModeChanged(CoreMode::NORMAL);
+    QCOMPARE(order, (QStringList{QStringLiteral("mode %1").arg(Mode::Suspend),
+                                 QStringLiteral("resumed in %1").arg(Mode::Suspend),
+                                 QStringLiteral("mode %1").arg(Mode::Normal)}));
+
+    // also when the mode does not change (the UI missed the suspend)
+    order.clear();
+    emit api.resumedFromSuspend();
+    emit api.powerModeChanged(CoreMode::NORMAL);
+    QCOMPARE(order, QStringList{QStringLiteral("resumed in %1").arg(Mode::Normal)});
 }
 
 QTEST_GUILESS_MAIN(testPower)

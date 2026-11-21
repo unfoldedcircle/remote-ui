@@ -17,10 +17,12 @@
 #include <functional>
 #include <utility>
 
+#include "webview/devicestatesource.h"
 #include "webview/webviewinput.h"
 #include "webview/webviewitem.h"
 #include "webview/webviewlibrary.h"
 
+using uc::webview::DeviceStateSource;
 using uc::webview::WebViewAuthRequest;
 using uc::webview::WebViewDialogRequest;
 using uc::webview::WebViewFunctions;
@@ -218,6 +220,22 @@ int globalClearData(unsigned types, uc_webview_done_cb cb, void *user) {
     return s.clearResult;
 }
 
+// device state for web pages (library 0.9.0)
+int setDeviceApi(uc_webview *, int enabled) {
+    record(QStringLiteral("set_device_api(%1)").arg(enabled));
+    return 0;
+}
+
+int setDeviceState(uc_webview *, const char *json) {
+    record(QStringLiteral("set_device_state(%1)").arg(QString::fromUtf8(json)));
+    return 0;
+}
+
+int deviceEvent(uc_webview *, const char *type, int64_t sleptMs) {
+    record(QStringLiteral("device_event(%1,%2)").arg(QString::fromUtf8(type)).arg(sleptMs));
+    return 0;
+}
+
 // the oldest asynchronous request ends, as the library reports it from an idle of the main context
 void finishDone(int status = UC_WEBVIEW_DONE_OK) {
     QVERIFY(!s.dones.isEmpty());
@@ -411,12 +429,24 @@ WebViewFunctions functions() {
     f.global_set_tls_errors_policy = &globalSetTlsErrorsPolicy;
     f.global_set_color_scheme = &globalSetColorScheme;
     f.global_clear_data = &globalClearData;
+    f.set_device_api = &setDeviceApi;
+    f.set_device_state = &setDeviceState;
+    f.device_event = &deviceEvent;
+    return f;
+}
+
+// a library 0.8.x: no device state for web pages
+WebViewFunctions functionsWithoutDeviceApi() {
+    WebViewFunctions f = functions();
+    f.set_device_api = nullptr;
+    f.set_device_state = nullptr;
+    f.device_event = nullptr;
     return f;
 }
 
 // a library 0.7.x: no site settings
 WebViewFunctions functionsWithoutSite() {
-    WebViewFunctions f = functions();
+    WebViewFunctions f = functionsWithoutDeviceApi();
     f.set_origin_headers = nullptr;
     f.set_user_agent = nullptr;
     f.global_set_cookies = nullptr;
@@ -440,6 +470,11 @@ QStringList siteCalls() {
     return s.calls.filter(QRegularExpression(QStringLiteral(
         "^(set_origin_headers|set_user_agent|global_(set_cookies|allow_certificate|set_tls_errors_policy|"
         "set_color_scheme|clear_data))\\(")));
+}
+
+// the calls of the device state
+QStringList deviceCalls() {
+    return s.calls.filter(QRegularExpression(QStringLiteral("^(set_device_api|set_device_state|device_event)\\(")));
 }
 
 // the loads and reloads
@@ -730,6 +765,12 @@ class testWebViewItem : public QObject {
     void navigationCancelsTheCookieWait();
     void reloadAfterAClearOfAllWebsiteDataSetsTheCookiesAgain();
     void olderLibraryLoadsWithoutTheSiteSettings();
+    void deviceApiStartsWithTheStateBeforeTheFirstLoad();
+    void deviceApiFollowsTheStateAndTheStandby();
+    void deviceApiOffSendsNothing();
+    void deviceApiSwitchedOffAndOnAgain();
+    void deviceApiEndsWithTheItem();
+    void olderLibraryIgnoresTheDeviceApi();
     void globalSettingsGoToTheLibraryOnceItIsInitialised();
     void clearWebsiteDataReportsThroughTheEventLoop();
     void certificateExceptionsArePassedOnce();
@@ -3408,6 +3449,128 @@ void testWebViewItem::reloadAfterAClearOfAllWebsiteDataSetsTheCookiesAgain() {
     f.item->reload();
     QCOMPARE(stub::siteCalls().size(), 1);
     QCOMPARE(stub::loadCalls(), (QStringList{QStringLiteral("reload"), QStringLiteral("reload")}));
+}
+
+// the device state JSON of a source in a power mode, on battery at 42 %
+static QString deviceState(DeviceStateSource::PowerMode mode, int level = 42, bool powerSupply = false) {
+    return QStringLiteral("set_device_state(%1)")
+        .arg(QString::fromUtf8(DeviceStateSource::stateJson(mode, level, powerSupply)));
+}
+
+void testWebViewItem::deviceApiStartsWithTheStateBeforeTheFirstLoad() {
+    DeviceStateSource source;
+    source.setBattery(42, false);
+    // no view yet (no size): the API waits for it and goes to the view before its first load, after the state
+    Fixture f(stub::functions(), QSizeF());
+    f.item->setDeviceApi(true);
+    QVERIFY(f.item->deviceApi());
+    f.item->setUrl(QUrl(QStringLiteral("http://dash.home.arpa/")));
+    QVERIFY(stub::deviceCalls().isEmpty());
+
+    f.item->setSize(QSizeF(300, 200));
+    QCOMPARE(stub::deviceCalls(),
+             (QStringList{deviceState(DeviceStateSource::Normal), QStringLiteral("set_device_api(1)")}));
+    QVERIFY(stub::s.calls.indexOf(QStringLiteral("set_device_api(1)")) <
+            stub::s.calls.indexOf(QStringLiteral("load_uri(http://dash.home.arpa/)")));
+}
+
+void testWebViewItem::deviceApiFollowsTheStateAndTheStandby() {
+    DeviceStateSource source;
+    qint64            clock = 0;
+    source.setSleepClockForTest([&clock] { return clock; });
+    Fixture f;
+    f.item->setDeviceApi(true);
+    stub::s.calls.clear();
+
+    // dim, display off, standby, wake after 61 s: the states and events in the source's order
+    source.setPowerMode(DeviceStateSource::Idle);
+    source.setPowerMode(DeviceStateSource::LowPower);
+    source.setPowerMode(DeviceStateSource::Suspend);
+    clock = 61234;
+    source.resumedFromSuspend();
+    source.setPowerMode(DeviceStateSource::Normal);
+    source.setBattery(41, true);
+    QCOMPARE(stub::deviceCalls(),
+             (QStringList{deviceState(DeviceStateSource::Idle, 100, true),
+                          deviceState(DeviceStateSource::LowPower, 100, true),
+                          QStringLiteral("device_event(suspend,0)"), QStringLiteral("device_event(resume,61234)"),
+                          deviceState(DeviceStateSource::Normal, 100, true),
+                          deviceState(DeviceStateSource::Normal, 41, true)}));
+    // no other library call for any of it (no reload, no load)
+    QCOMPARE(stub::s.calls, stub::deviceCalls());
+}
+
+void testWebViewItem::deviceApiOffSendsNothing() {
+    // a web view without device_api: not a single device call, whatever the source reports
+    DeviceStateSource source;
+    Fixture           f;
+    f.item->setUrl(QUrl(QStringLiteral("http://dash.home.arpa/")));
+    QVERIFY(!f.item->deviceApi());
+    source.setPowerMode(DeviceStateSource::Suspend);
+    source.resumedFromSuspend();
+    source.setPowerMode(DeviceStateSource::Normal);
+    source.setBattery(10, false);
+    QVERIFY(stub::deviceCalls().isEmpty());
+}
+
+void testWebViewItem::deviceApiSwitchedOffAndOnAgain() {
+    DeviceStateSource source;
+    Fixture           f;
+    QSignalSpy        changed(f.item, &WebViewItem::deviceApiChanged);
+    f.item->setDeviceApi(true);
+    f.item->setDeviceApi(true);
+    QCOMPARE(changed.count(), 1);
+    stub::s.calls.clear();
+
+    // off: the library's switch, then nothing more reaches the view
+    f.item->setDeviceApi(false);
+    QCOMPARE(stub::deviceCalls(), QStringList{QStringLiteral("set_device_api(0)")});
+    source.setPowerMode(DeviceStateSource::Idle);
+    source.setPowerMode(DeviceStateSource::Suspend);
+    QCOMPARE(stub::deviceCalls(), QStringList{QStringLiteral("set_device_api(0)")});
+
+    // on again: the state of now first, the item reloads nothing itself (the page does, WebViewPage.qml)
+    stub::s.calls.clear();
+    f.item->setDeviceApi(true);
+    QCOMPARE(stub::s.calls,
+             (QStringList{deviceState(DeviceStateSource::Suspend, 100, true), QStringLiteral("set_device_api(1)")}));
+    QCOMPARE(changed.count(), 3);
+}
+
+void testWebViewItem::deviceApiEndsWithTheItem() {
+    DeviceStateSource source;
+    {
+        Fixture f;
+        f.item->setDeviceApi(true);
+        QCOMPARE(stub::deviceCalls().count(), 2);
+    }
+    // the view went with the item: what the source reports later reaches no view
+    stub::s.calls.clear();
+    source.setPowerMode(DeviceStateSource::Suspend);
+    source.resumedFromSuspend();
+    QVERIFY(stub::s.calls.isEmpty());
+}
+
+void testWebViewItem::olderLibraryIgnoresTheDeviceApi() {
+    // a library 0.8.x: the property is kept, the view gets nothing, the load is unaffected; one log line
+    QStringList messages;
+    capturedMessages = &messages;
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    {
+        DeviceStateSource source;
+        Fixture           f(stub::functionsWithoutDeviceApi());
+        f.item->setDeviceApi(true);
+        f.item->setUrl(QUrl(QStringLiteral("http://dash.home.arpa/")));
+        source.setPowerMode(DeviceStateSource::Suspend);
+        source.resumedFromSuspend();
+        QVERIFY(f.item->deviceApi());
+        QVERIFY(stub::deviceCalls().isEmpty());
+        QCOMPARE(stub::loadCalls(), QStringList{QStringLiteral("load_uri(http://dash.home.arpa/)")});
+    }
+    qInstallMessageHandler(previous);
+    capturedMessages = nullptr;
+    const QString all = messages.join(QLatin1Char('\n'));
+    QVERIFY2(all.contains(QStringLiteral("older than 0.9.0")), qPrintable(all));
 }
 
 void testWebViewItem::olderLibraryLoadsWithoutTheSiteSettings() {

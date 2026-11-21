@@ -56,6 +56,10 @@ class Power : public QObject {
  signals:
     void powerModeChanged(uc::hw::Power::PowerMode fromPowerMode, uc::hw::Power::PowerMode toPowerMode);
     void windowShownChanged();
+    // The remote resumed from a suspend (the core's `wakeup` flag). Emitted right before the powerModeChanged() to
+    // Normal that the resume brings, while powerMode is still the one before it; also when that mode does not change
+    // (the UI missed the suspend).
+    void resumedFromSuspend();
 
  public slots:
     void onPowerModeChanged(core::PowerEnums::PowerMode powerMode);

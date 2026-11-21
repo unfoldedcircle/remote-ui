@@ -93,6 +93,12 @@ class Api : public QObject {
      * @param msgData the `msg_data` object of the event
      */
     static Profile parseProfileChange(const QVariantMap &msgData);
+
+    /**
+     * @brief Whether a `power_mode_change` event reports a resume from a suspend: its `wakeup` flag, which the core
+     * only ever sends as true, together with mode NORMAL (core-api PowerModeChangeEvent).
+     */
+    static bool parsePowerModeWakeup(const QVariantMap &msgData);
     /**
      * Dispatches a response message of the core to its handlers. Public for the unit tests, which have no core
      * to answer their requests.
@@ -583,6 +589,9 @@ class Api : public QObject {
 
     void softwareUpdateChanged(MsgEventTypes::Enum type, QString updateId, SystemUpdateProgress progress);
     void powerModeChanged(PowerEnums::PowerMode powerMode);
+    // the device resumed from a suspend (`power_mode_change` with `wakeup`): emitted right before the event's
+    // powerModeChanged(NORMAL), so that a receiver learns of the resume before the mode it brings
+    void resumedFromSuspend();
     void batteryStatusChanged(int capacitiy, bool powerSupply, PowerEnums::PowerStatus powerStatus);
     void wifiEventChanged(WifiEvent::Enum event);
 

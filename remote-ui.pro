@@ -254,6 +254,7 @@ SOURCES += src/webview/webviewsite.cpp
 
     HEADERS += \
         src/webview/uc_webview.h \
+        src/webview/devicestatesource.h \
         src/webview/webviewframequeue.h \
         src/webview/webviewinput.h \
         src/webview/webviewitem.h \
@@ -263,6 +264,7 @@ SOURCES += src/webview/webviewsite.cpp
         src/webview/webviewtexture.h
 
     SOURCES += \
+        src/webview/devicestatesource.cpp \
         src/webview/webviewframequeue.cpp \
         src/webview/webviewinput.cpp \
         src/webview/webviewitem.cpp \

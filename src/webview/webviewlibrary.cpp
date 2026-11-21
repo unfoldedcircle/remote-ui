@@ -250,6 +250,10 @@ bool WebViewLibrary::load() {
         qCInfo(lcWebView()).noquote() << m_library.fileName() << "has no" << missingSite.join(QStringLiteral(", "))
                                       << "(older than 0.8.0): web view entities load without these site settings";
     }
+    if (!deviceApiAvailable()) {
+        qCInfo(lcWebView()) << m_library.fileName()
+                            << "has no uc_webview_set_device_api (older than 0.9.0): no device state for web pages";
+    }
     return true;
 }
 
@@ -324,6 +328,13 @@ bool WebViewLibrary::resolveAll(QString *missing) {
         m_library.resolve("uc_webview_global_set_color_scheme"));
     m_functions.global_clear_data =
         reinterpret_cast<decltype(m_functions.global_clear_data)>(m_library.resolve("uc_webview_global_clear_data"));
+    // library 0.9.0: the device state for web pages, used only when all three are there (deviceApiAvailable())
+    m_functions.set_device_api =
+        reinterpret_cast<decltype(m_functions.set_device_api)>(m_library.resolve("uc_webview_set_device_api"));
+    m_functions.set_device_state =
+        reinterpret_cast<decltype(m_functions.set_device_state)>(m_library.resolve("uc_webview_set_device_state"));
+    m_functions.device_event =
+        reinterpret_cast<decltype(m_functions.device_event)>(m_library.resolve("uc_webview_device_event"));
     return ok;
 }
 

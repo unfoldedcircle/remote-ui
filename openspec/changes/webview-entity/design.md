@@ -375,6 +375,38 @@ fixed.
   its action as the second line, the list of actions and the list of keys (`PopupList`), the default marked, opened over
   the settings page like the test page.
 
+### D18 — Device state for web pages through library 0.9.0
+
+The Core-API adds the web view option `device_api` (default false) and its user override `options.user.device_api`
+(core-api `entity_webview.md` "Device state for web pages"). Library 0.9.0 injects the page API (`navigator.getBattery()`,
+`window.deviceHost`, `freeze` / `resume` on `document`, `data-screen` / `data-power-profile`) into every top-level page
+of a view that has it on, and takes the state as JSON (`uc_webview_set_device_state()`) and the standby as events
+(`uc_webview_device_event()`).
+
+- **One source (`DeviceStateSource`, `src/webview/devicestatesource.*`).** A pure state machine without the hardware
+  classes: it takes the power mode, the resume flag and the battery as calls, and emits the state JSON (only when it
+  changes) and the `suspend` / `resume` events. `main.cpp` connects it to `hw::Power` and `hw::Battery` (static
+  asserts that its `PowerMode` has the values of `Power::PowerMode`). Every WebView item with `deviceApi` follows the
+  one instance. Alternative: the item reads `Power` and `Battery` itself — every item would repeat the mapping and the
+  standby bookkeeping, and the item tests would need the core client.
+- **Mapping.** NORMAL `on`/`balanced`, IDLE `dim`/`balanced`, LOW_POWER and SUSPEND `off`/`power-saver`; `ac` while
+  `Battery.powerSupply`; `level` in percent. The profile follows the display because the remote has no user-selectable
+  performance mode yet, and because WebKit's own low power mode uses the same names.
+- **The resume flag.** `power_mode_change` carries `wakeup` (only with NORMAL) after a resume. `Api` emits
+  `resumedFromSuspend()` right before `powerModeChanged(NORMAL)`, `Power` passes it on as a signal of its own (also
+  when the mode does not change: the UI missed SUSPEND), so the existing receivers of `powerModeChanged` stay as they
+  are. The source sends `resume` before the state of the wake. Leaving SUSPEND without the flag also sends `resume`
+  (a page that got `suspend` always gets `resume`); a flag without a `suspend` sends `resume` only when the system
+  slept (the clock below grew).
+- **Time slept.** The growth of `CLOCK_BOOTTIME - CLOCK_MONOTONIC` between `suspend` and `resume`: the monotonic clock
+  stops in a suspend, the boot time clock does not. 0 where there is no boot time clock (macOS).
+- **The item.** `deviceApi` (QML property): with the three functions (`WebViewLibrary::deviceApiAvailable()`) the item
+  passes the current state, then `uc_webview_set_device_api(1)`, before the first load, and forwards the source's
+  signals while it is on; off: `set_device_api(0)` and the connections go. The library injects the API at the start of
+  a document, so `WebViewPage.qml` loads the start page again when the effective option changes, like a site change.
+- **Best effort.** The standby is never delayed for a page. A handshake (the page confirms it saved its state) would
+  need a core change and is out of scope.
+
 ## Risks / Trade-offs
 
 Failure Mode Analysis (Core-API connection and event handling, input ownership, the static build and the qrc

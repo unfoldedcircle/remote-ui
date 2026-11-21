@@ -3583,11 +3583,18 @@ void Api::processSoftwareUpdateChange(QVariant msgData) {
     emit softwareUpdateChanged(type, updateId, progress);
 }
 
+bool Api::parsePowerModeWakeup(const QVariantMap &msgData) {
+    return msgData.value("wakeup").toBool();
+}
+
 void Api::processPowerModeChange(QVariant msgData) {
     QVariantMap           msgDataMap = msgData.toMap();
     PowerEnums::PowerMode powerMode =
         Util::convertStringToEnum<PowerEnums::PowerMode>(msgDataMap.value("mode").toString());
 
+    if (parsePowerModeWakeup(msgDataMap)) {
+        emit resumedFromSuspend();
+    }
     emit powerModeChanged(powerMode);
 }
 

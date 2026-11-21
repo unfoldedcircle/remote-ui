@@ -231,3 +231,20 @@ The global setting `buttons`, the web view option `buttons` and its user overrid
 - [x] 16.11 `make ucr2` (static aarch64 in the toolchain image).
 - [ ] 16.12 On a Remote Two and a Remote 3 with a core that has `buttons`: the device test of docs/webview.md, "Web view
       entity", steps 2, 3 and 11, with `keys.html`.
+
+## 17. Device state for web pages (library 0.9.0)
+
+- [x] 17.1 `src/webview/uc_webview.h`: the header of library 0.9.0, with the comment line on top.
+- [x] 17.2 `WebViewLibrary`: the three device functions resolved as optional (`deviceApiAvailable()`), logged when
+      missing.
+- [x] 17.3 `Api::parsePowerModeWakeup()` and `resumedFromSuspend()` before `powerModeChanged(NORMAL)`;
+      `Power::resumedFromSuspend()`.
+- [x] 17.4 `DeviceStateSource` (`src/webview/devicestatesource.*`), connected in `main.cpp`; `remote-ui.pro`.
+- [x] 17.5 `entity::Webview::deviceApi` (option and user override); `WebViewItem::deviceApi`; `WebViewPage.qml` binds it
+      and loads the start page again when it changes.
+- [x] 17.6 Tests: `testWebViewDeviceState` (new), `testWebViewItem` (on, off, switched, the item's end, an older
+      library), `testPower` (the flag's parsing and order), `testWebviewEntity` (the override).
+- [x] 17.7 docs/webview.md, spec, design (D18), `CHANGELOG.md`.
+- [x] 17.8 `make test` with Qt 5.15.19 and with Qt 5.15.2; `./cpplint.sh`, `./design-check.sh`, qmllint;
+      `openspec validate webview-entity --strict` without a new warning; `make ucr2`.
+- [ ] 17.9 On a remote with library 0.9.0: the device test of docs/webview.md, "Device state for web pages".

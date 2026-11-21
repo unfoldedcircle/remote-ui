@@ -85,11 +85,29 @@ target_link_libraries(testWebViewRequests
     Qt5::Test
     )
 
+# the device state for web pages (library 0.9.0): the state per power mode and battery, the standby events with the time
+# slept (a fake clock), the resume flag before and after the mode change (pure state machine)
+add_executable (testWebViewDeviceState
+    "test_webview_device_state.cpp"
+    "../../src/webview/devicestatesource.cpp"
+    "../../src/logging.cpp"
+    )
+
+add_test(NAME testWebViewDeviceState
+         COMMAND testWebViewDeviceState)
+
+target_link_libraries(testWebViewDeviceState
+    PUBLIC
+    Qt5::Core
+    Qt5::Test
+    )
+
 # the WebView item against a stubbed libucwebview function table: lifecycle, load events, crash recovery, input
 # method contract and key forwarding, without the library and without rendering (offscreen platform)
 add_executable (testWebViewItem
     "test_webview_item.cpp"
     "../../src/webview/webviewitem.cpp"
+    "../../src/webview/devicestatesource.cpp"
     "../../src/webview/webviewlibrary.cpp"
     "../../src/webview/webviewinput.cpp"
     "../../src/webview/webviewframequeue.cpp"
@@ -122,6 +140,7 @@ add_executable (testWebViewKeyboard
     # the spinner of the zoom label (loader_small.png)
     "../../resources/qrc/images.qrc"
     "../../src/webview/webviewitem.cpp"
+    "../../src/webview/devicestatesource.cpp"
     "../../src/webview/webviewlibrary.cpp"
     "../../src/webview/webviewinput.cpp"
     "../../src/webview/webviewframequeue.cpp"
@@ -160,6 +179,7 @@ add_executable (testWebViewEntityScreen
     # the spinner of the zoom label (loader_small.png)
     "../../resources/qrc/images.qrc"
     "../../src/webview/webviewitem.cpp"
+    "../../src/webview/devicestatesource.cpp"
     "../../src/webview/webviewlibrary.cpp"
     "../../src/webview/webviewinput.cpp"
     "../../src/webview/webviewframequeue.cpp"
@@ -236,6 +256,7 @@ add_executable (testWebViewSettings
     "../../resources/qrc/main.qrc"
     "../../resources/qrc/images.qrc"
     "../../src/webview/webviewitem.cpp"
+    "../../src/webview/devicestatesource.cpp"
     "../../src/webview/webviewlibrary.cpp"
     "../../src/webview/webviewinput.cpp"
     "../../src/webview/webviewframequeue.cpp"

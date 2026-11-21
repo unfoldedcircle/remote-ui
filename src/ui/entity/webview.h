@@ -64,10 +64,10 @@ class WebviewDeviceClass : public QObject {
  * an activity page. The UI executes its commands (WebViewController); the integration driver, if any, only provides
  * the definition.
  *
- * The options are the core's, with the user overrides of zoom, reload interval, navigation and buttons applied
- * (`zoom`, `reloadInterval`, `showNavigation` and `buttons` are the effective values). Values the core would refuse
- * are tolerated (ADR 0018): an invalid address leaves `url` empty, an out-of-range zoom or reload interval falls back
- * to its default, an invalid button action is left out.
+ * The options are the core's, with the user overrides of zoom, reload interval, navigation, buttons and the device API
+ * applied (`zoom`, `reloadInterval`, `showNavigation`, `buttons` and `deviceApi` are the effective values). Values the
+ * core would refuse are tolerated (ADR 0018): an invalid address leaves `url` empty, an out-of-range zoom or reload
+ * interval falls back to its default, an invalid button action is left out.
  *
  * Secrets: the UI's session receives the password, token, header value and cookie values in get_entity and
  * get_entities, entity_change events never carry them (core-api "Secret options"). They live in `site` only, which QML
@@ -87,6 +87,9 @@ class Webview : public Base {
     Q_PROPERTY(bool showNavigation READ getShowNavigation NOTIFY optionsChanged)
     // the effective reload interval in seconds while the page is shown, 0 = off
     Q_PROPERTY(int reloadInterval READ getReloadInterval NOTIFY optionsChanged)
+    // the effective device state API for the pages (`device_api`, default false; docs/webview.md "Device state for web
+    // pages"): the user override, else the option
+    Q_PROPERTY(bool deviceApi READ getDeviceApi NOTIFY optionsChanged)
     // the buttons this web view changes in the fullscreen web view (core-api "Buttons"): button identifier -> action,
     // the user overrides over the option; a button that is not in it has the action of the global setting
     Q_PROPERTY(QVariantMap buttons READ getButtons NOTIFY optionsChanged)
@@ -114,6 +117,7 @@ class Webview : public Base {
     QString                  getBackgroundColor() const { return m_backgroundColor; }
     bool                     getShowNavigation() const;
     int                      getReloadInterval() const;
+    bool                     getDeviceApi() const { return m_hasUserDeviceApi ? m_userDeviceApi : m_deviceApi; }
     QVariantMap              getButtons() const { return m_buttons; }
     bool                     isEditable() const { return m_editable; }
     uc::webview::WebViewSite getSite() const { return m_site; }
@@ -150,6 +154,7 @@ class Webview : public Base {
     QString m_backgroundColor;
     bool    m_showNavigation = false;
     int     m_reloadInterval = 0;
+    bool    m_deviceApi = false;
     bool    m_editable = false;
     // the option's buttons with the user overrides applied, valid actions only
     QVariantMap m_buttons;
@@ -159,6 +164,8 @@ class Webview : public Base {
     int  m_userReloadInterval = -1;
     bool m_hasUserShowNavigation = false;
     bool m_userShowNavigation = false;
+    bool m_hasUserDeviceApi = false;
+    bool m_userDeviceApi = false;
 
     uc::webview::WebViewSite m_site;
 };

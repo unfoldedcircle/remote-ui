@@ -17,6 +17,7 @@ Power::Power(core::Api *core, bool hideWindowWhenDisplayOff, QObject *parent)
     s_instance = this;
 
     QObject::connect(m_core, &core::Api::powerModeChanged, this, &Power::onPowerModeChanged);
+    QObject::connect(m_core, &core::Api::resumedFromSuspend, this, &Power::resumedFromSuspend);
     QObject::connect(m_core, &core::Api::connected, this, [=] { getPowerModeFromCore(); });
 
     qRegisterMetaType<Power::PowerMode>("PowerModes");

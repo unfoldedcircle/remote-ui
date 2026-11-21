@@ -82,6 +82,11 @@ struct WebViewFunctions {
     int (*global_set_tls_errors_policy)(int) = nullptr;
     int (*global_set_color_scheme)(int) = nullptr;
     int (*global_clear_data)(unsigned, uc_webview_done_cb, void *) = nullptr;
+    // optional, library 0.9.0: the device state for the pages of a web view entity with `device_api` (docs/webview.md,
+    // "Device state for web pages"); used only when all three are there
+    int (*set_device_api)(uc_webview *, int) = nullptr;
+    int (*set_device_state)(uc_webview *, const char *) = nullptr;
+    int (*device_event)(uc_webview *, const char *, int64_t) = nullptr;
 };
 
 /**
@@ -143,6 +148,12 @@ class WebViewLibrary {
     // uc_webview_request_reply()/_auth(). Without, the library decides alone, as before 0.7.0.
     bool requestsAvailable() const {
         return m_functions.create_sized && m_functions.request_reply && m_functions.request_auth;
+    }
+
+    // The pages of a view can get the device state (library 0.9.0): the three device functions are there. Without, the
+    // `deviceApi` of a WebView item does nothing and its pages have no device state API.
+    bool deviceApiAvailable() const {
+        return m_functions.set_device_api && m_functions.set_device_state && m_functions.device_event;
     }
 
     // The refresh rate of the screen the web views are shown on, for uc_webview_global_set_refresh_rate(): WebKit

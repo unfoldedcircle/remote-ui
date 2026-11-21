@@ -61,6 +61,10 @@ The UI has a web view since the `web-view` change (the `WebView` item on the fir
   page waits for the library's report, at most 5 s), the TLS exception of the start page's host, the user agent, and
   globally the colour scheme and invalid certificates. A library 0.7.x keeps working: what it cannot apply is ignored
   with a log line naming the option. The C ABI header copy is the one of library 0.8.0.
+- The option `device_api` and its user override give the pages of a web view the state of the remote through library
+  0.9.0: display, power source, battery, power profile and the standby with the time slept (design.md D18). The UI
+  reports the power mode, the battery and the core's resume flag (`wakeup`, now parsed); an older library ignores the
+  option. The C ABI header copy is the one of library 0.9.0.
 - A new ADR 0023 records that the UI executes the commands the core routes to it.
 
 ## Capabilities
@@ -88,10 +92,12 @@ The UI has a web view since the `web-view` change (the `WebView` item on the fir
   `configuration_change`, the web view entity in `get_entity`, `get_entities` and `entity_change` with the secret
   options for the UI's session, the activity UI item `webview`, the `uc:globe` default icon. Core-API draft (core-api
   branch with `entity_webview.md`); the UI and the core ship together (ADR 0005).
-- **Firmware:** libucwebview of API version 1; library 0.8.0 for every option (its seven site setting functions,
-  design.md D9). A library 0.7.x works without the site settings and without clearing website data.
+- **Firmware:** libucwebview of API version 1; library 0.8.0 for the site settings (its seven site setting functions,
+  design.md D9), library 0.9.0 for `device_api` (three device functions, D18). A library 0.7.x works without the site
+  settings and without clearing website data, a library 0.8.x without the device state.
 - **Code:** new `src/ui/entity/webview.*`, `src/ui/entity/webviewButtons.*`, `src/ui/entity/webviewController.*`,
-  `src/webview/webviewsite.*`; changed `src/core/{core,enums,structs}.*`,
+  `src/webview/webviewsite.*`, `src/webview/devicestatesource.*`; changed `src/core/{core,enums,structs}.*`,
+  `src/system/power.*`, `src/main.cpp`,
   `src/ui/entity/{entity,entityController,entityScreens}.*`, `src/ui/uiController.*`, `src/webview/webviewinput.*`,
   `src/webview/webviewitem.*`, `src/webview/webviewlibrary.*`, `src/webview/uc_webview.h` (the header of library
   0.8.0), `src/logging.*`; new QML
@@ -105,8 +111,8 @@ The UI has a web view since the `web-view` change (the `WebView` item on the fir
   `main.qrc`, the test
   CMakeLists. No new Qt module, no new third-party code.
 - **Tests:** new `testUiEntityCommands`, `testWebviewEntity`, `testWebviewController`, `testWebViewEntityScreen`,
-  `testWebViewSettings`; `testWebViewItem`, `testWebViewInput`, `testWebViewKeyboard` and `testEntityScreens`
-  extended.
+  `testWebViewSettings`, `testWebViewDeviceState`; `testWebViewItem`, `testWebViewInput`, `testWebViewKeyboard`,
+  `testEntityScreens` and `testPower` extended.
 - **Translations:** `en_US.ts`, the web view state, the screen texts, the failure of a load, the settings page and its
   buttons page.
 - **Docs:** `docs/webview.md` (the web view entity, the options and the library, Settings > Web view, the test page,

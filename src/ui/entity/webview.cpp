@@ -157,6 +157,7 @@ void Webview::applyOptions(const QVariantMap &options) {
     m_backgroundColor = colorPattern.match(color).hasMatch() ? color : DEFAULT_BACKGROUND_COLOR;
 
     m_showNavigation = options.value("show_navigation").toBool();
+    m_deviceApi = options.value("device_api").toBool();
 
     m_reloadInterval = options.contains("reload_interval") ? validReloadInterval(options.value("reload_interval")) : 0;
     if (m_reloadInterval < 0) {
@@ -172,6 +173,8 @@ void Webview::applyOptions(const QVariantMap &options) {
         user.value("reload_interval").isNull() ? -1 : validReloadInterval(user.value("reload_interval"));
     m_hasUserShowNavigation = !user.value("show_navigation").isNull();
     m_userShowNavigation = user.value("show_navigation").toBool();
+    m_hasUserDeviceApi = !user.value("device_api").isNull();
+    m_userDeviceApi = user.value("device_api").toBool();
 
     // the buttons of the option, with the user's override of a single button on top; an invalid entry is left out and
     // the global setting applies to that button
