@@ -27,6 +27,7 @@
 #include <utility>
 
 #include "../logging.h"
+#include "devicestatesource.h"
 #include "webviewinput.h"
 #include "webviewlibrary.h"
 #include "webviewtexture.h"
@@ -1079,8 +1080,9 @@ void WebViewItem::ensureView() {
         m_zoomApplied = m_zoom;
     }
 
-    // the site settings of a web view entity go with the view's first request
+    // the site settings of a web view entity go with the view's first request, and so does the device API
     applySite();
+    applyDeviceApi();
 
     if (!m_pendingHtml.isEmpty()) {
         const QByteArray base = m_pendingBaseUrl.toEncoded();
@@ -1126,6 +1128,10 @@ void WebViewItem::destroyView() {
     // a load that waits for the cookies has no view to go to; uc_webview_free() removes the view's request headers
     cancelCookieWait();
     m_headerOrigin.clear();
+    // the device state goes with the view; a new view switches it on again
+    QObject::disconnect(m_deviceStateConnection);
+    QObject::disconnect(m_deviceEventConnection);
+    m_deviceApiOn = false;
     // the load indicator starts afresh with the next view (no signal from the destructor)
     endLoad();
     m_failureShown = false;
@@ -1312,6 +1318,58 @@ void WebViewItem::setSite(const WebViewSite &site) {
     if (m_view) {
         applySite();
     }
+}
+
+void WebViewItem::setDeviceApi(bool deviceApi) {
+    if (deviceApi == m_deviceApi) {
+        return;
+    }
+    m_deviceApi = deviceApi;
+    emit deviceApiChanged();
+    if (m_deviceApi && m_available && !WebViewLibrary::instance()->deviceApiAvailable()) {
+        static bool logged = false;
+        if (!logged) {
+            logged = true;
+            qCInfo(lcWebView()) << "The web view library has no device state for web pages (older than 0.9.0): "
+                                   "device_api is ignored";
+        }
+    }
+    // for the next page load (the library gives the API to the documents that start afterwards)
+    applyDeviceApi();
+}
+
+void WebViewItem::applyDeviceApi() {
+    if (!m_view) {
+        return;
+    }
+    const bool on = m_deviceApi && WebViewLibrary::instance()->deviceApiAvailable();
+    if (on == m_deviceApiOn) {
+        return;
+    }
+    m_deviceApiOn = on;
+    QObject::disconnect(m_deviceStateConnection);
+    QObject::disconnect(m_deviceEventConnection);
+    if (!on) {
+        lib().set_device_api(m_view, 0);
+        return;
+    }
+    // the current state before the switch, so that the library's page script starts with it
+    if (DeviceStateSource *source = DeviceStateSource::instance()) {
+        lib().set_device_state(m_view, source->stateJson().constData());
+        m_deviceStateConnection =
+            connect(source, &DeviceStateSource::stateChanged, this, [this](const QByteArray &json) {
+                if (m_view) {
+                    lib().set_device_state(m_view, json.constData());
+                }
+            });
+        m_deviceEventConnection =
+            connect(source, &DeviceStateSource::deviceEvent, this, [this](const QByteArray &type, qint64 sleptMs) {
+                if (m_view) {
+                    lib().device_event(m_view, type.constData(), sleptMs);
+                }
+            });
+    }
+    lib().set_device_api(m_view, 1);
 }
 
 void WebViewItem::applySite() {

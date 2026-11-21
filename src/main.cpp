@@ -21,6 +21,34 @@
 #include "ui/uiController.h"
 #include "voice.h"
 
+#ifdef UC_WEBVIEW
+#include "system/battery.h"
+#include "system/power.h"
+#include "webview/devicestatesource.h"
+
+// The device state for web pages follows the power mode and the battery (docs/webview.md, "Device state for web
+// pages"). Power::resumedFromSuspend() comes before the mode change it brings.
+static void connectDeviceState(uc::webview::DeviceStateSource *state, uc::hw::Power *power, uc::hw::Battery *battery) {
+    using Source = uc::webview::DeviceStateSource;
+    using Power = uc::hw::Power;
+    static_assert(static_cast<int>(Source::Normal) == static_cast<int>(Power::Normal) &&
+                      static_cast<int>(Source::Idle) == static_cast<int>(Power::Idle) &&
+                      static_cast<int>(Source::LowPower) == static_cast<int>(Power::Low_power) &&
+                      static_cast<int>(Source::Suspend) == static_cast<int>(Power::Suspend),
+                  "DeviceStateSource::PowerMode has the values of Power::PowerMode");
+
+    const auto updateBattery = [state, battery] { state->setBattery(battery->getLevel(), battery->getPowerSupply()); };
+    state->setPowerMode(static_cast<Source::PowerMode>(power->getPowerMode()));
+    updateBattery();
+    QObject::connect(power, &Power::powerModeChanged, state, [state](Power::PowerMode, Power::PowerMode toPowerMode) {
+        state->setPowerMode(static_cast<Source::PowerMode>(toPowerMode));
+    });
+    QObject::connect(power, &Power::resumedFromSuspend, state, &Source::resumedFromSuspend);
+    QObject::connect(battery, &uc::hw::Battery::levelChanged, state, updateBattery);
+    QObject::connect(battery, &uc::hw::Battery::powerSupplyChanged, state, updateBattery);
+}
+#endif
+
 #ifdef Q_OS_UNIX
 #include <sys/socket.h>
 #include <unistd.h>
@@ -139,6 +167,10 @@ int main(int argc, char *argv[]) {
     uc::Config                             config(&core, &app);
     uc::SoftwareUpdate                     softwareUpdate(&core, &app);
     uc::hw::Controller                     hwController(model, &core, &config, &app);
+#ifdef UC_WEBVIEW
+    uc::webview::DeviceStateSource deviceState(&app);
+    connectDeviceState(&deviceState, hwController.getPower(), hwController.getBattery());
+#endif
     uc::ui::Controller                     uiController(model, width, height, engine.get(), &config, &core, &app);
     uc::integration::IntegrationController integrationController(&core, config.getLanguage(), &app);
     uc::dock::DockController               dockController(&core, &app);

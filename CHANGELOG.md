@@ -71,6 +71,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The web view widget of an activity page shows the page of a web view entity in the page grid while that page of the
   activity is shown. An interactive widget takes touch (a swipe scrolls the page, not the activity), a widget that is
   not interactive opens the page on the whole screen with a tap; the remote's buttons keep the activity's functions.
+- A web view with the device state option gives its pages the state of the remote, for dashboards that pause while
+  the display is off, show the battery or reconnect after a standby: the display (on, dimmed or off), the power
+  source and the battery level, a power profile, and events before a standby and after the wake-up with the time
+  slept. A web view from an integration can be switched by the user. Needs the web view library 0.9.0, which also
+  slows down the timers and stops the animations of every page while the display is off; with an older library the
+  pages get no device state.
 - A web view page that takes a while to load shows that it loads, on the whole screen and in the widget of an activity
   page: after a moment a spinner with the percentage loaded until the page appears, then a thin bar at the top until it
   is complete. Reload shows only the bar, the automatic reload nothing. A page that cannot be loaded says so instead of

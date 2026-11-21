@@ -1349,7 +1349,8 @@ and decisions are the OpenSpec change `webview-entity` (`openspec/changes/webvie
 | set_ui_info, entity_command, global settings (read and changed), clearing from the settings, the open fullscreen web view | `WebViewController` (`src/ui/entity/webviewController.*`), QML singleton `WebView.Controller` |
 | The global settings, Clear cache, Clear website data | Settings > Web view, `settings/settings/WebView.qml` (see "Settings > Web view") |
 | Fullscreen web view (the entity's screen) | `components/entities/webview/deviceclass/Webview.qml` |
-| The page: address, zoom, background, site, reload interval | `components/WebViewPage.qml` |
+| The page: address, zoom, background, site, device state API, reload interval | `components/WebViewPage.qml` |
+| The device state for the pages (power mode, battery, standby) | `DeviceStateSource` (`src/webview/devicestatesource.*`), connected in `main.cpp`; the item's `deviceApi` property (see "Device state for web pages") |
 | The page's dialogs and logins, refused content | `components/WebViewRequests.qml` |
 | Activity page widget | `components/WebViewWidget.qml`, the `webview` item in `Activity.qml` |
 | While the page loads, a failed load | `components/WebViewLoadIndicator.qml` in `WebViewPage.qml`, decided by the item (see "Load indicator") |
@@ -1409,6 +1410,7 @@ the page loads without what the library lacks (see "With an older library").
 | `tls` | `uc_webview_global_allow_certificate()` with the start page's host and the fingerprint in lower case hex, or NULL for `allow_invalid_certificate`; once per exception and UI process (`WebViewLibrary::allowCertificate()`) |
 | `user_agent` | `uc_webview_set_user_agent()`: `default`, `mobile` and `desktop` as the presets `UC_WEBVIEW_USER_AGENT_DEFAULT` (0), `_MOBILE` (1), `_DESKTOP` (2), any other text as `_CUSTOM` (3); a refused custom text falls back to the default |
 | `show_navigation`, `reload_interval` | the UI (navigation bar, a `Timer` while the page is shown and the display is on) |
+| `device_api`, the user override `device_api` | library 0.9.0: `uc_webview_set_device_api()`, with `uc_webview_set_device_state()` and `uc_webview_device_event()` from `DeviceStateSource` (see "Device state for web pages") |
 | `buttons`, the user override `buttons` | the UI: the button mapping of the fullscreen web view (see "Buttons of the fullscreen web view") |
 | `color_scheme` (global, Settings > Web view) | `uc_webview_global_set_color_scheme()`, `light` 0, `dark` 1: `WebViewLibrary::setGlobalSettings()` keeps it until the library is initialised and passes it then and on every change |
 | `allow_invalid_certificates` (global, Settings > Web view) | `uc_webview_global_set_tls_errors_policy()`, the same way |
@@ -1467,6 +1469,89 @@ A library 0.7.x keeps working. The load logs once which of the seven functions a
 it cannot apply by name, never with a value: `auth.bearer` or `auth.header`, `cookies`, `tls`, `user_agent`. The page
 loads at once without them. The `dark` colour scheme and `allow_invalid_certificates` are logged and not applied,
 `clear_cache` and `clear_data` are answered with 501, and `website_data` clears nothing.
+
+### Device state for web pages
+
+A web view with the `device_api` option (core-api `entity_webview.md`, "Device state for web pages"; a web view of
+an integration takes the user's override `options.user.device_api` over its option) gives its pages the state of
+the remote: `navigator.getBattery()`, `window.deviceHost` with the display state, the power source and the power
+profile, the standby events `freeze` / `resume` on `document` and `suspend` / `resume` on `deviceHost`, and the
+`data-screen` / `data-power-profile` attributes of `<html>`. The library injects the API into every top-level page
+of the view (library 0.9.0, package README "Device state for web pages (0.9.0)"); the UI reports the state.
+
+- **The effective value.** `entity::Webview::deviceApi`: `options.user.device_api` when it is there and not null,
+  else `options.device_api`, else false, like `show_navigation`. `WebViewPage.qml` binds the WebView item's
+  `deviceApi` to it, for the fullscreen web view and the widget (which shows its page with `WebViewPage.qml`).
+- **The item.** With `deviceApi` and a library that has the three functions (`WebViewLibrary::deviceApiAvailable()`)
+  the item passes the current state (`uc_webview_set_device_state()`) and switches the view's API on
+  (`uc_webview_set_device_api(1)`) before its first load, then forwards every state change and standby event of
+  `DeviceStateSource`. The library gives the API to the documents that start afterwards, so a change of the option
+  loads the start page again (`WebViewPage.qml`, like a change of the site). Off: `uc_webview_set_device_api(0)` and
+  nothing more; a web view without the option gets no device call at all.
+- **The state.** `DeviceStateSource` builds the JSON from the power mode (`hw::Power`) and the battery
+  (`hw::Battery`), one source for every web view:
+
+  | Power mode | `screen` | `powerProfile` |
+  |------------|----------|----------------|
+  | NORMAL | `on` | `balanced` |
+  | IDLE | `dim` | `balanced` |
+  | LOW_POWER | `off` | `power-saver` |
+  | SUSPEND | `off` | `power-saver` |
+
+  `powerSource` is `ac` while `Battery.powerSupply` is true (the page's battery is charging then, also at full
+  level), else `battery`; `level` is `Battery.level` in percent. A change goes to the library only when the JSON
+  changes; the library fires the page's events only for values that change.
+- **Standby.** The change to SUSPEND sends its state (display off), then the `suspend` event. The core's
+  `power_mode_change` with `wakeup` (it comes only with NORMAL) is parsed (`Api::parsePowerModeWakeup()`) and emitted
+  as `Api::resumedFromSuspend()` right before the NORMAL mode change, and `Power::resumedFromSuspend()` passes it on:
+  `DeviceStateSource` sends `resume` with the time slept, then the change to NORMAL its state. The time slept is the
+  growth of `CLOCK_BOOTTIME - CLOCK_MONOTONIC` since the `suspend` (the monotonic clock stops in a standby). Leaving
+  SUSPEND without the flag (the core did not go through with it) sends `resume` too, so that a page that got
+  `suspend` always gets `resume`; a flag without a `suspend` before it (the UI missed it) sends `resume` only when the
+  system slept since the last standby. Best effort: the standby is never delayed for a page, and the UI may get the
+  SUSPEND mode only shortly before the remote sleeps.
+- **Hidden pages.** Independent of the option: the window is hidden while the display is off (`Power.windowShown`),
+  the item unmaps the view, and the page is hidden (`visibilitychange`). Since library 0.9.0 a hidden page's timers
+  run at most once a second and its CSS animations stop.
+- **With an older library** (0.8.x and older) the option is ignored, logged once: the pages have no device state API.
+
+A test page for the device, served like `keys.html` as `device.html`; it shows the state and lists the events
+newest first:
+
+```html
+<!doctype html><meta name=viewport content="width=device-width"><title>device</title>
+<style>body{font:20px sans-serif}#log{font:17px monospace;line-height:1.4;white-space:pre}
+html[data-screen=dim] body{background:#ddd}html[data-power-profile=power-saver] body{background:#999}</style>
+<div id=state></div><div id=log></div>
+<script>
+const log = document.getElementById('log'), state = document.getElementById('state');
+const line = t => { log.textContent = (new Date().toLocaleTimeString() + ' ' + t + '\n' + log.textContent)
+  .split('\n').slice(0, 16).join('\n'); };
+const show = b => { state.textContent = 'deviceHost' in window ? deviceHost.screen + ' ' + deviceHost.powerSource + ' '
+  + deviceHost.powerProfile + (b ? ' battery ' + Math.round(b.level * 100) + ' % charging ' + b.charging : '')
+  : 'no deviceHost'; };
+if ('deviceHost' in window) {
+  for (const t of ['suspend', 'resume', 'on-ac', 'on-battery', 'screenchange', 'powerprofilechange'])
+    deviceHost.addEventListener(t, e => { line('deviceHost ' + t + (e.detail ? ' ' + JSON.stringify(e.detail) : ''));
+      navigator.getBattery().then(show); });
+  navigator.getBattery().then(b => { show(b);
+    for (const t of ['chargingchange', 'levelchange']) b.addEventListener(t, () => { line('battery ' + t); show(b); }); });
+  document.onfreeze = () => line('document freeze');
+  document.onresume = () => line('document resume');
+} else show();
+document.addEventListener('visibilitychange', () => line('visibility ' + document.visibilityState));
+let ticks = 0; setInterval(() => { ticks++; }, 100);
+setInterval(() => { if (!document.hidden) { line('100 ms interval: ' + ticks + ' runs in 5 s'); } ticks = 0; }, 5000);
+</script>
+```
+
+With `device_api` on: the state line shows `on ac balanced` (on the charger); after the dim timeout
+`screenchange {"state":"dim"}` and a grey page; display off: `screenchange {"state":"off"}`, `powerprofilechange
+{"profile":"power-saver"}` and `visibility hidden`; the display on again: the reverse. Standby and wake:
+`document freeze`, `deviceHost suspend`, then `document resume`, `deviceHost resume {"sleptMs":...}` with about the
+time in standby, then the state. Off the charger: `battery chargingchange` and `deviceHost on-battery`. Without the
+option: `no deviceHost`. While the display is off the 100 ms interval runs about once a second: the first line after
+the display comes back counts fewer runs than the about 50 of a 5 s window with the display on.
 
 ### Device test
 

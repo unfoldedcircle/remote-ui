@@ -21,10 +21,10 @@ an unavailable web view SHALL be refused like for every other entity.
 - **THEN** the fullscreen web view opens with its start page
 
 ### Requirement: Web view options and user overrides
-The UI SHALL apply a web view's options: the start page `url` (http or https only, without user name and password),
-`zoom` (25..400 %), `background_color`, `show_navigation`, `reload_interval` (0 or 10..86400 s), `user_agent` and
-`buttons`. The user overrides `zoom`, `reload_interval`, `show_navigation` and `buttons` (button by button) in
-`options.user` SHALL take precedence; a `null` override SHALL be ignored. An invalid value SHALL be ignored and the
+The UI SHALL apply a web view's options: the start page `url` (http or https, without user name and password),
+`zoom` (25..400 %), `background_color`, `show_navigation`, `reload_interval` (0 or 10..86400 s), `user_agent`,
+`buttons` and `device_api`. The user overrides `zoom`, `reload_interval`, `show_navigation`, `buttons` (per button)
+and `device_api` in `options.user` SHALL take precedence; a `null` override SHALL be ignored. An invalid value SHALL be ignored and the
 default used (ADR 0018).
 
 #### Scenario: Zoom override
@@ -401,6 +401,29 @@ without their values, and answer `clear_cache` and `clear_data` with 501.
 #### Scenario: Clear the cache with an older library
 - **WHEN** the core sends `clear_cache` and the library cannot clear website data
 - **THEN** the UI answers 501 and no page is reloaded
+
+### Requirement: Device state for the pages of a web view
+The UI SHALL switch the library's device state API on for a web view whose effective `device_api` is true:
+`options.user.device_api` when present and not `null`, else `options.device_api`, else false. Its pages SHALL get
+the state of the remote (power mode, battery, power supply) and the standby events; a web view without it SHALL get no
+device call. A change SHALL take effect with a new load of the start page. A library without the functions SHALL
+ignore the option.
+
+#### Scenario: Display off
+- **WHEN** a page of a web view with `device_api` is shown and the display turns off
+- **THEN** the page gets the state `screen` `off`, `powerProfile` `power-saver`
+
+#### Scenario: Standby and wake-up
+- **WHEN** the remote goes into standby and the core reports the resume with `wakeup`
+- **THEN** the page gets `suspend`, then `resume` with the time slept before the state after the wake
+
+#### Scenario: Override of a web view from an integration
+- **WHEN** the integration sets `device_api` true and the user override is false
+- **THEN** the pages of that web view get no device state API
+
+#### Scenario: Older library
+- **WHEN** a web view with `device_api` is shown with a library older than 0.9.0
+- **THEN** the page loads without the device state API and the log says so once
 
 ### Requirement: Global web view settings
 The UI SHALL request `get_webview_cfg` after every authentication and apply the `webview` object of every

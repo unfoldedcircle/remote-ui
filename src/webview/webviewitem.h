@@ -114,6 +114,11 @@ namespace webview {
  *   the start page's origin through `url` sets the site's cookies first and waits for the library's report, at most
  *   kCookieTimeoutMs; it loads without that certainty when they fail or the report is late. A reload after all website
  *   data was cleared sets them again first. An option the library lacks a function for is logged by name only.
+ * - Device state for web pages (`deviceApi`, library 0.9.0, docs/webview.md "Device state for web pages"): while it is
+ *   true and the library has the three device functions, the view has the library's device API on, starts with the
+ *   state of DeviceStateSource::instance() and gets its changes and standby events. The library gives the API to the
+ *   documents that start afterwards: a page that is shown gets it, or loses it, at its next load. Without the
+ *   functions the property does nothing (logged once).
  * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
  *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
  * - The load indicator (`loadIndicator`, `pageFailed`; docs/webview.md "Load indicator") says what a host shows while
@@ -162,6 +167,8 @@ class WebViewItem : public QQuickItem {
     Q_PROPERTY(int framesReleased READ framesReleased NOTIFY frameStatsChanged)
     // the site settings of a web view entity: credentials, cookies, TLS exception, user agent of the start page
     Q_PROPERTY(uc::webview::WebViewSite site READ site WRITE setSite NOTIFY siteChanged)
+    // the device state API for the pages (library 0.9.0, class comment): from the next page load on
+    Q_PROPERTY(bool deviceApi READ deviceApi WRITE setDeviceApi NOTIFY deviceApiChanged)
     // what a host shows while the page loads (class comment); the view shows a failed load's error page or nothing
     Q_PROPERTY(LoadIndicator loadIndicator READ loadIndicator NOTIFY loadIndicatorChanged)
     Q_PROPERTY(bool pageFailed READ isPageFailed NOTIFY loadIndicatorChanged)
@@ -202,6 +209,8 @@ class WebViewItem : public QQuickItem {
     int     framesReleased() const { return m_framesReleased; }
     WebViewSite site() const { return m_site; }
     void        setSite(const WebViewSite &site);
+    bool        deviceApi() const { return m_deviceApi; }
+    void        setDeviceApi(bool deviceApi);
     LoadIndicator loadIndicator() const { return m_loadIndicator; }
     bool          isPageFailed() const { return m_pageFailedShown; }
 
@@ -282,6 +291,7 @@ class WebViewItem : public QQuickItem {
     void pinchingChanged();
     void frameStatsChanged();
     void siteChanged();
+    void deviceApiChanged();
     void loadIndicatorChanged();
     // the web process died (UC_WEBVIEW_TERMINATED_*); the item reloads once by itself
     void crashed(int reason);
@@ -395,6 +405,8 @@ class WebViewItem : public QQuickItem {
     bool   keyboardInhibitedOnTap() const;
     bool   exceedsTapDistance(const QPointF &from, const QPointF &to) const;
     bool   loadAllowed(const QUrl &url, const char *what);
+    // the view's device API as `deviceApi` and the library allow, with the state and events of DeviceStateSource
+    void applyDeviceApi();
     // what waits for the site's cookies (waitForSiteCookies)
     enum class AfterCookies { Nothing, Load, Reload };
     // the site's request header, user agent and certificate exception for the view (library 0.8.0)
@@ -464,6 +476,12 @@ class WebViewItem : public QQuickItem {
     WebViewSite m_site;
     // the origin the view has the site's request header for (uc_webview_set_origin_headers()), empty for none
     QString      m_headerOrigin;
+    // the device state for web pages (library 0.9.0): the property, whether the view has the API on, the connections
+    // to DeviceStateSource while it has
+    bool                    m_deviceApi = false;
+    bool                    m_deviceApiOn = false;
+    QMetaObject::Connection m_deviceStateConnection;
+    QMetaObject::Connection m_deviceEventConnection;
     // the wait for the site's cookies: what runs after it, the current request (a report of an earlier one is
     // ignored), its timeout, and WebViewLibrary::websiteDataGeneration() when they were set last
     AfterCookies m_afterCookies = AfterCookies::Nothing;

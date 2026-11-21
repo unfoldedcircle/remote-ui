@@ -28,6 +28,7 @@ class testWebviewEntity : public QObject {
     void options_areApplied();
     void userOverrides_winOverTheOptions();
     void userOverrides_nullOrInvalidAreIgnored();
+    void deviceApi_optionAndUserOverride();
     void invalidValues_fallBackToTheDefaults();
     void url_onlyHttpAndHttpsWithoutCredentials();
     void state_andTileText();
@@ -76,6 +77,7 @@ void testWebviewEntity::defaults() {
     QCOMPARE(w->getBackgroundColor(), QStringLiteral("#FFFFFF"));
     QVERIFY(!w->getShowNavigation());
     QCOMPARE(w->getReloadInterval(), 0);
+    QVERIFY(!w->getDeviceApi());
     QVERIFY(!w->isEditable());
     QCOMPARE(w->getSite().auth(), WebViewSite::Auth::None);
     QCOMPARE(w->getSite().userAgent(), QStringLiteral("default"));
@@ -124,6 +126,25 @@ void testWebviewEntity::userOverrides_nullOrInvalidAreIgnored() {
     QCOMPARE(w->getZoom(), 80);
     QCOMPARE(w->getReloadInterval(), 30);
     QVERIFY(!w->getShowNavigation());
+}
+
+void testWebviewEntity::deviceApi_optionAndUserOverride() {
+    // a user-defined web view: the option itself
+    QScopedPointer<Webview> w(make(fromJson(R"({"editable": true, "url": "https://a.example/", "device_api": true})")));
+    QVERIFY(w->getDeviceApi());
+
+    // a web view of a driver: its default, and the user's override over it, both ways
+    QSignalSpy changed(w.data(), &Webview::optionsChanged);
+    w->updateOptions(fromJson(R"({"url": "https://a.example/", "device_api": true, "user": {"device_api": false}})"));
+    QVERIFY(!w->getDeviceApi());
+    w->updateOptions(fromJson(R"({"url": "https://a.example/", "device_api": false, "user": {"device_api": true}})"));
+    QVERIFY(w->getDeviceApi());
+    // null and a missing override leave the option
+    w->updateOptions(fromJson(R"({"url": "https://a.example/", "device_api": true, "user": {"device_api": null}})"));
+    QVERIFY(w->getDeviceApi());
+    w->updateOptions(fromJson(R"({"url": "https://a.example/", "user": {"zoom": 80}})"));
+    QVERIFY(!w->getDeviceApi());
+    QCOMPARE(changed.count(), 4);
 }
 
 void testWebviewEntity::invalidValues_fallBackToTheDefaults() {

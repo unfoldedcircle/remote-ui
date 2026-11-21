@@ -11,6 +11,8 @@
 //
 // - A change of the start page or of the site settings (an option update of the entity) loads the start page again,
 //   so that new credentials or cookies apply; a change of zoom or background colour applies to the page as it is.
+// - The device state API of the pages (the entity's effective `device_api`, docs/webview.md "Device state for web
+//   pages") reaches the documents that start afterwards: a change loads the start page again too.
 // - zoomIn() and zoomOut() (the zoom functions of the buttons in the fullscreen web view) step the zoom from the
 //   option's level through the WebView item's levels, for as long as the page is shown: the entity's options are not
 //   written. zoomReset(), a new zoom option or another entity starts from the option again.
@@ -115,6 +117,15 @@ Item {
     // screen opens) loads nothing
     property url loadedStartUrl: ""
 
+    // the device state API of the pages: the entity's option with the user's override
+    readonly property bool deviceApi: entityObj ? entityObj.deviceApi : false
+    onDeviceApiChanged: {
+        // a page already loaded gets (or loses) the API with a new load of the start page
+        if (webViewPage.loadedStartUrl.toString() !== "") {
+            Qt.callLater(webViewPage.loadStartPage);
+        }
+    }
+
     function loadStartPage() {
         if (webViewPage.startUrl.toString() !== "") {
             webViewPage.loadedStartUrl = webViewPage.startUrl;
@@ -154,6 +165,7 @@ Item {
         id: webView
         anchors.fill: parent
         site: webViewPage.entityObj.site
+        deviceApi: webViewPage.deviceApi
         // the option, else white (core-api "Display")
         backgroundColor: webViewPage.entityObj ? webViewPage.entityObj.backgroundColor : colors.white
         zoom: webViewPage.keyZoom > 0 ? webViewPage.keyZoom : webViewPage.optionZoom / 100
