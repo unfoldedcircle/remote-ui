@@ -19,6 +19,7 @@
 #include "uc_webview.h"
 #include "webviewframequeue.h"
 #include "webviewpinch.h"
+#include "webviewrequest.h"
 
 class QQuickWindow;
 class QScreen;
@@ -88,6 +89,16 @@ namespace webview {
  *   Page zoom (`zoom`, VOLUME) and magnification are separate WebKit factors: the keys leave the magnification alone.
  *   A new page starts at 1; back, forward and reload restore the page's magnification (WebKit, reported by the
  *   library). Without the library's 0.6.0 functions two fingers behave as before.
+ * - Requests of the page (library 0.7.0, docs/webview.md "Dialogs and logins"): with uc_webview_request_reply() in the
+ *   library the view is created with the six request callbacks. A script dialog or a login becomes a
+ *   WebViewDialogRequest or WebViewAuthRequest (WebViewRequests keeps them by the library's id), emitted with
+ *   dialogRequested() or authenticationRequested(); one that no handler takes (`handled`) gets the library's default
+ *   at once. new_window, response_refused and close_requested become signals. Before a navigation call the item answers
+ *   a pending leave-page question itself: leave for setUrl(), loadHtml(), reload(), goBack() and goForward() (the user
+ *   goes elsewhere), stay for stop(); the library would answer "stay" to every navigation call, and the next navigation
+ *   would ask again. Freeing the view ends the requests without a signal. A login answered with a user name keeps
+ *   that name for the login's retry (`previousUser`) until the retry comes, a load event or 30 s (WebViewRequests,
+ *   "Retry"). Without the function the library decides alone, as before 0.7.0, and none of these signals comes.
  * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
  *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
  * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at
@@ -200,6 +211,23 @@ class WebViewItem : public QQuickItem {
     // a load failed; `loading` turns false with the following finished event. Also emitted, without any other
     // change, for a URL outside the scheme allowlist (setUrl(), loadHtml() base URL): nothing is loaded then.
     void loadFailed(const QUrl &url);
+    // Library 0.7.0: alert(), confirm(), prompt() or the leave-page question of the page, which waits for the answer.
+    // A handler that shows it sets request.handled during the signal and answers later; the item answers an unhandled
+    // one at once like the library without a host (alert closed, confirm false, prompt null, leave page: leave).
+    void dialogRequested(uc::webview::WebViewDialogRequest *request);
+    // Library 0.7.0: a server or proxy asks for a login. Unhandled: continue without credentials (the server's 401
+    // page loads).
+    void authenticationRequested(uc::webview::WebViewAuthRequest *request);
+    // Library 0.7.0: the page asked for a new window (window.open(), target=_blank). loaded: it loads into this view
+    // now; else refused (data:, blob:, javascript:, a form posted to a new window) and nothing happens.
+    void newWindow(const QUrl &url, bool loaded);
+    // Library 0.7.0: the main frame got a download (download true) or a document the web view cannot show (a PDF, an
+    // unknown type). Nothing is saved and the page stays, without loadFailed(). mimeType is empty when unknown
+    // (<a download>).
+    void responseRefused(const QUrl &url, const QString &mimeType, bool download);
+    // Library 0.7.0: the page called window.close() and WebKit allows it (at most one history entry). Emitted after
+    // the library's callback has returned, so a handler may leave the page and free the view.
+    void closeRequested();
 
  protected:
     void      geometryChanged(const QRectF &newGeometry, const QRectF &oldGeometry) override;
@@ -233,6 +261,14 @@ class WebViewItem : public QQuickItem {
     static void onPinchCb(uc_webview *, int phase, double scale, double x, double y, void *user);
     static void onMagnificationChangedCb(uc_webview *, double magnification, void *user);
     static void onMagnificationRenderedCb(uc_webview *, int status, void *user);
+    static void onScriptDialogCb(uc_webview *, uint64_t request, int type, const char *origin, const char *message,
+                                 const char *defaultText, void *user);
+    static void onAuthenticateCb(uc_webview *, uint64_t request, const char *origin, const char *realm, int scheme,
+                                 unsigned flags, void *user);
+    static void onRequestCancelledCb(uc_webview *, uint64_t request, void *user);
+    static void onCloseRequestedCb(uc_webview *, void *user);
+    static void onNewWindowCb(uc_webview *, const char *uri, int result, void *user);
+    static void onResponseRefusedCb(uc_webview *, const char *uri, const char *mimeType, int reason, void *user);
 
     void onFrameReady(const uc_webview_frame &frame);
     void onLoadChanged(int event, const char *uri);
@@ -240,6 +276,11 @@ class WebViewItem : public QQuickItem {
     void onImeFocus(bool focused, unsigned hints, unsigned purpose, const char *surrounding, int cursor);
     void onImeSurrounding(const char *text, int cursor, int anchor);
     void onFrameSwapped();
+    void onScriptDialog(quint64 id, int type, const char *origin, const char *message, const char *defaultText);
+    void onAuthenticate(quint64 id, const char *origin, const char *realm, int scheme, unsigned flags);
+    void onCloseRequested();
+    void onNewWindow(const char *uri, int result);
+    void onResponseRefused(const char *uri, const char *mimeType, int reason);
 
     void   attachWindow(QQuickWindow *window);
     void   watchScreen(QScreen *screen);
@@ -312,6 +353,9 @@ class WebViewItem : public QQuickItem {
     int           m_magnificationRequests = 0;
     bool          m_magnificationRendering = false;
     QElapsedTimer m_magnificationClock;
+    // the page's requests (library 0.7.0): whether the library has them, the pending ones by the library's id
+    const bool      m_requestsAvailable;
+    WebViewRequests m_requests;
     QString m_pendingHtml;
     QUrl    m_pendingBaseUrl;
 
