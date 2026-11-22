@@ -12,7 +12,7 @@
     <context>
         <name>Abbreviation for nothing is selected</name>
         <message>
-            <location filename="../../src/qml/components/SelectWidget.qml" line="56"/>
+            <location filename="../../src/qml/components/SelectWidget.qml" line="62"/>
             <source>None</source>
             <translation>Nincs</translation>
         </message>
@@ -91,112 +91,112 @@
     <context>
         <name>Activity</name>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="509"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="539"/>
             <source>Tap to close</source>
             <extracomment>Tap to close menu, tap to see more or, after a failed run, tap to fix the state</extracomment>
             <translatorcomment>Tap to close menu, tap to see more or, after a failed run, tap to fix the state</translatorcomment>
             <translation>Koppints a bezáráshoz</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="509"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="539"/>
             <source>Tap for more</source>
             <translation>Koppints a részletekért</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="509"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="539"/>
             <source>Tap to fix</source>
             <translation>Koppints a javításhoz</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="623"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="653"/>
             <source>Fix states</source>
             <extracomment>Title referring to fixing device states that might out of sync</extracomment>
             <translatorcomment>Title referring to fixing device states that might out of sync</translatorcomment>
             <translation>Állapotok javítása</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="644"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="674"/>
             <source>Quickly access entities included in this activity:</source>
             <translation>Gyors hozzáférés az aktivitásban szereplő entitásokhoz:</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="691"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="721"/>
             <source>Back</source>
             <extracomment>Caption to go back</extracomment>
             <translatorcomment>Caption to go back</translatorcomment>
             <translation>Vissza</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="717"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="747"/>
             <source>None of the entities in this activity has an On/Off state that could be fixed</source>
             <extracomment>Shown in the "Fix states" list if none of the activity's entities has an on/off state</extracomment>
             <translatorcomment>Shown in the "Fix states" list if none of the activity's entities has an on/off state</translatorcomment>
             <translation>Az ebben a tevékenységben szereplő entitások egyike sem rendelkezik olyan be-/kikapcsolható állapottal, amely rögzíthető lenne</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="745"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="775"/>
             <source>Empty page</source>
             <translation>Üres oldal</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="757"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="787"/>
             <source>You can add UI elements via the Web Configurator</source>
             <translation>A felület elemeit a Webkonfigurátorban adhatod hozzá</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="837"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="873"/>
             <source>%1 is unavailable, its state cannot be changed</source>
             <translation>A(z) %1 nem érhető el, állapota nem módosítható</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="842"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="878"/>
             <source>%1 is running, its state cannot be changed</source>
             <translation>A(z) %1 fut, állapota nem módosítható</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="886"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="922"/>
             <source>State: %1</source>
             <extracomment>Device state</extracomment>
             <translatorcomment>Device state</translatorcomment>
             <translation>Állapot: %1</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="922"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="958"/>
             <source>Set the state of %1. No command is sent to the devices.</source>
             <extracomment>Popup title when fixing the state of an activity. %1 is the activity name</extracomment>
             <translatorcomment>Popup title when fixing the state of an activity. %1 is the activity name</translatorcomment>
             <translation>Állítsa be a(z) %1 állapotát. Az eszközök felé nem küldünk parancsot.</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="924"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="960"/>
             <source>Set the state of %1. No command is sent to the device.</source>
             <extracomment>Popup title when fixing the state of an entity. %1 is the entity name</extracomment>
             <translatorcomment>Popup title when fixing the state of an entity. %1 is the entity name</translatorcomment>
             <translation>Állítsa be a(z) %1 állapotát. Az eszköz felé nem küldünk parancsot.</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="930"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="966"/>
             <source>Activity is on</source>
             <extracomment>Button. Mark the activity as running without sending any command</extracomment>
             <translatorcomment>Button. Mark the activity as running without sending any command</translatorcomment>
             <translation>Az aktivitás be van kapcsolva</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="932"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="968"/>
             <source>Device is on</source>
             <extracomment>Button. Mark the device as switched on without sending a command</extracomment>
             <translatorcomment>Button. Mark the device as switched on without sending a command</translatorcomment>
             <translation>Az eszköz be van kapcsolva</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="939"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="975"/>
             <source>Activity is off</source>
             <extracomment>Button. Mark the activity as stopped without sending any command</extracomment>
             <translatorcomment>Button. Mark the activity as stopped without sending any command</translatorcomment>
             <translation>Az aktivitás ki van kapcsolva</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="941"/>
+            <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="977"/>
             <source>Device is off</source>
             <extracomment>Button. Mark the device as switched off without sending a command</extracomment>
             <translatorcomment>Button. Mark the device as switched off without sending a command</translatorcomment>
@@ -358,7 +358,7 @@
             <translation>A(z) %1 nem érhető el</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/Base.qml" line="454"/>
+            <location filename="../../src/qml/components/entities/Base.qml" line="462"/>
             <source>Profile is restricted</source>
             <translation>A profil korlátozott</translation>
         </message>
@@ -383,7 +383,7 @@
     <context>
         <name>BaseDetail</name>
         <message>
-            <location filename="../../src/qml/components/entities/BaseDetail.qml" line="209"/>
+            <location filename="../../src/qml/components/entities/BaseDetail.qml" line="233"/>
             <source>Entity unavailable</source>
             <translation>Az entitás nem érhető el</translation>
         </message>
@@ -867,7 +867,7 @@
     <context>
         <name>ChargingScreen</name>
         <message>
-            <location filename="../../src/qml/components/ChargingScreen.qml" line="275"/>
+            <location filename="../../src/qml/components/ChargingScreen.qml" line="276"/>
             <source>- Charging</source>
             <translation>- Töltés</translation>
         </message>
@@ -1381,7 +1381,7 @@ Climate fan</translatorcomment>
             <translation>Hozzáadás</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="828"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="843"/>
             <source>Select all</source>
             <translation>Összes kijelölése</translation>
         </message>
@@ -1408,63 +1408,69 @@ Climate fan</translatorcomment>
             <translation>Kész</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="570"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="572"/>
             <source>Button</source>
             <translation>Gomb</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="576"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="578"/>
             <source>Climate</source>
             <translation>Klíma</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="583"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="585"/>
             <source>Cover</source>
             <extracomment>Entity type: blinds, shades, curtains. Not a lid or a book cover.</extracomment>
             <translatorcomment>Entity type: blinds, shades, curtains. Not a lid or a book cover.</translatorcomment>
             <translation>Árnyékoló</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="589"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="591"/>
             <source>Light</source>
             <translation>Világítás</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="595"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="597"/>
             <source>Media player</source>
             <translation>Médialejátszó</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="602"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="604"/>
             <source>Number</source>
             <extracomment>Entity type: a numeric value with a range, for example a fan speed. Not a phone number.</extracomment>
             <translation>Szám</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="609"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="611"/>
             <source>Select</source>
             <extracomment>Entity type: a choice of one option from a list, for example an input source. A noun, not the verb.</extracomment>
             <translation>Kiválasztás</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="615"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="617"/>
             <source>Sensor</source>
             <translation>Érzékelő</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="621"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="623"/>
             <source>Switch</source>
             <translation>Kapcsoló</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="755"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="634"/>
+            <source>Web view</source>
+            <extracomment>Entity type: a web page shown on the remote</extracomment>
+            <translation>Webview</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="770"/>
             <source>No entities</source>
             <extracomment>No entities are in this list</extracomment>
             <translatorcomment>No entities are in this list</translatorcomment>
             <translation>Nincsenek entitások</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/entities/EntityList.qml" line="892"/>
+            <location filename="../../src/qml/components/entities/EntityList.qml" line="907"/>
             <source>Loading</source>
             <extracomment>The application is loading</extracomment>
             <translatorcomment>The application is loading</translatorcomment>
@@ -2700,7 +2706,7 @@ Climate fan</translatorcomment>
     <context>
         <name>NumberWidget</name>
         <message>
-            <location filename="../../src/qml/components/NumberWidget.qml" line="70"/>
+            <location filename="../../src/qml/components/NumberWidget.qml" line="71"/>
             <source>%1 is unavailable</source>
             <extracomment>Notification when a number was changed but the command was not sent because the device is unavailable. %1 is the entity name</extracomment>
             <translation>A(z) %1 nem érhető el</translation>
@@ -2768,24 +2774,24 @@ Climate fan</translatorcomment>
     <context>
         <name>Page</name>
         <message>
-            <location filename="../../src/qml/components/Page.qml" line="571"/>
+            <location filename="../../src/qml/components/Page.qml" line="588"/>
             <source>Turn off</source>
             <translation>Kikapcsolás</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Page.qml" line="598"/>
+            <location filename="../../src/qml/components/Page.qml" line="615"/>
             <source>Turn off all</source>
             <translation>Összes kikapcsolása</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Page.qml" line="633"/>
+            <location filename="../../src/qml/components/Page.qml" line="650"/>
             <source>%1 is %2</source>
             <extracomment>Used to show the entity state: %1 is the entity name, %2 is the state</extracomment>
             <translatorcomment>Used to show the entity state: %1 is the entity name, %2 is the state</translatorcomment>
             <translation>A(z) %1 állapota: %2</translation>
         </message>
         <message>
-            <location filename="../../src/qml/components/Page.qml" line="715"/>
+            <location filename="../../src/qml/components/Page.qml" line="732"/>
             <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
             <extracomment>Web configurator is the name of the application, does not need translation</extracomment>
             <translatorcomment>Web configurator is the name of the application, does not need translation</translatorcomment>
@@ -3580,7 +3586,7 @@ visszaút</translation>
     <context>
         <name>SelectWidget</name>
         <message>
-            <location filename="../../src/qml/components/SelectWidget.qml" line="296"/>
+            <location filename="../../src/qml/components/SelectWidget.qml" line="308"/>
             <source>Select an option</source>
             <translation>Válassz egy lehetőséget</translation>
         </message>
@@ -3676,20 +3682,26 @@ visszaút</translation>
             <translation>Wi-Fi és Bluetooth</translation>
         </message>
         <message>
-            <location filename="../../src/qml/settings/Settings.qml" line="105"/>
+            <location filename="../../src/qml/settings/Settings.qml" line="113"/>
             <source>Localization</source>
             <extracomment>Settings page for the language, country, time zone, units and clock format of the remote.</extracomment>
             <translation>Nyelv és régió</translation>
         </message>
         <message>
-            <location filename="../../src/qml/settings/Settings.qml" line="110"/>
+            <location filename="../../src/qml/settings/Settings.qml" line="118"/>
             <source>Administrator PIN</source>
             <translation>Rendszergazdai PIN</translation>
         </message>
         <message>
-            <location filename="../../src/qml/settings/Settings.qml" line="115"/>
+            <location filename="../../src/qml/settings/Settings.qml" line="123"/>
             <source>Factory reset</source>
             <translation>Gyári beállítások visszaállítása</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/Settings.qml" line="106"/>
+            <source>Web view</source>
+            <extracomment>Settings page of the web pages shown on the remote: their global settings and a test page; listed only when the firmware provides the web view library</extracomment>
+            <translation>Webview</translation>
         </message>
     </context>
     <context>
@@ -3756,7 +3768,7 @@ megnyitásához</translation>
     <context>
         <name>SliderWidget</name>
         <message>
-            <location filename="../../src/qml/components/SliderWidget.qml" line="144"/>
+            <location filename="../../src/qml/components/SliderWidget.qml" line="159"/>
             <source>%1 is unavailable</source>
             <extracomment>Notification when a slider was moved but the command was not sent because the device is unavailable. %1 is the entity name</extracomment>
             <translation>A(z) %1 nem érhető el</translation>
@@ -4561,6 +4573,25 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
         </message>
     </context>
     <context>
+        <name>Web view state</name>
+        <message>
+            <location filename="../../src/ui/entity/webview.h" line="35"/>
+            <source>Unavailable</source>
+            <translation>Nem érhető el</translation>
+        </message>
+        <message>
+            <location filename="../../src/ui/entity/webview.h" line="37"/>
+            <source>Unknown</source>
+            <translation>Ismeretlen</translation>
+        </message>
+        <message>
+            <location filename="../../src/ui/entity/webview.h" line="40"/>
+            <source>On</source>
+            <extracomment>Web view state: the web page can be shown. Not the preposition "on".</extracomment>
+            <translation>Bekapcsolva</translation>
+        </message>
+    </context>
+    <context>
         <name>WebConfig</name>
         <message>
             <location filename="../../src/qml/components/WebConfig.qml" line="133"/>
@@ -4583,6 +4614,801 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
             <extracomment>Text explaining that the profile has restricted access</extracomment>
             <translatorcomment>Text explaining that the profile has restricted access</translatorcomment>
             <translation>Korlátozott</translation>
+        </message>
+    </context>
+    <context>
+        <name>WebView</name>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="59"/>
+            <source>Light</source>
+            <extracomment>Web view settings: the web pages are asked to use their light colour scheme</extracomment>
+            <translation>Világos</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="62"/>
+            <source>Dark</source>
+            <extracomment>Web view settings: the web pages are asked to use their dark colour scheme</extracomment>
+            <translation>Sötét</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="307"/>
+            <source>Clear cache</source>
+            <extracomment>Web view settings: the cached files of the web pages are deleted whenever a web page is closed (a setting, not the button that clears them now)</extracomment>
+            <translation>Gyorsítótár ürítése</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="74"/>
+            <source>Clear all data</source>
+            <comment>website data on close</comment>
+            <extracomment>Web view settings: all website data (cookies, cache, storage) is deleted whenever a web page is closed (a setting); the short form shown in the settings row, keep it short</extracomment>
+            <translation>Összes adat törlése</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="77"/>
+            <source>Clear all website data</source>
+            <comment>website data on close</comment>
+            <extracomment>Web view settings: all website data (cookies, cache, storage) is deleted whenever a web page is closed (a setting)</extracomment>
+            <translation>Webhely összes adatának törlése</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="80"/>
+            <source>Keep</source>
+            <comment>website data on close</comment>
+            <extracomment>Web view settings: the website data (cookies, cache, storage) of the web pages is kept when a web page is closed (a setting)</extracomment>
+            <translation>Megtartás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="100"/>
+            <source>Select color scheme</source>
+            <extracomment>Title of the list to choose the colour scheme of the web pages (Settings &gt; Web view)</extracomment>
+            <translation>Színséma kiválasztása</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="110"/>
+            <source>Website data on close</source>
+            <extracomment>Title of the list to choose what happens with the website data when a web page is closed (Settings &gt; Web view)
+----------
+Web view settings: what happens with the website data (cookies, cache, storage) when a web page is closed; the row shows Keep, Clear cache or Clear all data</extracomment>
+            <translation>Webhelyadatok bezáráskor</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="112"/>
+            <source>Stay signed in to pages</source>
+            <extracomment>Web view settings: second line of "Keep" in the list of what happens with the website data when a web page closes; keep it short</extracomment>
+            <translation>Maradjon bejelentkezve az oldalakon</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="114"/>
+            <source>Delete cached files</source>
+            <extracomment>Web view settings: second line of "Clear cache" in the list of what happens with the website data when a web page closes; keep it short</extracomment>
+            <translation>Gyorsítótárazott fájlok törlése</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="116"/>
+            <source>Signs you out of pages</source>
+            <extracomment>Web view settings: second line of "Clear all website data" in the list of what happens with the website data when a web page closes: cookies and stored data are deleted too; keep it short</extracomment>
+            <translation>Kijelentkeztet az oldalakról</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="141"/>
+            <source>Clear website data</source>
+            <extracomment>Title of the question before all website data of the web pages is deleted (Settings &gt; Web view)
+----------
+Web view settings: button that deletes the cookies, cache and stored data of all web pages</extracomment>
+            <translation>Webhelyadatok törlése</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="143"/>
+            <source>This deletes the cookies, the cache and the stored data of all web pages. Pages you signed in to ask you to sign in again.</source>
+            <extracomment>Question before all website data of the web pages is deleted (Settings &gt; Web view)</extracomment>
+            <translation>Ez törli a sütiket, a gyorsítótárat és az összes weboldal tárolt adatait. Azok az oldalak, amelyekre bejelentkeztél, újra bejelentkezést fognak kérni.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="149"/>
+            <source>Clear</source>
+            <extracomment>Button of the question before all website data of the web pages is deleted</extracomment>
+            <translation>Törlés</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="160"/>
+            <source>Website data cleared</source>
+            <extracomment>Notification: all website data of the web pages was deleted (Settings &gt; Web view)</extracomment>
+            <translation>Webhelyadatok törölve</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="162"/>
+            <source>Cache cleared</source>
+            <extracomment>Notification: the cache of the web pages was deleted (Settings &gt; Web view)</extracomment>
+            <translation>Gyorsítótár kiürítve</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="165"/>
+            <source>Clearing website data is not supported by this firmware</source>
+            <extracomment>Notification: the firmware's web view cannot delete website data</extracomment>
+            <translation>A webhelyadatok törlését ez a firmware nem támogatja</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="169"/>
+            <source>The website data could not be cleared</source>
+            <extracomment>Notification: deleting all website data of the web pages failed (Settings &gt; Web view)</extracomment>
+            <translation>A webhelyadatokat nem sikerült törölni</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="171"/>
+            <source>The cache could not be cleared</source>
+            <extracomment>Notification: deleting the cache of the web pages failed (Settings &gt; Web view)</extracomment>
+            <translation>A gyorsítótárat nem sikerült kiüríteni</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="207"/>
+            <source>Color scheme</source>
+            <extracomment>Web view settings: the colour scheme (light or dark) the web pages are asked to use</extracomment>
+            <translation>Színséma</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="209"/>
+            <source>For pages with a dark design</source>
+            <extracomment>Web view settings: second line of "Color scheme": only web pages that also have a dark design follow the setting; keep it short (one line)</extracomment>
+            <translation>Sötét megjelenésű oldalakhoz</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="229"/>
+            <source>What closing a page deletes</source>
+            <extracomment>Web view settings: second line of "Website data on close": what is deleted when a web page closes (nothing, the cache or all website data); keep it short (one line)</extracomment>
+            <translation>Mit töröl az oldal bezárása</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="248"/>
+            <source>Buttons</source>
+            <extracomment>Web view settings: opens the page of what the remote's buttons do in a full-screen web page</extracomment>
+            <translation>Gombok</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="250"/>
+            <source>In a full-screen web page</source>
+            <extracomment>Web view settings: second line of "Buttons"; keep it short (one line)</extracomment>
+            <translation>Teljes képernyős weboldalon</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="266"/>
+            <source>Allow invalid certificates</source>
+            <extracomment>Web view settings: switch that lets every web page load with a self-signed, expired or otherwise invalid TLS certificate</extracomment>
+            <translation>Érvénytelen tanúsítványok engedélyezése</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="268"/>
+            <source>Accept self-signed, expired and other invalid certificates on all web pages. Their connections are then not protected against attackers.</source>
+            <extracomment>Web view settings: help text of "Allow invalid certificates"</extracomment>
+            <translation>Önaláírt, lejárt és egyéb érvénytelen tanúsítványok elfogadása minden weboldalon. A kapcsolataik így nem védettek a támadók ellen.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="289"/>
+            <source>Cache and website data</source>
+            <extracomment>Web view settings: section with the buttons that delete the cache and the website data of all web pages</extracomment>
+            <translation>Gyorsítótár és webhelyadatok</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="292"/>
+            <source>All web pages share their cache, cookies and stored data.</source>
+            <extracomment>Web view settings: help text of the buttons that delete the cache and the website data</extracomment>
+            <translation>Minden weboldal megosztja a gyorsítótárát, a sütiket és a tárolt adatokat.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="294"/>
+            <source>Clearing needs a newer firmware.</source>
+            <extracomment>Web view settings: the firmware's web view cannot delete the cache and the website data</extracomment>
+            <translation>A törléshez újabb firmware szükséges.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="341"/>
+            <source>Web view test</source>
+            <extracomment>Web view settings: opens a test page to load any web address in the web view</extracomment>
+            <translation>Webview teszt</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebView.qml" line="343"/>
+            <source>Load any web address to try it</source>
+            <extracomment>Web view settings: second line of "Web view test", which opens a page with an address field; keep it short (one line)</extracomment>
+            <translation>Tölts be egy tetszőleges webcímet a kipróbáláshoz</translation>
+        </message>
+    </context>
+    <context>
+        <name>WebViewButtons</name>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="120"/>
+            <source>Back</source>
+            <comment>web page</comment>
+            <extracomment>Web view settings, Buttons: the BACK button of the remote</extracomment>
+            <translation>Vissza</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="55"/>
+            <source>Up</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the up button of the remote's d-pad</extracomment>
+            <translation>Fel</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="57"/>
+            <source>Down</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the down button of the remote's d-pad</extracomment>
+            <translation>Le</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="59"/>
+            <source>Left</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the left button of the remote's d-pad</extracomment>
+            <translation>Balra</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="61"/>
+            <source>Right</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the right button of the remote's d-pad</extracomment>
+            <translation>Jobbra</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="63"/>
+            <source>OK</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the middle button of the remote's d-pad</extracomment>
+            <translation>OK</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="65"/>
+            <source>Volume up</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the VOLUME + button of the remote</extracomment>
+            <translation>Hangerő fel</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="67"/>
+            <source>Volume down</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the VOLUME - button of the remote</extracomment>
+            <translation>Hangerő le</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="69"/>
+            <source>Channel up</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the CHANNEL + button of the remote</extracomment>
+            <translation>Csatorna fel</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="71"/>
+            <source>Channel down</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the CHANNEL - button of the remote</extracomment>
+            <translation>Csatorna le</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="73"/>
+            <source>Mute</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the MUTE button of the remote</extracomment>
+            <translation>Némítás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="75"/>
+            <source>Previous</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the PREV (previous track) button of the remote</extracomment>
+            <translation>Előző</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="77"/>
+            <source>Play</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the PLAY / pause button of the remote</extracomment>
+            <translation>Lejátszás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="79"/>
+            <source>Next</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the NEXT (next track) button of the remote</extracomment>
+            <translation>Következő</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="81"/>
+            <source>Stop</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the STOP button of the Remote 3</extracomment>
+            <translation>Leállítás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="83"/>
+            <source>Record</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the RECORD button of the Remote 3</extracomment>
+            <translation>Felvétel</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="85"/>
+            <source>Menu</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the MENU button of the Remote 3</extracomment>
+            <translation>Menü</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="87"/>
+            <source>Red</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the red colour button of the Remote Two</extracomment>
+            <translation>Piros</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="89"/>
+            <source>Green</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the green colour button of the Remote Two</extracomment>
+            <translation>Zöld</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="91"/>
+            <source>Yellow</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the yellow colour button of the Remote Two</extracomment>
+            <translation>Sárga</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="93"/>
+            <source>Blue</source>
+            <comment>remote button</comment>
+            <extracomment>Web view settings, Buttons: the blue colour button of the Remote Two</extracomment>
+            <translation>Kék</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="102"/>
+            <source>Zoom in</source>
+            <extracomment>Web view settings, Buttons: the button zooms the web page in one step</extracomment>
+            <translation>Nagyítás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="104"/>
+            <source>Zoom out</source>
+            <extracomment>Web view settings, Buttons: the button zooms the web page out one step</extracomment>
+            <translation>Kicsinyítés</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="106"/>
+            <source>Reset zoom</source>
+            <extracomment>Web view settings, Buttons: the button sets the zoom of the web page back to the web view's zoom</extracomment>
+            <translation>Nagyítás visszaállítása</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="108"/>
+            <source>Scroll up</source>
+            <extracomment>Web view settings, Buttons: the button scrolls the web page up a little</extracomment>
+            <translation>Görgetés felfelé</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="110"/>
+            <source>Scroll down</source>
+            <extracomment>Web view settings, Buttons: the button scrolls the web page down a little</extracomment>
+            <translation>Görgetés lefelé</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="112"/>
+            <source>Page up</source>
+            <extracomment>Web view settings, Buttons: the button scrolls the web page up by one screen</extracomment>
+            <translation>Oldal fel</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="114"/>
+            <source>Page down</source>
+            <extracomment>Web view settings, Buttons: the button scrolls the web page down by one screen</extracomment>
+            <translation>Oldal le</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="116"/>
+            <source>Top of the page</source>
+            <extracomment>Web view settings, Buttons: the button scrolls to the top of the web page</extracomment>
+            <translation>Oldal teteje</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="118"/>
+            <source>Bottom of the page</source>
+            <extracomment>Web view settings, Buttons: the button scrolls to the bottom of the web page</extracomment>
+            <translation>Oldal alja</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="122"/>
+            <source>Forward</source>
+            <comment>web page</comment>
+            <extracomment>Web view settings, Buttons: the button goes forward to the next web page in the history</extracomment>
+            <translation>Előre</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="124"/>
+            <source>Back or close</source>
+            <extracomment>Web view settings, Buttons: the button goes back to the previous web page, or closes the web view on the first page</extracomment>
+            <translation>Vissza vagy bezárás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="126"/>
+            <source>Reload</source>
+            <comment>web page</comment>
+            <extracomment>Web view settings, Buttons: the button loads the web page again</extracomment>
+            <translation>Újratöltés</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="128"/>
+            <source>Stop loading</source>
+            <extracomment>Web view settings, Buttons: the button stops loading the web page</extracomment>
+            <translation>Betöltés leállítása</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="130"/>
+            <source>Close</source>
+            <comment>web page</comment>
+            <extracomment>Web view settings, Buttons: the button closes the web view</extracomment>
+            <translation>Bezárás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="132"/>
+            <source>Show or hide navigation</source>
+            <extracomment>Web view settings, Buttons: the button shows or hides the bar with Back, Forward, Reload and Close</extracomment>
+            <translation>Navigáció megjelenítése vagy elrejtése</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="134"/>
+            <source>Next element</source>
+            <extracomment>Web view settings, Buttons: the button moves the focus to the next element of the web page, like the Tab key</extracomment>
+            <translation>Következő elem</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="136"/>
+            <source>Previous element</source>
+            <extracomment>Web view settings, Buttons: the button moves the focus to the previous element of the web page, like Shift+Tab</extracomment>
+            <translation>Előző elem</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="138"/>
+            <source>Nothing</source>
+            <extracomment>Web view settings, Buttons: the button does nothing in a full-screen web page</extracomment>
+            <translation>Nincs művelet</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="153"/>
+            <source>Sends %1</source>
+            <extracomment>Web view settings, Buttons: the button sends this key to the web page; %1 is the name of the key a web page receives (for example ArrowUp or ChannelUp), not translated</extracomment>
+            <translation>%1 küldése</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="156"/>
+            <source>Normal function</source>
+            <extracomment>Web view settings, Buttons: the button keeps its function without the web page, e.g. the button mapping of the activity</extracomment>
+            <translation>Normál funkció</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="172"/>
+            <source>Default</source>
+            <extracomment>Web view settings, Buttons: second line of the default action in the list of actions of a button
+----------
+Web view settings, Buttons: second line of the default key in the list of keys a button can send to the web page</extracomment>
+            <translation>Alapértelmezett</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="184"/>
+            <source>Send key to page</source>
+            <extracomment>Web view settings, Buttons: the last entry of the list of actions of a button: opens the list of the keys the button can send to the web page</extracomment>
+            <translation>Billentyű küldése az oldalnak</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="221"/>
+            <source>Key for %1</source>
+            <extracomment>Web view settings, Buttons: title of the list of keys a button can send to the web page; %1 is the name of the button</extracomment>
+            <translation>Billentyű ehhez: %1</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewButtons.qml" line="298"/>
+            <source>What the buttons do in a full-screen web page, for all web views. A web view can change single buttons.</source>
+            <extracomment>Web view settings, Buttons: the text above the list of the remote's buttons</extracomment>
+            <translation>Mit csinálnak a gombok egy teljes képernyős weboldalon, minden Webview esetén. Egy Webview testre szabhat egyes gombokat.</translation>
+        </message>
+    </context>
+    <context>
+        <name>WebViewDialog</name>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="232"/>
+            <source>Leave this page?</source>
+            <extracomment>Title of the question a web page asks before the user leaves it (the page may have unsaved changes)</extracomment>
+            <translation>Elhagyod ezt az oldalt?</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="236"/>
+            <source>%1 says</source>
+            <extracomment>Title of a message, question or text input a web page shows; %1 is the page's address, such as https://example.com</extracomment>
+            <translation>%1 üzenete</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="239"/>
+            <source>This page says</source>
+            <extracomment>Title of a message, question or text input of a web page that has no address of its own</extracomment>
+            <translation>Az oldal üzenete</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="296"/>
+            <source>Changes you made may not be saved.</source>
+            <extracomment>Text of the question a web page asks before the user leaves it; pages cannot word it themselves</extracomment>
+            <translation>A módosítások nem biztos, hogy mentésre kerülnek.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="313"/>
+            <source>Your answer</source>
+            <extracomment>Placeholder of the text field of a web page's text input dialog</extracomment>
+            <translation>A válaszod</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="334"/>
+            <source>Stay</source>
+            <extracomment>Button of the question a web page asks before the user leaves it: stay on the page</extracomment>
+            <translation>Maradás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="336"/>
+            <source>Cancel</source>
+            <extracomment>Button of a web page's question or text input dialog that answers no</extracomment>
+            <translation>Mégse</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="353"/>
+            <source>Leave</source>
+            <extracomment>Button of the question a web page asks before the user leaves it: leave the page</extracomment>
+            <translation>Elhagyás</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewDialog.qml" line="355"/>
+            <source>OK</source>
+            <extracomment>Button of a web page's message, question or text input dialog that answers yes</extracomment>
+            <translation>OK</translation>
+        </message>
+    </context>
+    <context>
+        <name>WebViewLoadIndicator</name>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="66"/>
+            <source>The page could not be loaded</source>
+            <extracomment>Web view entity, on the whole screen or as a widget of an activity page: the web page did not load (no network, a wrong address, the server does not answer)</extracomment>
+            <translation>Az oldalt nem sikerült betölteni</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="68"/>
+            <source>Press OK to try again</source>
+            <extracomment>Web view entity on the whole screen, below "The page could not be loaded": OK loads the page again</extracomment>
+            <translation>Nyomd meg az OK gombot az újbóli próbálkozáshoz</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="78"/>
+            <source>The server %1 wasn't found. Check the Remote's Wi-Fi connection and the address.</source>
+            <extracomment>Web view entity, below "The page could not be loaded": the name of the web server could not be found (DNS). %1 is the server's name, such as www.example.com</extracomment>
+            <translation>A(z) %1 szerver nem található. Ellenőrizd a távirányító Wi-Fi-kapcsolatát és a címet.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="83"/>
+            <source>The Remote isn't connected to a network.</source>
+            <extracomment>Web view entity, below "The page could not be loaded": the remote has no network connection (or no route to the server)</extracomment>
+            <translation>A távirányító nem csatlakozik hálózathoz.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="88"/>
+            <source>%1 refused the connection. Check that the server is running and the port is correct.</source>
+            <extracomment>Web view entity, below "The page could not be loaded": the server answered that nothing listens on the port. %1 is the server's name or IP address, such as 192.168.1.20</extracomment>
+            <translation>A(z) %1 visszautasította a kapcsolatot. Ellenőrizd, hogy a szerver fut-e, és a port helyes-e.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="93"/>
+            <source>%1 didn't respond in time.</source>
+            <extracomment>Web view entity, below "The page could not be loaded": the server did not answer. %1 is the server's name or IP address</extracomment>
+            <translation>A(z) %1 nem válaszolt időben.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="98"/>
+            <source>The certificate of %1 isn't trusted (expired, wrong name, or self-signed).</source>
+            <extracomment>Web view entity, below "The page could not be loaded": the server's HTTPS certificate was not accepted. %1 is the server's name</extracomment>
+            <translation>A(z) %1 tanúsítványa nem megbízható (lejárt, hibás a név vagy önaláírt).</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="103"/>
+            <source>Only http:// and https:// addresses can be opened.</source>
+            <extracomment>Web view entity, below "The page could not be loaded": the web address uses another scheme, such as ftp:// or file://</extracomment>
+            <translation>Csak http:// és https:// címek nyithatók meg.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="107"/>
+            <source>The page stopped working.</source>
+            <extracomment>Web view entity, below "The page could not be loaded": the web engine's process of the page crashed (twice)</extracomment>
+            <translation>Az oldal működése leállt.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="111"/>
+            <source>The page needs more memory than the Remote has.</source>
+            <extracomment>Web view entity, below "The page could not be loaded": the web page used more memory than the remote allows</extracomment>
+            <translation>Az oldalnak több memóriára van szüksége, mint amennyi a távirányítónak van.</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="324"/>
+            <source>Try again</source>
+            <extracomment>Web view entity on the whole screen, button below "The page could not be loaded": load the page again</extracomment>
+            <translation>Újra</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="338"/>
+            <source>Details</source>
+            <extracomment>Web view entity on the whole screen: the button below "The page could not be loaded" and the title of the sheet it opens, with the technical error (the server's address, the error code)</extracomment>
+            <translation>Részletek</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="489"/>
+            <source>Close</source>
+            <extracomment>Button of the sheet with the technical details of a web page that could not be loaded</extracomment>
+            <translation>Bezárás</translation>
+        </message>
+    </context>
+    <context>
+        <name>WebViewLogin</name>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="114"/>
+            <source>The page cancelled the sign-in</source>
+            <extracomment>Notification when a web page's login dialog closes because the page went on without the login</extracomment>
+            <translation>Az oldal megszakította a bejelentkezést</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="136"/>
+            <source>Wrong user name or password</source>
+            <extracomment>Error under the password field when a web server rejected the user name or password the user entered</extracomment>
+            <translation>Hibás felhasználónév vagy jelszó</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="196"/>
+            <source>Sign in to the proxy %1</source>
+            <extracomment>Title of the login dialog of a proxy server; %1 is the proxy's address, such as http://proxy:3128</extracomment>
+            <translation>Bejelentkezés a(z) %1 proxykiszolgálóra</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="198"/>
+            <source>Sign in to %1</source>
+            <extracomment>Title of the login dialog of a web site; %1 is the site's address, such as https://example.com</extracomment>
+            <translation>Bejelentkezés ide: %1</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="215"/>
+            <source>The site says: “%1”</source>
+            <extracomment>Line of the web login dialog with the server's own name for the protected area; %1 is that text</extracomment>
+            <translation>A webhely üzenete: „%1”</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="228"/>
+            <source>Not secure: this connection is not encrypted</source>
+            <extracomment>Warning of the web login dialog when the site uses http instead of https</extracomment>
+            <translation>Nem biztonságos: ez a kapcsolat nem titkosított</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="236"/>
+            <source>User name</source>
+            <extracomment>Placeholder of the user name field of a web site's login dialog</extracomment>
+            <translation>Felhasználónév</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="249"/>
+            <source>Password</source>
+            <extracomment>Placeholder of the password field of a web site's login dialog</extracomment>
+            <translation>Jelszó</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="268"/>
+            <source>Cancel</source>
+            <extracomment>Button of a web site's login dialog: continue without signing in</extracomment>
+            <translation>Mégse</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewLogin.qml" line="284"/>
+            <source>Sign in</source>
+            <extracomment>Button of a web site's login dialog: send the user name and password</extracomment>
+            <translation>Bejelentkezés</translation>
+        </message>
+    </context>
+    <context>
+        <name>WebViewRequests</name>
+        <message>
+            <location filename="../../src/qml/components/WebViewRequests.qml" line="82"/>
+            <source>Downloads are not supported</source>
+            <extracomment>Notification when a web page starts a download, which the remote cannot save</extracomment>
+            <translation>A letöltések nem támogatottak</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewRequests.qml" line="85"/>
+            <source>PDF documents cannot be shown here</source>
+            <extracomment>Notification when a link of a web page opens a PDF document, which the remote cannot show</extracomment>
+            <translation>A PDF-dokumentumok itt nem jeleníthetők meg</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewRequests.qml" line="88"/>
+            <source>This document cannot be shown here</source>
+            <extracomment>Notification when a link of a web page opens a file the remote cannot show (not a web page or image)</extracomment>
+            <translation>Ez a dokumentum itt nem jeleníthető meg</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/WebViewRequests.qml" line="96"/>
+            <source>The page tried to open a link that cannot be shown</source>
+            <extracomment>Notification when a web page tries to open a new window with an address the remote cannot show</extracomment>
+            <translation>Az oldal olyan hivatkozást próbált megnyitni, amely nem jeleníthető meg</translation>
+        </message>
+    </context>
+    <context>
+        <name>WebViewTest</name>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewTest.qml" line="301"/>
+            <source>Downloads are not supported</source>
+            <extracomment>Notification when a web page starts a download, which the remote cannot save</extracomment>
+            <translation>A letöltések nem támogatottak</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewTest.qml" line="304"/>
+            <source>PDF documents cannot be shown here</source>
+            <extracomment>Notification when a link of a web page opens a PDF document, which the remote cannot show</extracomment>
+            <translation>A PDF-dokumentumok itt nem jeleníthetők meg</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewTest.qml" line="307"/>
+            <source>This document cannot be shown here</source>
+            <extracomment>Notification when a link of a web page opens a file the remote cannot show (not a web page or image)</extracomment>
+            <translation>Ez a dokumentum itt nem jeleníthető meg</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewTest.qml" line="317"/>
+            <source>The page tried to open a link that cannot be shown</source>
+            <extracomment>Notification when a web page tries to open a new window with an address the remote cannot show</extracomment>
+            <translation>Az oldal olyan hivatkozást próbált megnyitni, amely nem jeleníthető meg</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewTest.qml" line="331"/>
+            <source>The web page closed itself</source>
+            <extracomment>Notification when the web page shown in the user interface closed itself (window.close())</extracomment>
+            <translation>A weboldal bezárta magát</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewTest.qml" line="352"/>
+            <source>Web address</source>
+            <extracomment>Placeholder of the address field on the web view test page (Settings &gt; Web view &gt; Web view test), which shows a web page inside the user interface</extracomment>
+            <translation>Webcím</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewTest.qml" line="372"/>
+            <source>Load</source>
+            <extracomment>Button on the web view test page that loads the entered web address in the embedded web view</extracomment>
+            <translation>Betöltés</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/settings/settings/WebViewTest.qml" line="483"/>
+            <source>Web view unavailable</source>
+            <extracomment>Status line of the web view test page when the firmware has no web view library</extracomment>
+            <translation>A Webview nem érhető el</translation>
+        </message>
+    </context>
+    <context>
+        <name>Webview</name>
+        <message>
+            <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="409"/>
+            <source>The web page closed itself</source>
+            <extracomment>Notification when the web page shown in the user interface closed itself (window.close())</extracomment>
+            <translation>A weboldal bezárta magát</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="433"/>
+            <source>This remote cannot show web pages</source>
+            <extracomment>Fullscreen web view of a web view entity, on a remote whose firmware cannot show web pages</extracomment>
+            <translation>Ez a távirányító nem tud weboldalakat megjeleníteni</translation>
+        </message>
+        <message>
+            <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="435"/>
+            <source>The web page has no valid address</source>
+            <extracomment>Fullscreen web view of a web view entity whose web address is missing or invalid</extracomment>
+            <translation>A weboldalnak nincs érvényes címe</translation>
         </message>
     </context>
     <context>
@@ -4942,7 +5768,7 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
     <context>
         <name>main</name>
         <message>
-            <location filename="../../src/qml/main.qml" line="832"/>
+            <location filename="../../src/qml/main.qml" line="973"/>
             <source>Done</source>
             <translation>Kész</translation>
         </message>
@@ -5192,17 +6018,17 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
     <context>
         <name>uc::core::Api</name>
         <message>
-            <location filename="../../src/core/core.cpp" line="1382"/>
+            <location filename="../../src/core/core.cpp" line="1475"/>
             <source>Connection error</source>
             <translation>Kapcsolódási hiba</translation>
         </message>
         <message>
-            <location filename="../../src/core/core.cpp" line="1383"/>
+            <location filename="../../src/core/core.cpp" line="1476"/>
             <source>There was an error connecting to the core. If the issue persists, restart the remote.</source>
             <translation>Hiba történt a Core-hoz csatlakozáskor. Ha a probléma továbbra is fennáll, indítsd újra a távirányítót.</translation>
         </message>
         <message>
-            <location filename="../../src/core/core.cpp" line="1852"/>
+            <location filename="../../src/core/core.cpp" line="1952"/>
             <source>Authentication to core failed</source>
             <translation>A Core-hoz való hitelesítés nem sikerült</translation>
         </message>
@@ -5271,13 +6097,13 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
     <context>
         <name>uc::hw::Power</name>
         <message>
-            <location filename="../../src/system/power.cpp" line="63"/>
+            <location filename="../../src/system/power.cpp" line="64"/>
             <source>Error on power off: %1</source>
             <extracomment>Notification: the remote could not be powered off. %1 is the core's error message</extracomment>
             <translation>Hiba a kikapcsoláskor: %1</translation>
         </message>
         <message>
-            <location filename="../../src/system/power.cpp" line="79"/>
+            <location filename="../../src/system/power.cpp" line="80"/>
             <source>Error on reboot: %1</source>
             <extracomment>Notification: the remote could not be restarted. %1 is the core's error message</extracomment>
             <translation>Hiba az újraindításkor: %1</translation>
@@ -5454,74 +6280,74 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
     <context>
         <name>uc::ui::Controller</name>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="310"/>
+            <location filename="../../src/ui/uiController.cpp" line="327"/>
             <source>Error adding profile: %1</source>
             <extracomment>Notification: a profile could not be created. %1 is the core's error message</extracomment>
             <translation>Hiba a profil hozzáadásakor: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="329"/>
+            <location filename="../../src/ui/uiController.cpp" line="346"/>
             <source>Error</source>
             <translation>Hiba</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="330"/>
+            <location filename="../../src/ui/uiController.cpp" line="347"/>
             <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
             <translation>A jelenleg használt profil nem törölhető. Válts át egy másik profilra, és próbáld újra.</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="347"/>
+            <location filename="../../src/ui/uiController.cpp" line="364"/>
             <source>Error deleting profile: %1</source>
             <extracomment>Notification: a profile could not be deleted. %1 is the core's error message</extracomment>
             <translation>Hiba a profil törlésekor: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="367"/>
+            <location filename="../../src/ui/uiController.cpp" line="384"/>
             <source>Error adding page: %1</source>
             <extracomment>Notification: a page could not be created. %1 is the core's error message</extracomment>
             <translation>Hiba az oldal hozzáadásakor: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="390"/>
+            <location filename="../../src/ui/uiController.cpp" line="407"/>
             <source>Error renaming page: %1</source>
             <extracomment>Notification: a page could not be renamed. %1 is the core's error message</extracomment>
             <translation>Hiba az oldal átnevezésekor: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="409"/>
+            <location filename="../../src/ui/uiController.cpp" line="426"/>
             <source>Error deleting page: %1</source>
             <extracomment>Notification: a page could not be deleted. %1 is the core's error message</extracomment>
             <translation>Hiba az oldal törlésekor: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="508"/>
+            <location filename="../../src/ui/uiController.cpp" line="525"/>
             <source>Error during factory reset: %1</source>
             <extracomment>Notification: the factory reset failed. %1 is the core's error message</extracomment>
             <translation>Hiba a gyári beállítások visszaállításakor: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="652"/>
+            <location filename="../../src/ui/uiController.cpp" line="670"/>
             <source>Profile update error</source>
             <translation>Profilfrissítési hiba</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="713"/>
+            <location filename="../../src/ui/uiController.cpp" line="731"/>
             <source>Error updating page: %1</source>
             <extracomment>Notification: a change to a page could not be saved. %1 is the core's error message</extracomment>
             <translation>Hiba az oldal frissítésekor: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="779"/>
+            <location filename="../../src/ui/uiController.cpp" line="805"/>
             <source>%1 error</source>
             <translation>%1 hiba</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.cpp" line="779"/>
+            <location filename="../../src/ui/uiController.cpp" line="805"/>
             <source>Error while connecting to %1, with id %2</source>
             <translation>Hiba a(z) %1 csatlakozásakor, azonosító: %2</translation>
         </message>
         <message>
-            <location filename="../../src/ui/uiController.h" line="288"/>
+            <location filename="../../src/ui/uiController.h" line="292"/>
             <source>The factory reset could not be started. Please try again.</source>
             <translation>A gyári beállítások visszaállítását nem sikerült elindítani. Kérjük, próbálja meg újra.</translation>
         </message>
@@ -5529,95 +6355,95 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
     <context>
         <name>uc::ui::EntityController</name>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="303"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="312"/>
             <source>Could not configure the entity: %1</source>
             <extracomment>Error while configuring an entity. %1 is an error message from the remote</extracomment>
             <translation>Nem sikerült konfigurálni az entitást: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="328"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="337"/>
             <source>Could not rename the entity: %1</source>
             <extracomment>Error while renaming an entity. %1 is an error message from the remote</extracomment>
             <translation>Nem sikerült átnevezni az entitást: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="337"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="346"/>
             <source>Could not change the entity state: not connected</source>
             <translation>Nem sikerült módosítani az entitás állapotát: nincs kapcsolat</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="357"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="366"/>
             <source>The state cannot be changed while the entity is unavailable or the activity is running</source>
             <extracomment>Error while fixing an entity state</extracomment>
             <translatorcomment>Error while fixing an entity state</translatorcomment>
             <translation>Az állapot nem módosítható, amíg az entitás nem érhető el, vagy a tevékenység fut</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="361"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="370"/>
             <source>The state of this entity type cannot be changed</source>
             <extracomment>Error while fixing an entity state</extracomment>
             <translatorcomment>Error while fixing an entity state</translatorcomment>
             <translation>Ennek az entitástípusnak az állapota nem módosítható</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="365"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="374"/>
             <source>Not allowed to change the entity state</source>
             <extracomment>Error while fixing an entity state</extracomment>
             <translatorcomment>Error while fixing an entity state</translatorcomment>
             <translation>Az entitás állapotának módosítása nem engedélyezett</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="369"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="378"/>
             <source>Could not change the entity state: %1</source>
             <extracomment>Error while fixing an entity state. %1 is an error message from the remote</extracomment>
             <translatorcomment>Error while fixing an entity state. %1 is an error message from the remote</translatorcomment>
             <translation>Nem sikerült módosítani az entitás állapotát: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="388"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="397"/>
             <source>Could not change the entity icon: %1</source>
             <extracomment>Error while changing the icon of an entity. %1 is an error message from the remote</extracomment>
             <translation>Nem sikerült módosítani az entitás ikonját: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="465"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="474"/>
             <source>Could not delete the entities: %1</source>
             <extracomment>Error while deleting entities. %1 is an error message from the remote</extracomment>
             <translation>Nem sikerült törölni az entitásokat: %1</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="952"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="994"/>
             <source>%1 is unavailable</source>
             <extracomment>Notification when a command was not sent because the device is unavailable. %1 is the entity name</extracomment>
             <translation>A(z) %1 nem érhető el.</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="1146"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="1197"/>
             <source>The device</source>
             <translation>Az eszköz</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="1166"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="1217"/>
             <source>%1 is not responding</source>
             <translation>A(z) %1 nem válaszol</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="1167"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="1218"/>
             <source>The command did not reach the device. Would you like to try again?</source>
             <translation>A parancs nem jutott el az eszközhöz. Megpróbálod újra?</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="1198"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="1249"/>
             <source>Try again</source>
             <translation>Újrapróbálkozás</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="1204"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="1255"/>
             <source>%1 is not responding. Error code: %2</source>
             <translation>A(z) %1 nem válaszol. Hibakód: %2</translation>
         </message>
         <message>
-            <location filename="../../src/ui/entity/entityController.cpp" line="1204"/>
+            <location filename="../../src/ui/entity/entityController.cpp" line="1255"/>
             <source>Error sending the command</source>
             <translation>Hiba a parancs elküldése közben</translation>
         </message>
@@ -5636,6 +6462,15 @@ Koppints a QR-kódra, hogy megjelenjen a képernyőn.</translation>
             <location filename="../../src/ui/page/page.cpp" line="197"/>
             <source>%1 already exists on the page.</source>
             <translation>A(z) %1 már szerepel az oldalon.</translation>
+        </message>
+    </context>
+    <context>
+        <name>uc::ui::WebViewController</name>
+        <message>
+            <location filename="../../src/ui/entity/webviewController.cpp" line="349"/>
+            <source>Error setting web view settings: %1</source>
+            <extracomment>Notification: a setting of the web pages (Settings &gt; Web view) could not be changed. %1 is the core's error message</extracomment>
+            <translation>Hiba a Webview beállításakor: %1</translation>
         </message>
     </context>
 </TS>
