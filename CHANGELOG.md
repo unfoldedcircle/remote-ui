@@ -80,7 +80,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A web view page that takes a while to load shows that it loads, on the whole screen and in the widget of an activity
   page: after a moment a spinner with the percentage loaded until the page appears, then a thin bar at the top until it
   is complete. Reload shows only the bar, the automatic reload nothing. A page that cannot be loaded says so instead of
-  showing a technical error text, and OK, or a tap, tries again.
+  showing a technical error text. On the whole screen OK or Try again tries again, in the widget a tap. With the web
+  view library 0.10.0 the message also says why: the server wasn't found, the remote isn't connected to a network, the
+  server refused the connection or didn't respond, its certificate isn't trusted, the address isn't a web address, or
+  the page stopped working or needs too much memory; on the whole screen Details shows the technical error.
 
 ### Fixed
 - The remote no longer ends up on a black screen that no button and no touch leaves. Closing an entity screen that

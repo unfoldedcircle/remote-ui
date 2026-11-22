@@ -24,7 +24,8 @@ the web view, for an unavailable entity or without a start page it SHALL show an
 
 ### Requirement: Load indicator of a web view widget
 A web view widget SHALL show the load indicator of its web view at its size: the percentage only where it fits, the
-failure without the OK hint. A tap on the failure SHALL load the page again when the widget is interactive.
+failure without the OK hint and without buttons, its reason line only where it fits. A tap on the failure SHALL load the
+page again when the widget is interactive.
 
 #### Scenario: Failed page in a widget
 - **WHEN** the page of an interactive 3 x 3 web view widget cannot be loaded

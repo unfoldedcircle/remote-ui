@@ -407,6 +407,32 @@ of a view that has it on, and takes the state as JSON (`uc_webview_set_device_st
 - **Best effort.** The standby is never delayed for a page. A handshake (the page confirms it saved its state) would
   need a core change and is out of scope.
 
+### D19 — Why a load failed, through library 0.10.0
+
+The maintainer's report: "The page could not be loaded" alone leaves the user guessing whether the remote, the network
+or the server is at fault. Library 0.10.0 appends `load_failed_detail` to `uc_webview_callbacks`, called right before
+`load_changed(FAILED)` for the same failure: a reason (`UC_WEBVIEW_FAIL_*`), GLib's error domain, code and message,
+and a certificate's `GTlsCertificateFlags`.
+
+- **The item.** `WebViewItem` keeps the detail for the `FAILED` of the same address and publishes `loadError` (an enum
+  that also covers its own refusal of an address and the end of the web process), `loadErrorHost` and
+  `loadErrorDetails`. They clear with the failure message (a load the user waits for, a navigation of the page, a page
+  that shows), so a quiet reload keeps them like the message. The callback is always set: `uc_webview_new_sized()` hands
+  it only to a library that knows it, and an older one never calls it, so the failure stays generic (`LoadErrorNone`).
+  Alternative: a function that asks for the last error — a second path for one event, and racy with the next load.
+- **The details are technical and untranslated**, for a support request or the integration's author: the address with
+  scheme, host and port only (`webviewinput.cpp loadErrorAddress()`), since an integration's address may carry a token
+  in its path or query; every URL inside the error text shortened the same way; the certificate's flags by name; the
+  domain and code. The log line keeps `logUrl()` and adds the reason, domain and code, not the message.
+- **The UI.** A translated reason line per kind below the unchanged title; Try again and Details replace the tap
+  anywhere in the fullscreen web view (a tap that meant to dismiss the message reloaded the page), OK still tries again.
+  Details is a bottom sheet like the Wi-Fi network's, which owns the keys while it is open. The widget has neither: it
+  is small and takes no keys, so it shows the reason only in the lines left below the title, and a tap keeps its
+  meaning (try again, or open the fullscreen web view).
+- **The item's own refusal** of an address outside the scheme allowlist now shows the failure too, with
+  `LoadErrorUnsupportedAddress`, over the page that stays (no cover: no error page follows). A web view entity never
+  gets there (its address is http or https); the test page shows none of the load indicator.
+
 ## Risks / Trade-offs
 
 Failure Mode Analysis (Core-API connection and event handling, input ownership, the static build and the qrc
@@ -457,6 +483,10 @@ registration):
 - [A screen dropped without its close] → the fullscreen screen releases `fullscreenEntityId` on destruction too.
 - [A slow page looks dead, a failed one shows WebKit's text] → the load indicator (D15); `testWebViewItem` and
   `testWebViewEntityScreen` drive the stand-in library's load events, progress and frames.
+- [A detail of another failure is taken for this one] → it is used only for the `FAILED` of the same address that
+  follows it, and once (D19).
+- [A token of the address in the Details] → scheme, host and port only, also for the URLs in the error text (D19);
+  `testWebViewItem` and `testWebViewInput` check it.
 - [The library reports no navigation ids] → a `FINISHED` of an earlier load reported after the next load's `STARTED`
   ends that load's indicator early; a page of the failed address that WebKit loads by itself right after the failure is
   taken for the error page (D15).

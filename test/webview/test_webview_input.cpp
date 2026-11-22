@@ -35,6 +35,10 @@ class testWebViewInput : public QObject {
     void loggableUrlDropsCredentialsQueryAndPayload_data();
     void loggableUrlDropsCredentialsQueryAndPayload();
     void loggableUrlIsCutAt200Characters();
+    void loadErrorAddressIsSchemeHostAndPort_data();
+    void loadErrorAddressIsSchemeHostAndPort();
+    void loadErrorMessageShortensUrlsAndIsCut();
+    void certificateErrorNames();
     void pageKeysByName_data();
     void pageKeysByName();
     void everyKeyOfTheButtonMappingHasItsKeysymAndKeycode();
@@ -310,6 +314,50 @@ void testWebViewInput::loggableUrlDropsCredentialsQueryAndPayload() {
     QFETCH(bool, full);
     QFETCH(QString, expected);
     QCOMPARE(loggableUrl(QUrl(url), full), expected);
+}
+
+void testWebViewInput::loadErrorAddressIsSchemeHostAndPort_data() {
+    QTest::addColumn<QString>("url");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("path, query, fragment") << "https://example.com/a/b?token=1#x" << "https://example.com";
+    QTest::newRow("credentials and port") << "http://user:secret@nas.local:8080/" << "http://nas.local:8080";
+    QTest::newRow("scheme in capitals") << "HTTPS://Example.COM/" << "https://example.com";
+    QTest::newRow("IPv4") << "http://192.168.1.20:8123/lovelace" << "http://192.168.1.20:8123";
+    QTest::newRow("IPv6") << "http://[fe80::1]:8080/x" << "http://[fe80::1]:8080";
+    QTest::newRow("without a host") << "javascript:alert(1)" << "javascript:";
+    QTest::newRow("data") << "data:text/html,<p>secret" << "data:";
+    QTest::newRow("file") << "file:///etc/passwd" << "file:";
+    QTest::newRow("no scheme") << "/app/x.html" << "";
+    QTest::newRow("empty") << "" << "";
+}
+
+void testWebViewInput::loadErrorAddressIsSchemeHostAndPort() {
+    QFETCH(QString, url);
+    QFETCH(QString, expected);
+    QCOMPARE(loadErrorAddress(QUrl(url)), expected);
+}
+
+void testWebViewInput::loadErrorMessageShortensUrlsAndIsCut() {
+    QCOMPARE(loadErrorMessage(QStringLiteral("Cannot load https://u:p@a.example/x?t=1, try http://b.example:81/y.")),
+             QStringLiteral("Cannot load https://a.example, try http://b.example:81."));
+    QCOMPARE(loadErrorMessage(QString::fromUtf8("Error resolving \u201cnas.local\u201d: Name or service not known")),
+             QString::fromUtf8("Error resolving \u201cnas.local\u201d: Name or service not known"));
+    QCOMPARE(loadErrorMessage(QStringLiteral(" line\none\tend\r\n")), QStringLiteral("line one end"));
+    QCOMPARE(loadErrorMessage(QString()), QString());
+    const QString cut = loadErrorMessage(QString(400, QLatin1Char('e')));
+    QCOMPARE(cut.size(), 303);
+    QVERIFY(cut.endsWith(QStringLiteral("...")));
+}
+
+void testWebViewInput::certificateErrorNames() {
+    QCOMPARE(uc::webview::certificateErrorNames(0), QString());
+    // GTlsCertificateFlags: UNKNOWN_CA 1, BAD_IDENTITY 2, NOT_ACTIVATED 4, EXPIRED 8, REVOKED 16, INSECURE 32,
+    // GENERIC_ERROR 64
+    QCOMPARE(uc::webview::certificateErrorNames(1 | 2 | 8), QStringLiteral("expired, unknown issuer, wrong host name"));
+    QCOMPARE(uc::webview::certificateErrorNames(4 | 16 | 32 | 64),
+             QStringLiteral("not yet valid, revoked, insecure algorithm, other error"));
+    QCOMPARE(uc::webview::certificateErrorNames(1 | 0x300), QStringLiteral("unknown issuer, flags 0x300"));
 }
 
 void testWebViewInput::loggableUrlIsCutAt200Characters() {

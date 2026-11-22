@@ -187,7 +187,7 @@ element.
 
 | Kind | Members |
 |------|---------|
-| Properties | `url`, `title`, `loading`, `loadProgress`, `canGoBack`, `canGoForward`, `available`, `backgroundColor` (white by default, like a browser: what WebKit shows where the page paints no background), `zoom`, `zoomRendering`, `magnification`, `pinching`, `pinchZoomAvailable`, `framesReceived`, `framesReleased`, `loadIndicator` (`WebView.LoadIndicatorNone`, `LoadIndicatorSpinner`, `LoadIndicatorBar`, `LoadIndicatorFailed`) and `pageFailed` (see "Load indicator") |
+| Properties | `url`, `title`, `loading`, `loadProgress`, `canGoBack`, `canGoForward`, `available`, `backgroundColor` (white by default, like a browser: what WebKit shows where the page paints no background), `zoom`, `zoomRendering`, `magnification`, `pinching`, `pinchZoomAvailable`, `framesReceived`, `framesReleased`, `loadIndicator` (`WebView.LoadIndicatorNone`, `LoadIndicatorSpinner`, `LoadIndicatorBar`, `LoadIndicatorFailed`), `pageFailed`, `loadError` (`WebView.LoadErrorNone`, ...), `loadErrorHost` and `loadErrorDetails` (see "Load indicator") |
 | Methods | `reload()`, `reloadQuietly()` (a reload without the load indicator), `stop()`, `goBack()`, `goForward()`, `runJavaScript(script)`, `loadHtml(html, baseUrl)`, `zoomIn()`, `zoomOut()`, `pageUp()`, `pageDown()` |
 | Signals | `crashed(reason)`, `loadFailed(url)` (also for a URL outside the scheme allowlist), `dialogRequested(request)`, `authenticationRequested(request)`, `newWindow(url, loaded)`, `responseRefused(url, mimeType, download)`, `closeRequested()` |
 | Types | `WebViewDialogRequest`, `WebViewAuthRequest` (uncreatable, see "Dialogs and logins") |
@@ -478,8 +478,10 @@ the page`.
 The library loads only `http`, `https`, `about` and `data` URLs; `file` only when the process sets
 `UC_WEBVIEW_ALLOW_FILE_URLS=1` (also `true`, `yes`, `on`; blocked by default, so in production). Other schemes and
 strings without a scheme are refused. The item applies the same rule in its `url` setter and to the base URL of
-`loadHtml()`: a refused URL is not loaded, `url` keeps its value, the item logs `Not loading URL <url>: <reason>`
-(warning, `uc.ui.webview`) and emits `loadFailed(url)`, which the test page shows in its status line. Should the
+`loadHtml()`: a refused URL is not loaded, `url` and the page keep their value, the item logs `Not loading URL <url>:
+<reason>` (warning, `uc.ui.webview`), emits `loadFailed(url)`, which the test page shows in its status line, and shows
+the failure with `LoadErrorUnsupportedAddress` over the page (`pageFailed` stays false: no error page follows). A web
+view entity never gets there: its address is http or https. Should the
 library refuse a load anyway (another environment), it reports a failed load without started or finished events; the
 item emits `loadFailed(url)` for it as well.
 
@@ -877,7 +879,7 @@ page keeps its status line and shows none of it.
 | `LoadIndicatorNone` | for the first 400 ms of every load (`WebViewItem::kLoadIndicatorDelayMs`, counted from the item's call that starts it), so that a quick page does not flicker; during a reload of the reload interval (`reloadQuietly()`); when nothing loads | nothing |
 | `LoadIndicatorSpinner` | a new page: the start page (also while it waits for its cookies), a new start page, Back and Forward of the navigation bar, a link, a script or a new window of the page itself; from the delay until the page's first frame after its `COMMITTED` event, also when that frame comes after `FINISHED` | the card of the zoom label (black, `ui.cornerRadiusSmall`), centred on the page, with a turning three-quarter ring that fades to its tail, like the app's small spinner, and below it the load progress (`loadProgress`, "45 %", value role) |
 | `LoadIndicatorBar` | after that first frame, while the page loads on, until `FINISHED`; and for `reload()`, the `reload` command, Reload of the navigation bar and the reload after a clear of website data, from the delay until `FINISHED`: the old page stays until the new one commits, over it the bar only | a 6 px bar at the top edge of the page, the progress in `textPrimary` on a `bg` track |
-| `LoadIndicatorFailed` | at once when the load fails (`FAILED`), until a load starts that the user waits for | "The page could not be loaded" in the card and, in the fullscreen web view, "Press OK to try again" below it, over the page's background colour (`pageFailed`) |
+| `LoadIndicatorFailed` | at once when the load fails (`FAILED`), until a load starts that the user waits for | "The page could not be loaded" in the card with the reason below it (see "Why a load failed") and, in the fullscreen web view, Try again, Details and "Press OK to try again", over the page's background colour (`pageFailed`) |
 
 Black card and track with the light colour of the design system: readable on white, on any `background_color` of the
 web view and over any page. A reload before a new page showed its first frame keeps the spinner (nothing of the page
@@ -902,11 +904,14 @@ a call of the item, which the item takes for the error page and keeps out of the
 with the page's background until another page shows its first frame; neither the address nor WebKit's text reaches
 the user.
 
-- **OK and a tap try again** (`WebViewPage.retry()`, `reload()`; WebKit reloads the failed address of its error page):
-  the message gives way at once, the spinner follows after the delay over the cover until the page's first frame, and
-  a failure that comes again shows the message again at once. OK goes to the `Keys` of the `WebView`, which take Return
-  while the failure shows (the focus chain, the screen's idiom for OK); the cover takes every touch, and a tap on it
-  while the message shows tries again. BACK and HOME close the web view as always.
+- **OK and Try again try again** (`WebViewPage.retry()`, `reload()`; WebKit reloads the failed address of its error
+  page): the message gives way at once, the spinner follows after the delay over the cover until the page's first
+  frame, and a failure that comes again shows the message again at once. OK goes to the `Keys` of the `WebView`, which
+  take Return while the failure shows (the focus chain, the screen's idiom for OK); the cover and the card take every
+  touch, and a tap beside the buttons does nothing. BACK and HOME close the web view as always.
+- **Details** (only when the item has details, see below) opens a bottom sheet over the page, titled "Details", with
+  the technical text in the value role and a Close button. BACK, HOME, Close, OK (on Close) and a tap above the sheet
+  close it; the d-pad and OK then go to the page again. The sheet closes by itself when the failure goes.
 - **The reload interval** goes on behind the message: its reloads try again without hiding it, and a success removes it.
 - **A navigation away** removes the message: Back of the navigation bar, a new start page, the `open` command of
   another web view; the cover goes with that page's first frame.
@@ -915,9 +920,38 @@ the user.
 
 **The widget** shows the same, at its size (at least 3 x 3 fields of the activity page): the ring between 40 and 72 px,
 the percentage only where it fits below the ring within the 20 px gutter, the message in the widest card the widget has
-room for, cut off with an ellipsis beyond the lines that fit. The widget takes no keys: the message has no OK hint. A
-tap on it tries again when the widget is interactive; a widget that is not interactive opens the fullscreen web view
-with a tap, as always.
+room for, cut off with an ellipsis beyond the lines that fit, and the reason below it only in the lines that are left
+(none in a small widget). The widget takes no keys: the message has no OK hint and no buttons. A tap on it tries again
+when the widget is interactive; a widget that is not interactive opens the fullscreen web view with a tap, as always.
+
+**Why a load failed** (`loadError`, `loadErrorHost`, `loadErrorDetails`, cleared together with the message). Library
+0.10.0 calls `load_failed_detail` right before `load_changed(FAILED)` of the same failure, with a reason
+(`UC_WEBVIEW_FAIL_*`), GLib's error domain, code and message and, for a certificate, its `GTlsCertificateFlags`. The
+item keeps it for that `FAILED` of the same address; a library older than 0.10.0 never calls it, and the failure looks
+as before: the generic message, Try again, no reason, no Details.
+
+| `loadError` | From | Reason line (below "The page could not be loaded") |
+|-------------|------|-----------------------------------------------------|
+| `LoadErrorNone` | no failure; an older library; a web process ended by the library (`BY_API`) | none |
+| `LoadErrorOther` | `UC_WEBVIEW_FAIL_OTHER`, a reason of a newer library | none (Details has the error) |
+| `LoadErrorHostNotFound` | `UC_WEBVIEW_FAIL_HOST_NOT_FOUND` | "The server %1 wasn't found. Check the Remote's Wi-Fi connection and the address." |
+| `LoadErrorNoNetwork` | `UC_WEBVIEW_FAIL_NO_NETWORK` | "The Remote isn't connected to a network." |
+| `LoadErrorConnectionRefused` | `UC_WEBVIEW_FAIL_CONNECTION_REFUSED` | "%1 refused the connection. Check that the server is running and the port is correct." |
+| `LoadErrorTimeout` | `UC_WEBVIEW_FAIL_TIMEOUT` | "%1 didn't respond in time." |
+| `LoadErrorCertificate` | `UC_WEBVIEW_FAIL_CERTIFICATE` | "The certificate of %1 isn't trusted (expired, wrong name, or self-signed)." |
+| `LoadErrorUnsupportedAddress` | `UC_WEBVIEW_FAIL_SCHEME_REFUSED`, the item's own refusal (see "Addresses and the scheme allowlist") | "Only http:// and https:// addresses can be opened." |
+| `LoadErrorCrashed` | `web_process_terminated(CRASHED)`, shown after a second crash | "The page stopped working." |
+| `LoadErrorOutOfMemory` | `web_process_terminated(EXCEEDED_MEMORY_LIMIT)`, shown after a second crash | "The page needs more memory than the Remote has." |
+
+`%1` is `loadErrorHost`, the host of the failing address; a reason that names it shows no line without one.
+`loadErrorDetails` is technical and untranslated, one item per line: the address with scheme, host and port only
+(`https://nas.local:8443`: never path, query, fragment or user info, since an integration's address may carry a
+token), the error message with every URL in it shortened the same way (at most 300 characters), the certificate's flags
+by name (`expired, not yet valid, unknown issuer, wrong host name, revoked, insecure algorithm, other error`), and
+`<domain> <code>` (`g-resolver-error-quark 0`, `WebKitNetworkError 1`). After a crash it is the address and `web
+process crashed` or `web process exceeded its memory limit`; for a refused address the address and the item's reason.
+The log line becomes `Load failed: <address> (LoadErrorTimeout, g-io-error-quark 24)` with the address as before
+(`logUrl()`, "What the trace logs").
 
 **Input.** The spinner and the bar take no touch and no key: touches and the d-pad reach the page below them, once it
 has its first frame and before (when nothing useful can be tapped yet). Only the failure's cover takes the touches.
@@ -1631,10 +1665,14 @@ for (const type of ['keydown', 'keyup']) {
     `webview.reload` show only the bar over the page; the reload interval shows nothing; Back of the navigation bar shows
     the spinner after the delay. Taps and the d-pad reach the page while the bar shows.
 14. A start page that cannot load (a host name that does not resolve, a port nobody listens on, a wrong certificate):
-    "The page could not be loaded" and "Press OK to try again" on the page's background, no error text of WebKit; the
-    journal has `Load failed:` with the address. With the server up again, OK and a tap load the page (spinner, then
-    the page); BACK closes. A widget of the same web view shows the message without the OK hint, a tap tries again
-    (interactive) or opens the page on the whole screen (not interactive).
+    "The page could not be loaded" with the matching reason line, Try again, Details and "Press OK to try again" on the
+    page's background, no error text of WebKit; the journal has `Load failed:` with the address, the reason and the
+    error's domain and code. Details shows the address without path and query, the error text and code (the
+    certificate's flags by name); BACK, Close and a tap above the sheet close it. With the server up again, OK and Try
+    again load the page (spinner, then the page); BACK closes. A widget of the same web view shows the message and, in
+    a 3 x 3 widget, the reason, without the OK hint and buttons; a tap tries again (interactive) or opens the page on
+    the whole screen (not interactive). With a library older than 0.10.0 the message has no reason line and no
+    Details.
 
 ## Known limitations
 

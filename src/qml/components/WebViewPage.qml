@@ -20,8 +20,9 @@
 //   again. Its reloads show no load indicator.
 // - WebViewController.reloadRequested() (the `reload` command, or a cleared website data) reloads the page.
 // - The load indicator (WebViewLoadIndicator.qml, docs/webview.md "Load indicator"): what the WebView says to show while
-//   the page loads, and a failed load's message, over the page. OK (the fullscreen web view's buttons, retry()) and a
-//   tap on the message try again.
+//   the page loads, and a failed load's message with its reason, over the page. In the fullscreen web view (keysToPage)
+//   OK (its button mapping, retry()) and Try again try again, Details shows the technical details; in a widget a tap
+//   on the message tries again.
 // - Keys on the focus chain: a widget (keysToPage false) takes every key, the activity's button mapping has them
 //   already. In the fullscreen web view (keysToPage) its button mapping sends the remote's d-pad and OK to the page
 //   (Webview.qml), so the WebView does not forward them once more; while the on-screen keyboard is up it does, as the
@@ -86,9 +87,35 @@ Item {
     // the failure message shows: OK tries again
     readonly property bool failed: webView.loadIndicator === WebView.LoadIndicatorFailed
 
-    // the failure message's OK or tap: the page loads again (WebKit reloads the address that failed)
+    // the failure message's OK, Try again or tap: the page loads again (WebKit reloads the address that failed)
     function retry() {
         webView.reload();
+    }
+
+    // the WebView's loadError for the load indicator, which does not import UC.WebView
+    function loadErrorName(error) {
+        switch (error) {
+        case WebView.LoadErrorOther:
+            return "other";
+        case WebView.LoadErrorHostNotFound:
+            return "hostNotFound";
+        case WebView.LoadErrorNoNetwork:
+            return "noNetwork";
+        case WebView.LoadErrorConnectionRefused:
+            return "connectionRefused";
+        case WebView.LoadErrorTimeout:
+            return "timeout";
+        case WebView.LoadErrorCertificate:
+            return "certificate";
+        case WebView.LoadErrorUnsupportedAddress:
+            return "unsupportedAddress";
+        case WebView.LoadErrorCrashed:
+            return "crashed";
+        case WebView.LoadErrorOutOfMemory:
+            return "outOfMemory";
+        default:
+            return "";
+        }
     }
 
     // the remote's d-pad and OK (InputController), which the fullscreen web view's button mapping sends to the page
@@ -222,8 +249,18 @@ Item {
         pageColor: webView.backgroundColor
         progress: webView.loadProgress
         okHint: webViewPage.keysToPage
+        buttonsShown: webViewPage.keysToPage
+        error: webViewPage.loadErrorName(webView.loadError)
+        errorHost: webView.loadErrorHost
+        errorDetails: webView.loadErrorDetails
 
         onRetry: webViewPage.retry()
+        // the d-pad and OK go to the page again
+        onDetailsClosed: {
+            if (webViewPage.keysToPage) {
+                webView.forceActiveFocus();
+            }
+        }
     }
 
     Timer {

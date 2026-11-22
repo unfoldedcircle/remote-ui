@@ -392,6 +392,15 @@ void loadQuickly(const char *uri) {
     fireFrame();
     fireLoad(UC_WEBVIEW_LOAD_FINISHED, uri);
 }
+// why the next load fails (library 0.10.0), right before its FAILED event
+void fireFailDetail(const char *uri, int reason, const char *domain, int code, unsigned tlsErrors,
+                    const char *message) {
+    QVERIFY(callbacks.load_failed_detail != nullptr);
+    callbacks.load_failed_detail(kView, uri, reason, domain, code, tlsErrors, message, user);
+}
+void fireTerminated(int reason) {
+    callbacks.web_process_terminated(kView, reason, user);
+}
 // a load that fails, and WebKit's error page that follows for the same address
 void fail(const char *uri) {
     fireLoad(UC_WEBVIEW_LOAD_STARTED, uri);
@@ -460,6 +469,10 @@ class testWebViewEntityScreen : public QObject {
     void reloadsShowTheBarOrNothingAndBackTheSpinner();
     void failedLoadShowsTheMessageAndOkTriesAgain();
     void indicatorLetsTouchesAndKeysThroughToThePage();
+    void failureSaysWhy_data();
+    void failureSaysWhy();
+    void detailsShowTheTechnicalErrorAndClose();
+    void failureOfAnOlderLibraryHasNoReasonAndNoDetails();
     void widgetShowsTheIndicatorAndTheFailure_data();
     void widgetShowsTheIndicatorAndTheFailure();
     void swipeOnAnInteractiveWidgetDoesNotSwitchTheActivityPage_data();
@@ -1724,10 +1737,21 @@ void testWebViewEntityScreen::failedLoadShowsTheMessageAndOkTriesAgain() {
     QCOMPARE(lib::keys, QList<uint32_t>{0xff0d});
     QCOMPARE(callCount("reload"), 1);
 
-    // the page fails again; a tap on the message tries again too
+    // the page fails again: a tap on the message does nothing, Try again tries again; without the library's details
+    // there is no Details
     lib::fail("https://down.example/");
     QVERIFY(text->isVisible());
-    click(card);
+    QQuickItem *retry = part(screen, "loadFailedRetry");
+    QQuickItem *details = part(screen, "loadFailedDetails");
+    QVERIFY(retry && details);
+    QVERIFY(retry->isVisible());
+    QVERIFY(!details->isVisible());
+    click(text);
+    QTest::mouseClick(view, Qt::LeftButton, Qt::NoModifier,
+                      cover->mapToScene(QPointF(cover->width() / 2, 20)).toPoint());
+    QCOMPARE(callCount("reload"), 1);
+    QVERIFY(text->isVisible());
+    click(retry);
     QCOMPARE(callCount("reload"), 2);
     QVERIFY(!text->isVisible());
     // a tap on the cover during the retry does nothing and does not reach the page
@@ -1770,21 +1794,184 @@ void testWebViewEntityScreen::indicatorLetsTouchesAndKeysThroughToThePage() {
     QVERIFY(lib::calls.filter(QStringLiteral("reload")).isEmpty());
 }
 
+void testWebViewEntityScreen::failureSaysWhy_data() {
+    QTest::addColumn<int>("reason");  // UC_WEBVIEW_FAIL_*, or -1 - UC_WEBVIEW_TERMINATED_* for two crashes
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("host not found")
+        << UC_WEBVIEW_FAIL_HOST_NOT_FOUND
+        << "The server www.example.com wasn't found. Check the Remote's Wi-Fi connection and the address.";
+    QTest::newRow("no network") << UC_WEBVIEW_FAIL_NO_NETWORK << "The Remote isn't connected to a network.";
+    QTest::newRow("connection refused")
+        << UC_WEBVIEW_FAIL_CONNECTION_REFUSED
+        << "www.example.com refused the connection. Check that the server is running and the port is correct.";
+    QTest::newRow("timeout") << UC_WEBVIEW_FAIL_TIMEOUT << "www.example.com didn't respond in time.";
+    QTest::newRow("certificate")
+        << UC_WEBVIEW_FAIL_CERTIFICATE
+        << "The certificate of www.example.com isn't trusted (expired, wrong name, or self-signed).";
+    QTest::newRow("scheme refused") << UC_WEBVIEW_FAIL_SCHEME_REFUSED
+                                    << "Only http:// and https:// addresses can be opened.";
+    QTest::newRow("other") << UC_WEBVIEW_FAIL_OTHER << "";
+    QTest::newRow("crashed") << -1 - UC_WEBVIEW_TERMINATED_CRASHED << "The page stopped working.";
+    QTest::newRow("out of memory") << -1 - UC_WEBVIEW_TERMINATED_EXCEEDED_MEMORY_LIMIT
+                                   << "The page needs more memory than the Remote has.";
+}
+
+void testWebViewEntityScreen::failureSaysWhy() {
+    QFETCH(int, reason);
+    QFETCH(QString, expected);
+
+    entity = createEntity(QVariantMap{{"url", "https://www.example.com/status?key=1"}});
+    QVERIFY(openScreen(false));
+    QTRY_VERIFY(webView() != nullptr);
+    QQuickItem *card = part(screen, "loadIndicatorCard");
+    QQuickItem *text = part(screen, "loadFailedText");
+    QQuickItem *line = part(screen, "loadFailedReason");
+    QQuickItem *retry = part(screen, "loadFailedRetry");
+    QQuickItem *details = part(screen, "loadFailedDetails");
+    QQuickItem *hint = part(screen, "loadFailedHint");
+    QVERIFY(card && text && line && retry && details && hint);
+
+    const char *uri = "https://www.example.com/status?key=1";
+    QTRY_VERIFY(lib::calls.contains(QStringLiteral("load_uri(%1)").arg(QString::fromLatin1(uri))));
+    if (reason >= 0) {
+        lib::fireLoad(UC_WEBVIEW_LOAD_STARTED, uri);
+        lib::fireFailDetail(uri, reason, "g-io-error-quark", 1, 0, "Some error");
+        lib::fireLoad(UC_WEBVIEW_LOAD_FAILED, uri);
+    } else {
+        // the first crash reloads by itself, the second one shows the failure
+        lib::fireTerminated(-1 - reason);
+        QTRY_COMPARE(callCount("reload"), 1);
+        lib::fireTerminated(-1 - reason);
+    }
+    QVERIFY(card->isVisible());
+    // the generic message stays the title, the reason below it
+    QCOMPARE(text->property("text").toString(), QStringLiteral("The page could not be loaded"));
+    QCOMPARE(line->isVisible(), !expected.isEmpty());
+    if (!expected.isEmpty()) {
+        QCOMPARE(line->property("text").toString(), expected);
+        QVERIFY(!line->property("truncated").toBool());
+    }
+    // Try again and Details side by side, the hint below them, all inside the card
+    QVERIFY(retry->isVisible());
+    QVERIFY(details->isVisible());
+    QVERIFY(hint->isVisible());
+    QCOMPARE(retry->y(), details->y());
+    QVERIFY(retry->x() + retry->width() < details->x());
+    const QRectF inCard = card->mapRectToScene(QRectF(0, 0, card->width(), card->height()));
+    for (QQuickItem *item : {text, retry, details, hint}) {
+        QVERIFY(inCard.contains(item->mapRectToScene(QRectF(0, 0, item->width(), item->height()))));
+    }
+    QVERIFY(card->width() <= webView()->width() - 40);
+    QVERIFY(card->height() <= webView()->height() - 40);
+}
+
+void testWebViewEntityScreen::detailsShowTheTechnicalErrorAndClose() {
+    entity = createEntity(QVariantMap{{"url", "https://self-signed.example:8443/ui?token=s3cret"}});
+    QVERIFY(openScreen(false));
+    QTRY_VERIFY(webView() != nullptr);
+    QTRY_VERIFY(webView()->hasActiveFocus());
+    QQuickItem *details = part(screen, "loadFailedDetails");
+    QQuickItem *text = part(screen, "loadFailedText");
+    auto       *popup = screen->findChild<QObject *>(QStringLiteral("loadFailedDetailsPopup"));
+    QVERIFY(details && text && popup);
+
+    const char *uri = "https://user:pw@self-signed.example:8443/ui?token=s3cret";
+    lib::fireLoad(UC_WEBVIEW_LOAD_STARTED, uri);
+    // G_TLS_CERTIFICATE_UNKNOWN_CA | BAD_IDENTITY | EXPIRED
+    lib::fireFailDetail(uri, UC_WEBVIEW_FAIL_CERTIFICATE, "WebKitNetworkError", 1, 1u | 2u | 8u,
+                        "Unacceptable TLS certificate");
+    lib::fireLoad(UC_WEBVIEW_LOAD_FAILED, uri);
+    lib::fireLoad(UC_WEBVIEW_LOAD_FINISHED, uri);
+    QVERIFY(details->isVisible());
+
+    // Details opens the sheet with the technical text: the address without path, query and user info
+    click(details);
+    QTRY_VERIFY(popup->property("opened").toBool());
+    QQuickItem *detailsText = part(view->contentItem(), "loadFailedDetailsText");
+    QQuickItem *close = part(view->contentItem(), "loadFailedDetailsClose");
+    QVERIFY(detailsText && close);
+    QCOMPARE(detailsText->property("text").toString(),
+             QStringLiteral("https://self-signed.example:8443\nUnacceptable TLS certificate\nexpired, unknown issuer, "
+                            "wrong host name\nWebKitNetworkError 1"));
+    QVERIFY(close->isVisible());
+    QCOMPARE(callCount("reload"), 0);
+
+    // BACK closes the sheet, not the web view; the page gets the keys again
+    pressRemoteButton(Qt::Key_Exit);
+    QTRY_VERIFY(!popup->property("visible").toBool());
+    QCOMPARE(screen->property("state").toString(), QStringLiteral("open"));
+    QTRY_VERIFY(webView()->hasActiveFocus());
+    QVERIFY(text->isVisible());
+
+    // a tap above the sheet closes it
+    click(details);
+    QTRY_VERIFY(popup->property("opened").toBool());
+    QTest::mouseClick(view, Qt::LeftButton, Qt::NoModifier, QPoint(240, 20));
+    QTRY_VERIFY(!popup->property("visible").toBool());
+
+    // and Close; OK on the sheet presses Close, it does not try again
+    click(details);
+    QTRY_VERIFY(popup->property("opened").toBool());
+    QTest::keyClick(view, Qt::Key_Return);
+    QTRY_VERIFY(!popup->property("visible").toBool());
+    QCOMPARE(callCount("reload"), 0);
+    click(details);
+    QTRY_VERIFY(popup->property("opened").toBool());
+    click(close);
+    QTRY_VERIFY(!popup->property("visible").toBool());
+    QCOMPARE(callCount("reload"), 0);
+    QTRY_VERIFY(webView()->hasActiveFocus());
+
+    // OK tries again after the sheet
+    QTest::keyClick(view, Qt::Key_Return);
+    QCOMPARE(callCount("reload"), 1);
+    QVERIFY(!details->isVisible());
+
+    // the sheet goes when the failure does (the reload command, the reload interval's success)
+    lib::fireLoad(UC_WEBVIEW_LOAD_STARTED, uri);
+    lib::fireFailDetail(uri, UC_WEBVIEW_FAIL_CERTIFICATE, "WebKitNetworkError", 1, 1u, "Unacceptable TLS certificate");
+    lib::fireLoad(UC_WEBVIEW_LOAD_FAILED, uri);
+    click(details);
+    QTRY_VERIFY(popup->property("opened").toBool());
+    webView()->reload();
+    QTRY_VERIFY(!popup->property("visible").toBool());
+    QCOMPARE(callCount("reload"), 2);
+}
+
+void testWebViewEntityScreen::failureOfAnOlderLibraryHasNoReasonAndNoDetails() {
+    // a library older than 0.10.0 does not say why: the generic message, Try again alone
+    entity = createEntity(QVariantMap{{"url", "https://down.example/"}});
+    QVERIFY(openScreen(false));
+    QTRY_VERIFY(webView() != nullptr);
+    QQuickItem *line = part(screen, "loadFailedReason");
+    QQuickItem *retry = part(screen, "loadFailedRetry");
+    QQuickItem *details = part(screen, "loadFailedDetails");
+    QVERIFY(line && retry && details);
+    lib::fail("https://down.example/");
+    QVERIFY(retry->isVisible());
+    QVERIFY(!line->isVisible());
+    QVERIFY(!details->isVisible());
+    QCOMPARE(retry->width(), retry->parentItem()->width());
+}
+
 void testWebViewEntityScreen::widgetShowsTheIndicatorAndTheFailure_data() {
     QTest::addColumn<bool>("interactive");
     QTest::addColumn<QSize>("size");
     QTest::addColumn<bool>("percentage");
+    QTest::addColumn<bool>("reasonShown");
 
     // 3 x 3 fields of the default 4 x 6 grid of an activity page, and of a denser grid
-    QTest::newRow("interactive, 3 x 3 of 4 x 6") << true << QSize(360, 348) << true;
-    QTest::newRow("not interactive, 3 x 3 of 4 x 6") << false << QSize(360, 348) << true;
-    QTest::newRow("interactive, small") << true << QSize(170, 160) << false;
+    QTest::newRow("interactive, 3 x 3 of 4 x 6") << true << QSize(360, 348) << true << true;
+    QTest::newRow("not interactive, 3 x 3 of 4 x 6") << false << QSize(360, 348) << true << true;
+    QTest::newRow("interactive, small") << true << QSize(170, 160) << false << false;
 }
 
 void testWebViewEntityScreen::widgetShowsTheIndicatorAndTheFailure() {
     QFETCH(bool, interactive);
     QFETCH(QSize, size);
     QFETCH(bool, percentage);
+    QFETCH(bool, reasonShown);
 
     entity = createEntity(QVariantMap{{"url", "https://slow.example/"}});
     EntityControllerStub::s_entity = entity;
@@ -1814,10 +2001,20 @@ void testWebViewEntityScreen::widgetShowsTheIndicatorAndTheFailure() {
     QVERIFY(card->width() <= size.width() && card->height() <= size.height());
     QVERIFY(centredOn(card, indicator));
 
-    // the failure without the OK hint: the widget takes no keys
+    // the failure without the OK hint and without buttons: the widget takes no keys; the reason where it fits
+    lib::fireFailDetail("https://slow.example/", UC_WEBVIEW_FAIL_TIMEOUT, "g-io-error-quark", 24, 0,
+                        "Socket I/O timed out");
     lib::fireLoad(UC_WEBVIEW_LOAD_FAILED, "https://slow.example/");
     QVERIFY(text->isVisible());
     QVERIFY(!hint->isVisible());
+    QVERIFY(!part(widget, "loadFailedRetry")->isVisible());
+    QVERIFY(!part(widget, "loadFailedDetails")->isVisible());
+    QQuickItem *line = part(widget, "loadFailedReason");
+    QVERIFY(line);
+    QCOMPARE(line->isVisible(), reasonShown);
+    if (reasonShown) {
+        QCOMPARE(line->property("text").toString(), QStringLiteral("slow.example didn't respond in time."));
+    }
     QVERIFY(card->width() <= size.width() && card->height() <= size.height());
     lib::fireLoad(UC_WEBVIEW_LOAD_FINISHED, "https://slow.example/");
 

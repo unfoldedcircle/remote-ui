@@ -35,9 +35,10 @@
 namespace uc {
 namespace webview {
 
-// Library 0.7.0 appended the six request callbacks: 17 callbacks, 136 bytes on aarch64 (and x86_64). The item passes
-// this size to uc_webview_new_sized(); an older library copies only its own part (uc_webview.h, "Compatibility").
-static_assert(sizeof(uc_webview_callbacks) == 17 * sizeof(void (*)()), "uc_webview_callbacks of library 0.7.0");
+// Library 0.7.0 appended the six request callbacks, 0.10.0 load_failed_detail: 18 callbacks, 144 bytes on aarch64 (and
+// x86_64). The item passes this size to uc_webview_new_sized(); an older library copies only its own part
+// (uc_webview.h, "Compatibility").
+static_assert(sizeof(uc_webview_callbacks) == 18 * sizeof(void (*)()), "uc_webview_callbacks of library 0.10.0");
 
 namespace {
 
@@ -190,6 +191,26 @@ const char *loadEventName(int event) {
             return "failed";
         default:
             return "?";
+    }
+}
+
+// loadError for a reason of load_failed_detail() (library 0.10.0); a reason of a newer library is "other"
+WebViewItem::LoadError loadErrorForReason(int reason) {
+    switch (reason) {
+        case UC_WEBVIEW_FAIL_HOST_NOT_FOUND:
+            return WebViewItem::LoadErrorHostNotFound;
+        case UC_WEBVIEW_FAIL_NO_NETWORK:
+            return WebViewItem::LoadErrorNoNetwork;
+        case UC_WEBVIEW_FAIL_CONNECTION_REFUSED:
+            return WebViewItem::LoadErrorConnectionRefused;
+        case UC_WEBVIEW_FAIL_TIMEOUT:
+            return WebViewItem::LoadErrorTimeout;
+        case UC_WEBVIEW_FAIL_CERTIFICATE:
+            return WebViewItem::LoadErrorCertificate;
+        case UC_WEBVIEW_FAIL_SCHEME_REFUSED:
+            return WebViewItem::LoadErrorUnsupportedAddress;
+        default:
+            return WebViewItem::LoadErrorOther;
     }
 }
 
@@ -428,6 +449,11 @@ void WebViewItem::onResponseRefusedCb(uc_webview *, const char *uri, const char 
     static_cast<WebViewItem *>(user)->onResponseRefused(uri, mimeType, reason);
 }
 
+void WebViewItem::onLoadFailedDetailCb(uc_webview *, const char *uri, int reason, const char *errorDomain,
+                                       int errorCode, unsigned tlsErrors, const char *message, void *user) {
+    static_cast<WebViewItem *>(user)->onLoadFailedDetail(uri, reason, errorDomain, errorCode, tlsErrors, message);
+}
+
 void WebViewItem::onFrameReady(const uc_webview_frame &frame) {
     Q_ASSERT(QThread::currentThread() == thread());
     ++m_framesReceived;
@@ -451,6 +477,7 @@ void WebViewItem::onFrameReady(const uc_webview_frame &frame) {
         m_loadPhase = LoadPhase::Shown;
         m_pageFailed = false;
         m_failureShown = false;
+        clearLoadError();
         if (!m_loading) {
             endLoad();  // FINISHED came first
         }
@@ -514,9 +541,29 @@ void WebViewItem::onLoadChanged(int event, const char *uri) {
                 endLoad();
             }
             break;
-        case UC_WEBVIEW_LOAD_FAILED:
+        case UC_WEBVIEW_LOAD_FAILED: {
             m_loadFailed = true;
-            qCWarning(lcWebView()) << "Load failed:" << logUrl(url);
+            // the library's detail of this failure (library 0.10.0), else why stays unknown
+            const bool detailed = m_hasFailDetail && m_failDetail.uri == QByteArray(uri ? uri : "");
+            m_hasFailDetail = false;
+            if (detailed) {
+                const FailDetail &detail = m_failDetail;
+                const LoadError   error = loadErrorForReason(detail.reason);
+                qCWarning(lcWebView()).noquote().nospace()
+                    << "Load failed: " << logUrl(url) << " (" << QMetaEnum::fromType<LoadError>().valueToKey(error)
+                    << ", " << detail.domain << " " << detail.code << ")";
+                QStringList lines{loadErrorMessage(detail.message)};
+                if (error == LoadErrorCertificate) {
+                    lines.append(certificateErrorNames(detail.tlsErrors));
+                }
+                if (!detail.domain.isEmpty()) {
+                    lines.append(QStringLiteral("%1 %2").arg(detail.domain).arg(detail.code));
+                }
+                setLoadError(error, url, lines);
+            } else {
+                qCWarning(lcWebView()) << "Load failed:" << logUrl(url);
+                clearLoadError();
+            }
             emit loadFailed(url);
             // the failure, over the page: WebKit loads its error page for this address next, with the raw error text
             m_failureShown = true;
@@ -526,6 +573,7 @@ void WebViewItem::onLoadChanged(int event, const char *uri) {
                 endLoad();  // refused without a load (the library's scheme allowlist): no FINISHED follows
             }
             break;
+        }
         default:
             break;
     }
@@ -548,6 +596,7 @@ void WebViewItem::onLoadStarted(const QUrl &url) {
         }
         m_loadKind = LoadKind::Page;
         m_failureShown = false;
+        clearLoadError();
     }
     m_errorPageUrl.clear();
     m_loadPhase = LoadPhase::Started;
@@ -574,6 +623,7 @@ void WebViewItem::beginLoad(LoadKind kind) {
     if (!quiet) {
         // the failure gives way to the load; a failed page stays covered until another page shows a frame
         m_failureShown = false;
+        clearLoadError();
     }
     updateLoadIndicator();
 }
@@ -611,11 +661,56 @@ void WebViewItem::updateLoadIndicator() {
     emit loadIndicatorChanged();
 }
 
+void WebViewItem::setLoadError(LoadError error, const QUrl &url, const QStringList &details) {
+    QStringList lines{loadErrorAddress(url)};
+    lines.append(details);
+    lines.removeAll(QString());
+    const QString host = url.host();
+    const QString text = lines.join(QLatin1Char('\n'));
+    if (error == m_loadError && host == m_loadErrorHost && text == m_loadErrorDetails) {
+        return;
+    }
+    m_loadError = error;
+    m_loadErrorHost = host;
+    m_loadErrorDetails = text;
+    emit loadErrorChanged();
+}
+
+void WebViewItem::clearLoadError() {
+    if (m_loadError == LoadErrorNone && m_loadErrorHost.isEmpty() && m_loadErrorDetails.isEmpty()) {
+        return;
+    }
+    m_loadError = LoadErrorNone;
+    m_loadErrorHost.clear();
+    m_loadErrorDetails.clear();
+    emit loadErrorChanged();
+}
+
+void WebViewItem::onLoadFailedDetail(const char *uri, int reason, const char *errorDomain, int errorCode,
+                                     unsigned tlsErrors, const char *message) {
+    // kept for the FAILED event of the same address that follows at once (uc_webview.h)
+    m_hasFailDetail = true;
+    m_failDetail.uri = QByteArray(uri ? uri : "");
+    m_failDetail.reason = reason;
+    m_failDetail.domain = QString::fromUtf8(errorDomain ? errorDomain : "");
+    m_failDetail.code = errorCode;
+    m_failDetail.tlsErrors = tlsErrors;
+    m_failDetail.message = QString::fromUtf8(message ? message : "");
+}
+
 void WebViewItem::onWebProcessTerminated(int reason) {
     qCWarning(lcWebView()) << "Web process terminated, reason" << reason << "while showing" << logUrl(m_url);
     setLoading(false);
     endLoad();
     emit crashed(reason);
+    // what the failure of a second crash says; the reload after the first one clears it
+    if (reason == UC_WEBVIEW_TERMINATED_CRASHED) {
+        setLoadError(LoadErrorCrashed, m_url, {QStringLiteral("web process crashed")});
+    } else if (reason == UC_WEBVIEW_TERMINATED_EXCEEDED_MEMORY_LIMIT) {
+        setLoadError(LoadErrorOutOfMemory, m_url, {QStringLiteral("web process exceeded its memory limit")});
+    } else {
+        clearLoadError();
+    }
 
     if (m_reloadedAfterCrash) {
         qCWarning(lcWebView()) << "Not reloading again after a second crash";
@@ -1042,6 +1137,8 @@ void WebViewItem::ensureView() {
         cb.pinch = &WebViewItem::onPinchCb;
         cb.magnification_changed = &WebViewItem::onMagnificationChangedCb;
     }
+    // library 0.10.0: why a load failed; an older library never reads it, and calls nothing
+    cb.load_failed_detail = &WebViewItem::onLoadFailedDetailCb;
     // library 0.7.0: the page's requests reach the item only with these set; an older library never reads them
     if (m_requestsAvailable) {
         cb.script_dialog = &WebViewItem::onScriptDialogCb;
@@ -1137,6 +1234,10 @@ void WebViewItem::destroyView() {
     m_failureShown = false;
     m_pageFailed = false;
     m_errorPageUrl.clear();
+    m_loadError = LoadErrorNone;
+    m_loadErrorHost.clear();
+    m_loadErrorDetails.clear();
+    m_hasFailDetail = false;
     if (!m_view) {
         return;
     }
@@ -1184,6 +1285,10 @@ bool WebViewItem::loadAllowed(const QUrl &url, const char *what) {
         return true;
     }
     qCWarning(lcWebView()).noquote().nospace() << "Not loading " << what << " " << logUrl(url) << ": " << reason;
+    // the failure over the page as it is (no error page follows, nothing to cover); OK reloads that page
+    m_failureShown = true;
+    setLoadError(LoadErrorUnsupportedAddress, url, {reason});
+    updateLoadIndicator();
     emit loadFailed(url);
     return false;
 }

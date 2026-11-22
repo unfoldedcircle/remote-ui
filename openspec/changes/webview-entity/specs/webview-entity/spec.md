@@ -325,18 +325,43 @@ the bar, a reload of the reload interval nothing. Neither SHALL take a touch or 
 
 ### Requirement: Failed load of a web view
 A failed load SHALL show a short message over the page's background instead of the web engine's error page, in the
-fullscreen web view with "Press OK to try again", until a load starts that the user waits for. OK and a tap on the
-message SHALL load the page again. A second crash of the web process, which the UI does not reload, SHALL show the
-failure as well.
+fullscreen web view with Try again and "Press OK to try again", until a load starts that the user waits for. OK and Try
+again SHALL load the page again; a tap beside the buttons SHALL do nothing. A second crash of the web process, which
+the UI does not reload, SHALL show the failure as well.
 
 #### Scenario: Failed load
 - **WHEN** the host of the start page cannot be reached
-- **THEN** "The page could not be loaded" and "Press OK to try again" show at once over the page's background, and
-  neither the address nor the web engine's error text shows
+- **THEN** "The page could not be loaded", Try again and "Press OK to try again" show at once over the page's
+  background, and the web engine's error page does not show
 
 #### Scenario: Try again
-- **WHEN** the failure shows, the server is reachable again and the user presses OK
+- **WHEN** the failure shows, the server is reachable again and the user presses OK or Try again
 - **THEN** the message goes, the spinner shows after 400 ms and the page appears
+
+### Requirement: Reason of a failed load
+With a web view library that reports why a load failed (library 0.10.0), the failure SHALL say why in a translated line
+below the message: host not found, no network, connection refused, no answer in time, an untrusted certificate, an
+address that is not http or https, a crash, or too little memory. Another reason SHALL show no line. Without the
+library's report the failure SHALL show no reason line and no Details.
+
+#### Scenario: Host not found
+- **WHEN** the host name of the start page `https://www.example.com/status?key=1` does not resolve
+- **THEN** below "The page could not be loaded" the line "The server www.example.com wasn't found. Check the Remote's
+  Wi-Fi connection and the address." shows, with Try again and Details
+
+#### Scenario: Older library
+- **WHEN** a load fails with a web view library older than 0.10.0
+- **THEN** only "The page could not be loaded", Try again and "Press OK to try again" show
+
+### Requirement: Details of a failed load
+The fullscreen web view SHALL offer Details for a failure the library reported: the technical error, untranslated,
+with the address reduced to scheme, host and port (never its path, query or user info), the error text, its domain and
+code, and a certificate's flags by name.
+
+#### Scenario: Details
+- **WHEN** the failure shows Details and the user taps it
+- **THEN** a sheet titled "Details" shows the address `https://www.example.com`, the error text and its code, and
+  BACK, Close or a tap above the sheet close it without loading the page again
 
 ### Requirement: Configured credentials
 With `auth.type` `basic`, the UI SHALL answer an HTTP Basic or Digest login of the start page's origin (scheme, host

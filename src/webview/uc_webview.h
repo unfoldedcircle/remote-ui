@@ -278,6 +278,15 @@ typedef struct {
 #define UC_WEBVIEW_TERMINATED_EXCEEDED_MEMORY_LIMIT 1
 #define UC_WEBVIEW_TERMINATED_BY_API                2
 
+/* load_failed_detail() reasons (library 0.10.0) */
+#define UC_WEBVIEW_FAIL_OTHER               0  /* see error_domain/error_code/message */
+#define UC_WEBVIEW_FAIL_HOST_NOT_FOUND      1  /* DNS: the host name doesn't resolve */
+#define UC_WEBVIEW_FAIL_NO_NETWORK          2  /* network or host unreachable, no route */
+#define UC_WEBVIEW_FAIL_CONNECTION_REFUSED  3
+#define UC_WEBVIEW_FAIL_TIMEOUT             4
+#define UC_WEBVIEW_FAIL_CERTIFICATE         5  /* TLS certificate not accepted; tls_errors has the GTlsCertificateFlags */
+#define UC_WEBVIEW_FAIL_SCHEME_REFUSED      6  /* the library's scheme allowlist refused the URI */
+
 /* uc_webview_touch() phases */
 #define UC_WEBVIEW_TOUCH_DOWN   0
 #define UC_WEBVIEW_TOUCH_MOVE   1
@@ -455,6 +464,12 @@ typedef struct {
      * started, STARTED and FINISHED (with the URI of the page that stays) come without FAILED. The same happens without
      * the callback. Frames: refused silently. */
     void (*response_refused)(uc_webview *, const char *uri, const char *mime_type, int reason, void *user);
+
+    /* ---- library 0.10.0: only through uc_webview_new_sized(), see "Compatibility" ---- */
+
+    /* 0.10.0: called right before load_changed(UC_WEBVIEW_LOAD_FAILED) for the same failure, same uri. */
+    void (*load_failed_detail)(uc_webview *, const char *uri, int reason, const char *error_domain, int error_code,
+                               unsigned tls_errors, const char *message, void *user);
 } uc_webview_callbacks;
 
 /* ---- process-wide ------------------------------------------------------- */

@@ -78,5 +78,19 @@ const char *specialKeyName(uint32_t keysym);
 // uc_uri_policy_loggable().
 QString loggableUrl(const QUrl &url, bool full);
 
+// The address of a failed load as the Details of the failure show it (WebViewItem::loadErrorDetails): scheme, host and
+// port only, "https://nas.local:8443"; never user info, path, query or fragment, which may carry a token of an
+// integration's address. "<scheme>:" for a URL without a host (about:, data:, javascript:), "" for an empty one.
+QString loadErrorAddress(const QUrl &url);
+
+// A library's or WebKit's error text for the Details of a failure: every URL in it shortened to its loadErrorAddress()
+// (an error text may quote the address it failed on), control characters as spaces, at most 300 characters.
+QString loadErrorMessage(const QString &message);
+
+// The names of the GTlsCertificateFlags bits of a refused certificate (UC_WEBVIEW_FAIL_CERTIFICATE, the tls_errors of
+// load_failed_detail(), library 0.10.0), "expired, unknown issuer, wrong host name"; a bit GLib adds later as
+// "flags 0x80". "" without a bit.
+QString certificateErrorNames(unsigned flags);
+
 }  // namespace webview
 }  // namespace uc

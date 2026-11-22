@@ -11,6 +11,7 @@
 #include <QQuickItem>
 #include <QRectF>
 #include <QString>
+#include <QStringList>
 #include <QTimer>
 #include <QUrl>
 
@@ -120,7 +121,8 @@ namespace webview {
  *   documents that start afterwards: a page that is shown gets it, or loses it, at its next load. Without the
  *   functions the property does nothing (logged once).
  * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
- *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
+ *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)`, the failure and a log
+ *   line.
  * - The load indicator (`loadIndicator`, `pageFailed`; docs/webview.md "Load indicator") says what a host shows while
  *   a page loads, nothing for the first kLoadIndicatorDelayMs. A new page (an address, HTML, Back, Forward, a
  *   navigation of the page itself) shows the spinner from the host's call, also while the item waits for the cookies,
@@ -131,7 +133,17 @@ namespace webview {
  *   failure; WebKit then loads its error page with the raw error text for the same address (STARTED without a call of
  *   the host, WebKitWebView.cpp webkitWebViewLoadFail), which the failure covers: `pageFailed` holds until another
  *   page shows its first frame. A load meanwhile shows the spinner over it, a quiet one keeps the failure. A second
- *   crash, which the item does not reload, is a failure too.
+ *   crash, which the item does not reload, is a failure too. So is an address the item refuses itself (the scheme
+ *   allowlist), over the page as it is.
+ * - Why the failure shows (`loadError`, `loadErrorHost`, `loadErrorDetails`): library 0.10.0 calls load_failed_detail
+ *   right before FAILED with the reason (UC_WEBVIEW_FAIL_*), GLib's error domain, code and message and the
+ *   certificate's flags. The item keeps them for that FAILED of the same address; without them (an older library)
+ *   `loadError` stays LoadErrorNone and the details empty. A refused address is LoadErrorUnsupportedAddress, a web
+ *   process that crashed or ran out of memory LoadErrorCrashed or LoadErrorOutOfMemory. The details are technical and
+ *   untranslated: the address with scheme, host and port only (never path, query or user info: an integration's
+ *   address may carry a token), the error text with every URL in it shortened alike, `domain code`, the certificate's
+ *   flags by name. All three clear when the failure message goes (a load the user waits for, a page's navigation, a
+ *   page that shows).
  * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at
  *   INFO level (uc.ui.webview), never what the user types or what the page's editable element holds: keys as
  *   "printable" or a named special key, input method events and surrounding text updates without text, lengths
@@ -172,6 +184,10 @@ class WebViewItem : public QQuickItem {
     // what a host shows while the page loads (class comment); the view shows a failed load's error page or nothing
     Q_PROPERTY(LoadIndicator loadIndicator READ loadIndicator NOTIFY loadIndicatorChanged)
     Q_PROPERTY(bool pageFailed READ isPageFailed NOTIFY loadIndicatorChanged)
+    // why the failure shows (class comment): the kind, the host of the failing address, the technical details
+    Q_PROPERTY(LoadError loadError READ loadError NOTIFY loadErrorChanged)
+    Q_PROPERTY(QString loadErrorHost READ loadErrorHost NOTIFY loadErrorChanged)
+    Q_PROPERTY(QString loadErrorDetails READ loadErrorDetails NOTIFY loadErrorChanged)
 
  public:
     // What a host shows while the page loads (the class comment, docs/webview.md "Load indicator").
@@ -182,6 +198,22 @@ class WebViewItem : public QQuickItem {
         LoadIndicatorFailed,   // the last load failed, and nothing loads that the user waits for
     };
     Q_ENUM(LoadIndicator)
+
+    // Why a load failed (the class comment, docs/webview.md "Load indicator"): UC_WEBVIEW_FAIL_* of the library's
+    // load_failed_detail() (library 0.10.0), the item's own refusal of an address, the web process' end.
+    enum LoadError {
+        LoadErrorNone,                // no failure, or the library did not say why (older than 0.10.0)
+        LoadErrorOther,               // UC_WEBVIEW_FAIL_OTHER: only the details say what
+        LoadErrorHostNotFound,        // the host name does not resolve
+        LoadErrorNoNetwork,           // network or host unreachable
+        LoadErrorConnectionRefused,   // nothing listens on the port
+        LoadErrorTimeout,             // the server did not answer in time
+        LoadErrorCertificate,         // the TLS certificate was not accepted
+        LoadErrorUnsupportedAddress,  // outside the scheme allowlist (the item's or the library's)
+        LoadErrorCrashed,             // the web process crashed (shown after a second crash)
+        LoadErrorOutOfMemory,         // the web process exceeded its memory limit
+    };
+    Q_ENUM(LoadError)
 
     explicit WebViewItem(QQuickItem *parent = nullptr);
     ~WebViewItem() override;
@@ -213,6 +245,9 @@ class WebViewItem : public QQuickItem {
     void        setDeviceApi(bool deviceApi);
     LoadIndicator loadIndicator() const { return m_loadIndicator; }
     bool          isPageFailed() const { return m_pageFailedShown; }
+    LoadError     loadError() const { return m_loadError; }
+    QString       loadErrorHost() const { return m_loadErrorHost; }
+    QString       loadErrorDetails() const { return m_loadErrorDetails; }
 
     Q_INVOKABLE void reload();
     // reload() without the load indicator over a page that is shown: the reload interval of a web view entity
@@ -293,10 +328,12 @@ class WebViewItem : public QQuickItem {
     void siteChanged();
     void deviceApiChanged();
     void loadIndicatorChanged();
+    void loadErrorChanged();
     // the web process died (UC_WEBVIEW_TERMINATED_*); the item reloads once by itself
     void crashed(int reason);
-    // a load failed; `loading` turns false with the following finished event. Also emitted, without any other
-    // change, for a URL outside the scheme allowlist (setUrl(), loadHtml() base URL): nothing is loaded then.
+    // a load failed; `loading` turns false with the following finished event. Also emitted for a URL outside the
+    // scheme allowlist (setUrl(), loadHtml() base URL): nothing is loaded then, `url` and the page stay, the failure
+    // shows with LoadErrorUnsupportedAddress.
     void loadFailed(const QUrl &url);
     // Library 0.7.0: alert(), confirm(), prompt() or the leave-page question of the page, which waits for the answer.
     // A handler that shows it sets request.handled during the signal and answers later; the item answers an unhandled
@@ -356,6 +393,8 @@ class WebViewItem : public QQuickItem {
     static void onCloseRequestedCb(uc_webview *, void *user);
     static void onNewWindowCb(uc_webview *, const char *uri, int result, void *user);
     static void onResponseRefusedCb(uc_webview *, const char *uri, const char *mimeType, int reason, void *user);
+    static void onLoadFailedDetailCb(uc_webview *, const char *uri, int reason, const char *errorDomain, int errorCode,
+                                     unsigned tlsErrors, const char *message, void *user);
 
     void onFrameReady(const uc_webview_frame &frame);
     void onLoadChanged(int event, const char *uri);
@@ -368,6 +407,8 @@ class WebViewItem : public QQuickItem {
     void onCloseRequested();
     void onNewWindow(const char *uri, int result);
     void onResponseRefused(const char *uri, const char *mimeType, int reason);
+    void onLoadFailedDetail(const char *uri, int reason, const char *errorDomain, int errorCode, unsigned tlsErrors,
+                            const char *message);
 
     void   attachWindow(QQuickWindow *window);
     void   watchScreen(QScreen *screen);
@@ -430,6 +471,9 @@ class WebViewItem : public QQuickItem {
     void   onLoadStarted(const QUrl &url);
     void   endLoad();
     void   updateLoadIndicator();
+    // why the failure shows: the kind, and the address and the technical lines of the details (loadErrorAddress())
+    void   setLoadError(LoadError error, const QUrl &url, const QStringList &details);
+    void   clearLoadError();
     void   resetImeState();
     void   setLoading(bool loading);
     void   setUrlFromPage(const QUrl &url);
@@ -499,6 +543,21 @@ class WebViewItem : public QQuickItem {
     QUrl          m_errorPageUrl;
     LoadIndicator m_loadIndicator = LoadIndicatorNone;
     bool          m_pageFailedShown = false;
+    // why the failure shows (loadError*), cleared with the failure message; the library's detail of the failure that
+    // its FAILED event reports next (library 0.10.0), for that event's address only
+    LoadError m_loadError = LoadErrorNone;
+    QString   m_loadErrorHost;
+    QString   m_loadErrorDetails;
+    struct FailDetail {
+        QByteArray uri;
+        int        reason = UC_WEBVIEW_FAIL_OTHER;
+        QString    domain;
+        int        code = 0;
+        unsigned   tlsErrors = 0;
+        QString    message;
+    };
+    bool       m_hasFailDetail = false;
+    FailDetail m_failDetail;
 
     bool  m_mapped = false;
     qreal m_devicePixelRatio = 1.0;

@@ -139,53 +139,53 @@
         <translation>You can add UI elements via the Web Configurator</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="867"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="873"/>
         <source>%1 is unavailable, its state cannot be changed</source>
         <translation>%1 is unavailable, its state cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="872"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="878"/>
         <source>%1 is running, its state cannot be changed</source>
         <translation>%1 is running, its state cannot be changed</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="916"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="922"/>
         <source>State: %1</source>
         <extracomment>Device state</extracomment>
         <translation>State: %1</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="952"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="958"/>
         <source>Set the state of %1. No command is sent to the devices.</source>
         <extracomment>Popup title when fixing the state of an activity. %1 is the activity name</extracomment>
         <translation>Set the state of %1. No command is sent to the devices.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="954"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="960"/>
         <source>Set the state of %1. No command is sent to the device.</source>
         <extracomment>Popup title when fixing the state of an entity. %1 is the entity name</extracomment>
         <translation>Set the state of %1. No command is sent to the device.</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="960"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="966"/>
         <source>Activity is on</source>
         <extracomment>Button. Mark the activity as running without sending any command</extracomment>
         <translation>Activity is on</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="962"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="968"/>
         <source>Device is on</source>
         <extracomment>Button. Mark the device as switched on without sending a command</extracomment>
         <translation>Device is on</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="969"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="975"/>
         <source>Activity is off</source>
         <extracomment>Button. Mark the activity as stopped without sending any command</extracomment>
         <translation>Activity is off</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="971"/>
+        <location filename="../../src/qml/components/entities/activity/deviceclass/Activity.qml" line="977"/>
         <source>Device is off</source>
         <extracomment>Button. Mark the device as switched off without sending a command</extracomment>
         <translation>Device is off</translation>
@@ -2669,23 +2669,23 @@ Climate fan</extracomment>
 <context>
     <name>Page</name>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="585"/>
+        <location filename="../../src/qml/components/Page.qml" line="588"/>
         <source>Turn off</source>
         <translation>Turn off</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="612"/>
+        <location filename="../../src/qml/components/Page.qml" line="615"/>
         <source>Turn off all</source>
         <translation>Turn off all</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="647"/>
+        <location filename="../../src/qml/components/Page.qml" line="650"/>
         <source>%1 is %2</source>
         <extracomment>Used to show the entity state: %1 is the entity name, %2 is the state</extracomment>
         <translation>%1 is %2</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/Page.qml" line="729"/>
+        <location filename="../../src/qml/components/Page.qml" line="732"/>
         <source>Press and hold the Home button or use the Web Configurator to configure the page</source>
         <extracomment>Web configurator is the name of the application, does not need translation</extracomment>
         <translation>Press and hold the Home button or use the Web Configurator to configure the page</translation>
@@ -5024,16 +5024,83 @@ Web view settings, Buttons: second line of the default key in the list of keys a
 <context>
     <name>WebViewLoadIndicator</name>
     <message>
-        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="43"/>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="66"/>
         <source>The page could not be loaded</source>
         <extracomment>Web view entity, on the whole screen or as a widget of an activity page: the web page did not load (no network, a wrong address, the server does not answer)</extracomment>
         <translation>The page could not be loaded</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="45"/>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="68"/>
         <source>Press OK to try again</source>
         <extracomment>Web view entity on the whole screen, below &quot;The page could not be loaded&quot;: OK loads the page again</extracomment>
         <translation>Press OK to try again</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="78"/>
+        <source>The server %1 wasn&apos;t found. Check the Remote&apos;s Wi-Fi connection and the address.</source>
+        <extracomment>Web view entity, below &quot;The page could not be loaded&quot;: the name of the web server could not be found (DNS). %1 is the server&apos;s name, such as www.example.com</extracomment>
+        <translation>The page could not be loaded</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="83"/>
+        <source>The Remote isn&apos;t connected to a network.</source>
+        <extracomment>Web view entity, below &quot;The page could not be loaded&quot;: the remote has no network connection (or no route to the server)</extracomment>
+        <translation>The Remote isn&apos;t connected to a network.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="88"/>
+        <source>%1 refused the connection. Check that the server is running and the port is correct.</source>
+        <extracomment>Web view entity, below &quot;The page could not be loaded&quot;: the server answered that nothing listens on the port. %1 is the server&apos;s name or IP address, such as 192.168.1.20</extracomment>
+        <translation>%1 refused the connection. Check that the server is running and the port is correct.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="93"/>
+        <source>%1 didn&apos;t respond in time.</source>
+        <extracomment>Web view entity, below &quot;The page could not be loaded&quot;: the server did not answer. %1 is the server&apos;s name or IP address</extracomment>
+        <translation>%1 didn&apos;t respond in time.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="98"/>
+        <source>The certificate of %1 isn&apos;t trusted (expired, wrong name, or self-signed).</source>
+        <extracomment>Web view entity, below &quot;The page could not be loaded&quot;: the server&apos;s HTTPS certificate was not accepted. %1 is the server&apos;s name</extracomment>
+        <translation>The certificate of %1 isn&apos;t trusted (expired, wrong name, or self-signed).</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="103"/>
+        <source>Only http:// and https:// addresses can be opened.</source>
+        <extracomment>Web view entity, below &quot;The page could not be loaded&quot;: the web address uses another scheme, such as ftp:// or file://</extracomment>
+        <translation>Only http:// and https:// addresses can be opened.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="107"/>
+        <source>The page stopped working.</source>
+        <extracomment>Web view entity, below &quot;The page could not be loaded&quot;: the web engine&apos;s process of the page crashed (twice)</extracomment>
+        <translation>The page stopped working.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="111"/>
+        <source>The page needs more memory than the Remote has.</source>
+        <extracomment>Web view entity, below &quot;The page could not be loaded&quot;: the web page used more memory than the remote allows</extracomment>
+        <translation>The page needs more memory than the Remote has.</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="324"/>
+        <source>Try again</source>
+        <extracomment>Web view entity on the whole screen, button below &quot;The page could not be loaded&quot;: load the page again</extracomment>
+        <translation>Try again</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="338"/>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="440"/>
+        <source>Details</source>
+        <extracomment>Web view entity on the whole screen: the button below &quot;The page could not be loaded&quot; and the title of the sheet it opens, with the technical error (the server&apos;s address, the error code)</extracomment>
+        <translation>Details</translation>
+    </message>
+    <message>
+        <location filename="../../src/qml/components/WebViewLoadIndicator.qml" line="489"/>
+        <source>Close</source>
+        <extracomment>Button of the sheet with the technical details of a web page that could not be loaded</extracomment>
+        <translation>Close</translation>
     </message>
 </context>
 <context>
@@ -5180,19 +5247,19 @@ Web view settings, Buttons: second line of the default key in the list of keys a
 <context>
     <name>Webview</name>
     <message>
-        <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="384"/>
+        <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="409"/>
         <source>The web page closed itself</source>
         <extracomment>Notification when the web page shown in the user interface closed itself (window.close())</extracomment>
         <translation>The web page closed itself</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="408"/>
+        <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="433"/>
         <source>This remote cannot show web pages</source>
         <extracomment>Fullscreen web view of a web view entity, on a remote whose firmware cannot show web pages</extracomment>
         <translation>This remote cannot show web pages</translation>
     </message>
     <message>
-        <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="410"/>
+        <location filename="../../src/qml/components/entities/webview/deviceclass/Webview.qml" line="435"/>
         <source>The web page has no valid address</source>
         <extracomment>Fullscreen web view of a web view entity whose web address is missing or invalid</extracomment>
         <translation>The web page has no valid address</translation>
@@ -5885,13 +5952,13 @@ Web view settings, Buttons: second line of the default key in the list of keys a
 <context>
     <name>uc::hw::Power</name>
     <message>
-        <location filename="../../src/system/power.cpp" line="63"/>
+        <location filename="../../src/system/power.cpp" line="64"/>
         <source>Error on power off: %1</source>
         <extracomment>Notification: the remote could not be powered off. %1 is the core&apos;s error message</extracomment>
         <translation>Error on power off: %1</translation>
     </message>
     <message>
-        <location filename="../../src/system/power.cpp" line="79"/>
+        <location filename="../../src/system/power.cpp" line="80"/>
         <source>Error on reboot: %1</source>
         <extracomment>Notification: the remote could not be restarted. %1 is the core&apos;s error message</extracomment>
         <translation>Error on reboot: %1</translation>
@@ -6087,69 +6154,69 @@ Web view settings, Buttons: second line of the default key in the list of keys a
 <context>
     <name>uc::ui::Controller</name>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="326"/>
+        <location filename="../../src/ui/uiController.cpp" line="327"/>
         <source>Error adding profile: %1</source>
         <extracomment>Notification: a profile could not be created. %1 is the core&apos;s error message</extracomment>
         <translation>Error adding profile: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="345"/>
+        <location filename="../../src/ui/uiController.cpp" line="346"/>
         <source>Error</source>
         <translation>Error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="346"/>
+        <location filename="../../src/ui/uiController.cpp" line="347"/>
         <source>Deleting a current profile is not permitted. Please switch to another profile and try again.</source>
         <translation>Deleting a current profile is not permitted. Please switch to another profile and try again.</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="363"/>
+        <location filename="../../src/ui/uiController.cpp" line="364"/>
         <source>Error deleting profile: %1</source>
         <extracomment>Notification: a profile could not be deleted. %1 is the core&apos;s error message</extracomment>
         <translation>Error deleting profile: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="383"/>
+        <location filename="../../src/ui/uiController.cpp" line="384"/>
         <source>Error adding page: %1</source>
         <extracomment>Notification: a page could not be created. %1 is the core&apos;s error message</extracomment>
         <translation>Error adding page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="406"/>
+        <location filename="../../src/ui/uiController.cpp" line="407"/>
         <source>Error renaming page: %1</source>
         <extracomment>Notification: a page could not be renamed. %1 is the core&apos;s error message</extracomment>
         <translation>Error renaming page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="425"/>
+        <location filename="../../src/ui/uiController.cpp" line="426"/>
         <source>Error deleting page: %1</source>
         <extracomment>Notification: a page could not be deleted. %1 is the core&apos;s error message</extracomment>
         <translation>Error deleting page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="524"/>
+        <location filename="../../src/ui/uiController.cpp" line="525"/>
         <source>Error during factory reset: %1</source>
         <extracomment>Notification: the factory reset failed. %1 is the core&apos;s error message</extracomment>
         <translation>Error during factory reset: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="668"/>
+        <location filename="../../src/ui/uiController.cpp" line="670"/>
         <source>Profile update error</source>
         <translation>Profile update error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="729"/>
+        <location filename="../../src/ui/uiController.cpp" line="731"/>
         <source>Error updating page: %1</source>
         <extracomment>Notification: a change to a page could not be saved. %1 is the core&apos;s error message</extracomment>
         <translation>Error updating page: %1</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="803"/>
+        <location filename="../../src/ui/uiController.cpp" line="805"/>
         <source>%1 error</source>
         <translation>%1 error</translation>
     </message>
     <message>
-        <location filename="../../src/ui/uiController.cpp" line="803"/>
+        <location filename="../../src/ui/uiController.cpp" line="805"/>
         <source>Error while connecting to %1, with id %2</source>
         <translation>Error while connecting to %1, with id %2</translation>
     </message>
@@ -6270,7 +6337,7 @@ Web view settings, Buttons: second line of the default key in the list of keys a
 <context>
     <name>uc::ui::WebViewController</name>
     <message>
-        <location filename="../../src/ui/entity/webviewController.cpp" line="343"/>
+        <location filename="../../src/ui/entity/webviewController.cpp" line="349"/>
         <source>Error setting web view settings: %1</source>
         <extracomment>Notification: a setting of the web pages (Settings &gt; Web view) could not be changed. %1 is the core&apos;s error message</extracomment>
         <translation>Error setting web view settings: %1</translation>

@@ -13,6 +13,7 @@
 #include <qpa/qwindowsysteminterface_p.h>
 
 #include <algorithm>
+#include <cstddef>
 #include <cstring>
 #include <functional>
 #include <utility>
@@ -535,6 +536,13 @@ void fireTerminated(int reason) {
     s.callbacks.web_process_terminated(s.view, reason, s.user);
 }
 
+// library 0.10.0: why the load fails, right before its FAILED event
+void fireLoadFailedDetail(const char *uri, int reason, const char *domain, int code, unsigned tlsErrors,
+                          const char *message) {
+    QVERIFY(s.callbacks.load_failed_detail != nullptr);
+    s.callbacks.load_failed_detail(s.view, uri, reason, domain, code, tlsErrors, message, s.user);
+}
+
 void fireImeFocus(int focused, unsigned hints, unsigned purpose, const char *surrounding, int cursor) {
     s.callbacks.ime_focus(s.view, focused, hints, purpose, surrounding, cursor, s.user);
 }
@@ -709,6 +717,13 @@ class testWebViewItem : public QObject {
     void failedLoadShowsTheFailureOverWebKitsErrorPage();
     void failureEndsWithAnotherPageOrASuccessfulQuietReload();
     void secondCrashShowsTheFailure();
+    void loadErrorFollowsTheLibrarysReason_data();
+    void loadErrorFollowsTheLibrarysReason();
+    void loadErrorWithoutTheLibrarysDetailIsNone();
+    void loadErrorDetailsCarryNoPathQueryOrUserInfo();
+    void loadErrorClearsWithTheFailureMessage();
+    void loadErrorOfTheWebProcessEnd();
+    void refusedAddressShowsTheFailureOverThePage();
     void imeFocusEnablesTheInputMethodWithTheMappedHints();
     void keyboardFollowsTheFocusOwnerNotTheImeCallbacks();
     void tapIntoTheFocusedFieldAsksForTheKeyboardAgain();
@@ -2760,9 +2775,12 @@ void testWebViewItem::requestCallbacksNeedTheSizedViewAndTheReplyFunctions() {
     QVERIFY(stub::s.createdSized);
     QCOMPARE(stub::s.callbacksSize, sizeof(uc_webview_callbacks));
     if (sizeof(void *) == 8) {
-        // aarch64 and x86_64: the size the library expects from a 0.7.0 host
-        QCOMPARE(stub::s.callbacksSize, size_t(136));
+        // aarch64 and x86_64: the size of a 0.10.0 host (136 bytes up to load_failed_detail)
+        QCOMPARE(stub::s.callbacksSize, size_t(144));
+        QCOMPARE(offsetof(uc_webview_callbacks, load_failed_detail), size_t(136));
     }
+    // library 0.10.0: why a load failed, set whatever the library (an older one copies only its own part)
+    QVERIFY(stub::s.callbacks.load_failed_detail != nullptr);
     QVERIFY(stub::s.callbacks.script_dialog != nullptr);
     QVERIFY(stub::s.callbacks.authenticate != nullptr);
     QVERIFY(stub::s.callbacks.request_cancelled != nullptr);
@@ -4020,6 +4038,285 @@ void testWebViewItem::secondCrashShowsTheFailure() {
     f.item->reload();
     QCOMPARE(stub::s.calls.count(QStringLiteral("reload")), 2);
     QTRY_COMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorSpinner);
+}
+
+namespace {
+
+// a failure of uri as library 0.10.0 reports it: STARTED, the detail, FAILED, FINISHED
+void failWithDetail(const char *uri, int reason, const char *domain, int code, unsigned tlsErrors,
+                    const char *message) {
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, uri);
+    stub::fireLoadFailedDetail(uri, reason, domain, code, tlsErrors, message);
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Load failed")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, uri);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, uri);
+}
+
+}  // namespace
+
+void testWebViewItem::loadErrorFollowsTheLibrarysReason_data() {
+    QTest::addColumn<int>("reason");
+    QTest::addColumn<QString>("domain");
+    QTest::addColumn<int>("code");
+    QTest::addColumn<uint>("tlsErrors");
+    QTest::addColumn<QString>("message");
+    QTest::addColumn<int>("error");
+    QTest::addColumn<QString>("details");
+
+    QTest::newRow("host not found")
+        << UC_WEBVIEW_FAIL_HOST_NOT_FOUND << "g-resolver-error-quark" << 0 << 0u
+        << QString::fromUtf8("Error resolving \u201cwww.example.com\u201d: Name or service not known")
+        << int(WebViewItem::LoadErrorHostNotFound)
+        << QString::fromUtf8(
+               "https://www.example.com\nError resolving \u201cwww.example.com\u201d: Name or service not "
+               "known\ng-resolver-error-quark 0");
+    QTest::newRow("no network") << UC_WEBVIEW_FAIL_NO_NETWORK << "g-io-error-quark" << 23 << 0u
+                                << "Network is unreachable" << int(WebViewItem::LoadErrorNoNetwork)
+                                << "https://www.example.com\nNetwork is unreachable\ng-io-error-quark 23";
+    QTest::newRow("connection refused") << UC_WEBVIEW_FAIL_CONNECTION_REFUSED << "g-io-error-quark" << 39 << 0u
+                                        << "Connection refused" << int(WebViewItem::LoadErrorConnectionRefused)
+                                        << "https://www.example.com\nConnection refused\ng-io-error-quark 39";
+    QTest::newRow("timeout") << UC_WEBVIEW_FAIL_TIMEOUT << "g-io-error-quark" << 24 << 0u << "Socket I/O timed out"
+                             << int(WebViewItem::LoadErrorTimeout)
+                             << "https://www.example.com\nSocket I/O timed out\ng-io-error-quark 24";
+    // G_TLS_CERTIFICATE_UNKNOWN_CA | BAD_IDENTITY | EXPIRED, and a bit GLib may add
+    QTest::newRow("certificate") << UC_WEBVIEW_FAIL_CERTIFICATE << "WebKitNetworkError" << 1 << (1u | 2u | 8u | 256u)
+                                 << "Unacceptable TLS certificate" << int(WebViewItem::LoadErrorCertificate)
+                                 << "https://www.example.com\nUnacceptable TLS certificate\nexpired, unknown issuer, "
+                                    "wrong host name, flags 0x100\nWebKitNetworkError 1";
+    QTest::newRow("scheme refused") << UC_WEBVIEW_FAIL_SCHEME_REFUSED << "" << 0 << 0u << ""
+                                    << int(WebViewItem::LoadErrorUnsupportedAddress) << "https://www.example.com";
+    QTest::newRow("other") << UC_WEBVIEW_FAIL_OTHER << "WebKitPolicyError" << 102 << 0u << "Frame load interrupted"
+                           << int(WebViewItem::LoadErrorOther)
+                           << "https://www.example.com\nFrame load interrupted\nWebKitPolicyError 102";
+    // a reason of a newer library: only the details say what
+    QTest::newRow("unknown reason") << 99 << "soup-session-error-quark" << 3 << 0u << "Too many redirects"
+                                    << int(WebViewItem::LoadErrorOther)
+                                    << "https://www.example.com\nToo many redirects\nsoup-session-error-quark 3";
+}
+
+void testWebViewItem::loadErrorFollowsTheLibrarysReason() {
+    QFETCH(int, reason);
+    QFETCH(QString, domain);
+    QFETCH(int, code);
+    QFETCH(uint, tlsErrors);
+    QFETCH(QString, message);
+    QFETCH(int, error);
+    QFETCH(QString, details);
+
+    Fixture    f;
+    QSignalSpy changed(f.item, &WebViewItem::loadErrorChanged);
+    QSignalSpy failed(f.item, &WebViewItem::loadFailed);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+    f.item->setUrl(QUrl(QStringLiteral("https://www.example.com/")));
+    failWithDetail("https://www.example.com/", reason, domain.isEmpty() ? nullptr : qPrintable(domain), code, tlsErrors,
+                   message.isEmpty() ? nullptr : message.toUtf8().constData());
+    QCOMPARE(failed.count(), 1);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    QCOMPARE(int(f.item->loadError()), error);
+    QCOMPARE(f.item->loadErrorHost(), QStringLiteral("www.example.com"));
+    QCOMPARE(f.item->loadErrorDetails(), details);
+    QCOMPARE(changed.count(), 1);
+    QCOMPARE(f.item->property("loadError").toInt(), error);
+}
+
+void testWebViewItem::loadErrorWithoutTheLibrarysDetailIsNone() {
+    // a library older than 0.10.0 never calls load_failed_detail: the failure says nothing about why
+    Fixture    f;
+    QSignalSpy changed(f.item, &WebViewItem::loadErrorChanged);
+    f.item->setUrl(QUrl(QStringLiteral("https://down.example/")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("^Load failed: \"https://down.example/\"$")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, "https://down.example/");
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+    QVERIFY(f.item->loadErrorHost().isEmpty());
+    QVERIFY(f.item->loadErrorDetails().isEmpty());
+    QCOMPARE(changed.count(), 0);
+
+    // a detail of another address is not this failure's
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://down.example/");
+    f.item->reload();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    stub::fireLoadFailedDetail("https://elsewhere.example/", UC_WEBVIEW_FAIL_TIMEOUT, "g-io-error-quark", 24, 0, "x");
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Load failed")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, "https://down.example/");
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+    QVERIFY(f.item->loadErrorDetails().isEmpty());
+    QCOMPARE(changed.count(), 0);
+
+    // and a detail is used once: the next failure without one says nothing again
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://down.example/");
+    f.item->reload();
+    failWithDetail("https://down.example/", UC_WEBVIEW_FAIL_TIMEOUT, "g-io-error-quark", 24, 0, "Socket I/O timed out");
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorTimeout);
+    f.item->reload();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Load failed")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, "https://down.example/");
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+}
+
+void testWebViewItem::loadErrorDetailsCarryNoPathQueryOrUserInfo() {
+    // an integration's address may carry a token: the details have scheme, host and port only, also where the error
+    // text quotes the address; the log line keeps the rules of logUrl()
+    QStringList messages;
+    QString     details;
+    QString     host;
+    capturedMessages = &messages;
+    const QtMessageHandler previous = qInstallMessageHandler(captureMessage);
+    {
+        Fixture     f;
+        const char *uri = "https://user:secret@nas.example:8443/api/state?token=abc123#frag";
+        f.item->setUrl(QUrl::fromEncoded(uri));
+        stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, uri);
+        stub::fireLoadFailedDetail(uri, UC_WEBVIEW_FAIL_CERTIFICATE, "WebKitNetworkError", 1, 1u,
+                                   "Unacceptable TLS certificate for https://user:secret@nas.example:8443/api/state?"
+                                   "token=abc123 (see http://other.example/path?q=1)");
+        stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, uri);
+        details = f.item->loadErrorDetails();
+        host = f.item->loadErrorHost();
+    }
+    qInstallMessageHandler(previous);
+    capturedMessages = nullptr;
+
+    QCOMPARE(details, QStringLiteral("https://nas.example:8443\nUnacceptable TLS certificate for "
+                                     "https://nas.example:8443 (see http://other.example)\nunknown issuer\n"
+                                     "WebKitNetworkError 1"));
+    QCOMPARE(host, QStringLiteral("nas.example"));
+    for (const char *secret : {"user", "secret", "api", "state", "token", "abc123", "frag", "path"}) {
+        QVERIFY2(!details.contains(QLatin1String(secret)), secret);
+    }
+    const QString all = messages.join('\n');
+    QVERIFY2(all.contains(QStringLiteral("Load failed: https://nas.example:8443/api/state?...#... "
+                                         "(LoadErrorCertificate, WebKitNetworkError 1)")),
+             qPrintable(all));
+    QVERIFY(!all.contains(QStringLiteral("abc123")));
+    QVERIFY(!all.contains(QStringLiteral("secret")));
+}
+
+void testWebViewItem::loadErrorClearsWithTheFailureMessage() {
+    Fixture     f;
+    QSignalSpy  changed(f.item, &WebViewItem::loadErrorChanged);
+    const char *down = "https://down.example/";
+    auto        fail = [down] {
+        failWithDetail(down, UC_WEBVIEW_FAIL_CONNECTION_REFUSED, "g-io-error-quark", 39, 0, "Connection refused");
+    };
+    f.item->setUrl(QUrl(QString::fromLatin1(down)));
+    fail();
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorConnectionRefused);
+
+    // WebKit's error page for the failed address is no load: the reason stays
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, down);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, down);
+    stub::fireFrame(1);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, down);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorConnectionRefused);
+    QVERIFY(!f.item->loadErrorDetails().isEmpty());
+
+    // a quiet reload keeps it until a page shows
+    f.item->reloadQuietly();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, down);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorConnectionRefused);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, down);
+    stub::fireFrame(2);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+    QVERIFY(f.item->loadErrorHost().isEmpty());
+    QVERIFY(f.item->loadErrorDetails().isEmpty());
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, down);
+
+    // a retry (reload(), OK) clears it at once, with the failure message
+    fail();
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorConnectionRefused);
+    changed.clear();
+    f.item->reload();
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+    QCOMPARE(changed.count(), 1);
+
+    // so does a navigation of the page, and a new address
+    fail();
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://other.example/");
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://other.example/");
+    fail();
+    f.item->setUrl(QUrl(QStringLiteral("https://new.example/")));
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://new.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://new.example/");
+    fail();
+    stub::s.canGoBack = true;
+    f.item->goBack();
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+}
+
+void testWebViewItem::loadErrorOfTheWebProcessEnd() {
+    Fixture f;
+    f.item->setUrl(QUrl(QStringLiteral("https://heavy.example/app?session=1")));
+    // the first crash reloads by itself: the reason goes with that reload
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Web process terminated")));
+    stub::fireTerminated(UC_WEBVIEW_TERMINATED_CRASHED);
+    QTRY_COMPARE(stub::s.calls.count(QStringLiteral("reload")), 1);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+
+    // a second one shows the failure, and why
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Web process terminated")));
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Not reloading again")));
+    stub::fireTerminated(UC_WEBVIEW_TERMINATED_EXCEEDED_MEMORY_LIMIT);
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorOutOfMemory);
+    QCOMPARE(f.item->loadErrorHost(), QStringLiteral("heavy.example"));
+    QCOMPARE(f.item->loadErrorDetails(),
+             QStringLiteral("https://heavy.example\nweb process exceeded its memory limit"));
+
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Web process terminated")));
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Not reloading again")));
+    stub::fireTerminated(UC_WEBVIEW_TERMINATED_CRASHED);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorCrashed);
+    QCOMPARE(f.item->loadErrorDetails(), QStringLiteral("https://heavy.example\nweb process crashed"));
+
+    // ended by the library (BY_API): no reason of its own
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Web process terminated")));
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Not reloading again")));
+    stub::fireTerminated(UC_WEBVIEW_TERMINATED_BY_API);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
+    QVERIFY(f.item->loadErrorDetails().isEmpty());
+}
+
+void testWebViewItem::refusedAddressShowsTheFailureOverThePage() {
+    qunsetenv("UC_WEBVIEW_ALLOW_FILE_URLS");
+    Fixture f;
+    f.item->setUrl(QUrl(QStringLiteral("https://shown.example/")));
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://shown.example/");
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_COMMITTED, "https://shown.example/");
+    stub::fireFrame(1);
+    stub::fireLoadChanged(UC_WEBVIEW_LOAD_FINISHED, "https://shown.example/");
+
+    // the item refuses the address itself: the failure, why, over the page that stays (nothing to cover)
+    QSignalSpy changed(f.item, &WebViewItem::loadErrorChanged);
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Not loading URL")));
+    f.item->setUrl(QUrl(QStringLiteral("ftp://files.example:2121/pub/secret.txt")));
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
+    QVERIFY(!f.item->isPageFailed());
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorUnsupportedAddress);
+    QCOMPARE(f.item->loadErrorHost(), QStringLiteral("files.example"));
+    QCOMPARE(f.item->loadErrorDetails(),
+             QStringLiteral("ftp://files.example:2121\nscheme not allowed (http, https, about, data; file with "
+                            "UC_WEBVIEW_ALLOW_FILE_URLS=1)"));
+    QCOMPARE(changed.count(), 1);
+    QCOMPARE(f.item->url(), QUrl(QStringLiteral("https://shown.example/")));
+
+    // an address without a host
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("Not loading URL")));
+    f.item->setUrl(QUrl(QStringLiteral("javascript:alert(document.cookie)")));
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorUnsupportedAddress);
+    QVERIFY(f.item->loadErrorHost().isEmpty());
+    QVERIFY(f.item->loadErrorDetails().startsWith(QStringLiteral("javascript:\n")));
+    QVERIFY(!f.item->loadErrorDetails().contains(QStringLiteral("cookie")));
+
+    // an allowed address loads: the failure goes
+    f.item->setUrl(QUrl(QStringLiteral("https://next.example/")));
+    QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorNone);
+    QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
 }
 
 QTEST_MAIN(testWebViewItem)

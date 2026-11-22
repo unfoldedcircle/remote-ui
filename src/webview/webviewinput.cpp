@@ -4,6 +4,8 @@
 #include "webviewinput.h"
 
 #include <QChar>
+#include <QRegularExpression>
+#include <QStringList>
 
 #include "uc_webview.h"
 
@@ -332,6 +334,89 @@ QString loggableUrl(const QUrl &url, bool full) {
         text = text.left(cut) + QStringLiteral("...");
     }
     return text;
+}
+
+QString loadErrorAddress(const QUrl &url) {
+    if (url.isEmpty()) {
+        return QString();
+    }
+    const QString scheme = url.scheme().toLower();
+    if (url.host().isEmpty()) {
+        return scheme.isEmpty() ? QString() : scheme + QLatin1Char(':');
+    }
+    QUrl address;
+    address.setScheme(scheme);
+    address.setHost(url.host());
+    address.setPort(url.port());
+    return address.toString();
+}
+
+QString loadErrorMessage(const QString &message) {
+    constexpr int kMessageMax = 300;
+    // a URL with an authority, up to the next blank, quote or angle bracket (GLib puts a host name it could not
+    // resolve in typographic quotes)
+    static const QRegularExpression urls(
+        QStringLiteral("[A-Za-z][A-Za-z0-9+.-]*://[^\\s\"'<>\u201c\u201d\u2018\u2019]*"));
+    QString text;
+    int     last = 0;
+    for (auto it = urls.globalMatch(message); it.hasNext();) {
+        const QRegularExpressionMatch match = it.next();
+        text += message.mid(last, match.capturedStart() - last);
+        // punctuation at its end belongs to the sentence: "(see https://host/a)."
+        QString url = match.captured();
+        int     end = match.capturedEnd();
+        while (!url.isEmpty() && QStringLiteral(").,;:]").contains(url.back())) {
+            url.chop(1);
+            --end;
+        }
+        const QString address = loadErrorAddress(QUrl(url));
+        text += address.isEmpty() ? QStringLiteral("...") : address;
+        last = end;
+    }
+    text += message.mid(last);
+    for (QChar &c : text) {
+        if (c.category() == QChar::Other_Control) {
+            c = QLatin1Char(' ');
+        }
+    }
+    text = text.trimmed();
+    if (text.size() > kMessageMax) {
+        int cut = kMessageMax;
+        if (text.at(cut - 1).isHighSurrogate()) {
+            --cut;
+        }
+        text = text.left(cut) + QStringLiteral("...");
+    }
+    return text;
+}
+
+QString certificateErrorNames(unsigned flags) {
+    // GTlsCertificateFlags (gio/gioenums.h), in the order a user checks them
+    struct Flag {
+        unsigned    bit;
+        const char *name;
+    };
+    static constexpr Flag kFlags[] = {
+        {1u << 3, "expired"},             // G_TLS_CERTIFICATE_EXPIRED
+        {1u << 2, "not yet valid"},       // G_TLS_CERTIFICATE_NOT_ACTIVATED
+        {1u << 0, "unknown issuer"},      // G_TLS_CERTIFICATE_UNKNOWN_CA
+        {1u << 1, "wrong host name"},     // G_TLS_CERTIFICATE_BAD_IDENTITY
+        {1u << 4, "revoked"},             // G_TLS_CERTIFICATE_REVOKED
+        {1u << 5, "insecure algorithm"},  // G_TLS_CERTIFICATE_INSECURE
+        {1u << 6, "other error"},         // G_TLS_CERTIFICATE_GENERIC_ERROR
+    };
+    QStringList names;
+    unsigned    known = 0;
+    for (const Flag &flag : kFlags) {
+        known |= flag.bit;
+        if (flags & flag.bit) {
+            names.append(QString::fromLatin1(flag.name));
+        }
+    }
+    if (flags & ~known) {
+        names.append(QStringLiteral("flags 0x%1").arg(flags & ~known, 0, 16));
+    }
+    return names.join(QStringLiteral(", "));
 }
 
 double dragThresholdFromEnv(const QByteArray &value) {

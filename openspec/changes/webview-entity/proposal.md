@@ -34,8 +34,11 @@ The UI has a web view since the `web-view` change (the `WebView` item on the fir
   step of its sequence; an open web view stays, another one is replaced.
 - While a page loads, the fullscreen web view and the widget show it after 400 ms: a new page a spinner with the
   percentage until its first frame, then a thin bar at the top until it is loaded; a reload the bar only, the reload
-  interval nothing. A failed load shows "The page could not be loaded" instead of the web engine's error page, with
-  "Press OK to try again" in the fullscreen web view; OK and a tap load it again.
+  interval nothing. A failed load shows "The page could not be loaded" instead of the web engine's error page, with a
+  line that says why (library 0.10.0: host not found, no network, connection refused, timeout, certificate, an
+  unsupported address, a crash, out of memory); in the fullscreen web view Try again, Details (the technical error,
+  without the address' path and query) and "Press OK to try again". OK and Try again load it again, in a widget a
+  tap.
 - The activity page renders the `webview` item: the page in the grid while its page is the current one, interactive
   or opening fullscreen on a tap, with its own zoom; unloaded while a fullscreen web view is open.
 - The global web view settings (`get_webview_cfg`, `configuration_change`): colour scheme, invalid certificates,
