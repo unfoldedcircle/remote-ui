@@ -36,9 +36,14 @@
  *    response_refused). A host detects 0.7.0 with
  *    dlsym("uc_webview_request_reply"); an older library never reads the
  *    request callbacks, and the page's requests get the old behaviour.
+ *    Library 0.10.0 appended load_failed_detail; an older library never
+ *    calls it, and every FAILED comes without a reason (the host shows a
+ *    generic text). No function tells 0.10.0 apart: a host that needs to
+ *    know treats "no detail before FAILED" as "reason unknown".
  *  - New values of the constants the library reports (load events,
  *    termination reasons, IME purposes and hint bits, dialog types,
- *    authentication schemes and flags, new-window results, refusal reasons):
+ *    authentication schemes and flags, new-window results, refusal reasons,
+ *    load failure reasons):
  *    hosts ignore values they do not know (an unknown dialog type or
  *    authentication scheme: answer it with uc_webview_request_reply(id, 0,
  *    NULL)). The library ignores input values it does not know
@@ -271,12 +276,8 @@ typedef struct {
 #define UC_WEBVIEW_LOAD_FINISHED    3   /* load finished (also after a failure) */
 #define UC_WEBVIEW_LOAD_FAILED      4   /* load failed, uri is the failing uri; FINISHED follows, except for a
                                            URI the scheme allowlist rejected (uc_webview_load_uri()), which is
-                                           reported alone and leaves the current page and load untouched */
-
-/* web_process_terminated() reasons (values of WebKitWebProcessTerminationReason, WebKitWebView.h.in:236-238) */
-#define UC_WEBVIEW_TERMINATED_CRASHED               0
-#define UC_WEBVIEW_TERMINATED_EXCEEDED_MEMORY_LIMIT 1
-#define UC_WEBVIEW_TERMINATED_BY_API                2
+                                           reported alone and leaves the current page and load untouched; since
+                                           library 0.10.0 load_failed_detail() comes right before it */
 
 /* load_failed_detail() reasons (library 0.10.0) */
 #define UC_WEBVIEW_FAIL_OTHER               0  /* see error_domain/error_code/message */
@@ -286,6 +287,11 @@ typedef struct {
 #define UC_WEBVIEW_FAIL_TIMEOUT             4
 #define UC_WEBVIEW_FAIL_CERTIFICATE         5  /* TLS certificate not accepted; tls_errors has the GTlsCertificateFlags */
 #define UC_WEBVIEW_FAIL_SCHEME_REFUSED      6  /* the library's scheme allowlist refused the URI */
+
+/* web_process_terminated() reasons (values of WebKitWebProcessTerminationReason, WebKitWebView.h.in:236-238) */
+#define UC_WEBVIEW_TERMINATED_CRASHED               0
+#define UC_WEBVIEW_TERMINATED_EXCEEDED_MEMORY_LIMIT 1
+#define UC_WEBVIEW_TERMINATED_BY_API                2
 
 /* uc_webview_touch() phases */
 #define UC_WEBVIEW_TOUCH_DOWN   0
@@ -467,7 +473,10 @@ typedef struct {
 
     /* ---- library 0.10.0: only through uc_webview_new_sized(), see "Compatibility" ---- */
 
-    /* 0.10.0: called right before load_changed(UC_WEBVIEW_LOAD_FAILED) for the same failure, same uri. */
+    /* 0.10.0. Why a main-frame load failed: called right before load_changed(UC_WEBVIEW_LOAD_FAILED) for the same
+     * failure, with the same uri. error_domain is the GError domain as a string ("g-resolver-error-quark"), "" when none;
+     * tls_errors are GTlsCertificateFlags bits (0 unless reason is UC_WEBVIEW_FAIL_CERTIFICATE); message is the error's
+     * text, untranslated, may be "". */
     void (*load_failed_detail)(uc_webview *, const char *uri, int reason, const char *error_domain, int error_code,
                                unsigned tls_errors, const char *message, void *user);
 } uc_webview_callbacks;
@@ -603,8 +612,9 @@ void uc_webview_set_scale(uc_webview *, double scale);
  * UI thread. Starts loading uri. Scheme allowlist: http, https, about and data; file only when the process
  * set UC_WEBVIEW_ALLOW_FILE_URLS=1 before uc_webview_global_init() (blocked by default). Any other scheme,
  * and a string without a scheme (a bare path, "example.com"), is refused with a warning in the log and a
- * load_changed(UC_WEBVIEW_LOAD_FAILED, uri) callback from the main context (no STARTED/FINISHED); the
- * current page and a running load stay as they are.
+ * load_changed(UC_WEBVIEW_LOAD_FAILED, uri) callback from the main context (no STARTED/FINISHED), since library
+ * 0.10.0 right after load_failed_detail(uri, UC_WEBVIEW_FAIL_SCHEME_REFUSED, "", 0, 0, ""); the current page and a
+ * running load stay as they are.
  */
 void uc_webview_load_uri(uc_webview *, const char *uri);
 /* UI thread. Loads html (UTF-8, NUL terminated) with base_uri (NULL or "" = about:blank) for relative URLs.
@@ -880,7 +890,8 @@ int uc_webview_global_set_cookies(const char *url, const uc_webview_cookie *cook
  * How: when a main-frame load of host fails on its certificate (WebKit's load-failed-with-tls-errors), the library
  * checks the certificate against the exceptions, tells WebKit to accept it for host
  * (webkit_network_session_allow_tls_certificate_for_host()) and loads the URI again: the host sees STARTED, FINISHED
- * (no FAILED) and then the new load. Without a match the load fails as before (UC_WEBVIEW_LOAD_FAILED). Once
+ * (no FAILED) and then the new load. Without a match the load fails as before (UC_WEBVIEW_LOAD_FAILED, since 0.10.0
+ * after load_failed_detail() with UC_WEBVIEW_FAIL_CERTIFICATE and the certificate's GTlsCertificateFlags). Once
  * accepted, WebKit trusts that certificate for host for the rest of the process, for subresources too; a
  * subresource of host requested before the main frame accepted its certificate fails. A load the library repeats
  * is a GET of the URI (a form posted to such a host is not sent again). Exceptions cannot be removed.
