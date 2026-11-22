@@ -459,6 +459,7 @@ class testWebViewEntityScreen : public QObject {
     void functionsZoomScrollAndGoThroughTheHistory();
     void functionsCloseToggleTheNavigationMoveTheFocusOrDoNothing();
     void backWithAnotherActionKeepsTheWebViewOpen();
+    void deletedEntityClosesTheScreenWithoutErrors();
     void buttonsOfTheModel_data();
     void buttonsOfTheModel();
     void whileTypingTheDpadAndOkGoToTheTextField();
@@ -1337,6 +1338,40 @@ void testWebViewEntityScreen::functionsCloseToggleTheNavigationMoveTheFocusOrDoN
     QTRY_VERIFY(webView() != nullptr);
     pressRemoteButton(Qt::Key_VolumeMute);
     QTRY_COMPARE(screen->property("state").toString(), QStringLiteral("closed"));
+}
+
+namespace {
+QStringList *s_warnings = nullptr;
+QtMessageHandler s_previousHandler = nullptr;
+
+void collectWarnings(QtMsgType type, const QMessageLogContext &context, const QString &message) {
+    if (s_warnings && type == QtWarningMsg) {
+        s_warnings->append(message);
+    }
+    s_previousHandler(type, context, message);
+}
+}  // namespace
+
+void testWebViewEntityScreen::deletedEntityClosesTheScreenWithoutErrors() {
+    // the web view is deleted (web-configurator, integration) while it is open: the screen closes, and no binding of
+    // the screen reads the entity that is gone ("TypeError: Cannot read property 'state' of null")
+    entity = createEntity(QVariantMap{{"url", "https://a.example/"}});
+    QVERIFY(openScreen(false));
+    QTRY_VERIFY(webView() != nullptr);
+    QTRY_COMPARE(screen->property("state").toString(), QStringLiteral("open"));
+
+    QStringList warnings;
+    s_warnings = &warnings;
+    s_previousHandler = qInstallMessageHandler(collectWarnings);
+    EntityControllerStub::s_entity = nullptr;
+    delete entity;
+    entity = nullptr;
+    QTRY_VERIFY(screen.isNull() || screen->property("state").toString() == QStringLiteral("closed"));
+    QTest::qWait(400);
+    qInstallMessageHandler(s_previousHandler);
+    s_warnings = nullptr;
+    QVERIFY2(warnings.filter(QStringLiteral("TypeError")).isEmpty(), qPrintable(warnings.join("\n")));
+    QVERIFY2(warnings.filter(QStringLiteral("null")).isEmpty(), qPrintable(warnings.join("\n")));
 }
 
 void testWebViewEntityScreen::backWithAnotherActionKeepsTheWebViewOpen() {
