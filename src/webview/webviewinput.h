@@ -24,6 +24,19 @@ namespace webview {
 // the key's name).
 uint32_t xkbKeysymForKey(int key, const QString &text);
 
+// A key of the page that the item sends itself (WebViewItem::sendKey(), the remote's buttons in the fullscreen web
+// view, core-api WebviewButtonKey): the XKB keysym WebKit derives KeyboardEvent.key and keyCode from, and the XKB
+// keycode (evdev + 8) it derives KeyboardEvent.code from. Exit and MediaPlayPause need exactly their keycode: WebKit
+// tells them from Close and MediaPlay by it (docs/webview.md, "Keys of the page").
+struct PageKey {
+    uint32_t keysym;
+    uint32_t keycode;
+};
+
+// The page key of a KeyboardEvent.key name of core-api WebviewButtonKey ("ArrowUp", "ChannelUp", "ColorF0Red", ...),
+// or nullptr for any other name.
+const PageKey *pageKeyForName(const QString &name);
+
 // UC_WEBVIEW_MOD_* bits for the keyboard modifiers and the held mouse buttons of an event.
 unsigned modifiersForEvent(Qt::KeyboardModifiers modifiers, Qt::MouseButtons buttons = Qt::NoButton);
 
@@ -58,12 +71,26 @@ double dragThresholdFromEnv(const QByteArray &value);
 // trace logs").
 const char *specialKeyName(uint32_t keysym);
 
-// The URL for a log line: never with user info (credentials); unless full (UC_WEBVIEW_LOG_FULL_URLS=1) only
-// scheme, host, port and path of a URL with a host and of file: and about: URLs, a query and a fragment shown as
-// "?..." and "#..." (they carry tokens); "data:<media type>,..." for a data: URL, "<scheme>:..." for other URLs
-// without a host (javascript:, blob:, mailto:). At most 200 characters. The rules of the library's
-// uc_uri_policy_loggable().
+// The URL for a log line: never with user info (credentials); unless full (UC_WEBVIEW_LOG_FULL_URLS=1) only its
+// origin, the loadErrorAddress(): "https://nas.local:8443" (the port when the URL names one, an IPv6 host in
+// brackets), "<scheme>:" for a URL without a host (about:, data:, file:, javascript:, blob:, mailto:) and for an
+// invalid one; never a path, query or fragment (all three carry tokens). "(no scheme)" for a URL without a scheme,
+// "(empty)" for an empty one. At most 200 characters. The rules of the library's uc_uri_policy_loggable().
 QString loggableUrl(const QUrl &url, bool full);
+
+// The address of a failed load as the Details of the failure show it (WebViewItem::loadErrorDetails): scheme, host and
+// port only, "https://nas.local:8443"; never user info, path, query or fragment, which may carry a token of an
+// integration's address. "<scheme>:" for a URL without a host (about:, data:, javascript:), "" for an empty one.
+QString loadErrorAddress(const QUrl &url);
+
+// A library's or WebKit's error text for the Details of a failure: every URL in it shortened to its loadErrorAddress()
+// (an error text may quote the address it failed on), control characters as spaces, at most 300 characters.
+QString loadErrorMessage(const QString &message);
+
+// The names of the GTlsCertificateFlags bits of a refused certificate (UC_WEBVIEW_FAIL_CERTIFICATE, the tls_errors of
+// load_failed_detail(), library 0.10.0), "expired, unknown issuer, wrong host name"; a bit GLib adds later as
+// "flags 0x80". "" without a bit.
+QString certificateErrorNames(unsigned flags);
 
 }  // namespace webview
 }  // namespace uc

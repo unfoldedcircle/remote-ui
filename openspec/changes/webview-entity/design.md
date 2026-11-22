@@ -113,7 +113,10 @@ start page the screen says why.
 ### D5 — `open` goes on top of what is shown
 
 `main.qml openWebView()`: an open fullscreen web view gets `showEntity()` (the same web view stays, another one
-replaces the page); otherwise the screen opens in the second container, or in the third on top of the second. An
+replaces it like a close and an open: the page `Loader` unloads the page with its history, `viewClosed()` applies the
+website data setting, a new page loads the other web view); otherwise the screen opens in the second container, or in
+the third on top of the second, with the screen below as `underlyingScreen`. A web view in the included entities of
+an activity's menu takes the same path (`Activity.qml`), so it keeps the activity's button mapping. An
 entity screen in the third container (opened from an activity's menu) closes first. While the activity loading screen
 is up or a container is still loading, the request waits (`pendingWebViewId`) and is opened when the loading screen
 closes or the container is ready: a `webview.open` step of an on-sequence lands on top of the activity screen.
@@ -123,7 +126,9 @@ closes or the container is ready: a `webview.open` step of an on-sequence lands 
 The screen's `ButtonNavigation` (path 1) owns every button: HOME (close, and the screen below too: `closeToHome`, read
 by the third container's close handler), and every button of the button mapping with its action (D17), the d-pad and
 OK included. POWER, VOICE and the buttons the mapping does not name take the `overrideConfig` of the screen below (an
-activity's button mapping), so a key is never handled twice. On path 2 the WebView's `Keys` (`WebViewPage.qml`) accept
+activity's button mapping), so a key is never handled twice. On the main screen POWER goes to the page header like a
+`pass` button: its activity opens the "Turn off" menu, in the screen's own `PopupMenu`, since the main screen's menu
+is hidden behind the web view. On path 2 the WebView's `Keys` (`WebViewPage.qml`) accept
 the remote's d-pad and OK, except while the on-screen keyboard is up (D17). Alternative: forwarding unhandled keys to
 the activity's `ButtonNavigation` would need a change of the shared input ownership.
 
@@ -370,6 +375,64 @@ fixed.
   its action as the second line, the list of actions and the list of keys (`PopupList`), the default marked, opened over
   the settings page like the test page.
 
+### D18 — Device state for web pages through library 0.9.0
+
+The Core-API adds the web view option `device_api` (default false) and its user override `options.user.device_api`
+(core-api `entity_webview.md` "Device state for web pages"). Library 0.9.0 injects the page API (`navigator.getBattery()`,
+`window.deviceHost`, `freeze` / `resume` on `document`, `data-screen` / `data-power-profile`) into every top-level page
+of a view that has it on, and takes the state as JSON (`uc_webview_set_device_state()`) and the standby as events
+(`uc_webview_device_event()`).
+
+- **One source (`DeviceStateSource`, `src/webview/devicestatesource.*`).** A pure state machine without the hardware
+  classes: it takes the power mode, the resume flag and the battery as calls, and emits the state JSON (only when it
+  changes) and the `suspend` / `resume` events. `main.cpp` connects it to `hw::Power` and `hw::Battery` (static
+  asserts that its `PowerMode` has the values of `Power::PowerMode`). Every WebView item with `deviceApi` follows the
+  one instance. Alternative: the item reads `Power` and `Battery` itself — every item would repeat the mapping and the
+  standby bookkeeping, and the item tests would need the core client.
+- **Mapping.** NORMAL `on`/`balanced`, IDLE `dim`/`balanced`, LOW_POWER and SUSPEND `off`/`power-saver`; `ac` while
+  `Battery.powerSupply`; `level` in percent. The profile follows the display because the remote has no user-selectable
+  performance mode yet, and because WebKit's own low power mode uses the same names.
+- **The resume flag.** `power_mode_change` carries `wakeup` (only with NORMAL) after a resume. `Api` emits
+  `resumedFromSuspend()` right before `powerModeChanged(NORMAL)`, `Power` passes it on as a signal of its own (also
+  when the mode does not change: the UI missed SUSPEND), so the existing receivers of `powerModeChanged` stay as they
+  are. The source sends `resume` before the state of the wake. Leaving SUSPEND without the flag also sends `resume`
+  (a page that got `suspend` always gets `resume`); a flag without a `suspend` sends `resume` only when the system
+  slept (the clock below grew).
+- **Time slept.** The growth of `CLOCK_BOOTTIME - CLOCK_MONOTONIC` between `suspend` and `resume`: the monotonic clock
+  stops in a suspend, the boot time clock does not. 0 where there is no boot time clock (macOS).
+- **The item.** `deviceApi` (QML property): with the three functions (`WebViewLibrary::deviceApiAvailable()`) the item
+  passes the current state, then `uc_webview_set_device_api(1)`, before the first load, and forwards the source's
+  signals while it is on; off: `set_device_api(0)` and the connections go. The library injects the API at the start of
+  a document, so `WebViewPage.qml` loads the start page again when the effective option changes, like a site change.
+- **Best effort.** The standby is never delayed for a page. A handshake (the page confirms it saved its state) would
+  need a core change and is out of scope.
+
+### D19 — Why a load failed, through library 0.10.0
+
+The maintainer's report: "The page could not be loaded" alone leaves the user guessing whether the remote, the network
+or the server is at fault. Library 0.10.0 appends `load_failed_detail` to `uc_webview_callbacks`, called right before
+`load_changed(FAILED)` for the same failure: a reason (`UC_WEBVIEW_FAIL_*`), GLib's error domain, code and message,
+and a certificate's `GTlsCertificateFlags`.
+
+- **The item.** `WebViewItem` keeps the detail for the `FAILED` of the same address and publishes `loadError` (an enum
+  that also covers its own refusal of an address and the end of the web process), `loadErrorHost` and
+  `loadErrorDetails`. They clear with the failure message (a load the user waits for, a navigation of the page, a page
+  that shows), so a quiet reload keeps them like the message. The callback is always set: `uc_webview_new_sized()` hands
+  it only to a library that knows it, and an older one never calls it, so the failure stays generic (`LoadErrorNone`).
+  Alternative: a function that asks for the last error — a second path for one event, and racy with the next load.
+- **The details are technical and untranslated**, for a support request or the integration's author: the address with
+  scheme, host and port only (`webviewinput.cpp loadErrorAddress()`), since an integration's address may carry a token
+  in its path or query; every URL inside the error text shortened the same way; the certificate's flags by name; the
+  domain and code. The log line keeps `logUrl()` and adds the reason, domain and code, not the message.
+- **The UI.** A translated reason line per kind below the unchanged title; Try again and Details replace the tap
+  anywhere in the fullscreen web view (a tap that meant to dismiss the message reloaded the page), OK still tries again.
+  Details is a bottom sheet like the Wi-Fi network's, which owns the keys while it is open. The widget has neither: it
+  is small and takes no keys, so it shows the reason only in the lines left below the title, and a tap keeps its
+  meaning (try again, or open the fullscreen web view).
+- **The item's own refusal** of an address outside the scheme allowlist now shows the failure too, with
+  `LoadErrorUnsupportedAddress`, over the page that stays (no cover: no error page follows). A web view entity never
+  gets there (its address is http or https); the test page shows none of the load indicator.
+
 ## Risks / Trade-offs
 
 Failure Mode Analysis (Core-API connection and event handling, input ownership, the static build and the qrc
@@ -391,7 +454,7 @@ registration):
   say so.
 - [A library 0.7.x] → every 0.8.0 function is optional; the page loads without the site settings, the clear commands
   answer 501.
-- [`open` during the onboarding] → answered 200 and ignored with a log line (Open Questions).
+- [`open` during the onboarding] → answered 503 (`WebViewController::setOnboarding()`, Open Questions 3).
 - [A secret in the log] → incoming messages are not logged, the entity and the item never log options, the item logs
   option names only; addresses are not logged by the entity (a token may be in the query).
 - [A fetch loop for the secrets] → only events fetch; the answer of a fetch is applied whatever it contains.
@@ -420,6 +483,10 @@ registration):
 - [A screen dropped without its close] → the fullscreen screen releases `fullscreenEntityId` on destruction too.
 - [A slow page looks dead, a failed one shows WebKit's text] → the load indicator (D15); `testWebViewItem` and
   `testWebViewEntityScreen` drive the stand-in library's load events, progress and frames.
+- [A detail of another failure is taken for this one] → it is used only for the `FAILED` of the same address that
+  follows it, and once (D19).
+- [A token of the address in the Details] → scheme, host and port only, also for the URLs in the error text (D19);
+  `testWebViewItem` and `testWebViewInput` check it.
 - [The library reports no navigation ids] → a `FINISHED` of an earlier load reported after the next load's `STARTED`
   ends that load's indicator early; a page of the failed address that WebKit loads by itself right after the failure is
   taken for the error page (D15).
@@ -486,7 +553,8 @@ Trade-offs:
 2. ~~Result code of a command the firmware cannot execute (`clear_cache`, `clear_data` without library support): 503
    is the closest code the spec lists; 501 would say "not implemented" and the core maps it.~~ Decided by the
    maintainer on 2026-11-17: 501, without a change of the Core-API.
-3. `open` during the onboarding or without a profile: answered 200 and ignored; 503 would tell the caller.
+3. ~~`open` during the onboarding or without a profile: answered 200 and ignored; 503 would tell the caller.~~
+   Decided: `open` during the onboarding is answered 503, which the core passes on to its caller.
 4. The `web-view` change's requirement "The web view costs nothing before it is used" names the Settings menu as the
    moment the library loads; with web view entities it also loads at the first use of one (a command, its page or its
    widget). Its scenario needs that amendment when both changes are archived.

@@ -231,3 +231,37 @@ The global setting `buttons`, the web view option `buttons` and its user overrid
 - [x] 16.11 `make ucr2` (static aarch64 in the toolchain image).
 - [ ] 16.12 On a Remote Two and a Remote 3 with a core that has `buttons`: the device test of docs/webview.md, "Web view
       entity", steps 2, 3 and 11, with `keys.html`.
+
+## 17. Device state for web pages (library 0.9.0)
+
+- [x] 17.1 `src/webview/uc_webview.h`: the header of library 0.9.0, with the comment line on top.
+- [x] 17.2 `WebViewLibrary`: the three device functions resolved as optional (`deviceApiAvailable()`), logged when
+      missing.
+- [x] 17.3 `Api::parsePowerModeWakeup()` and `resumedFromSuspend()` before `powerModeChanged(NORMAL)`;
+      `Power::resumedFromSuspend()`.
+- [x] 17.4 `DeviceStateSource` (`src/webview/devicestatesource.*`), connected in `main.cpp`; `remote-ui.pro`.
+- [x] 17.5 `entity::Webview::deviceApi` (option and user override); `WebViewItem::deviceApi`; `WebViewPage.qml` binds it
+      and loads the start page again when it changes.
+- [x] 17.6 Tests: `testWebViewDeviceState` (new), `testWebViewItem` (on, off, switched, the item's end, an older
+      library), `testPower` (the flag's parsing and order), `testWebviewEntity` (the override).
+- [x] 17.7 docs/webview.md, spec, design (D18), `CHANGELOG.md`.
+- [x] 17.8 `make test` with Qt 5.15.19 and with Qt 5.15.2; `./cpplint.sh`, `./design-check.sh`, qmllint;
+      `openspec validate webview-entity --strict` without a new warning; `make ucr2`.
+- [ ] 17.9 On a remote with library 0.9.0: the device test of docs/webview.md, "Device state for web pages".
+
+## 18. Why a load failed (library 0.10.0)
+
+- [x] 18.1 `src/webview/uc_webview.h`: `UC_WEBVIEW_FAIL_*` and `load_failed_detail`, appended to the callbacks.
+- [x] 18.2 `WebViewItem`: `loadError`, `loadErrorHost`, `loadErrorDetails` from the detail of the same address, the
+      item's refusal and the end of the web process, cleared with the failure message; the log line with the reason;
+      `webviewinput.cpp` `loadErrorAddress()`, `loadErrorMessage()`, `certificateErrorNames()` (D19).
+- [x] 18.3 `WebViewLoadIndicator.qml`: the reason line, Try again and Details (a bottom sheet) in the fullscreen web
+      view, no tap anywhere there; the reason where it fits in the widget, no buttons. `WebViewPage.qml` maps the
+      values.
+- [x] 18.4 Tests: `testWebViewInput` (address, message, certificate flags), `testWebViewItem` (each reason, an older
+      library, the address scrub, clearing, the web process' end, the item's refusal), `testWebViewEntityScreen` (the
+      reason lines, Details and its closing, an older library, the widget).
+- [x] 18.5 `en_US.ts` with `lupdate`; spec (failed load, reason, widget), proposal, design (D19, risks),
+      docs/webview.md ("Load indicator", the scheme allowlist, the device test), `CHANGELOG.md`.
+- [x] 18.6 `make test` with Qt 5.15.19 and with Qt 5.15.2; `./cpplint.sh`, `./design-check.sh`.
+- [ ] 18.7 On a remote with library 0.10.0: the device test of docs/webview.md, "Web view entity", step 14.

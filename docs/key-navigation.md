@@ -178,10 +178,10 @@ Forms with a focused `TextField` (rename dialogs, `ProfileAdd`, `WifiPassword`):
 the field's Return and submits through `onAccepted` — never add a `DPAD_MIDDLE` handler to the
 form's `ButtonNavigation` (double submit). Reach Cancel / OK with `inputField.KeyNavigation.down`.
 
-An item that takes the d-pad keys itself ends the chain: the `WebView` of the developer page
-(`settings/settings/WebView.qml`, `docs/webview.md`) forwards every arrow and OK to the web page
+An item that takes the d-pad keys itself ends the chain: the `WebView` of the web view test page
+(`settings/settings/WebViewTest.qml`, `docs/webview.md`) forwards every arrow and OK to the web page
 and accepts them, so the d-pad leaves it only through a tap on another control or BACK, which
-leaves the page. A key the page needs while the d-pad is in there goes through path 1: the page
+closes the page. A key the test page needs while the d-pad is in there goes through path 1: the page
 extends its `ButtonNavigation` with PREV / NEXT for the web view's history (`goBack()` /
 `goForward()`, ignored without history), VOLUME + / - for its zoom (`zoomIn()` / `zoomOut()`)
 and CHANNEL + / - to scroll it a page (`pageUp()` / `pageDown()`). That works because the item leaves the remote's buttons
@@ -192,6 +192,18 @@ nothing while the user types (the field's `moveInput: false` keeps the input wit
 the keyboard does not take it; `MediaBrowser.qml` does the same for its list keys), and it
 declares an empty `pressed_repeat` when a held button must not repeat the action (without one,
 `ButtonNavigation` runs `pressed` again for every auto-repeat press).
+
+The fullscreen web view of a web view entity is the other way round: every button goes through
+path 1, its button mapping ("Buttons of the fullscreen web view" in `docs/webview.md`), which sends
+the d-pad and OK to the page by name (`WebViewItem::sendKey()`, with the keycodes of a keyboard),
+tries a failed load again with OK, and passes buttons on to the activity's mapping. On path 2 the
+`Keys` of its `WebView` (`WebViewPage.qml`) accept the remote's d-pad and OK, so the page gets each
+press once. Only while the on-screen keyboard is up the mapping leaves the d-pad and OK alone, and
+path 2 forwards them to the page's text field, like the keyboard's own key events (which also pass
+the input controller: its Return is DPAD_MIDDLE). Both paths decide at the press, so a press, its
+repeats and its release take one path. Its screen replaces BaseDetail's BACK default with one
+without a long press (`extendDefaultConfig()`): a long press in the default makes `ButtonNavigation`
+run a mapped BACK at its release, and a held one would run the default's long press.
 
 ### b) Button navigation driven selection (settings Docks/Integrations, onboarding WiFi/Dock/Integration)
 

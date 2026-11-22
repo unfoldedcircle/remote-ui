@@ -20,6 +20,8 @@ EntityComponents.BaseDetail {
 
     property var pages: entityObj.ui.pages
     property QtObject mediaWidgetEntityObj
+    // the activity's web view widget has been created (at most one per activity)
+    property bool webViewWidgetCreated: false
     property bool resumeWindow: false
     property bool powerOffPressed: false
     // open the menu on the "Fix states" page once the screen is up, set by the error popup of the activity tile
@@ -220,6 +222,29 @@ EntityComponents.BaseDetail {
                                                  "displayMode": item.number.display_mode ? item.number.display_mode : "auto",
                                                  "step": item.number.step > 0 ? item.number.step : 0
                                              });
+                break;
+            case "webview":
+                // at most one per activity, which the core checks: a second one would load a second page
+                if (activityBase.webViewWidgetCreated || !item.webview || !item.webview.webview_id) {
+                    console.warn("Ignoring a web view item: one per activity, with a webview_id");
+                    break;
+                }
+                activityBase.webViewWidgetCreated = true;
+                let webViewComponent = Qt.createComponent("qrc:/components/WebViewWidget.qml");
+                webViewComponent.createObject(container, {
+                                                  "x": gridSizeW * item.location.x,
+                                                  "y": gridSizeH * item.location.y,
+                                                  "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),
+                                                  "height": gridSizeH * (item.size ? (item.size.height ? item.size.height : 1) : 1),
+                                                  "entityId": item.webview.webview_id,
+                                                  "interactive": item.webview.interactive !== false,
+                                                  "zoom": item.webview.zoom ? item.webview.zoom : 0,
+                                                  // loaded while its page is the current one and the screen is open
+                                                  "pageShown": Qt.binding(function() {
+                                                      return container.PathView.isCurrentItem === true
+                                                              && activityBase.state === "open";
+                                                  })
+                                              });
                 break;
             default:
                 console.log("Not implemented item type: " + item.type);
@@ -786,6 +811,12 @@ EntityComponents.BaseDetail {
             property QtObject entity
 
             function activate() {
+                // a web view opens like its `open` command (main.qml): on top of the activity, whose button mapping it
+                // keeps for the `pass` buttons, POWER and VOICE
+                if (entity.type === EntityTypes.Webview) {
+                    openWebView(entity.id);
+                    return;
+                }
                 loadThirdContainer(EntityController.screenUrl(entity), { "entityId": entity.id, "entityObj": entity });
             }
 

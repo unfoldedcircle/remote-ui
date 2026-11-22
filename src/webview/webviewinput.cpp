@@ -4,6 +4,8 @@
 #include "webviewinput.h"
 
 #include <QChar>
+#include <QRegularExpression>
+#include <QStringList>
 
 #include "uc_webview.h"
 
@@ -23,7 +25,7 @@ struct KeyMapping {
 // Qt key codes instead, which is a known weakness. The remote's buttons that the UI handles itself are absent on
 // purpose: BACK is Qt::Key_Exit, HOME is Qt::Key_Home, VOICE/MENU are F3/F4, plus the colour, channel, media, volume
 // and power keys (src/ui/inputController.h). They return 0, with or without text, and stay with the QML page. On the
-// developer page PREV and NEXT (Key_AudioRewind/Key_AudioForward) are its history keys, VOLUME its zoom keys and
+// test page PREV and NEXT (Key_AudioRewind/Key_AudioForward) are its history keys, VOLUME its zoom keys and
 // CHANNEL its page scroll keys, which send Page_Up/Page_Down through WebViewItem::pageUp()/pageDown().
 constexpr KeyMapping kKeyTable[] = {
     {Qt::Key_Return, 0xff0d, "Return"},        // WPE_KEY_Return
@@ -46,6 +48,57 @@ constexpr KeyMapping kKeyTable[] = {
     {Qt::Key_Alt, 0xffe9, "Alt_L"},            // WPE_KEY_Alt_L
     {Qt::Key_Meta, 0xffe7, "Meta_L"},          // WPE_KEY_Meta_L
     {Qt::Key_CapsLock, 0xffe5, "Caps_Lock"},   // WPE_KEY_Caps_Lock
+};
+
+struct NamedPageKey {
+    const char *name;  // KeyboardEvent.key
+    PageKey     key;
+};
+
+// KeyboardEvent.key -> keysym, keycode (evdev + 8), checked against WebKit 2.54.2 (WebKeyboardEventWPE.cpp
+// keyValueStringForWPEKeyval, windowsKeyCodeForWPEKeyval, keyCodeStringForWPEKeycode). The keysyms are those of
+// xkbcommon-keysyms.h; KeyboardEvent.code is the UI Events code where one exists, else "Unidentified". ChannelUp,
+// ChannelDown, Exit and MediaPlayPause arrive as these keys only with the firmware's WebKit patch (without it:
+// "Unidentified", "Unidentified", "Close", "MediaPlay"); Exit and MediaPlayPause depend on the keycode for it, as
+// xkeyboard-config gives KEY_EXIT and KEY_PLAYPAUSE the keysyms of KEY_CLOSE and KEY_PLAY. ContextMenu is the PC menu
+// key (KEY_COMPOSE), BrowserRefresh and BrowserStop the keysyms XF86Refresh and XF86Stop, which WebKit maps.
+constexpr NamedPageKey kPageKeys[] = {
+    {"ArrowUp", {0xff52, 111}},                 // Up, KEY_UP 103
+    {"ArrowDown", {0xff54, 116}},               // Down, KEY_DOWN 108
+    {"ArrowLeft", {0xff51, 113}},               // Left, KEY_LEFT 105
+    {"ArrowRight", {0xff53, 114}},              // Right, KEY_RIGHT 106
+    {"Enter", {0xff0d, 36}},                    // Return, KEY_ENTER 28
+    {"Escape", {0xff1b, 9}},                    // Escape, KEY_ESC 1
+    {"Backspace", {0xff08, 22}},                // BackSpace, KEY_BACKSPACE 14
+    {"Tab", {0xff09, 23}},                      // Tab, KEY_TAB 15
+    {"PageUp", {0xff55, 112}},                  // Page_Up, KEY_PAGEUP 104
+    {"PageDown", {0xff56, 117}},                // Page_Down, KEY_PAGEDOWN 109
+    {"Home", {0xff50, 110}},                    // Home, KEY_HOME 102
+    {"End", {0xff57, 115}},                     // End, KEY_END 107
+    {"ContextMenu", {0xff67, 135}},             // Menu, KEY_COMPOSE 127
+    {"BrowserBack", {0x1008ff26, 166}},         // XF86Back, KEY_BACK 158
+    {"BrowserForward", {0x1008ff27, 167}},      // XF86Forward, KEY_FORWARD 159
+    {"BrowserRefresh", {0x1008ff29, 181}},      // XF86Refresh, KEY_REFRESH 173
+    {"BrowserStop", {0x1008ff28, 136}},         // XF86Stop, KEY_STOP 128
+    {"Exit", {0x1008ff56, 182}},                // XF86Close, KEY_EXIT 174 (the keycode is required)
+    {"AudioVolumeUp", {0x1008ff13, 123}},       // XF86AudioRaiseVolume, KEY_VOLUMEUP 115
+    {"AudioVolumeDown", {0x1008ff11, 122}},     // XF86AudioLowerVolume, KEY_VOLUMEDOWN 114
+    {"AudioVolumeMute", {0x1008ff12, 121}},     // XF86AudioMute, KEY_MUTE 113
+    {"ChannelUp", {0x10081192, 410}},           // XF86ChannelUp, KEY_CHANNELUP 402
+    {"ChannelDown", {0x10081193, 411}},         // XF86ChannelDown, KEY_CHANNELDOWN 403
+    {"MediaPlayPause", {0x1008ff14, 172}},      // XF86AudioPlay, KEY_PLAYPAUSE 164 (the keycode is required)
+    {"MediaPlay", {0x1008ff14, 215}},           // XF86AudioPlay, KEY_PLAY 207
+    {"MediaPause", {0x1008ff31, 209}},          // XF86AudioPause, KEY_PAUSECD 201
+    {"MediaStop", {0x1008ff15, 174}},           // XF86AudioStop, KEY_STOPCD 166
+    {"MediaRecord", {0x1008ff1c, 175}},         // XF86AudioRecord, KEY_RECORD 167
+    {"MediaRewind", {0x1008ff3e, 176}},         // XF86AudioRewind, KEY_REWIND 168
+    {"MediaFastForward", {0x1008ff97, 216}},    // XF86AudioForward, KEY_FASTFORWARD 208
+    {"MediaTrackPrevious", {0x1008ff16, 173}},  // XF86AudioPrev, KEY_PREVIOUSSONG 165
+    {"MediaTrackNext", {0x1008ff17, 171}},      // XF86AudioNext, KEY_NEXTSONG 163
+    {"ColorF0Red", {0x1008ffa3, 406}},          // XF86Red, KEY_RED 398
+    {"ColorF1Green", {0x1008ffa4, 407}},        // XF86Green, KEY_GREEN 399
+    {"ColorF2Yellow", {0x1008ffa5, 408}},       // XF86Yellow, KEY_YELLOW 400
+    {"ColorF3Blue", {0x1008ffa6, 409}},         // XF86Blue, KEY_BLUE 401
 };
 
 constexpr uint32_t kKeysymF1 = 0xffbe;             // WPE_KEY_F1 .. WPE_KEY_F12 are consecutive
@@ -96,6 +149,15 @@ uint32_t xkbKeysymForKey(int key, const QString &text) {
         return codePoint;
     }
     return kKeysymUnicodeFlag | codePoint;
+}
+
+const PageKey *pageKeyForName(const QString &name) {
+    for (const NamedPageKey &entry : kPageKeys) {
+        if (name == QLatin1String(entry.name)) {
+            return &entry.key;
+        }
+    }
+    return nullptr;
 }
 
 unsigned modifiersForEvent(Qt::KeyboardModifiers modifiers, Qt::MouseButtons buttons) {
@@ -240,29 +302,14 @@ QString loggableUrl(const QUrl &url, bool full) {
     if (url.isEmpty()) {
         text = QStringLiteral("(empty)");
     } else if (scheme.isEmpty()) {
-        text = QStringLiteral("(no scheme):...");
+        text = QStringLiteral("(no scheme)");
     } else if (!url.isValid()) {
-        text = scheme + QStringLiteral(":...");
+        text = scheme + QLatin1Char(':');
     } else if (full) {
         text = url.toString(QUrl::RemoveUserInfo);
-    } else if (!url.host().isEmpty() || scheme == QLatin1String("file") || scheme == QLatin1String("about")) {
-        // a query and a fragment carry tokens: OAuth codes, session ids, reset links
-        text = url.toString(QUrl::RemoveUserInfo | QUrl::RemoveQuery | QUrl::RemoveFragment);
-        if (url.hasQuery()) {
-            text += QStringLiteral("?...");
-        }
-        if (url.hasFragment()) {
-            text += QStringLiteral("#...");
-        }
-    } else if (scheme == QLatin1String("data")) {
-        // data:[<media type>][;base64],<payload>: the payload is page content
-        const QString path = url.path(QUrl::FullyEncoded);
-        const int     comma = path.indexOf(QLatin1Char(','));
-        text = comma >= 0 ? QStringLiteral("data:") + path.left(comma) + QStringLiteral(",...")
-                          : QStringLiteral("data:...");
     } else {
-        // javascript:, blob:, mailto: and the like: the rest is code or an address
-        text = scheme + QStringLiteral(":...");
+        // the origin: a path, a query and a fragment carry tokens (reset links, OAuth codes, session ids)
+        text = loadErrorAddress(url);
     }
     if (text.size() > kLoggableUrlMax) {
         int cut = kLoggableUrlMax;
@@ -272,6 +319,89 @@ QString loggableUrl(const QUrl &url, bool full) {
         text = text.left(cut) + QStringLiteral("...");
     }
     return text;
+}
+
+QString loadErrorAddress(const QUrl &url) {
+    if (url.isEmpty()) {
+        return QString();
+    }
+    const QString scheme = url.scheme().toLower();
+    if (url.host().isEmpty()) {
+        return scheme.isEmpty() ? QString() : scheme + QLatin1Char(':');
+    }
+    QUrl address;
+    address.setScheme(scheme);
+    address.setHost(url.host());
+    address.setPort(url.port());
+    return address.toString();
+}
+
+QString loadErrorMessage(const QString &message) {
+    constexpr int kMessageMax = 300;
+    // a URL with an authority, up to the next blank, quote or angle bracket (GLib puts a host name it could not
+    // resolve in typographic quotes)
+    static const QRegularExpression urls(
+        QStringLiteral("[A-Za-z][A-Za-z0-9+.-]*://[^\\s\"'<>\u201c\u201d\u2018\u2019]*"));
+    QString text;
+    int     last = 0;
+    for (auto it = urls.globalMatch(message); it.hasNext();) {
+        const QRegularExpressionMatch match = it.next();
+        text += message.mid(last, match.capturedStart() - last);
+        // punctuation at its end belongs to the sentence: "(see https://host/a)."
+        QString url = match.captured();
+        int     end = match.capturedEnd();
+        while (!url.isEmpty() && QStringLiteral(").,;:]").contains(url.back())) {
+            url.chop(1);
+            --end;
+        }
+        const QString address = loadErrorAddress(QUrl(url));
+        text += address.isEmpty() ? QStringLiteral("...") : address;
+        last = end;
+    }
+    text += message.mid(last);
+    for (QChar &c : text) {
+        if (c.category() == QChar::Other_Control) {
+            c = QLatin1Char(' ');
+        }
+    }
+    text = text.trimmed();
+    if (text.size() > kMessageMax) {
+        int cut = kMessageMax;
+        if (text.at(cut - 1).isHighSurrogate()) {
+            --cut;
+        }
+        text = text.left(cut) + QStringLiteral("...");
+    }
+    return text;
+}
+
+QString certificateErrorNames(unsigned flags) {
+    // GTlsCertificateFlags (gio/gioenums.h), in the order a user checks them
+    struct Flag {
+        unsigned    bit;
+        const char *name;
+    };
+    static constexpr Flag kFlags[] = {
+        {1u << 3, "expired"},             // G_TLS_CERTIFICATE_EXPIRED
+        {1u << 2, "not yet valid"},       // G_TLS_CERTIFICATE_NOT_ACTIVATED
+        {1u << 0, "unknown issuer"},      // G_TLS_CERTIFICATE_UNKNOWN_CA
+        {1u << 1, "wrong host name"},     // G_TLS_CERTIFICATE_BAD_IDENTITY
+        {1u << 4, "revoked"},             // G_TLS_CERTIFICATE_REVOKED
+        {1u << 5, "insecure algorithm"},  // G_TLS_CERTIFICATE_INSECURE
+        {1u << 6, "other error"},         // G_TLS_CERTIFICATE_GENERIC_ERROR
+    };
+    QStringList names;
+    unsigned    known = 0;
+    for (const Flag &flag : kFlags) {
+        known |= flag.bit;
+        if (flags & flag.bit) {
+            names.append(QString::fromLatin1(flag.name));
+        }
+    }
+    if (flags & ~known) {
+        names.append(QStringLiteral("flags 0x%1").arg(flags & ~known, 0, 16));
+    }
+    return names.join(QStringLiteral(", "));
 }
 
 double dragThresholdFromEnv(const QByteArray &value) {

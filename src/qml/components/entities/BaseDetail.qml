@@ -107,7 +107,16 @@ Rectangle {
       been reloaded - see src/ui/entity/entityCommandPolicy.h for the rule. Read as a binding, from
       the two properties the rule is made of, so that it follows both of them.
       */
-    readonly property bool acceptsCommands: entityObj.state != 0 || EntityController.resumePending
+    readonly property bool acceptsCommands: (entityObj ? entityObj.state != 0 : false) || EntityController.resumePending
+
+    // The entity was deleted while its screen is open (in the web-configurator, or by its integration): nothing is
+    // left to show or control, the screen closes. entityObj is null from then on.
+    onEntityObjChanged: {
+        if (!entityBaseDetailContainer.entityObj && entityBaseDetailContainer.state == "open") {
+            console.info("Entity of the open screen deleted:", entityBaseDetailContainer.entityId);
+            entityBaseDetailContainer.close();
+        }
+    }
 
     property alias iconClose: iconClose
     property alias buttonNavigation: buttonNavigation
@@ -190,7 +199,7 @@ Rectangle {
     Rectangle {
         id: unavailableOverlay
         color: colors.black
-        opacity: entityObj.state == 0 ? 0.85 : 0
+        opacity: entityObj && entityObj.state == 0 ? 0.85 : 0
         anchors { top: iconClose.bottom; bottom: parent.bottom; left: parent.left; right: parent.right }
         z: 2000
 

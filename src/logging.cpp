@@ -52,3 +52,4 @@ Q_LOGGING_CATEGORY(lcRemote, "uc.entity.remote");
 Q_LOGGING_CATEGORY(lcVoiceAssistant, "uc.entity.voiceassistant");
 Q_LOGGING_CATEGORY(lcSelect, "uc.entity.select");
 Q_LOGGING_CATEGORY(lcNumber, "uc.entity.number");
+Q_LOGGING_CATEGORY(lcWebViewEntity, "uc.entity.webview");

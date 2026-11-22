@@ -21,6 +21,7 @@
 #include "../hardware/hardwareModel.h"
 #include "colors.h"
 #include "entity/entityController.h"
+#include "entity/webviewController.h"
 #include "fonts.h"
 #include "group/groupController.h"
 #include "inputController.h"
@@ -311,6 +312,7 @@ class Controller : public QObject {
     InputController       m_inputController;
     Notification          m_notification;
     EntityController*     m_entityController;
+    WebViewController*    m_webViewController;
     GroupController*      m_groupController;
     OnboardingController* m_onboardingController = nullptr;
 

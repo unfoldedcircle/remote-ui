@@ -11,6 +11,7 @@
 #include <QQuickItem>
 #include <QRectF>
 #include <QString>
+#include <QStringList>
 #include <QTimer>
 #include <QUrl>
 
@@ -20,6 +21,7 @@
 #include "webviewframequeue.h"
 #include "webviewpinch.h"
 #include "webviewrequest.h"
+#include "webviewsite.h"
 
 class QQuickWindow;
 class QScreen;
@@ -49,6 +51,8 @@ namespace webview {
  *   event at all) ends the sequence in WebKit with a touch-cancel; moves and releases of points whose press was
  *   not seen are dropped like the DRM platform does. WebKit's gesture controller keys its sequence by id, and a
  *   point that is never released would otherwise block every later tap.
+ * - The item keeps its touch and mouse grabs (keepTouchGrab, keepMouseGrab): a drag that starts on the page scrolls
+ *   the page, a filtering parent such as the PathView of an activity's pages does not take it over.
  * - The item takes the keyboard focus only on a user press. It asks the global QInputMethod to show or hide the
  *   on-screen keyboard only while it has the active focus; an `ime_focus` callback that arrives while another
  *   item owns the focus (WebKit reports focus-out when the item itself loses the focus) changes the item's state
@@ -78,6 +82,10 @@ namespace webview {
  *   three quick steps cost at most two relayouts.
  * - pageUp()/pageDown() press and release Page_Up/Page_Down for the page, whichever item has the focus: WebKit
  *   scrolls the focused scroller by a page, or moves the caret a page in a focused text area (docs/webview.md).
+ *   scrollToTop()/scrollToBottom() do the same with Home/End, focusNext()/focusPrevious() with Tab and Shift+Tab, and
+ *   scrollUp()/scrollDown() scroll by two wheel notches at the centre of the view. sendKey() presses or releases one
+ *   key of the page by its KeyboardEvent.key name (the remote's buttons in the fullscreen web view of a web view
+ *   entity): the keysym and keycode of webviewinput.cpp's table, so that the page gets the key's `key` and `code`.
  * - Pinch zoom (library 0.6.0, docs/webview.md "Pinch zoom"): the library recognises a two-finger pinch in the touches
  *   the page leaves alone and reports it (the pinch callback; the view is then created with uc_webview_new_sized()).
  *   While the fingers move, updatePaintNode() draws the frame scaled around the point the pinch began at (the node's
@@ -99,8 +107,43 @@ namespace webview {
  *   would ask again. Freeing the view ends the requests without a signal. A login answered with a user name keeps
  *   that name for the login's retry (`previousUser`) until the retry comes, a load event or 30 s (WebViewRequests,
  *   "Retry"). Without the function the library decides alone, as before 0.7.0, and none of these signals comes.
+ * - Site settings of a web view entity (`site`, docs/webview.md "Web view entity"): a login of the page from the start
+ *   page's origin is answered with the configured Basic credentials without a dialog, unless it is a retry (the server
+ *   rejected them) or a proxy's. With library 0.8.0 the view gets the request header of `bearer` and `header`
+ *   authentication for the start page's origin, the user agent and the certificate exception of the start page's
+ *   host, when it is created and when the site changes; they take effect with the next load. A load of an address of
+ *   the start page's origin through `url` sets the site's cookies first and waits for the library's report, at most
+ *   kCookieTimeoutMs; it loads without that certainty when they fail or the report is late. A reload after all website
+ *   data was cleared sets them again first. An option the library lacks a function for is logged by name only.
+ * - Device state for web pages (`deviceApi`, library 0.9.0, docs/webview.md "Device state for web pages"): while it is
+ *   true and the library has the three device functions, the view has the library's device API on, starts with the
+ *   state of DeviceStateSource::instance() and gets its changes and standby events. The library gives the API to the
+ *   documents that start afterwards: a page that is shown gets it, or loses it, at its next load. Without the
+ *   functions the property does nothing (logged once).
  * - Loads go through the library's URL scheme allowlist (http, https, about, data; file with
- *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)` and a log line.
+ *   UC_WEBVIEW_ALLOW_FILE_URLS=1): the item refuses the others itself with `loadFailed(url)`, the failure and a log
+ *   line.
+ * - The load indicator (`loadIndicator`, `pageFailed`; docs/webview.md "Load indicator") says what a host shows while
+ *   a page loads, nothing for the first kLoadIndicatorDelayMs. A new page (an address, HTML, Back, Forward, a
+ *   navigation of the page itself) shows the spinner from the host's call, also while the item waits for the cookies,
+ *   until the first frame after its COMMITTED event: WebKit freezes the old page's frames when a navigation starts and
+ *   sends the next one at the new page's first visually non-empty layout or at the end of its load
+ *   (WebLocalFrameLoaderClient.cpp provisionalLoadStarted, completePageTransitionIfNeeded). Then the bar until
+ *   FINISHED. reload() shows the bar from its start, over the old page, reloadQuietly() nothing. FAILED shows the
+ *   failure; WebKit then loads its error page with the raw error text for the same address (STARTED without a call of
+ *   the host, WebKitWebView.cpp webkitWebViewLoadFail), which the failure covers: `pageFailed` holds until another
+ *   page shows its first frame. A load meanwhile shows the spinner over it, a quiet one keeps the failure. A second
+ *   crash, which the item does not reload, is a failure too. So is an address the item refuses itself (the scheme
+ *   allowlist), over the page as it is.
+ * - Why the failure shows (`loadError`, `loadErrorHost`, `loadErrorDetails`): library 0.10.0 calls load_failed_detail
+ *   right before FAILED with the reason (UC_WEBVIEW_FAIL_*), GLib's error domain, code and message and the
+ *   certificate's flags. The item keeps them for that FAILED of the same address; without them (an older library)
+ *   `loadError` stays LoadErrorNone and the details empty. A refused address is LoadErrorUnsupportedAddress, a web
+ *   process that crashed or ran out of memory LoadErrorCrashed or LoadErrorOutOfMemory. The details are technical and
+ *   untranslated: the address with scheme, host and port only (never path, query or user info: an integration's
+ *   address may carry a token), the error text with every URL in it shortened alike, `domain code`, the certificate's
+ *   flags by name. All three clear when the failure message goes (a load the user waits for, a page's navigation, a
+ *   page that shows).
  * - UC_WEBVIEW_TRACE=1 logs every forwarded input event, input method callback, load request and load event at
  *   INFO level (uc.ui.webview), never what the user types or what the page's editable element holds: keys as
  *   "printable" or a named special key, input method events and surrounding text updates without text, lengths
@@ -134,8 +177,44 @@ class WebViewItem : public QQuickItem {
     // frame counters for the validation on the device: both must stay equal after the last frame
     Q_PROPERTY(int framesReceived READ framesReceived NOTIFY frameStatsChanged)
     Q_PROPERTY(int framesReleased READ framesReleased NOTIFY frameStatsChanged)
+    // the site settings of a web view entity: credentials, cookies, TLS exception, user agent of the start page
+    Q_PROPERTY(uc::webview::WebViewSite site READ site WRITE setSite NOTIFY siteChanged)
+    // the device state API for the pages (library 0.9.0, class comment): from the next page load on
+    Q_PROPERTY(bool deviceApi READ deviceApi WRITE setDeviceApi NOTIFY deviceApiChanged)
+    // what a host shows while the page loads (class comment); the view shows a failed load's error page or nothing
+    Q_PROPERTY(LoadIndicator loadIndicator READ loadIndicator NOTIFY loadIndicatorChanged)
+    Q_PROPERTY(bool pageFailed READ isPageFailed NOTIFY loadIndicatorChanged)
+    // why the failure shows (class comment): the kind, the host of the failing address, the technical details
+    Q_PROPERTY(LoadError loadError READ loadError NOTIFY loadErrorChanged)
+    Q_PROPERTY(QString loadErrorHost READ loadErrorHost NOTIFY loadErrorChanged)
+    Q_PROPERTY(QString loadErrorDetails READ loadErrorDetails NOTIFY loadErrorChanged)
 
  public:
+    // What a host shows while the page loads (the class comment, docs/webview.md "Load indicator").
+    enum LoadIndicator {
+        LoadIndicatorNone,     // nothing: no load, a quiet reload, the first kLoadIndicatorDelayMs of a load
+        LoadIndicatorSpinner,  // a new page loads and has shown no frame yet
+        LoadIndicatorBar,      // the page is shown and loads on, the old page during a reload: loadProgress
+        LoadIndicatorFailed,   // the last load failed, and nothing loads that the user waits for
+    };
+    Q_ENUM(LoadIndicator)
+
+    // Why a load failed (the class comment, docs/webview.md "Load indicator"): UC_WEBVIEW_FAIL_* of the library's
+    // load_failed_detail() (library 0.10.0), the item's own refusal of an address, the web process' end.
+    enum LoadError {
+        LoadErrorNone,                // no failure, or the library did not say why (older than 0.10.0)
+        LoadErrorOther,               // UC_WEBVIEW_FAIL_OTHER: only the details say what
+        LoadErrorHostNotFound,        // the host name does not resolve
+        LoadErrorNoNetwork,           // network or host unreachable
+        LoadErrorConnectionRefused,   // nothing listens on the port
+        LoadErrorTimeout,             // the server did not answer in time
+        LoadErrorCertificate,         // the TLS certificate was not accepted
+        LoadErrorUnsupportedAddress,  // outside the scheme allowlist (the item's or the library's)
+        LoadErrorCrashed,             // the web process crashed (shown after a second crash)
+        LoadErrorOutOfMemory,         // the web process exceeded its memory limit
+    };
+    Q_ENUM(LoadError)
+
     explicit WebViewItem(QQuickItem *parent = nullptr);
     ~WebViewItem() override;
 
@@ -160,8 +239,19 @@ class WebViewItem : public QQuickItem {
     bool    isPinchZoomAvailable() const { return m_pinchZoomAvailable; }
     int     framesReceived() const { return m_framesReceived; }
     int     framesReleased() const { return m_framesReleased; }
+    WebViewSite site() const { return m_site; }
+    void        setSite(const WebViewSite &site);
+    bool        deviceApi() const { return m_deviceApi; }
+    void        setDeviceApi(bool deviceApi);
+    LoadIndicator loadIndicator() const { return m_loadIndicator; }
+    bool          isPageFailed() const { return m_pageFailedShown; }
+    LoadError     loadError() const { return m_loadError; }
+    QString       loadErrorHost() const { return m_loadErrorHost; }
+    QString       loadErrorDetails() const { return m_loadErrorDetails; }
 
     Q_INVOKABLE void reload();
+    // reload() without the load indicator over a page that is shown: the reload interval of a web view entity
+    Q_INVOKABLE void reloadQuietly();
     Q_INVOKABLE void stop();
     Q_INVOKABLE void goBack();
     Q_INVOKABLE void goForward();
@@ -174,6 +264,25 @@ class WebViewItem : public QQuickItem {
     // The Page_Up / Page_Down key, pressed and released, as if typed on the page (the item's focus does not matter)
     Q_INVOKABLE void pageUp();
     Q_INVOKABLE void pageDown();
+    // Home / End, pressed and released: to the top or the bottom of the scroller around the page's focused element,
+    // else of the document (in a focused text field the caret goes to the start or end of the line instead)
+    Q_INVOKABLE void scrollToTop();
+    Q_INVOKABLE void scrollToBottom();
+    // Tab / Shift+Tab, pressed and released: the page's focus moves to its next or previous element
+    Q_INVOKABLE void focusNext();
+    Q_INVOKABLE void focusPrevious();
+    // A small scroll step: kScrollStepTicks wheel notches at the centre of the view, which scroll what is there
+    Q_INVOKABLE void scrollUp();
+    Q_INVOKABLE void scrollDown();
+    /**
+     * @brief Presses (pressed true) or releases a key of the page by its KeyboardEvent.key name (core-api
+     * WebviewButtonKey, pageKeyForName()), without modifiers, whichever item has the focus. A held button sends further
+     * presses before its release: WebKit flags them as repeats. Returns false for a name the table does not have.
+     */
+    Q_INVOKABLE bool sendKey(const QString &key, bool pressed);
+
+    // wheel notches of scrollUp() and scrollDown(): the library scales a notch by WebKit's line step, 40 px
+    static constexpr int kScrollStepTicks = 2;
 
     // what the page's focused editable element reports, for Qt's input method (public in QQuickItem)
     QVariant inputMethodQuery(Qt::InputMethodQuery query) const override;
@@ -185,6 +294,8 @@ class WebViewItem : public QQuickItem {
     static void setTraceEnabledForTest(bool enabled);
     // Tests: the fallback's wait for a frame after a zoom (default kZoomFallbackTimeoutMs); 0 restores the default.
     static void setZoomFallbackTimeoutForTest(int ms);
+    // Tests: how long a load waits for the site's cookies (default kCookieTimeoutMs); 0 restores the default.
+    static void setCookieTimeoutForTest(int ms);
 
     // How long a tap into the page waits before it asks for the keyboard again (see the class comment): enough
     // for WebKit to turn the tap into a click and report a focus change of the page (a few IPC round trips).
@@ -193,6 +304,14 @@ class WebViewItem : public QQuickItem {
     // Without uc_webview_when_rendered() (library older than 0.5.0) a zoom counts as rendered at the first frame after
     // it, or after this long without one (a zoom that changes nothing on screen brings no frame).
     static constexpr int kZoomFallbackTimeoutMs = 5000;
+
+    // A load of the start page waits this long at most for the library's report that the site's cookies are set
+    // (uc_webview_global_set_cookies(), library 0.8.0): WebKit's network process may have to start first. Then the
+    // page loads, with or without them.
+    static constexpr int kCookieTimeoutMs = 5000;
+
+    // A load shows its indicator only after this long, counted from the host's call: a quicker page does not flicker.
+    static constexpr int kLoadIndicatorDelayMs = 400;
 
  signals:
     void urlChanged();
@@ -206,10 +325,15 @@ class WebViewItem : public QQuickItem {
     void magnificationChanged();
     void pinchingChanged();
     void frameStatsChanged();
+    void siteChanged();
+    void deviceApiChanged();
+    void loadIndicatorChanged();
+    void loadErrorChanged();
     // the web process died (UC_WEBVIEW_TERMINATED_*); the item reloads once by itself
     void crashed(int reason);
-    // a load failed; `loading` turns false with the following finished event. Also emitted, without any other
-    // change, for a URL outside the scheme allowlist (setUrl(), loadHtml() base URL): nothing is loaded then.
+    // a load failed; `loading` turns false with the following finished event. Also emitted for a URL outside the
+    // scheme allowlist (setUrl(), loadHtml() base URL): nothing is loaded then, `url` and the page stay, the failure
+    // shows with LoadErrorUnsupportedAddress.
     void loadFailed(const QUrl &url);
     // Library 0.7.0: alert(), confirm(), prompt() or the leave-page question of the page, which waits for the answer.
     // A handler that shows it sets request.handled during the signal and answers later; the item answers an unhandled
@@ -269,6 +393,8 @@ class WebViewItem : public QQuickItem {
     static void onCloseRequestedCb(uc_webview *, void *user);
     static void onNewWindowCb(uc_webview *, const char *uri, int result, void *user);
     static void onResponseRefusedCb(uc_webview *, const char *uri, const char *mimeType, int reason, void *user);
+    static void onLoadFailedDetailCb(uc_webview *, const char *uri, int reason, const char *errorDomain, int errorCode,
+                                     unsigned tlsErrors, const char *message, void *user);
 
     void onFrameReady(const uc_webview_frame &frame);
     void onLoadChanged(int event, const char *uri);
@@ -281,6 +407,8 @@ class WebViewItem : public QQuickItem {
     void onCloseRequested();
     void onNewWindow(const char *uri, int result);
     void onResponseRefused(const char *uri, const char *mimeType, int reason);
+    void onLoadFailedDetail(const char *uri, int reason, const char *errorDomain, int errorCode, unsigned tlsErrors,
+                            const char *message);
 
     void   attachWindow(QQuickWindow *window);
     void   watchScreen(QScreen *screen);
@@ -303,7 +431,9 @@ class WebViewItem : public QQuickItem {
     // after every change of the pinch state: the frame queue's hold, the properties, a new picture
     void   pinchStateChanged(qreal oldMagnification, bool oldPinching);
     void   setMagnificationRendering(bool rendering);
-    void   sendPageKey(int key);
+    // a key of the page (pageKeyForName()) pressed and released, for the functions above; what names it in the trace
+    void   sendPageKey(const char *what, const char *key, bool shift = false);
+    void   scrollStep(int ticks);
     void   releaseFrames();
     void   releaseFrame(void *handle);
     void   keyEvent(QKeyEvent *event, bool pressed);
@@ -316,6 +446,34 @@ class WebViewItem : public QQuickItem {
     bool   keyboardInhibitedOnTap() const;
     bool   exceedsTapDistance(const QPointF &from, const QPointF &to) const;
     bool   loadAllowed(const QUrl &url, const char *what);
+    // the view's device API as `deviceApi` and the library allow, with the state and events of DeviceStateSource
+    void applyDeviceApi();
+    // what waits for the site's cookies (waitForSiteCookies)
+    enum class AfterCookies { Nothing, Load, Reload };
+    // the site's request header, user agent and certificate exception for the view (library 0.8.0)
+    void   applySite();
+    // loads m_url into the view: after the site's cookies when it is of the start page's origin
+    void   loadUrl();
+    // sets the site's cookies and lets `then` wait for the library's report; false when nothing is set (no cookies,
+    // no function, refused): the caller goes on at once
+    bool   waitForSiteCookies(AfterCookies then);
+    // the wait for the cookies ends: problem is nullptr when the library set them
+    void   finishCookieWait(quint64 request, const char *problem);
+    void   cancelCookieWait();
+    // the load indicator (class comment): what asked for the current load, and how far it is
+    enum class LoadKind { Page, Reload, Quiet };
+    enum class LoadPhase { Idle, Requested, Started, Committed, Shown };
+    void   reloadAs(LoadKind kind);
+    // Back or Forward: a load when there is somewhere to go (else a start page that waits for its cookies is dropped)
+    void   goInHistory(bool somewhere);
+    // the host navigates (address, HTML, reload, Back, Forward): the load and its delay count from here
+    void   beginLoad(LoadKind kind);
+    void   onLoadStarted(const QUrl &url);
+    void   endLoad();
+    void   updateLoadIndicator();
+    // why the failure shows: the kind, and the address and the technical lines of the details (loadErrorAddress())
+    void   setLoadError(LoadError error, const QUrl &url, const QStringList &details);
+    void   clearLoadError();
     void   resetImeState();
     void   setLoading(bool loading);
     void   setUrlFromPage(const QUrl &url);
@@ -358,6 +516,48 @@ class WebViewItem : public QQuickItem {
     WebViewRequests m_requests;
     QString m_pendingHtml;
     QUrl    m_pendingBaseUrl;
+    // the site settings of a web view entity (setSite)
+    WebViewSite m_site;
+    // the origin the view has the site's request header for (uc_webview_set_origin_headers()), empty for none
+    QString      m_headerOrigin;
+    // the device state for web pages (library 0.9.0): the property, whether the view has the API on, the connections
+    // to DeviceStateSource while it has
+    bool                    m_deviceApi = false;
+    bool                    m_deviceApiOn = false;
+    QMetaObject::Connection m_deviceStateConnection;
+    QMetaObject::Connection m_deviceEventConnection;
+    // the wait for the site's cookies: what runs after it, the current request (a report of an earlier one is
+    // ignored), its timeout, and WebViewLibrary::websiteDataGeneration() when they were set last
+    AfterCookies m_afterCookies = AfterCookies::Nothing;
+    quint64      m_cookieRequest = 0;
+    QTimer       m_cookieTimer;
+    quint64      m_cookiesGeneration = 0;
+    // the load indicator: the current load, its delay (due: passed), the failure message, the cover of a failed page
+    // until another page shows a frame, the address whose error page WebKit loads next, what the properties report
+    LoadKind      m_loadKind = LoadKind::Page;
+    LoadPhase     m_loadPhase = LoadPhase::Idle;
+    QTimer        m_loadIndicatorTimer;
+    bool          m_loadIndicatorDue = false;
+    bool          m_failureShown = false;
+    bool          m_pageFailed = false;
+    QUrl          m_errorPageUrl;
+    LoadIndicator m_loadIndicator = LoadIndicatorNone;
+    bool          m_pageFailedShown = false;
+    // why the failure shows (loadError*), cleared with the failure message; the library's detail of the failure that
+    // its FAILED event reports next (library 0.10.0), for that event's address only
+    LoadError m_loadError = LoadErrorNone;
+    QString   m_loadErrorHost;
+    QString   m_loadErrorDetails;
+    struct FailDetail {
+        QByteArray uri;
+        int        reason = UC_WEBVIEW_FAIL_OTHER;
+        QString    domain;
+        int        code = 0;
+        unsigned   tlsErrors = 0;
+        QString    message;
+    };
+    bool       m_hasFailDetail = false;
+    FailDetail m_failDetail;
 
     bool  m_mapped = false;
     qreal m_devicePixelRatio = 1.0;

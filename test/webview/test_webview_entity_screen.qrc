@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/test">
+        <file alias="EntityScreenHost.qml">qml/EntityScreenHost.qml</file>
+    </qresource>
+</RCC>

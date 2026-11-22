@@ -82,6 +82,8 @@ const QHash<int, TypeScreens>& registry() {
            {"Duration", "Custom"},
            {"Timestamp", "Custom"}}}},
         {Type::Switch, {"switch", "Switch", {{"Switch", "Switch"}, {"Outlet", "Outlet"}}}},
+        // the fullscreen web view
+        {Type::Webview, {"webview", "Webview", {{"Webview", "Webview"}}}},
     };
     return table;
 }

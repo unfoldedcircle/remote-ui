@@ -8,6 +8,7 @@
 #include <QInputMethod>
 #include <QInputMethodEvent>
 #include <QKeyEvent>
+#include <QMetaEnum>
 #include <QMouseEvent>
 #include <QPointer>
 #include <QQmlEngine>
@@ -21,10 +22,12 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <iterator>
 #include <utility>
 
 #include "../logging.h"
+#include "devicestatesource.h"
 #include "webviewinput.h"
 #include "webviewlibrary.h"
 #include "webviewtexture.h"
@@ -32,9 +35,10 @@
 namespace uc {
 namespace webview {
 
-// Library 0.7.0 appended the six request callbacks: 17 callbacks, 136 bytes on aarch64 (and x86_64). The item passes
-// this size to uc_webview_new_sized(); an older library copies only its own part (uc_webview.h, "Compatibility").
-static_assert(sizeof(uc_webview_callbacks) == 17 * sizeof(void (*)()), "uc_webview_callbacks of library 0.7.0");
+// Library 0.7.0 appended the six request callbacks, 0.10.0 load_failed_detail: 18 callbacks, 144 bytes on aarch64 (and
+// x86_64). The item passes this size to uc_webview_new_sized(); an older library copies only its own part
+// (uc_webview.h, "Compatibility").
+static_assert(sizeof(uc_webview_callbacks) == 18 * sizeof(void (*)()), "uc_webview_callbacks of library 0.10.0");
 
 namespace {
 
@@ -107,6 +111,43 @@ int &zoomFallbackTimeoutMs() {
     return ms;
 }
 
+int &cookieTimeoutMs() {
+    static int ms = WebViewItem::kCookieTimeoutMs;
+    return ms;
+}
+
+// A site option (WebViewSite::requestOptions()) the library has a function for (library 0.8.0)
+bool siteOptionSupported(const WebViewFunctions &f, const QString &option) {
+    if (option == QLatin1String("auth.bearer") || option == QLatin1String("auth.header")) {
+        return f.set_origin_headers != nullptr;
+    }
+    if (option == QLatin1String("cookies")) {
+        return f.global_set_cookies != nullptr;
+    }
+    if (option == QLatin1String("tls")) {
+        return f.global_allow_certificate != nullptr;
+    }
+    if (option == QLatin1String("user_agent")) {
+        return f.set_user_agent != nullptr;
+    }
+    return false;
+}
+
+// the user_agent option (core-api: "default", "mobile", "desktop" or a custom text) as a uc_webview_set_user_agent()
+// preset
+int userAgentPreset(const QString &userAgent) {
+    if (userAgent == QLatin1String("default")) {
+        return UC_WEBVIEW_USER_AGENT_DEFAULT;
+    }
+    if (userAgent == QLatin1String("mobile")) {
+        return UC_WEBVIEW_USER_AGENT_MOBILE;
+    }
+    if (userAgent == QLatin1String("desktop")) {
+        return UC_WEBVIEW_USER_AGENT_DESKTOP;
+    }
+    return UC_WEBVIEW_USER_AGENT_CUSTOM;
+}
+
 // how a zoom render wait ended, for the trace
 QString zoomRenderEndName(int end) {
     switch (end) {
@@ -153,6 +194,26 @@ const char *loadEventName(int event) {
     }
 }
 
+// loadError for a reason of load_failed_detail() (library 0.10.0); a reason of a newer library is "other"
+WebViewItem::LoadError loadErrorForReason(int reason) {
+    switch (reason) {
+        case UC_WEBVIEW_FAIL_HOST_NOT_FOUND:
+            return WebViewItem::LoadErrorHostNotFound;
+        case UC_WEBVIEW_FAIL_NO_NETWORK:
+            return WebViewItem::LoadErrorNoNetwork;
+        case UC_WEBVIEW_FAIL_CONNECTION_REFUSED:
+            return WebViewItem::LoadErrorConnectionRefused;
+        case UC_WEBVIEW_FAIL_TIMEOUT:
+            return WebViewItem::LoadErrorTimeout;
+        case UC_WEBVIEW_FAIL_CERTIFICATE:
+            return WebViewItem::LoadErrorCertificate;
+        case UC_WEBVIEW_FAIL_SCHEME_REFUSED:
+            return WebViewItem::LoadErrorUnsupportedAddress;
+        default:
+            return WebViewItem::LoadErrorOther;
+    }
+}
+
 // UC_WEBVIEW_ALLOW_FILE_URLS: the library reads it once in uc_webview_global_init(); the process environment does
 // not change after that, so reading it here gives the same answer
 bool fileUrlsAllowed() {
@@ -166,7 +227,7 @@ QString logUrl(const QUrl &url) {
 }
 
 // The zoom levels of zoomIn()/zoomOut() in percent, a browser's steps from 50 to 300 % (docs/webview.md, "Keys of the
-// remote on the developer page"). The only copy of the table.
+// remote on the test page", "Zoom with VOLUME"). The only copy of the table.
 constexpr int kZoomStepsPercent[] = {50, 67, 75, 80, 90, 100, 110, 125, 150, 175, 200, 250, 300};
 
 // uc_webview_set_zoom() ignores a zoom outside 0 < zoom <= 20 with a warning (uc_webview.c); the item refuses it
@@ -186,11 +247,6 @@ qreal nextZoomStep(qreal zoom, int direction) {
     }
     return zoom;
 }
-
-// XKB keycodes (evdev + 8) of Page_Up and Page_Down for pageUp()/pageDown(): WebKit makes KeyboardEvent.code
-// "PageUp"/"PageDown" of them (WebKeyboardEventWPE.cpp:641-652), as for the keys of a real keyboard
-constexpr uint32_t kKeycodePageUp = 112;    // KEY_PAGEUP 104 + 8
-constexpr uint32_t kKeycodePageDown = 117;  // KEY_PAGEDOWN 109 + 8
 
 // Marks the library calls during which WebKit reports the page's focused element synchronously because the view's
 // focus changes (uc_webview.h threading contract, WPEWebViewPlatform.cpp:100-110): set_focused, and a touch or
@@ -220,6 +276,10 @@ WebViewItem::WebViewItem(QQuickItem *parent)
     setFlag(ItemIsFocusScope, true);
     setAcceptTouchEvents(true);
     setAcceptedMouseButtons(Qt::AllButtons);
+    // a drag on the page is the page's: a filtering parent (the PathView of an activity's pages, a Flickable) does not
+    // take a touch or a mouse press over once it moves far enough (core-api ui-widgets.md "Web view", "Behaviour")
+    setKeepTouchGrab(true);
+    setKeepMouseGrab(true);
 
     m_tapInputPanelTimer.setSingleShot(true);
     m_tapInputPanelTimer.setInterval(kTapInputPanelDelayMs);
@@ -227,6 +287,18 @@ WebViewItem::WebViewItem(QQuickItem *parent)
 
     m_zoomFallbackTimer.setSingleShot(true);
     connect(&m_zoomFallbackTimer, &QTimer::timeout, this, [this] { finishZoomRenderWait(kZoomNoFrame); });
+
+    m_cookieTimer.setSingleShot(true);
+    connect(&m_cookieTimer, &QTimer::timeout, this,
+            [this] { finishCookieWait(m_cookieRequest, "the library did not report them in time"); });
+    m_cookiesGeneration = WebViewLibrary::instance()->websiteDataGeneration();
+
+    m_loadIndicatorTimer.setSingleShot(true);
+    m_loadIndicatorTimer.setInterval(kLoadIndicatorDelayMs);
+    connect(&m_loadIndicatorTimer, &QTimer::timeout, this, [this] {
+        m_loadIndicatorDue = true;
+        updateLoadIndicator();
+    });
 
     // kind, id and outcome of every request: never its texts, the answer or the credentials
     m_requests.setTrace([this](const QString &line) { UC_WEBVIEW_TRACE_IF() << qUtf8Printable(line); });
@@ -243,6 +315,8 @@ void WebViewItem::registerQmlTypes() {
                                                      QStringLiteral("created by the WebView item"));
     qmlRegisterUncreatableType<WebViewAuthRequest>("UC.WebView", 1, 0, "WebViewAuthRequest",
                                                    QStringLiteral("created by the WebView item"));
+    // the `site` property, handed over from a web view entity as one value
+    qRegisterMetaType<WebViewSite>();
 }
 
 void WebViewItem::setInputPanelHookForTest(std::function<void(bool)> hook) {
@@ -255,6 +329,10 @@ void WebViewItem::setTraceEnabledForTest(bool enabled) {
 
 void WebViewItem::setZoomFallbackTimeoutForTest(int ms) {
     zoomFallbackTimeoutMs() = ms > 0 ? ms : kZoomFallbackTimeoutMs;
+}
+
+void WebViewItem::setCookieTimeoutForTest(int ms) {
+    cookieTimeoutMs() = ms > 0 ? ms : kCookieTimeoutMs;
 }
 
 // ---- callbacks (GUI thread, from the GLib main context) -------------------------------------------------------
@@ -371,6 +449,11 @@ void WebViewItem::onResponseRefusedCb(uc_webview *, const char *uri, const char 
     static_cast<WebViewItem *>(user)->onResponseRefused(uri, mimeType, reason);
 }
 
+void WebViewItem::onLoadFailedDetailCb(uc_webview *, const char *uri, int reason, const char *errorDomain,
+                                       int errorCode, unsigned tlsErrors, const char *message, void *user) {
+    static_cast<WebViewItem *>(user)->onLoadFailedDetail(uri, reason, errorDomain, errorCode, tlsErrors, message);
+}
+
 void WebViewItem::onFrameReady(const uc_webview_frame &frame) {
     Q_ASSERT(QThread::currentThread() == thread());
     ++m_framesReceived;
@@ -388,6 +471,18 @@ void WebViewItem::onFrameReady(const uc_webview_frame &frame) {
     }
     emit frameStatsChanged();
     update();
+    if (m_loadPhase == LoadPhase::Committed) {
+        // the new document's first frame, on screen with the next render: its spinner goes, a failure ends (WebKit's
+        // error page is no load here, see onLoadStarted())
+        m_loadPhase = LoadPhase::Shown;
+        m_pageFailed = false;
+        m_failureShown = false;
+        clearLoadError();
+        if (!m_loading) {
+            endLoad();  // FINISHED came first
+        }
+        updateLoadIndicator();
+    }
     if (m_zoomWaitsForFrame) {
         // the fallback's end of a zoom render wait, after this callback: the next zoom level would go to WebKit from
         // inside its frame delivery
@@ -419,11 +514,17 @@ void WebViewItem::onLoadChanged(int event, const char *uri) {
             // a new document: what the item learnt about the old one's focused element is void (the page may
             // focus another element while the view has no focus, which WebKit reports to nobody)
             m_imeInhibitHonouredOnTap = false;
+            onLoadStarted(url);
             setLoading(true);
             setUrlFromPage(url);
             break;
         case UC_WEBVIEW_LOAD_REDIRECTED:
+            setUrlFromPage(url);
+            break;
         case UC_WEBVIEW_LOAD_COMMITTED:
+            if (m_loadPhase == LoadPhase::Started) {
+                m_loadPhase = LoadPhase::Committed;
+            }
             setUrlFromPage(url);
             break;
         case UC_WEBVIEW_LOAD_FINISHED:
@@ -432,32 +533,201 @@ void WebViewItem::onLoadChanged(int event, const char *uri) {
                 m_reloadedAfterCrash = false;
             }
             setLoading(false);
+            if (m_loadPhase == LoadPhase::Requested) {
+                // an earlier load ends; the host's navigation is still to come
+            } else if (m_loadPhase == LoadPhase::Committed && (m_loadKind == LoadKind::Page || m_pageFailed)) {
+                // the spinner stays until the page's first frame, which WebKit may send after the end of the load
+            } else {
+                endLoad();
+            }
             break;
-        case UC_WEBVIEW_LOAD_FAILED:
+        case UC_WEBVIEW_LOAD_FAILED: {
             m_loadFailed = true;
-            qCWarning(lcWebView()) << "Load failed:" << logUrl(url);
+            // the library's detail of this failure (library 0.10.0), else why stays unknown
+            const bool detailed = m_hasFailDetail && m_failDetail.uri == QByteArray(uri ? uri : "");
+            m_hasFailDetail = false;
+            if (detailed) {
+                const FailDetail &detail = m_failDetail;
+                const LoadError   error = loadErrorForReason(detail.reason);
+                qCWarning(lcWebView()).noquote().nospace()
+                    << "Load failed: " << logUrl(url) << " (" << QMetaEnum::fromType<LoadError>().valueToKey(error)
+                    << ", " << detail.domain << " " << detail.code << ")";
+                QStringList lines{loadErrorMessage(detail.message)};
+                if (error == LoadErrorCertificate) {
+                    lines.append(certificateErrorNames(detail.tlsErrors));
+                }
+                if (!detail.domain.isEmpty()) {
+                    lines.append(QStringLiteral("%1 %2").arg(detail.domain).arg(detail.code));
+                }
+                setLoadError(error, url, lines);
+            } else {
+                qCWarning(lcWebView()) << "Load failed:" << logUrl(url);
+                clearLoadError();
+            }
             emit loadFailed(url);
+            // the failure, over the page: WebKit loads its error page for this address next, with the raw error text
+            m_failureShown = true;
+            m_pageFailed = true;
+            m_errorPageUrl = url;
+            if (m_loadPhase == LoadPhase::Requested) {
+                endLoad();  // refused without a load (the library's scheme allowlist): no FINISHED follows
+            }
             break;
+        }
         default:
             break;
     }
+    updateLoadIndicator();
     updateNavigationHistory();
+}
+
+void WebViewItem::onLoadStarted(const QUrl &url) {
+    if (!m_errorPageUrl.isEmpty() && url == m_errorPageUrl) {
+        // WebKit's error page of the failed load (no call of the host since, the same address): no load the user
+        // waits for, the failure stays over it
+        m_errorPageUrl.clear();
+        return;
+    }
+    if (m_loadPhase != LoadPhase::Requested) {
+        // the page navigates by itself (a link, a script, window.open() into this view): a new page
+        if (m_loadPhase == LoadPhase::Idle) {
+            m_loadIndicatorDue = false;
+            m_loadIndicatorTimer.start();
+        }
+        m_loadKind = LoadKind::Page;
+        m_failureShown = false;
+        clearLoadError();
+    }
+    m_errorPageUrl.clear();
+    m_loadPhase = LoadPhase::Started;
+}
+
+void WebViewItem::beginLoad(LoadKind kind) {
+    const bool quiet = kind == LoadKind::Quiet;
+    if (m_loadPhase == LoadPhase::Idle) {
+        m_loadIndicatorDue = false;
+        m_loadIndicatorTimer.start();
+    } else if (kind != LoadKind::Page) {
+        if (m_loadKind == LoadKind::Page && m_loadPhase != LoadPhase::Shown) {
+            // a reload before the new page showed a frame: nothing of it to see, the spinner stays
+            kind = LoadKind::Page;
+        } else if (kind == LoadKind::Quiet && m_loadKind == LoadKind::Reload) {
+            // the reload interval during a reload the user waits for: the bar stays
+            kind = LoadKind::Reload;
+        }
+    }
+    m_loadKind = kind;
+    m_loadPhase = LoadPhase::Requested;
+    // the host navigates: WebKit's error page of an earlier failure does not come any more
+    m_errorPageUrl.clear();
+    if (!quiet) {
+        // the failure gives way to the load; a failed page stays covered until another page shows a frame
+        m_failureShown = false;
+        clearLoadError();
+    }
+    updateLoadIndicator();
+}
+
+void WebViewItem::endLoad() {
+    m_loadPhase = LoadPhase::Idle;
+    m_loadIndicatorTimer.stop();
+    m_loadIndicatorDue = false;
+}
+
+void WebViewItem::updateLoadIndicator() {
+    LoadIndicator indicator = LoadIndicatorNone;
+    if (m_failureShown) {
+        indicator = LoadIndicatorFailed;
+    } else if (m_loadPhase != LoadPhase::Idle && m_loadIndicatorDue) {
+        if (m_loadKind == LoadKind::Page || m_pageFailed) {
+            // nothing of the new page on screen yet, and behind the cover of a failed page nothing at all
+            if (m_loadPhase != LoadPhase::Shown) {
+                indicator = LoadIndicatorSpinner;
+            } else if (m_loading) {
+                indicator = LoadIndicatorBar;
+            }
+        } else if (m_loadKind == LoadKind::Reload && m_loadPhase != LoadPhase::Requested && m_loading) {
+            // the old page stays until the new one commits
+            indicator = LoadIndicatorBar;
+        }
+    }
+    if (indicator == m_loadIndicator && m_pageFailed == m_pageFailedShown) {
+        return;
+    }
+    m_loadIndicator = indicator;
+    m_pageFailedShown = m_pageFailed;
+    UC_WEBVIEW_TRACE_IF() << "load indicator " << QMetaEnum::fromType<LoadIndicator>().valueToKey(indicator)
+                          << (m_pageFailed ? ", page failed" : "");
+    emit loadIndicatorChanged();
+}
+
+void WebViewItem::setLoadError(LoadError error, const QUrl &url, const QStringList &details) {
+    QStringList lines{loadErrorAddress(url)};
+    lines.append(details);
+    lines.removeAll(QString());
+    const QString host = url.host();
+    const QString text = lines.join(QLatin1Char('\n'));
+    if (error == m_loadError && host == m_loadErrorHost && text == m_loadErrorDetails) {
+        return;
+    }
+    m_loadError = error;
+    m_loadErrorHost = host;
+    m_loadErrorDetails = text;
+    emit loadErrorChanged();
+}
+
+void WebViewItem::clearLoadError() {
+    if (m_loadError == LoadErrorNone && m_loadErrorHost.isEmpty() && m_loadErrorDetails.isEmpty()) {
+        return;
+    }
+    m_loadError = LoadErrorNone;
+    m_loadErrorHost.clear();
+    m_loadErrorDetails.clear();
+    emit loadErrorChanged();
+}
+
+void WebViewItem::onLoadFailedDetail(const char *uri, int reason, const char *errorDomain, int errorCode,
+                                     unsigned tlsErrors, const char *message) {
+    // kept for the FAILED event of the same address that follows at once (uc_webview.h)
+    m_hasFailDetail = true;
+    m_failDetail.uri = QByteArray(uri ? uri : "");
+    m_failDetail.reason = reason;
+    m_failDetail.domain = QString::fromUtf8(errorDomain ? errorDomain : "");
+    m_failDetail.code = errorCode;
+    m_failDetail.tlsErrors = tlsErrors;
+    m_failDetail.message = QString::fromUtf8(message ? message : "");
 }
 
 void WebViewItem::onWebProcessTerminated(int reason) {
     qCWarning(lcWebView()) << "Web process terminated, reason" << reason << "while showing" << logUrl(m_url);
     setLoading(false);
+    endLoad();
     emit crashed(reason);
+    // what the failure of a second crash says; the reload after the first one clears it
+    if (reason == UC_WEBVIEW_TERMINATED_CRASHED) {
+        setLoadError(LoadErrorCrashed, m_url, {QStringLiteral("web process crashed")});
+    } else if (reason == UC_WEBVIEW_TERMINATED_EXCEEDED_MEMORY_LIMIT) {
+        setLoadError(LoadErrorOutOfMemory, m_url, {QStringLiteral("web process exceeded its memory limit")});
+    } else {
+        clearLoadError();
+    }
 
     if (m_reloadedAfterCrash) {
         qCWarning(lcWebView()) << "Not reloading again after a second crash";
+        // the view stays blank: a failure, which reload() recovers
+        m_failureShown = true;
+        m_pageFailed = true;
+        updateLoadIndicator();
         return;
     }
     m_reloadedAfterCrash = true;
+    updateLoadIndicator();
     // not from inside the callback: WebKit is still cleaning up the dead process
     QTimer::singleShot(0, this, [this] {
         if (m_view) {
             qCInfo(lcWebView()) << "Reloading after the web process crash";
+            // the view is blank: like a new page
+            beginLoad(LoadKind::Page);
             lib().reload(m_view);
         }
     });
@@ -631,6 +901,17 @@ void WebViewItem::onAuthenticate(quint64 id, const char *origin, const char *rea
     WebViewAuthRequest *request = m_requests.addAuth(id, origin, realm, scheme, flags);
     if (!request) {
         return;  // not a user name and password login, continued without credentials
+    }
+    // the credentials of the web view entity answer its origin's login (WebViewSite::loginFor()); a retry means the
+    // server rejected them, the user gets the dialog then
+    QString    user;
+    QString    password;
+    const bool basicOrDigest =
+        scheme == UC_WEBVIEW_AUTH_SCHEME_HTTP_BASIC || scheme == UC_WEBVIEW_AUTH_SCHEME_HTTP_DIGEST;
+    if (m_site.loginFor(request->origin(), basicOrDigest, request->isProxy(), request->isRetry(), &user, &password)) {
+        UC_WEBVIEW_TRACE_IF() << "request " << id << ": login answered with the configured credentials";
+        request->login(user, password);
+        return;
     }
     QQmlEngine::setObjectOwnership(request, QQmlEngine::CppOwnership);
     QPointer<WebViewAuthRequest> guard(request);
@@ -856,6 +1137,8 @@ void WebViewItem::ensureView() {
         cb.pinch = &WebViewItem::onPinchCb;
         cb.magnification_changed = &WebViewItem::onMagnificationChangedCb;
     }
+    // library 0.10.0: why a load failed; an older library never reads it, and calls nothing
+    cb.load_failed_detail = &WebViewItem::onLoadFailedDetailCb;
     // library 0.7.0: the page's requests reach the item only with these set; an older library never reads them
     if (m_requestsAvailable) {
         cb.script_dialog = &WebViewItem::onScriptDialogCb;
@@ -894,11 +1177,16 @@ void WebViewItem::ensureView() {
         m_zoomApplied = m_zoom;
     }
 
+    // the site settings of a web view entity go with the view's first request, and so does the device API
+    applySite();
+    applyDeviceApi();
+
     if (!m_pendingHtml.isEmpty()) {
         const QByteArray base = m_pendingBaseUrl.toEncoded();
+        beginLoad(LoadKind::Page);
         lib().load_html(m_view, m_pendingHtml.toUtf8().constData(), base.isEmpty() ? nullptr : base.constData());
     } else if (!m_url.isEmpty()) {
-        lib().load_uri(m_view, m_url.toEncoded().constData());
+        loadUrl();
     }
 }
 
@@ -934,6 +1222,22 @@ void WebViewItem::destroyView() {
     // properties that hold them turn null)
     m_requests.clear();
     m_requests.setView(nullptr, nullptr, nullptr);
+    // a load that waits for the cookies has no view to go to; uc_webview_free() removes the view's request headers
+    cancelCookieWait();
+    m_headerOrigin.clear();
+    // the device state goes with the view; a new view switches it on again
+    QObject::disconnect(m_deviceStateConnection);
+    QObject::disconnect(m_deviceEventConnection);
+    m_deviceApiOn = false;
+    // the load indicator starts afresh with the next view (no signal from the destructor)
+    endLoad();
+    m_failureShown = false;
+    m_pageFailed = false;
+    m_errorPageUrl.clear();
+    m_loadError = LoadErrorNone;
+    m_loadErrorHost.clear();
+    m_loadErrorDetails.clear();
+    m_hasFailDetail = false;
     if (!m_view) {
         return;
     }
@@ -981,6 +1285,10 @@ bool WebViewItem::loadAllowed(const QUrl &url, const char *what) {
         return true;
     }
     qCWarning(lcWebView()).noquote().nospace() << "Not loading " << what << " " << logUrl(url) << ": " << reason;
+    // the failure over the page as it is (no error page follows, nothing to cover); OK reloads that page
+    m_failureShown = true;
+    setLoadError(LoadErrorUnsupportedAddress, url, {reason});
+    updateLoadIndicator();
     emit loadFailed(url);
     return false;
 }
@@ -997,9 +1305,69 @@ void WebViewItem::setUrl(const QUrl &url) {
     if (m_view && !url.isEmpty()) {
         // the user goes elsewhere: a pending leave-page question is answered "leave" (see the class comment)
         m_requests.answerLeavePage(true);
-        UC_WEBVIEW_TRACE_IF() << "load_uri " << logUrl(url);
-        lib().load_uri(m_view, url.toEncoded().constData());
+        loadUrl();
     }
+}
+
+void WebViewItem::loadUrl() {
+    cancelCookieWait();
+    beginLoad(LoadKind::Page);
+    // core-api entity_webview.md "Cookies": the cookies of a web view entity are set before its start page loads
+    if (WebViewSite::sameOrigin(m_url, m_site.url()) && waitForSiteCookies(AfterCookies::Load)) {
+        return;
+    }
+    UC_WEBVIEW_TRACE_IF() << "load_uri " << logUrl(m_url);
+    lib().load_uri(m_view, m_url.toEncoded().constData());
+}
+
+bool WebViewItem::waitForSiteCookies(AfterCookies then) {
+    cancelCookieWait();
+    if (m_site.cookies().isEmpty()) {
+        return false;
+    }
+    WebViewLibrary *library = WebViewLibrary::instance();
+    const quint64   request = ++m_cookieRequest;
+    // also when refused: a reload after a clear tries once, not on every reload
+    m_cookiesGeneration = library->websiteDataGeneration();
+    // the report comes through Qt's event loop, never from inside the call; not at all once the item is gone
+    const bool started = library->setCookies(m_site.url(), m_site.cookies(), this, [this, request](bool ok) {
+        finishCookieWait(request, ok ? nullptr : "the library could not set them");
+    });
+    if (!started) {
+        // without the function setSite() logged it; a refusal names the cookie and its rule in the library's log
+        if (lib().global_set_cookies) {
+            qCWarning(lcWebView()) << "The web view library refused the cookies of the web view: loading without them";
+        }
+        return false;
+    }
+    m_afterCookies = then;
+    m_cookieTimer.start(cookieTimeoutMs());
+    return true;
+}
+
+void WebViewItem::finishCookieWait(quint64 request, const char *problem) {
+    if (request != m_cookieRequest || m_afterCookies == AfterCookies::Nothing) {
+        return;  // a report of an earlier request, or the wait was cancelled
+    }
+    const AfterCookies then = std::exchange(m_afterCookies, AfterCookies::Nothing);
+    m_cookieTimer.stop();
+    if (problem) {
+        qCWarning(lcWebView()) << "The cookies of the web view were not set:" << problem << "- loading without them";
+    }
+    if (!m_view) {
+        return;
+    }
+    if (then == AfterCookies::Reload) {
+        lib().reload(m_view);
+    } else if (!m_url.isEmpty()) {
+        UC_WEBVIEW_TRACE_IF() << "load_uri " << logUrl(m_url);
+        lib().load_uri(m_view, m_url.toEncoded().constData());
+    }
+}
+
+void WebViewItem::cancelCookieWait() {
+    m_afterCookies = AfterCookies::Nothing;
+    m_cookieTimer.stop();
 }
 
 void WebViewItem::setUrlFromPage(const QUrl &url) {
@@ -1028,6 +1396,135 @@ void WebViewItem::updateNavigationHistory() {
         m_canGoBack = back;
         m_canGoForward = forward;
         emit navigationHistoryChanged();
+    }
+}
+
+void WebViewItem::setSite(const WebViewSite &site) {
+    if (site == m_site) {
+        return;
+    }
+    m_site = site;
+    emit siteChanged();
+
+    if (m_available) {
+        // what a library older than 0.8.0 has no function for: the page loads without it. Option names, never a value.
+        QStringList ignored;
+        for (const QString &option : m_site.requestOptions()) {
+            if (!siteOptionSupported(lib(), option)) {
+                ignored.append(option);
+            }
+        }
+        if (!ignored.isEmpty()) {
+            qCInfo(lcWebView()) << "The web view library cannot apply these options (older than 0.8.0), ignored:"
+                                << ignored.join(QStringLiteral(", "));
+        }
+    }
+    // for the next load: the page that uses the site loads its start page again (WebViewPage.qml)
+    if (m_view) {
+        applySite();
+    }
+}
+
+void WebViewItem::setDeviceApi(bool deviceApi) {
+    if (deviceApi == m_deviceApi) {
+        return;
+    }
+    m_deviceApi = deviceApi;
+    emit deviceApiChanged();
+    if (m_deviceApi && m_available && !WebViewLibrary::instance()->deviceApiAvailable()) {
+        static bool logged = false;
+        if (!logged) {
+            logged = true;
+            qCInfo(lcWebView()) << "The web view library has no device state for web pages (older than 0.9.0): "
+                                   "device_api is ignored";
+        }
+    }
+    // for the next page load (the library gives the API to the documents that start afterwards)
+    applyDeviceApi();
+}
+
+void WebViewItem::applyDeviceApi() {
+    if (!m_view) {
+        return;
+    }
+    const bool on = m_deviceApi && WebViewLibrary::instance()->deviceApiAvailable();
+    if (on == m_deviceApiOn) {
+        return;
+    }
+    m_deviceApiOn = on;
+    QObject::disconnect(m_deviceStateConnection);
+    QObject::disconnect(m_deviceEventConnection);
+    if (!on) {
+        lib().set_device_api(m_view, 0);
+        return;
+    }
+    // the current state before the switch, so that the library's page script starts with it
+    if (DeviceStateSource *source = DeviceStateSource::instance()) {
+        lib().set_device_state(m_view, source->stateJson().constData());
+        m_deviceStateConnection =
+            connect(source, &DeviceStateSource::stateChanged, this, [this](const QByteArray &json) {
+                if (m_view) {
+                    lib().set_device_state(m_view, json.constData());
+                }
+            });
+        m_deviceEventConnection =
+            connect(source, &DeviceStateSource::deviceEvent, this, [this](const QByteArray &type, qint64 sleptMs) {
+                if (m_view) {
+                    lib().device_event(m_view, type.constData(), sleptMs);
+                }
+            });
+    }
+    lib().set_device_api(m_view, 1);
+}
+
+void WebViewItem::applySite() {
+    // `bearer` and `header` authentication: the request header for the start page's origin. The library adds it while
+    // the view's top-level document is of that origin, and keeps one table for every view of the process, in which
+    // the later call for an origin counts (uc_webview.h, "uc_webview_set_origin_headers").
+    if (lib().set_origin_headers) {
+        const QString name = m_site.authHeaderName();
+        const QString origin = name.isEmpty() ? QString() : m_site.origin();
+        if (!m_headerOrigin.isEmpty() && m_headerOrigin != origin) {
+            lib().set_origin_headers(m_view, m_headerOrigin.toUtf8().constData(), nullptr, nullptr, 0);
+            m_headerOrigin.clear();
+        }
+        if (!origin.isEmpty()) {
+            const QByteArray originBytes = origin.toUtf8();
+            const QByteArray nameBytes = name.toUtf8();
+            const QByteArray valueBytes = m_site.authHeaderValue().toUtf8();
+            const char      *names[] = {nameBytes.constData()};
+            const char      *values[] = {valueBytes.constData()};
+            if (lib().set_origin_headers(m_view, originBytes.constData(), names, values, 1) == 0) {
+                m_headerOrigin = origin;
+            } else {
+                // the library logged why, without the value; a refused call changes nothing, so an older header goes
+                qCWarning(lcWebView()) << "The web view library refused the request header of"
+                                       << (m_site.auth() == WebViewSite::Auth::Bearer ? "auth.bearer" : "auth.header")
+                                       << "- the page loads without it";
+                if (m_headerOrigin == origin) {
+                    lib().set_origin_headers(m_view, originBytes.constData(), nullptr, nullptr, 0);
+                    m_headerOrigin.clear();
+                }
+            }
+        }
+    }
+
+    if (lib().set_user_agent) {
+        const int        preset = userAgentPreset(m_site.userAgent());
+        const QByteArray custom = m_site.userAgent().toUtf8();
+        if (lib().set_user_agent(m_view, preset,
+                                 preset == UC_WEBVIEW_USER_AGENT_CUSTOM ? custom.constData() : nullptr) != 0) {
+            // a custom text outside the library's rules (the library logged which): not the previous one
+            qCWarning(lcWebView())
+                << "The web view library refused the user agent of the web view: the default is used";
+            lib().set_user_agent(m_view, UC_WEBVIEW_USER_AGENT_DEFAULT, nullptr);
+        }
+    }
+
+    // process-wide and permanent: an exception stays when the option changes (WebViewLibrary::allowCertificate())
+    if (m_site.hasTlsException()) {
+        WebViewLibrary::instance()->allowCertificate(m_site.url().host(QUrl::FullyEncoded),
+                                                     m_site.tlsCertificateSha256());
     }
 }
 
@@ -1267,36 +1764,73 @@ void WebViewItem::zoomOut() {
 }
 
 void WebViewItem::reload() {
+    reloadAs(LoadKind::Reload);
+}
+
+void WebViewItem::reloadQuietly() {
+    reloadAs(LoadKind::Quiet);
+}
+
+void WebViewItem::reloadAs(LoadKind kind) {
     if (m_view) {
         m_requests.answerLeavePage(true);
+        if (m_afterCookies != AfterCookies::Nothing) {
+            return;  // a load waits for the cookies: it brings the page anew
+        }
+        beginLoad(kind);
+        // a clear of all website data took the site's cookies with it: they are set again first (core-api "Website
+        // data": the configured cookies are sent again)
+        if (m_cookiesGeneration != WebViewLibrary::instance()->websiteDataGeneration() &&
+            waitForSiteCookies(AfterCookies::Reload)) {
+            return;
+        }
         lib().reload(m_view);
     }
 }
 
 void WebViewItem::stop() {
     if (m_view) {
-        // the user stays: the navigation that asked stops as well
+        // the user stays: the navigation that asked stops as well, and a load that waits for the cookies
         m_requests.answerLeavePage(false);
+        cancelCookieWait();
         lib().stop(m_view);
+        endLoad();
+        updateLoadIndicator();
     }
 }
 
 void WebViewItem::goBack() {
     if (m_view) {
         // the library ends pending requests for back and forward only when there is somewhere to go
-        if (lib().can_go_back(m_view)) {
+        const bool somewhere = lib().can_go_back(m_view);
+        if (somewhere) {
             m_requests.answerLeavePage(true);
         }
+        goInHistory(somewhere);
         lib().go_back(m_view);
     }
 }
 
 void WebViewItem::goForward() {
     if (m_view) {
-        if (lib().can_go_forward(m_view)) {
+        const bool somewhere = lib().can_go_forward(m_view);
+        if (somewhere) {
             m_requests.answerLeavePage(true);
         }
+        goInHistory(somewhere);
         lib().go_forward(m_view);
+    }
+}
+
+void WebViewItem::goInHistory(bool somewhere) {
+    const bool waited = m_afterCookies != AfterCookies::Nothing;
+    cancelCookieWait();
+    if (somewhere) {
+        beginLoad(LoadKind::Page);  // like a new page (another document)
+    } else if (waited) {
+        // the start page that waited for its cookies does not load
+        endLoad();
+        updateLoadIndicator();
     }
 }
 
@@ -1314,6 +1848,8 @@ void WebViewItem::loadHtml(const QString &html, const QUrl &baseUrl) {
     m_pendingBaseUrl = baseUrl;
     if (m_view) {
         m_requests.answerLeavePage(true);
+        cancelCookieWait();
+        beginLoad(LoadKind::Page);
         UC_WEBVIEW_TRACE_IF() << "load_html " << html.size() << " chars, base " << logUrl(baseUrl);
         const QByteArray base = baseUrl.toEncoded();
         lib().load_html(m_view, html.toUtf8().constData(), base.isEmpty() ? nullptr : base.constData());
@@ -1588,14 +2124,32 @@ void WebViewItem::keyEvent(QKeyEvent *event, bool pressed) {
 }
 
 void WebViewItem::pageUp() {
-    sendPageKey(Qt::Key_PageUp);
+    sendPageKey("page up", "PageUp");
 }
 
 void WebViewItem::pageDown() {
-    sendPageKey(Qt::Key_PageDown);
+    sendPageKey("page down", "PageDown");
 }
 
-void WebViewItem::sendPageKey(int key) {
+void WebViewItem::scrollToTop() {
+    sendPageKey("top", "Home");
+}
+
+void WebViewItem::scrollToBottom() {
+    sendPageKey("bottom", "End");
+}
+
+void WebViewItem::focusNext() {
+    sendPageKey("focus next", "Tab");
+}
+
+void WebViewItem::focusPrevious() {
+    // Tab with the Shift modifier, no Shift key event of its own: WebKit moves the focus back by the event's shiftKey
+    // (EventHandler.cpp:5344-5365). Not ISO_Left_Tab, which WebKit 2.54.2 reports as key "Unidentified".
+    sendPageKey("focus previous", "Tab", true);
+}
+
+void WebViewItem::sendPageKey(const char *what, const char *key, bool shift) {
     // WebKit takes key events whether the view has the focus or not (WPEWebViewPlatform.cpp:387-405) and sends them
     // to the page's focused frame. A Page_Up/Down keydown without modifiers that the page does not handle itself
     // scrolls by a page (EventHandler.cpp:5036-5046): the first scroller around the page's focused element (or the
@@ -1603,20 +2157,63 @@ void WebViewItem::sendPageKey(int key) {
     // 1153-1180; the keyboard scroll animator that a key release would stop is off outside macOS,
     // EventHandler.cpp:5028-5033, UnifiedWebPreferences.yaml:3035-3048). In a focused text area or contenteditable
     // element the key moves the caret a page instead (WebEditorClientWPE.cpp:87-88, EditorCommand.cpp:225-238), like
-    // in a desktop browser.
-    if (!m_view) {
+    // in a desktop browser. Home and End scroll to the start and the end the same way, Tab moves the page's focus.
+    const PageKey *pageKey = pageKeyForName(QString::fromLatin1(key));
+    if (!m_view || !pageKey) {
         return;
     }
-    const uint32_t keysym = xkbKeysymForKey(key, QString());
-    const uint32_t keycode = key == Qt::Key_PageUp ? kKeycodePageUp : kKeycodePageDown;
-    UC_WEBVIEW_TRACE_IF() << (key == Qt::Key_PageUp ? "page up: " : "page down: ") << specialKeyName(keysym)
-                          << " press and release (keysym 0x" << Qt::hex << keysym << Qt::dec << ", scancode "
-                          << keycode << ")";
+    const char *name = specialKeyName(pageKey->keysym);
+    UC_WEBVIEW_TRACE_IF() << what << ": " << (name ? name : key) << (shift ? " with Shift" : "")
+                          << " press and release (keysym 0x" << Qt::hex << pageKey->keysym << Qt::dec << ", scancode "
+                          << pageKey->keycode << ")";
     // a user gesture for the page, like a forwarded key (keyEvent)
     m_lastUserGesture.restart();
     const uint32_t time = eventTimeNow();
-    lib().key(m_view, keysym, keycode, 1, 0, time);
-    lib().key(m_view, keysym, keycode, 0, 0, time);
+    const unsigned mods = shift ? UC_WEBVIEW_MOD_SHIFT : 0;
+    lib().key(m_view, pageKey->keysym, pageKey->keycode, 1, mods, time);
+    lib().key(m_view, pageKey->keysym, pageKey->keycode, 0, mods, time);
+}
+
+void WebViewItem::scrollUp() {
+    scrollStep(kScrollStepTicks);
+}
+
+void WebViewItem::scrollDown() {
+    scrollStep(-kScrollStepTicks);
+}
+
+void WebViewItem::scrollStep(int ticks) {
+    // Wheel notches at the centre of the view, as a mouse wheel there would send them: WebKit scrolls the scroller
+    // under that point that can still move, else the document; a page that takes wheel events itself (a map) gets them.
+    // Positive ticks scroll the content towards its top (uc_webview.h). The library scales a notch by WebKit's line
+    // step (Scrollbar::pixelsPerLineStep, 40 px).
+    if (!m_view) {
+        return;
+    }
+    const QPointF centre = devicePoint(QPointF(width() / 2, height() / 2));
+    UC_WEBVIEW_TRACE_IF() << (ticks > 0 ? "scroll up: " : "scroll down: ") << std::abs(ticks) << " wheel notches at "
+                          << centre.x() << "," << centre.y();
+    lib().scroll(m_view, 0, ticks, centre.x(), centre.y(), 0, eventTimeNow());
+}
+
+bool WebViewItem::sendKey(const QString &key, bool pressed) {
+    const PageKey *pageKey = pageKeyForName(key);
+    if (!pageKey) {
+        qCWarning(lcWebView()) << "Not a key of the page:" << key;
+        return false;
+    }
+    if (!m_view) {
+        return true;
+    }
+    // the KeyboardEvent.key names of the table: no typed text, unlike the keys of the trace's "printable" lines
+    UC_WEBVIEW_TRACE_IF() << "page key " << qUtf8Printable(key) << (pressed ? " down" : " up") << " (keysym 0x"
+                          << Qt::hex << pageKey->keysym << Qt::dec << ", keycode " << pageKey->keycode << ")";
+    if (pressed) {
+        // a user gesture for the page, like a forwarded key (keyEvent)
+        m_lastUserGesture.restart();
+    }
+    lib().key(m_view, pageKey->keysym, pageKey->keycode, pressed ? 1 : 0, 0, eventTimeNow());
+    return true;
 }
 
 // ---- text input (the Qt Virtual Keyboard contract) ---------------------------------------------------------------

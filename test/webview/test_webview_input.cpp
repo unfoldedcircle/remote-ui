@@ -4,10 +4,12 @@
 #include <QKeySequence>
 #include <QtTest>
 
+#include "ui/entity/webviewButtons.h"
 #include "webview/uc_webview.h"
 #include "webview/webviewinput.h"
 
 using namespace uc::webview;
+using uc::ui::entity::WebviewButtons;
 
 class testWebViewInput : public QObject {
     Q_OBJECT
@@ -30,9 +32,16 @@ class testWebViewInput : public QObject {
     void environmentSwitchLikeTheLibrary();
     void tapDistanceFromTheEnvironment();
     void specialKeysHaveTraceNamesCharactersDoNot();
-    void loggableUrlDropsCredentialsQueryAndPayload_data();
-    void loggableUrlDropsCredentialsQueryAndPayload();
+    void loggableUrlIsTheOrigin_data();
+    void loggableUrlIsTheOrigin();
     void loggableUrlIsCutAt200Characters();
+    void loadErrorAddressIsSchemeHostAndPort_data();
+    void loadErrorAddressIsSchemeHostAndPort();
+    void loadErrorMessageShortensUrlsAndIsCut();
+    void certificateErrorNames();
+    void pageKeysByName_data();
+    void pageKeysByName();
+    void everyKeyOfTheButtonMappingHasItsKeysymAndKeycode();
 };
 
 void testWebViewInput::keysForThePage_data() {
@@ -274,37 +283,93 @@ void testWebViewInput::specialKeysHaveTraceNamesCharactersDoNot() {
     QVERIFY(specialKeyName(0) == nullptr);
 }
 
-void testWebViewInput::loggableUrlDropsCredentialsQueryAndPayload_data() {
+void testWebViewInput::loggableUrlIsTheOrigin_data() {
     QTest::addColumn<QString>("url");
     QTest::addColumn<bool>("full");
     QTest::addColumn<QString>("expected");
 
-    // the cases of the library's own uc_uri_policy_loggable() tests
+    // the cases of the library's own uc_uri_policy_loggable() tests: by default the origin only
     QTest::newRow("credentials and query") << "https://user:secret@example.com/path?q=1" << false
-                                           << "https://example.com/path?...";
-    QTest::newRow("full keeps the query, not the credentials")
-        << "https://user:secret@example.com/path?q=1" << true << "https://example.com/path?q=1";
+                                           << "https://example.com";
+    QTest::newRow("path, query and fragment") << "https://nonexistent-host.invalid/secret/path?token=1#frag" << false
+                                              << "https://nonexistent-host.invalid";
     QTest::newRow("oauth callback") << "https://example.com/cb?code=4/0AY0e-g7&state=xyz#access_token=ya29.a0Af"
-                                    << false << "https://example.com/cb?...#...";
-    QTest::newRow("spa route") << "http://localhost/configurator/#/login" << false
-                               << "http://localhost/configurator/#...";
+                                    << false << "https://example.com";
+    QTest::newRow("reset link") << "https://example.com/reset/0123456789abcdef" << false << "https://example.com";
+    QTest::newRow("spa route") << "http://localhost/configurator/#/login" << false << "http://localhost";
     QTest::newRow("port") << "http://localhost:8080" << false << "http://localhost:8080";
-    QTest::newRow("file") << "file:///app/data/emoji.html" << false << "file:///app/data/emoji.html";
-    QTest::newRow("about") << "about:blank" << false << "about:blank";
-    QTest::newRow("data payload") << "data:text/html,<input value=secret>" << false << "data:text/html,...";
-    QTest::newRow("data base64") << "data:text/html;base64,PGlucHV0Pg==" << false << "data:text/html;base64,...";
-    QTest::newRow("data full") << "data:text/html,hi" << true << "data:text/html,hi";
-    QTest::newRow("javascript") << "javascript:send('secret')" << false << "javascript:...";
-    QTest::newRow("mailto") << "mailto:someone@example.com" << false << "mailto:...";
-    QTest::newRow("no scheme") << "/app/data/emoji.html" << false << "(no scheme):...";
+    QTest::newRow("port and path") << "https://host:8443/a/b?c" << false << "https://host:8443";
+    QTest::newRow("default port named") << "http://example.com:80/" << false << "http://example.com:80";
+    QTest::newRow("IPv6") << "http://[::1]:80/a" << false << "http://[::1]:80";
+    QTest::newRow("IPv6 without a port") << "http://[2001:db8::1]/a?b" << false << "http://[2001:db8::1]";
+    QTest::newRow("file") << "file:///app/data/emoji.html" << false << "file:";
+    QTest::newRow("about") << "about:blank" << false << "about:";
+    QTest::newRow("data payload") << "data:text/html,<input value=secret>" << false << "data:";
+    QTest::newRow("data base64") << "data:text/html;base64,PGlucHV0Pg==" << false << "data:";
+    QTest::newRow("javascript") << "javascript:send('secret')" << false << "javascript:";
+    QTest::newRow("blob") << "blob:http://x/1" << false << "blob:";
+    QTest::newRow("mailto") << "mailto:someone@example.com" << false << "mailto:";
+    QTest::newRow("no scheme") << "/app/data/emoji.html" << false << "(no scheme)";
+    QTest::newRow("no scheme full") << "/app/data/emoji.html" << true << "(no scheme)";
     QTest::newRow("empty") << "" << false << "(empty)";
+    // UC_WEBVIEW_LOG_FULL_URLS=1: everything but the credentials
+    QTest::newRow("full keeps path and query, not the credentials")
+        << "https://user:secret@example.com/path?q=1" << true << "https://example.com/path?q=1";
+    QTest::newRow("full keeps the fragment") << "https://example.com/cb?code=4#access_token=ya29" << true
+                                             << "https://example.com/cb?code=4#access_token=ya29";
+    QTest::newRow("data full") << "data:text/html,hi" << true << "data:text/html,hi";
+    QTest::newRow("about full") << "about:blank" << true << "about:blank";
 }
 
-void testWebViewInput::loggableUrlDropsCredentialsQueryAndPayload() {
+void testWebViewInput::loggableUrlIsTheOrigin() {
     QFETCH(QString, url);
     QFETCH(bool, full);
     QFETCH(QString, expected);
     QCOMPARE(loggableUrl(QUrl(url), full), expected);
+}
+
+void testWebViewInput::loadErrorAddressIsSchemeHostAndPort_data() {
+    QTest::addColumn<QString>("url");
+    QTest::addColumn<QString>("expected");
+
+    QTest::newRow("path, query, fragment") << "https://example.com/a/b?token=1#x" << "https://example.com";
+    QTest::newRow("credentials and port") << "http://user:secret@nas.local:8080/" << "http://nas.local:8080";
+    QTest::newRow("scheme in capitals") << "HTTPS://Example.COM/" << "https://example.com";
+    QTest::newRow("IPv4") << "http://192.168.1.20:8123/lovelace" << "http://192.168.1.20:8123";
+    QTest::newRow("IPv6") << "http://[fe80::1]:8080/x" << "http://[fe80::1]:8080";
+    QTest::newRow("without a host") << "javascript:alert(1)" << "javascript:";
+    QTest::newRow("data") << "data:text/html,<p>secret" << "data:";
+    QTest::newRow("file") << "file:///etc/passwd" << "file:";
+    QTest::newRow("no scheme") << "/app/x.html" << "";
+    QTest::newRow("empty") << "" << "";
+}
+
+void testWebViewInput::loadErrorAddressIsSchemeHostAndPort() {
+    QFETCH(QString, url);
+    QFETCH(QString, expected);
+    QCOMPARE(loadErrorAddress(QUrl(url)), expected);
+}
+
+void testWebViewInput::loadErrorMessageShortensUrlsAndIsCut() {
+    QCOMPARE(loadErrorMessage(QStringLiteral("Cannot load https://u:p@a.example/x?t=1, try http://b.example:81/y.")),
+             QStringLiteral("Cannot load https://a.example, try http://b.example:81."));
+    QCOMPARE(loadErrorMessage(QString::fromUtf8("Error resolving \u201cnas.local\u201d: Name or service not known")),
+             QString::fromUtf8("Error resolving \u201cnas.local\u201d: Name or service not known"));
+    QCOMPARE(loadErrorMessage(QStringLiteral(" line\none\tend\r\n")), QStringLiteral("line one end"));
+    QCOMPARE(loadErrorMessage(QString()), QString());
+    const QString cut = loadErrorMessage(QString(400, QLatin1Char('e')));
+    QCOMPARE(cut.size(), 303);
+    QVERIFY(cut.endsWith(QStringLiteral("...")));
+}
+
+void testWebViewInput::certificateErrorNames() {
+    QCOMPARE(uc::webview::certificateErrorNames(0), QString());
+    // GTlsCertificateFlags: UNKNOWN_CA 1, BAD_IDENTITY 2, NOT_ACTIVATED 4, EXPIRED 8, REVOKED 16, INSECURE 32,
+    // GENERIC_ERROR 64
+    QCOMPARE(uc::webview::certificateErrorNames(1 | 2 | 8), QStringLiteral("expired, unknown issuer, wrong host name"));
+    QCOMPARE(uc::webview::certificateErrorNames(4 | 16 | 32 | 64),
+             QStringLiteral("not yet valid, revoked, insecure algorithm, other error"));
+    QCOMPARE(uc::webview::certificateErrorNames(1 | 0x300), QStringLiteral("unknown issuer, flags 0x300"));
 }
 
 void testWebViewInput::loggableUrlIsCutAt200Characters() {
@@ -313,7 +378,80 @@ void testWebViewInput::loggableUrlIsCutAt200Characters() {
     const QString text = loggableUrl(url, true);
     QCOMPARE(text.size(), 203);
     QVERIFY(text.endsWith(QStringLiteral("...")));
-    QVERIFY(!loggableUrl(url, false).contains(QStringLiteral("secret")));
+    QCOMPARE(loggableUrl(url, false), QStringLiteral("https://example.com"));
+    // a long host name is cut as well
+    const QUrl longHost(QStringLiteral("https://") + QStringLiteral("abcdefghi.").repeated(25) +
+                        QStringLiteral("example/x"));
+    QCOMPARE(loggableUrl(longHost, false).size(), 203);
+}
+
+void testWebViewInput::pageKeysByName_data() {
+    QTest::addColumn<QString>("name");
+    QTest::addColumn<uint32_t>("keysym");
+    QTest::addColumn<uint32_t>("keycode");
+
+    // the keysym WebKit 2.54.2 takes KeyboardEvent.key and keyCode from, the XKB keycode (evdev + 8) it takes
+    // KeyboardEvent.code from
+    QTest::newRow("ArrowUp") << QStringLiteral("ArrowUp") << 0xff52u << 111u;
+    QTest::newRow("ArrowDown") << QStringLiteral("ArrowDown") << 0xff54u << 116u;
+    QTest::newRow("ArrowLeft") << QStringLiteral("ArrowLeft") << 0xff51u << 113u;
+    QTest::newRow("ArrowRight") << QStringLiteral("ArrowRight") << 0xff53u << 114u;
+    QTest::newRow("Enter") << QStringLiteral("Enter") << 0xff0du << 36u;
+    QTest::newRow("Escape") << QStringLiteral("Escape") << 0xff1bu << 9u;
+    QTest::newRow("Backspace") << QStringLiteral("Backspace") << 0xff08u << 22u;
+    QTest::newRow("Tab") << QStringLiteral("Tab") << 0xff09u << 23u;
+    QTest::newRow("PageUp") << QStringLiteral("PageUp") << 0xff55u << 112u;
+    QTest::newRow("PageDown") << QStringLiteral("PageDown") << 0xff56u << 117u;
+    QTest::newRow("Home") << QStringLiteral("Home") << 0xff50u << 110u;
+    QTest::newRow("End") << QStringLiteral("End") << 0xff57u << 115u;
+    // the PC menu key: KEY_COMPOSE, not KEY_MENU, whose keysym WebKit does not map
+    QTest::newRow("ContextMenu") << QStringLiteral("ContextMenu") << 0xff67u << 135u;
+    QTest::newRow("BrowserBack") << QStringLiteral("BrowserBack") << 0x1008ff26u << 166u;
+    QTest::newRow("BrowserForward") << QStringLiteral("BrowserForward") << 0x1008ff27u << 167u;
+    QTest::newRow("BrowserRefresh") << QStringLiteral("BrowserRefresh") << 0x1008ff29u << 181u;
+    QTest::newRow("BrowserStop") << QStringLiteral("BrowserStop") << 0x1008ff28u << 136u;
+    // XF86Close is also KEY_CLOSE's keysym: Exit needs KEY_EXIT's keycode
+    QTest::newRow("Exit") << QStringLiteral("Exit") << 0x1008ff56u << 182u;
+    QTest::newRow("AudioVolumeUp") << QStringLiteral("AudioVolumeUp") << 0x1008ff13u << 123u;
+    QTest::newRow("AudioVolumeDown") << QStringLiteral("AudioVolumeDown") << 0x1008ff11u << 122u;
+    QTest::newRow("AudioVolumeMute") << QStringLiteral("AudioVolumeMute") << 0x1008ff12u << 121u;
+    QTest::newRow("ChannelUp") << QStringLiteral("ChannelUp") << 0x10081192u << 410u;
+    QTest::newRow("ChannelDown") << QStringLiteral("ChannelDown") << 0x10081193u << 411u;
+    // one keysym for both: MediaPlayPause is told from MediaPlay by KEY_PLAYPAUSE's keycode
+    QTest::newRow("MediaPlayPause") << QStringLiteral("MediaPlayPause") << 0x1008ff14u << 172u;
+    QTest::newRow("MediaPlay") << QStringLiteral("MediaPlay") << 0x1008ff14u << 215u;
+    QTest::newRow("MediaPause") << QStringLiteral("MediaPause") << 0x1008ff31u << 209u;
+    QTest::newRow("MediaStop") << QStringLiteral("MediaStop") << 0x1008ff15u << 174u;
+    QTest::newRow("MediaRecord") << QStringLiteral("MediaRecord") << 0x1008ff1cu << 175u;
+    QTest::newRow("MediaRewind") << QStringLiteral("MediaRewind") << 0x1008ff3eu << 176u;
+    QTest::newRow("MediaFastForward") << QStringLiteral("MediaFastForward") << 0x1008ff97u << 216u;
+    QTest::newRow("MediaTrackPrevious") << QStringLiteral("MediaTrackPrevious") << 0x1008ff16u << 173u;
+    QTest::newRow("MediaTrackNext") << QStringLiteral("MediaTrackNext") << 0x1008ff17u << 171u;
+    QTest::newRow("ColorF0Red") << QStringLiteral("ColorF0Red") << 0x1008ffa3u << 406u;
+    QTest::newRow("ColorF1Green") << QStringLiteral("ColorF1Green") << 0x1008ffa4u << 407u;
+    QTest::newRow("ColorF2Yellow") << QStringLiteral("ColorF2Yellow") << 0x1008ffa5u << 408u;
+    QTest::newRow("ColorF3Blue") << QStringLiteral("ColorF3Blue") << 0x1008ffa6u << 409u;
+}
+
+void testWebViewInput::pageKeysByName() {
+    QFETCH(QString, name);
+    QFETCH(uint32_t, keysym);
+    QFETCH(uint32_t, keycode);
+    const PageKey *key = pageKeyForName(name);
+    QVERIFY(key);
+    QCOMPARE(key->keysym, keysym);
+    QCOMPARE(key->keycode, keycode);
+}
+
+void testWebViewInput::everyKeyOfTheButtonMappingHasItsKeysymAndKeycode() {
+    // every KeyboardEvent.key of core-api WebviewButtonKey, and nothing else
+    for (const QString &name : WebviewButtons::keys()) {
+        QVERIFY2(pageKeyForName(name) != nullptr, qPrintable(name));
+    }
+    QVERIFY(pageKeyForName(QStringLiteral("arrowup")) == nullptr);
+    QVERIFY(pageKeyForName(QStringLiteral("F5")) == nullptr);
+    QVERIFY(pageKeyForName(QString()) == nullptr);
+    QVERIFY(pageKeyForName(QStringLiteral("Close")) == nullptr);
 }
 
 QTEST_GUILESS_MAIN(testWebViewInput)
