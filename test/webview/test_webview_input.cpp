@@ -32,8 +32,8 @@ class testWebViewInput : public QObject {
     void environmentSwitchLikeTheLibrary();
     void tapDistanceFromTheEnvironment();
     void specialKeysHaveTraceNamesCharactersDoNot();
-    void loggableUrlDropsCredentialsQueryAndPayload_data();
-    void loggableUrlDropsCredentialsQueryAndPayload();
+    void loggableUrlIsTheOrigin_data();
+    void loggableUrlIsTheOrigin();
     void loggableUrlIsCutAt200Characters();
     void loadErrorAddressIsSchemeHostAndPort_data();
     void loadErrorAddressIsSchemeHostAndPort();
@@ -283,33 +283,45 @@ void testWebViewInput::specialKeysHaveTraceNamesCharactersDoNot() {
     QVERIFY(specialKeyName(0) == nullptr);
 }
 
-void testWebViewInput::loggableUrlDropsCredentialsQueryAndPayload_data() {
+void testWebViewInput::loggableUrlIsTheOrigin_data() {
     QTest::addColumn<QString>("url");
     QTest::addColumn<bool>("full");
     QTest::addColumn<QString>("expected");
 
-    // the cases of the library's own uc_uri_policy_loggable() tests
+    // the cases of the library's own uc_uri_policy_loggable() tests: by default the origin only
     QTest::newRow("credentials and query") << "https://user:secret@example.com/path?q=1" << false
-                                           << "https://example.com/path?...";
-    QTest::newRow("full keeps the query, not the credentials")
-        << "https://user:secret@example.com/path?q=1" << true << "https://example.com/path?q=1";
+                                           << "https://example.com";
+    QTest::newRow("path, query and fragment") << "https://nonexistent-host.invalid/secret/path?token=1#frag" << false
+                                              << "https://nonexistent-host.invalid";
     QTest::newRow("oauth callback") << "https://example.com/cb?code=4/0AY0e-g7&state=xyz#access_token=ya29.a0Af"
-                                    << false << "https://example.com/cb?...#...";
-    QTest::newRow("spa route") << "http://localhost/configurator/#/login" << false
-                               << "http://localhost/configurator/#...";
+                                    << false << "https://example.com";
+    QTest::newRow("reset link") << "https://example.com/reset/0123456789abcdef" << false << "https://example.com";
+    QTest::newRow("spa route") << "http://localhost/configurator/#/login" << false << "http://localhost";
     QTest::newRow("port") << "http://localhost:8080" << false << "http://localhost:8080";
-    QTest::newRow("file") << "file:///app/data/emoji.html" << false << "file:///app/data/emoji.html";
-    QTest::newRow("about") << "about:blank" << false << "about:blank";
-    QTest::newRow("data payload") << "data:text/html,<input value=secret>" << false << "data:text/html,...";
-    QTest::newRow("data base64") << "data:text/html;base64,PGlucHV0Pg==" << false << "data:text/html;base64,...";
-    QTest::newRow("data full") << "data:text/html,hi" << true << "data:text/html,hi";
-    QTest::newRow("javascript") << "javascript:send('secret')" << false << "javascript:...";
-    QTest::newRow("mailto") << "mailto:someone@example.com" << false << "mailto:...";
-    QTest::newRow("no scheme") << "/app/data/emoji.html" << false << "(no scheme):...";
+    QTest::newRow("port and path") << "https://host:8443/a/b?c" << false << "https://host:8443";
+    QTest::newRow("default port named") << "http://example.com:80/" << false << "http://example.com:80";
+    QTest::newRow("IPv6") << "http://[::1]:80/a" << false << "http://[::1]:80";
+    QTest::newRow("IPv6 without a port") << "http://[2001:db8::1]/a?b" << false << "http://[2001:db8::1]";
+    QTest::newRow("file") << "file:///app/data/emoji.html" << false << "file:";
+    QTest::newRow("about") << "about:blank" << false << "about:";
+    QTest::newRow("data payload") << "data:text/html,<input value=secret>" << false << "data:";
+    QTest::newRow("data base64") << "data:text/html;base64,PGlucHV0Pg==" << false << "data:";
+    QTest::newRow("javascript") << "javascript:send('secret')" << false << "javascript:";
+    QTest::newRow("blob") << "blob:http://x/1" << false << "blob:";
+    QTest::newRow("mailto") << "mailto:someone@example.com" << false << "mailto:";
+    QTest::newRow("no scheme") << "/app/data/emoji.html" << false << "(no scheme)";
+    QTest::newRow("no scheme full") << "/app/data/emoji.html" << true << "(no scheme)";
     QTest::newRow("empty") << "" << false << "(empty)";
+    // UC_WEBVIEW_LOG_FULL_URLS=1: everything but the credentials
+    QTest::newRow("full keeps path and query, not the credentials")
+        << "https://user:secret@example.com/path?q=1" << true << "https://example.com/path?q=1";
+    QTest::newRow("full keeps the fragment") << "https://example.com/cb?code=4#access_token=ya29" << true
+                                             << "https://example.com/cb?code=4#access_token=ya29";
+    QTest::newRow("data full") << "data:text/html,hi" << true << "data:text/html,hi";
+    QTest::newRow("about full") << "about:blank" << true << "about:blank";
 }
 
-void testWebViewInput::loggableUrlDropsCredentialsQueryAndPayload() {
+void testWebViewInput::loggableUrlIsTheOrigin() {
     QFETCH(QString, url);
     QFETCH(bool, full);
     QFETCH(QString, expected);
@@ -366,7 +378,11 @@ void testWebViewInput::loggableUrlIsCutAt200Characters() {
     const QString text = loggableUrl(url, true);
     QCOMPARE(text.size(), 203);
     QVERIFY(text.endsWith(QStringLiteral("...")));
-    QVERIFY(!loggableUrl(url, false).contains(QStringLiteral("secret")));
+    QCOMPARE(loggableUrl(url, false), QStringLiteral("https://example.com"));
+    // a long host name is cut as well
+    const QUrl longHost(QStringLiteral("https://") + QStringLiteral("abcdefghi.").repeated(25) +
+                        QStringLiteral("example/x"));
+    QCOMPARE(loggableUrl(longHost, false).size(), 203);
 }
 
 void testWebViewInput::pageKeysByName_data() {

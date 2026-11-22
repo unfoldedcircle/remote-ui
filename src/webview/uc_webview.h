@@ -506,8 +506,8 @@ int uc_webview_api_version(void);
  * uc_webview_when_rendered(), pinch begin and end and magnification changes with their render time, and requests by
  * kind, id and outcome; never with typed text, dialog texts, answers, user names or passwords, see the package
  * README "What the logs carry"),
- * UC_WEBVIEW_LOG_FULL_URLS=1 (log lines show URIs with query, fragment and data: payload; without it only scheme,
- * host, port and path; credentials never),
+ * UC_WEBVIEW_LOG_FULL_URLS=1 (log lines show URIs with path, query, fragment and data: payload; without it only
+ * scheme, host and port since library 0.10.1, also for URIs inside logged error messages; credentials never),
  * UC_WEBVIEW_PDF_VIEWER=1 (keeps WebKit's PDF viewer on, for crash investigations; read here, once). Since library
  * 0.6.1 the viewer is off: a PDF in the main frame is refused like a download, since 0.7.0 as
  * response_refused(UC_WEBVIEW_RESPONSE_UNSUPPORTED) without load_changed(UC_WEBVIEW_LOAD_FAILED) (0.6.1 reported

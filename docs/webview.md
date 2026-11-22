@@ -950,8 +950,8 @@ token), the error message with every URL in it shortened the same way (at most 3
 by name (`expired, not yet valid, unknown issuer, wrong host name, revoked, insecure algorithm, other error`), and
 `<domain> <code>` (`g-resolver-error-quark 0`, `WebKitNetworkError 1`). After a crash it is the address and `web
 process crashed` or `web process exceeded its memory limit`; for a refused address the address and the item's reason.
-The log line becomes `Load failed: <address> (LoadErrorTimeout, g-io-error-quark 24)` with the address as before
-(`logUrl()`, "What the trace logs").
+The log line becomes `Load failed: <address> (LoadErrorTimeout, g-io-error-quark 24)` with the address as the log
+shows it (`logUrl()`, "What the trace logs": scheme, host and port, the same as in Details).
 
 **Input.** The spinner and the bar take no touch and no key: touches and the d-pad reach the page below them, once it
 has its first frame and before (when nothing useful can be tapped yet). Only the failure's cover takes the touches.
@@ -1002,7 +1002,7 @@ depend on `type="password"`.
 | `ime_surrounding changed` | that the text around the caret changed | text, length, caret and anchor offsets (in a password field the caret offset counts the typed characters) |
 | `ime_cursor_area 67,324 1x24 (view px)` | the caret rectangle | |
 | `touch slot 0 (qt id 33554433) down 152,321 ms 747251 moved 0 px, 1 down` | every touch point with its position and its distance from the press | |
-| `load started "https://example.com/login?..."`, `load_uri ...`, `load_html N chars, base ...` | load requests and events | user name and password, query, fragment (see below) |
+| `load started "https://example.com"`, `load_uri ...`, `load_html N chars, base ...` | load requests and events | user name and password, path, query, fragment (see below) |
 | `load indicator LoadIndicatorSpinner` (`, page failed`) | what the item tells its host to show while the page loads (see "Load indicator") | |
 | `input panel show`, `tap with a focused editable element: ...`, `active focus true`, `cancelling ...` | the item's keyboard and focus decisions | |
 | `zoom 1.25 (125 %)` | a zoom set in the library (`zoom`, VOLUME on the test page) | |
@@ -1018,7 +1018,7 @@ depend on `type="password"`.
 | `request 7: answered yes` (`no`, `yes with text`, `with credentials`, `without credentials`; `no (not handled)`, `leave (not handled)`, `leave (the host navigates)`, `stay (the host stops)`) | the answer and where it came from | the text, the user name, the password |
 | `request 7: cancelled`, `request 7: ended (view freed)`, `request 7: answer refused by the library, the request had ended` | how a request ended without an answer | |
 | `request 9: dialog type 5 unknown, answered no`, `request 9: auth scheme 6 takes no user name, answered without credentials` | a request the item answers without a dialog | |
-| `new window loaded into this view: "https://example.com/?..."` (`refused`), `response refused, download "..." (type unknown)` (`cannot be shown`), `close requested by the page (window.close())` | the page's other requests | query, fragment (see below) |
+| `new window loaded into this view: "https://example.com"` (`refused`), `response refused, download "..." (type unknown)` (`cannot be shown`), `close requested by the page (window.close())` | the page's other requests | path, query, fragment (see below) |
 
 What stays visible is how many keys and keyboard events happened and when: the number of `key printable` or `input
 method event: commit` lines between `ime_focus true` and `ime_focus false` gives the length of what was typed, never
@@ -1027,12 +1027,24 @@ taps from drags is what the trace is for: on a page that draws a keypad of its o
 keyboard) the positions show which keys were tapped, so take no trace while entering a secret on such a page.
 
 URLs, in the trace and in the warnings that are always on (`Load failed:`, `Not loading URL ...`, `Web process
-terminated ... while showing`), never show a user name or password, and by default only what names the page:
-scheme, host, port and path, with a query or fragment shown as `?...` or `#...` (OAuth codes, session ids and
-password reset tokens travel there), `data:<media type>,...` for a `data:` URL and `<scheme>:...` for other URLs
-without a host (`javascript:`, `mailto:`), at most 200 characters (`loggableUrl()` in `webviewinput.cpp`, the rules of
-the library's `uc_uri_policy_loggable()`). A path can still carry a token (`/reset/<token>`).
-`UC_WEBVIEW_LOG_FULL_URLS=1` keeps query, fragment and payload, for debugging on a test device; credentials stay out.
+terminated ... while showing`), never show a user name or password, and by default only the site: scheme, host and
+port, the address the Details of a failure show (`loadErrorAddress()`). No path, query or fragment: OAuth codes,
+session ids and password reset tokens travel in all three (`/reset/<token>`, `?code=`, `#access_token=`). The port
+shows when the URL names one, an IPv6 host keeps its brackets, a URL without a host is its scheme with a colon, at most
+200 characters (`loggableUrl()` in `webviewinput.cpp`, the rules of the library's `uc_uri_policy_loggable()` from
+library 0.10.1, which also shortens URLs inside the error texts it logs):
+
+| URL | Log shows |
+|-----|-----------|
+| `https://user:pw@nonexistent-host.invalid/secret/path?token=1#frag` | `https://nonexistent-host.invalid` |
+| `https://nas.local:8443/a/b?c` | `https://nas.local:8443` |
+| `http://[2001:db8::1]/a?b` | `http://[2001:db8::1]` |
+| `about:blank`, `data:text/html,<p>...`, `file:///app/x.html` | `about:`, `data:`, `file:` |
+| `/app/x.html`, an empty URL | `(no scheme)`, `(empty)` |
+
+A device log of a failed load reads `Load failed: https://nonexistent-host.invalid (LoadErrorHostNotFound,
+g-resolver-error-quark 0)`. `UC_WEBVIEW_LOG_FULL_URLS=1` keeps path, query, fragment and payload, for debugging on a
+test device; credentials stay out.
 It is a switch of its own, not part of `UC_WEBVIEW_TRACE`, so that a trace taken for a touch problem does not also
 collect tokens; the library reads the same switch for its lines.
 
@@ -1061,7 +1073,7 @@ service reads optional variables from `/var/uc/ui/custom/config/env`; restart th
 | `UC_WEBVIEW_ALLOW_FILE_URLS=1` | lets the item and the library load `file:` URLs (and use them as `loadHtml()` base); default: refused with `loadFailed` (production) |
 | `QT_LOGGING_RULES=uc.ui.webview.debug=true` | view creation, size and frame counters in the log |
 | `UC_WEBVIEW_TRACE=1` | every forwarded touch point, key (class only for characters), mouse event, input method event (its parts only), every `ime_focus`/`ime_cursor_area`/`ime_surrounding` callback, focus changes, taps that ask for the keyboard, the keyboard requests, every load request and load event, every zoom and pinch with the time its render took, every request of the page by kind, id and outcome, at INFO level in `uc.ui.webview` (the device journal keeps INFO; debug is dropped); never typed text, see "What the trace logs". The library reads the same switch for its own lines |
-| `UC_WEBVIEW_LOG_FULL_URLS=1` | log lines of the item and the library show URLs with query, fragment and `data:` payload; default: scheme, host, port and path only (credentials never), see "What the trace logs" |
+| `UC_WEBVIEW_LOG_FULL_URLS=1` | log lines of the item and the library show URLs with path, query, fragment and `data:` payload; default: scheme, host and port only (credentials never), see "What the trace logs" |
 | `UC_WEBVIEW_REFRESH_RATE=<Hz>` | read by the library: the display refresh rate WebKit is paced with (decimals allowed, 20..240), wins over the screen's rate the item passes (see "Frame pacing"); not set by the firmware |
 | `QSG_INFO=1` | Qt's render loop and OpenGL ES report, to confirm the threaded render loop on the device |
 | `UC_WEBVIEW_DEVELOPER_EXTRAS`, `UC_WEBVIEW_CONSOLE_LOG`, `UC_WEBVIEW_DRAG_THRESHOLD`, `UC_WEBVIEW_PDF_VIEWER`, `WPE_*`, `JavaScriptCoreUseJIT` | read by the library, see `src/webview/uc_webview.h` (the drag threshold, 16 px by default from library 0.3.0, reaches the item through `uc_webview_global_get_drag_threshold()`; with an older library the item reads `UC_WEBVIEW_DRAG_THRESHOLD` itself) |
@@ -1150,8 +1162,8 @@ trace logs"). Without the trace, check what the screen shows and the journal lin
   typed on the on-screen keyboard. `journalctl -u remote-ui-custom -b | grep -E 'trace .*(key|input method|ime_)'`
   shows `key printable down`/`up` or `input method event: commit` per digit, `ime_surrounding changed` and
   `ime_focus ... purpose 8`; `journalctl -u remote-ui-custom -b | grep -cE 'trace .*(key 0x|keysym 0x3[0-9]|length|cursor [0-9])'`
-  prints 0. Load a URL with a query (`http://localhost/?token=abc#x`): the `load_uri` and `load` lines show
-  `http://localhost/?...#...`.
+  prints 0. Load a URL with a path and a query (`http://localhost/configurator/?token=abc#x`): the `load_uri` and
+  `load` lines show `http://localhost`.
 - **Autofocused field**: open `http://localhost/`, whose login page focuses its PIN field by itself. Move the d-pad into
   the web view (no keyboard, `ime_focus true hints 0x81 purpose 8 replayed with the view's focus (keyboard inhibited
   until a tap) (focus owner)`), then tap the PIN field once: the keyboard comes within about 0.3 s (`tap with a

@@ -302,29 +302,14 @@ QString loggableUrl(const QUrl &url, bool full) {
     if (url.isEmpty()) {
         text = QStringLiteral("(empty)");
     } else if (scheme.isEmpty()) {
-        text = QStringLiteral("(no scheme):...");
+        text = QStringLiteral("(no scheme)");
     } else if (!url.isValid()) {
-        text = scheme + QStringLiteral(":...");
+        text = scheme + QLatin1Char(':');
     } else if (full) {
         text = url.toString(QUrl::RemoveUserInfo);
-    } else if (!url.host().isEmpty() || scheme == QLatin1String("file") || scheme == QLatin1String("about")) {
-        // a query and a fragment carry tokens: OAuth codes, session ids, reset links
-        text = url.toString(QUrl::RemoveUserInfo | QUrl::RemoveQuery | QUrl::RemoveFragment);
-        if (url.hasQuery()) {
-            text += QStringLiteral("?...");
-        }
-        if (url.hasFragment()) {
-            text += QStringLiteral("#...");
-        }
-    } else if (scheme == QLatin1String("data")) {
-        // data:[<media type>][;base64],<payload>: the payload is page content
-        const QString path = url.path(QUrl::FullyEncoded);
-        const int     comma = path.indexOf(QLatin1Char(','));
-        text = comma >= 0 ? QStringLiteral("data:") + path.left(comma) + QStringLiteral(",...")
-                          : QStringLiteral("data:...");
     } else {
-        // javascript:, blob:, mailto: and the like: the rest is code or an address
-        text = scheme + QStringLiteral(":...");
+        // the origin: a path, a query and a fragment carry tokens (reset links, OAuth codes, session ids)
+        text = loadErrorAddress(url);
     }
     if (text.size() > kLoggableUrlMax) {
         int cut = kLoggableUrlMax;

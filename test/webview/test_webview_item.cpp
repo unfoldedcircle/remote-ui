@@ -1557,8 +1557,9 @@ void testWebViewItem::traceCarriesNoTypedTextOrUrlSecrets() {
     QVERIFY(all.contains(QStringLiteral(": input method event: commit\n")));
     QVERIFY(all.contains(QStringLiteral(": input method event: preedit\n")));
     QVERIFY(all.contains(QStringLiteral(": input method event: commit preedit end replacement\n")));
-    QVERIFY(all.contains(QStringLiteral(": load started \"https://remote.local/login?...#...\"")));
-    QVERIFY(all.contains(QStringLiteral("Load failed: \"https://remote.local/login?...#...\"")));
+    QVERIFY(all.contains(QStringLiteral(": load started \"https://remote.local\"")));
+    QVERIFY(all.contains(QStringLiteral("Load failed: \"https://remote.local\"")));
+    QVERIFY(!all.contains(QStringLiteral("/login")));
 }
 
 void testWebViewItem::urlsOutsideTheSchemeAllowlistAreRefused() {
@@ -3188,11 +3189,9 @@ void testWebViewItem::requestTraceLines() {
             QStringLiteral("request 6: auth scheme 3, retry, previous user name"),
             QStringLiteral("request 6: answered without credentials"),
             QStringLiteral("request 4: alert"), QStringLiteral("request 4: cancelled"),
-            QStringLiteral("new window loaded into this view: \"https://uc-origin.example/popup?...\""),
-            QStringLiteral("response refused, cannot be shown \"https://uc-origin.example/doc.pdf#...\" "
-                           "(application/pdf)"),
-            QStringLiteral("response refused, download \"https://uc-origin.example/f.zip\" "
-                           "(type unknown)"),
+            QStringLiteral("new window loaded into this view: \"https://uc-origin.example\""),
+            QStringLiteral("response refused, cannot be shown \"https://uc-origin.example\" (application/pdf)"),
+            QStringLiteral("response refused, download \"https://uc-origin.example\" (type unknown)"),
             QStringLiteral("close requested by the page (window.close())"), QStringLiteral("request 5: confirm"),
             QStringLiteral("request 5: ended (view freed)")}));
 }
@@ -4126,7 +4125,7 @@ void testWebViewItem::loadErrorWithoutTheLibrarysDetailIsNone() {
     QSignalSpy changed(f.item, &WebViewItem::loadErrorChanged);
     f.item->setUrl(QUrl(QStringLiteral("https://down.example/")));
     stub::fireLoadChanged(UC_WEBVIEW_LOAD_STARTED, "https://down.example/");
-    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("^Load failed: \"https://down.example/\"$")));
+    QTest::ignoreMessage(QtWarningMsg, QRegularExpression(QStringLiteral("^Load failed: \"https://down.example\"$")));
     stub::fireLoadChanged(UC_WEBVIEW_LOAD_FAILED, "https://down.example/");
     QCOMPARE(f.item->loadIndicator(), WebViewItem::LoadIndicatorFailed);
     QCOMPARE(f.item->loadError(), WebViewItem::LoadErrorNone);
@@ -4188,11 +4187,12 @@ void testWebViewItem::loadErrorDetailsCarryNoPathQueryOrUserInfo() {
         QVERIFY2(!details.contains(QLatin1String(secret)), secret);
     }
     const QString all = messages.join('\n');
-    QVERIFY2(all.contains(QStringLiteral("Load failed: https://nas.example:8443/api/state?...#... "
+    QVERIFY2(all.contains(QStringLiteral("Load failed: https://nas.example:8443 "
                                          "(LoadErrorCertificate, WebKitNetworkError 1)")),
              qPrintable(all));
     QVERIFY(!all.contains(QStringLiteral("abc123")));
     QVERIFY(!all.contains(QStringLiteral("secret")));
+    QVERIFY(!all.contains(QStringLiteral("/api/state")));
 }
 
 void testWebViewItem::loadErrorClearsWithTheFailureMessage() {

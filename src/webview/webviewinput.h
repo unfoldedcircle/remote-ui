@@ -71,11 +71,11 @@ double dragThresholdFromEnv(const QByteArray &value);
 // trace logs").
 const char *specialKeyName(uint32_t keysym);
 
-// The URL for a log line: never with user info (credentials); unless full (UC_WEBVIEW_LOG_FULL_URLS=1) only
-// scheme, host, port and path of a URL with a host and of file: and about: URLs, a query and a fragment shown as
-// "?..." and "#..." (they carry tokens); "data:<media type>,..." for a data: URL, "<scheme>:..." for other URLs
-// without a host (javascript:, blob:, mailto:). At most 200 characters. The rules of the library's
-// uc_uri_policy_loggable().
+// The URL for a log line: never with user info (credentials); unless full (UC_WEBVIEW_LOG_FULL_URLS=1) only its
+// origin, the loadErrorAddress(): "https://nas.local:8443" (the port when the URL names one, an IPv6 host in
+// brackets), "<scheme>:" for a URL without a host (about:, data:, file:, javascript:, blob:, mailto:) and for an
+// invalid one; never a path, query or fragment (all three carry tokens). "(no scheme)" for a URL without a scheme,
+// "(empty)" for an empty one. At most 200 characters. The rules of the library's uc_uri_policy_loggable().
 QString loggableUrl(const QUrl &url, bool full);
 
 // The address of a failed load as the Details of the failure show it (WebViewItem::loadErrorDetails): scheme, host and

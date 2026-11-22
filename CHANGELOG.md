@@ -27,8 +27,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Taps in the web view with a slightly rolling finger count as taps: with the web view library 0.3.0 a press may
   move 16 px instead of 8 px before it scrolls the page. A tap on a text field that the page selected by itself, such
   as the PIN field of the web configurator's login, opens the on-screen keyboard. The web view's input trace for
-  device tests (`UC_WEBVIEW_TRACE=1`) records no typed text, and web addresses in the log lose user name, password,
-  query and fragment unless `UC_WEBVIEW_LOG_FULL_URLS=1` is set.
+  device tests (`UC_WEBVIEW_TRACE=1`) records no typed text, and web addresses in the log show only scheme, host and
+  port (`https://nas.local:8443`), without user name, password, path, query and fragment, unless
+  `UC_WEBVIEW_LOG_FULL_URLS=1` is set.
 - On the web view's test page the remote's VOLUME buttons zoom the page and the CHANNEL buttons scroll it a page
   up or down. A label shows the zoom level, with a spinner while a large page renders it. Two fingers pinch-zoom the
   page on a touch panel that reports two fingers, such as the Remote Two's. Needs the web view library 0.5.0 for the
