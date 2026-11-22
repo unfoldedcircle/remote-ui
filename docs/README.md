@@ -41,6 +41,8 @@ The index of project documentation. **New here? Start with the
 - [Icon font](icon-font.md): the Free edition built into every binary, the licensed edition the firmware installs and
   names in `UC_ICON_FONT_PATH`, how missing icons fall back, and how the font is rebuilt.
 - [Startup sequence](startup.md)
+- [The WebView item](webview.md): the embedded WPE WebKit web view, loaded from the firmware's `libucwebview.so.1` at
+  runtime, its threading, environment switches and how to test it on a device.
 - [Measuring the resource budgets](measuring-resource-usage.md): for the maintainers, how to take idle CPU,
   memory, start-up, frame rate, latency and binary size numbers on a device, matching the `platform-constraints`
   budgets; the [results](measurement-results.md) so far.

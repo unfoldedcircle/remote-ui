@@ -82,6 +82,7 @@
         <file alias="settings/settings/Localisation.qml">../../src/qml/settings/settings/Localisation.qml</file>
         <file alias="settings/settings/Reset.qml">../../src/qml/settings/settings/Reset.qml</file>
         <file alias="settings/settings/AdminPin.qml">../../src/qml/settings/settings/AdminPin.qml</file>
+        <file alias="settings/settings/WebView.qml">../../src/qml/settings/settings/WebView.qml</file>
         <file alias="settings/Activities.qml">../../src/qml/settings/Activities.qml</file>
         <file alias="keypad/Key.qml">../../src/qml/keypad/Key.qml</file>
         <file alias="keypad/KeyPad.qml">../../src/qml/keypad/KeyPad.qml</file>

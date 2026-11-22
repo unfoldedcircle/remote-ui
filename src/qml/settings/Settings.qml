@@ -116,7 +116,14 @@ Settings.Page {
                     page: "Reset",
                     icon: "uc:triangle-exclamation"
                 }
-            ]
+            ].concat(ui.webViewAvailable ? [
+                {
+                    //: Developer page with a web page shown inside the user interface; listed only when the firmware provides the web view library
+                    itemTitle: QT_TR_NOOP("Web view"),
+                    page: "WebView",
+                    icon: "uc:globe"
+                }
+            ] : [])
 
             delegate: menuItem
 

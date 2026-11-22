@@ -48,6 +48,8 @@ class Controller : public QObject {
     Q_PROPERTY(bool showRegulatoryInfo READ getShowRegulatoryInfo CONSTANT)
     Q_PROPERTY(bool coreConnected READ getCoreConnected NOTIFY coreConnectedChanged)
     Q_PROPERTY(bool rotateScreen READ getRotateScreen CONSTANT)
+    // the firmware provides libucwebview and the WebView item (UC.WebView) can show pages
+    Q_PROPERTY(bool webViewAvailable READ isWebViewAvailable CONSTANT)
     Q_PROPERTY(double globalBrightness READ getGlobalBrightness NOTIFY globalBrightnessChanged)
 
     Q_PROPERTY(double ratio READ ratio CONSTANT)
@@ -105,6 +107,7 @@ class Controller : public QObject {
     bool   getShowRegulatoryInfo();
     bool   getCoreConnected() { return m_coreConnected; }
     bool   getRotateScreen() { return m_rotateScreen; }
+    bool   isWebViewAvailable() const;
     double getGlobalBrightness() { return m_globalBrightness; }
 
     double ratio() { return m_ratio; }

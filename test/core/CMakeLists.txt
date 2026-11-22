@@ -147,9 +147,6 @@ add_executable (testSoftwareUpdate
     "../../3rd-party/QR-Code-generator/cpp/qrcodegen.cpp"
     )
 
-# the UI version is reported by uc::SoftwareUpdate
-target_compile_definitions(testSoftwareUpdate PRIVATE APP_VERSION="test")
-
 add_test(NAME testSoftwareUpdate
          COMMAND testSoftwareUpdate)
 
