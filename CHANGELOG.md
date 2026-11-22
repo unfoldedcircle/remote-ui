@@ -8,99 +8,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
-### Added
-- Web view (developer preview): on a firmware that provides the web view library (`libucwebview.so.1`, WPE WebKit), a
-  web page can be shown inside the user interface. The settings menu then lists Web view, right below Wifi & Bluetooth,
-  whose Web view test opens a test page with an address field and the page below it; touch, the d-pad and the on-screen
-  keyboard work in the page like in the rest of the interface. Without the library, and in the desktop simulator,
-  nothing changes. See `docs/webview.md`.
-- The web view's test page has a Stop/Reload button, and a path typed into the address field opens as a file
-  address. The web view loads only web (http, https), `about:` and `data:` addresses; file addresses are refused with
-  a "load failed" message unless `UC_WEBVIEW_ALLOW_FILE_URLS=1` is set. A tap on a text field of the page that is
-  still selected brings the on-screen keyboard back after its hide key closed it.
-- The web view tells the page the refresh rate of the display (50 Hz on the Remote 3) instead of 60 Hz, so page
-  animations that do not redraw on every frame keep step with the display. Needs the web view library 0.2.0.
-- The web view's test page has Back and Forward buttons, dimmed while there is no page to go back or forward to,
-  and the remote's PREV and NEXT buttons go back and forward in the page's history, also while the d-pad is in the web
-  view. BACK leaves the page. The address field can be reached with the d-pad and shows the address of the page on
-  screen.
-- Taps in the web view with a slightly rolling finger count as taps: with the web view library 0.3.0 a press may
-  move 16 px instead of 8 px before it scrolls the page. A tap on a text field that the page selected by itself, such
-  as the PIN field of the web configurator's login, opens the on-screen keyboard. The web view's input trace for
-  device tests (`UC_WEBVIEW_TRACE=1`) records no typed text, and web addresses in the log show only scheme, host and
-  port (`https://nas.local:8443`), without user name, password, path, query and fragment, unless
-  `UC_WEBVIEW_LOG_FULL_URLS=1` is set.
-- On the web view's test page the remote's VOLUME buttons zoom the page and the CHANNEL buttons scroll it a page
-  up or down. A label shows the zoom level, with a spinner while a large page renders it. Two fingers pinch-zoom the
-  page on a touch panel that reports two fingers, such as the Remote Two's. Needs the web view library 0.5.0 for the
-  spinner and 0.6.0 for the pinch.
-- The web view shows a web page's messages, questions and text inputs (`alert()`, `confirm()`, `prompt()`), its
-  question before leaving a page with unsaved changes, and the login of a password-protected site as dialogs that
-  name the site and work with the d-pad, OK, BACK and the on-screen keyboard. A download, a PDF document or a new
-  window the remote cannot show is told with a notification instead of a "load failed" message, and a page that
-  closes itself closes the test page. The question before leaving starts on Stay, so that OK keeps the
-  page, after a wrong password the login asks again with the user name filled in, and every login opens with
-  the password hidden. Needs the web view library 0.7.0; with an older one nothing changes.
-- Web view entities: a web page made for the remote, such as a dashboard or a device's status page, defined in the
-  web configurator or provided by an integration, shows as a tile on a profile page, and a tap opens it on the whole
-  screen. With its navigation option a bar at the bottom has Back, Forward, Reload and Close. By default BACK closes
-  the page, HOME goes back to the home screen, the d-pad and OK work in the page, CHANNEL scrolls it, VOLUME zooms it
-  one level per press, starting at the web view's zoom, MENU opens the page's context menu, and the other buttons keep
-  their functions, also on top of an activity; on a profile page POWER opens the Turn off menu of the running
-  activities. While the on-screen keyboard is up, the d-pad and OK always go to the text field. Activity sequences,
-  macros, buttons and other systems can open and reload a web view; opened as a step of an activity's start, or from
-  the activity's menu, the page appears on top of the activity screen and keeps its buttons. Opening another web view
-  while one is shown is like closing it and opening the other one: Back does not lead back to the first one. During the
-  remote's onboarding no web view opens. A
-  password-protected start page logs in with the configured user name and password. Needs a firmware with the web
-  view library. With the web view library 0.8.0 a web view also logs in with a token or an API key, sets its cookies
-  before the start page loads, accepts the configured certificate of a self-signed site and sends the chosen user
-  agent; the colour scheme and the setting for invalid certificates of all web views apply, and the cache and the
-  website data can be cleared. Clearing all website data keeps a login made in the login dialog until the user
-  interface restarts. With an older library the page loads without these settings.
-- Settings > Web view sets the color scheme of the web pages, what happens with their website data when a page
-  closes, and whether pages with invalid certificates load, for all web views, like the web configurator. A change
-  made in the web configurator shows at once, and a change the remote cannot save is told. Clear cache and Clear
-  website data clear the data of all web views; Clear website data asks first, because it signs you out of pages you
-  signed in to. Both need the web view library 0.8.0. Buttons sets what each button of the remote does in a
-  full-screen web page, for all web views: its normal function (the activity's button mapping, or on a profile page
-  what the page header's activity or media player does with it), a function of the web view (zoom in, out or reset,
-  scroll, page up or down, top or bottom, back, forward, back or close, reload, stop, close, show or hide the
-  navigation, next or previous element, nothing), or a key sent to the page, such as the channel, colour or media
-  keys of a TV app. Held buttons repeat keys and scrolling. A web view can bring its own buttons, which go before
-  these.
-- The web view widget of an activity page shows the page of a web view entity in the page grid while that page of the
-  activity is shown. An interactive widget takes touch (a swipe scrolls the page, not the activity), a widget that is
-  not interactive opens the page on the whole screen with a tap; the remote's buttons keep the activity's functions.
-- A web view with the device state option gives its pages the state of the remote, for dashboards that pause while
-  the display is off, show the battery or reconnect after a standby: the display (on, dimmed or off), the power
-  source and the battery level, a power profile, and events before a standby and after the wake-up with the time
-  slept. A web view from an integration can be switched by the user. Needs the web view library 0.9.0, which also
-  slows down the timers and stops the animations of every page while the display is off; with an older library the
-  pages get no device state.
-- A web view page that takes a while to load shows that it loads, on the whole screen and in the widget of an activity
-  page: after a moment a spinner with the percentage loaded until the page appears, then a thin bar at the top until it
-  is complete. Reload shows only the bar, the automatic reload nothing. A page that cannot be loaded says so instead of
-  showing a technical error text. On the whole screen OK or Try again tries again, in the widget a tap. With the web
-  view library 0.10.0 the message also says why: the server wasn't found, the remote isn't connected to a network, the
-  server refused the connection or didn't respond, its certificate isn't trusted, the address isn't a web address, or
-  the page stopped working or needs too much memory; on the whole screen Details shows the technical error.
-
-### Fixed
-- An entity screen whose entity is deleted while it is open, for example a web view deleted in the web-configurator,
-  closes instead of staying on the screen with errors in the log.
-- The remote no longer ends up on a black screen that no button and no touch leaves. Closing an entity screen that
-  was opened on top of another screen, such as an entity from an activity's list, could leave the main screen hidden,
-  for example when the activity had been turned off with POWER in the meantime. HOME, and returning from the charging
-  screen, now always show the main screen.
-- An activity started outside of the remote, with "Open activities started with the API" on, no longer opens out of
-  view, as a black screen until BACK, when an entity from another activity's list was open. The screens opened after
-  it are no longer out of view either.
-- A rebuild on a new commit kept the version string of the previous build in the binary, so Settings, About and the
-  core reported an older version than the one installed. The version now comes from a generated header that is
-  recompiled whenever it changes; no `make clean` is needed.
 
 ---
+
+## v0.86.0 - 2026-11-22
+### Added
+Web view  ([api#106](https://github.com/unfoldedcircle/core-api/pull/106), [#56](https://github.com/unfoldedcircle/remote-ui/pull/56), [#57](https://github.com/unfoldedcircle/remote-ui/pull/57), [#58](https://github.com/unfoldedcircle/remote-ui/pull/58), [#78](https://github.com/unfoldedcircle/remote-ui/pull/78), [#79](https://github.com/unfoldedcircle/remote-ui/pull/79)):
+- On a firmware that provides the web view library, a web page can be shown inside the
+  user interface. Settings > Web view > Web view test opens a test page with an address field. See `docs/webview.md`.
+- Web view test page: Back, Forward and Stop/Reload buttons, the remote's PREV and NEXT buttons for the page history,
+  VOLUME buttons to zoom, CHANNEL buttons to scroll, and pinch-zoom with two fingers on the Remote Two.
+- The web view loads only `http`, `https`, `about:` and `data:` addresses. File addresses are refused unless
+  `UC_WEBVIEW_ALLOW_FILE_URLS=1` is set.
+- Web view dialogs: `alert()`, `confirm()` and `prompt()` messages, the question before leaving a page with unsaved
+  changes and the login of password-protected sites work with the d-pad, OK, BACK and the on-screen keyboard.
+  Downloads, PDF documents and new windows the remote cannot show are told with a notification.
+- Web view entities: a web page defined in the web configurator or provided by an integration shows as a tile on a
+  profile page and opens on the whole screen with a tap. Navigation bar, button behavior, login with user name and
+  password, token or API key, cookies, self-signed certificates and user agent are configurable.
+- Settings > Web view sets the color scheme, the website data handling and the invalid certificate handling for all web
+  views, clears the cache and website data, and assigns the remote's buttons to web view functions or keys sent to the
+  page.
+- Web view widget for activity pages: shows the page of a web view entity in the page grid. An interactive widget takes
+  touch input, otherwise a tap opens the page on the whole screen.
+- A web view with the device state option gives its pages the display state, power source, battery level and
+  standby events of the remote.
+- Web view loading progress: a spinner with the percentage and a thin progress bar. A page that cannot be loaded shows
+  the reason, e.g. server not found or untrusted certificate, with a retry option.
+
+### Fixed
+- An entity screen whose entity is deleted while it is open closes instead of staying on the screen with errors in the
+  log.
+- A black screen that no button and no touch could leave, after closing an entity screen opened on top of another
+  screen. HOME and returning from the charging screen now always show the main screen ([#77](https://github.com/unfoldedcircle/remote-ui/pull/77), [tracker#851](https://github.com/unfoldedcircle/feature-and-bug-tracker/issues/851), [tracker#838](https://github.com/unfoldedcircle/feature-and-bug-tracker/issues/838)).
+- An activity started with the API no longer opens out of view when an entity from another activity's list was open.
+- A rebuild on a new commit no longer keeps the previous version string in the binary.
 
 ## v0.85.3 - 2026-11-16
 ### Added
