@@ -8,7 +8,7 @@ the phase 2 commit, which makes the feature visible.
 
 ## 1. Background normalisation in Resources (C++)
 
-- [ ] 1.1 In `src/ui/resources.h/.cpp`, add `Q_INVOKABLE QVariantMap getPageBackground(const QVariant& background)`
+- [x] 1.1 In `src/ui/resources.h/.cpp`, add `Q_INVOKABLE QVariantMap getPageBackground(const QVariant& background)`
       returning `{source, scale, align, dim}`: `source` from `getResource(BackgroundImage, image)`
       (empty for a missing `background`, a missing, empty or malformed `image` or a missing file);
       `scale` one of `fill` / `fit` / `none`, unknown or missing → `fill`; `align` one of `top` /
@@ -16,25 +16,25 @@ the phase 2 commit, which makes the feature visible.
       percentage, clamped, missing or non-numeric → 0.4. `background: null`, a missing or empty
       `image` give an empty source without calling `getResource()`, so no "missing ':'" warning
       is logged (`resources.cpp:568-571`). Log unknown values at debug level in `lcResources`.
-- [ ] 1.2 In `src/ui/resources.h/.cpp`, add `Q_INVOKABLE QRect getBackgroundImageClip(const QString& id)`:
+- [x] 1.2 In `src/ui/resources.h/.cpp`, add `Q_INVOKABLE QRect getBackgroundImageClip(const QString& id)`:
       resolve the file as `getResource(BackgroundImage, id)` does, read only its size with
       `QImageReader::size()` (no `read()`), and return `QRect(0, 0, w, qRound(w * 275.0 / 480))`
       when `h * 480 > w * 275`, otherwise an empty `QRect`; a missing file, an invalid size or a
       read error gives an empty `QRect`, and an empty id returns at once without a warning. Cache
       the size per path by modification time and file size, as `getIconSize()` does with
       `m_svgIconSizes` (`resources.cpp:168-209`, `resources.h:133-138`).
-- [ ] 1.3 Extend `test/ui/test_resources.cpp`: a temporary resource directory with a
+- [x] 1.3 Extend `test/ui/test_resources.cpp`: a temporary resource directory with a
       `BackgroundImage/bg.png`; cases: no background (`QVariant()`, empty map) → empty source and
       defaults; `custom:bg.png` resolves to `file:<dir>/BackgroundImage/bg.png`; missing file and
       identifier without colon → empty source; every `scale` and `align` value passes through;
       unknown `scale` / `align` → defaults; `dim` 0, 60, 80 → 0.0, 0.6, 0.8; -5 → 0.0; 95 → 0.8;
       `"abc"` and missing → 0.4.
-- [ ] 1.4 Size probe cases in `test/ui/test_resources.cpp`: generate PNG and JPEG files of
+- [x] 1.4 Size probe cases in `test/ui/test_resources.cpp`: generate PNG and JPEG files of
       480 x 275, 480 x 800 and 480 x 854 in the temporary `BackgroundImage` folder; 480 x 275 →
       empty rect; 480 x 800 and 480 x 854 → `QRect(0, 0, 480, 275)`; a missing file, an empty id
       and a file with garbage content → empty rect; a file replaced by one of another size is
       probed again (cache invalidated by modification time or size).
-- [ ] 1.5 Check `testResources` in `test/ui/CMakeLists.txt` still builds with the new code
+- [x] 1.5 Check `testResources` in `test/ui/CMakeLists.txt` still builds with the new code
       (`resources.cpp` is already compiled in; add sources only if the new code needs them).
 
 ## 2. Background layer in the activity and remote screens (QML, depends on 1.1)
