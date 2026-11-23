@@ -498,6 +498,15 @@ EntityComponents.BaseDetail {
         }
     }
 
+    // the background of the current page, drawn under everything else of the screen
+    Components.UiPageBackground {
+        anchors.fill: parent
+        background: {
+            const page = activityBase.pages ? activityBase.pages[uiPages.currentIndex] : undefined;
+            return page ? page.background : undefined;
+        }
+    }
+
     Rectangle {
         id: title
         width: parent.width

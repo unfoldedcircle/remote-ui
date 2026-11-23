@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ---
 
 ## Unreleased
+### Added
+- Activity and remote pages can show a full-screen background image set in the web configurator, with fill, fit or
+  original-size scaling, top, center or bottom alignment and an adjustable dimming
+  ([#83](https://github.com/unfoldedcircle/remote-ui/pull/83)). Main pages can use the full-screen images too and show
+  their top 480 x 275 part; existing 480 x 275 images look as before.
 
 ---
 

@@ -39,7 +39,7 @@ the phase 2 commit, which makes the feature visible.
 
 ## 2. Background layer in the activity and remote screens (QML, depends on 1.1)
 
-- [ ] 2.1 Add `src/qml/components/UiPageBackground.qml`: a full-size `Item` with a `background`
+- [x] 2.1 Add `src/qml/components/UiPageBackground.qml`: a full-size `Item` with a `background`
       property (the raw page background), two `Image`s (`asynchronous: true`, `cache: true`, no
       `sourceSize`, `horizontalAlignment: Image.AlignHCenter`) each with a scrim
       `Rectangle` in `colors.bg` at `opacity: dim` (tokens only, `./design-check.sh` checks this
@@ -48,17 +48,17 @@ the phase 2 commit, which makes the feature visible.
       normalised value (compare source, scale, align, dim) load it into the hidden layer and, when
       that layer's status is `Ready` or its source is empty, fade it in and the other out over
       200 ms; ignore a status change of a layer whose values are no longer the latest target.
-- [ ] 2.2 Register `UiPageBackground.qml` in `resources/qrc/main.qrc` (`alias=` with the path back
+- [x] 2.2 Register `UiPageBackground.qml` in `resources/qrc/main.qrc` (`alias=` with the path back
       to `../../src/qml/components/UiPageBackground.qml`, next to the other components).
-- [ ] 2.3 `src/qml/components/entities/activity/deviceclass/Activity.qml`: add
+- [x] 2.3 `src/qml/components/entities/activity/deviceclass/Activity.qml`: add
       `Components.UiPageBackground` as the first visual child, filling the screen, with
       `background` bound to `pages[uiPages.currentIndex].background`, guarded against an
       `undefined` page (no pages, index past the end). Insert it before the title `Rectangle`
       (`:501`), so the title, the `PathView` with the web view widget, the `PageIndicator` and the
       `DropDownMenu` sheet are drawn over it; leave `parsePageItems()` and the widget untouched.
-- [ ] 2.4 `src/qml/components/entities/remote/deviceclass/Remote.qml`: the same as 2.3, inserted
+- [x] 2.4 `src/qml/components/entities/remote/deviceclass/Remote.qml`: the same as 2.3, inserted
       before `BaseTitle` (`:160`).
-- [ ] 2.5 `CHANGELOG.md`, "Unreleased", "Added": activity and remote pages show a full-screen
+- [x] 2.5 `CHANGELOG.md`, "Unreleased", "Added": activity and remote pages show a full-screen
       background image set in the web-configurator, with fill / fit / original-size scaling,
       alignment and dimming; main pages can use a full-screen image too, showing its top
       480 x 275 part.
