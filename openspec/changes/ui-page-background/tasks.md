@@ -78,7 +78,7 @@ the phase 2 commit, which makes the feature visible.
 
 ## 4. Design system (docs, independent)
 
-- [ ] 4.1 `docs/design-system.md`: amend principle 4 (`:42-43`) with the user-set scrim over a
+- [x] 4.1 `docs/design-system.md`: amend principle 4 (`:42-43`) with the user-set scrim over a
       page background (0–0.8, default 0.4, set per page in the web-configurator), and add
       `Components.UiPageBackground` to the component table of section 7.
 - [ ] 4.2 `docs/design-system.md`, "Slider items": the minus and plus buttons of a number item have
@@ -86,8 +86,8 @@ the phase 2 commit, which makes the feature visible.
 
 ## 5. Verification
 
-- [ ] 5.1 `make test` (or `ctest -R testResources` in `test/build`) passes.
-- [ ] 5.2 Format the changed lines (`git add -u && git clang-format && git add -u`) and run
+- [x] 5.1 `make test` (or `ctest -R testResources` in `test/build`) passes.
+- [x] 5.2 Format the changed lines (`git add -u && git clang-format && git add -u`) and run
       `./cpplint.sh` and `./design-check.sh`.
 - [ ] 5.3 `make linux` and `make ucr2` (QML changed), then `git checkout resources/translations/`
       and leave the generated `.qm` files uncommitted.
@@ -106,5 +106,5 @@ the phase 2 commit, which makes the feature visible.
 - [ ] 5.5 On a Remote Two and a Remote 3: swipe and DPAD_LEFT / DPAD_RIGHT through pages with
       backgrounds (keypad walk), watch for dropped frames, and compare the UI's resident memory
       with and without backgrounds (`platform-constraints` "Memory usage", "Rendering frame rate").
-- [ ] 5.6 Run `openspec validate ui-page-background --strict` (OpenSpec CLI 1.14.1); the deltas are synced into the
+- [x] 5.6 Run `openspec validate ui-page-background --strict` (OpenSpec CLI 1.14.1); the deltas are synced into the
       living specs when the change is archived.
