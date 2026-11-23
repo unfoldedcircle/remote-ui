@@ -258,6 +258,8 @@ the `ui` constants only, so a change is a one-place edit. The slider tokens are 
 - **Discrete.** A range of at most 10 positions shows a separator in `bg` between the positions of a bar and a tick
   mark in `textSecondary` at each position of a default slider.
 - **Buttons** are `surfaceRaised` circles; pressed, they invert like every pressed element (section 6).
+- **Number item buttons.** The minus and plus buttons of a number item (`NumberWidget.qml`) have no fill at rest, so
+  a page background shows through as with the other buttons of a page; pressed, they invert (section 6).
 - **Unavailable entity and unsupported feature** follow "No value and unavailable" below.
 
 ### No value and unavailable
