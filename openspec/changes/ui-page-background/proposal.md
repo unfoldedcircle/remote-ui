@@ -25,6 +25,8 @@ UI must draw it, and main pages must handle the taller images too.
   a newer core fall back to the defaults; a missing or unknown image shows the plain black screen.
 - A main page can also use a 480 x 800 or 480 x 854 image: only its top 480 x 275 part is used,
   shown exactly like a 480 x 275 image. Existing 480 x 275 main page images look exactly as today.
+- The minus and plus buttons of a number item have no fill at rest, so the background shows through
+  as with the other page buttons; pressed, they still invert (design D11).
 
 ## Capabilities
 

@@ -62,6 +62,9 @@ the phase 2 commit, which makes the feature visible.
       background image set in the web-configurator, with fill / fit / original-size scaling,
       alignment and dimming; main pages can use a full-screen image too, showing its top
       480 x 275 part.
+- [ ] 2.6 `src/qml/components/NumberWidget.qml`: the minus and plus buttons have no fill at rest
+      (`colors.transparent`) and keep the pressed inversion (design D11); `CHANGELOG.md`,
+      "Unreleased", "Changed".
 
 ## 3. Main page header clip (QML, depends on 1.2)
 
@@ -76,6 +79,8 @@ the phase 2 commit, which makes the feature visible.
 - [ ] 4.1 `docs/design-system.md`: amend principle 4 (`:42-43`) with the user-set scrim over a
       page background (0–0.8, default 0.4, set per page in the web-configurator), and add
       `Components.UiPageBackground` to the component table of section 7.
+- [ ] 4.2 `docs/design-system.md`, "Slider items": the minus and plus buttons of a number item have
+      no fill at rest and invert when pressed (design D11).
 
 ## 5. Verification
 

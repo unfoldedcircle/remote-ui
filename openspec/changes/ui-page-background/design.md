@@ -279,6 +279,22 @@ The component uses only tokens (`bg`), so `./design-check.sh` passes without an 
 - Rejected: reusing `Components.Dim`. Its 0.85 is fixed and meant for sheets; a background under
   0.85 black would barely be visible.
 
+### D11 — The minus and plus buttons of a number item have no fill at rest
+
+On a page with a background, the `surface` boxes of the number item's minus and plus buttons
+(`NumberWidget.qml:165-170`) cover the image, while the icon buttons of the grid
+(`ButtonIcon.qml`) and the thin slider are transparent. The buttons lose their fill at rest and
+keep the pressed state of section 6 of the design system: `textPrimary` fill, glyph in `bg`. The
+design system's slider section gets the rule for number items next to the slider buttons.
+
+- Rejected: keeping the `surface` fill. It hides the background behind every number item and is
+  the only filled step button on a page whose other buttons are transparent.
+- Not changed: the round `surfaceRaised` buttons of the slider item's `buttons` style, which the
+  design system specifies, and the minus and plus buttons of the number entity screen, which has
+  no page background.
+- Trade-off: without a value, "−  —  +" reads as three similar glyphs; the em dash stays the
+  design system's placeholder.
+
 ## Risks / Trade-offs
 
 Failure Mode Analysis (Core-API event handling and qrc registration are touched):
