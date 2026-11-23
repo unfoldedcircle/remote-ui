@@ -237,8 +237,17 @@ ListView {
                 id: headerImage
                 width: parent.width; height: parent.height
                 source: resource.getBackgroundImage(pageImage)
-                sourceSize.width: parent.width
-                sourceSize.height: parent.height
+                // The top 480 x 275 part of a taller image, empty for any other image. That part is decoded at the scale
+                // the header gives a 480 x 275 image; the clip rect is in the coordinates of the scaled image.
+                readonly property rect headerClip: resource.getBackgroundImageClip(pageImage)
+                readonly property real headerClipScale: headerClip.width > 0
+                                                        ? Math.max(width / headerClip.width, height / headerClip.height)
+                                                        : 1
+                sourceClipRect: headerClip.width > 0 ? Qt.rect(0, 0, Math.round(headerClip.width * headerClipScale),
+                                                               Math.round(headerClip.height * headerClipScale))
+                                                     : undefined
+                sourceSize: headerClip.width > 0 ? Qt.size(Math.round(headerClip.width * headerClipScale), 0)
+                                                 : Qt.size(parent.width, parent.height)
                 asynchronous: true
                 fillMode: Image.PreserveAspectCrop
                 cache: true

@@ -68,11 +68,13 @@ the phase 2 commit, which makes the feature visible.
 
 ## 3. Main page header clip (QML, depends on 1.2)
 
-- [ ] 3.1 `src/qml/components/Page.qml`, `headerImage`: add a `readonly property rect headerClip:
-      resource.getBackgroundImageClip(pageImage)` (not `clip`, which is an `Item` property); bind `sourceClipRect: headerClip.width > 0 ? headerClip :
-      undefined` and replace `sourceSize.width` / `sourceSize.height` with `sourceSize: headerClip.width
-      > 0 ? undefined : Qt.size(parent.width, parent.height)`. Nothing else changes, so a
-      480 x 275 image keeps today's centre `PreserveAspectCrop` with the header-bound `sourceSize`.
+- [x] 3.1 `src/qml/components/Page.qml`, `headerImage`: add a `readonly property rect headerClip:
+      resource.getBackgroundImageClip(pageImage)` (not `clip`, which is an `Item` property). For a
+      non-empty clip, decode at the header's scale for a 480 x 275 image, `s = max(width / 480,
+      height / 275)`: `sourceSize: Qt.size(round(480 * s), 0)` and `sourceClipRect: Qt.rect(0, 0,
+      round(480 * s), round(275 * s))` (design D8); otherwise `sourceClipRect` is `undefined` and
+      `sourceSize` the header size, as today. Nothing else changes, so a 480 x 275 image keeps
+      today's centre `PreserveAspectCrop` with the header-bound `sourceSize`.
 
 ## 4. Design system (docs, independent)
 
