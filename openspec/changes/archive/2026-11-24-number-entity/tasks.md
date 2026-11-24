@@ -74,15 +74,15 @@ phase 6 the slider widget of phase 3.
 - [x] 7.2 `./cpplint.sh` clean, `./design-check.sh` 0 problems, `tools/icon-font.py check-mapping` consistent.
 - [x] 7.3 `make linux` builds.
 - [x] 7.4 `openspec validate number-entity --strict`.
-- [ ] 7.5 In the simulator against a core with number entities: tile, screen in both representations, user
+- [x] 7.5 In the simulator against a core with number entities: tile, screen in both representations, user
       overrides, slider and number items; a `null` value shows "—".
-- [ ] 7.6 On a Remote 3: the touch slider on an activity whose target is a number entity.
-- [ ] 7.11 In the simulator against a core with the number item's `display_mode` and `step`: an item set to
+- [x] 7.6 On a Remote 3: the touch slider on an activity whose target is a number entity.
+- [x] 7.11 In the simulator against a core with the number item's `display_mode` and `step`: an item set to
       `slider` and `stepper` over the entity's mode, and the `step` parameter of its buttons.
-- [ ] 7.7 A light with `color_temperature_steps` 3: the screen and a slider item offer three positions and send 0,
+- [x] 7.7 A light with `color_temperature_steps` 3: the screen and a slider item offer three positions and send 0,
       50 and 100.
-- [ ] 7.8 On a Remote 3: the touch slider on an activity whose target is a light's `color_temperature`, with and
+- [x] 7.8 On a Remote 3: the touch slider on an activity whose target is a light's `color_temperature`, with and
       without `color_temperature_steps`; the same light with feature `default` is dimmed.
-- [ ] 7.9 In the simulator against a core with the slider styles: each style horizontal and vertical, the colours and
+- [x] 7.9 In the simulator against a core with the slider styles: each style horizontal and vertical, the colours and
       fills of the defaults table, a discrete range, an unavailable entity; a drag on a bar does not swipe the page.
-- [ ] 7.10 On both remotes: the provisional slider tokens, the gradients and the text over a fill are readable.
+- [x] 7.10 On both remotes: the provisional slider tokens, the gradients and the text over a fill are readable.

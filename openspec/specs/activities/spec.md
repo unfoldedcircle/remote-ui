@@ -188,7 +188,7 @@ The "Fix states" page SHALL list the activity itself as its first row, separated
 - **THEN** the notification reads "The state cannot be changed while the entity is unavailable or the activity is running", "The state of this entity type cannot be changed" or "Not allowed to change the entity state" respectively; other errors read "Could not change the entity state: <message>", and without a connection "Could not change the entity state: not connected"
 
 ### Requirement: Activity UI pages
-The activity screen SHALL render the pages of the activity's `user_interface` option as swipeable pages with a page indicator when there is more than one. Each page SHALL be a grid of `grid.width` × `grid.height` cells (default 4 × 6); an item occupies `location` and `size` (default 1 × 1). Item types text, icon, media_player, sensor and select SHALL be rendered; other types are ignored. An empty page SHALL read "Empty page" and "You can add UI elements via the Web Configurator". DPAD_LEFT/DPAD_RIGHT SHALL switch pages. A `user_interface` update from the core SHALL re-render the pages.
+The activity screen SHALL render the pages of the activity's `user_interface` option as swipeable pages with a page indicator when there is more than one. Each page SHALL be a grid of `grid.width` × `grid.height` cells (default 4 × 6); an item occupies `location` and `size` (default 1 × 1). Item types text, icon, media_player, sensor, select, slider and number SHALL be rendered; other types are ignored. An empty page SHALL read "Empty page" and "You can add UI elements via the Web Configurator". DPAD_LEFT/DPAD_RIGHT SHALL switch pages. A `user_interface` update from the core SHALL re-render the pages.
 
 #### Scenario: Text button
 - **WHEN** the user taps a text or icon item with a command
@@ -201,6 +201,10 @@ The activity screen SHALL render the pages of the activity's `user_interface` op
 #### Scenario: Start another activity from a page
 - **WHEN** an item sends `activity.start` to another activity
 - **THEN** the current activity screen closes and the other activity's screen opens after 1 s
+
+#### Scenario: Slider item
+- **WHEN** an activity page has a slider item bound to a light
+- **THEN** the item is rendered as a slider for the light's brightness
 
 ### Requirement: Physical button mapping in an activity
 The activity's `button_mapping` SHALL be applied while its screen is open. A `short_press` mapping SHALL send `cmd_id` with `params` to its entity on press and on every auto-repeat; a `long_press` mapping on a long press. For a media player mapped to VOLUME_UP or VOLUME_DOWN with the volume-up/down feature the volume overlay SHALL be shown as well. For a remote entity with a `cmd_id` that does not contain "remote." (a simple IR command), each auto-repeat SHALL send `remote.send` with `command` = cmd_id and `repeat` = 4, and the release SHALL send `remote.stop_send`; a `cmd_id` containing "remote." SHALL be repeated verbatim without a stop command. A VOICE mapping SHALL be skipped when the activity or the remote has a voice assistant configured. Unmapped keys keep their defaults: DPAD_LEFT/RIGHT page, POWER turns off, VOICE long press starts the voice assistant. A `button_mapping` update from the core SHALL be applied live. A mapping whose target entity is Unavailable SHALL NOT send its command; the refusal names that entity, as specified in `entity-commands`. While the activity itself is Unavailable its whole button mapping SHALL be inactive and BACK and HOME SHALL close the activity screen (see `entity-detail-controls`).
