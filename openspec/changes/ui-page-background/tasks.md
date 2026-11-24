@@ -89,9 +89,9 @@ the phase 2 commit, which makes the feature visible.
 - [x] 5.1 `make test` (or `ctest -R testResources` in `test/build`) passes.
 - [x] 5.2 Format the changed lines (`git add -u && git clang-format && git add -u`) and run
       `./cpplint.sh` and `./design-check.sh`.
-- [ ] 5.3 `make linux` and `make ucr2` (QML changed), then `git checkout resources/translations/`
+- [x] 5.3 `make linux` and `make ucr2` (QML changed), then `git checkout resources/translations/`
       and leave the generated `.qm` files uncommitted.
-- [ ] 5.4 Desktop walk with `UC_MODEL=DEV` against a core-simulator with the remote-core change,
+- [x] 5.4 Desktop walk with `UC_MODEL=DEV` against a core-simulator with the remote-core change,
       backgrounds set over REST: an activity with three pages (`fill`; `fit` + `top`; `none` +
       `bottom` with `dim` 0, two pages sharing one image): full-screen image behind title, buttons
       and page indicator; cross-fade on swipe; no visible change between the pages that share an
@@ -103,7 +103,7 @@ the phase 2 commit, which makes the feature visible.
       compared with a screenshot of the base build (`cfaaa8a`): identical in the 260 px header and
       with the activity bar; a main page with a 480 x 800 image: its top 480 x 275 part, rendered
       like a 480 x 275 image, also with the activity bar.
-- [ ] 5.5 On a Remote Two and a Remote 3: swipe and DPAD_LEFT / DPAD_RIGHT through pages with
+- [x] 5.5 On a Remote Two and a Remote 3: swipe and DPAD_LEFT / DPAD_RIGHT through pages with
       backgrounds (keypad walk), watch for dropped frames, and compare the UI's resident memory
       with and without backgrounds (`platform-constraints` "Memory usage", "Rendering frame rate").
 - [x] 5.6 Run `openspec validate ui-page-background --strict` (OpenSpec CLI 1.14.1); the deltas are synced into the
