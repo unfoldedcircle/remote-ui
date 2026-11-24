@@ -305,11 +305,15 @@ A cover with feature `position` SHALL show the position as a large "<n>%" and a 
 - **THEN** the cover is shown at 100 %
 
 ### Requirement: Sensor device classes and units
-A sensor SHALL use device class `custom` (also for an empty or unknown class), `battery`, `current`, `energy`, `humidity`, `power`, `temperature`, `voltage` or `binary`. The default unit SHALL be % for battery and humidity, A for current, kWh for energy, W for power, °C for temperature and V for voltage, and empty for custom; a reported `unit` attribute SHALL replace it. The `value` SHALL be shown without unit conversion, formatted as the requirement "Sensor value format" describes. The options `native_unit`, `min_value` and `max_value` SHALL NOT affect what is shown; `custom_label` and `custom_unit` are only used by the sensor widget.
+A sensor SHALL use device class `custom` (also for an empty or unknown class), `battery`, `current`, `energy`, `humidity`, `power`, `temperature`, `voltage`, `date`, `duration`, `timestamp` or `binary`. The default unit SHALL be % for battery and humidity, A for current, kWh for energy, W for power, °C for temperature, V for voltage and s for duration, and empty for custom, date and timestamp; a reported `unit` attribute SHALL replace it. The `value` SHALL be shown without unit conversion, formatted as the requirement "Sensor value format" describes, and for a date, duration or timestamp sensor as the requirements "Sensor date format", "Sensor duration format" and "Sensor timestamp format" describe. The options `native_unit`, `min_value` and `max_value` SHALL NOT affect what is shown; `custom_label` and `custom_unit` are only used by the sensor widget, and `custom_unit` SHALL NOT be used for a date, duration or timestamp sensor.
 
 #### Scenario: Temperature in a US unit system
 - **WHEN** a temperature sensor without `unit` attribute and without `decimals` option reports value 21.456 and the unit system is US
 - **THEN** it is shown as "21.46 °C"
+
+#### Scenario: Duration without a unit
+- **WHEN** a duration sensor without `unit` attribute reports value 90
+- **THEN** it is shown as "90 s"
 
 ### Requirement: Binary sensor values
 For a sensor with device class `binary`, the `unit` attribute SHALL carry the binary device class, and the `value` SHALL be shown as a translated text: the first text when the value is `on` (case-insensitive), the second for any other value. The pairs SHALL be: battery Normal/Low; battery_charging Charging/Not charging; carbon_monoxide and gas Detected/Clear; cold Cold/Normal; connectivity Connected/Disconnected; door and garage_door Opened/Closed; heat Hot/Normal; light Light detected/No light; lock Unlocked/Locked; moisture Wet/Dry; motion, occupancy, smoke, sound and vibration Detected/Clear; moving Moving/Not moving; opening and window Open/Closed; plug Plugged in/Unplugged; power On/Off; presence Home/Not home; problem Problem/Ok; running Running/Not running; safety Unsafe/Safe; tamper Tampering detected/Clear; update Update detected/Up-to-date; none or unknown classes On/Off. The value SHALL be kept as reported and the text SHALL be determined whenever it is shown, from that value, the current binary device class and the current language: a change of the display language SHALL update the text (500 ms after the change, with the state texts), and so SHALL a `unit` attribute that arrives after the value. A binary sensor that has not reported a value SHALL show no text.
@@ -331,11 +335,15 @@ For a sensor with device class `binary`, the `unit` attribute SHALL carry the bi
 - **THEN** it shows "On" until the unit arrives and "Detected" from then on
 
 ### Requirement: Sensor control screen
-The sensor control screen SHALL show the value centred in large type (up to two lines, elided) over a dark gradient and SHALL offer no controls or key mappings besides closing. For battery, current, energy, humidity, power, temperature and voltage it SHALL show a heading "Battery", "Current", "Energy", "Humidity", "Power", "Temperature" or "Voltage" above "<value> <unit>"; a custom sensor shows "<value> <unit>" without heading; for both an empty value and the value of an unavailable sensor SHALL read "—" without the unit. A binary sensor SHALL show only its value text, shrunk horizontally to fit.
+The sensor control screen SHALL show the value centred in large type (up to two lines, elided) over a dark gradient and SHALL offer no controls or key mappings besides closing. For battery, current, energy, humidity, power, temperature and voltage it SHALL show a heading "Battery", "Current", "Energy", "Humidity", "Power", "Temperature" or "Voltage" above "<value> <unit>"; a custom, date, duration or timestamp sensor shows "<value> <unit>" without heading; for both an empty value and the value of an unavailable sensor SHALL read "—" without the unit. A binary sensor SHALL show only its value text, shrunk horizontally to fit.
 
 #### Scenario: No value yet
 - **WHEN** a humidity sensor has not reported a value
 - **THEN** its screen shows "Humidity" and "—"
+
+#### Scenario: Timestamp sensor
+- **WHEN** the screen of a timestamp sensor is opened
+- **THEN** it shows the formatted date and time without a heading
 
 ### Requirement: Sensor widget on activity pages
 A sensor item on an activity UI page SHALL show a one-line label and below it the value, both clipped to the item's grid area; the label is elided and the value uses up to two lines before eliding. The label SHALL be the entity's `custom_label` when the item's `show_label` is on and the label is set, otherwise the item's text. The value SHALL be "<value> <unit>", using `custom_unit` when set and the entity's unit otherwise; the unit SHALL be left out when `show_unit` is off. A red link-slash icon SHALL precede the label when the entity is not enabled. A missing or unavailable entity and an empty value SHALL show "—" without the unit. The widget SHALL update when the value or unit changes or the entity is loaded later.
@@ -650,3 +658,180 @@ A value the UI does not know SHALL read "—" (em dash) without a unit: a value 
 #### Scenario: Unavailable sensor
 - **WHEN** the sensor of a sensor item becomes unavailable
 - **THEN** the value reads "—" and the red link-slash icon precedes the label
+
+### Requirement: Sensor timestamp format
+A `timestamp` sensor value that is a date and time in RFC 3339 format with a UTC offset SHALL be shown as the short date of the display language and the time, converted to the configured time zone. The time SHALL be shown as in the status bar clock: in the 12 or 24 hour format and without seconds. The text SHALL follow a change of the language, the time zone and the time format without a new value. Any other value SHALL be shown as a sensor of class `custom` shows it.
+
+#### Scenario: Time zone of the Remote
+- **WHEN** a timestamp sensor reports "2026-11-15T04:23:31+00:00", the language is German (Switzerland), the time zone Europe/Zurich and the time format 24 hours
+- **THEN** it is shown as "15.11.26 05:23"
+
+#### Scenario: Time format is changed
+- **WHEN** the user switches the time format to 12 hours while a timestamp sensor is shown
+- **THEN** the sensor shows the time in the 12 hour format without reporting a new value
+
+#### Scenario: Value without UTC offset
+- **WHEN** a timestamp sensor reports "2026-11-15T04:23:31"
+- **THEN** it is shown as "2026-11-15T04:23:31"
+
+### Requirement: Sensor date format
+A `date` sensor value in the format `YYYY-MM-DD` SHALL be shown as the short date of the display language, without a time zone conversion, and SHALL follow a change of the language without a new value. Any other value SHALL be shown as a sensor of class `custom` shows it.
+
+#### Scenario: German date
+- **WHEN** a date sensor reports "2026-11-15" and the language is German (Switzerland)
+- **THEN** it is shown as "15.11.26"
+
+#### Scenario: Not a date
+- **WHEN** a date sensor reports "next week"
+- **THEN** it is shown as "next week"
+
+### Requirement: Sensor duration format
+A numeric `duration` sensor value in the unit `d`, `h` or `min` SHALL be shown as a time span: the whole part of the value in the unit of the sensor and the rest, rounded down, in the next smaller unit (hours, minutes, seconds), which SHALL be left out when it is zero. With effective decimals the value SHALL first be rounded to that many decimal places. Each part SHALL carry a translated short unit label, and no unit SHALL follow the time span. The value SHALL NOT be converted to a larger unit.
+
+#### Scenario: Hours and minutes
+- **WHEN** a duration sensor with unit `h` reports 1.5
+- **THEN** it is shown as "1h 30m" without a unit after it
+
+#### Scenario: No larger unit
+- **WHEN** a duration sensor with unit `h` reports 93
+- **THEN** it is shown as "93h"
+
+#### Scenario: Days and hours
+- **WHEN** a duration sensor with unit `d` reports 3.9
+- **THEN** it is shown as "3d 21h"
+
+#### Scenario: Minutes and seconds
+- **WHEN** a duration sensor with unit `min` reports 90.5
+- **THEN** it is shown as "90m 30s"
+
+#### Scenario: Rounded with decimals
+- **WHEN** a duration sensor with unit `h` and effective decimals 0 reports 2.75
+- **THEN** it is shown as "3h"
+
+#### Scenario: Negative whole value
+- **WHEN** a duration sensor with unit `h` reports -2
+- **THEN** it is shown as "-2h"
+
+### Requirement: Sensor duration in seconds
+A numeric `duration` sensor value in the unit `s` of 120 seconds or more, after rounding to the effective decimals, SHALL be shown as a time span in the largest unit it fills (days, hours or minutes) and the rest, rounded down, in the next smaller unit, which SHALL be left out when it is zero. No unit SHALL follow the time span. A negative value SHALL be shown as its amount with a leading minus sign.
+
+#### Scenario: At the limit
+- **WHEN** a duration sensor with unit `s` reports 120
+- **THEN** it is shown as "2m"
+
+#### Scenario: Minutes and seconds
+- **WHEN** a duration sensor with unit `s` reports 121
+- **THEN** it is shown as "2m 1s"
+
+#### Scenario: Days and hours
+- **WHEN** a duration sensor with unit `s` reports 673492
+- **THEN** it is shown as "7d 19h"
+
+#### Scenario: Smaller units are dropped
+- **WHEN** a duration sensor with unit `s` reports 3605
+- **THEN** it is shown as "1h"
+
+#### Scenario: Negative seconds
+- **WHEN** a duration sensor with unit `s` reports -33952
+- **THEN** it is shown as "-9h 25m"
+
+### Requirement: Duration shown as a number
+A `duration` sensor value SHALL be shown as the requirement "Sensor value format" describes, followed by the unit, when it is not shown as a time span: less than 120 seconds in the unit `s`, a value in the unit `ms` or any other unit, a negative value in `d`, `h` or `min` with a fractional part, and a text value. The unit SHALL appear and disappear with the value, without a new `unit` attribute.
+
+#### Scenario: Seconds below the limit
+- **WHEN** a duration sensor with unit `s` reports 119
+- **THEN** it is shown as "119 s"
+
+#### Scenario: Seconds reach the limit
+- **WHEN** a duration sensor with unit `s` that shows "119 s" reports 120
+- **THEN** it is shown as "2m" without a unit after it
+
+#### Scenario: Negative value with a fraction
+- **WHEN** a duration sensor with unit `h` that shows "2h" reports -1.5
+- **THEN** it is shown as "-1.5 h"
+
+### Requirement: Number steps stop at a limit
+While the value shown of a number entity is at or beyond a limit that is set, a step towards that limit SHALL send nothing: DPAD_UP, VOLUME_UP and the increment button at `max`, DPAD_DOWN, VOLUME_DOWN and the decrement button at `min`. A limit that is not set and a number without a value SHALL NOT block a step.
+
+#### Scenario: Key at the maximum
+- **WHEN** DPAD_UP is pressed on the screen of a number entity with `max` 10 showing 10
+- **THEN** no command is sent
+
+#### Scenario: Number item at the minimum
+- **WHEN** a number item shows a number entity with `min` 0 at 0
+- **THEN** its decrement button is dimmed and a tap sends nothing, and its increment button sends `number.increment`
+
+#### Scenario: Unbounded number
+- **WHEN** VOLUME_UP is pressed on the screen of a number entity without `max`
+- **THEN** `number.increment` is sent
+
+### Requirement: Stepper buttons at a limit
+The decrement or increment button of a number entity whose step sends nothing at a limit SHALL be disabled and dimmed: on the number screen, in a number item and in a slider item in the `buttons` style. The buttons of an unavailable entity SHALL stay pressable and refuse the press with a notification.
+
+#### Scenario: Slider item buttons at the maximum
+- **WHEN** a slider item in the buttons style shows a number entity with `max` 10 at 10
+- **THEN** its plus button is dimmed and a tap sends nothing
+
+### Requirement: Number value feedback after a failed command
+When a `number.set_value` command fails or is rejected, the UI SHALL show the last reported value again at once, without waiting for the 3 s confirmation time, on the number screen, in a number item and in a slider item bound to the number. A command that is sent again around a wakeup SHALL count as failed only after its last attempt.
+
+#### Scenario: Rejected value
+- **WHEN** the user sets a number entity from 10 to 40 and the driver rejects the command
+- **THEN** 10 is shown again together with the error message
+
+### Requirement: Write-only number steps
+For a number entity with option `readable` false the value shown SHALL change by one step, within the range, for every `number.increment` or `number.decrement` that was executed, and SHALL NOT change for a command that was not sent or that failed. The step is the command's `step` parameter, or the entity's `step` without one.
+
+#### Scenario: Quick presses
+- **WHEN** the increment button of a write-only number with step 5 showing 50 is pressed three times while the first command is still being executed
+- **THEN** one `number.increment` is sent and 55 is shown
+
+### Requirement: Number screen slider positions
+The slider of the number control screen SHALL offer the positions `min`, `min` + `step`, `min` + 2 × `step` and so on, and `max` as the last position when the range is not a whole number of steps, as a slider item does for the same entity. The track SHALL follow the finger, and the value shown and sent SHALL be the nearest position.
+
+#### Scenario: Range that is not a whole number of steps
+- **WHEN** the user drags the slider of a number entity with `min` 0, `max` 10 and `step` 3 from the top to the bottom
+- **THEN** the values 10, 9, 6, 3 and 0 are offered
+
+### Requirement: Slider widget feature check
+A slider item SHALL be shown as unsupported when its feature is not in the entity's `features`: light `dim` and `color_temperature`, media player `volume`, cover `position`, climate `target_temperature`. The number's `value` feature is always present. An entity whose features are not loaded yet SHALL be loaded once before the item is judged, and the item SHALL follow a later change of the features.
+
+#### Scenario: Feature removed
+- **WHEN** a slider item is bound to the `position` of a cover whose `features` no longer contain `position`
+- **THEN** it shows the red mark and "—" and sends nothing
+
+### Requirement: Slider widget entity colour
+The colour `entity` SHALL use the light's colour only for a light that has the `color` feature and has reported both `hue` and `saturation`; until then the fill SHALL be neutral.
+
+#### Scenario: Colour not reported yet
+- **WHEN** a slider item with the colour `entity` is bound to a colour light that has not reported `hue` and `saturation`
+- **THEN** the fill is the primary foreground, and takes the light's colour once both are reported
+
+### Requirement: Bar drag from outside the range
+A slider item in the bar style whose entity value lies outside the item's range SHALL start its drag from the nearest end of the range, where the bar shows the value. A drag towards that end SHALL change nothing and send nothing; a drag away from it SHALL change the value from the first position on.
+
+#### Scenario: Value above the range
+- **WHEN** a volume bar has `max` 60, the volume is 80 and the user drags towards the maximum
+- **THEN** no command is sent and the volume stays 80
+
+#### Scenario: Drag back into the range
+- **WHEN** the user drags the same bar a quarter of its length towards the minimum
+- **THEN** the volume 45 is sent on release
+
+### Requirement: Page widget orientation
+A slider item and a number item SHALL be vertical only when the item's `size.height` is greater than its `size.width` in grid cells, whatever the pixel size of a cell on the page's grid.
+
+#### Scenario: Square item on a grid with tall cells
+- **WHEN** a slider item of 2 × 2 cells is on a page with a 6 × 6 grid
+- **THEN** it is drawn horizontal
+
+### Requirement: Unavailable look of page widgets
+Every page widget of an unavailable entity SHALL have the same look: a red link-slash mark of the same size before the label, the label at 50 % opacity, and the value "—" and the other content at 15 % opacity. This SHALL apply to the sensor and select items as it does to the slider and number items.
+
+#### Scenario: Sensor and slider on one page
+- **WHEN** a sensor item and a slider item on the same page show unavailable entities
+- **THEN** both show the red mark, a label at 50 % opacity and "—" at 15 % opacity
+
+#### Scenario: Unavailable select
+- **WHEN** the entity of a select item becomes unavailable
+- **THEN** the item reads "—" instead of its option, with the option and the chevron at 15 % opacity
