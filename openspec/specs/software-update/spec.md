@@ -103,7 +103,7 @@ The About page SHALL show "UI version" (the UI build version), "Core version" an
 
 #### Scenario: About page
 - **WHEN** the About page opens after a connection
-- **THEN** UI, core and system versions are populated (or "N/A" for the system version before the first check)
+- **THEN** UI, core and system versions are populated (or "—" for the system version before the first check)
 
 ### Requirement: Release notes
 The "Release notes" row (shown only while an update is available, and the first focused row in that case) SHALL open a scrollable page titled "Release Notes" with the composed notes; DPAD_UP / DPAD_DOWN scroll it, BACK closes it and the focus returns to the row it was opened from. The notes SHALL be recomposed in the new language whenever the UI language changes, using the description entry for the language (fallbacks: exact code, base language, default country variant, first other variant of the language, English).
