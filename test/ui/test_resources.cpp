@@ -41,13 +41,40 @@ class testResources : public QObject {
     void licenseLinks_inReadingOrder();
     void licenseBlockWithSelection_drawsOneLink();
 
+    void pageBackground_none_givesDefaults_data();
+    void pageBackground_none_givesDefaults();
+    void pageBackground_image_resolvesFile();
+    void pageBackground_unusableImage_givesNoSource_data();
+    void pageBackground_unusableImage_givesNoSource();
+    void pageBackground_knownSettings_passThrough_data();
+    void pageBackground_knownSettings_passThrough();
+    void pageBackground_unknownSettings_giveDefaults();
+    void pageBackground_dim_data();
+    void pageBackground_dim();
+
+    void backgroundImageClip_data();
+    void backgroundImageClip();
+    void backgroundImageClip_unusable_data();
+    void backgroundImageClip_unusable();
+    void backgroundImageClip_replacedFile_isProbedAgain();
+
  private:
     static void writeFile(const QString& path, const QByteArray& content);
     QString     baseUrl(const QString& subDir) const;
 
+    static void writeImage(const QString& path, int width, int height, const char* format);
+
     QTemporaryDir m_root;
     QString       m_legalPath;
+    QString       m_resourcePath;
 };
+
+void testResources::writeImage(const QString& path, int width, int height, const char* format) {
+    QVERIFY(QDir().mkpath(QFileInfo(path).absolutePath()));
+    QImage image(width, height, QImage::Format_RGB32);
+    image.fill(Qt::darkGray);
+    QVERIFY(image.save(path, format));
+}
 
 void testResources::writeFile(const QString& path, const QByteArray& content) {
     QVERIFY(QDir().mkpath(QFileInfo(path).absolutePath()));
@@ -70,6 +97,9 @@ void testResources::initTestCase() {
     writeFile(m_legalPath + "/licenses/texts/gpl.md", "gpl text");
     writeFile(m_root.path() + "/secret.txt", "not a legal document");
     writeFile(m_root.path() + "/legal-other/other.md", "sibling directory");
+
+    m_resourcePath = m_root.path() + "/resources";
+    writeImage(m_resourcePath + "/BackgroundImage/bg.png", 480, 800, "PNG");
 }
 
 void testResources::linkContent_relativeLink_isRead() {
@@ -352,6 +382,172 @@ void testResources::licenseBlockWithSelection_drawsOneLink() {
     QCOMPARE(resources.licenseBlockWithSelection(block, 1, "#595959"),
              QString("<a href=\"a.md\">A</a> and <a href=\"b.md\" style=\"background-color: #595959\">B</a>"));
     QCOMPARE(resources.licenseBlockWithSelection(block, 2, "#595959"), block);
+}
+
+void testResources::pageBackground_none_givesDefaults_data() {
+    QTest::addColumn<QVariant>("background");
+
+    QTest::newRow("missing") << QVariant();
+    QTest::newRow("empty map") << QVariant(QVariantMap());
+}
+
+void testResources::pageBackground_none_givesDefaults() {
+    QFETCH(QVariant, background);
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackground(background);
+
+    QCOMPARE(result.value("source").toString(), QString());
+    QCOMPARE(result.value("scale").toString(), QStringLiteral("fill"));
+    QCOMPARE(result.value("align").toString(), QStringLiteral("center"));
+    QCOMPARE(result.value("dim").toReal(), 0.4);
+}
+
+void testResources::pageBackground_image_resolvesFile() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackground(QVariantMap{{"image", "custom:bg.png"}});
+
+    QCOMPARE(result.value("source").toString(), "file:" + m_resourcePath + "/BackgroundImage/bg.png");
+    QCOMPARE(result.value("scale").toString(), QStringLiteral("fill"));
+    QCOMPARE(result.value("align").toString(), QStringLiteral("center"));
+    QCOMPARE(result.value("dim").toReal(), 0.4);
+}
+
+void testResources::pageBackground_unusableImage_givesNoSource_data() {
+    QTest::addColumn<QVariant>("image");
+
+    QTest::newRow("empty") << QVariant(QString());
+    QTest::newRow("missing file") << QVariant("custom:missing.png");
+    QTest::newRow("no colon") << QVariant("bg.png");
+    QTest::newRow("no file name") << QVariant("custom:");
+}
+
+void testResources::pageBackground_unusableImage_givesNoSource() {
+    QFETCH(QVariant, image);
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackground(QVariantMap{{"image", image}, {"dim", 60}});
+
+    QCOMPARE(result.value("source").toString(), QString());
+    QCOMPARE(result.value("dim").toReal(), 0.6);
+}
+
+void testResources::pageBackground_knownSettings_passThrough_data() {
+    QTest::addColumn<QString>("scale");
+    QTest::addColumn<QString>("align");
+
+    for (const char* scale : {"fill", "fit", "none"}) {
+        for (const char* align : {"top", "center", "bottom"}) {
+            QTest::addRow("%s %s", scale, align) << QString(scale) << QString(align);
+        }
+    }
+}
+
+void testResources::pageBackground_knownSettings_passThrough() {
+    QFETCH(QString, scale);
+    QFETCH(QString, align);
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result =
+        resources.getPageBackground(QVariantMap{{"image", "custom:bg.png"}, {"scale", scale}, {"align", align}});
+
+    QCOMPARE(result.value("scale").toString(), scale);
+    QCOMPARE(result.value("align").toString(), align);
+}
+
+void testResources::pageBackground_unknownSettings_giveDefaults() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result =
+        resources.getPageBackground(QVariantMap{{"image", "custom:bg.png"}, {"scale", "tile"}, {"align", "left"}});
+
+    QCOMPARE(result.value("scale").toString(), QStringLiteral("fill"));
+    QCOMPARE(result.value("align").toString(), QStringLiteral("center"));
+}
+
+void testResources::pageBackground_dim_data() {
+    QTest::addColumn<QVariant>("dim");
+    QTest::addColumn<qreal>("expected");
+
+    QTest::newRow("0") << QVariant(0) << 0.0;
+    QTest::newRow("60") << QVariant(60) << 0.6;
+    QTest::newRow("80") << QVariant(80) << 0.8;
+    QTest::newRow("below range") << QVariant(-5) << 0.0;
+    QTest::newRow("above range") << QVariant(95) << 0.8;
+    QTest::newRow("double") << QVariant(25.0) << 0.25;
+    QTest::newRow("not a number") << QVariant("abc") << 0.4;
+    QTest::newRow("missing") << QVariant() << 0.4;
+}
+
+void testResources::pageBackground_dim() {
+    QFETCH(QVariant, dim);
+    QFETCH(qreal, expected);
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    QVariantMap background{{"image", "custom:bg.png"}};
+    if (dim.isValid()) {
+        background.insert("dim", dim);
+    }
+
+    QCOMPARE(resources.getPageBackground(background).value("dim").toReal(), expected);
+}
+
+void testResources::backgroundImageClip_data() {
+    QTest::addColumn<int>("height");
+    QTest::addColumn<QByteArray>("format");
+    QTest::addColumn<QRect>("expected");
+
+    for (const char* format : {"PNG", "JPG"}) {
+        QTest::addRow("480x275 %s", format) << 275 << QByteArray(format) << QRect();
+        QTest::addRow("480x800 %s", format) << 800 << QByteArray(format) << QRect(0, 0, 480, 275);
+        QTest::addRow("480x854 %s", format) << 854 << QByteArray(format) << QRect(0, 0, 480, 275);
+    }
+}
+
+void testResources::backgroundImageClip() {
+    QFETCH(int, height);
+    QFETCH(QByteArray, format);
+    QFETCH(QRect, expected);
+
+    const QString name = QString("clip-%1.%2").arg(height).arg(QString(format).toLower());
+    writeImage(m_resourcePath + "/BackgroundImage/" + name, 480, height, format.constData());
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    QCOMPARE(resources.getBackgroundImageClip("custom:" + name), expected);
+}
+
+void testResources::backgroundImageClip_unusable_data() {
+    QTest::addColumn<QString>("id");
+
+    QTest::newRow("empty id") << QString();
+    QTest::newRow("missing file") << QStringLiteral("custom:missing.png");
+    QTest::newRow("not an image") << QStringLiteral("custom:garbage.png");
+}
+
+void testResources::backgroundImageClip_unusable() {
+    QFETCH(QString, id);
+    writeFile(m_resourcePath + "/BackgroundImage/garbage.png", "this is not an image");
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    QCOMPARE(resources.getBackgroundImageClip(id), QRect());
+}
+
+void testResources::backgroundImageClip_replacedFile_isProbedAgain() {
+    const QString path = m_resourcePath + "/BackgroundImage/replaced.png";
+    writeImage(path, 480, 800, "PNG");
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    QCOMPARE(resources.getBackgroundImageClip("custom:replaced.png"), QRect(0, 0, 480, 275));
+
+    // another size, with a modification time that differs even on a coarse file system clock
+    const QDateTime modified = QFileInfo(path).lastModified();
+    writeImage(path, 480, 275, "PNG");
+    QFile file(path);
+    QVERIFY(file.open(QIODevice::ReadWrite));
+    QVERIFY(file.setFileTime(modified.addSecs(10), QFileDevice::FileModificationTime));
+    file.close();
+    QCOMPARE(resources.getBackgroundImageClip("custom:replaced.png"), QRect());
 }
 
 QTEST_GUILESS_MAIN(testResources)

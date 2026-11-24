@@ -53,6 +53,7 @@
         <file alias="components/KeyValueRow.qml">../../src/qml/components/KeyValueRow.qml</file>
         <file alias="components/Sheet.qml">../../src/qml/components/Sheet.qml</file>
         <file alias="components/Dim.qml">../../src/qml/components/Dim.qml</file>
+        <file alias="components/UiPageBackground.qml">../../src/qml/components/UiPageBackground.qml</file>
         <file alias="components/Prose.qml">../../src/qml/components/Prose.qml</file>
         <file alias="components/FormDialog.qml">../../src/qml/components/FormDialog.qml</file>
         <file alias="components/ScrollIndicator.qml">../../src/qml/components/ScrollIndicator.qml</file>

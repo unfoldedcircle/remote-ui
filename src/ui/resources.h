@@ -12,7 +12,9 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QRawFont>
+#include <QRect>
 #include <QSize>
+#include <QVariantMap>
 
 namespace uc {
 namespace ui {
@@ -45,6 +47,28 @@ class Resources : public QObject {
     Q_INVOKABLE QString getTvChannelIcon(const QString& id) { return getResource(TvChannelIcon, id); }
     Q_INVOKABLE QString getBackgroundImage(const QString& id) { return getResource(BackgroundImage, id); }
     Q_INVOKABLE QString getSound(const QString& id) { return getResource(Sound, id); }
+
+    /**
+     * @brief The background of an activity or remote page, normalised for the screen.
+     *
+     * Takes the `background` object of a user interface page as the Core-API delivers it and returns a map with
+     * `source` (the `file:` URL of the image, empty when there is no background, no or an unusable image identifier or
+     * no file), `scale` (`fill`, `fit` or `none`; `fill` for a missing or unknown value), `align` (`top`, `center` or
+     * `bottom`; `center` for a missing or unknown value) and `dim` (the scrim opacity 0.0 - 0.8 from the percentage,
+     * clamped; 0.4 for a missing or non-numeric value).
+     */
+    Q_INVOKABLE QVariantMap getPageBackground(const QVariant& background);
+
+    /**
+     * @brief The part of a background image a main page header uses.
+     *
+     * A header shows a 480 x 275 image. Of an image with a taller aspect ratio, such as the full-screen sizes 480 x 800
+     * and 480 x 854, only its top part with the aspect ratio of 480 x 275 is used: the returned rectangle in image
+     * pixels. Returns an empty rectangle for an image that is not taller, an empty identifier, a missing file and a
+     * file whose size cannot be read: the whole image is used then. Only the image header is read; the size of a file
+     * is cached until its modification time or size changes.
+     */
+    Q_INVOKABLE QRect   getBackgroundImageClip(const QString& id);
     Q_INVOKABLE void    getAboutInfo(int type);
     Q_INVOKABLE void    getLinkContent(const QString& baseDir, const QString& path);
 
@@ -136,6 +160,14 @@ class Resources : public QObject {
         QSizeF    size;
     };
     QHash<QString, SvgIconSize> m_svgIconSizes;
+
+    // the size of a background image file, with the file's modification time and size it was read from
+    struct BackgroundImageSize {
+        QDateTime modified;
+        qint64    fileSize = -1;
+        QSize     size;
+    };
+    QHash<QString, BackgroundImageSize> m_backgroundImageSizes;
 
     QString                      m_resourcePath;
     QHash<ResourceType, QString> m_resourcePaths = {{Icon, m_resourcePath + "/Icon/"},

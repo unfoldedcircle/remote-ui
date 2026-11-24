@@ -40,7 +40,8 @@ so a screen that fills the mockup height has 50 px less on the Remote 3.
    or control gets a 3 px ring. Never both on one element, and never a fill dark enough to vanish on
    the LCD.
 4. **Emphasis by token, never by opacity.** Opacity is for disabled controls (0.4), dim layers
-   (0.85) and an unavailable entity (section 7) only.
+   (0.85), an unavailable entity (section 7) and the scrim over a page background image, whose
+   strength the user sets per page in the web configurator (0 to 0.8, default 0.4) only.
 5. **Sans for reading, mono for data.** Poppins for titles, labels, prose, help and buttons. Space
    Mono only for values: versions, addresses, times, codes, units.
 
@@ -223,6 +224,7 @@ Use these; do not re-implement their look inline.
 | `Components.FormDialog`       | The rename / password dialogs. Its spacing tightens while the on-screen keyboard is up, so the buttons stay above it |
 | `Components.Sheet`            | PopupMenu, WifiInfo, WifiJoin, DropDownMenu, delete drawers, the entity filter               |
 | `Components.Dim`              | The 0.85 black behind a sheet or popup                                                       |
+| `Components.UiPageBackground` | The full-screen image of an activity or remote page under a `bg` scrim of the strength the user set, cross-faded on a page change |
 | `Components.Divider`          | The 2 px separators, inset 20                                                                |
 | `Components.ScrollIndicator`  | `ScrollBar` and the "more below" arrows: the one indicator of a scrolling page or list      |
 | `Components.Prose`            | The scrolling bodies of ReleaseNotes and AboutPage. LicensePage and the UserAction body keep their own containers and use the prose role |
@@ -256,6 +258,8 @@ the `ui` constants only, so a change is a one-place edit. The slider tokens are 
 - **Discrete.** A range of at most 10 positions shows a separator in `bg` between the positions of a bar and a tick
   mark in `textSecondary` at each position of a default slider.
 - **Buttons** are `surfaceRaised` circles; pressed, they invert like every pressed element (section 6).
+- **Number item buttons.** The minus and plus buttons of a number item (`NumberWidget.qml`) have no fill at rest, so
+  a page background shows through as with the other buttons of a page; pressed, they invert (section 6).
 - **Unavailable entity and unsupported feature** follow "No value and unavailable" below.
 
 ### No value and unavailable

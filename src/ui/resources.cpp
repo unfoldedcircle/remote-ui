@@ -208,6 +208,83 @@ QSize Resources::getIconSize(const QString& id, int boxWidth, int boxHeight) {
     return ImageDecoder::fitSize(cached.size, QSizeF(boxWidth, boxHeight));
 }
 
+QVariantMap Resources::getPageBackground(const QVariant& background) {
+    static const QStringList scales = {QStringLiteral("fill"), QStringLiteral("fit"), QStringLiteral("none")};
+    static const QStringList aligns = {QStringLiteral("center"), QStringLiteral("top"), QStringLiteral("bottom")};
+
+    const QVariantMap values = background.toMap();
+    const QString     image = values.value(QStringLiteral("image")).toString();
+
+    QString scale = values.value(QStringLiteral("scale")).toString();
+    if (!scales.contains(scale)) {
+        if (values.contains(QStringLiteral("scale"))) {
+            qCDebug(lcResources()) << "Unknown page background scale" << scale;
+        }
+        scale = scales.first();
+    }
+
+    QString align = values.value(QStringLiteral("align")).toString();
+    if (!aligns.contains(align)) {
+        if (values.contains(QStringLiteral("align"))) {
+            qCDebug(lcResources()) << "Unknown page background align" << align;
+        }
+        align = aligns.first();
+    }
+
+    bool        dimOk = false;
+    const qreal dimPercent = values.value(QStringLiteral("dim")).toDouble(&dimOk);
+    qreal       dim = 0.4;
+    if (dimOk && qIsFinite(dimPercent)) {
+        dim = qBound(0.0, dimPercent, 80.0) / 100.0;
+    } else if (values.contains(QStringLiteral("dim"))) {
+        qCDebug(lcResources()) << "Invalid page background dim" << values.value(QStringLiteral("dim"));
+    }
+
+    // An identifier without a colon is logged by getResource(); a missing one is not an error.
+    const QString source = image.isEmpty() ? QString() : getResource(BackgroundImage, image);
+
+    return {{QStringLiteral("source"), source},
+            {QStringLiteral("scale"), scale},
+            {QStringLiteral("align"), align},
+            {QStringLiteral("dim"), dim}};
+}
+
+QRect Resources::getBackgroundImageClip(const QString& id) {
+    if (id.isEmpty()) {
+        return QRect();
+    }
+
+    // the same file getBackgroundImage() resolves
+    const QString source = getResource(BackgroundImage, id);
+
+    if (source.isEmpty()) {
+        return QRect();
+    }
+
+    const QString       path = source.mid(QStringLiteral("file:").size());
+    const QFileInfo     info(path);
+    BackgroundImageSize cached = m_backgroundImageSizes.value(path);
+
+    if (cached.modified != info.lastModified() || cached.fileSize != info.size()) {
+        // reads the image header only
+        cached = {info.lastModified(), info.size(), QImageReader(path).size()};
+        m_backgroundImageSizes.insert(path, cached);
+
+        if (!cached.size.isValid() || cached.size.isEmpty()) {
+            qCWarning(lcResources()) << "Cannot read the size of background image" << id;
+        }
+    }
+
+    const int width = cached.size.width();
+    const int height = cached.size.height();
+
+    if (width <= 0 || height <= 0 || qint64(height) * 480 <= qint64(width) * 275) {
+        return QRect();
+    }
+
+    return QRect(0, 0, width, qRound(width * 275.0 / 480.0));
+}
+
 void Resources::getAboutInfo(int type) {
     QFile     file;
     AboutType typeEnum = static_cast<AboutType>(type);

@@ -166,7 +166,8 @@ Item {
                         anchors.fill: parent
                         visible: modelData !== "value"
                         radius: ui.cornerRadiusSmall
-                        color: stepMouseArea.pressed ? colors.textPrimary : colors.surface
+                        // no fill at rest, so a page background shows through as with the other page buttons
+                        color: stepMouseArea.pressed ? colors.textPrimary : colors.transparent
                         opacity: numberWidget.unavailable ? ui.unavailableOpacity : (parent.atLimit ? ui.disabledOpacity : 1)
 
                         Components.Icon {

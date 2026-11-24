@@ -235,19 +235,23 @@ then rendered exactly like a 480 x 275 image.
   image logs no "missing ':'" warning. When the image is taller than the 480 : 275 ratio, it returns the top
   region `QRect(0, 0, w, round(w * 275 / 480))`, which is `(0, 0, 480, 275)` for the allowed
   sizes. Otherwise, and for a missing or unreadable file, it returns an empty `QRect`.
-- `Page.qml` binds `sourceClipRect` to that rect only when it is not empty, and in that case binds
-  `sourceSize` to `undefined`. Otherwise `sourceClipRect` is `undefined` and `sourceSize` is the
-  header size, as today. Both properties have a RESET in Qt 5.15 (`qquickimage_p.h:71`,
-  `qquickimagebase_p.h:70`), so `undefined` restores the natural size or the full image.
+- `Page.qml` keeps `sourceSize` bound to the header size and leaves `sourceClipRect` unset when
+  the rect is empty, as today. For a tall image it decodes the image at the scale the header gives
+  a 480 x 275 image, `s = max(headerWidth / 480, headerHeight / 275)`: `sourceSize` is
+  `(round(480 * s), 0)` (height proportional) and `sourceClipRect` is
+  `(0, 0, round(480 * s), round(275 * s))`. Both properties have a RESET in Qt 5.15
+  (`qquickimage_p.h:71`, `qquickimagebase_p.h:70`), so `undefined` restores the full image.
   `sourceClipRect` needs `QtQuick 2.15`, which `Page.qml` already imports.
-- The clip rect and the header-bound `sourceSize` are not combined. In Qt 5.15 the clip rect is
-  given in `sourceSize`-scaled coordinates, so a `sourceSize` that follows the animated header
-  height would move the cut-out region. Without `sourceSize`, the clip is in the image's own pixels.
-- The result is identical to a 480 x 275 file. With `PreserveAspectCrop`, `sourceSize` only ever
-  scales an image down ("the loaded image will be no greater than this property specifies"). A
-  480 x 275 file is therefore decoded at 480 x 275 for every header height (260, 440 and 680 px),
-  and the clipped tall image is also a 480 x 275 pixmap. The same fill mode, scrim, gradient and
-  mask then draw both the same way.
+- In Qt 5.15 the clip rect is given in `sourceSize`-scaled coordinates, hence the scaled rect.
+- The scale matters because `sourceSize` with `PreserveAspectCrop` scales a bitmap up as well as
+  down: measured with Qt 5.15.19, a 480 x 275 file in the 680 px header is decoded at 1187 x 680.
+  A clip without `sourceSize` would leave the tall image at 480 x 275 and the GPU would scale it,
+  which looks softer.
+- Result, measured on a desktop build with a smooth test image whose top 480 x 275 part equals a
+  480 x 275 file: in the 260 px header the pixels are identical; in the 680 px header they differ
+  by at most 6 / 255 per channel (the scaled source has a slightly different sampling grid), plus
+  the bottom few rows, which sample the rows below the cut-out and lie under the header's black
+  gradient. Same fill mode, scrim, gradient and mask.
 - The header-only size read is a few hundred bytes of file I/O on the GUI thread, once per file
   and change, and is negligible next to the asynchronous decode.
 
@@ -256,8 +260,12 @@ have shown more of a tall image when the header grows, but it moved every existi
 by about 7 px: its bottom 15 px would be cut instead of 7–8 px at the top and the bottom. Main
 pages must look exactly as before.
 
-Rejected: always setting the clip rect without `sourceSize`. The pixels would be the same, but it
-would change the code path of every existing image, which the maintainer ruled out.
+Rejected: always setting the clip rect, also for a 480 x 275 image. It would change the code path
+of every existing image, which the maintainer ruled out.
+
+Rejected: clipping before scaling, which would make the tall image pixel-identical. Qt Quick only
+offers the clip after scaling; clipping first needs an image provider in C++ for a difference of a
+few levels per channel.
 
 ### D9 — No model-specific code, and a missing file shows black
 
