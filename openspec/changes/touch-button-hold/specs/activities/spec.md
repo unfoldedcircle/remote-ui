@@ -1,7 +1,7 @@
 ## ADDED Requirements
 
 ### Requirement: Holding a page button of a remote
-A text or icon item of an activity page whose command goes to a remote entity SHALL behave on a long touch like the remote's own page buttons ("Holding a page button", "Cancelled page button touch" and "Page button commands that don't repeat" in `remote-entity`), with its repeats sent without `press`. Items of other entities SHALL send their command once, at the release.
+A text or icon item of an activity page whose command goes to a remote entity SHALL behave on a long touch like the remote's own page buttons ("Holding a page button", "Cancelled page button touch", "Page button commands that don't repeat" and "A touch hold always ends" in `remote-entity`), with its repeats sent without `press`. Items of other entities SHALL send their command once, at the release.
 
 #### Scenario: Volume button of an IR remote held
 - **WHEN** the user keeps the finger on an activity item that sends the simple command "VOLUME_UP" to an IR remote for 1 s

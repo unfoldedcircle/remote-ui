@@ -11,6 +11,7 @@
 #include "ui/entity/light.h"
 #include "ui/entity/mediaPlayer.h"
 #include "ui/entity/number.h"
+#include "ui/entity/remote.h"
 #include "ui/entity/sensor.h"
 #include "ui/mediaImageProvider.h"
 #include "ui/notification.h"
@@ -46,6 +47,8 @@ class testEntityController : public QObject {
     void setEntityName_deletedEntity_doesNotCrash();
     void setEntityIcon_unknownEntity_doesNotCrash();
     void setEntityName_knownEntity_doesNotWarn();
+
+    void cancelTouchHolds_endsTheTouchHoldOfARemote();
 
     void voiceEnd_droppedPendingStart_reportsUnavailable();
     void voiceEnd_nothingPending_reportsNothing();
@@ -883,6 +886,40 @@ void testEntityController::entityChange_withoutOptions_keepsTheOptions() {
     controller.onEntityChanged(entity.id, change);
 
     QCOMPARE(climate->getTemperatureLabel(), QStringLiteral("°F"));
+}
+
+void testEntityController::cancelTouchHolds_endsTheTouchHoldOfARemote() {
+    // the commands fail without a core, and a failed command reports it
+    uc::ui::Notification     notification;
+    uc::core::Api            api(kTestUrl);
+    uc::ui::EntityController controller(&api, QStringLiteral("en"), uc::Config::UnitSystems::Metric, 0);
+
+    uc::core::Entity entity;
+    entity.id = QStringLiteral("uc.main.tv");
+    entity.type = QStringLiteral("Remote");
+    entity.name = QVariantMap({{QStringLiteral("en"), QStringLiteral("TV")}});
+    entity.integrationId = QStringLiteral("uc.main");
+    // a light entity on the side: the cancel only touches remotes
+    controller.onEntityAdded(makeEntity(QStringLiteral("light.side")));
+    controller.onEntityAdded(entity);
+
+    auto remote = qobject_cast<uc::ui::entity::Remote*>(controller.get(entity.id));
+    QVERIFY(remote);
+    QSignalSpy commands(remote, &uc::ui::entity::Base::command);
+    QSignalSpy holds(remote, &uc::ui::entity::Remote::touchHoldStarted);
+
+    remote->touchPressed(QStringLiteral("touch:0:0"), QStringLiteral("VOLUME_UP"), QVariantMap(), true);
+    QVERIFY(holds.wait(uc::ui::entity::Remote::kTouchHoldDelayMs + 1000));
+
+    // touch input gets blocked: the page button never sees its release
+    controller.cancelTouchHolds();
+    QCOMPARE(commands.last().at(1).toString(), QStringLiteral("remote.stop_send"));
+
+    const int sent = commands.count();
+    QTest::qWait(uc::ui::entity::Remote::kTouchRepeatPeriodMs * 3);
+    QCOMPARE(commands.count(), sent);
+    // the release that arrives later must not send a tap
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:0:0")), true);
 }
 
 QTEST_GUILESS_MAIN(testEntityController)

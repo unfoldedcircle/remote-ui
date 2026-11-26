@@ -139,6 +139,7 @@ void InputController::blockInput(bool value) {
         m_globalPowerHoldTimer.stop();
         m_globalPowerPressed = false;
         m_globalPowerLongPressTriggered = false;
+        emit touchInputBlocked();
     }
 }
 
@@ -246,6 +247,7 @@ void InputController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode) 
             break;
         case core::PowerEnums::PowerMode::LOW_POWER:
             m_blockTouchInput = true;
+            emit touchInputBlocked();
             break;
         default:
             break;

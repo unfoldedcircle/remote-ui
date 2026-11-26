@@ -87,6 +87,8 @@ class InputController : public QQuickItem {
     void keyReleasedFor(QObject* owner, QString key);
     void activeItemChanged();
     void keypadActiveChanged();
+    // touch input is discarded from now on, its releases included: a touch that is still held never ends
+    void touchInputBlocked();
 
  public slots:
     void onPowerModeChanged(core::PowerEnums::PowerMode powerMode);

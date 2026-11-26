@@ -81,16 +81,18 @@ See proposal.md, "Why". The key and IR hold behaviour this builds on is `ir-butt
 - `touchReleased(touchId) → bool`:
   - stop the timer;
   - if the hold had started, end it like a physical release (`mappedButtonReleased`) and return
-    `true`;
+    `true`; also `true` when this touch's hold already ended without its release (D7);
   - otherwise return `false`, and the button sends its tap as today.
 - `touchCanceled(touchId)`:
   - stop the timer;
   - end a started hold like a release;
   - never send a tap.
 
-When the timer fires, it emits `touchHoldStarted(touchId)` and calls
-`mappedButtonRepeated(touchId, cmdId, params, sendPress)`, then repeats every period. The hold's
-end calls `mappedButtonReleased(touchId, cmdId, params, false)`.
+`touchPressed` resolves the simple command the hold repeats (D4). When the timer fires the first
+time, it calls `mappedButtonRepeated(touchId, command, {}, sendPress)` and then emits
+`touchHoldStarted(touchId)`, so a release in a handler of the hold start ends a hold whose first
+repeat is out. It repeats every period after that. The hold's end calls
+`mappedButtonReleased(touchId, command, {}, false)`.
 
 - The repeats and the stop are therefore exactly those of a held physical button: for every remote
   kind, the IR rule from #93, and `press` per screen.
@@ -98,8 +100,9 @@ end calls `mappedButtonReleased(touchId, cmdId, params, false)`.
   after a hold, so every tap message stays byte-for-byte what it is today.
 - One touch hold per entity. A press with another touch id first cancels the previous one. Qt's
   `MouseArea` only follows the first touch point, so this is only a safeguard.
-- The touch id is `touch:<page>:<item>`. It can't collide with a physical button name in
-  `m_heldButtons`.
+- The touch id is `touch:<screen entity id>:<page>:<item>`. It can't collide with a physical
+  button name in `m_heldButtons`. The screen's entity id keeps the remote's own screen and an
+  activity apart, which can both show a button of the same remote at the same position.
 - *Alternative: a QML `Timer` in `ButtonIcon`.* The timing and the decision which commands repeat
   would be QML logic (ADR 0012), and it couldn't be unit tested. Rejected.
 - *Alternative: let the tap go through `mappedButtonReleased` too.* On the remote screen a simple
@@ -124,35 +127,66 @@ replaces where the values come from.
 - *Alternative: share the constants with the button simulator's key repeat.* The simulator mirrors
   the firmware's key repeat, while the touch timing may become a setting of its own. Kept separate.
 
-### D4 — Which commands repeat on a touch
+### D4 — Which commands repeat on a touch, and how
 
-A command repeats on a held page button unless it's a power command or a sequence. These keep the
-single tap at the release.
+`touchHoldCommand(cmdId, params)` returns the simple command a held button repeats, or nothing:
 
-- **Power:** `remote.on`, `remote.off`, `remote.toggle`; the simple commands `on`, `off`, `toggle`;
-  any simple command, or `params.command` of `remote.send` / `remote.send_cmd`, whose name contains
-  "power" in any letter case. Command names of integration remotes are free text (`KEY_POWER`,
-  `PowerOn`), so a name match is the only rule that covers them. A false positive
-  (`POWER_SAVING`) only means "no repeat".
-- **Sequences:** `remote.send_sequence`, `remote.send_cmd_sequence`. A physical button resends a
-  sequence on every auto-repeat, which a touch must not start doing.
+- **A simple command** repeats as itself.
+- **A `remote.send` or `remote.send_cmd` whose only param is `command`** repeats as that simple
+  command: `remote.send {command, repeat: 4}` and `remote.stop_send`, a real hold.
+  - Resent verbatim, the same command would go out as a series of single sends. For an IR remote
+    that's taps, not a hold, and with a toggling protocol every one would invert the toggle bit.
+  - Verbatim commands are also ordinary commands for `EntityController`: deduplicated while one is
+    in flight, resent after a wakeup, and offered for "Try again" on a failure.
+- **Every other command only taps:** sequences, `remote.on` / `off` / `toggle`, and commands with
+  params of their own (`repeat`, `delay`, `hold`), whose meaning a repeat would change.
+- **Power commands only tap:**
+  - a resolved name of `on`, `off` or `toggle`, or any name containing "power", in any letter case;
+  - command names of integration remotes are free text (`KEY_POWER`, `PowerOn`), so a name match is
+    the only rule that covers them;
+  - a false positive (`POWER_SAVING`) only means "no repeat"; a power command without "power" in
+    its name (`STANDBY`, a localised name) still repeats.
 - The rule is a static function of the remote entity, unit tested.
 
 ### D5 — The haptic click at the hold start
 
-`ButtonIcon` listens to `touchHoldStarted` of its entity and plays `Haptic.Click` for its own
-touch id. The feedback stays in QML with the other clicks (ADR 0016); C++ only says when.
+`ButtonIcon` listens to `touchHoldStarted` of its entity and, while it is touched itself, plays
+`Haptic.Click` for its own touch id. The feedback stays in QML with the other clicks (ADR 0016);
+C++ only says when.
 
 ### D6 — `ButtonIcon` forwards press, release, cancel and destruction
 
 The screen passes the remote entity, the touch id, the command and `sendPress` to the button; a
 button without an entity behaves as today.
 
-- `onPressed` → `touchPressed`.
+- `onPressed` → `touchPressed`, and the button marks its touch active.
 - `onReleased` → `touchReleased`. `onReleased` fires before `onClicked`, so the button remembers
   whether a hold ended, and `onClicked` only sends the tap when none did. A release outside the
   button ends a hold and sends no tap, as today.
-- `onCanceled` and `Component.onDestruction` → `touchCanceled`.
+- `onCanceled` → `touchCanceled`. `Component.onDestruction` → `touchCanceled` only while its own
+  touch is active, so a destroyed button never ends another button's touch.
+- **When the hold starts,** the button sets `preventStealing`, reset at the release and the cancel.
+  `PathView` steals a press once the finger moves past its drag threshold (about 10 px), with no
+  time limit, so a slight drift of a resting finger would end the hold in the middle. Set during
+  a press, `preventStealing` takes effect at once (`QQuickMouseArea::setPreventStealing` sets
+  `keepMouseGrab`, which `PathView` respects). Before the hold starts, a swipe still wins.
+
+### D7 — A touch hold always ends
+
+The hold ends only through the button, so every path where the button gets neither a release nor
+a cancel needs its own end:
+
+- **Touch input blocked.** In `LOW_POWER`, `InputController` discards touch and mouse events, the
+  releases included (`inputController.cpp:238-250, 366-375`), and on eglfs hiding the window
+  cancels no grab. `blockInput(true)` (a blocking wait) does the same for all input.
+  `InputController` emits `touchInputBlocked()` in both cases, and
+  `EntityController::cancelTouchHolds()` calls `cancelTouch()` on every remote. A hold ended this
+  way remembers its touch id, so the release that arrives later returns `true` and sends no tap.
+- **A failsafe limit:** `kTouchHoldMaxMs = 30000`. A hold that is still running after 30 s ends like
+  a cancel. A physical button has no limit, but a touch hold is the UI's own timer, and a runaway
+  repeat pins an amplifier's volume. The value is one constant next to the timing (D3).
+- *Alternative: let `InputController` synthesize a touch cancel to the grabber.* It would cover
+  every touch item, but it changes the input path of every screen. Rejected for this change.
 
 The activity passes an entity only when the item's entity is a remote; other items stay as they
 are.
@@ -161,10 +195,11 @@ are.
 
 This touches touch input on two screens (a risky surface), so the failure modes come first:
 
-- [A swipe starts on a button] → the `PathView` steals the press, and the button is cancelled.
-  - Within 600 ms nothing is sent, as today.
-  - After the hold started, the hold ends with `remote.stop_send`. The device has received a hold
-    of up to ~0.5 s beyond the last repeat, from the dock's own repeat.
+- [A swipe starts on a button] → before the hold, the `PathView` steals the press and nothing is
+  sent, as today. After the hold started, the button keeps the press (D6), and the page swipes
+  only after the finger is lifted and swiped again.
+- [The release is never delivered] → touch input blocked: D7, ended at once. Any other lost
+  release: the 30 s limit (D7).
 - [The button is destroyed during a hold (screen closed, pages rebuilt, delegate recycled)] →
   `Component.onDestruction` cancels, so `remote.stop_send` goes out. Without it, the dock repeats
   ~0.5 s more and stops by itself.
@@ -176,6 +211,15 @@ This touches touch input on two screens (a risky surface), so the failure modes 
   can be changed in one place (D3).
 - [A power command under a name without "power" (e.g. `STANDBY`)] → it repeats on a hold, like
   the same command on a held physical button.
+- [A slow press on an integration remote] → a touch of 0.6 s or more is a hold, and its first
+  message is `remote.send {command, repeat: 4}`. A driver without press-and-hold support gets the
+  old repeat mode and may run the command several times, for example MUTE or PLAY_PAUSE.
+  Physical keys of that remote behave the same. → Product decision, see Open Questions.
+- [An IR hold released right after the haptic click] → `remote.send {repeat}` and
+  `remote.stop_send` follow each other closely. The dock transmits the frame in flight, so at
+  least one frame goes out. To check on a device.
+- [An activity item whose remote isn't loaded when the page is built] → the button stays tap-only
+  until the pages are rebuilt. Activity screens open after their entities are loaded.
 - [Touch and a physical key of the same remote at the same time] → separate ids in
   `m_heldButtons`; the touch timer belongs to the touch.
 - [The toggle bit] → a touch hold uses the same messages as a key hold, covered by the
@@ -193,10 +237,14 @@ button; no polling, no new Qt module. Negligible.
   toggle-bit fix.
 - **Verification:**
   - **Unit tests** in `testRemoteEntity`:
-    - tap, hold, release outside, cancel before and after the delay, a second touch id, destruction
-      of the entity during a hold;
+    - tap, hold, cancel before and after the delay, a release right at the hold start, a second
+      touch id, the period, the 30 s limit (shortened), `cancelTouch()` and the tap suppression
+      after it, destruction of the entity during a hold;
     - the D4 rule;
-    - the timing, with the constants.
+    - the timing, with the constants;
+  - `testEntityController`: `cancelTouchHolds()` ends a remote's hold;
+  - `testInputController`: `touchInputBlocked()` at `blockInput(true)` and at low power, not in
+    `DEV`.
   - **`DEV` simulator against the core-simulator, with the mouse:** a touch can be tested there,
     unlike physical keys. Short and long touches on an IR remote and on an integration remote, a
     swipe that starts on a button before and after the hold started, a power command, and an
@@ -205,6 +253,25 @@ button; no polling, no new Qt module. Negligible.
   - **Device, Remote Two and Remote 3:** the swipe interplay and the feel of the timing; the Dock
     log for the messages.
 
+## Review
+
+An independent adversarial review (Claude Fable, high effort) of the first implementation found,
+now addressed:
+
+- **critical:** a hold never ended when the release was discarded in low power or during a
+  blocking wait → D7;
+- **major:** a slight drift of the finger let the `PathView` steal the press and end the hold →
+  `preventStealing` once the hold starts (D6);
+- verbatim repeats of `remote.*` commands were ordinary commands (deduplicated, resent after a
+  wakeup, "Try again") and, for an IR remote, taps instead of a hold → D4: a single command is
+  held like a simple command, every other command only taps;
+- the touch id wasn't unique across screens, and a destroyed button could end another button's
+  touch → D1, D6;
+- `on` / `off` / `toggle` inside `remote.send` repeated → D4;
+- test gaps: the period, the limit, a release at the hold start, entity destruction, a flaky wait.
+
 ## Open Questions
 
-None.
+- **Integration remotes and slow presses** (Risks): keep touch holds for integration remotes as
+  for their physical keys, or limit touch holds to IR and Bluetooth remotes? It changes nothing in
+  the code structure, only which remotes `touchHoldCommand` allows.

@@ -18,11 +18,18 @@ mapped-button handling from it.
     `remote.send {command, repeat: 4}` (with `press: true` on the remote's screen), then
     `remote.stop_send` when the finger is lifted;
   - a second haptic click marks the start of the hold.
-- **A touch never sends anything at touch-down**, because it can still turn into a page swipe. A
-  touch that turns into a swipe, or whose button disappears (the screen closes, the pages reload),
-  is cancelled: nothing is sent if the hold hadn't started, `remote.stop_send` if it had.
-- **Commands that never repeat on a touch:** power commands (a command name containing "power",
-  and `on` / `off` / `toggle`), and command sequences. They keep the single command at the release.
+- **A touch never sends anything at touch-down**, because it can still turn into a page swipe.
+  - Before its hold starts, a touch that turns into a swipe is cancelled and sends nothing.
+  - Once the hold has started, the button keeps the finger: a sideways drift no longer swipes the
+    page.
+  - A touch whose button disappears (the screen closes, the pages reload), or during which the
+    remote stops taking touch input (low power, a blocking wait), is cancelled: `remote.stop_send`
+    if the hold had started, and no tap afterwards.
+- **A hold always ends,** at the latest after 30 s, even if its release is lost.
+- **Which commands repeat:** a simple command, or a `remote.send` / `remote.send_cmd` whose only
+  param is `command`, which is then held like that simple command. Every other command (sequences,
+  `remote.on` / `off` / `toggle`, commands with their own params) and every power command (named
+  `on`, `off`, `toggle`, or with "power" in its name) keeps the single command at the release.
 - **One constant for the timing:** the 600 ms delay and the 150 ms period are defined once, so they
   can be adjusted in one place or become a setting later.
 - **Unchanged:**
@@ -56,9 +63,12 @@ None.
   firmware release.
 - **Code:**
   - `src/ui/entity/remote.h` / `.cpp`: touch entry points with the hold timer, the timing
-    constants, and the rule which commands repeat;
+    constants, the hold limit, and the rule which commands repeat;
+  - `src/ui/inputController.h` / `.cpp`, `src/ui/entity/entityController.h` / `.cpp`,
+    `src/ui/uiController.cpp`: end every touch hold when touch input gets blocked;
   - `src/qml/components/ButtonIcon.qml`: forwards press, release, cancel and destruction;
   - `Remote.qml` and `Activity.qml`: pass the remote entity to their page buttons.
-- **Tests:** `test/ui/test_remote_entity.cpp` (existing target `testRemoteEntity`).
+- **Tests:** `test/ui/test_remote_entity.cpp`, `test_entity_controller.cpp`,
+  `test_input_controller.cpp` (existing targets).
 - **Third-party code and assets:** none.
 - **Docs:** `CHANGELOG.md`.

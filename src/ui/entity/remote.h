@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QElapsedTimer>
 #include <QSet>
 
 #include "entity.h"
@@ -121,9 +122,10 @@ class Remote : public Base {
      * @brief A finger on a page button of this remote, on the remote's screen or in an activity.
      *
      * Nothing is sent: a touch can still turn into a page swipe, and a tap is sent by the button itself at the release.
-     * If the command repeats (repeatsOnTouchHold()), the hold starts kTouchHoldDelayMs after the touch-down with
-     * touchHoldStarted() and the repeats of a held mapped button (mappedButtonRepeated()), one every
-     * kTouchRepeatPeriodMs. A touch on another page button first cancels the current one.
+     * If the command repeats (touchHoldCommand()), the hold starts kTouchHoldDelayMs after the touch-down with
+     * touchHoldStarted() and the repeats of a held mapped button with that simple command (mappedButtonRepeated()), one
+     * every kTouchRepeatPeriodMs. A hold ends at the latest after kTouchHoldMaxMs. A touch on another page button first
+     * cancels the current one.
      *
      * @param touchId identifies the page button, never a physical button name
      * @param cmdId the button's `cmd_id`
@@ -134,20 +136,30 @@ class Remote : public Base {
                                   bool sendPress);
     /**
      * @brief The finger was lifted: a started hold ends like the release of a held mapped button.
-     * @return true if a hold ended: the button must not send its tap
+     * @return true if this touch had a hold, ended now or before (cancelTouch(), the hold limit): the button must not
+     * send its tap
      */
     Q_INVOKABLE bool touchReleased(const QString &touchId);
     /**
-     * @brief The touch turned into a page swipe or its button disappeared: a started hold ends like a release, and no
-     * tap is sent.
+     * @brief The touch turned into a page swipe before its hold started, or its button disappeared: a started hold
+     * ends like a release, and no tap is sent.
      */
     Q_INVOKABLE void touchCanceled(const QString &touchId);
+    /**
+     * @brief Ends the touch hold, whichever button it belongs to. Touch input is discarded from now on (low power, a
+     * blocking wait), so the button would never see its release.
+     */
+    void cancelTouch();
 
     /**
-     * @return whether a page button's command repeats while the finger stays on it: not for power commands and
-     * command sequences, which send their tap only
+     * @return the simple command a held page button repeats, or an empty string if the button only taps: a simple
+     * command, or the `command` of a `remote.send` or `remote.send_cmd` that has no other params; never a power
+     * command (`on`, `off`, `toggle`, a name containing "power") and never any other command, such as a sequence
      */
-    static bool repeatsOnTouchHold(const QString &cmdId, const QVariantMap &params);
+    static QString touchHoldCommand(const QString &cmdId, const QVariantMap &params);
+    static bool    repeatsOnTouchHold(const QString &cmdId, const QVariantMap &params) {
+        return !touchHoldCommand(cmdId, params).isEmpty();
+    }
 
     /**
      * @return true for a remote the core provides for an IR codeset, false for a Bluetooth remote and the remotes of
@@ -164,6 +176,11 @@ class Remote : public Base {
     // place these values are read from.
     static constexpr int kTouchHoldDelayMs = 600;
     static constexpr int kTouchRepeatPeriodMs = 150;
+    // A failsafe: a touch hold whose release is lost must not repeat forever. A physical button has no limit.
+    static constexpr int kTouchHoldMaxMs = 30000;
+
+    // shortens the hold limit, for unit tests only
+    void setTouchHoldMaxMs(int ms) { m_touchHoldMaxMs = ms; }
 
     void sendCommand(RemoteCommands::Enum cmd, QVariantMap params);
     void sendCommand(RemoteCommands::Enum cmd);
@@ -185,7 +202,7 @@ class Remote : public Base {
 
     void onTouchTimer();
     // ends the current touch; returns whether its hold had started
-    bool endTouch(const QString &touchId);
+    bool endTouch();
 
     // options
     QVariantList m_buttonMapping;
@@ -194,13 +211,16 @@ class Remote : public Base {
     // mapped buttons that got an auto-repeat since their press
     QSet<QString> m_heldButtons;
 
-    // the page button touched now, if its command repeats
-    QString     m_touchId;
-    QString     m_touchCmdId;
-    QVariantMap m_touchParams;
-    bool        m_touchSendPress = false;
-    bool        m_touchHeld = false;
-    QTimer      m_touchTimer;
+    // the page button touched now, if its command repeats, and the simple command its hold repeats
+    QString       m_touchId;
+    QString       m_touchCommand;
+    bool          m_touchSendPress = false;
+    bool          m_touchHeld = false;
+    QTimer        m_touchTimer;
+    QElapsedTimer m_touchHeldFor;
+    int           m_touchHoldMaxMs = kTouchHoldMaxMs;
+    // a touch whose hold ended before its release: its release must not send a tap
+    QString m_touchEndedHoldId;
 };
 
 }  // namespace entity

@@ -28,6 +28,18 @@ from that change. Two phases plus verification, in dependency order:
   Use the constants, not literal times. No change to the target's CMake list: no new file.
   Verify: `cd test/build && ctest -R testRemoteEntity`.
 
+- [x] 1.4 Review fixes in C++ (design.md, D1, D4, D7):
+  - `touchHoldCommand()`: a single `remote.send` / `remote.send_cmd` is held as its simple command,
+    every other `remote.*` command only taps, and the power names apply to the resolved name;
+  - `cancelTouch()` and the tap suppression after it; the 30 s limit `kTouchHoldMaxMs`;
+  - the first repeat goes out before `touchHoldStarted`;
+  - `InputController::touchInputBlocked()` at `blockInput(true)` and at low power, wired to
+    `EntityController::cancelTouchHolds()` in `uiController.cpp`.
+
+  Tests: `testRemoteEntity` (the rule, the limit, `cancelTouch`, the period, a release at the
+  hold start, entity destruction), `testEntityController` (`cancelTouchHolds`),
+  `testInputController` (`touchInputBlocked`). Verify: the three targets pass.
+
 ## 2. Page buttons forward the touch (QML)
 
 Depends on phase 1.
@@ -50,6 +62,9 @@ Depends on phase 1.
       (`holdSendPress: false`); other items unchanged. Verify in the `DEV` simulator: a remote
       item and a media player item, held. Code done and `qmllint` clean; the `DEV` check is still
       open.
+- [x] 2.5 Review fixes in QML (D6): `preventStealing` once the hold starts, the button's own
+      `touchActive` for the haptic and the cancel on destruction, and touch ids prefixed with the
+      screen's entity id. Verify: `qmllint`.
 - [x] 2.4 `CHANGELOG.md`, "Unreleased", "Added": holding a page button of a remote repeats the
       command like a held physical button, with a haptic click when the repeat starts; power
       commands and sequences don't repeat.

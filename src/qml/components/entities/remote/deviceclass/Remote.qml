@@ -35,7 +35,7 @@ EntityComponents.BaseDetail {
                 let obj = component.createObject(container, {
                                                      // held, the remote entity repeats the command
                                                      "holdEntity": item.command ? entityObj : null,
-                                                     "holdId": "touch:" + index + ":" + itemIndex,
+                                                     "holdId": "touch:" + entityObj.id + ":" + index + ":" + itemIndex,
                                                      "holdCmdId": item.command ? String(item.command.cmd_id) : "",
                                                      "holdParams": item.command && item.command.params ? item.command.params : {},
                                                      "holdSendPress": true,

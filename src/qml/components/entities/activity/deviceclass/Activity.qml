@@ -135,7 +135,7 @@ EntityComponents.BaseDetail {
                 let component = Qt.createComponent("qrc:/components/ButtonIcon.qml");
                 component.createObject(container, {
                                            "holdEntity": holdEntity,
-                                           "holdId": "touch:" + index + ":" + itemIndex,
+                                           "holdId": "touch:" + entityObj.id + ":" + index + ":" + itemIndex,
                                            "holdCmdId": holdEntity ? String(item.command.cmd_id) : "",
                                            "holdParams": holdEntity && item.command.params ? item.command.params : {},
                                            "holdSendPress": false,
