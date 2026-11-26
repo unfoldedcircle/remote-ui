@@ -124,12 +124,21 @@ EntityComponents.BaseDetail {
         const gridSizeW = uiPages.width / gridWidth
         const gridSizeH = uiPages.height / gridHeight
 
-        items.forEach(function(item) {
+        items.forEach(function(item, itemIndex) {
             switch (item.type) {
             case "text":
             case "icon":
+                // held, an item of a remote entity repeats its command; items of other entities only tap
+                const target = item.command && item.command.entity_id ? EntityController.get(item.command.entity_id) : null;
+                const holdEntity = target && target.type === EntityTypes.Remote ? target : null;
+
                 let component = Qt.createComponent("qrc:/components/ButtonIcon.qml");
                 component.createObject(container, {
+                                           "holdEntity": holdEntity,
+                                           "holdId": "touch:" + entityObj.id + ":" + index + ":" + itemIndex,
+                                           "holdCmdId": holdEntity ? String(item.command.cmd_id) : "",
+                                           "holdParams": holdEntity && item.command.params ? item.command.params : {},
+                                           "holdSendPress": false,
                                            "x": gridSizeW * item.location.x,
                                            "y": gridSizeH * item.location.y,
                                            "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),

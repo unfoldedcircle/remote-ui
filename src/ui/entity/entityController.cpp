@@ -1308,6 +1308,14 @@ void EntityController::onResumeTimerTimeout() {
     qCDebug(lcEntityController()) << "Resume timer disabled";
 }
 
+void EntityController::cancelTouchHolds() {
+    for (entity::Base* e : qAsConst(m_entities)) {
+        if (auto remote = qobject_cast<entity::Remote*>(e)) {
+            remote->cancelTouch();
+        }
+    }
+}
+
 void EntityController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode) {
     if (m_resumeTimerTimeout == 0) {
         return;

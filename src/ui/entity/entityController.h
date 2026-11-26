@@ -236,6 +236,10 @@ class EntityController : public QObject {
     void onPowerModeChanged(core::PowerEnums::PowerMode powerMode);
     void onResumeTimeoutWindowSecChanged(int value);
 
+    // Touch input is discarded from now on (low power, a blocking wait), so a held page button never sees its
+    // release: end the touch hold of every remote.
+    void cancelTouchHolds();
+
  private:
     static EntityController*   s_instance;
     static QString             m_language;    // FIXME(#279) because of static createEntityObject

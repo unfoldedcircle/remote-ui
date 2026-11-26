@@ -130,6 +130,9 @@ class testInputController : public QObject {
     void escapeOnADeviceModel_isNotTranslated();
 
     void firstPressAfterATouch_activatesTheKeypad();
+
+    void blockingInput_announcesThatTouchesEnd();
+    void lowPower_announcesThatTouchesEnd();
 };
 
 void testInputController::shortHold_sendsNoAutoRepeat() {
@@ -331,6 +334,41 @@ void testInputController::firstPressAfterATouch_activatesTheKeypad() {
     // only while the handlers of the press run
     QVERIFY(f.controller.keypadActive());
     QVERIFY(!f.controller.pressActivatedKeypad());
+}
+
+// A held page button never sees its release while input is discarded: the controller announces it, so that the
+// touch hold can end.
+void testInputController::blockingInput_announcesThatTouchesEnd() {
+    KeyboardFixture f(uc::hw::HardwareModel::UCR3);
+    QSignalSpy      blocked(&f.controller, &InputController::touchInputBlocked);
+
+    f.controller.blockInput(true);
+    QCOMPARE(blocked.count(), 1);
+
+    // unblocking discards nothing
+    f.controller.blockInput(false);
+    QCOMPARE(blocked.count(), 1);
+}
+
+void testInputController::lowPower_announcesThatTouchesEnd() {
+    KeyboardFixture f(uc::hw::HardwareModel::UCR3);
+    QSignalSpy      blocked(&f.controller, &InputController::touchInputBlocked);
+
+    f.controller.onPowerModeChanged(uc::core::PowerEnums::PowerMode::IDLE);
+    QCOMPARE(blocked.count(), 0);
+    f.controller.onPowerModeChanged(uc::core::PowerEnums::PowerMode::LOW_POWER);
+    QCOMPARE(blocked.count(), 1);
+    f.controller.onPowerModeChanged(uc::core::PowerEnums::PowerMode::NORMAL);
+    QCOMPARE(blocked.count(), 1);
+    // a suspend without low power before it
+    f.controller.onPowerModeChanged(uc::core::PowerEnums::PowerMode::SUSPEND);
+    QCOMPARE(blocked.count(), 2);
+
+    // the desktop simulator never blocks touch input
+    KeyboardFixture dev(uc::hw::HardwareModel::DEV);
+    QSignalSpy      devBlocked(&dev.controller, &InputController::touchInputBlocked);
+    dev.controller.onPowerModeChanged(uc::core::PowerEnums::PowerMode::LOW_POWER);
+    QCOMPARE(devBlocked.count(), 0);
 }
 
 QTEST_GUILESS_MAIN(testInputController)

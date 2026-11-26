@@ -27,12 +27,18 @@ EntityComponents.BaseDetail {
         const gridSizeW = uiPages.width / gridWidth
         const gridSizeH = uiPages.height / gridHeight
 
-        items.forEach(function(item) {
+        items.forEach(function(item, itemIndex) {
             switch (item.type) {
             case "text":
             case "icon":
                 let component = Qt.createComponent("qrc:/components/ButtonIcon.qml");
                 let obj = component.createObject(container, {
+                                                     // held, the remote entity repeats the command
+                                                     "holdEntity": item.command ? entityObj : null,
+                                                     "holdId": "touch:" + entityObj.id + ":" + index + ":" + itemIndex,
+                                                     "holdCmdId": item.command ? String(item.command.cmd_id) : "",
+                                                     "holdParams": item.command && item.command.params ? item.command.params : {},
+                                                     "holdSendPress": true,
                                                      "x": gridSizeW * item.location.x,
                                                      "y": gridSizeH * item.location.y,
                                                      "width": gridSizeW * (item.size ? (item.size.width ? item.size.width : 1) : 1),

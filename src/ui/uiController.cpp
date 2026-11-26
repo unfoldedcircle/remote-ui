@@ -162,6 +162,9 @@ Controller::Controller(HardwareModel::Enum model, int width, int height, QQmlApp
     QObject::connect(m_core, &core::Api::warning, this, &Controller::onWarning);
 
     QObject::connect(m_core, &core::Api::powerModeChanged, &m_inputController, &InputController::onPowerModeChanged);
+    // a held page button would never see its release: end its hold
+    QObject::connect(&m_inputController, &InputController::touchInputBlocked, m_entityController,
+                     &EntityController::cancelTouchHolds);
     QObject::connect(&m_inputController, &InputController::keypadActiveChanged, this,
                      &Controller::keyNavigationActiveChanged);
 

@@ -139,6 +139,7 @@ void InputController::blockInput(bool value) {
         m_globalPowerHoldTimer.stop();
         m_globalPowerPressed = false;
         m_globalPowerLongPressTriggered = false;
+        emit touchInputBlocked();
     }
 }
 
@@ -249,6 +250,11 @@ void InputController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode) 
             break;
         default:
             break;
+    }
+
+    // low power discards touch input, and a suspend can come without it: a touch that is still held never ends
+    if (powerMode == core::PowerEnums::PowerMode::LOW_POWER || powerMode == core::PowerEnums::PowerMode::SUSPEND) {
+        emit touchInputBlocked();
     }
 }
 

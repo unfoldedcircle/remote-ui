@@ -46,6 +46,9 @@ Remote::Remote(const QString &id, QVariantMap nameI18n, const QString &language,
     if (options.contains("button_mapping")) {
         m_buttonMapping = options.value("button_mapping").toList();
     }
+
+    m_touchTimer.setSingleShot(true);
+    connect(&m_touchTimer, &QTimer::timeout, this, &Remote::onTouchTimer);
 }
 
 Remote::~Remote() { qCDebug(lcRemote()) << "Remote entity destructor"; }
@@ -106,6 +109,137 @@ void Remote::mappedButtonReleased(const QString &button, const QString &cmdId, c
     if (isSimpleCommand(cmdId)) {
         emit command(m_id, QStringLiteral("remote.stop_send"), QVariantMap());
     }
+}
+
+void Remote::touchPressed(const QString &touchId, const QString &cmdId, const QVariantMap &params, bool sendPress) {
+    // one finger at a time: a touch that is still running ends first
+    endTouch();
+    m_touchEndedHoldId.clear();
+
+    const QString command = touchHoldCommand(cmdId, params);
+    if (command.isEmpty()) {
+        return;
+    }
+
+    m_touchId = touchId;
+    m_touchCommand = command;
+    m_touchSendPress = sendPress;
+    m_touchHeld = false;
+    m_touchTimer.start(kTouchHoldDelayMs);
+}
+
+bool Remote::touchReleased(const QString &touchId) {
+    if (!m_touchId.isEmpty() && touchId == m_touchId) {
+        return endTouch();
+    }
+
+    // the hold of this touch already ended without its release
+    if (!m_touchEndedHoldId.isEmpty() && touchId == m_touchEndedHoldId) {
+        m_touchEndedHoldId.clear();
+        return true;
+    }
+    return false;
+}
+
+void Remote::touchCanceled(const QString &touchId) {
+    if (!m_touchId.isEmpty() && touchId == m_touchId) {
+        endTouch();
+    }
+    if (touchId == m_touchEndedHoldId) {
+        m_touchEndedHoldId.clear();
+    }
+}
+
+void Remote::cancelTouch() {
+    const QString touchId = m_touchId;
+    if (endTouch()) {
+        qCDebug(lcRemote()) << "Touch hold ended without its release:" << touchId;
+        m_touchEndedHoldId = touchId;
+    }
+}
+
+QString Remote::touchHoldCommand(const QString &cmdId, const QVariantMap &params) {
+    QString command;
+
+    if (isSimpleCommand(cmdId)) {
+        command = cmdId;
+    } else if ((cmdId.compare(QLatin1String("remote.send"), Qt::CaseInsensitive) == 0 ||
+                cmdId.compare(QLatin1String("remote.send_cmd"), Qt::CaseInsensitive) == 0) &&
+               params.size() == 1 && params.contains(QStringLiteral("command"))) {
+        // a single command with nothing else configured: held like the simple command it sends
+        command = params.value(QStringLiteral("command")).toString();
+    } else {
+        // any other command, a sequence or a command with its own repeat, delay or hold, only taps
+        return QString();
+    }
+
+    // power commands never repeat; command names of integration remotes are free text, so they are recognised by
+    // their name
+    static const QStringList kPowerCommands{QStringLiteral("on"), QStringLiteral("off"), QStringLiteral("toggle")};
+    if (command.trimmed().isEmpty() || kPowerCommands.contains(command, Qt::CaseInsensitive) ||
+        command.contains(QLatin1String("power"), Qt::CaseInsensitive)) {
+        return QString();
+    }
+
+    return command;
+}
+
+void Remote::onTouchTimer() {
+    if (m_touchId.isEmpty()) {
+        return;
+    }
+
+    // a failsafe: a hold whose release is lost ends after the limit
+    if (m_touchHeld && m_touchHeldFor.elapsed() >= m_touchHoldMaxMs) {
+        qCWarning(lcRemote()) << "Touch hold reached its limit of" << m_touchHoldMaxMs << "ms:" << m_touchId;
+        cancelTouch();
+        return;
+    }
+
+    // restart first: a handler of the repeat may end the touch and stop the timer
+    m_touchTimer.start(kTouchRepeatPeriodMs);
+
+    // copies: a handler may end the touch and clear the members
+    const QString touchId = m_touchId;
+    const QString command = m_touchCommand;
+    const bool    sendPress = m_touchSendPress;
+
+    const bool started = !m_touchHeld;
+    if (started) {
+        m_touchHeld = true;
+        m_touchHeldFor.start();
+        qCDebug(lcRemote()) << "Touch hold started:" << touchId << command;
+    }
+
+    // the first repeat goes out before the hold start is announced: a release in a handler of it ends a hold that
+    // has really started
+    mappedButtonRepeated(touchId, command, QVariantMap(), sendPress);
+
+    if (started && m_touchId == touchId) {
+        emit touchHoldStarted(touchId);
+    }
+}
+
+bool Remote::endTouch() {
+    if (m_touchId.isEmpty()) {
+        return false;
+    }
+
+    m_touchTimer.stop();
+
+    const QString touchId = m_touchId;
+    const QString command = m_touchCommand;
+    const bool    held = m_touchHeld;
+
+    m_touchId.clear();
+    m_touchCommand.clear();
+    m_touchHeld = false;
+
+    if (held) {
+        // like the release of a held mapped button without a long press
+        mappedButtonReleased(touchId, command, QVariantMap(), false);
+    }
+    return held;
 }
 
 bool Remote::isIrRemote() const {
