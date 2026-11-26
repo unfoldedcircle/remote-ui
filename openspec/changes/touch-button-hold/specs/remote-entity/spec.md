@@ -28,7 +28,7 @@ A page button whose command repeats SHALL repeat while the finger stays on it, l
 - **THEN** the hold ends with `remote.stop_send` when the finger is lifted, and no tap is sent
 
 ### Requirement: Cancelled page button touch
-A touch on a page button SHALL be cancelled when it turns into a page swipe before its hold started, when the button disappears while touched (the screen closes, its pages are rebuilt), or when the remote stops taking touch input (low power, a blocking wait). A cancelled touch SHALL send nothing when its hold hadn't started, and SHALL end a started hold with the messages of a release; no tap SHALL follow, not even when the release arrives later.
+A touch on a page button SHALL be cancelled when it turns into a page swipe before its hold started, when the button disappears while touched (the screen closes, its pages are rebuilt), or when the remote stops taking touch input (low power, suspend, a blocking wait). A cancelled touch SHALL send nothing when its hold hadn't started, and SHALL end a started hold with the messages of a release; no tap SHALL follow, not even when the release arrives later.
 
 #### Scenario: Swipe that starts on a button
 - **WHEN** the user starts a page swipe on a button and the swipe takes over within 600 ms

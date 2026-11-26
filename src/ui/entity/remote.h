@@ -157,9 +157,6 @@ class Remote : public Base {
      * command (`on`, `off`, `toggle`, a name containing "power") and never any other command, such as a sequence
      */
     static QString touchHoldCommand(const QString &cmdId, const QVariantMap &params);
-    static bool    repeatsOnTouchHold(const QString &cmdId, const QVariantMap &params) {
-        return !touchHoldCommand(cmdId, params).isEmpty();
-    }
 
     /**
      * @return true for a remote the core provides for an IR codeset, false for a Bluetooth remote and the remotes of

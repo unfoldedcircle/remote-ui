@@ -247,10 +247,14 @@ void InputController::onPowerModeChanged(core::PowerEnums::PowerMode powerMode) 
             break;
         case core::PowerEnums::PowerMode::LOW_POWER:
             m_blockTouchInput = true;
-            emit touchInputBlocked();
             break;
         default:
             break;
+    }
+
+    // low power discards touch input, and a suspend can come without it: a touch that is still held never ends
+    if (powerMode == core::PowerEnums::PowerMode::LOW_POWER || powerMode == core::PowerEnums::PowerMode::SUSPEND) {
+        emit touchInputBlocked();
     }
 }
 

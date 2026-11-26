@@ -107,14 +107,15 @@ Rectangle {
         }
         // released comes before clicked, and also when the finger is lifted outside the button
         onReleased: {
-            if (buttonIcon.touchActive) {
+            // the entity may have been deleted during the touch
+            if (buttonIcon.touchActive && buttonIcon.holdEntity) {
                 buttonIcon.holdEnded = buttonIcon.holdEntity.touchReleased(buttonIcon.holdId);
             }
             buttonIcon.endTouch();
         }
         // the touch turned into a page swipe before its hold started
         onCanceled: {
-            if (buttonIcon.touchActive) {
+            if (buttonIcon.touchActive && buttonIcon.holdEntity) {
                 buttonIcon.holdEntity.touchCanceled(buttonIcon.holdId);
             }
             buttonIcon.endTouch();

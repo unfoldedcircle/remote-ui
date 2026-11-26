@@ -47,8 +47,8 @@ class testUiRemote : public QObject {
     void touchOnAnotherButton_endsTheFirst();
     void touchRelease_ofAnotherButton_isIgnored();
     void touchExcludedCommand_neverStartsAHold();
-    void repeatsOnTouchHold_data();
-    void repeatsOnTouchHold();
+    void touchHoldCommand_data();
+    void touchHoldCommand();
 
  private:
     using Sent = QPair<QString, QVariantMap>;
@@ -441,8 +441,10 @@ void testUiRemote::touchHold_entityDestroyed_stops() {
     remote->touchPressed(QStringLiteral("touch:0:1"), QStringLiteral("VOLUME_UP"), QVariantMap(), true);
     QVERIFY(holds.wait(kTouchDelay + kTouchSlack));
 
-    // the timer goes with the entity: nothing fires afterwards
+    // the timer goes with the entity: nothing fires afterwards, and nothing crashes
+    QSignalSpy destroyed(remote, &QObject::destroyed);
     delete parent;
+    QCOMPARE(destroyed.count(), 1);
     QTest::qWait(kTouchPeriod * 3);
 }
 
@@ -530,7 +532,7 @@ void testUiRemote::touchExcludedCommand_neverStartsAHold() {
     QCOMPARE(remote->touchReleased(QStringLiteral("touch:0:1")), false);
 }
 
-void testUiRemote::repeatsOnTouchHold_data() {
+void testUiRemote::touchHoldCommand_data() {
     QTest::addColumn<QString>("cmdId");
     QTest::addColumn<QVariantMap>("params");
     QTest::addColumn<QString>("holdCommand");
@@ -572,13 +574,12 @@ void testUiRemote::repeatsOnTouchHold_data() {
     QTest::newRow("remote.send TOGGLE") << QStringLiteral("remote.send") << command("TOGGLE") << QString();
 }
 
-void testUiRemote::repeatsOnTouchHold() {
+void testUiRemote::touchHoldCommand() {
     QFETCH(QString, cmdId);
     QFETCH(QVariantMap, params);
     QFETCH(QString, holdCommand);
 
     QCOMPARE(uc::ui::entity::Remote::touchHoldCommand(cmdId, params), holdCommand);
-    QCOMPARE(uc::ui::entity::Remote::repeatsOnTouchHold(cmdId, params), !holdCommand.isEmpty());
 }
 
 QTEST_MAIN(testUiRemote)

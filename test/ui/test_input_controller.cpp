@@ -360,6 +360,9 @@ void testInputController::lowPower_announcesThatTouchesEnd() {
     QCOMPARE(blocked.count(), 1);
     f.controller.onPowerModeChanged(uc::core::PowerEnums::PowerMode::NORMAL);
     QCOMPARE(blocked.count(), 1);
+    // a suspend without low power before it
+    f.controller.onPowerModeChanged(uc::core::PowerEnums::PowerMode::SUSPEND);
+    QCOMPARE(blocked.count(), 2);
 
     // the desktop simulator never blocks touch input
     KeyboardFixture dev(uc::hw::HardwareModel::DEV);

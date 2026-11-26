@@ -179,8 +179,11 @@ a cancel needs its own end:
 - **Touch input blocked.** In `LOW_POWER`, `InputController` discards touch and mouse events, the
   releases included (`inputController.cpp:238-250, 366-375`), and on eglfs hiding the window
   cancels no grab. `blockInput(true)` (a blocking wait) does the same for all input.
-  `InputController` emits `touchInputBlocked()` in both cases, and
-  `EntityController::cancelTouchHolds()` calls `cancelTouch()` on every remote. A hold ended this
+  A suspend can also come without low power first. `InputController` emits `touchInputBlocked()`
+  in all three cases (not in `DEV`, which never blocks touch), and
+  `EntityController::cancelTouchHolds()` calls `cancelTouch()` on every remote. The connection is
+  one line in `uiController.cpp`; there is no `UiController` test target, so the device check
+  covers it. A hold ended this
   way remembers its touch id, so the release that arrives later returns `true` and sends no tap.
 - **A failsafe limit:** `kTouchHoldMaxMs = 30000`. A hold that is still running after 30 s ends like
   a cancel. A physical button has no limit, but a touch hold is the UI's own timer, and a runaway
@@ -270,8 +273,26 @@ now addressed:
 - `on` / `off` / `toggle` inside `remote.send` repeated → D4;
 - test gaps: the period, the limit, a release at the hold start, entity destruction, a flaky wait.
 
+A second pass on the fixes found no critical or major issue, and these, now addressed:
+
+- a null `holdEntity` in the release and cancel handlers after the entity was deleted during a
+  touch → both handlers check it, and the button's touch state is always reset;
+- a suspend without low power first didn't end a hold → `touchInputBlocked()` at suspend too;
+- the test-only wrapper `repeatsOnTouchHold()` → removed.
+
+Recorded, not changed:
+
+- the stored id of a hold that ended without its release could swallow one later tap if Qt
+  delivered a release without a press; Qt cancels a stale grab first, which clears the id;
+- the `uiController.cpp` connection and the QML touch state have no unit test (no target for
+  them); the `DEV` and device checks cover them.
+
 ## Open Questions
 
+- **Stored form of activity page commands:** the rule holds a `remote.send` / `remote.send_cmd`
+  only when `command` is its only param. If the web configurator stores default params with every
+  activity item (`repeat`, `delay`, `hold`), those items stay tap-only. Simple commands, which the
+  core generates for remote pages, are not affected. To check with a real activity configuration.
 - **Integration remotes and slow presses** (Risks): keep touch holds for integration remotes as
   for their physical keys, or limit touch holds to IR and Bluetooth remotes? It changes nothing in
   the code structure, only which remotes `touchHoldCommand` allows.

@@ -12,8 +12,8 @@ from that change. Two phases plus verification, in dependency order:
       `touchReleased` (returns whether a hold ended) and `touchCanceled`, with a `QTimer`, the
       active touch, and the signal `touchHoldStarted(touchId)` (D1). Verify: it builds, and task
       1.3 passes.
-- [x] 1.2 Add the static rule `repeatsOnTouchHold(cmdId, params)`: false for power commands and
-      sequences (D4). Verify: task 1.3 passes.
+- [x] 1.2 Add the static rule (now `touchHoldCommand(cmdId, params)`, see 1.4): false for power
+      commands and sequences (D4). Verify: task 1.3 passes.
 - [x] 1.3 Extend `test/ui/test_remote_entity.cpp`:
   - a tap: nothing sent, `touchReleased` returns false;
   - a hold on an IR remote and on an integration remote: `touchHoldStarted` and `remote.send`
