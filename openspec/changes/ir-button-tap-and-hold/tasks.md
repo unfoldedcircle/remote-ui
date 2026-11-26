@@ -41,18 +41,18 @@ Two phases plus verification, in dependency order.
 
 Depends on phase 1.
 
-- [ ] 2.1 `src/qml/components/entities/remote/deviceclass/Remote.qml`, `updateButtonMapping()`:
+- [x] 2.1 `src/qml/components/entities/remote/deviceclass/Remote.qml`, `updateButtonMapping()`:
       `pressed`, `pressed_repeat` and `released` of a short press call the three entry points
       (`hasLongPress` = the mapping has a `long_press`, `sendPress` = true). `canRepeat` and the
       `ui.inputController.repeatCount` use go; `long_press` is unchanged. Verify in the `DEV`
       simulator: the debug log of a tap and a hold on an IR remote matches D2. Code done and
-      `qmllint` clean; the `DEV` simulator check is still open.
-- [ ] 2.2 `src/qml/components/entities/activity/deviceclass/Activity.qml`, `updateButtonMapping()`:
+      `qmllint` clean; verified in the `DEV` simulator.
+- [x] 2.2 `src/qml/components/entities/activity/deviceclass/Activity.qml`, `updateButtonMapping()`:
       in `pressed` and `pressed_repeat`, `case EntityTypes.Remote` calls the entry points
       (`sendPress` = false), and `released` calls `mappedButtonReleased` for a remote entity. The
       media player, macro and default cases stay; `canRepeat` and the `repeatCount` use go.
       Verify: as 2.1, on an activity, plus a media player volume mapping that still shows the
-      volume overlay. Code done and `qmllint` clean; the `DEV` simulator check is still open.
+      volume overlay. Code done and `qmllint` clean; verified in the `DEV` simulator.
 - [x] 2.3 Remove the now unused `repeatCount` property from `src/ui/inputController.h` (`:24`,
       `:68`, `:164`). Verify: `grep -rn repeatCount src` finds only the remote entity, and the
       app and `testInputController` build.
@@ -69,7 +69,7 @@ Depends on phase 1.
       `./cpplint.sh` and `./design-check.sh`.
 - [x] 3.3 `make linux`, then `make ucr2` (the change touches QML); leave no translation churn
       (`git checkout resources/translations/`).
-- [ ] 3.4 `DEV` simulator against the core-simulator, keypad only: tap and hold on an IR remote
+- [x] 3.4 `DEV` simulator against the core-simulator, keypad only: tap and hold on an IR remote
       and on an integration remote, a button with a long press, a `remote.` command, on the remote
       screen and in an activity. Record the command sequence from the `lcEntityController` debug
       log.
@@ -78,6 +78,10 @@ Depends on phase 1.
   - an NEC device with a different function on hold (tap = skip, hold = search);
   - an RC5 or RC6 device: tap A then hold A, hold A then hold A, hold A then hold B;
   - a BT and an integration remote, unchanged.
+
+  Partly done on a device. No device with different functions for a single and a repeated
+  command is available, so the tap/hold behaviour is checked manually in the Dock 3 log: which
+  messages the Dock receives for a tap and for a hold.
 - [x] 3.6 `openspec validate ir-button-tap-and-hold --strict`.
 
 ## Workflow follow-up
