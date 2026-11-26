@@ -62,6 +62,65 @@ void Remote::toggle() {
     }
 }
 
+void Remote::mappedButtonPressed(const QString &button, const QString &cmdId, const QVariantMap &params,
+                                 bool hasLongPress) {
+    if (isIrTapOrHold(cmdId, hasLongPress)) {
+        // also drops the held state a lost release left behind, so this press is a tap or a hold again
+        m_heldButtons.remove(button);
+        qCDebug(lcRemote()) << "IR command waits for the release or the first auto-repeat:" << button << cmdId;
+        return;
+    }
+
+    emit command(m_id, cmdId, params);
+}
+
+void Remote::mappedButtonRepeated(const QString &button, const QString &cmdId, const QVariantMap &params,
+                                  bool sendPress) {
+    if (!isSimpleCommand(cmdId)) {
+        emit command(m_id, cmdId, params);
+        return;
+    }
+
+    m_heldButtons.insert(button);
+
+    QVariantMap repeatParams;
+    repeatParams.insert(QStringLiteral("command"), cmdId);
+    repeatParams.insert(QStringLiteral("repeat"), kHoldRepeatCount);
+    if (sendPress) {
+        repeatParams.insert(QStringLiteral("press"), true);
+    }
+
+    emit command(m_id, QStringLiteral("remote.send"), repeatParams);
+}
+
+void Remote::mappedButtonReleased(const QString &button, const QString &cmdId, const QVariantMap &params,
+                                  bool hasLongPress) {
+    const bool held = m_heldButtons.remove(button);
+
+    if (isIrTapOrHold(cmdId, hasLongPress) && !held) {
+        // released before the first auto-repeat: a tap
+        emit command(m_id, cmdId, params);
+        return;
+    }
+
+    if (isSimpleCommand(cmdId)) {
+        emit command(m_id, QStringLiteral("remote.stop_send"), QVariantMap());
+    }
+}
+
+bool Remote::isIrRemote() const {
+    // the core's own integration for IR remotes; Bluetooth remotes are uc_bt.main
+    return m_integration == QLatin1String("uc.main");
+}
+
+bool Remote::isSimpleCommand(const QString &cmdId) {
+    return !cmdId.contains(QLatin1String("remote."));
+}
+
+bool Remote::isIrTapOrHold(const QString &cmdId, bool hasLongPress) const {
+    return isIrRemote() && isSimpleCommand(cmdId) && !hasLongPress;
+}
+
 void Remote::sendCommand(RemoteCommands::Enum cmd, QVariantMap params) {
     Base::sendCommand(QVariant::fromValue(cmd).toString(), params);
 }

@@ -9,14 +9,14 @@ Two phases plus verification, in dependency order.
 
 ## 1. Mapped-button handling in the remote entity (C++)
 
-- [ ] 1.1 In `src/ui/entity/remote.h` / `.cpp`, add the `Q_INVOKABLE` entry points
+- [x] 1.1 In `src/ui/entity/remote.h` / `.cpp`, add the `Q_INVOKABLE` entry points
       `mappedButtonPressed(button, cmdId, params, hasLongPress)`,
       `mappedButtonRepeated(button, cmdId, params, sendPress)` and
       `mappedButtonReleased(button, cmdId, params, hasLongPress)`. They emit `Base::command` as in
       design.md D2 and keep the held buttons in a `QSet<QString>`. Add `isIrRemote()`
       (integration id `uc.main`) and the repeat-count constant 4 (D3). Verify: it builds, and
       task 1.2 passes.
-- [ ] 1.2 Add `test/ui/test_remote_entity.cpp`, asserting the commands emitted on `Base::command`:
+- [x] 1.2 Add `test/ui/test_remote_entity.cpp`, asserting the commands emitted on `Base::command`:
   - IR remote tap: nothing on the press, the plain `cmdId` with `params` on the release, no
     `remote.stop_send`;
   - IR remote hold: nothing on the press; `remote.send {command, repeat 4}` per repeat, with
@@ -32,7 +32,7 @@ Two phases plus verification, in dependency order.
 
   The IR tap and hold cases describe the new behaviour; the other cases pin today's behaviour,
   taken from `Remote.qml` and `Activity.qml` at `0783691`.
-- [ ] 1.3 Register the test: a `testRemoteEntity` target in `test/ui/CMakeLists.txt`, compiling
+- [x] 1.3 Register the test: a `testRemoteEntity` target in `test/ui/CMakeLists.txt`, compiling
       `remote.cpp` and its dependencies like `testSwitchEntity`. No change to `remote-ui.pro` or a
       `.qrc`: no new app files. Verify: `cd test/build && ctest -R testRemoteEntity` passes.
 
