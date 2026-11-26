@@ -32,7 +32,7 @@ from that change. Two phases plus verification, in dependency order:
 
 Depends on phase 1.
 
-- [ ] 2.1 `src/qml/components/ButtonIcon.qml`: optional `holdEntity`, `holdId`, `holdCmdId`,
+- [x] 2.1 `src/qml/components/ButtonIcon.qml`: optional `holdEntity`, `holdId`, `holdCmdId`,
       `holdParams` and `holdSendPress`. When `holdEntity` is set:
   - `onPressed` → `touchPressed`;
   - `onReleased` → `touchReleased`, remembering whether a hold ended;
@@ -44,11 +44,13 @@ Depends on phase 1.
 - [ ] 2.2 `Remote.qml` `parsePageItems()`: pass `entityObj`, the touch id
       `touch:<page>:<item>`, the command, its params and `holdSendPress: true`; the `trigger`
       stays. Verify in the `DEV` simulator with the mouse: tap, hold, release outside, swipe
-      before and after the hold, a power command.
+      before and after the hold, a power command. Code done and `qmllint` clean; the `DEV` check
+      is still open.
 - [ ] 2.3 `Activity.qml` `parsePageItems()`: pass the item's entity only when it's a remote
       (`holdSendPress: false`); other items unchanged. Verify in the `DEV` simulator: a remote
-      item and a media player item, held.
-- [ ] 2.4 `CHANGELOG.md`, "Unreleased", "Added": holding a page button of a remote repeats the
+      item and a media player item, held. Code done and `qmllint` clean; the `DEV` check is still
+      open.
+- [x] 2.4 `CHANGELOG.md`, "Unreleased", "Added": holding a page button of a remote repeats the
       command like a held physical button, with a haptic click when the repeat starts; power
       commands and sequences don't repeat.
 

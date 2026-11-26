@@ -14,6 +14,10 @@ _Changes in the next release_
 ### Added
 - An activity or remote can have one background image for all of its pages, set in the web configurator. Every page
   without a background of its own shows it.
+- Holding a page button of a remote repeats its command like a held physical button: after about 0.6 s a haptic click
+  marks the start, and the command repeats until the finger is lifted. A short touch still sends the command once.
+  Power commands and command sequences don't repeat, and buttons of other devices in an activity are unchanged
+  ([#95](https://github.com/unfoldedcircle/remote-ui/pull/95)).
 
 ### Changed
 - A page background now moves together with its page while swiping or switching pages, instead of fading. Neighbouring
