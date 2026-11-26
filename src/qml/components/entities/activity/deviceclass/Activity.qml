@@ -272,8 +272,10 @@ EntityComponents.BaseDetail {
                                                 // let's setup short press first
                                                 let e = EntityController.get(buttonMap.short_press.entity_id);
 
-                                                const cmdString = String(buttonMap.short_press.cmd_id);
-                                                const canRepeat = !cmdString.includes("remote.");
+                                                // a remote entity decides what the press, the auto-repeats and the release send
+                                                const cmdId = String(buttonMap.short_press.cmd_id);
+                                                const params = buttonMap.short_press.params ? buttonMap.short_press.params : {};
+                                                const hasLongPress = !!buttonMap.long_press;
 
                                                 console.info(entityObj.name + " button mapping short press: " + buttonMap.button + " -> " + JSON.stringify(buttonMap.short_press));
 
@@ -288,13 +290,9 @@ EntityComponents.BaseDetail {
                                                             }
                                                             activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                             break;
-                                                        case EntityTypes.Remote: {
-                                                            EntityController.onEntityCommand(
-                                                                        e.id,
-                                                                        buttonMap.short_press.cmd_id,
-                                                                        buttonMap.short_press.params ? buttonMap.short_press.params : {});
+                                                        case EntityTypes.Remote:
+                                                            e.mappedButtonPressed(buttonMap.button, cmdId, params, hasLongPress);
                                                             break;
-                                                        }
                                                         default:
                                                             activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                             break;
@@ -313,23 +311,9 @@ EntityComponents.BaseDetail {
                                                             }
                                                             activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                             break;
-                                                        case EntityTypes.Remote: {
-                                                            if (canRepeat) {
-                                                                EntityController.onEntityCommand(
-                                                                            e.id,
-                                                                            "remote.send",
-                                                                            {
-                                                                                "command": buttonMap.short_press.cmd_id,
-                                                                                "repeat": ui.inputController.repeatCount
-                                                                            });
-                                                            } else {
-                                                                EntityController.onEntityCommand(
-                                                                            e.id,
-                                                                            buttonMap.short_press.cmd_id,
-                                                                            buttonMap.short_press.params ? buttonMap.short_press.params : {});
-                                                            }
+                                                        case EntityTypes.Remote:
+                                                            e.mappedButtonRepeated(buttonMap.button, cmdId, params, false);
                                                             break;
-                                                        }
                                                         default:
                                                             activityBase.triggerCommand(buttonMap.short_press.entity_id, buttonMap.short_press.cmd_id, buttonMap.short_press.params);
                                                             break;
@@ -339,13 +323,8 @@ EntityComponents.BaseDetail {
 
                                                 // for the remote entity we need to define a release event as well
                                                 overrideConfig[buttonMap.button]["released"] = function() {
-                                                    if (e) {
-                                                        if (e.type === EntityTypes.Remote && canRepeat) {
-                                                            EntityController.onEntityCommand(
-                                                                        e.id,
-                                                                        "remote.stop_send",
-                                                                        {});
-                                                        }
+                                                    if (e && e.type === EntityTypes.Remote) {
+                                                        e.mappedButtonReleased(buttonMap.button, cmdId, params, hasLongPress);
                                                     }
                                                 }
                                             }

@@ -21,7 +21,6 @@ class InputController : public QQuickItem {
     Q_OBJECT
 
     Q_PROPERTY(QObject* activeItem READ activeItem NOTIFY activeItemChanged)
-    Q_PROPERTY(int repeatCount READ getRepeatCount CONSTANT)
     // True from the first physical key press until the screen is touched again. Pages use it to
     // show their keypad selection only while the keypad is actually in use: a screen opened by
     // touch shows no selection, and touching resets it.
@@ -65,7 +64,6 @@ class InputController : public QQuickItem {
     // or after the start. A list that keeps a current row while the keypad is not active shows that row on this
     // press instead of moving past it.
     Q_INVOKABLE bool pressActivatedKeypad() const { return m_pressActivatedKeypad; }
-    int      getRepeatCount() { return m_repeatCount; }
 
     Q_INVOKABLE void setSource(QObject* source);
     Q_INVOKABLE void emitKey(Qt::Key key, bool release = false);
@@ -160,8 +158,6 @@ class InputController : public QQuickItem {
 
     QTimer  m_simulatorRepeatTimer;
     Qt::Key m_simulatorKey = Qt::Key_unknown;
-
-    int m_repeatCount = 4;
 };
 
 }  // namespace ui
