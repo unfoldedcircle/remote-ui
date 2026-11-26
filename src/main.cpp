@@ -4,8 +4,10 @@
 #include <QGuiApplication>
 #include <QMetaObject>
 #include <QQmlApplicationEngine>
+#include <QQmlProperty>
 #include <QScreen>
 #include <QQuickWindow>
+#include <QTimer>
 
 #include <memory>
 
@@ -201,6 +203,29 @@ int main(int argc, char *argv[]) {
         Qt::QueuedConnection);
 
     engine->load(url);
+
+#ifdef Q_OS_MACOS
+    if (model == uc::hw::HardwareModel::DEV) {
+        // Qt 5.15 on macOS creates a window at its requested size times QT_SCALE_FACTOR: QCocoaWindow::initialize()
+        // passes the native geometry back to QWindow::setGeometry() as if it were device independent. main.qml
+        // compensates and requests ui.width * ui.ratio, but Cocoa keeps the minimum and maximum size at twice the size
+        // the window got. macOS enforces them when it rearranges the windows after a display change, such as plugging
+        // in or out a monitor, and the windows grow to twice their content. Fixing the limits to the size the windows
+        // got prevents that. QQmlProperty::write() replaces the QML bindings of the limits, which the
+        // QQmlEngine::retranslate() of a language change would otherwise evaluate again. Queued: the button simulator
+        // is created in a call queued while loading main.qml.
+        QTimer::singleShot(0, &app, [] {
+            for (QWindow *window : QGuiApplication::topLevelWindows()) {
+                if (window->handle() && window->minimumSize() == window->maximumSize()) {
+                    QQmlProperty::write(window, "minimumWidth", window->width());
+                    QQmlProperty::write(window, "minimumHeight", window->height());
+                    QQmlProperty::write(window, "maximumWidth", window->width());
+                    QQmlProperty::write(window, "maximumHeight", window->height());
+                }
+            }
+        });
+    }
+#endif
 
     uiController.init();
 

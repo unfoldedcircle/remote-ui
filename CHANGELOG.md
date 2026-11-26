@@ -20,6 +20,10 @@ _Changes in the next release_
   pages with the same image, scaling and alignment share one background that stays in place; only a different dimming
   changes gradually.
 
+### Fixed
+- macOS desktop simulator: the simulator and button simulator windows no longer grow to twice their content when a
+  display is connected or disconnected, which needed a restart of the app.
+
 ---
 
 ## v0.87.0 - 2026-11-24
