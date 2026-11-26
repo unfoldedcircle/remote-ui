@@ -6,17 +6,17 @@ test CMakeLists registration is needed.
 
 ## 1. Runs, offsets and scrims in Resources (C++)
 
-- [ ] 1.1 In `src/ui/resources.h/.cpp`, add `Q_INVOKABLE QVariantMap getPageBackgroundRuns(const QVariantList& pages,
+- [x] 1.1 In `src/ui/resources.h/.cpp`, add `Q_INVOKABLE QVariantMap getPageBackgroundRuns(const QVariantList& pages,
       const QVariant& defaultBackground)` (design D1, D2): the effective background of each page (its own
       `background` when it has a non-empty `image` string, else the default) normalised with `getPageBackground()`;
       runs of neighbouring pages with equal `source`, `scale` and `align` (every page without a source has the same
       key); the first and the last run joined when they have the same key; each run `{first, length, source, scale,
       align, dims, dim, blend}`, plus `runOfPage`. Verify with the unit tests of 1.3.
-- [ ] 1.2 In `src/ui/resources.h/.cpp`, add the pure static invokables `pageBackgroundPosition(pathOffset, count)`
+- [x] 1.2 In `src/ui/resources.h/.cpp`, add the pure static invokables `pageBackgroundPosition(pathOffset, count)`
       (`(count - offset) mod count`, 0 without pages), `pageBackgroundRunOffset(first, length, position, count)`
       (design D3), `pageBackgroundRunDim(dims, first, position, count)` (design D4) and
       `pageBackgroundRunLoaded(run, currentRun, runCount)` (design D5). Verify with the unit tests of 1.3.
-- [ ] 1.3 Extend `test/ui/test_resources.cpp` and verify `ctest -R testResources` passes: runs without and with a
+- [x] 1.3 Extend `test/ui/test_resources.cpp` and verify `ctest -R testResources` passes: runs without and with a
       default; own image overrides the default; an empty own image falls back to the default; a missing own file
       stays black; no default keeps today's backgrounds; circular join of the first and the last run; all pages
       equal; a single page; zero pages; dim-only differences in one run; different align gives two runs; pages
