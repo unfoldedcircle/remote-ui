@@ -12,7 +12,7 @@ For an IR remote (integration `uc.main`), a button whose short press is a simple
 - **THEN** nothing is sent on the press, `remote.send {command "NEXT", repeat 4}` is sent on every auto-repeat (with `press` true on the remote's screen), `remote.stop_send` is sent on the release, and "NEXT" is never sent alone
 
 #### Scenario: Next press after a lost release
-- **WHEN** the release of a held button never arrived and the user taps the same button again
+- **WHEN** the screen was closed while the button was held, so its release never arrived, and the user taps the same button on the screen opened next
 - **THEN** the tap is handled as a tap: nothing on the press and "NEXT" once on the release
 
 #### Scenario: IR remote button with a long-press mapping

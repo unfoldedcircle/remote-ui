@@ -4,8 +4,9 @@ Two phases plus verification, in dependency order.
 - **Phase 2** (QML call sites, removal of `InputController::repeatCount`, `CHANGELOG.md`) depends
   on phase 1 and carries the user-visible change and its CHANGELOG entry in the same commit.
 - **Phase 3** verifies both.
-- **Release prerequisite:** the remote-core fix that inverts the IR toggle bit at the start of a
-  new continuous IR repeat must be in the same firmware release (design.md, Risks).
+- **Release gate (confirmed):** this change and the remote-core fix that inverts the IR toggle
+  bit at the start of a new continuous IR repeat ship together, in the same firmware release
+  (design.md, Risks).
 
 ## 1. Mapped-button handling in the remote entity (C++)
 

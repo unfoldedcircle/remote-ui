@@ -172,12 +172,21 @@ This touches input handling (a risky surface), so the failure modes come first:
 - [Toggle bit, RC5 / RC5X / RC6 / RCMM / PRONTO `A|B`: a hold no longer starts with a plain send,
   so the core never inverts the toggle bit for a hold. "Tap A, hold A" and "hold A, hold A" reach
   the device with the same toggle, and a strict receiver takes the new hold as the old press still
-  held] → the remote-core fix (invert the toggle at the start of a new continuous IR repeat) is a
-  release prerequisite. This change must not ship in a firmware without it. No UI-only
-  workaround exists, because only a plain send inverts the toggle.
-- [Release lost (input blocked, screen destroyed during the press)] → today the command was sent
-  and only `remote.stop_send` was lost; now a tap sends nothing. The next press starts clean
-  (D2). This is rare, because the release goes to the owner of the press.
+  held] → the remote-core fix (invert the toggle at the start of a new continuous IR repeat)
+  ships together with this change, in the same firmware release (release gate confirmed by the
+  maintainer). No UI-only workaround exists, because only a plain send inverts the toggle.
+- [Release lost because the screen was destroyed during the press, or its mapping was dropped
+  when the entity became Unavailable] → today the command was sent and only `remote.stop_send`
+  was lost; now a tap sends nothing. The next press works normally: a new screen starts with a
+  fresh key state, and the entity clears a button's held state at every press (D2). This is
+  rare, because the release goes to the owner of the press.
+- [Release lost while input is blocked during the press (the loading screen without a cancel
+  button, the software update progress)] → `ButtonNavigation` never sees the release and keeps
+  the key as held. The next press of that key on the same screen then arrives as an
+  auto-repeat: for an IR simple command it sends `remote.send {repeat}` at key-down and
+  `remote.stop_send` at its release, a short hold instead of a tap. Its release resets the key.
+  This is unchanged from before this change, where that press ran the auto-repeat handler too.
+  The fix is the guaranteed release of `docs/tasks/key-handling`, a later change.
 - [Screen closed during a hold] → as today, `remote.stop_send` may be lost. The dock's repeat
   runs out after about 4 repeats.
 - [Same remote entity used by the activity and the remote screen] → only one screen owns a key at
@@ -200,7 +209,8 @@ key event. The number of requests per hold drops by one. Negligible.
 ## Migration Plan
 
 - No data or configuration migration. Rollback is reverting the commit.
-- **Release order:** only in a firmware release that contains the remote-core toggle-bit fix.
+- **Release order:** together with the remote-core toggle-bit fix, in the same firmware release
+  (release gate confirmed by the maintainer). Neither ships without the other.
 - **Verification:**
   - **Unit tests** (`testRemoteEntity`) for the rule in D2 and the unchanged paths.
   - **`DEV` simulator against the core-simulator**, for the command sequence per button (debug

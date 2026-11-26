@@ -62,9 +62,11 @@ None.
   - For RC5, RC5X, RC6, 32-bit RCMM and toggling PRONTO codes, the core inverts the toggle bit
     only for a send without `repeat`. Today the plain command at key-down hides this; without it,
     no hold inverts the toggle bit.
-  - The matching remote-core fix (the toggle bit at the start of a continuous IR repeat) must
-    ship in the same firmware release, and this change must not ship before it. UI and core ship
-    together (ADR 0005).
+  - **Release gate (confirmed by the maintainer):** this change and the matching remote-core
+    fix (the toggle bit at the start of a continuous IR repeat) ship together, in the same
+    firmware release, and neither ships without the other. The core fix on its own would turn a
+    hold of today's UI into two presses on RC5/RC6 devices. UI and core ship together anyway
+    (ADR 0005).
 - **Dock:** no change. A `repeat` send already starts a continuous IR repeat without a separate
   single code.
 - **Code:**
