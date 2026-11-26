@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include <QtTest>
+#include <cmath>
 
 #include "ui/resources.h"
 
@@ -52,6 +53,27 @@ class testResources : public QObject {
     void pageBackground_dim_data();
     void pageBackground_dim();
 
+    void pageBackgroundRuns_noPages();
+    void pageBackgroundRuns_singlePage();
+    void pageBackgroundRuns_withoutDefault_keepsOwnBackgrounds();
+    void pageBackgroundRuns_default_fillsPagesWithoutOwn();
+    void pageBackgroundRuns_emptyOwnImage_fallsBackToDefault();
+    void pageBackgroundRuns_missingOwnFile_staysBlack();
+    void pageBackgroundRuns_allEqual_oneRun();
+    void pageBackgroundRuns_dimOnly_oneBlendingRun();
+    void pageBackgroundRuns_otherAlign_twoRuns();
+    void pageBackgroundRuns_noImage_oneKeyWhateverTheMode();
+    void pageBackgroundRuns_unknownSettings_countAsDefaults();
+    void pageBackgroundPosition_data();
+    void pageBackgroundPosition();
+    void pageBackgroundRunOffset_data();
+    void pageBackgroundRunOffset();
+    void pageBackgroundRunOffset_singlePage_followsPathView();
+    void pageBackgroundRunDim_data();
+    void pageBackgroundRunDim();
+    void pageBackgroundRunLoaded_data();
+    void pageBackgroundRunLoaded();
+
     void backgroundImageClip_data();
     void backgroundImageClip();
     void backgroundImageClip_unusable_data();
@@ -63,6 +85,11 @@ class testResources : public QObject {
     QString     baseUrl(const QString& subDir) const;
 
     static void writeImage(const QString& path, int width, int height, const char* format);
+
+    // a page of a user interface with the given background, or without one for an invalid QVariant
+    static QVariantMap page(const QVariant& background = QVariant());
+    // the `runs` of getPageBackgroundRuns() as "first+length" strings, for example "3+2"
+    static QStringList runExtents(const QVariantMap& result);
 
     QTemporaryDir m_root;
     QString       m_legalPath;
@@ -100,6 +127,24 @@ void testResources::initTestCase() {
 
     m_resourcePath = m_root.path() + "/resources";
     writeImage(m_resourcePath + "/BackgroundImage/bg.png", 480, 800, "PNG");
+    writeImage(m_resourcePath + "/BackgroundImage/other.png", 480, 854, "PNG");
+}
+
+QVariantMap testResources::page(const QVariant& background) {
+    QVariantMap result{{"page_id", "p"}, {"items", QVariantList()}};
+    if (background.isValid()) {
+        result.insert("background", background);
+    }
+    return result;
+}
+
+QStringList testResources::runExtents(const QVariantMap& result) {
+    QStringList extents;
+    for (const QVariant& run : result.value("runs").toList()) {
+        const QVariantMap values = run.toMap();
+        extents.append(QString("%1+%2").arg(values.value("first").toInt()).arg(values.value("length").toInt()));
+    }
+    return extents;
 }
 
 void testResources::linkContent_relativeLink_isRead() {
@@ -491,6 +536,304 @@ void testResources::pageBackground_dim() {
     }
 
     QCOMPARE(resources.getPageBackground(background).value("dim").toReal(), expected);
+}
+
+void testResources::pageBackgroundRuns_noPages() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackgroundRuns(QVariantList(), QVariantMap{{"image", "custom:bg.png"}});
+
+    QVERIFY(result.value("runs").toList().isEmpty());
+    QVERIFY(result.value("runOfPage").toList().isEmpty());
+}
+
+void testResources::pageBackgroundRuns_singlePage() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result =
+        resources.getPageBackgroundRuns({page(QVariantMap{{"image", "custom:bg.png"}, {"dim", 20}})}, QVariant());
+
+    QCOMPARE(runExtents(result), QStringList{"0+1"});
+    const QVariantMap run = result.value("runs").toList().first().toMap();
+    QCOMPARE(run.value("source").toString(), "file:" + m_resourcePath + "/BackgroundImage/bg.png");
+    QCOMPARE(run.value("dim").toReal(), 0.2);
+    QCOMPARE(run.value("blend").toBool(), false);
+    QCOMPARE(result.value("runOfPage").toList(), QVariantList{0});
+}
+
+void testResources::pageBackgroundRuns_withoutDefault_keepsOwnBackgrounds() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+    const QVariantMap bg{{"image", "custom:bg.png"}};
+
+    // the last page continues into the first one: one run of pages 3 and 0
+    const QVariantMap result =
+        resources.getPageBackgroundRuns({page(bg), page(), page(QVariant()), page(bg)}, QVariant());
+
+    QCOMPARE(runExtents(result), (QStringList{"1+2", "3+2"}));
+    const QVariantList runs = result.value("runs").toList();
+    QCOMPARE(runs.at(0).toMap().value("source").toString(), QString());
+    QCOMPARE(runs.at(1).toMap().value("source").toString(), "file:" + m_resourcePath + "/BackgroundImage/bg.png");
+    QCOMPARE(runs.at(1).toMap().value("dims").toList(), (QVariantList{0.4, 0.4}));
+    QCOMPARE(result.value("runOfPage").toList(), (QVariantList{1, 0, 0, 1}));
+}
+
+void testResources::pageBackgroundRuns_default_fillsPagesWithoutOwn() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+    const QVariantMap defaultBackground{{"image", "custom:bg.png"}, {"dim", 30}};
+
+    const QVariantMap result = resources.getPageBackgroundRuns(
+        {page(), page(QVariantMap{{"image", "custom:other.png"}, {"scale", "fit"}}), page(QVariant())},
+        defaultBackground);
+
+    QCOMPARE(runExtents(result), (QStringList{"1+1", "2+2"}));
+    const QVariantList runs = result.value("runs").toList();
+    QCOMPARE(runs.at(0).toMap().value("source").toString(), "file:" + m_resourcePath + "/BackgroundImage/other.png");
+    QCOMPARE(runs.at(0).toMap().value("scale").toString(), QStringLiteral("fit"));
+    QCOMPARE(runs.at(0).toMap().value("dim").toReal(), 0.4);
+    QCOMPARE(runs.at(1).toMap().value("source").toString(), "file:" + m_resourcePath + "/BackgroundImage/bg.png");
+    QCOMPARE(runs.at(1).toMap().value("dim").toReal(), 0.3);
+    QCOMPARE(result.value("runOfPage").toList(), (QVariantList{1, 0, 1}));
+}
+
+void testResources::pageBackgroundRuns_emptyOwnImage_fallsBackToDefault() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackgroundRuns(
+        {page(QVariantMap{{"image", ""}, {"dim", 70}}), page(QVariantMap())}, QVariantMap{{"image", "custom:bg.png"}});
+
+    QCOMPARE(runExtents(result), QStringList{"0+2"});
+    const QVariantMap run = result.value("runs").toList().first().toMap();
+    QCOMPARE(run.value("source").toString(), "file:" + m_resourcePath + "/BackgroundImage/bg.png");
+    // the settings of the page's own empty background are not used
+    QCOMPARE(run.value("dims").toList(), (QVariantList{0.4, 0.4}));
+}
+
+void testResources::pageBackgroundRuns_missingOwnFile_staysBlack() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackgroundRuns(
+        {page(QVariantMap{{"image", "custom:missing.png"}}), page()}, QVariantMap{{"image", "custom:bg.png"}});
+
+    QCOMPARE(runExtents(result), (QStringList{"0+1", "1+1"}));
+    QCOMPARE(result.value("runs").toList().at(0).toMap().value("source").toString(), QString());
+}
+
+void testResources::pageBackgroundRuns_allEqual_oneRun() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackgroundRuns(
+        {page(), page(), page(QVariantMap{{"image", "custom:bg.png"}})}, QVariantMap{{"image", "custom:bg.png"}});
+
+    QCOMPARE(runExtents(result), QStringList{"0+3"});
+    const QVariantMap run = result.value("runs").toList().first().toMap();
+    QCOMPARE(run.value("blend").toBool(), false);
+    QCOMPARE(run.value("dim").toReal(), 0.4);
+    QCOMPARE(result.value("runOfPage").toList(), (QVariantList{0, 0, 0}));
+}
+
+void testResources::pageBackgroundRuns_dimOnly_oneBlendingRun() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result =
+        resources.getPageBackgroundRuns({page(QVariantMap{{"image", "custom:bg.png"}, {"dim", 20}}),
+                                         page(QVariantMap{{"image", "custom:bg.png"}, {"dim", 60}})},
+                                        QVariant());
+
+    QCOMPARE(runExtents(result), QStringList{"0+2"});
+    const QVariantMap run = result.value("runs").toList().first().toMap();
+    QCOMPARE(run.value("blend").toBool(), true);
+    QCOMPARE(run.value("dims").toList(), (QVariantList{0.2, 0.6}));
+}
+
+void testResources::pageBackgroundRuns_otherAlign_twoRuns() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result =
+        resources.getPageBackgroundRuns({page(QVariantMap{{"image", "custom:bg.png"}, {"align", "top"}}),
+                                         page(QVariantMap{{"image", "custom:bg.png"}, {"align", "bottom"}})},
+                                        QVariant());
+
+    QCOMPARE(runExtents(result), (QStringList{"0+1", "1+1"}));
+    QCOMPARE(result.value("runOfPage").toList(), (QVariantList{0, 1}));
+}
+
+void testResources::pageBackgroundRuns_noImage_oneKeyWhateverTheMode() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackgroundRuns(
+        {page(QVariantMap{{"image", "custom:missing.png"}, {"scale", "fit"}, {"align", "top"}, {"dim", 80}}), page(),
+         page(QVariantMap{{"image", "custom:bg.png"}})},
+        QVariant());
+
+    QCOMPARE(runExtents(result), (QStringList{"0+2", "2+1"}));
+    const QVariantMap run = result.value("runs").toList().first().toMap();
+    QCOMPARE(run.value("source").toString(), QString());
+    QCOMPARE(run.value("blend").toBool(), false);
+}
+
+void testResources::pageBackgroundRuns_unknownSettings_countAsDefaults() {
+    uc::ui::Resources resources(m_resourcePath, m_legalPath);
+
+    const QVariantMap result = resources.getPageBackgroundRuns(
+        {page(QVariantMap{{"image", "custom:bg.png"}, {"scale", "tile"}, {"align", "left"}}),
+         page(QVariantMap{{"image", "custom:bg.png"}})},
+        QVariantMap{{"image", "custom:bg.png"}, {"scale", 5}});
+
+    QCOMPARE(runExtents(result), QStringList{"0+2"});
+    const QVariantMap run = result.value("runs").toList().first().toMap();
+    QCOMPARE(run.value("scale").toString(), QStringLiteral("fill"));
+    QCOMPARE(run.value("align").toString(), QStringLiteral("center"));
+}
+
+void testResources::pageBackgroundPosition_data() {
+    QTest::addColumn<qreal>("offset");
+    QTest::addColumn<int>("count");
+    QTest::addColumn<qreal>("expected");
+
+    // measured with a PathView of the activity and remote screens
+    QTest::newRow("first page") << 0.0 << 4 << 0.0;
+    QTest::newRow("first page moving right") << 0.25 << 4 << 3.75;
+    QTest::newRow("last page") << 1.0 << 4 << 3.0;
+    QTest::newRow("first page moving left") << 3.75 << 4 << 0.25;
+    QTest::newRow("between pages 1 and 2") << 2.5 << 4 << 1.5;
+    QTest::newRow("two pages") << 0.3 << 2 << 1.7;
+    QTest::newRow("one page") << 0.0 << 1 << 0.0;
+    QTest::newRow("no pages") << 0.0 << 0 << 0.0;
+}
+
+void testResources::pageBackgroundPosition() {
+    QFETCH(qreal, offset);
+    QFETCH(int, count);
+    QFETCH(qreal, expected);
+
+    QCOMPARE(uc::ui::Resources::pageBackgroundPosition(offset, count), expected);
+}
+
+void testResources::pageBackgroundRunOffset_data() {
+    QTest::addColumn<int>("first");
+    QTest::addColumn<int>("length");
+    QTest::addColumn<qreal>("position");
+    QTest::addColumn<int>("count");
+    QTest::addColumn<qreal>("expected");
+
+    QTest::newRow("on the first page of the run") << 1 << 2 << 1.0 << 4 << 0.0;
+    QTest::newRow("between the pages of the run") << 1 << 2 << 1.5 << 4 << 0.0;
+    QTest::newRow("on the last page of the run") << 1 << 2 << 2.0 << 4 << 0.0;
+    QTest::newRow("leaving the run to the right") << 1 << 2 << 2.25 << 4 << -0.25;
+    QTest::newRow("coming from the left") << 1 << 2 << 0.75 << 4 << 0.25;
+    QTest::newRow("far left") << 1 << 2 << 3.5 << 4 << -1.5;
+    QTest::newRow("single page, moving left") << 0 << 1 << 0.25 << 4 << -0.25;
+    QTest::newRow("last to first page") << 0 << 1 << 3.75 << 4 << 0.25;
+    QTest::newRow("first to last page") << 3 << 1 << 0.25 << 4 << -1.25;
+    QTest::newRow("last page from the first") << 3 << 1 << 3.75 << 4 << -0.75;
+    QTest::newRow("wrapping run, inside") << 3 << 2 << 3.5 << 4 << 0.0;
+    QTest::newRow("wrapping run, leaving") << 3 << 2 << 0.5 << 4 << -0.5;
+    QTest::newRow("wrapping run, coming") << 3 << 2 << 2.5 << 4 << 0.5;
+    QTest::newRow("two pages, page 1 coming") << 1 << 1 << 0.3 << 2 << 0.7;
+    QTest::newRow("two pages, page 0 leaving") << 0 << 1 << 0.3 << 2 << -0.3;
+    QTest::newRow("two pages, page 1 leaving") << 1 << 1 << 1.7 << 2 << -0.7;
+    QTest::newRow("two pages, page 0 coming") << 0 << 1 << 1.7 << 2 << 0.3;
+    QTest::newRow("whole circle") << 2 << 3 << 1.5 << 3 << 0.0;
+    QTest::newRow("one page") << 0 << 1 << 0.0 << 1 << 0.0;
+    QTest::newRow("no pages") << 0 << 1 << 0.0 << 0 << 0.0;
+}
+
+void testResources::pageBackgroundRunOffset() {
+    QFETCH(int, first);
+    QFETCH(int, length);
+    QFETCH(qreal, position);
+    QFETCH(int, count);
+    QFETCH(qreal, expected);
+
+    QCOMPARE(uc::ui::Resources::pageBackgroundRunOffset(first, length, position, count) + 10, expected + 10);
+}
+
+void testResources::pageBackgroundRunOffset_singlePage_followsPathView() {
+    // A single-page run moves exactly like its PathView delegate, which is drawn at
+    // ((page - position + count / 2) mod count) - count / 2 screen widths (measured with Qt 5.15.19).
+    for (int count = 2; count <= 5; ++count) {
+        for (int page = 0; page < count; ++page) {
+            for (int step = 0; step < count * 20; ++step) {
+                const qreal position = step / 20.0;
+                qreal       delegate = std::fmod(page - position + count / 2.0, qreal(count));
+                if (delegate < 0) {
+                    delegate += count;
+                }
+                delegate -= count / 2.0;
+
+                const qreal offset = uc::ui::Resources::pageBackgroundRunOffset(page, 1, position, count);
+                if (qAbs(delegate) < 1) {
+                    QVERIFY2(qFuzzyCompare(offset + 10, delegate + 10),
+                             qPrintable(QString("count %1 page %2 position %3: %4 instead of %5")
+                                            .arg(count)
+                                            .arg(page)
+                                            .arg(position)
+                                            .arg(offset)
+                                            .arg(delegate)));
+                } else {
+                    QVERIFY(qAbs(offset) >= 1);
+                }
+            }
+        }
+    }
+}
+
+void testResources::pageBackgroundRunDim_data() {
+    QTest::addColumn<QVariantList>("dims");
+    QTest::addColumn<int>("first");
+    QTest::addColumn<qreal>("position");
+    QTest::addColumn<int>("count");
+    QTest::addColumn<qreal>("expected");
+
+    const QVariantList three{0.2, 0.6, 0.8};
+    QTest::newRow("first page") << three << 1 << 1.0 << 5 << 0.2;
+    QTest::newRow("halfway") << three << 1 << 1.5 << 5 << 0.4;
+    QTest::newRow("quarter") << three << 1 << 2.25 << 5 << 0.65;
+    QTest::newRow("last page") << three << 1 << 3.0 << 5 << 0.8;
+    QTest::newRow("after the run") << three << 1 << 3.5 << 5 << 0.8;
+    QTest::newRow("before the run") << three << 1 << 0.5 << 5 << 0.2;
+    QTest::newRow("wrapping run") << QVariantList{0.2, 0.6} << 4 << 4.5 << 5 << 0.4;
+    QTest::newRow("wrapping run, after it") << QVariantList{0.2, 0.6} << 4 << 0.5 << 5 << 0.6;
+    QTest::newRow("whole circle, wrap") << QVariantList{0.2, 0.6} << 0 << 1.5 << 2 << 0.4;
+    QTest::newRow("whole circle, near the first") << QVariantList{0.2, 0.6} << 0 << 1.75 << 2 << 0.3;
+    QTest::newRow("no dims") << QVariantList() << 0 << 0.0 << 2 << 0.0;
+}
+
+void testResources::pageBackgroundRunDim() {
+    QFETCH(QVariantList, dims);
+    QFETCH(int, first);
+    QFETCH(qreal, position);
+    QFETCH(int, count);
+    QFETCH(qreal, expected);
+
+    QCOMPARE(uc::ui::Resources::pageBackgroundRunDim(dims, first, position, count) + 10, expected + 10);
+}
+
+void testResources::pageBackgroundRunLoaded_data() {
+    QTest::addColumn<int>("run");
+    QTest::addColumn<int>("currentRun");
+    QTest::addColumn<int>("runCount");
+    QTest::addColumn<bool>("expected");
+
+    QTest::newRow("only run") << 0 << 0 << 1 << true;
+    QTest::newRow("other of two") << 1 << 0 << 2 << true;
+    QTest::newRow("current") << 2 << 2 << 4 << true;
+    QTest::newRow("next") << 3 << 2 << 4 << true;
+    QTest::newRow("previous") << 1 << 2 << 4 << true;
+    QTest::newRow("opposite") << 0 << 2 << 4 << false;
+    QTest::newRow("previous across the wrap") << 3 << 0 << 4 << true;
+    QTest::newRow("next across the wrap") << 0 << 3 << 4 << true;
+    QTest::newRow("two away") << 3 << 1 << 5 << false;
+    QTest::newRow("no runs") << 0 << 0 << 0 << false;
+}
+
+void testResources::pageBackgroundRunLoaded() {
+    QFETCH(int, run);
+    QFETCH(int, currentRun);
+    QFETCH(int, runCount);
+    QFETCH(bool, expected);
+
+    QCOMPARE(uc::ui::Resources::pageBackgroundRunLoaded(run, currentRun, runCount), expected);
 }
 
 void testResources::backgroundImageClip_data() {

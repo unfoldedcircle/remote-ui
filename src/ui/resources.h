@@ -60,6 +60,48 @@ class Resources : public QObject {
     Q_INVOKABLE QVariantMap getPageBackground(const QVariant& background);
 
     /**
+     * @brief The backgrounds of the pages of an activity or remote user interface, grouped into runs.
+     *
+     * Each page shows its own `background` when it has a non-empty `image`, otherwise defaultBackground (the
+     * `background` of the user interface), normalised with getPageBackground(). A run is a maximal sequence of
+     * neighbouring pages whose backgrounds have the same `source`, `scale` and `align`; all pages without a source
+     * share one key. The pages are circular: the first and the last run are joined when they have the same key.
+     *
+     * Returns `runs`, in page order, each a map with `first` (its first page), `length` (its number of pages,
+     * wrapping from the last to the first page), `source`, `scale`, `align`, `dims` (the scrim of each of its pages),
+     * `dim` (the scrim of its first page) and `blend` (whether the scrims of its pages differ), and `runOfPage`, the
+     * index of the run of each page.
+     */
+    Q_INVOKABLE QVariantMap getPageBackgroundRuns(const QVariantList& pages, const QVariant& defaultBackground);
+
+    /**
+     * @brief The continuous page position of a PathView with full-width delegates: the index of the centred page,
+     * fractional while the pages move, in [0, count). pathOffset is the `offset` of the PathView; 0 without pages.
+     */
+    Q_INVOKABLE static qreal pageBackgroundPosition(qreal pathOffset, int count);
+
+    /**
+     * @brief Where a run of page backgrounds is drawn, in screen widths from the screen's left edge.
+     *
+     * 0 while position is within the run's pages first .. first + length - 1 (circular): the background stays still.
+     * Otherwise the offset of the run's nearer end page, the way the PathView places that page: negative when the run
+     * lies to the left, positive to the right. A value of 1 or more in either direction is off the screen.
+     */
+    Q_INVOKABLE static qreal pageBackgroundRunOffset(int first, int length, qreal position, int count);
+
+    /**
+     * @brief The scrim of a run at a page position: within the run, the scrims of the two pages around the position
+     * blended linearly, otherwise the scrim of the run's nearer end page. dims holds the scrim of each page of the
+     * run, starting at its first page.
+     */
+    Q_INVOKABLE static qreal pageBackgroundRunDim(const QVariantList& dims, int first, qreal position, int count);
+
+    /**
+     * @brief Whether a run decodes its image: the run of the current page and the runs before and after it.
+     */
+    Q_INVOKABLE static bool pageBackgroundRunLoaded(int run, int currentRun, int runCount);
+
+    /**
      * @brief The part of a background image a main page header uses.
      *
      * A header shows a 480 x 275 image. Of an image with a taller aspect ratio, such as the full-screen sizes 480 x 800

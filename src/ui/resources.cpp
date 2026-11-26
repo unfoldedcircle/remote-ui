@@ -8,7 +8,9 @@
 #include <QRegularExpression>
 #include <QTextStream>
 #include <QUrl>
+#include <QVector>
 #include <QXmlStreamReader>
+#include <cmath>
 
 #include "../logging.h"
 #include "../util.h"
@@ -57,6 +59,12 @@ QSizeF svgViewBoxSize(const QString& path) {
     }
 
     return size.isEmpty() ? QSizeF() : size;
+}
+
+/// How far position lies past the page first, counted forwards around the circle of count pages: [0, count).
+qreal pagesPast(int first, qreal position, int count) {
+    const qreal past = std::fmod(position - first, qreal(count));
+    return past < 0 ? past + count : past;
 }
 
 }  // namespace
@@ -247,6 +255,142 @@ QVariantMap Resources::getPageBackground(const QVariant& background) {
             {QStringLiteral("scale"), scale},
             {QStringLiteral("align"), align},
             {QStringLiteral("dim"), dim}};
+}
+
+QVariantMap Resources::getPageBackgroundRuns(const QVariantList& pages, const QVariant& defaultBackground) {
+    struct Run {
+        int          first;
+        int          length;
+        QString      source;
+        QString      scale;
+        QString      align;
+        QVariantList dims;
+    };
+
+    const QVariantMap fallback = getPageBackground(defaultBackground);
+    QVector<Run>      runs;
+
+    for (int i = 0; i < pages.size(); ++i) {
+        const QVariant own = pages.at(i).toMap().value(QStringLiteral("background"));
+        const bool     hasOwn = !own.toMap().value(QStringLiteral("image")).toString().isEmpty();
+
+        const QVariantMap background = hasOwn ? getPageBackground(own) : fallback;
+        const QString     source = background.value(QStringLiteral("source")).toString();
+
+        // black looks the same in every mode: all pages without an image have one key
+        const QString scale =
+            source.isEmpty() ? QStringLiteral("fill") : background.value(QStringLiteral("scale")).toString();
+        const QString align =
+            source.isEmpty() ? QStringLiteral("center") : background.value(QStringLiteral("align")).toString();
+        const qreal dim = source.isEmpty() ? 0.0 : background.value(QStringLiteral("dim")).toReal();
+
+        if (!runs.isEmpty() && runs.last().source == source && runs.last().scale == scale &&
+            runs.last().align == align) {
+            runs.last().length++;
+            runs.last().dims.append(dim);
+        } else {
+            runs.append({i, 1, source, scale, align, {dim}});
+        }
+    }
+
+    // the pages are circular: the last run continues into the first one
+    if (runs.size() > 1 && runs.first().source == runs.last().source && runs.first().scale == runs.last().scale &&
+        runs.first().align == runs.last().align) {
+        runs.last().length += runs.first().length;
+        runs.last().dims.append(runs.first().dims);
+        runs.removeFirst();
+    }
+
+    QVariantList result;
+    QVariantList runOfPage;
+
+    for (int page = 0; page < pages.size(); ++page) {
+        runOfPage.append(0);
+    }
+
+    for (int r = 0; r < runs.size(); ++r) {
+        const Run& run = runs.at(r);
+        bool       blend = false;
+
+        for (int k = 0; k < run.length; ++k) {
+            runOfPage[(run.first + k) % pages.size()] = r;
+            blend = blend || !qFuzzyCompare(run.dims.at(k).toReal() + 1, run.dims.first().toReal() + 1);
+        }
+
+        result.append(QVariantMap{{QStringLiteral("first"), run.first},
+                                  {QStringLiteral("length"), run.length},
+                                  {QStringLiteral("source"), run.source},
+                                  {QStringLiteral("scale"), run.scale},
+                                  {QStringLiteral("align"), run.align},
+                                  {QStringLiteral("dims"), run.dims},
+                                  {QStringLiteral("dim"), run.dims.first()},
+                                  {QStringLiteral("blend"), blend}});
+    }
+
+    return {{QStringLiteral("runs"), result}, {QStringLiteral("runOfPage"), runOfPage}};
+}
+
+qreal Resources::pageBackgroundPosition(qreal pathOffset, int count) {
+    if (count <= 0 || !qIsFinite(pathOffset)) {
+        return 0;
+    }
+
+    // a PathView draws page i centred when (i + offset) is a multiple of count
+    const qreal position = pagesPast(0, count - pathOffset, count);
+    return position < count ? position : 0;
+}
+
+qreal Resources::pageBackgroundRunOffset(int first, int length, qreal position, int count) {
+    if (count <= 0 || length <= 0 || length >= count) {
+        return 0;
+    }
+
+    const qreal past = pagesPast(first, position, count);
+    const int   last = length - 1;
+
+    if (past <= last) {
+        return 0;
+    }
+
+    // the run's last page lies `afterLast` pages to the left, its first page `beforeFirst` pages to the right
+    const qreal afterLast = past - last;
+    const qreal beforeFirst = count - past;
+    return afterLast <= beforeFirst ? -afterLast : beforeFirst;
+}
+
+qreal Resources::pageBackgroundRunDim(const QVariantList& dims, int first, qreal position, int count) {
+    if (dims.isEmpty() || count <= 0) {
+        return 0;
+    }
+
+    const int   length = dims.size();
+    const int   last = length - 1;
+    const qreal past = pagesPast(first, position, count);
+
+    if (past <= last) {
+        const int   page = qMin(static_cast<int>(past), last);
+        const qreal fraction = past - page;
+        const qreal from = dims.at(page).toReal();
+        return page < last ? from + (dims.at(page + 1).toReal() - from) * fraction : from;
+    }
+
+    // between the last and the first page of a run around the whole circle
+    if (length >= count) {
+        const qreal from = dims.at(last).toReal();
+        return from + (dims.at(0).toReal() - from) * (past - last);
+    }
+
+    // outside the run: the scrim of the nearer end page
+    return past - last <= count - past ? dims.at(last).toReal() : dims.at(0).toReal();
+}
+
+bool Resources::pageBackgroundRunLoaded(int run, int currentRun, int runCount) {
+    if (runCount <= 0) {
+        return false;
+    }
+
+    const int distance = ((run - currentRun) % runCount + runCount) % runCount;
+    return distance == 0 || distance == 1 || distance == runCount - 1;
 }
 
 QRect Resources::getBackgroundImageClip(const QString& id) {

@@ -16,6 +16,7 @@ EntityComponents.BaseDetail {
     id: remoteBase
 
     property var pages: entityObj.ui.pages
+    property var defaultBackground: entityObj.ui.background
 
     function parsePageItems(page, index, container) {
         console.debug("Page item: " + container)
@@ -141,6 +142,7 @@ EntityComponents.BaseDetail {
 
         function onUiConfigChanged() {
             remoteBase.pages = entityObj.ui.pages;
+            remoteBase.defaultBackground = entityObj.ui.background;
         }
     }
 
@@ -157,13 +159,14 @@ EntityComponents.BaseDetail {
         }
     }
 
-    // the background of the current page, drawn under everything else of the screen
+    // the backgrounds of the pages, drawn under everything else of the screen and moving with the pages
     Components.UiPageBackground {
         anchors.fill: parent
-        background: {
-            const page = remoteBase.pages ? remoteBase.pages[uiPages.currentIndex] : undefined;
-            return page ? page.background : undefined;
-        }
+        pages: remoteBase.pages
+        defaultBackground: remoteBase.defaultBackground
+        offset: uiPages.offset
+        count: uiPages.count
+        currentIndex: uiPages.currentIndex
     }
 
     EntityComponents.BaseTitle {

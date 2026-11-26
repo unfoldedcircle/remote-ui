@@ -108,8 +108,9 @@ core-api contract makes the page's own background win and falls back only when t
 
 A run is a maximal circular sequence of neighbouring pages whose effective backgrounds have the
 same `source`, `scale` and `align`. Every page without a picture (empty `source`) has the same key,
-whatever its scale or align, since black looks the same in every mode. A run stores its first page,
-its length, the three key values and the `dim` of each of its pages.
+whatever its scale or align, since black looks the same in every mode; it has no scrim, so its
+`dim` counts as 0. A run stores its first page, its length, the three key values and the `dim` of
+each of its pages.
 
 - The runs are built page by page. When there is more than one run and the first and the last run
   have the same key, they are joined into one run that wraps from the last to the first page.
@@ -161,7 +162,7 @@ position, count)` is pure and static as well.
 
 A run whose pages all have the same `dim` (`blend` false) binds the constant `dim` and never calls
 the function. Only a run with differing dims calls it per frame, and only while it is visible
-(D6).
+(D3).
 
 ### D5 — Only the current run and its neighbours hold an image
 
