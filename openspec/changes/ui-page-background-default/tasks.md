@@ -27,19 +27,19 @@ test CMakeLists registration is needed.
 
 ## 2. Sliding strip in the activity and remote screens (QML, depends on 1)
 
-- [ ] 2.1 Rewrite `src/qml/components/UiPageBackground.qml` (design D3–D6): properties `pages`,
+- [x] 2.1 Rewrite `src/qml/components/UiPageBackground.qml` (design D3–D6): properties `pages`,
       `defaultBackground`, `offset`, `count`, `currentIndex`; two strips, the hidden one taking each new
       `getPageBackgroundRuns()` result and swapped in once the run of the current page is ready; per run a
       full-screen item at `x = pageBackgroundRunOffset(...) * width`, visible only while it is on screen, an
       `Image` (asynchronous, cached, no `sourceSize`) whose source is set only while
       `pageBackgroundRunLoaded(...)`, and a `colors.bg` scrim bound to `dim` or, with `blend`, to
       `pageBackgroundRunDim(...)`. Verify with `qmllint` and the harness of 4.3.
-- [ ] 2.2 `src/qml/components/entities/activity/deviceclass/Activity.qml`: a `defaultBackground` property bound to
+- [x] 2.2 `src/qml/components/entities/activity/deviceclass/Activity.qml`: a `defaultBackground` property bound to
       `entityObj.ui.background` and assigned with `pages` in `onUiConfigChanged`; pass `pages`,
       `defaultBackground`, `uiPages.offset`, `uiPages.count` and `uiPages.currentIndex` to
       `Components.UiPageBackground` instead of the current page's background (design D7). Verify with `make linux`.
-- [ ] 2.3 `src/qml/components/entities/remote/deviceclass/Remote.qml`: the same as 2.2. Verify with `make linux`.
-- [ ] 2.4 `CHANGELOG.md`, "Unreleased": "Added" the default background for all pages of an activity or remote;
+- [x] 2.3 `src/qml/components/entities/remote/deviceclass/Remote.qml`: the same as 2.2. Verify with `make linux`.
+- [x] 2.4 `CHANGELOG.md`, "Unreleased": "Added" the default background for all pages of an activity or remote;
       "Changed" page backgrounds slide with their page and a shared picture stays in place. Verify the entries
       read as user-facing prose.
 

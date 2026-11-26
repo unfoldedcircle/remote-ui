@@ -11,6 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+### Added
+- An activity or remote can have one background image for all of its pages, set in the web configurator. Every page
+  without a background of its own shows it.
+
+### Changed
+- A page background now moves together with its page while swiping or switching pages, instead of fading. Neighbouring
+  pages with the same image, scaling and alignment share one background that stays in place; only a different dimming
+  changes gradually.
+
 ---
 
 ## v0.87.0 - 2026-11-24

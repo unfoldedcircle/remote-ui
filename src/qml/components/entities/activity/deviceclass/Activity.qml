@@ -19,6 +19,7 @@ EntityComponents.BaseDetail {
     id: activityBase
 
     property var pages: entityObj.ui.pages
+    property var defaultBackground: entityObj.ui.background
     property QtObject mediaWidgetEntityObj
     // the activity's web view widget has been created (at most one per activity)
     property bool webViewWidgetCreated: false
@@ -457,6 +458,7 @@ EntityComponents.BaseDetail {
 
         function onUiConfigChanged() {
             activityBase.pages = entityObj.ui.pages;
+            activityBase.defaultBackground = entityObj.ui.background;
         }
 
         function onSliderConfigChanged() {
@@ -498,13 +500,14 @@ EntityComponents.BaseDetail {
         }
     }
 
-    // the background of the current page, drawn under everything else of the screen
+    // the backgrounds of the pages, drawn under everything else of the screen and moving with the pages
     Components.UiPageBackground {
         anchors.fill: parent
-        background: {
-            const page = activityBase.pages ? activityBase.pages[uiPages.currentIndex] : undefined;
-            return page ? page.background : undefined;
-        }
+        pages: activityBase.pages
+        defaultBackground: activityBase.defaultBackground
+        offset: uiPages.offset
+        count: uiPages.count
+        currentIndex: uiPages.currentIndex
     }
 
     Rectangle {
