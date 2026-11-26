@@ -46,6 +46,9 @@ Remote::Remote(const QString &id, QVariantMap nameI18n, const QString &language,
     if (options.contains("button_mapping")) {
         m_buttonMapping = options.value("button_mapping").toList();
     }
+
+    m_touchTimer.setSingleShot(true);
+    connect(&m_touchTimer, &QTimer::timeout, this, &Remote::onTouchTimer);
 }
 
 Remote::~Remote() { qCDebug(lcRemote()) << "Remote entity destructor"; }
@@ -106,6 +109,105 @@ void Remote::mappedButtonReleased(const QString &button, const QString &cmdId, c
     if (isSimpleCommand(cmdId)) {
         emit command(m_id, QStringLiteral("remote.stop_send"), QVariantMap());
     }
+}
+
+void Remote::touchPressed(const QString &touchId, const QString &cmdId, const QVariantMap &params, bool sendPress) {
+    // one finger at a time: a touch that is still running ends first
+    if (!m_touchId.isEmpty()) {
+        endTouch(m_touchId);
+    }
+
+    if (!repeatsOnTouchHold(cmdId, params)) {
+        return;
+    }
+
+    m_touchId = touchId;
+    m_touchCmdId = cmdId;
+    m_touchParams = params;
+    m_touchSendPress = sendPress;
+    m_touchHeld = false;
+    m_touchTimer.start(kTouchHoldDelayMs);
+}
+
+bool Remote::touchReleased(const QString &touchId) {
+    return endTouch(touchId);
+}
+
+void Remote::touchCanceled(const QString &touchId) {
+    endTouch(touchId);
+}
+
+bool Remote::repeatsOnTouchHold(const QString &cmdId, const QVariantMap &params) {
+    static const QStringList kSequences{QStringLiteral("remote.send_sequence"),
+                                        QStringLiteral("remote.send_cmd_sequence")};
+    static const QStringList kPowerCommands{QStringLiteral("remote.on"),     QStringLiteral("remote.off"),
+                                            QStringLiteral("remote.toggle"), QStringLiteral("on"),
+                                            QStringLiteral("off"),           QStringLiteral("toggle")};
+
+    if (kSequences.contains(cmdId, Qt::CaseInsensitive) || kPowerCommands.contains(cmdId, Qt::CaseInsensitive)) {
+        return false;
+    }
+
+    // the command a remote.send or remote.send_cmd sends; command names of integration remotes are free text, so a
+    // power command is recognised by its name
+    QString name = cmdId;
+    if (cmdId.compare(QLatin1String("remote.send"), Qt::CaseInsensitive) == 0 ||
+        cmdId.compare(QLatin1String("remote.send_cmd"), Qt::CaseInsensitive) == 0) {
+        name = params.value(QStringLiteral("command")).toString();
+    }
+
+    return !name.contains(QLatin1String("power"), Qt::CaseInsensitive);
+}
+
+void Remote::onTouchTimer() {
+    if (m_touchId.isEmpty()) {
+        return;
+    }
+
+    // restart first: a handler of the repeat may end the touch and stop the timer
+    m_touchTimer.start(kTouchRepeatPeriodMs);
+
+    // copies: a handler may end the touch and clear the members
+    const QString     touchId = m_touchId;
+    const QString     cmdId = m_touchCmdId;
+    const QVariantMap params = m_touchParams;
+    const bool        sendPress = m_touchSendPress;
+
+    if (!m_touchHeld) {
+        m_touchHeld = true;
+        qCDebug(lcRemote()) << "Touch hold started:" << touchId << cmdId;
+        emit touchHoldStarted(touchId);
+        if (m_touchId != touchId) {
+            return;
+        }
+    }
+
+    mappedButtonRepeated(touchId, cmdId, params, sendPress);
+}
+
+bool Remote::endTouch(const QString &touchId) {
+    if (m_touchId.isEmpty() || touchId != m_touchId) {
+        return false;
+    }
+
+    m_touchTimer.stop();
+
+    // copies before the members are cleared: `touchId` may refer to m_touchId itself
+    const QString     id = m_touchId;
+    const bool        held = m_touchHeld;
+    const QString     cmdId = m_touchCmdId;
+    const QVariantMap params = m_touchParams;
+
+    m_touchId.clear();
+    m_touchCmdId.clear();
+    m_touchParams.clear();
+    m_touchHeld = false;
+
+    if (held) {
+        // like the release of a held mapped button without a long press
+        mappedButtonReleased(id, cmdId, params, false);
+    }
+    return held;
 }
 
 bool Remote::isIrRemote() const {

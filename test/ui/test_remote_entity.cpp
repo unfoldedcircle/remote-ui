@@ -32,6 +32,18 @@ class testUiRemote : public QObject {
     void irLostRelease_nextPressIsATap();
     void irButtons_keepSeparateState();
 
+    void touchTap_sendsNothing();
+    void touchHold_sendsRepeatsThenStop_data();
+    void touchHold_sendsRepeatsThenStop();
+    void touchHold_entityCommandRepeatsVerbatim();
+    void touchCancel_beforeTheHold_sendsNothing();
+    void touchCancel_afterTheHoldStarted_sendsStop();
+    void touchOnAnotherButton_endsTheFirst();
+    void touchRelease_ofAnotherButton_isIgnored();
+    void touchExcludedCommand_neverStartsAHold();
+    void repeatsOnTouchHold_data();
+    void repeatsOnTouchHold();
+
  private:
     using Sent = QPair<QString, QVariantMap>;
 
@@ -233,6 +245,218 @@ void testUiRemote::irButtons_keepSeparateState() {
 
     QCOMPARE(takeSent(spy), (QList<Sent>{repeatOf(QStringLiteral("NEXT"), false),
                                          Sent(QStringLiteral("PREVIOUS"), QVariantMap()), stopSend()}));
+}
+
+// A touch hold is driven by the entity's own timer: these tests wait real time, measured in the timing constants.
+static constexpr int kTouchDelay = uc::ui::entity::Remote::kTouchHoldDelayMs;
+static constexpr int kTouchPeriod = uc::ui::entity::Remote::kTouchRepeatPeriodMs;
+// generous: the timers of a loaded CI machine fire late, never early by more than the timer precision
+static constexpr int kTouchSlack = 1000;
+
+void testUiRemote::touchTap_sendsNothing() {
+    QObject    parent;
+    auto       remote = makeRemote(&parent, QStringLiteral("uc.main"));
+    QSignalSpy spy(remote, &uc::ui::entity::Base::command);
+    QSignalSpy holds(remote, &uc::ui::entity::Remote::touchHoldStarted);
+
+    remote->touchPressed(QStringLiteral("touch:0:1"), QStringLiteral("NEXT"), QVariantMap(), true);
+    QTest::qWait(kTouchDelay / 2);
+    // the button sends its tap itself
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:0:1")), false);
+
+    QTest::qWait(kTouchDelay);
+    QCOMPARE(takeSent(spy), QList<Sent>());
+    QCOMPARE(holds.count(), 0);
+}
+
+void testUiRemote::touchHold_sendsRepeatsThenStop_data() {
+    QTest::addColumn<QString>("integrationId");
+    QTest::addColumn<bool>("sendPress");
+
+    QTest::newRow("IR remote, remote screen") << QStringLiteral("uc.main") << true;
+    QTest::newRow("IR remote, activity") << QStringLiteral("uc.main") << false;
+    QTest::newRow("integration remote, remote screen") << QStringLiteral("hass.main") << true;
+    QTest::newRow("Bluetooth remote, activity") << QStringLiteral("uc_bt.main") << false;
+}
+
+void testUiRemote::touchHold_sendsRepeatsThenStop() {
+    QFETCH(QString, integrationId);
+    QFETCH(bool, sendPress);
+
+    QObject    parent;
+    auto       remote = makeRemote(&parent, integrationId);
+    QSignalSpy spy(remote, &uc::ui::entity::Base::command);
+    QSignalSpy holds(remote, &uc::ui::entity::Remote::touchHoldStarted);
+
+    QElapsedTimer elapsed;
+    elapsed.start();
+    remote->touchPressed(QStringLiteral("touch:0:1"), QStringLiteral("VOLUME_UP"), someParams(), sendPress);
+    QCOMPARE(spy.count(), 0);
+
+    QVERIFY(holds.wait(kTouchDelay + kTouchSlack));
+    // Qt timers may fire a few percent early
+    QVERIFY(elapsed.elapsed() >= kTouchDelay * 9 / 10);
+    QCOMPARE(holds.count(), 1);
+    QCOMPARE(holds.at(0).at(0).toString(), QStringLiteral("touch:0:1"));
+
+    // the first repeat goes out with the hold start, further ones every period
+    QTRY_VERIFY_WITH_TIMEOUT(spy.count() >= 3, kTouchPeriod * 2 + kTouchSlack);
+    QCOMPARE(holds.count(), 1);
+
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:0:1")), true);
+    const QList<Sent> sent = takeSent(spy);
+    QVERIFY(sent.size() >= 4);
+    for (int i = 0; i < sent.size() - 1; ++i) {
+        QCOMPARE(sent.at(i), repeatOf(QStringLiteral("VOLUME_UP"), sendPress));
+    }
+    QCOMPARE(sent.last(), stopSend());
+
+    // the timer has stopped with the release
+    QTest::qWait(kTouchPeriod * 2);
+    QCOMPARE(takeSent(spy), QList<Sent>());
+}
+
+void testUiRemote::touchHold_entityCommandRepeatsVerbatim() {
+    QObject    parent;
+    auto       remote = makeRemote(&parent, QStringLiteral("hass.main"));
+    QSignalSpy spy(remote, &uc::ui::entity::Base::command);
+
+    const QString     cmd = QStringLiteral("remote.send_cmd");
+    const QVariantMap params{{QStringLiteral("command"), QStringLiteral("MENU")}};
+
+    remote->touchPressed(QStringLiteral("touch:1:0"), cmd, params, true);
+    QTRY_VERIFY_WITH_TIMEOUT(spy.count() >= 2, kTouchDelay + kTouchPeriod + kTouchSlack);
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:1:0")), true);
+
+    const QList<Sent> sent = takeSent(spy);
+    for (const Sent& one : sent) {
+        QCOMPARE(one, Sent(cmd, params));
+    }
+}
+
+void testUiRemote::touchCancel_beforeTheHold_sendsNothing() {
+    QObject    parent;
+    auto       remote = makeRemote(&parent, QStringLiteral("uc.main"));
+    QSignalSpy spy(remote, &uc::ui::entity::Base::command);
+    QSignalSpy holds(remote, &uc::ui::entity::Remote::touchHoldStarted);
+
+    remote->touchPressed(QStringLiteral("touch:0:1"), QStringLiteral("NEXT"), QVariantMap(), true);
+    remote->touchCanceled(QStringLiteral("touch:0:1"));
+
+    QTest::qWait(kTouchDelay + kTouchPeriod * 2);
+    QCOMPARE(takeSent(spy), QList<Sent>());
+    QCOMPARE(holds.count(), 0);
+}
+
+void testUiRemote::touchCancel_afterTheHoldStarted_sendsStop() {
+    QObject    parent;
+    auto       remote = makeRemote(&parent, QStringLiteral("uc.main"));
+    QSignalSpy spy(remote, &uc::ui::entity::Base::command);
+    QSignalSpy holds(remote, &uc::ui::entity::Remote::touchHoldStarted);
+
+    remote->touchPressed(QStringLiteral("touch:0:1"), QStringLiteral("NEXT"), QVariantMap(), false);
+    QVERIFY(holds.wait(kTouchDelay + kTouchSlack));
+    remote->touchCanceled(QStringLiteral("touch:0:1"));
+
+    const QList<Sent> sent = takeSent(spy);
+    QVERIFY(sent.size() >= 2);
+    QCOMPARE(sent.first(), repeatOf(QStringLiteral("NEXT"), false));
+    QCOMPARE(sent.last(), stopSend());
+    QVERIFY(!sent.contains(Sent(QStringLiteral("NEXT"), QVariantMap())));
+
+    QTest::qWait(kTouchPeriod * 2);
+    QCOMPARE(takeSent(spy), QList<Sent>());
+}
+
+void testUiRemote::touchOnAnotherButton_endsTheFirst() {
+    QObject    parent;
+    auto       remote = makeRemote(&parent, QStringLiteral("uc.main"));
+    QSignalSpy spy(remote, &uc::ui::entity::Base::command);
+    QSignalSpy holds(remote, &uc::ui::entity::Remote::touchHoldStarted);
+
+    remote->touchPressed(QStringLiteral("touch:0:1"), QStringLiteral("NEXT"), QVariantMap(), true);
+    QVERIFY(holds.wait(kTouchDelay + kTouchSlack));
+    takeSent(spy);
+
+    // a second button: the first hold ends, the second touch starts from the beginning
+    remote->touchPressed(QStringLiteral("touch:0:2"), QStringLiteral("PREVIOUS"), QVariantMap(), true);
+    QCOMPARE(takeSent(spy), QList<Sent>{stopSend()});
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:0:1")), false);
+
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:0:2")), false);
+    QTest::qWait(kTouchDelay + kTouchPeriod);
+    QCOMPARE(takeSent(spy), QList<Sent>());
+}
+
+void testUiRemote::touchRelease_ofAnotherButton_isIgnored() {
+    QObject    parent;
+    auto       remote = makeRemote(&parent, QStringLiteral("uc.main"));
+    QSignalSpy spy(remote, &uc::ui::entity::Base::command);
+    QSignalSpy holds(remote, &uc::ui::entity::Remote::touchHoldStarted);
+
+    remote->touchPressed(QStringLiteral("touch:0:1"), QStringLiteral("NEXT"), QVariantMap(), true);
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:9:9")), false);
+    remote->touchCanceled(QStringLiteral("touch:9:9"));
+
+    // the touch still runs and becomes a hold
+    QVERIFY(holds.wait(kTouchDelay + kTouchSlack));
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:0:1")), true);
+    QCOMPARE(takeSent(spy).last(), stopSend());
+}
+
+void testUiRemote::touchExcludedCommand_neverStartsAHold() {
+    QObject    parent;
+    auto       remote = makeRemote(&parent, QStringLiteral("uc.main"));
+    QSignalSpy spy(remote, &uc::ui::entity::Base::command);
+    QSignalSpy holds(remote, &uc::ui::entity::Remote::touchHoldStarted);
+
+    remote->touchPressed(QStringLiteral("touch:0:1"), QStringLiteral("POWER_TOGGLE"), QVariantMap(), true);
+    QTest::qWait(kTouchDelay + kTouchPeriod * 2);
+    QCOMPARE(holds.count(), 0);
+    QCOMPARE(takeSent(spy), QList<Sent>());
+    // the button sends its single tap
+    QCOMPARE(remote->touchReleased(QStringLiteral("touch:0:1")), false);
+}
+
+void testUiRemote::repeatsOnTouchHold_data() {
+    QTest::addColumn<QString>("cmdId");
+    QTest::addColumn<QVariantMap>("params");
+    QTest::addColumn<bool>("repeats");
+
+    const QVariantMap none;
+    const auto        command = [](const char* name) {
+        return QVariantMap{{QStringLiteral("command"), QString::fromLatin1(name)}};
+    };
+
+    QTest::newRow("simple command") << QStringLiteral("VOLUME_UP") << none << true;
+    QTest::newRow("remote.send") << QStringLiteral("remote.send") << command("NEXT") << true;
+    QTest::newRow("remote.send_cmd") << QStringLiteral("remote.send_cmd") << command("MENU") << true;
+    QTest::newRow("other entity command") << QStringLiteral("remote.send_key") << none << true;
+
+    QTest::newRow("POWER_TOGGLE") << QStringLiteral("POWER_TOGGLE") << none << false;
+    QTest::newRow("POWER_ON") << QStringLiteral("POWER_ON") << none << false;
+    QTest::newRow("POWER_OFF") << QStringLiteral("POWER_OFF") << none << false;
+    QTest::newRow("power in a name, mixed case") << QStringLiteral("PowerOn") << none << false;
+    QTest::newRow("KEY_POWER") << QStringLiteral("KEY_POWER") << none << false;
+    QTest::newRow("remote.send POWER") << QStringLiteral("remote.send") << command("POWER") << false;
+    QTest::newRow("remote.send_cmd KEY_POWER") << QStringLiteral("remote.send_cmd") << command("KEY_POWER") << false;
+    QTest::newRow("remote.on") << QStringLiteral("remote.on") << none << false;
+    QTest::newRow("remote.off") << QStringLiteral("remote.off") << none << false;
+    QTest::newRow("remote.toggle") << QStringLiteral("remote.toggle") << none << false;
+    QTest::newRow("on") << QStringLiteral("on") << none << false;
+    QTest::newRow("OFF") << QStringLiteral("OFF") << none << false;
+    QTest::newRow("toggle") << QStringLiteral("toggle") << none << false;
+
+    QTest::newRow("remote.send_sequence") << QStringLiteral("remote.send_sequence") << none << false;
+    QTest::newRow("remote.send_cmd_sequence") << QStringLiteral("remote.send_cmd_sequence") << none << false;
+}
+
+void testUiRemote::repeatsOnTouchHold() {
+    QFETCH(QString, cmdId);
+    QFETCH(QVariantMap, params);
+    QFETCH(bool, repeats);
+
+    QCOMPARE(uc::ui::entity::Remote::repeatsOnTouchHold(cmdId, params), repeats);
 }
 
 QTEST_MAIN(testUiRemote)

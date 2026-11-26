@@ -7,14 +7,14 @@ from that change. Two phases plus verification, in dependency order:
 
 ## 1. Touch hold in the remote entity (C++)
 
-- [ ] 1.1 In `src/ui/entity/remote.h` / `.cpp`, add `kTouchHoldDelayMs = 600` and
+- [x] 1.1 In `src/ui/entity/remote.h` / `.cpp`, add `kTouchHoldDelayMs = 600` and
       `kTouchRepeatPeriodMs = 150` (D3), and the `Q_INVOKABLE` entry points `touchPressed`,
       `touchReleased` (returns whether a hold ended) and `touchCanceled`, with a `QTimer`, the
       active touch, and the signal `touchHoldStarted(touchId)` (D1). Verify: it builds, and task
       1.3 passes.
-- [ ] 1.2 Add the static rule `repeatsOnTouchHold(cmdId, params)`: false for power commands and
+- [x] 1.2 Add the static rule `repeatsOnTouchHold(cmdId, params)`: false for power commands and
       sequences (D4). Verify: task 1.3 passes.
-- [ ] 1.3 Extend `test/ui/test_remote_entity.cpp`:
+- [x] 1.3 Extend `test/ui/test_remote_entity.cpp`:
   - a tap: nothing sent, `touchReleased` returns false;
   - a hold on an IR remote and on an integration remote: `touchHoldStarted` and `remote.send`
     repeats from the delay at the period, with and without `press`, then `remote.stop_send` and
