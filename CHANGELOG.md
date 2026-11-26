@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 _Changes in the next release_
 
+---
+
+## v0.88.0 - 2026-11-26
 ### Added
 - An activity or remote can have one background image for all of its pages, set in the web configurator. Every page
-  without a background of its own shows it.
-- Holding a page button of a remote repeats its command like a held physical button: after about 0.6 s a haptic click
+  without a background of its own shows it  ([#91](https://github.com/unfoldedcircle/remote-ui/pull/91)).
+- Holding a UI page button of a remote repeats its command like a held physical button: after about 0.6 s a haptic click
   marks the start, and the command repeats until the finger is lifted. A short touch still sends the command once.
   Power commands and command sequences don't repeat, and buttons of other devices in an activity are unchanged
   ([#95](https://github.com/unfoldedcircle/remote-ui/pull/95)).
@@ -22,7 +25,7 @@ _Changes in the next release_
 ### Changed
 - A page background now moves together with its page while swiping or switching pages, instead of fading. Neighbouring
   pages with the same image, scaling and alignment share one background that stays in place; only a different dimming
-  changes gradually.
+  changes gradually ([#91](https://github.com/unfoldedcircle/remote-ui/pull/91)).
 - A button mapped to an IR command no longer sends a single command before it starts repeating. A short press sends
   the command once when the button is released, and a held button sends only the continuous IR repeat, so devices
   with a different function for a held key, such as skip on a press and search while held, can use it. A held IR
@@ -30,10 +33,9 @@ _Changes in the next release_
   ([#69](https://github.com/unfoldedcircle/remote-ui/issues/69)).
 
 ### Fixed
+- Send IR commands at release, holds as IR repeat commands ([#93](https://github.com/unfoldedcircle/remote-ui/pull/93)).
 - macOS desktop simulator: the simulator and button simulator windows no longer grow to twice their content when a
-  display is connected or disconnected, which needed a restart of the app.
-
----
+  display is connected or disconnected, which needed a restart of the app ([#94](https://github.com/unfoldedcircle/remote-ui/pull/94)).
 
 ## v0.87.0 - 2026-11-24
 ### Added
