@@ -44,17 +44,18 @@ Depends on phase 1.
       `pressed`, `pressed_repeat` and `released` of a short press call the three entry points
       (`hasLongPress` = the mapping has a `long_press`, `sendPress` = true). `canRepeat` and the
       `ui.inputController.repeatCount` use go; `long_press` is unchanged. Verify in the `DEV`
-      simulator: the debug log of a tap and a hold on an IR remote matches D2.
+      simulator: the debug log of a tap and a hold on an IR remote matches D2. Code done and
+      `qmllint` clean; the `DEV` simulator check is still open.
 - [ ] 2.2 `src/qml/components/entities/activity/deviceclass/Activity.qml`, `updateButtonMapping()`:
       in `pressed` and `pressed_repeat`, `case EntityTypes.Remote` calls the entry points
       (`sendPress` = false), and `released` calls `mappedButtonReleased` for a remote entity. The
       media player, macro and default cases stay; `canRepeat` and the `repeatCount` use go.
       Verify: as 2.1, on an activity, plus a media player volume mapping that still shows the
-      volume overlay.
-- [ ] 2.3 Remove the now unused `repeatCount` property from `src/ui/inputController.h` (`:24`,
+      volume overlay. Code done and `qmllint` clean; the `DEV` simulator check is still open.
+- [x] 2.3 Remove the now unused `repeatCount` property from `src/ui/inputController.h` (`:24`,
       `:68`, `:164`). Verify: `grep -rn repeatCount src` finds only the remote entity, and the
       app and `testInputController` build.
-- [ ] 2.4 `CHANGELOG.md`, "Unreleased", "Changed": a button mapped to an IR command sends a tap at
+- [x] 2.4 `CHANGELOG.md`, "Unreleased", "Changed": a button mapped to an IR command sends a tap at
       the release and a held button only as a continuous IR repeat, without the single command
       first, so devices with a different function for a held key (e.g. skip and search) can use
       it. A held IR key starts after the key-repeat delay. Link
@@ -62,10 +63,10 @@ Depends on phase 1.
 
 ## 3. Verification
 
-- [ ] 3.1 `make test` passes, including `testRemoteEntity`.
-- [ ] 3.2 Format the changed lines (`git add -u && git clang-format && git add -u`), run
+- [x] 3.1 `make test` passes, including `testRemoteEntity`.
+- [x] 3.2 Format the changed lines (`git add -u && git clang-format && git add -u`), run
       `./cpplint.sh` and `./design-check.sh`.
-- [ ] 3.3 `make linux`, then `make ucr2` (the change touches QML); leave no translation churn
+- [x] 3.3 `make linux`, then `make ucr2` (the change touches QML); leave no translation churn
       (`git checkout resources/translations/`).
 - [ ] 3.4 `DEV` simulator against the core-simulator, keypad only: tap and hold on an IR remote
       and on an integration remote, a button with a long press, a `remote.` command, on the remote
@@ -76,7 +77,7 @@ Depends on phase 1.
   - an NEC device with a different function on hold (tap = skip, hold = search);
   - an RC5 or RC6 device: tap A then hold A, hold A then hold A, hold A then hold B;
   - a BT and an integration remote, unchanged.
-- [ ] 3.6 `openspec validate ir-button-tap-and-hold --strict`.
+- [x] 3.6 `openspec validate ir-button-tap-and-hold --strict`.
 
 ## Workflow follow-up
 

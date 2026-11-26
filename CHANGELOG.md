@@ -19,6 +19,11 @@ _Changes in the next release_
 - A page background now moves together with its page while swiping or switching pages, instead of fading. Neighbouring
   pages with the same image, scaling and alignment share one background that stays in place; only a different dimming
   changes gradually.
+- A button mapped to an IR command no longer sends a single command before it starts repeating. A short press sends
+  the command once when the button is released, and a held button sends only the continuous IR repeat, so devices
+  with a different function for a held key, such as skip on a press and search while held, can use it. A held IR
+  button now starts after the key-repeat delay of about 0.6 s
+  ([#69](https://github.com/unfoldedcircle/remote-ui/issues/69)).
 
 ---
 

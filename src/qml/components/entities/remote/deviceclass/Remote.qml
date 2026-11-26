@@ -76,42 +76,21 @@ EntityComponents.BaseDetail {
                                             }
 
                                             if (buttonMap.short_press) {
-                                                const cmdString = String(buttonMap.short_press.cmd_id);
-                                                const canRepeat = !cmdString.includes("remote.");
+                                                // the remote entity decides what the press, the auto-repeats and the release send
+                                                const cmdId = String(buttonMap.short_press.cmd_id);
+                                                const params = buttonMap.short_press.params ? buttonMap.short_press.params : {};
+                                                const hasLongPress = !!buttonMap.long_press;
 
                                                 overrideConfig[buttonMap.button]["pressed"] = function() {
-                                                    EntityController.onEntityCommand(
-                                                                entityObj.id,
-                                                                buttonMap.short_press.cmd_id,
-                                                                buttonMap.short_press.params ? buttonMap.short_press.params : {});
+                                                    entityObj.mappedButtonPressed(buttonMap.button, cmdId, params, hasLongPress);
                                                 }
 
                                                 overrideConfig[buttonMap.button]["pressed_repeat"] = function() {
-                                                    if (canRepeat) {
-                                                        EntityController.onEntityCommand(
-                                                                    entityObj.id,
-                                                                    "remote.send",
-                                                                    {
-                                                                        "command": buttonMap.short_press.cmd_id,
-                                                                        "repeat": ui.inputController.repeatCount,
-                                                                        "press": true
-                                                                    });
-                                                    } else {
-                                                        EntityController.onEntityCommand(
-                                                                    entityObj.id,
-                                                                    buttonMap.short_press.cmd_id,
-                                                                    buttonMap.short_press.params ? buttonMap.short_press.params : {});
-                                                    }
+                                                    entityObj.mappedButtonRepeated(buttonMap.button, cmdId, params, true);
                                                 }
 
-                                                // on release of a button we send the stop send command
                                                 overrideConfig[buttonMap.button]["released"] = function() {
-                                                    if (canRepeat) {
-                                                        EntityController.onEntityCommand(
-                                                                    entityObj.id,
-                                                                    "remote.stop_send",
-                                                                    {});
-                                                    }
+                                                    entityObj.mappedButtonReleased(buttonMap.button, cmdId, params, hasLongPress);
                                                 }
                                             }
 
