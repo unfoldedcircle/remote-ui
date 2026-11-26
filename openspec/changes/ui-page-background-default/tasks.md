@@ -45,17 +45,17 @@ test CMakeLists registration is needed.
 
 ## 3. Design system (docs, independent)
 
-- [ ] 3.1 `docs/design-system.md`, section 7: the `Components.UiPageBackground` row says the image slides with its
+- [x] 3.1 `docs/design-system.md`, section 7: the `Components.UiPageBackground` row says the image slides with its
       page and stays in place between pages that share it, instead of "cross-faded on a page change" (design D8).
       Verify that no other rule of the design system changes.
 
 ## 4. Verification
 
-- [ ] 4.1 `make test` passes all targets; format the changed lines (`git add -u && git clang-format && git add -u`)
+- [x] 4.1 `make test` passes all targets; format the changed lines (`git add -u && git clang-format && git add -u`)
       and run `./cpplint.sh` and `./design-check.sh`.
-- [ ] 4.2 `make linux` and `make ucr2` (QML changed), `qmllint` on the changed QML files, then
+- [x] 4.2 `make linux` and `make ucr2` (QML changed), `qmllint` on the changed QML files, then
       `git checkout resources/translations/` and leave the generated `.qm` files uncommitted.
-- [ ] 4.3 Desktop harness (not committed): a `qmlscene`-like executable with the real `Resources` and
+- [x] 4.3 Desktop harness (not committed): a `qmlscene`-like executable with the real `Resources` and
       `UiPageBackground.qml` and a `PathView` configured like the screens, driving `offset`; record the run and
       page delegate positions and grab screenshots for: a slow drag between different images, a drag between
       equal images (still), a dim-only difference, the wrap from the last to the first page and back,
@@ -67,7 +67,7 @@ test CMakeLists registration is needed.
 - [ ] 4.5 On a Remote Two and a Remote 3: swipe and DPAD_LEFT / DPAD_RIGHT through pages with different and shared
       backgrounds (keypad walk), watch for dropped frames, and compare the UI's resident memory with the base
       build (`platform-constraints` "Memory usage", "Rendering frame rate").
-- [ ] 4.6 Run `openspec validate ui-page-background-default --strict` (OpenSpec CLI 1.14.1).
+- [x] 4.6 Run `openspec validate ui-page-background-default --strict` (OpenSpec CLI 1.14.1).
 
 ## Workflow follow-up
 

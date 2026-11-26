@@ -224,7 +224,7 @@ Use these; do not re-implement their look inline.
 | `Components.FormDialog`       | The rename / password dialogs. Its spacing tightens while the on-screen keyboard is up, so the buttons stay above it |
 | `Components.Sheet`            | PopupMenu, WifiInfo, WifiJoin, DropDownMenu, delete drawers, the entity filter               |
 | `Components.Dim`              | The 0.85 black behind a sheet or popup                                                       |
-| `Components.UiPageBackground` | The full-screen image of an activity or remote page under a `bg` scrim of the strength the user set, cross-faded on a page change |
+| `Components.UiPageBackground` | The full-screen image of an activity or remote page under a `bg` scrim of the strength the user set; it moves with its page and stays in place between neighbouring pages that share it |
 | `Components.Divider`          | The 2 px separators, inset 20                                                                |
 | `Components.ScrollIndicator`  | `ScrollBar` and the "more below" arrows: the one indicator of a scrolling page or list      |
 | `Components.Prose`            | The scrolling bodies of ReleaseNotes and AboutPage. LicensePage and the UserAction body keep their own containers and use the prose role |
